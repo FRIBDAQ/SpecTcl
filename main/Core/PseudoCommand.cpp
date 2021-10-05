@@ -89,7 +89,7 @@ static SwitchDefinition SwitchTable[] = {
   {"-byid",   CPseudoCommand::SwById},
   {"-byname", CPseudoCommand::SwByName}
 };
-static UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchDefinition);
+static TCLPLUS::UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchDefinition);
 
 
 // Functions for class CPseudoCommand
@@ -162,9 +162,9 @@ int CPseudoCommand::operator()(CTCLInterpreter& rInterp,
 //     Create(CTCLInterpreter& rInterp, CTCLResult& rResult, UInt_t nArgs, char* pArgs[])
 //  Operation Type: 
 //     SubFunction
-Int_t 
+TCLPLUS::Int_t 
 CPseudoCommand::Create(CTCLInterpreter& rInterp, CTCLResult& 
-		       rResult, UInt_t nArgs, char** pArgs)  
+		       rResult, TCLPLUS::UInt_t nArgs, char** pArgs)  
 {
   // Creates the pseudo parameter.
   // See module header for the command syntax.
@@ -220,8 +220,8 @@ CPseudoCommand::Create(CTCLInterpreter& rInterp, CTCLResult&
 //          UInt_t nArgs, char* pArgs[])
 //  Operation Type: 
 //     SubFunction
-UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    UInt_t nArgs, char** pArgs)  
+TCLPLUS::UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+			    TCLPLUS::UInt_t nArgs, char** pArgs)  
 {
   // Lists the set of pseudos which have been
   // defined or a subset of the pseudos selected
@@ -270,7 +270,7 @@ UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   list<string>::iterator pName = PseudoNames.begin();
   CTCLString   oks;
   CTCLString   errors;
-  UInt_t       nErrors = 0;
+  TCLPLUS::UInt_t       nErrors = 0;
   while(pName != PseudoNames.end()) {
     string Description;
     const char* name = (*pName).c_str();
@@ -301,8 +301,8 @@ UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //            UInt_t nArgs, char** pArgs)
 //  Operation Type: 
 //     SubFunction
-UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			      UInt_t nArgs, char** pArgs)  
+TCLPLUS::UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
+			      TCLPLUS::UInt_t nArgs, char** pArgs)  
 {
   // Deletes an existing pseudo parameter
   // definition script.
@@ -327,7 +327,7 @@ UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
   CParameterPackage& rPack = (CParameterPackage&)getMyPackage();
   CTCLString errors;
-  UInt_t     nErrors = 0;
+  TCLPLUS::UInt_t     nErrors = 0;
   while(nArgs) {
     string Result;
     if(rPack.DeletePseudo(string(*pArgs), Result) != TCL_OK) {
@@ -390,7 +390,7 @@ CPseudoCommand::ParseSwitch(const char* pSwitch)
   //    See comments.
 
   SwitchDefinition* pDef = SwitchTable;
-  for(UInt_t i = 0; i < nSwitches; i++) {
+  for(TCLPLUS::UInt_t i = 0; i < nSwitches; i++) {
     if(strcmp(pSwitch, pDef->pSwitchName) == 0) {
       return pDef->eValue;
     }

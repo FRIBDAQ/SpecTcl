@@ -34,7 +34,7 @@
  * @param interp - interpreter on which the command is being registered.
  */
 TclXamine::TclXamine(CTCLInterpreter& interp) :
-    CTCLObjectProcessor(interp, "Xamine::Xamine", kfTRUE)
+  CTCLObjectProcessor(interp, "Xamine::Xamine", TCLPLUS::kfTRUE)
 {}
 
 /**

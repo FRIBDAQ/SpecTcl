@@ -448,7 +448,7 @@ CIntConfigParam::SetValue(CTCLInterpreter& rInterp,
                           CTCLResult& rResult, 
                           const char* pValue)  
 {
-  Long_t nNewValue;
+  TCLPLUS::Long_t nNewValue;
   long long llnewvalue = strtoll(pValue, NULL, 0);
   if((llnewvalue == 0) && (errno == EINVAL)) {
     string Result; 

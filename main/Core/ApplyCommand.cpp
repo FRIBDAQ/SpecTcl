@@ -125,8 +125,8 @@ int CApplyCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //  Operation Type: 
 //      Subfunction.
 //
-Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			       UInt_t nArgs, char*  pArgs[])  
+TCLPLUS::Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+			       TCLPLUS::UInt_t nArgs, char*  pArgs[])  
 {
   // Processes the  apply gate spectrum_list
   // SpecTcl command. 
@@ -159,7 +159,7 @@ Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
   // Stringize the gate name and then cycle through the spectra.
  
-  Bool_t AnyFailed = kfFALSE;
+  TCLPLUS::Bool_t AnyFailed = TCLPLUS::kfFALSE;
   CTCLString         ResultString;
   string GateName(*pArgs);
   CGatePackage& Package((CGatePackage&)getMyPackage());
@@ -174,7 +174,7 @@ Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       ResultString.AppendElement(FailureReason);
       ResultString.AppendElement(GateName);
       ResultString.AppendElement(Spectrum);
-      AnyFailed = kfTRUE;
+      AnyFailed = TCLPLUS::kfTRUE;
     }
     nArgs--;
     pArgs++;
@@ -195,9 +195,9 @@ Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //  Operation Type: 
 //     Subfunction.
 //
-Int_t 
+TCLPLUS::Int_t 
 CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				UInt_t nArgs, char* pArgs[])  
+				TCLPLUS::UInt_t nArgs, char* pArgs[])  
 {
   // Processes the apply -list command which 
   // lists gates applied to spectra.
@@ -255,7 +255,7 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // information about, the rest is common code:
 
   vector<string>::iterator p2   = Spectra.begin();
-  Bool_t            SomeFailed = kfFALSE;
+  TCLPLUS::Bool_t            SomeFailed = TCLPLUS::kfFALSE;
   CTCLString        Failures, Successes;
   
   while(p2 != Spectra.end()) {
@@ -268,7 +268,7 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
       Successes.Append("\n");
     }
     else {
-      SomeFailed = kfTRUE;
+      SomeFailed = TCLPLUS::kfTRUE;
       Failures.StartSublist();
       Failures.AppendElement(*p2);
       Failures.AppendElement(Result);

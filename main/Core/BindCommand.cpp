@@ -81,7 +81,7 @@ static const SwitchTableEntry Switches[] = {
     {"-untrace", CBindCommand::keUntrace}
 };
 
-static const UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
+static const TCLPLUS::UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
 
 // Functions for class CBindCommand
 
@@ -167,7 +167,7 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 // Operation type:
 //    Utility
 //
-Int_t 
+TCLPLUS::Int_t 
 CBindCommand::BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
 {
   try {
@@ -183,7 +183,7 @@ CBindCommand::BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
 
 
 
-Int_t
+TCLPLUS::Int_t
 CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 			 int nArgs, char* pArgs[])
 {
@@ -222,7 +222,7 @@ CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //  Operation Type:
 //     Utility
 //
-Int_t 
+TCLPLUS::Int_t 
 CBindCommand::ListBindings(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]) 
 {
 // Processes the bind commands which
@@ -266,7 +266,7 @@ CBindCommand::ListBindings(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
 // Operation Type:
 //   Utility:
 //
-Int_t
+TCLPLUS::Int_t
 CBindCommand::ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult, const char* pattern)
 {
   // List all spectrum bindings.
@@ -285,7 +285,7 @@ CBindCommand::ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult, const char*
 // Operation Type:
 //   Utility
 //
-Int_t
+TCLPLUS::Int_t
 CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 			 int nArgs, char* pArgs[])
 {
@@ -321,7 +321,7 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
  *    - Add it as a sbinding trace.
  *  @return Int_t - TCL_OK On success, TCL_ERROR on failure.
  */
-Int_t
+TCLPLUS::Int_t
 CBindCommand::Trace(
   CTCLInterpreter& rInterp, CTCLResult& rResult,
 	int nArgs, char* pArgs[]
@@ -357,7 +357,7 @@ CBindCommand::Trace(
  *        an std::exception...we'll catch that and convert it to an
  *        interpreter result and TCL_ERROR return.
  */
-Int_t
+TCLPLUS::Int_t
 CBindCommand::Untrace(
   CTCLInterpreter& rInterp, CTCLResult& rResult,
 	int nArgs, char* pArgs[]
@@ -396,7 +396,7 @@ CBindCommand::Untrace(
 CBindCommand::eSwitches
 CBindCommand::MatchSwitch(const char* pSwitch)
 {
-  for(UInt_t i = 0; i < nSwitches; i++) {
+  for(TCLPLUS::UInt_t i = 0; i < nSwitches; i++) {
     if(strcmp(pSwitch, Switches[i].pSwitchText) == 0) {
       return Switches[i].Switch;
     }

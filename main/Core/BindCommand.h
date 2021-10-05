@@ -86,21 +86,21 @@ public:
   virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult,
 			    int nArgs, char* pArgs[])  ;
 
-  Int_t BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult);
-  Int_t BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
+  TCLPLUS::Int_t BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult);
+  TCLPLUS::Int_t BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 		   int nArgs, char* pArgs[]);
-  Int_t ListBindings (CTCLInterpreter& rInterp, CTCLResult& rResult, 
+  TCLPLUS::Int_t ListBindings (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			int nArgs, char* pArgs[])  ;
 
-  Int_t ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+  TCLPLUS::Int_t ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		const char* pattern);
-  Int_t ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
+  TCLPLUS::Int_t ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 		   int nArgs, char* pArgs[]);
-  Int_t Trace(
+  TCLPLUS::Int_t Trace(
       CTCLInterpreter& rInterp, CTCLResult& rResult,
 		  int nArgs, char* pArgs[]
   );
-  Int_t Untrace(
+  TCLPLUS::Int_t Untrace(
       CTCLInterpreter& rInterp, CTCLResult& rResult,
       int nArgs, char* pArgs[]
   );

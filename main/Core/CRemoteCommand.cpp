@@ -27,7 +27,7 @@
  *    @param interp - interpreter on which the command will be registered.
  */
 CRemoteCommand::CRemoteCommand(CTCLInterpreter& interp) :
-    CTCLObjectProcessor(interp, "isRemote", kfTRUE)
+  CTCLObjectProcessor(interp, "isRemote", TCLPLUS::kfTRUE)
 {}
 
 /**

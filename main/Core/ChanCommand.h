@@ -71,7 +71,7 @@ public:
 
 private:
   ChannelCommand (const ChannelCommand& aChannelCommand );
-  Int_t EvalIndex(CTCLInterpreter*, std::string&);
+  TCLPLUS::Int_t EvalIndex(CTCLInterpreter*, std::string&);
 public:
 
    // Operator= Assignment Operator 
@@ -87,11 +87,11 @@ public:
   virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			    int nArgs, char* pArgs[])    ;
 
-  UInt_t Get (CTCLInterpreter* pInterp, CTCLResult& rResult, 
-	      UInt_t nArgs, char* pArgs[])    ;
+  TCLPLUS::UInt_t Get (CTCLInterpreter* pInterp, CTCLResult& rResult, 
+	      TCLPLUS::UInt_t nArgs, char* pArgs[])    ;
 
-  UInt_t Set (CTCLInterpreter* pInterp, CTCLResult& rResult, 
-	      UInt_t nArgs, char* pArgs[])    ;
+  TCLPLUS::UInt_t Set (CTCLInterpreter* pInterp, CTCLResult& rResult, 
+	      TCLPLUS::UInt_t nArgs, char* pArgs[])    ;
 
 protected:
   Switches ParseSwitch(const char* pSwitch);

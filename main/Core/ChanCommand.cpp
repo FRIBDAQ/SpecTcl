@@ -70,11 +70,11 @@ static SwitchEntry SwitchTable[] = {
   {"-get",     ChannelCommand::kGetSwitch}
 };
 
-static UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchEntry);
+static TCLPLUS::UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchEntry);
 
 
-Int_t ChannelCommand::EvalIndex(CTCLInterpreter* pInterp, string& index) {
-  Int_t result;
+TCLPLUS::Int_t ChannelCommand::EvalIndex(CTCLInterpreter* pInterp, string& index) {
+  TCLPLUS::Int_t result;
   try {
     result =  pInterp->ExprLong(index.c_str());  //get the long result of evaluating
   } //                                                   the expression
@@ -150,9 +150,9 @@ ChannelCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //     Get(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t nArgs, const char* pArgs[])
 //  Operation Type: 
 //     interface.
-UInt_t 
+TCLPLUS::UInt_t 
 ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult, 
-		    UInt_t nArgs, char* pArgs[])  
+		    TCLPLUS::UInt_t nArgs, char* pArgs[])  
 {
   // Parses the chan -get command and initiates the get of a channel value.
   //
@@ -187,12 +187,12 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
   CTCLList           ParamList(pInterp, *pArgs);
   //CTCLObject         IndexObject;
   StringArray        StringIndices;
-  vector<UInt_t>     NumericIndices;
-  Int_t              nIndex;
+  vector<TCLPLUS::UInt_t>     NumericIndices;
+  TCLPLUS::Int_t              nIndex;
 
   //IndexObject.Bind(pInterp);
   ParamList.Split(StringIndices);
-  for(UInt_t i = 0; i < StringIndices.size(); i++) {
+  for(TCLPLUS::UInt_t i = 0; i < StringIndices.size(); i++) {
     //IndexObject = StringIndices[i]; // String -> TCL Object.
     //nIndex      = IndexObject;      // TCL Object -> Integer.
 
@@ -209,7 +209,7 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
       rResult += MoreUsage;
       return TCL_ERROR;
     }
-    NumericIndices.push_back((UInt_t)nIndex);
+    NumericIndices.push_back(static_cast<TCLPLUS::UInt_t>(nIndex));
   }
   // Now the parameters are marshalled. We need to ask our package to do 
   // the get for us.
@@ -228,7 +228,7 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
 //     Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t nArgs, char* pArgs[])
 //  Operation Type: 
 //     Interface.
-UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t nArgs, char* pArgs[])  
+TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, TCLPLUS::UInt_t nArgs, char* pArgs[])  
 {
   // Sets the value of a spectrum channel to a 
   // specific number.
@@ -259,12 +259,12 @@ UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t
   pArgs++;
 
   StringArray        StringIndices;
-  vector<UInt_t>     NumericIndices;
-  Int_t              nIndex;
+  vector<TCLPLUS::UInt_t>     NumericIndices;
+  TCLPLUS::Int_t              nIndex;
 
   const char* Value = *pArgs;	// String representation of the value to set.
   errno             = 0;
-  UInt_t      nValue= strtoul(Value, NULL, 0);
+  TCLPLUS::UInt_t      nValue= strtoul(Value, NULL, 0);
   if ((nValue ==0 ) && (errno != 0)) {
     char message[100];
     sprintf(message,"%s is not a valid channel value", Value);
@@ -274,7 +274,7 @@ UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t
   
   //IndexObject.Bind(pInterp);		// an index object.
   ParamList.Split(StringIndices);
-  for(UInt_t i = 0; i < StringIndices.size(); i++) {
+  for(TCLPLUS::UInt_t i = 0; i < StringIndices.size(); i++) {
     //IndexObject = StringIndices[i]; // String -> TCL Object.
     //nIndex      = IndexObject;      // TCL Object -> Integer.
     
@@ -290,13 +290,13 @@ UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t
       rResult += MoreUsage;
       return TCL_ERROR;
     }
-    NumericIndices.push_back((UInt_t)nIndex);
+    NumericIndices.push_back(static_cast<TCLPLUS::UInt_t>(nIndex));
   }
   // Now set the channel using the package's facility.
 
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
   if(rPack.SetChannel(rResult, SpectrumName, NumericIndices, 
-		      (ULong_t)nValue)) {
+		      static_cast<TCLPLUS::ULong_t>(nValue))) {
     return TCL_OK;
   }
   else {
@@ -316,7 +316,7 @@ ChannelCommand::Switches
 ChannelCommand::ParseSwitch(const char* pSwitch)
 {
   SwitchEntry* pSwitches = SwitchTable;
-  for(UInt_t i = 0; i < nSwitches; i++) {
+  for(TCLPLUS::UInt_t i = 0; i < nSwitches; i++) {
     if(strcmp(pSwitch, pSwitches->pText) == 0) 
       return pSwitches->eValue;
     pSwitches++;

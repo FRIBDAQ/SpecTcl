@@ -84,9 +84,9 @@ public:
 
 public:
     void InitializeRunState ()  ;
-    Bool_t StartRun ()  ;
-    Bool_t StopRun ()  ;
-    Bool_t isRunning ()  ;
+  TCLPLUS::Bool_t StartRun ()  ;
+  TCLPLUS::Bool_t StopRun ()  ;
+  TCLPLUS::Bool_t isRunning ()  ;
 
 };
 

@@ -72,7 +72,7 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
   m_pStartRun(new CStartRun(pInterp, *this)),
   m_pStopRun(new CStopRun(pInterp, *this)),
   m_pRunState(new CTCLVariable(pInterp,
-			       std::string("RunState"), kfFALSE))
+			       std::string("RunState"), TCLPLUS::kfFALSE))
 {
   // Add commands to the package table:
 
@@ -138,7 +138,7 @@ CRunControlPackage::InitializeRunState()
 //  Operation Type:
 //     Isolator:
 //
-Bool_t 
+TCLPLUS::Bool_t 
 CRunControlPackage::StartRun() 
 {
 // Interacts with the run control object to 
@@ -148,21 +148,21 @@ CRunControlPackage::StartRun()
 // state is made.
 //
 // Returns:
-//     kfTRUE    - Run was started or remained started.
-//     kfFALSE   - Run was not started because there
+//     TCLPLUS::kfTRUE    - Run was started or remained started.
+//     TCLPLUS::kfFALSE   - Run was not started because there
 //                        is no run control object which can
 //                        start the run.
 //
 
   if(!gpRunControl) {
     InitializeRunState();
-    return kfFALSE;
+    return TCLPLUS::kfFALSE;
   }
   if(!gpRunControl->getRunning()) {
     gpRunControl->Start();
   }
   InitializeRunState();
-  return kfTRUE;
+  return TCLPLUS::kfTRUE;
   
 
 }
@@ -173,7 +173,7 @@ CRunControlPackage::StartRun()
 //  Operation Type:
 //     Isolator.
 //
-Bool_t 
+TCLPLUS::Bool_t 
 CRunControlPackage::StopRun() 
 {
 // Interacts with the run control object to 
@@ -185,21 +185,21 @@ CRunControlPackage::StopRun()
 // state is made.
 //
 // Returns:
-//     kfTRUE    - Run was stopped or remained halted
-//     kfFALSE   - Run was stopped but  there
+//     TCLPLUS::kfTRUE    - Run was stopped or remained halted
+//     TCLPLUS::kfFALSE   - Run was stopped but  there
 //                        is no run control object.
 //
 // Exceptions:  
 
   if(!gpRunControl) {
     InitializeRunState();
-    return kfFALSE;
+    return TCLPLUS::kfFALSE;
   }
   if(gpRunControl->getRunning()) {
     gpRunControl->Stop();
   }
   InitializeRunState();
-  return kfTRUE;
+  return TCLPLUS::kfTRUE;
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ CRunControlPackage::StopRun()
 //  Operation Type:
 //     Selector
 //
-Bool_t 
+TCLPLUS::Bool_t 
 CRunControlPackage::isRunning() 
 {
 // Interrogates m_RunState returninng the
@@ -219,6 +219,6 @@ CRunControlPackage::isRunning()
   InitializeRunState();		// Update the run state...
   const char* pState = m_pRunState->Get(TCL_LEAVE_ERR_MSG |
                                         TCL_GLOBAL_ONLY);
-  return ((*pState == '1') ? kfTRUE : kfFALSE);
+  return ((*pState == '1') ? TCLPLUS::kfTRUE : TCLPLUS::kfFALSE);
 
 }

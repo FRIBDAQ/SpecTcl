@@ -359,25 +359,25 @@ protected:
   //
 
 public:             
-  Int_t AddParameter (CTCLResult& rResult, const char* pName,
-		      UInt_t nId, 
-		      const char* pUnits = (const char*)kpNULL); // Add a real param.
+  TCLPLUS::Int_t AddParameter (CTCLResult& rResult, const char* pName,
+			       TCLPLUS::UInt_t nId, 
+			       const char* pUnits = (const char*)TCLPLUS::kpNULL); // Add a real param.
 
-  Int_t AddParameter (CTCLResult& rResult, const char* pName, 
-		      UInt_t nId, UInt_t nBits, Float_t nLow=0,
-		      Float_t nHi=0, 
+  TCLPLUS::Int_t AddParameter (CTCLResult& rResult, const char* pName, 
+			       TCLPLUS::UInt_t nId, TCLPLUS::UInt_t nBits, TCLPLUS::Float_t nLow=0,
+			       TCLPLUS::Float_t nHi=0, 
 		      const char* pUnits=0)  ; // Add int parameters.
   CTCLList CreateTclParameterList (CTCLInterpreter& rInterp, const char* pattern)  ;
-  Int_t DeleteParameter (CTCLResult& rResult, const char* pName)  ;
-  Int_t DeleteParameter (CTCLResult& rResult, UInt_t nId)  ;
-  Int_t ListParameter (CTCLResult& rResult, const char*  pName)  ;
-  Int_t ListParameter (CTCLResult& rResult, UInt_t  nId)  ;
+  TCLPLUS::Int_t DeleteParameter (CTCLResult& rResult, const char* pName)  ;
+  TCLPLUS::Int_t DeleteParameter (CTCLResult& rResult, TCLPLUS::UInt_t nId)  ;
+  TCLPLUS::Int_t ListParameter (CTCLResult& rResult, const char*  pName)  ;
+  TCLPLUS::Int_t ListParameter (CTCLResult& rResult, TCLPLUS::UInt_t  nId)  ;
   CTCLString getParameterInfoListString (CParameter& rParameter)  ;
 
-  Int_t AddPseudo(CTCLResult& rResult, const char* pPseudoName,
+  TCLPLUS::Int_t AddPseudo(CTCLResult& rResult, const char* pPseudoName,
 		  std::vector<std::string>& rDependents, const char* pBody);
-  Int_t DescribePseudo(const std::string& rName, std::string& rDescription);
-  Int_t DeletePseudo(const std::string& rName, std::string& rResult);
+  TCLPLUS::Int_t DescribePseudo(const std::string& rName, std::string& rDescription);
+  TCLPLUS::Int_t DeletePseudo(const std::string& rName, std::string& rResult);
   void  GetPseudoNames(STD(list)<std::string>& rNames);
   
 };

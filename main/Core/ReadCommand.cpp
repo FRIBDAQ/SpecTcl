@@ -81,7 +81,7 @@ SwitchEntry Switches[] = {
   {"-nobind",     CReadCommand::keNoBind}
 };
 
-static UInt_t nTableSize = sizeof(Switches)/sizeof(SwitchEntry);
+static TCLPLUS::UInt_t nTableSize = sizeof(Switches)/sizeof(SwitchEntry);
 
 // Functions for class CReadCommand
 
@@ -92,7 +92,7 @@ static UInt_t nTableSize = sizeof(Switches)/sizeof(SwitchEntry);
 //                int nArgs, char* pArgs[])
 //  Operation Type: 
 //     Evaluator.
-Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, 
+TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, 
 			       CTCLResult& rResult, int nArgs, char* pArgs[])  
 {
   // Called to process the sread command. sread reads the next single
@@ -128,9 +128,9 @@ Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
 
   string format("nsclascii");	// Default value for format.
   string file;			// no default file.
-  Bool_t fSnapshot=kfTRUE;	// Default is a snapshot spectrum.
-  Bool_t fReplace =kfFALSE;	// Which does not replace existing specs.
-  Bool_t fBind    =kfTRUE;      // Which is bound to the displayer.
+  TCLPLUS::Bool_t fSnapshot=TCLPLUS::kfTRUE;	// Default is a snapshot spectrum.
+  TCLPLUS::Bool_t fReplace =TCLPLUS::kfFALSE;	// Which does not replace existing specs.
+  TCLPLUS::Bool_t fBind    =TCLPLUS::kfTRUE;      // Which is bound to the displayer.
 
   nArgs--; pArgs++;		// Skip over the command name.
   if(nArgs < 1) {		// Must be at least a file specifier.
@@ -223,13 +223,13 @@ Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
   // Now we can read the spectrum from file/channel.
 
   CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
-  UInt_t ReadFlags = 0;
+  TCLPLUS::UInt_t ReadFlags = 0;
   if(!fSnapshot) ReadFlags |= CSpectrumPackage::fLive;
   if(fReplace)   ReadFlags |= CSpectrumPackage::fReplace;
   if(fBind)      ReadFlags |= CSpectrumPackage::fBind;
 
   string Result;
-  Int_t  status = rPack.Read(Result, *pIn, pFormatter, ReadFlags);
+  TCLPLUS::Int_t  status = rPack.Read(Result, *pIn, pFormatter, ReadFlags);
 
   rResult = Result;
   return status;
@@ -278,7 +278,7 @@ CReadCommand::Switch_t
 CReadCommand::NextSwitch(const char* pText)
 {
   SwitchEntry* pTable = Switches;
-  for(UInt_t i = 0; i < nTableSize; i++,pTable++) {
+  for(TCLPLUS::UInt_t i = 0; i < nTableSize; i++,pTable++) {
     if(strcmp(pTable->pSwitchText, pText) == 0) {
       return pTable->Switch;
     }

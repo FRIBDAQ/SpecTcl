@@ -71,15 +71,15 @@ public:
 public:             
   virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			    int nArgs, char* pArgs[])  ;
-  Int_t UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+  TCLPLUS::Int_t UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		     int nArgs, char* pArgs[]);
-  Int_t UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+  TCLPLUS::Int_t UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		   int nArgs, char* pArgs[])  ;
-  Int_t Trace(
+  TCLPLUS::Int_t Trace(
     CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		int nArgs, char* pArgs[]
   );
-  Int_t Untrace(
+  TCLPLUS::Int_t Untrace(
     CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		int nArgs, char* pArgs[]
   );

@@ -208,7 +208,7 @@ XamineGateHandler::PollThread::threadEntry(ClientData pClientData)
  * @param interp - INterpreter object.
  */
 XamineGateHandler::XamineGateHandler(CTCLInterpreter& interp) :
-    CTCLObjectProcessor(interp, "Xamine::gate", kfTRUE),
+  CTCLObjectProcessor(interp, "Xamine::gate", TCLPLUS::kfTRUE),
     m_pPoller(0),
     m_pHandlerScript(0)
 {

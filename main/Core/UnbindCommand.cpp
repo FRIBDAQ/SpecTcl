@@ -78,7 +78,7 @@ static const SwitchTableEntry SwitchTable[] = {
   {"-trace", CUnbindCommand::keTrace},
 	{"-untrace", CUnbindCommand::keUntrace}
 };
-static const UInt_t SwitchTableSize =
+static const TCLPLUS::UInt_t SwitchTableSize =
                sizeof(SwitchTable)/sizeof(SwitchTableEntry);
 
 // Functions for class CUnbindCommand
@@ -161,7 +161,7 @@ CUnbindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 // Operation Type:
 //    Utility Function
 //
-Int_t
+TCLPLUS::Int_t
 CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			     int nArgs, char* pArgs[])
 {
@@ -196,7 +196,7 @@ CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 // Operation Type:
 //    Utility.
 //
-Int_t
+TCLPLUS::Int_t
 CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			   int nArgs, char* pArgs[])
 {
@@ -216,7 +216,7 @@ CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //     TCL_OK         - All spectra were unbound.
   //     TCL_ERROR - Some or all spectra could not be unbound.
   //
-  std::vector<UInt_t> vIds;
+  std::vector<TCLPLUS::UInt_t> vIds;
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
 
   if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) {
@@ -233,7 +233,7 @@ CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult,
  *    - Locates the BindTraceSingletonand adds the script as an unbind trace.
  *  @return Int_t TCL_OK on success, TCL_ERROR on failure.
  */
-Int_t
+TCLPLUS::Int_t
 CUnbindCommand::Trace(
 	CTCLInterpreter& rInterp, CTCLResult& rResult, 
 	int nArgs, char* pArgs[]
@@ -268,7 +268,7 @@ CUnbindCommand::Trace(
  *  @note the remove method throws an exception of the script is not already
  *    in the trace list.  We convert that to a TCL_ERROR return.
  */
-Int_t
+TCLPLUS::Int_t
 CUnbindCommand::Untrace(
 	CTCLInterpreter& rInterp, CTCLResult& rResult, 
 	int nArgs, char* pArgs[]
@@ -325,7 +325,7 @@ CUnbindCommand::Usage(CTCLResult& rResult)
 CUnbindCommand::Switch
 CUnbindCommand::MatchSwitch(const char* pSwitch)
 {
-  for(UInt_t i = 0; i < SwitchTableSize; i++) {
+  for(TCLPLUS::UInt_t i = 0; i < SwitchTableSize; i++) {
     if(strcmp(pSwitch, SwitchTable[i].pSwitch) == 0) {
       return SwitchTable[i].eValue;
     }

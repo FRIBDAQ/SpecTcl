@@ -41,7 +41,7 @@
  *    @param host   - The --host parameter value.
  */
 GetHostCommand::GetHostCommand(CTCLInterpreter& interp, const char* host) :
-    CTCLObjectProcessor(interp, "Xamine::getHost", kfTRUE),
+  CTCLObjectProcessor(interp, "Xamine::getHost", TCLPLUS::kfTRUE),
     m_host(host)
 {}
 
@@ -81,7 +81,7 @@ GetHostCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& obj
  *   @param port   - stringified port (could be a service).
  */
 GetPortCommand::GetPortCommand(CTCLInterpreter& interp, const char* port) :
-    CTCLObjectProcessor(interp, "Xamine::getPort", kfTRUE),
+  CTCLObjectProcessor(interp, "Xamine::getPort", TCLPLUS::kfTRUE),
     m_port(port)
 {}
 
@@ -122,7 +122,7 @@ GetPortCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& obj
  *  @param user   - name of the user to return.
  */
 GetUserCommand::GetUserCommand(CTCLInterpreter& interp, const char* user) :
-  CTCLObjectProcessor(interp, "Xamine::getUser", kfTRUE),
+  CTCLObjectProcessor(interp, "Xamine::getUser", TCLPLUS::kfTRUE),
   m_username(user)
   {}
 /**
@@ -166,7 +166,7 @@ GetUserCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& obj
  *   @param interp - interpreter on which the command was registered.
  */
 IsLocalCommand::IsLocalCommand(CTCLInterpreter& interp) :
-    CTCLObjectProcessor(interp, "Xamine::isLocal", kfTRUE)
+  CTCLObjectProcessor(interp, "Xamine::isLocal", TCLPLUS::kfTRUE)
 {}
 
                     

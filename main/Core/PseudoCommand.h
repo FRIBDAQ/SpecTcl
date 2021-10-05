@@ -112,17 +112,17 @@ public:
 			    CTCLResult& rResult, 
 			    int nArgs, char* pArgs[]);
 
-  Int_t Create (CTCLInterpreter& rInterp, 
+  TCLPLUS::Int_t Create (CTCLInterpreter& rInterp, 
 		CTCLResult& rResult, 
-		UInt_t nArgs, char** pArgs);
+			 TCLPLUS::UInt_t nArgs, char** pArgs);
 
-  UInt_t List (CTCLInterpreter& rInterp, 
+  TCLPLUS::UInt_t List (CTCLInterpreter& rInterp, 
 	       CTCLResult& rResult, 
-	       UInt_t nArgs, char** pArgs);
+	       TCLPLUS::UInt_t nArgs, char** pArgs);
 
-  UInt_t Delete (CTCLInterpreter& rInterp, 
+  TCLPLUS::UInt_t Delete (CTCLInterpreter& rInterp, 
 		 CTCLResult& rResult, 
-		 UInt_t nArgs, char** pArgs);
+		 TCLPLUS::UInt_t nArgs, char** pArgs);
   
 protected:
   void Usage (CTCLResult& rResult)   ;

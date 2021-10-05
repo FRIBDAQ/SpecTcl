@@ -100,7 +100,7 @@ public:
        
 public:
 
- virtual   Int_t operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
+  virtual   TCLPLUS::Int_t operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			     int nArgs, char* pArgs[])    ;
  
   // Utilities.

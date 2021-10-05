@@ -149,10 +149,10 @@ CParameterPackage::operator==(const CParameterPackage& aCParameterPackage)
 //  Operation Type:
 //     Interface
 //
-Int_t 
+TCLPLUS::Int_t 
 CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName, 
-				UInt_t nId, UInt_t nBits,
-				Float_t nLow, Float_t nHi, 
+				TCLPLUS::UInt_t nId, TCLPLUS::UInt_t nBits,
+				TCLPLUS::Float_t nLow, TCLPLUS::Float_t nHi, 
 				const char* pUnits) 
 {
 // Interacts with the Histogrammer to create a new
@@ -228,9 +228,9 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
    - TCL_ERROR- The parameter was not successfully added to the histogrammer's
                 dictionary.
 */
-Int_t
+TCLPLUS::Int_t
 CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
-				UInt_t nId, const char* pUnits)
+				TCLPLUS::UInt_t nId, const char* pUnits)
 {
   SpecTcl& api(*(SpecTcl::getInstance()));
   string Units;
@@ -294,7 +294,7 @@ CParameterPackage::CreateTclParameterList(CTCLInterpreter& rInterp, const char* 
 //  Operation Type:
 //     mutator
 //
-Int_t 
+TCLPLUS::Int_t 
 CParameterPackage::DeleteParameter(CTCLResult& rResult, const char* pName) 
 {
 // Requests that a parameter be deleted.
@@ -345,8 +345,8 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, const char* pName)
 //  Operation Type:
 //     mutator
 //
-Int_t 
-CParameterPackage::DeleteParameter(CTCLResult& rResult, UInt_t nId) 
+TCLPLUS::Int_t 
+CParameterPackage::DeleteParameter(CTCLResult& rResult, TCLPLUS::UInt_t nId) 
 {
 // Deletes a requested parameter.
 // 
@@ -390,7 +390,7 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, UInt_t nId)
 //  Operation Type:
 //     Inquiry
 //
-Int_t 
+TCLPLUS::Int_t 
 CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName) 
 {
 // Creates a TCL list which describes a single parameter.
@@ -431,8 +431,8 @@ CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName)
 //  Operation Type:
 //     Inquiry
 //
-Int_t 
-CParameterPackage::ListParameter(CTCLResult& rResult, UInt_t  nId) 
+TCLPLUS::Int_t 
+CParameterPackage::ListParameter(CTCLResult& rResult, TCLPLUS::UInt_t  nId) 
 {
 // Creates a Tcl list which represents the information
 // describing a parameter. 
@@ -542,7 +542,7 @@ CParameterPackage::getParameterInfoListString(CParameter& rParameter)
 // Operation Type:
 //   Mutator.
 //
-Int_t
+TCLPLUS::Int_t
 CParameterPackage::AddPseudo(CTCLResult& rResult, const char* pPseudoName,
 			     vector<string>& rDependents, const char* pBody)
 {
@@ -584,7 +584,7 @@ CParameterPackage::AddPseudo(CTCLResult& rResult, const char* pPseudoName,
 // Operation Type:
 //    selector.
 //
-Int_t
+TCLPLUS::Int_t
 CParameterPackage::DescribePseudo(const string& rName, string& rDescription)
 {
   // produces a string which describes a pseudo parameter.
@@ -637,7 +637,7 @@ CParameterPackage::DescribePseudo(const string& rName, string& rDescription)
 // Operation Type:
 //   Mutator.
 //
-Int_t
+TCLPLUS::Int_t
 CParameterPackage::DeletePseudo(const string& rName, string& rResult)
 {
   // Deletes a pseudo parameter, note that the associated parameter

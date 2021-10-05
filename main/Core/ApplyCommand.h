@@ -84,11 +84,11 @@ public:
 			    CTCLResult& rResult, int nParams, 
 			    char* pParams[])    ;
 
-  Int_t ApplyGate (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		   UInt_t nArgs, char*  pArgs[])    ;
+  TCLPLUS::Int_t ApplyGate (CTCLInterpreter& rInterp, CTCLResult& rResult, 
+		   TCLPLUS::UInt_t nArgs, char*  pArgs[])    ;
   
-  Int_t ListApplications (CTCLInterpreter& rInterp, CTCLResult& rResult,
-			  UInt_t nArgs, char* pArgs[])    ;
+  TCLPLUS::Int_t ListApplications (CTCLInterpreter& rInterp, CTCLResult& rResult,
+			  TCLPLUS::UInt_t nArgs, char* pArgs[])    ;
 
   // Utility functions.
  
