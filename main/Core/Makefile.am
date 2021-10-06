@@ -16,6 +16,8 @@ Tcp_SRC = io.cpp io.h \
            CTCPNoSuchService.cpp \
            CTCPNoSuchService.h
 
+Mirror_Src = MirrorDirectory.h MirrorDirectory.cpp
+
 
 Analysis_SRC =  CBufferCallbackList.cpp \
 	CBufferProcessor.cpp         \
@@ -359,7 +361,8 @@ libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
 				$(SpectrumIO_SRC) \
 				$(TreeParam_SRC) \
 				$(Xamine_SRC) \
-				$(Tcp_SRC)
+				$(Tcp_SRC)   \
+				$R(Mirror_Src) 
 
 # Removed -I@top_srcdir@/Tape
 
