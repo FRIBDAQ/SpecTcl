@@ -2,6 +2,20 @@ lib_LTLIBRARIES = libTclGrammerApp.la
 
 COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
 
+Tcp_SRC = io.cpp io.h \
+	CSocket.cpp         \
+           CSocket.h  \
+           CTCPBadSocketState.cpp \
+           CTCPBadSocketState.h \
+           CTCPConnectionFailed.cpp \
+           CTCPConnectionFailed.h \
+           CTCPConnectionLost.cpp \
+           CTCPConnectionLost.h \
+           CTCPNoSuchHost.cpp \
+           CTCPNoSuchHost.h \
+           CTCPNoSuchService.cpp \
+           CTCPNoSuchService.h
+
 
 Analysis_SRC =  CBufferCallbackList.cpp \
 	CBufferProcessor.cpp         \
@@ -344,7 +358,8 @@ libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
 				$(PyQt_SRC) \
 				$(SpectrumIO_SRC) \
 				$(TreeParam_SRC) \
-				$(Xamine_SRC)
+				$(Xamine_SRC) \
+				$(Tcp_SRC)
 
 # Removed -I@top_srcdir@/Tape
 
