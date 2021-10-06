@@ -23,8 +23,7 @@
 #include <string>
 #include <map>
 #include <vector>
-class CriticalSection;                // For thread safety.
-class CTCLMutex;
+#include <CTCLMutex.h>
 
 /**
  * @class MirrorDirectory
@@ -55,7 +54,7 @@ private:
     int operator==(const MirrorDirectory& rhs);
     
 public:
-    void put(std::string& host, std::string key);     // Threadsafe.
+    void put(std::string& host, std::string& key);     // Threadsafe.
     std::string get(std::string& host);               // threadsafe.
     std::vector<HostKey> list();                      // threadsafe.
 };
@@ -75,8 +74,8 @@ private:
     static CTCLMutex m_creationguard;
     static MirrorDirectorySingleton* m_pInstance;
 private:
-    MirrorDirectorySingeton();
-    ~MirrorDirectorySingleton();
+    MirrorDirectorySingleton();
+    ~MirrorDirectorySingleton() {}
     int operator==(const MirrorDirectorySingleton& rhs);
     MirrorDirectorySingleton& operator=(const MirrorDirectorySingleton& rhs);
     

@@ -63,7 +63,7 @@ MirrorDirectory::put(std::string& host, std::string& key)
  * @throws std::logic_error if there is no match to the host.
  */
 std::string
-MirrorDirectory::get(std::string host)
+MirrorDirectory::get(std::string& host)
 {
     CriticalSection entry(*m_pGuard);
     
@@ -78,13 +78,13 @@ MirrorDirectory::get(std::string host)
  *    List the contents of the directory.
  * @return std::vector<HostKey> - contents of the directory flattened.
  */
-std::vector<HostKey>
+std::vector<MirrorDirectory::HostKey>
 MirrorDirectory::list()
 {
     CriticalSection entry(*m_pGuard);
     std::vector<HostKey> result;
     
-    for(auto p = m_directory.begin(), p != m_directory.end(); ++p) {
+    for(auto p = m_directory.begin(); p != m_directory.end(); ++p) {
         result.push_back(*p);
     }
     
@@ -94,7 +94,7 @@ MirrorDirectory::list()
 // Singleton implementation:
 
 CTCLMutex MirrorDirectorySingleton::m_creationguard;
-MirrorDirectorySingleton* MirrorDiretorySingleton::m_pInstance(0);
+MirrorDirectorySingleton* MirrorDirectorySingleton::m_pInstance(0);
 
 // Need the instance for the constructor:
 //
