@@ -56,9 +56,32 @@ private:
     
 public:
     void put(std::string& host, std::string key);     // Threadsafe.
-    std::string get(std::string& host);                   // threadsafe.
-    std::vector<HostKey> list();                        // threadsafe.
+    std::string get(std::string& host);               // threadsafe.
+    std::vector<HostKey> list();                      // threadsafe.
 };
 
+/**
+ * @class MirrorDirectorySingleton
+ *    Singleton mirror directory.    I hear you ask why a separate class?
+ *    The answer is that singletons are a pain in the rear to test.
+ *    In this way we can write tests for the MirrorDirectory and be assured
+ *    all is well for the singleton as well. Note that the singleton is
+ *    accessed from more than one thread, this implies that getInstance() must be
+ *    protected by a critical region
+ */
+class MirrorDirectorySingleton : public MirrorDirectory
+{
+private:
+    static CTCLMutex m_creationguard;
+    static MirrorDirectorySingleton* m_pInstance;
+private:
+    MirrorDirectorySingeton();
+    ~MirrorDirectorySingleton();
+    int operator==(const MirrorDirectorySingleton& rhs);
+    MirrorDirectorySingleton& operator=(const MirrorDirectorySingleton& rhs);
+    
+public:
+    static MirrorDirectorySingleton* getInstance();
+};
 
 #endif

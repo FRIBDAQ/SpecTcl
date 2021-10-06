@@ -73,3 +73,44 @@ MirrorDirectory::get(std::string host)
     }
     return p->second;
 }
+/**
+ * list
+ *    List the contents of the directory.
+ * @return std::vector<HostKey> - contents of the directory flattened.
+ */
+std::vector<HostKey>
+MirrorDirectory::list()
+{
+    CriticalSection entry(*m_pGuard);
+    std::vector<HostKey> result;
+    
+    for(auto p = m_directory.begin(), p != m_directory.end(); ++p) {
+        result.push_back(*p);
+    }
+    
+    return result;
+}
+///////////////////////////////////////////////////////////////////////////////
+// Singleton implementation:
+
+CTCLMutex MirrorDirectorySingleton::m_creationguard;
+MirrorDirectorySingleton* MirrorDiretorySingleton::m_pInstance(0);
+
+// Need the instance for the constructor:
+//
+MirrorDirectorySingleton::MirrorDirectorySingleton()
+{}
+
+/**
+ * getInstance
+ *   Retrieve the singleton instance (creating it if needed)
+ */
+MirrorDirectorySingleton*
+MirrorDirectorySingleton::getInstance()
+{
+    CriticalSection entry(m_creationguard);
+    if (!m_pInstance) {
+        m_pInstance = new MirrorDirectorySingleton;
+    }
+    return m_pInstance;
+}
