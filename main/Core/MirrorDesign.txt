@@ -77,4 +77,57 @@ User API:
     
 
        
-   
+Architecturally:
+	I imagine a multithreded server.  One thread is listening for
+	connections and spawning of threads to handle the mirroring for each
+	connection. While a singly threaded server is possible, this prevents
+	denial service in the event:
+	*  One client hangs at an inopportune time
+	*  Some clients request at high rates while others at lower rates.
+
+       That is any failures are confined to the single connection.
+
+User level protocol:
+    On connection a client has already determined the shared memory size via
+    the REST interface.  It has created a local mirror and initialized it so
+    that all spectra are undefined.  It passes the SHM key to the server for
+    inclusion in the mirror directory.
+
+    The client then requests memory updates.  Memory updates can be partial
+    (spectrum memory only) or full (definitions and headers).
+
+    Here are some tentative message structures:
+     Message header:
+     +-------------------------+
+     |   size of msg           |  uint32_t
+     +-------------------------+
+     |  Type of message        |  uint32_t
+     +-------------------------+
+     |  Message body           |  uint8_t[(size - 2*sizeof(uint32_t)]
+     +-------------------------+
+
+     Where the messagse type dictates what's in the body:
+
+     MSG_TYPE_SHMINFO - From client to server. THe body is 4 bytes long and
+     is the shared memory key.
+
+     MSG_TYPE_REQUEST_UPDATE  - From client to server.  The body is empty. Sent
+     to request an update of the shared memory region.
+
+     MSG_TYPE_FULL_UPDATE  - From server to client.  The body contains both the
+     spectrum headers and the used part of the spectrum data. Size is
+     variable but at least the size of the header section.
+
+     MSG_TYPE_PARTIAL_UPDATE - from server to client.  THe body contains only
+     the used part of the spectrum data starting at the first spectrum storage
+     location.
+
+The listener thread will monitor binding changes and, set update full flags in
+each of the client server threads when there are changes so that they know the
+next update must be full rather than partial.
+
+Tcl commands:
+    mirror list ?host-pattern?  - lists the mirrors that match the host pattern
+    (defaults to *) as a list of dicts with keys 'host' and 'shmkey'.
+
+
