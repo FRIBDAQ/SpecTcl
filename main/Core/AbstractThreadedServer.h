@@ -136,6 +136,15 @@ private:
     void recordServer(AbstractClientServer* pServer);
     void killallClients();
     void reapClients();
+    
+    // For testing only:
+    
+    ServerSet listActive() {
+        CriticalSection guard(m_Monitor);
+        ServerSet result = m_activeClients;
+        return result;
+    }
+    
 };
 
 #endif

@@ -521,7 +521,7 @@ fragIndexTests_SOURCES = TestRunner.cpp FragmentIndex.cpp FragmentIndex.h fragid
 
 mirrortests_CXXFLAGS=$(commonTestCXXFLAGS)
 mirrortests_LDADD=$(commonTestLdFlags)
-mirrortests_SOURCES = TestRunner.cpp mdirtests.cpp
+mirrortests_SOURCES = TestRunner.cpp mdirtests.cpp servertests.cpp
 
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS = gateTests scalertests docbuftests spectrumPkgTests displayInterfaceTests \
