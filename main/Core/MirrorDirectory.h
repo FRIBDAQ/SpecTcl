@@ -55,7 +55,9 @@ private:
     
 public:
     void put(std::string& host, std::string& key);     // Threadsafe.
+    void put(const char* host, const char* key);      // Threadsafe.
     std::string get(std::string& host);               // threadsafe.
+    std::string get(const char* host);                // threadsfe.
     std::vector<HostKey> list();                      // threadsafe.
 };
 

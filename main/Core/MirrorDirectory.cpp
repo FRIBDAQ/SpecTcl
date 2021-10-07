@@ -55,6 +55,14 @@ MirrorDirectory::put(std::string& host, std::string& key)
     }
     m_directory[host] = key;
 }
+// overload put with char* see above.
+void
+MirrorDirectory::put(const char* host, const char* key)
+{
+    std::string strHost(host);
+    std::string strKey(key);
+    put(strHost, strKey);                  // Threadsafe.
+}
 /**
  * get
  *    Return the key associated with a host.
@@ -72,6 +80,14 @@ MirrorDirectory::get(std::string& host)
         throw std::logic_error("No matching key");
     }
     return p->second;
+}
+// overload, see above.
+
+std::string
+MirrorDirectory::get(const char* host)
+{
+    std::string strHost(host);
+    return get(strHost);
 }
 /**
  * list
