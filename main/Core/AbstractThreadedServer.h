@@ -54,10 +54,11 @@ public:
     virtual void exitHandler();
     
     // Here are the strategy methods the concrete class must implement:
+    // The only mandatory thing is to handle client requests.
     
-    virtual void onConnection(CSocket* pSocket, ClientData p)  =0;   //! Called on start
+    virtual void onConnection(CSocket* pSocket, ClientData p)  {};   //! Called on start
     virtual void onReadable(CSocket* pSocket, ClientData p) = 0;     //! Called on msg from peer.
-    virtual void onClose(CSocket* pSocket, ClientData p)    = 0;     //! Called on peer close.
+    virtual void onClose(CSocket* pSocket, ClientData p)    {};     //! Called on peer close.
     
 };
 /**

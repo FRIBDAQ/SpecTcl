@@ -215,6 +215,7 @@ ServerListener::operator()(ClientData cd)
     killallClients();               // Kill all remaining clients.
     
     delete m_pListener;
+    m_pListener = nullptr;
     return 0;
 }
 /**
