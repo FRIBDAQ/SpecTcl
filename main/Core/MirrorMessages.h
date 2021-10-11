@@ -43,6 +43,8 @@ namespace Mirror {
         uinte2_t s_messageType;
     };
     
+    typedef char[4] MemoryKey;
+    
     
 }                                // Namespace Mirror.
 
