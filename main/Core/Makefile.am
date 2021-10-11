@@ -20,6 +20,9 @@ Mirror_Src = MirrorDirectory.h MirrorDirectory.cpp \
 	AbstractThreadedServer.h AbstractThreadedServer.cpp
 
 
+Mirror_Includes = MirrorMessages.h
+
+
 Analysis_SRC =  CBufferCallbackList.cpp \
 	CBufferProcessor.cpp         \
 	CLanguageCallback.cpp        \
@@ -400,7 +403,8 @@ include_HEADERS = $(Analysis_INCLUDES) \
 				$(TclGrammerApp_INCLUDES) \
 				$(SpectrumIO_INCLUDES) \
 				$(TreeParam_INCLUDES) \
-				$(Xamine_INCLUDES)
+				$(Xamine_INCLUDES) \
+				$(Mirror_Includes)
 
 noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) 
 
