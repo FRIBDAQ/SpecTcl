@@ -52,6 +52,7 @@ MirrorServer::MirrorServer(
 void
 MirrorServer::onConnection(CSocket* pSocket, ClientData pData)
 {
+    CriticalSection m(m_monitor);
     // CSocket likes to throw if e.g. client immediately exited...
     try {
         unsigned short port;
@@ -73,6 +74,7 @@ MirrorServer::onConnection(CSocket* pSocket, ClientData pData)
 void
 MirrorServer::onReadable(CSocket* pSocket, ClientData pData)
 {
+    CriticalSection m(m_monitor);
     try {
         // Read the header and if it's a runt, shutdown the socket.
         
@@ -110,6 +112,7 @@ MirrorServer::onReadable(CSocket* pSocket, ClientData pData)
 void
 MirrorServer::onClose(CSocket* pSocket, ClientData pData)
 {
+    CriticalSection m(m_monitor);
     MirrorDirectorySingleton* pDir = MirrorDirectorySingleton::getInstance();
     pDir->remove(m_peer);
 }
@@ -120,6 +123,7 @@ MirrorServer::onClose(CSocket* pSocket, ClientData pData)
 void
 MirrorServer::requestFullUpdate()
 {
+    CriticalSection s(m_monitor);
     m_sendAll = true;
 }
 ///////////////////////////////////////////////////////////////////////////////
