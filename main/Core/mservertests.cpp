@@ -23,6 +23,11 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
+#include "xamineDataTypes.h"
+#include "MirrorServer.h"
+#include "MirrorMessages.h"
+#include "AbstractThreadedServer.h"
+#include "CSocket.h"
 
 class mservertest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(mservertest);
@@ -30,13 +35,25 @@ class mservertest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE_END();
     
 private:
-
+    Xamine_shared m_memory;
+    ServerListener* m_listener;
+    MirrorServerFactory* m_factory;
 public:
     void setUp() {
+        // No defined spectra.
         
+        for (int i =0; i < XAMINE_MAXSPEC; i++) {
+            m_memory.dsp_types[i]  = undefined;
+        }
+        m_factory = new MirrorServerFactory(&m_memory);
+        m_listener = new ServerListener("5555", m_factory);
+        m_listener->start();
     }
     void tearDown() {
-        
+        m_listener->requestExit();
+        m_listener->join();
+        delete m_listener;
+        delete m_factory;
     }
 protected:
     void test_1();
