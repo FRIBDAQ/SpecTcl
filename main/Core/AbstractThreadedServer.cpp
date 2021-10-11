@@ -113,6 +113,7 @@ AbstractClientServer::operator()(ClientData p)
     }
     catch(...) {}                    // ignore failures.
     delete m_pClientSocket;
+
     m_pClientSocket = nullptr;            // SO references will kill us.
     
     return 0;
