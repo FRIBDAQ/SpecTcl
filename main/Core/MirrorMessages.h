@@ -33,17 +33,17 @@ namespace Mirror {
     *    - MSG_TYPE_PARTIAL_UPDATE server -> client - only used spectrum memory.
     */
 
-    static uint32_t MSG_TYPE_SHMINFO = 1;
-    static uint32_t MSG_TYPE_REQUEST_UPDATE = 2;
-    static uint32_t MSG_TYPE_FULL_UPDATE = 3;
-    static uint32_t MSG_TYPE_PARTIAL_UPDATE = 4;
+    static const uint32_t MSG_TYPE_SHMINFO = 1;
+    static const uint32_t MSG_TYPE_REQUEST_UPDATE = 2;
+    static const uint32_t MSG_TYPE_FULL_UPDATE = 3;
+    static const uint32_t MSG_TYPE_PARTIAL_UPDATE = 4;
 
     struct MessageHeader {
         uint32_t s_messageSize;
-        uinte2_t s_messageType;
+        uint32_t s_messageType;
     };
     
-    typedef char[4] MemoryKey;
+    typedef char MemoryKey[4];
     
     
 }                                // Namespace Mirror.

@@ -17,7 +17,8 @@ Tcp_SRC = io.cpp io.h \
            CTCPNoSuchService.h
 
 Mirror_Src = MirrorDirectory.h MirrorDirectory.cpp \
-	AbstractThreadedServer.h AbstractThreadedServer.cpp
+	AbstractThreadedServer.h AbstractThreadedServer.cpp \
+	MirrorServer.h MirrorServer.cpp
 
 
 Mirror_Includes = MirrorMessages.h

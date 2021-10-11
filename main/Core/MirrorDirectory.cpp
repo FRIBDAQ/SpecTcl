@@ -63,6 +63,27 @@ MirrorDirectory::put(const char* host, const char* key)
     std::string strKey(key);
     put(strHost, strKey);                  // Threadsafe.
 }
+
+/**
+ *   remove
+ * Remove a key from the set.  If the key does not exist, this is a no-op.
+ *
+ * @param host - host to remove.
+ */
+void
+MirrorDirectory::remove(std::string& host)
+{
+    m_directory.erase(host);
+}
+/// overload - same but with const char*
+
+void
+MirrorDirectory::remove(const char* host)
+{
+    std::string strHost;
+    remove(strHost);
+}
+
 /**
  * get
  *    Return the key associated with a host.
