@@ -99,8 +99,10 @@ MirrorServer::onReadable(CSocket* pSocket, ClientData pData)
             return;
         }
         
-    } catch (...) {
-        pSocket->Shutdown();        // Socket problems -> shutdown.
+    } catch (...) {  // On failures try to shutdown - though it might 
+        try {        // already be...so catch/ignore that too.
+            pSocket->Shutdown();
+        } catch(...) {}
     }
 }
 /**
