@@ -61,7 +61,7 @@ private:
     std::string m_peer;                       // Host name of peer.
     bool        m_sendAll;                    // send full flag.
     CTCLMutex   m_monitor;                    // For synchronization.
-    Xamine_shared* m_pMemory;                 // Shared Memory region.
+    volatile Xamine_shared* m_pMemory;                 // Shared Memory region.
     
 public:
     // Canonicals:

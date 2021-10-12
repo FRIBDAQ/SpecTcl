@@ -141,7 +141,7 @@ MirrorServer::requestFullUpdate()
 void*
 MirrorServer::spectrumDataPointer()
 {
-    return m_pMemory->dsp_spectra.XAMINE_b;
+    return const_cast<uint8_t*>(m_pMemory->dsp_spectra.XAMINE_b);
 }
 /**
  * usedSpectrumBytes
@@ -155,7 +155,7 @@ size_t
 MirrorServer::usedSpectrumBytes() const
 {
     int idx(-1);
-    size_t maxOffset(0);
+    int64_t maxOffset(-1);
     
     for (int i =0; i < XAMINE_MAXSPEC; i++) {
         spec_type tp = m_pMemory->dsp_types[i];
@@ -163,7 +163,7 @@ MirrorServer::usedSpectrumBytes() const
             // We are going to convert the offset which is in spectrum data units
             // to a byte offset as that's what we'll eventually need anyway:
             
-            size_t bOffset = m_pMemory->dsp_offsets[i];
+            int64_t bOffset = m_pMemory->dsp_offsets[i];
             if ((tp == twodlong) || (tp == onedlong)) {
                 bOffset *= sizeof(uint32_t);
             } else if ((tp == onedword) || (tp == twodword)) {
@@ -188,19 +188,19 @@ MirrorServer::usedSpectrumBytes() const
     size_t xdim = m_pMemory->dsp_xy[idx].xchans;
     size_t ydim = m_pMemory->dsp_xy[idx].ychans;
     switch (m_pMemory->dsp_types[idx]) {
-    twodlong:
+    case twodlong:
         nBytes = xdim*ydim * sizeof(uint32_t);
         break;
-    twodword:
+    case twodword:
         nBytes = xdim*ydim * sizeof(uint16_t);
         break;
-    twodbyte:
+    case twodbyte:
         nBytes = xdim*ydim;
         break;
-    onedlong:
+    case onedlong:
         nBytes = xdim * sizeof(uint32_t);
         break;
-    onedword:
+    case onedword:
         nBytes = xdim * sizeof(uint16_t);
         break;
     }
@@ -262,7 +262,7 @@ MirrorServer::processUpdate(CSocket* pSocket, uint32_t msgSize)
         throw std::logic_error("Request update body is not zero length");
     }
     size_t sendSize = usedSpectrumBytes();
-    void* pBase;
+    volatile void* pBase;
     Mirror::MessageHeader hdr;
     
     if (m_sendAll) {
@@ -284,7 +284,7 @@ MirrorServer::processUpdate(CSocket* pSocket, uint32_t msgSize)
         if (nSent != sizeof(hdr)) {
             throw std::logic_error("Failed to send update message header");
         }
-        nSent = pSocket->Write(pBase, sendSize);
+        nSent = pSocket->Write(const_cast<void*>(pBase), sendSize);
         if (nSent != sendSize) {
             throw std::logic_error("Failed to send the whole update message body.");
         }

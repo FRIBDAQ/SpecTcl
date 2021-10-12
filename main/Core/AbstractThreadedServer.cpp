@@ -289,9 +289,11 @@ ServerListener::killallClients()
     // From now on operate on our copy.
     
     for (AbstractClientServer* p : active) {
-        p->requestExit();                // Ask it to exit.
-        p->join();                       // Wait until it does...
-        delete p;                        // Delete the object
+        if (p) {
+            p->requestExit();                // Ask it to exit.
+            p->join();                       // Wait until it does...
+            delete p;                        // Delete the object
+        }
         CriticalSection guard(m_Monitor);
         m_exitingClients.erase(p);    // It will have been added by the timem of join().
     }
@@ -321,7 +323,9 @@ ServerListener::reapClients()
     // From here we iterate over the copy:
     
     for (AbstractClientServer* p : deletePending) {
-        p->join();                      // Ensure actual exit....
-        delete p;
+        if (p) {
+            p->join();                      // Ensure actual exit....
+            delete p;
+        }
     }
 }

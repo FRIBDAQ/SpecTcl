@@ -127,8 +127,10 @@ public:
         m_pListener->start();
     }
     void tearDown() {
-        m_pListener->requestExit();
-        m_pListener->join();
+        if (m_pListener) {
+            m_pListener->requestExit();
+            m_pListener->join();
+        }
         delete m_pListener;
         delete m_pInterp;
     }
