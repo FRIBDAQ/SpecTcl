@@ -267,7 +267,7 @@ MirrorServer::processUpdate(CSocket* pSocket, uint32_t msgSize)
     
     if (m_sendAll) {
         pBase = m_pMemory;
-        sendSize    = headerSize();
+        sendSize    += headerSize();
         m_sendAll = false;
         hdr.s_messageType = Mirror::MSG_TYPE_FULL_UPDATE;
 

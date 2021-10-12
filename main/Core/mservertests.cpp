@@ -154,7 +154,7 @@ void mservertest::get_1()
     int s = client.Read(&update, sizeof(update));
     EQ(size_t(s), sizeof(update));
     EQ(Mirror::MSG_TYPE_FULL_UPDATE, update.s_messageType);
-    size_t dataSize = offsetof(Xamine_shared, dsp_spectra);
+    size_t dataSize = offsetof(Xamine_shared, dsp_spectra) + 1;
     size_t totalSize= sizeof(update) + dataSize;
     EQ(totalSize, size_t(update.s_messageSize));
     
@@ -199,8 +199,8 @@ void mservertest::get_2()
     int s = client.Read(&update, sizeof(update));
     EQ(size_t(s), sizeof(update));
     EQ(Mirror::MSG_TYPE_FULL_UPDATE, update.s_messageType);
-    size_t dataSize = offsetof(Xamine_shared, dsp_spectra);
-    size_t totalSize= sizeof(update) + dataSize;
+    size_t dataSize = offsetof(Xamine_shared, dsp_spectra) + 1;  
+    size_t totalSize= sizeof(update) + dataSize ;
     EQ(totalSize, size_t(update.s_messageSize));
     
     char data[dataSize];
@@ -333,7 +333,7 @@ mservertest::spectrum_1()
     
     static Xamine_shared mirror;   // So as not to run into stack limits.
     s = client.Read(&mirror, expectedSpectrumSize + expectedHeaderSize);
-    EQ(expectedSpectrumSize + expectedHeaderSize, sizeof(s));
+    EQ(expectedSpectrumSize + expectedHeaderSize, size_t(s));
     EQ(m_memory.dsp_xy[0].xchans, mirror.dsp_xy[0].xchans);
     EQ(m_memory.dsp_xy[0].ychans, mirror.dsp_xy[0].ychans);
     EQ(m_memory.dsp_offsets[0], mirror.dsp_offsets[0]);
@@ -357,7 +357,7 @@ mservertest::spectrum_1()
     
     s = client.Read(&update, sizeof(update));
     EQ(Mirror::MSG_TYPE_PARTIAL_UPDATE, update.s_messageType);
-    EQ(expectedSpectrumSize + sizeof(update), size_t(update.s_messageType));
+    EQ(expectedSpectrumSize + sizeof(update), size_t(update.s_messageSize));
     
     s = client.Read(&mirror.dsp_spectra.XAMINE_l, expectedSpectrumSize);
     EQ(expectedSpectrumSize, size_t(s));
