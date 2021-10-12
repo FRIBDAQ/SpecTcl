@@ -481,25 +481,21 @@ CSocket::Read(void* pBuffer, size_t nBytes)
   
   // Attempt the read:
 
-  int nB = read(m_Fd, pBuffer, nBytes);
+  int nB;  
+  try {
+    nB = io::readData(m_Fd, pBuffer, nBytes);
+    
+    // Check for EOF:
   
-  // Check for EOF:
-
-  if(nB == 0) {
-    dropConnection();
-    throw CTCPConnectionLost(this, "CSocket::Read: from read(2)");
-  }
-  // Check for error:
-
-  // TODO:  Not all errors are fatal (EWOULDBLOCK, EAGAIN, EINTR)
-  // TODO:  Must close/reopen too (see above)
-
-  if(nB < 0) {
+    if(nB == 0) {
+      dropConnection();
+      throw CTCPConnectionLost(this, "CSocket::Read: from read(2)");
+    }
+  } catch (...) {
     m_State = Disconnected;
     throw CErrnoException("CSocket::Read failed read(2)");
   }
-  // There's data to transfer.
-
+  
   return nB;
 }  
 
