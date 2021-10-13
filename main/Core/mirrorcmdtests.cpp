@@ -20,6 +20,11 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
+#include "TCLInterpreter.h"
+#include "TCLException.h"
+#include "CMirrorCommand.h"
+#include "MirrorDirectory.h"
+
 
 class aTestSuite : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(aTestSuite);
@@ -27,13 +32,24 @@ class aTestSuite : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE_END();
     
 private:
-
+    CTCLInterpreter* m_pInterp;
+    CMirrorCommand*  m_pCommand;
 public:
     void setUp() {
-        
+        m_pInterp = new CTCLInterpreter;
+        m_pCommand = new CMirrorCommand(*m_pInterp);
     }
     void tearDown() {
+        delete m_pCommand;
+        delete m_pInterp;
         
+        // Empty the mirror directory singleton:
+        
+        MirrorDirectorySingleton* p = MirrorDirectorySingleton::getInstance();
+        auto info = p->list();
+        for (auto item : info) {
+            p->remove(item.first);
+        }
     }
 protected:
     void test_1();
