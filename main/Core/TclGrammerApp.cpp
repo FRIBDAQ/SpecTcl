@@ -53,6 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpecTclDisplayManager.h"
 #include "SpectraLocalDisplay.h"
 #include "XamineEventHandler.h"
+#include <xamineDataTypes.h>
 #include "PyQtDisplay.h"
 #include "NullDisplay.h"
 
@@ -85,6 +86,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include "ProductionXamineShMem.h"
 #include "CHttpdServer.h"
+
+#include "AbstractThreadedServer.h"
+#include "MirrorServer.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -158,7 +162,8 @@ static const char* ProtectedVariables[] = {
   "TKConsoleBufferSize",
   "NoPromptForNewGui",
   "splashImage",
-  "HTTPDPort",          
+  "HTTPDPort",
+  "MirrorPort",
   0
 };
 
@@ -577,6 +582,23 @@ void CTclGrammerApp::CreateDisplays()
 #ifdef USE_SPECTRA    
     m_pDisplayInterface->createDisplay("spectra", "spectra");
 #endif
+
+  // If SpecTclInit.tcl provided a MirrorPort variable,
+  // We start a mirror server on that port, serving out the memory
+  // pointed to by gpDisplayMemory.
+  
+  
+  CTCLVariable mirrorPort(gpInterpreter, "MirrorPort", false);
+  const char* mirrorPortNum = mirrorPort.Get();
+  if (mirrorPortNum) {
+    MirrorServerFactory* pFactory =
+      new MirrorServerFactory(
+        reinterpret_cast<Xamine_shared*>(const_cast<void*>(gpDisplayMemory))
+      );
+    auto mirrorServer = new ServerListener(mirrorPortNum, pFactory);
+    mirrorServer->start();
+  }
+  
 }
 
 /*! \brief CTclGrammerApp::SelectDisplayer()
