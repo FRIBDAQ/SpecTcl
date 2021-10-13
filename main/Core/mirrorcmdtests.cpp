@@ -35,6 +35,8 @@ class mcmdtest : public CppUnit::TestFixture {
     CPPUNIT_TEST(badsub);
     CPPUNIT_TEST(listall_1);
     CPPUNIT_TEST(listall_2);
+    CPPUNIT_TEST(listall_3);
+    CPPUNIT_TEST(partial_1);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -63,6 +65,9 @@ protected:
     
     void listall_1();
     void listall_2();
+    void listall_3();
+    
+    void partial_1();    
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(mcmdtest);
@@ -143,4 +148,65 @@ void mcmdtest::listall_2()
     
     EQ(std::string("shmkey"), std::string(shmkey));
     EQ(std::string("ABCD"), std::string(shmval));
+}
+// list all from several. Note that we assume that the
+// listing will sort out in alpha order by host due to the fact the
+// (white box here) underlying directory is a map<host, key>).
+//
+void
+mcmdtest::listall_3()
+{
+    auto pDict = MirrorDirectorySingleton::getInstance();
+    pDict->put("genesis", "ABCD");
+    pDict->put("anspdaq", "EFGH");
+    pDict->put("daqdev_deb10", "IJKL");
+    pDict->put("spdaq05", "MNOP");
+    
+    CTCLObject result;
+    result.Bind(*m_pInterp);
+    result = m_pInterp->GlobalEval("mirror list");
+    
+    EQ(4, result.llength());
+    
+    // So we can loop:
+    
+    std::vector<std::string> hosts = {"anspdaq", "daqdev_deb10", "genesis", "spdaq05"};
+    std::vector<std::string> keys =
+        {"EFGH", "IJKL", "ABCD", "MNOP"};
+        
+    // We're going to assume the dict keys are all ok
+    
+    for (int i =0; i < result.llength(); i++) {
+        CTCLObject item; item.Bind(*m_pInterp); item = result.lindex(i);
+        EQ(4, item.llength());
+        CTCLObject host; host.Bind(*m_pInterp); host = item.lindex(1);
+        CTCLObject key;  key.Bind(*m_pInterp); key = item.lindex(3);
+        
+        EQ(hosts[i], std::string(host));
+        EQ(keys[i], std::string(key));
+    }    
+}
+// Partial listing using host pattern:
+void mcmdtest::partial_1()
+{
+    auto pDict = MirrorDirectorySingleton::getInstance();
+    pDict->put("genesis", "ABCD");
+    pDict->put("anspdaq", "EFGH");
+    pDict->put("daqdev_deb10", "IJKL");
+    pDict->put("spdaq05", "MNOP");
+    
+    CTCLObject result;
+    result.Bind(*m_pInterp);
+    result = m_pInterp->GlobalEval("mirror list g*");
+    
+    EQ(1, result.llength());
+    CTCLObject item;
+    item.Bind(*m_pInterp);
+    item = result.lindex(0);
+    
+    CTCLObject host; host.Bind(*m_pInterp); host = item.lindex(1);
+    CTCLObject key ; key.Bind(*m_pInterp) ; key = item.lindex(3);
+    
+    EQ(std::string("genesis"), std::string(host));
+    EQ(std::string("ABCD"), std::string(key));
 }
