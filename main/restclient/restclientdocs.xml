@@ -394,6 +394,8 @@ c destroy                                     <co id='ex.client.destroy' />
     $client traceDone $token
     $client traceFetch $token
     
+    $client mirror ?host-pattern?
+    
                     </programlisting>
                 </refsynopsisdiv>
                 <refsect1>
@@ -3681,7 +3683,58 @@ c destroy                                     <co id='ex.client.destroy' />
                                    </para>
                                 </listitem>
                             </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>mirror</methodname>
+                                   <methodparam>
+                                       <type></type><parameter>list</parameter>
+                                   </methodparam>
+                                   <methodparam>
+                                       <type></type><parameter>pattern</parameter>
+                                       <modifier>optional</modifier>
+                                   </methodparam>
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of dicts containing information
+                                    about the current SpecTcl display memory
+                                    mirrors that are being maintained.  If
+                                    the optional <parameter>pattern</parameter>
+                                    parameter is provided this list is filtered
+                                    to the mirrors that match the pattern as
+                                    a host name.   The pattern can contain
+                                    glob characters.
+                                   </para>
+                                   <para>
+                                    Each dict in the list describes one
+                                    active mirror and contains the following keys:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>host</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of a host on which a mirror
+                                            is being maintained.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>shmkey</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The SYS-V shared memory key of that mirrror.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
                         </variablelist>
+                        
                     </refsect2>
 
                 </refsect1>

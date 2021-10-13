@@ -7082,6 +7082,66 @@ isRemote
           </para>
     </refsect1>
 </refentry>
+<refentry>
+   <refmeta>
+      <refentrytitle>mirror</refentrytitle>
+      <manvolnum>1SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>mirror</refname>
+      <refpurpose>List Display Memory mirrors.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <cmdsynopsis><command>
+mirror list ?pattern?
+        </command></cmdsynopsis>
+    </refsynopsisdiv>
+    <refsect1>
+             <title>DESCRIPTION</title>
+          <para>
+            This command was introduced in SpecTcl version 5.10.  SpecTcl 5.10
+            supports mirroring the spectrum/display memory to remote systems.
+            In order to avoid mirroring to the same host several times, this
+            command allows one to query about the set of mirrors that are already
+            being maintained.
+          </para>
+          <para>
+            The return value is a list of dicts.  Each dict contains the
+            keys:
+          </para>
+          <variablelist>
+            <varlistentry>
+               <term><literal>host</literal></term>
+               <listitem>
+                   <para>
+                    Identifies a host to which mirroring is being done.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>shmkey</literal></term>
+               <listitem>
+                   <para>
+                    Provides the SYS-V shared memory key identifying the
+                    mirror in that host.
+                   </para>
+                </listitem>
+            </varlistentry>
+          </variablelist>
+          <para>
+                If the optional <parameter>pattern</parameter> parameter is provided,
+                only hosts which match the pattern (Glob wild cards allowed)
+                are listed.
+        </para>
+        <para>
+            The assumption is that a remote mirror client will first query
+            SpecTcl's current mirrors via the REST server to determine if
+            there is an existing mirror.  If there is the client can map
+            tothat memory directly.   If not it can set up a new mirror.
+        </para>
+
+    </refsect1>
+</refentry>
 </reference>
 
 </book>

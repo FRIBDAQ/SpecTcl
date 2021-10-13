@@ -3943,5 +3943,67 @@ http://host:port/spectcl/trace/fetch/token=<replaceable>token-value</replaceable
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+           <title>Querying display memory mirrors.</title>
+           <para>
+            Starting with SpecTcl 5.10, SpecTcl can, in conjunction with remote
+            clients, maintain one or more mirrors of its display memory in remote
+            systems.  This allows displayers to be run in those remote systems.
+            The set of mirrors can be  queried in order to avoid producing
+            duplicate mirrors in the a single remote system.
+           </para>
+           <para>
+            URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/mirror<optional>?pattern=<replaceable>host-pattern</replaceable></optional>            
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            Returns as the detail section of the response an array of mirrors.
+            If the optional <parameter>pattern</parameter> is supplied, this
+            list is limited to those whose hosts match <parameter>host-pattern</parameter>.
+            <parameter>host-pattern</parameter> can have glob wildcard
+            characters. 
+           </para>
+           <para>
+            The detail of the response is an array of objects.  Each object
+            has the following attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>host</literal></term>
+               <listitem>
+                   <para>
+                    Identifies a host to which mirroring is being done.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>shmkey</literal></term>
+               <listitem>
+                   <para>
+                    Provides the SYS-V shared memory key identifying the
+                    mirror in that host.
+                   </para>
+                </listitem>
+            </varlistentry>
+
+          </variablelist>
+        <para>
+            If the optional <parameter>pattern</parameter> parameter is provided,
+            only hosts which match the pattern (Glob wild cards allowed)
+            are listed.
+        </para>
+        <para>
+            The assumption is that a remote mirror client will first query
+            SpecTcl's current mirrors via the REST server to determine if
+            there is an existing mirror.  If there is the client can map
+            tothat memory directly.   If not it can set up a new mirror.
+        </para>
+        </section>
     </chapter>
 </book>
