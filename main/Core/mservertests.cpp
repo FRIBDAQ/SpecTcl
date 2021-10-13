@@ -42,6 +42,12 @@ class mservertest : public CppUnit::TestFixture {
     CPPUNIT_TEST(get_3);
     
     CPPUNIT_TEST(spectrum_1);
+    CPPUNIT_TEST(spectrum_2);
+    CPPUNIT_TEST(spectrum_3);
+    CPPUNIT_TEST(spectrum_4);
+    CPPUNIT_TEST(spectrum_5);
+    CPPUNIT_TEST(spectrum_6);
+    CPPUNIT_TEST(spectrum_7);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -75,6 +81,12 @@ protected:
     void get_3();
     
     void spectrum_1();
+    void spectrum_2();
+    void spectrum_3();
+    void spectrum_4();
+    void spectrum_5();
+    void spectrum_6();
+    void spectrum_7();
     
 };
 
@@ -368,4 +380,622 @@ mservertest::spectrum_1()
     
     client.Shutdown();
     
+}
+// 2- D Spectrum.
+
+void mservertest::spectrum_2()
+{
+    m_memory.dsp_xy[0].xchans = 256;
+    m_memory.dsp_xy[0].ychans = 256;
+    m_memory.dsp_offsets[0] = 0;
+    m_memory.dsp_types[0] = twodlong;
+    
+    uint32_t* pSpectrum = m_memory.dsp_spectra.XAMINE_l;
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < 256; j++)
+        *pSpectrum++ = i+j;
+    }
+    
+    // Ok now that we're set up get a connection and request an update.
+    // The first one will have 256*sizeof(uint32_t) + sizeof(xamine header).
+    // bytes of payload.  The second should just have 256*sizeof(uint32_t)
+    // bytes of data.  The spectrum should be 256 channels of counting
+    // pattern in both cases.
+    
+    CSocket client;
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    
+    struct _memory {
+        Mirror::MessageHeader  s_header;
+        Mirror::MemoryKey      s_key;
+    } message;
+    
+    message.s_header.s_messageSize = sizeof(message);
+    message.s_header.s_messageType = Mirror::MSG_TYPE_SHMINFO;
+    memcpy(message.s_key, "ABCD", 4);
+    
+    client.Write(&message, sizeof(message));
+    client.Flush();
+    
+    // Now ask for an update:
+    
+    Mirror::MessageHeader update;
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Read the full update header and be sure it's what's expected.
+    
+    int s = client.Read(&update, sizeof(update));
+    
+    size_t expectedSpectrumSize = 256*256*sizeof(uint32_t);
+    size_t expectedHeaderSize   = offsetof(Xamine_shared, dsp_spectra);
+    EQ(Mirror::MSG_TYPE_FULL_UPDATE, update.s_messageType);
+    EQ(
+       sizeof(update) + expectedSpectrumSize + expectedHeaderSize,
+       size_t(update.s_messageSize)
+    );
+    // Read/validate the data:
+    
+    static Xamine_shared mirror;   // So as not to run into stack limits.
+    s = client.Read(&mirror, expectedSpectrumSize + expectedHeaderSize);
+    EQ(expectedSpectrumSize + expectedHeaderSize, size_t(s));
+    EQ(m_memory.dsp_xy[0].xchans, mirror.dsp_xy[0].xchans);
+    EQ(m_memory.dsp_xy[0].ychans, mirror.dsp_xy[0].ychans);
+    EQ(m_memory.dsp_offsets[0], mirror.dsp_offsets[0]);
+    EQ(m_memory.dsp_types[0], mirror.dsp_types[0]);
+    
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            256*256*sizeof(uint32_t)
+        )
+    );
+    
+    
+    // The next should just read the spectra.
+    
+    memset(&mirror, 0, sizeof(mirror));
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Should be a partial update with expectedSpectrumSize payload:
+    
+    s = client.Read(&update, sizeof(update));
+    EQ(Mirror::MSG_TYPE_PARTIAL_UPDATE, update.s_messageType);
+    EQ(expectedSpectrumSize + sizeof(update), size_t(update.s_messageSize));
+    
+    s = client.Read(&mirror.dsp_spectra.XAMINE_l, expectedSpectrumSize);
+    EQ(expectedSpectrumSize, size_t(s));
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            256*256*sizeof(uint32_t)
+        )
+    );
+    
+    
+    client.Shutdown();
+    
+}
+// Two spectra but no storage holes in the spectrum soup.
+
+void
+mservertest::spectrum_3()
+{
+    m_memory.dsp_xy[0].xchans = 256;
+    m_memory.dsp_xy[0].ychans = 0;
+    m_memory.dsp_offsets[0] = 0;
+    m_memory.dsp_types[0] = onedlong;
+    
+    uint32_t* pSpectrum = m_memory.dsp_spectra.XAMINE_l;
+    for (int i = 0; i < 256; i++) {
+        *pSpectrum++ = i;
+    }
+    
+    m_memory.dsp_xy[1].xchans = 256;
+    m_memory.dsp_xy[1].ychans = 256;
+    m_memory.dsp_offsets[1]   = 256;    // units of longwords.
+    m_memory.dsp_types[1] = twodlong;   // For long word spectra.
+    
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < 256; j++)
+        *pSpectrum++ = i+j;
+    }
+    
+    
+    // The usual 2two updates and validations:
+    //
+    CSocket client;
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    
+    struct _memory {
+        Mirror::MessageHeader  s_header;
+        Mirror::MemoryKey      s_key;
+    } message;
+    
+    message.s_header.s_messageSize = sizeof(message);
+    message.s_header.s_messageType = Mirror::MSG_TYPE_SHMINFO;
+    memcpy(message.s_key, "ABCD", 4);
+    
+    client.Write(&message, sizeof(message));
+    client.Flush();
+    
+    // Now ask for an update:
+    
+    Mirror::MessageHeader update;
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Read the full update header and be sure it's what's expected.
+    
+    int s = client.Read(&update, sizeof(update));
+    
+    size_t expectedSpectrumSize = (256*256 + 256)*sizeof(uint32_t);
+    size_t expectedHeaderSize   = offsetof(Xamine_shared, dsp_spectra);
+    EQ(Mirror::MSG_TYPE_FULL_UPDATE, update.s_messageType);
+    EQ(
+       sizeof(update) + expectedSpectrumSize + expectedHeaderSize,
+       size_t(update.s_messageSize)
+    );
+    // Read/validate the data:
+    
+    static Xamine_shared mirror;   // So as not to run into stack limits.
+    s = client.Read(&mirror, expectedSpectrumSize + expectedHeaderSize);
+    EQ(expectedSpectrumSize + expectedHeaderSize, size_t(s));
+    EQ(m_memory.dsp_xy[0].xchans, mirror.dsp_xy[0].xchans);
+    EQ(m_memory.dsp_xy[0].ychans, mirror.dsp_xy[0].ychans);
+    EQ(m_memory.dsp_offsets[0], mirror.dsp_offsets[0]);
+    EQ(m_memory.dsp_types[0], mirror.dsp_types[0]);
+    
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+    
+    
+    // The next should just read the spectra.
+    
+    memset(&mirror, 0, sizeof(mirror));
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Should be a partial update with expectedSpectrumSize payload:
+    
+    s = client.Read(&update, sizeof(update));
+    EQ(Mirror::MSG_TYPE_PARTIAL_UPDATE, update.s_messageType);
+    EQ(expectedSpectrumSize + sizeof(update), size_t(update.s_messageSize));
+    
+    s = client.Read(&mirror.dsp_spectra.XAMINE_l, expectedSpectrumSize);
+    EQ(expectedSpectrumSize, size_t(s));
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+       
+    client.Shutdown();
+    
+}
+
+// Two spectra with a hole .. note that the hole is also transferred.
+
+void
+mservertest::spectrum_4()
+{
+    m_memory.dsp_xy[0].xchans = 256;
+    m_memory.dsp_xy[0].ychans = 0;
+    m_memory.dsp_offsets[0] = 0;
+    m_memory.dsp_types[0] = onedlong;
+    
+    uint32_t* pSpectrum = m_memory.dsp_spectra.XAMINE_l;
+    for (int i = 0; i < 256; i++) {
+        *pSpectrum++ = i;
+    }
+    pSpectrum += 100;               //  hole of 100 longwords.
+    
+    m_memory.dsp_xy[1].xchans = 256;
+    m_memory.dsp_xy[1].ychans = 256;
+    m_memory.dsp_offsets[1]   = 256+100;    // units of longwords.
+    m_memory.dsp_types[1] = twodlong;   // For long word spectra.
+    
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < 256; j++)
+        *pSpectrum++ = i+j;
+    }
+    
+    // The usual 2two updates and validations:
+    //
+    CSocket client;
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    
+    struct _memory {
+        Mirror::MessageHeader  s_header;
+        Mirror::MemoryKey      s_key;
+    } message;
+    
+    message.s_header.s_messageSize = sizeof(message);
+    message.s_header.s_messageType = Mirror::MSG_TYPE_SHMINFO;
+    memcpy(message.s_key, "ABCD", 4);
+    
+    client.Write(&message, sizeof(message));
+    client.Flush();
+    
+    // Now ask for an update:
+    
+    Mirror::MessageHeader update;
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Read the full update header and be sure it's what's expected.
+    
+    int s = client.Read(&update, sizeof(update));
+    
+    size_t expectedSpectrumSize = (256*256 + 256 + 100)*sizeof(uint32_t);
+    size_t expectedHeaderSize   = offsetof(Xamine_shared, dsp_spectra);
+    EQ(Mirror::MSG_TYPE_FULL_UPDATE, update.s_messageType);
+    EQ(
+       sizeof(update) + expectedSpectrumSize + expectedHeaderSize,
+       size_t(update.s_messageSize)
+    );
+    // Read/validate the data:
+    
+    static Xamine_shared mirror;   // So as not to run into stack limits.
+    s = client.Read(&mirror, expectedSpectrumSize + expectedHeaderSize);
+    EQ(expectedSpectrumSize + expectedHeaderSize, size_t(s));
+    EQ(m_memory.dsp_xy[0].xchans, mirror.dsp_xy[0].xchans);
+    EQ(m_memory.dsp_xy[0].ychans, mirror.dsp_xy[0].ychans);
+    EQ(m_memory.dsp_offsets[0], mirror.dsp_offsets[0]);
+    EQ(m_memory.dsp_types[0], mirror.dsp_types[0]);
+    
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+    
+    
+    // The next should just read the spectra.
+    
+    memset(&mirror, 0, sizeof(mirror));
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Should be a partial update with expectedSpectrumSize payload:
+    
+    s = client.Read(&update, sizeof(update));
+    EQ(Mirror::MSG_TYPE_PARTIAL_UPDATE, update.s_messageType);
+    EQ(expectedSpectrumSize + sizeof(update), size_t(update.s_messageSize));
+    
+    s = client.Read(&mirror.dsp_spectra.XAMINE_l, expectedSpectrumSize);
+    EQ(expectedSpectrumSize, size_t(s));
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+       
+    client.Shutdown();
+}
+
+//Test sizing of onedword
+
+void
+mservertest::spectrum_5()
+{
+    m_memory.dsp_xy[0].xchans = 256;
+    m_memory.dsp_xy[0].ychans = 0;
+    m_memory.dsp_offsets[0] = 0;
+    m_memory.dsp_types[0] = onedword;
+    
+    uint16_t* pSpectrum = m_memory.dsp_spectra.XAMINE_w;
+    for (int i = 0; i < 256; i++) {
+        *pSpectrum++ = i;
+    }
+    // The usual 2two updates and validations:
+    //
+    CSocket client;
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    
+    struct _memory {
+        Mirror::MessageHeader  s_header;
+        Mirror::MemoryKey      s_key;
+    } message;
+    
+    message.s_header.s_messageSize = sizeof(message);
+    message.s_header.s_messageType = Mirror::MSG_TYPE_SHMINFO;
+    memcpy(message.s_key, "ABCD", 4);
+    
+    client.Write(&message, sizeof(message));
+    client.Flush();
+    
+    // Now ask for an update:
+    
+    Mirror::MessageHeader update;
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Read the full update header and be sure it's what's expected.
+    
+    int s = client.Read(&update, sizeof(update));
+    
+    size_t expectedSpectrumSize = (256)*sizeof(uint16_t);
+    size_t expectedHeaderSize   = offsetof(Xamine_shared, dsp_spectra);
+    EQ(Mirror::MSG_TYPE_FULL_UPDATE, update.s_messageType);
+    EQ(
+       sizeof(update) + expectedSpectrumSize + expectedHeaderSize,
+       size_t(update.s_messageSize)
+    );
+    // Read/validate the data:
+    
+    static Xamine_shared mirror;   // So as not to run into stack limits.
+    s = client.Read(&mirror, expectedSpectrumSize + expectedHeaderSize);
+    EQ(expectedSpectrumSize + expectedHeaderSize, size_t(s));
+    EQ(m_memory.dsp_xy[0].xchans, mirror.dsp_xy[0].xchans);
+    EQ(m_memory.dsp_xy[0].ychans, mirror.dsp_xy[0].ychans);
+    EQ(m_memory.dsp_offsets[0], mirror.dsp_offsets[0]);
+    EQ(m_memory.dsp_types[0], mirror.dsp_types[0]);
+    
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+    
+    
+    // The next should just read the spectra.
+    
+    memset(&mirror, 0, sizeof(mirror));
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Should be a partial update with expectedSpectrumSize payload:
+    
+    s = client.Read(&update, sizeof(update));
+    EQ(Mirror::MSG_TYPE_PARTIAL_UPDATE, update.s_messageType);
+    EQ(expectedSpectrumSize + sizeof(update), size_t(update.s_messageSize));
+    
+    s = client.Read(&mirror.dsp_spectra.XAMINE_l, expectedSpectrumSize);
+    EQ(expectedSpectrumSize, size_t(s));
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+       
+    client.Shutdown();
+}
+// test sizing of twodword
+void
+mservertest::spectrum_6()
+{
+    m_memory.dsp_xy[1].xchans = 256;
+    m_memory.dsp_xy[1].ychans = 256;
+    m_memory.dsp_offsets[1]   = 0;    // units of longwords.
+    m_memory.dsp_types[1] = twodword;   // For long word spectra.
+    
+    uint16_t* pSpectrum = m_memory.dsp_spectra.XAMINE_w;
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < 256; j++)
+        *pSpectrum++ = i+j;
+    }
+    // The usual 2two updates and validations:
+    //
+    CSocket client;
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    
+    struct _memory {
+        Mirror::MessageHeader  s_header;
+        Mirror::MemoryKey      s_key;
+    } message;
+    
+    message.s_header.s_messageSize = sizeof(message);
+    message.s_header.s_messageType = Mirror::MSG_TYPE_SHMINFO;
+    memcpy(message.s_key, "ABCD", 4);
+    
+    client.Write(&message, sizeof(message));
+    client.Flush();
+    
+    // Now ask for an update:
+    
+    Mirror::MessageHeader update;
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Read the full update header and be sure it's what's expected.
+    
+    int s = client.Read(&update, sizeof(update));
+    
+    size_t expectedSpectrumSize = (256*256)*sizeof(uint16_t);
+    size_t expectedHeaderSize   = offsetof(Xamine_shared, dsp_spectra);
+    EQ(Mirror::MSG_TYPE_FULL_UPDATE, update.s_messageType);
+    EQ(
+       sizeof(update) + expectedSpectrumSize + expectedHeaderSize,
+       size_t(update.s_messageSize)
+    );
+    // Read/validate the data:
+    
+    static Xamine_shared mirror;   // So as not to run into stack limits.
+    s = client.Read(&mirror, expectedSpectrumSize + expectedHeaderSize);
+    EQ(expectedSpectrumSize + expectedHeaderSize, size_t(s));
+    EQ(m_memory.dsp_xy[0].xchans, mirror.dsp_xy[0].xchans);
+    EQ(m_memory.dsp_xy[0].ychans, mirror.dsp_xy[0].ychans);
+    EQ(m_memory.dsp_offsets[0], mirror.dsp_offsets[0]);
+    EQ(m_memory.dsp_types[0], mirror.dsp_types[0]);
+    
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+    
+    
+    // The next should just read the spectra.
+    
+    memset(&mirror, 0, sizeof(mirror));
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Should be a partial update with expectedSpectrumSize payload:
+    
+    s = client.Read(&update, sizeof(update));
+    EQ(Mirror::MSG_TYPE_PARTIAL_UPDATE, update.s_messageType);
+    EQ(expectedSpectrumSize + sizeof(update), size_t(update.s_messageSize));
+    
+    s = client.Read(&mirror.dsp_spectra.XAMINE_l, expectedSpectrumSize);
+    EQ(expectedSpectrumSize, size_t(s));
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+       
+    client.Shutdown();
+    
+}
+// Test sizing of twodbyte
+
+void
+mservertest::spectrum_7()
+{
+m_memory.dsp_xy[1].xchans = 256;
+    m_memory.dsp_xy[1].ychans = 256;
+    m_memory.dsp_offsets[1]   = 0;    // units of longwords.
+    m_memory.dsp_types[1] = twodbyte;   // For long word spectra.
+    
+    uint8_t* pSpectrum = m_memory.dsp_spectra.XAMINE_b;
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < 256; j++)
+        *pSpectrum++ = i+j;
+    }
+    // The usual 2two updates and validations:
+    //
+    CSocket client;
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    
+    struct _memory {
+        Mirror::MessageHeader  s_header;
+        Mirror::MemoryKey      s_key;
+    } message;
+    
+    message.s_header.s_messageSize = sizeof(message);
+    message.s_header.s_messageType = Mirror::MSG_TYPE_SHMINFO;
+    memcpy(message.s_key, "ABCD", 4);
+    
+    client.Write(&message, sizeof(message));
+    client.Flush();
+    
+    // Now ask for an update:
+    
+    Mirror::MessageHeader update;
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Read the full update header and be sure it's what's expected.
+    
+    int s = client.Read(&update, sizeof(update));
+    
+    size_t expectedSpectrumSize = (256*256)*sizeof(uint8_t);
+    size_t expectedHeaderSize   = offsetof(Xamine_shared, dsp_spectra);
+    EQ(Mirror::MSG_TYPE_FULL_UPDATE, update.s_messageType);
+    EQ(
+       sizeof(update) + expectedSpectrumSize + expectedHeaderSize,
+       size_t(update.s_messageSize)
+    );
+    // Read/validate the data:
+    
+    static Xamine_shared mirror;   // So as not to run into stack limits.
+    s = client.Read(&mirror, expectedSpectrumSize + expectedHeaderSize);
+    EQ(expectedSpectrumSize + expectedHeaderSize, size_t(s));
+    EQ(m_memory.dsp_xy[0].xchans, mirror.dsp_xy[0].xchans);
+    EQ(m_memory.dsp_xy[0].ychans, mirror.dsp_xy[0].ychans);
+    EQ(m_memory.dsp_offsets[0], mirror.dsp_offsets[0]);
+    EQ(m_memory.dsp_types[0], mirror.dsp_types[0]);
+    
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+    
+    
+    // The next should just read the spectra.
+    
+    memset(&mirror, 0, sizeof(mirror));
+    update.s_messageSize = sizeof(Mirror::MessageHeader);
+    update.s_messageType = Mirror::MSG_TYPE_REQUEST_UPDATE;
+    
+    client.Write(&update, sizeof(update));
+    client.Flush();
+    
+    // Should be a partial update with expectedSpectrumSize payload:
+    
+    s = client.Read(&update, sizeof(update));
+    EQ(Mirror::MSG_TYPE_PARTIAL_UPDATE, update.s_messageType);
+    EQ(expectedSpectrumSize + sizeof(update), size_t(update.s_messageSize));
+    
+    s = client.Read(&mirror.dsp_spectra.XAMINE_l, expectedSpectrumSize);
+    EQ(expectedSpectrumSize, size_t(s));
+    EQ(
+       0,
+       memcmp(
+            m_memory.dsp_spectra.XAMINE_b, mirror.dsp_spectra.XAMINE_b,
+            expectedSpectrumSize
+        )
+    );
+       
+    client.Shutdown();    
 }
