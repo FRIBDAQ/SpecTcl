@@ -18,7 +18,8 @@ Tcp_SRC = io.cpp io.h \
 
 Mirror_Src = MirrorDirectory.h MirrorDirectory.cpp \
 	AbstractThreadedServer.h AbstractThreadedServer.cpp \
-	MirrorServer.h MirrorServer.cpp
+	MirrorServer.h MirrorServer.cpp \
+	CMirrorCommand.h CMirrorCommand.cpp
 
 
 Mirror_Includes = MirrorMessages.h
