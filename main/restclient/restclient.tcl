@@ -1678,4 +1678,12 @@ snit::type SpecTclRestClient {
             detail                                                   \
         ]
     }
+    #--------------------------------------------------------------------------
+    # mirror
+    
+    method mirror {{pattern *}} {
+        return [dict get [$self _request [$self _makeUrl                  \
+            mirror [dict create pattern $pattern]                         \
+        ]] detail]                                                        \
+    }
 }

@@ -81,6 +81,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CUnpackEvbCommand.h"
 
 #include "CRemoteCommand.h"
+#include "CMirrorCommand.h"
 
 #include "ProductionXamineShMem.h"
 #include "CHttpdServer.h"
@@ -839,6 +840,7 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   cerr << "evbunpack - Event built data unpacking manager (c) 2018 written by Ron Fox\n";
   
   new CRemoteCommand(rInterp);
+  new CMirrorCommand(rInterp);
   
   cerr.flush();
 }

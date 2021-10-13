@@ -2069,3 +2069,14 @@ proc maintainVariables {seconds} {
 proc isRemote { } {
     return 1
 }
+
+##
+# mirror
+#   Gets list of SpecTcl Mirrors.
+#
+proc mirror {list {pattern *}} {
+    if {$list ne "list"} {
+        error "Invalid subcommand"
+    }
+    return [$::SpecTclRestCommand::client mirror $pattern]
+}
