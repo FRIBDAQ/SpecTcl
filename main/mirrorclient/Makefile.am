@@ -1,3 +1,4 @@
+
 lib_LTLIBRARIES=libMirrorClient.la
 bin_PROGRAMS=mirror
 
@@ -5,7 +6,9 @@ bin_PROGRAMS=mirror
 
 
 mirror_SOURCES=cmdline.c cimdline.h mirror.cpp
-mirror_CXXFLAGS=-DSPECTCL_TCLLIBS="\"@prefix@/TclLibs\""
+mirror_CXXFLAGS=-DSPECTCL_TCLLIBS="\"@prefix@/TclLibs\"" \
+	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
+mirror_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
 BUILT_SOURCES = cmdline.c cmdline.h 
 noinst_HEADERS=cmdline.h

@@ -25,10 +25,22 @@
  * and transfers control to the mirror.tcl startup script.
  */
 #include "cmdline.h"
+#include <tcl.h>
+#include <TCLInterpreter.h>
+
+
 const char* TclLibPath = SPECTCL_TCLLIBS;
 
 
 static struct gengetopt_args_info parsed;
+
+static int AppInit(Tcl_Interp* pRawInterp)
+{
+    CTCLInterpreter* pInterp = new CTCLInterpreter(pRawInterp);
+    
+    
+    return TCL_OK;
+}
 
 
 /**
@@ -44,4 +56,6 @@ main(int argc, char** argv)
     cmdline_parser(argc, argv, &parsed);
     
     // Start up teh TCLInterpreter
+    
+    Tcl_Main(argc, argv, AppInit);
 }
