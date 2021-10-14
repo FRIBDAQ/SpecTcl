@@ -42,6 +42,9 @@ MirrorClient::MirrorClient() :
 MirrorClient::~MirrorClient()
 {
     if (m_pSocket) {
+        try {
+            m_pSocket->Shutdown();
+        } catch(...) {}
         delete m_pSocket;
     }
 }
