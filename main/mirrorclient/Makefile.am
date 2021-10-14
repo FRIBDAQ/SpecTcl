@@ -1,4 +1,17 @@
 lib_LTLIBRARIES=libMirrorClient.la
+bin_PROGRAMS=mirror
+
+
+
+
+mirror_SOURCES=cmdline.c cimdline.h mirror.cpp
+mirror_CXXFLAGS=-DSPECTCL_TCLLIBS="\"@prefix@/TclLibs\""
+
+BUILT_SOURCES = cmdline.c cmdline.h 
+noinst_HEADERS=cmdline.h
+
+cmdline.h cmdline.c : @srcdir@/mirroropts.ggo
+	@GENGETOPT@ --unamed-opts <@srcdir@/mirroropts.ggo
 
 libMirrorClient_la_INCLUDES=MirrorClient.h
 libMirrorClient_la_SOURCES=MirrorClient.cpp
