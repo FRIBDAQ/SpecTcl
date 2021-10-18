@@ -28,10 +28,11 @@
 #include <tcl.h>
 #include <TCLInterpreter.h>
 #include "CmdInfo.h"
+#include "MirrorCommand.h"
+
 
 
 const char* TclLibPath = SPECTCL_TCLLIBS;
-
 
 static struct gengetopt_args_info parsed;
 
@@ -81,6 +82,8 @@ static int AppInit(Tcl_Interp* pInterp)
     new CmdInfo(*pOInterp, "Mirror::gethost", parsed.host_arg);
     new CmdInfo(*pOInterp, "Mirror::getrestport", parsed.restport_arg);
     new CmdInfo(*pOInterp, "Mirror::getmirrorport", parsed.mirrorport_arg);
+ 
+    new MirrorCommand(*pOInterp);
     
     return TCL_OK;
 }

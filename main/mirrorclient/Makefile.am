@@ -6,11 +6,14 @@ bin_PROGRAMS=mirrorclient
 
 
 mirrorclient_SOURCES=cmdline.c cimdline.h mirror.cpp \
-	CmdInfo.h CmdInfo.cpp
+	CmdInfo.h CmdInfo.cpp \
+	MirrorCommand.h MirrorCommand.cpp
 
 mirrorclient_CXXFLAGS=-DSPECTCL_TCLLIBS="\"@prefix@/TclLibs\"" \
 	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
-mirrorclient_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
+mirrorclient_LDADD=@builddir@/libMirrorClient.la \
+	@top_builddir@/Display/libXamine.la \
+	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
 BUILT_SOURCES = cmdline.c cmdline.h 
 noinst_HEADERS=cmdline.h
