@@ -27,6 +27,7 @@
 #include "cmdline.h"
 #include <tcl.h>
 #include <TCLInterpreter.h>
+#include "CmdInfo.h"
 
 
 const char* TclLibPath = SPECTCL_TCLLIBS;
@@ -34,10 +35,52 @@ const char* TclLibPath = SPECTCL_TCLLIBS;
 
 static struct gengetopt_args_info parsed;
 
-static int AppInit(Tcl_Interp* pRawInterp)
+static int AppInit(Tcl_Interp* pInterp)
 {
-    CTCLInterpreter* pInterp = new CTCLInterpreter(pRawInterp);
+    // Do basic interpreter initialization:
     
+    if (Tcl_Init(pInterp) != TCL_OK) {
+        return TCL_ERROR;
+    }
+    
+    // Also get an encapulated interpreter:
+    
+     CTCLInterpreter* pOInterp = new CTCLInterpreter(pInterp);
+    
+    // Add the TclLibPath for this spectcl to the auto_path:
+    
+    Tcl_Obj* autopath = Tcl_ObjGetVar2(
+        pInterp, Tcl_NewStringObj("auto_path", -1), NULL, TCL_GLOBAL_ONLY
+    );
+    if (!autopath) {
+        pOInterp->setResult("Cant' read auto_path to include SpecTcl directories");
+        return TCL_ERROR;
+    }
+    int status = Tcl_ListObjAppendElement(
+        pInterp, autopath, Tcl_NewStringObj(TclLibPath, -1)
+    );
+    if (status != TCL_OK) {
+        pOInterp->setResult("Failed to lappend Tcl Library path to auto_path");
+    }
+    Tcl_ObjSetVar2(
+        pInterp, Tcl_NewStringObj("auto_path", -1), NULL, autopath,
+        TCL_GLOBAL_ONLY
+    );
+    
+    
+    
+    // Create the Mirror namespace in which our commands will live:
+    
+    if (!Tcl_CreateNamespace(pInterp, "Mirror", nullptr, nullptr)) {
+        return TCL_ERROR;
+    }
+    
+    // These commands provide script access to the command options.
+    
+    
+    new CmdInfo(*pOInterp, "Mirror::gethost", parsed.host_arg);
+    new CmdInfo(*pOInterp, "Mirror::getrestport", parsed.restport_arg);
+    new CmdInfo(*pOInterp, "Mirror::getmirrorport", parsed.mirrorport_arg);
     
     return TCL_OK;
 }

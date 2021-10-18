@@ -5,7 +5,9 @@ bin_PROGRAMS=mirror
 
 
 
-mirror_SOURCES=cmdline.c cimdline.h mirror.cpp
+mirror_SOURCES=cmdline.c cimdline.h mirror.cpp \
+	CmdInfo.h CmdInfo.cpp
+
 mirror_CXXFLAGS=-DSPECTCL_TCLLIBS="\"@prefix@/TclLibs\"" \
 	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
 mirror_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
