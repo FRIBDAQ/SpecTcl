@@ -40,7 +40,9 @@ proc SpecTcl_mirror {{pattern *}} {
     set result [mirror list $pattern]
     set listing [list]
     foreach item $result {
-        lappend listing [json::write object {*}$item]
+        set host [json::write string [dict get $item host]]
+        set memory [json::write string [dict get $item shmkey]]
+        lappend listing [json::write object host $host shmkey $memory]
     }
     
     SpecTcl::_returnObject OK [json::write array {*}$listing]

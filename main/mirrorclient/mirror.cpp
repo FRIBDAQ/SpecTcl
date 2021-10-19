@@ -32,7 +32,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <Exception.h>
+#include <iostream>
 
 const char* TclLibPath = SPECTCL_TCLLIBS;
 
@@ -97,6 +98,14 @@ static int AppInit(Tcl_Interp* pInterp)
     }new CmdInfo(*pOInterp, "Mirror::getuser", pUser);
     
     new MirrorCommand(*pOInterp);
+    
+    //  Set up the mirrorclientscript.tcl in @bindir@ to be our init script:
+    
+    std::string startScript = TclLibPath;
+    startScript += "/../bin/mirrorclientscript.tcl";
+   
+    Tcl_ObjSetVar2(pInterp, Tcl_NewStringObj("tcl_rcFileName", -1), NULL,
+                   Tcl_NewStringObj(startScript.c_str(), -1), TCL_GLOBAL_ONLY);
     
     return TCL_OK;
 }

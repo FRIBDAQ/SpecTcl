@@ -26,6 +26,10 @@ libMirrorClient_la_SOURCES=MirrorClient.cpp
 libMirrorClient_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display
 libMirrorClient_la_LIBADD=@top_builddir@/Core/libTclGrammerApp.la
 
+install-exec-local:
+	$(INSTALL_SCRIPT) @srcdir@/mirrorclientscript.tcl @bindir@
+
+#############################     TESTS ###################################
 
 noinst_PROGRAMS=unittests
 unittests_SOURCES=TestRunner.cpp mctests.cpp
@@ -34,6 +38,8 @@ unittests_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display @CPPUNIT_CFLAGS@ \
 unittests_LDFLAGS=@builddir@/libMirrorClient.la \
 	@top_builddir@/Core/libTclGrammerApp.la \
 	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ @CPPUNIT_LIBS@
+
+
 
 TESTS=unittests
 

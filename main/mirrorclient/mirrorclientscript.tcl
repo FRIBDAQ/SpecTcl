@@ -88,14 +88,16 @@ proc isLocalhost {host} {
     }
     set status [catch {package require portAllocator}]
     if {$status} {
-        error "To use service names, you must either setup NSCLDAQ >= 12.0 or defined TCLLIBPATH to \$DAQROOT/TclLibs"
+        puts stderr  "To use service names, you must either setup NSCLDAQ >= 12.0 or defined TCLLIBPATH to \$DAQROOT/TclLibs"
+        exit -1
     }
     set c [portAllocator create %AUTO% -hostname $host]
     set result [$c findServer $service $user]
     $c destroy
     
     if {$result eq ""} {
-        error "The user $user is not advertising a service named $service in $host"
+        puts stderr  "The user $user is not advertising a service named $service in $host"
+        exit -1
     }
     return $result
  }
@@ -165,7 +167,7 @@ proc updateMirror { } {
     } timingInfo]
     if {$status} {
         incr ::forever
-        error "Mirror update failed! exiting"
+        puts stderr "Mirror update failed! exiting"
         Mirror::mirror destroy
         
         return
@@ -204,7 +206,7 @@ if {![string is integer -strict $mirrorport]} {
 
 set restClient [makeRestClient $host $restport]
 if {[alreadyMirroring $restClient $host]} {
-    error "There is already a mirror running to this host."
+    puts stderr "There is already a mirror running to this host."
     exit -1
 }
 # Set up the mirror and start updates:
@@ -217,4 +219,4 @@ $restClient destroy
 
 vwait forever;           # Enter the event loop.
 puts stderr "Mirror update failed....exiting"
-exit
+exit -1
