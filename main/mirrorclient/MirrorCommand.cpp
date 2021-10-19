@@ -49,7 +49,9 @@ MirrorCommand::~MirrorCommand()
     if (m_mirrorMemory) {
         Xamine_DetachSharedMemory();
         m_mirrorMemory = nullptr;
+        Xamine_KillSharedMemory();
     }
+    Tcl_DeleteExitHandler(MirrorCommand::exitHandler, this);
 }
 /**
  * operator()
@@ -149,6 +151,11 @@ MirrorCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         m_mirrorMemory = nullptr;
         throw;
     }
+    // Set up an exit handler to clean this all up:
+    
+    Tcl_CreateExitHandler(MirrorCommand::exitHandler, this);
+    
+    // Set the key as the result.
     interp.setResult(key);
 }
 /**
@@ -188,12 +195,16 @@ void
 MirrorCommand::destroy(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     throwIfNotSetup();
-    Xamine_DetachSharedMemory();
+    Xamine_KillSharedMemory();
     m_mirrorMemory = nullptr;
     try {
         delete m_pClient;    
     } catch(...) {}
     m_pClient = nullptr;
+    
+    // Kill off the exit hander:
+    
+    Tcl_DeleteExitHandler(MirrorCommand::exitHandler, this);
 }
 /////////////////////////////////////////////////////////////////////////////
 // utilities
@@ -210,4 +221,29 @@ MirrorCommand::throwIfNotSetup()
     }
     
    
+}
+/**
+ * exitHandler
+ *    This is establshed by MirrorCommand::destroy and killed off both by
+ *    MirrorCommand::destroy and the destructor.
+ *    We're called on exit.  If mirroring is active we shut it down and
+ *    by closing the socket. and unmapping the memory.  We
+ *    we don't destroy the object that'll happen naturally enough.
+ * @param obj - Actually a pointer to the command object.
+ */
+void
+MirrorCommand::exitHandler(ClientData obj)
+{
+    MirrorCommand* p = reinterpret_cast<MirrorCommand*>(obj);
+    if (p->m_mirrorMemory) {
+        Xamine_KillSharedMemory();
+        p->m_mirrorMemory = nullptr;
+    }
+    if (p->m_pClient) {
+        
+        try {
+            delete p->m_pClient;
+        } catch(...) {}
+        p->m_pClient;
+    }
 }

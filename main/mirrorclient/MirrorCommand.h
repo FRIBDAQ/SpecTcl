@@ -23,6 +23,8 @@
 
 #include <TCLObjectProcessor.h>
 #include <xamineDataTypes.h>
+#include <tcl.h>
+
 
 class MirrorClient;
 class CTCLInterpreter;
@@ -58,6 +60,8 @@ private:
     // Utilities:
 private:
     void throwIfNotSetup();
+    
+    static void exitHandler(ClientData obj);
 };
 
 #endif

@@ -37,3 +37,4 @@ unittests_LDFLAGS=@builddir@/libMirrorClient.la \
 
 TESTS=unittests
 
+EXTRA_DIST=mirrorclientscript.tcl

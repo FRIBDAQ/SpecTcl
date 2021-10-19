@@ -5,3 +5,4 @@ purpose "Mirror SpecTcl shared display memory"
 option "host" H "Host SpecTcl is running in" string required
 option "restport" R "Port number or DAQPortManager Service for SpecTcl REST service" string required
 option "mirrorport" M "Port number or DAQPortManager service for SpecTcl Mirror service" string required
+option "user"  u "Name of the user running the SpecTcl you're interseted in" string optional

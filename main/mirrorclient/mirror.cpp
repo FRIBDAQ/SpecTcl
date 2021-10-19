@@ -29,7 +29,9 @@
 #include <TCLInterpreter.h>
 #include "CmdInfo.h"
 #include "MirrorCommand.h"
-
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 const char* TclLibPath = SPECTCL_TCLLIBS;
@@ -57,6 +59,7 @@ static int AppInit(Tcl_Interp* pInterp)
         pOInterp->setResult("Cant' read auto_path to include SpecTcl directories");
         return TCL_ERROR;
     }
+    
     int status = Tcl_ListObjAppendElement(
         pInterp, autopath, Tcl_NewStringObj(TclLibPath, -1)
     );
@@ -82,7 +85,17 @@ static int AppInit(Tcl_Interp* pInterp)
     new CmdInfo(*pOInterp, "Mirror::gethost", parsed.host_arg);
     new CmdInfo(*pOInterp, "Mirror::getrestport", parsed.restport_arg);
     new CmdInfo(*pOInterp, "Mirror::getmirrorport", parsed.mirrorport_arg);
- 
+    const char* pUser;
+    if (parsed.user_given) {
+        pUser = parsed.user_arg;
+    } else {
+        pUser = getlogin();
+        if (!pUser) {
+            perror("Unable to get current username use the --user option to supply it.");
+            exit(-1);
+        }
+    }new CmdInfo(*pOInterp, "Mirror::getuser", pUser);
+    
     new MirrorCommand(*pOInterp);
     
     return TCL_OK;
