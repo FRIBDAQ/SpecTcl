@@ -2,7 +2,7 @@ lib_LTLIBRARIES = libTclGrammerApp.la
 
 COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
 
-Tcp_SRC = io.cpp io.h \
+Tcp_SRC = io.cpp  os.cpp \
 	CSocket.cpp         \
            CSocket.h  \
            CTCPBadSocketState.cpp \
@@ -22,7 +22,7 @@ Mirror_Src = MirrorDirectory.h MirrorDirectory.cpp \
 	CMirrorCommand.h CMirrorCommand.cpp
 
 
-Mirror_Includes = MirrorMessages.h
+Mirror_Includes = MirrorMessages.h io.h os.h
 
 
 Analysis_SRC =  CBufferCallbackList.cpp \
