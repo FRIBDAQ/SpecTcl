@@ -95,6 +95,11 @@ errorString(unsigned code);
 /*  Error code symbolic values:                                           */
 
 static const unsigned MIRROR_SUCCESS = 0;   // Successful completion.
+static const unsigned MIRROR_NORESTSVC=1;   // REST service not advertised.
+static const unsigned MIRROR_NOMIRRORSVC=2; // Mirror service not advertised.
+static const unsigned MIRROR_CANTGETUSERNAME=3; // getlogin failed.
+static const unsigned MIRROR_CANTGETSIZE=4;
+static const unsigned MIRROR_CANTGETMIRRORS=5;
 
 #ifdef __cplusplus
 }

@@ -115,6 +115,27 @@ GetSpectrumSize(const char* host, int port)
     return atol(strSize.c_str());
 }
 /**
+ * GetSpecTclSharedMemory
+ *    Get the name of the SpecTcl shared memory.
+ */
+std::string
+GetSpecTclSharedMemory(const char* host, int port)
+{
+    std::string uri = formatUrl(host, port, "shmem/key");
+    RestClient::Response r = RestClient::get(uri);
+    if (r.code != HTTPSuccess) {
+        throw std::runtime_error(r.body);
+    }
+    //
+    Json::Value root;
+    std::stringstream data(r.body);
+    data >> root;
+    
+    checkStatus(root);
+    
+    return root["detail"].asSTring();
+}
+/**
  * LookupPort
  *    See header - returns the port associated with a service name
  *    advertised in the DAQPort manager
