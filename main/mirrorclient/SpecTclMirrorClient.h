@@ -100,6 +100,7 @@ static const unsigned MIRROR_NOMIRRORSVC=2; // Mirror service not advertised.
 static const unsigned MIRROR_CANTGETUSERNAME=3; // getlogin failed.
 static const unsigned MIRROR_CANTGETSIZE=4;
 static const unsigned MIRROR_CANTGETMIRRORS=5;
+static const unsigned MIRROR_SETUPFAILED=6;
 
 #ifdef __cplusplus
 }

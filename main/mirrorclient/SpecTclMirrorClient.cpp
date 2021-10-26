@@ -28,6 +28,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
+static const char* ExecDirs=SPECTCL_BIN;
+static const unsigned MAP_RETRY_SECS=1;
+static const unsigned MAP_RETRIES=10;
+
+
 static unsigned lastError = MIRROR_SUCCESS;
 
 static const char* ppMessages[] = {
@@ -36,7 +44,9 @@ static const char* ppMessages[] = {
     "The specified MIRROR service name is not advertised in that host",
     "Unable to get the name of the logged in user",
     "Unable to retrieve memory size",
-    "Unable to retrieve the list of existing mirrors."
+    "Unable to retrieve the list of existing mirrors.",
+    "Unable to set up the mirror client"
+    
 };
 static const unsigned nMsgs = sizeof(ppMessages)/sizeof(const char*);
 
@@ -62,7 +72,7 @@ static int
 translatePort(const char* host, const char* port, const char* user, unsigned status)
 {
     // Try to convert the string to an integer.
-    const char* endptr;
+    char* endptr;
     unsigned result = strtoul(port, &endptr, 0);
     if (endptr != port) {
         // successful conversion:
@@ -105,6 +115,25 @@ isLocalHost(const char* host)
     
     
 }
+/**
+ * MapMemory
+ *    Map memory that's local.
+ * @param name - key for the memory.
+ * @param size - bytes of spectrum memoryt.
+ * @return void* pointer to the memory.
+ * @retval nullptr - could not map.
+ */
+static void*
+MapMemory(const char* name, size_t size)
+{
+    int status =
+            Xamine_MapMemory(const_cast<char*>(name, size, &pResult)
+        if (status) {
+            return pResult;
+        } else {
+            return nullptr;
+        }   
+}
 
 /**
  * mapSpecTclLocalMemory
@@ -122,13 +151,7 @@ mapSpecTclLocalMemory(const char* host, int port, size_t size)
     try {
         auto key = GetSpecTclSharedMemory(host, port);
         Xamine_shared* pResult;
-        int status =
-            Xamine_MapMemory(const_cast<char*>(key.c_str()), size, &pResult)
-        if (status) {
-            return pResult;
-        } else {
-            return nullptr;
-        }
+        return MapMemory(key.c_str(), size);
     }
     catch(...) {
         return nullptr;
@@ -175,6 +198,76 @@ getMirrorIfLocal(
     // No match
     
     return nullptr;
+}
+/**
+ * startMirroring
+ *    -  Run the mirrorclient program to start mirroring.
+ *    -  Wait a bit to let the mirrorclient produce its shared memory.
+ *    -  Get mirror information and use getMirrorIfLocal to map to it.
+ *       This bit of waiting and mapping can be repeated a few times.
+ * @param host - host in which SpecTcl is running.
+ * @param mirror - Port on which the SpecTcl mirror server is listening.
+ * @param rest   - Port on which the SpecTcl REST server is listening.
+ * @param size   - Spectrum bytes.
+ * @return void*   - Pointer to specTcl mirrored memory.
+ * @retval nullptr - if we can't do all this stuff.
+ */
+void*
+startMirroring(const char* host, int mirror, int rest, size_t size)
+{
+    pid_t child = fork();
+    if (child == -1) {
+        lastError = MIRROR_SETUPFAILED;
+        return nullptr;
+    }
+    if (child) {
+        // Parent
+        
+        void* pResult(nullptr);
+        for (int i =0; i < MAP_RETRIES; i++) {
+            sleep(MIRROR_RETRY_SECS);
+            auto mirrors = GetMirrorList();
+            pResult = getMirrorIfLocal(host, rest, size);
+            if (pResult) break;
+        }
+        return pResult;
+    } else {
+        // child
+        
+        // Close stdin,out,error
+        
+        close(0);
+        close(1);
+        close(2);
+        pid_t session = setsid();          // Create a new session.
+        if (session < 0) {
+            exit(EXIT_FAILURE);            // failed
+        }
+        
+        // formulate the mirrorclient command and arguments.
+        // Since we're passing integer ports we don't need --user.
+        
+        std::string program(SPECTCL_BIN);
+        program += "/mirrorclient";
+        
+        std::string hostarg = "--host=";
+        hostarg            +=  host;
+        
+        std::string mirrorarg = "--mirrorport=";
+        mirrorarg += std::to_string(mirror);
+        
+        std::string restarg = "--restport=";
+        restarg +=  std::to_string(rest);
+        
+        execl(
+            program.c_str(),
+            hostarg.c_str(), mirrorarg.c_str(), restarg.c_str(),
+            nullptr
+        );
+        // If we got here the execl failed.
+        
+        exit(EXIT_FAILURE);
+    }
 }
 
 // External entries:
@@ -234,7 +327,11 @@ getSpecTclMemory(const char* host, const char* rest, const char* mirror, const c
     void* result =  getMirrorIfLocal(host, restPort, mirrors, spectrumBytes);    // If local map 
     if (result) return result;
     
-    return startMirroring(host mirrorPort, spectrumBytes);
+    try {
+        return startMirroring(host mirrorPort, restport, spectrumBytes);
+    } catch(...) {
+        lastError = MIRROR_SETUPFAILED;
+    }
     
     return nullptr;
 }

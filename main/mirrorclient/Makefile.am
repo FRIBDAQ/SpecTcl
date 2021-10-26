@@ -3,6 +3,7 @@ lib_LTLIBRARIES=libMirrorClient.la
 bin_PROGRAMS=mirrorclient
 
 
+
 RESTCLIENTROOT=/usr/opt/restclient
 
 
@@ -35,14 +36,13 @@ libMirrorClient_la_SOURCES=MirrorClient.cpp SpecTclMirrorClient.cpp \
 	CPortManager.cpp CPortManager.h \
 	CPortManagerException.h CPortManagerException.cpp \
 	MirrorClientInternals.h MirrorClientInternals.cpp
+
 libMirrorClient_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display \
 	-I$(RESTCLIENTROOT)/include @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ \
-	@JSONCPP_CFLAGS@
+	@JSONCPP_CFLAGS@ -DSPECTCL_BIN="\"@bindir@\""
 libMirrorClient_la_LIBADD=@top_builddir@/Core/libTclGrammerApp.la \
 	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
 	@LIBEXCEPTION_LDFLAGS@ @TCL_LIBS@ @JSONCPP_LIBS@
-
-
 libMirrorClient_la_LDFLAGS=-Wl,-rpath=$(RESTCLIENTROOT)/lib 
 
 install-exec-local:
