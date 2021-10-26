@@ -51,6 +51,17 @@ size_t
 GetSpectrumSize(const char* host, int port);
 
 /**
+ * GetSpecTclSharedMemory
+ *    Return the name of the SpecTcl shared memory region.
+ *
+ *  @param host - host in which the SpecTcl REST server is running.
+ *  @param port - Port on wich the SpecTcl REST server is listening.
+ *  @return std::string - name of the region or throws std::runtime_error.
+ */
+std::string
+GetSpecTclSharedMemory(const char* host, int port);
+
+/**
  * LookupPort
  *    Lookup a port in the NSCLDAQ port manager.
  * @param host - host in which we do the lookup.
