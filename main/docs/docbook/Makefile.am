@@ -28,7 +28,7 @@ install-exec-local:
 	$(INSTALL_DATA) @srcdir@/dppexample/*.cpp @prefix@/share/examples/caendpp
 	$(INSTALL_DATA) @srcdir@/dppexample/*.h @prefix@/share/examples/caendpp
 	$(INSTALL_DATA) @srcdir@/dppexample/Makefile @prefix@/share/examples/caendpp
-	$(INSTALL_DATA) @builddir@@/remote/*   @prefix@/share/remote
+	$(INSTALL_DATA) @builddir@/remote/*   @prefix@/share/remote
 
 
 

@@ -58,7 +58,90 @@
     <chapter>
        <title>Running SpecTcl Within the NSCLDAQ-12.0+ Experiment Manager.</title>
        <para>
+        NSCLDAQ-12.0 introduced an experiment manager. The experiment manager
+        allows an experiment to break out of the use of a single account.
+        The manager gets started by a user and it  runs programs as needed in the
+        background.   The configuration of the programs managed by the program
+        manager is defined in an SQLite3 database file.   Editor programs
+        allow this database to be modified to describe the programs
+        that must be run, and when to run them.  
        </para>
+       <para>
+        The manager is a server that exports a REST service that supports
+        control of the manager.    The manager is, at its heart, a state machine.
+        It has a well defined, finite set of states, and well defined transitions
+        between those states.   As the manager transitions from one state to the
+        next, it runs a set of programs triggered by each transition.  The
+        manager is also container aware and programs can be run inside of
+        persistent containers that it maintains.
+       </para>
+       <para>
+        You may want to run one or more SpecTcl analysis programs under the control
+        of this manager.  If you do that, other chapters in this document
+        describe how to run displayers (to visualize the spectra SpecTcl is
+        accumulating and the displayable gates), as well as how to control
+        these SpecTcl instances with existing graphical user interfaces.
+       </para>
+       <para>
+        SpecTcl, itself, when run under the manager must be run headless.
+        This specifically means that:
+       </para>
+       <itemizedlist>
+        <listitem>
+           <para>
+              You must not allow a histogram visualization program (Displayer)
+              to run. 
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              <filename>SpecTclRC.tcl</filename>  must not start any graphical
+              user interface windows and, in fact, may not require the package
+              <literal>Tk</literal>.
+           </para>
+           <para>
+            In order to visualize spectra in systems that are remote from
+            SpecTcl, you shouild start the mirror server and REST server.
+           </para>
+           <para>
+            In order to control SpecTcl, you should run its REST server.
+           </para>
+        </listitem>
+       </itemizedlist>
+        <para>
+            This implies specialized <filename>SpecTclInit.tcl</filename>,
+            <filename>SpecTclRC.tcl</filename> and, potentially a script
+            we weill cal <filename>start.bash</filename> which starts
+            SpecTcl with appropriate environment variables setup.
+        </para>
+        <para>
+            Since program definitions for the experiment manager support
+            specifying the working directory of a program, you can, very easily,
+            have a separate working directory for interactive SpecTcls and
+            managed SpecTcls.  Let's consider, therefore, the following directory
+            tree.  <filename>SpecTcl</filename> has the SpecTcl program.
+            <filename>SpecTcl/interactive</filename> is the directory from
+            which SpecTcl can be run interactively.  It contains the
+            normal set of <filename>SpecTclInit.tcl</filename> and
+            <filename>SpecTclRC.tcl</filename> scripts you usually use
+            to run SpecTcl and has a symbolic link named SpecTcl that points back
+            to the executable for SpecTcl.
+            Similarly, <filename>SpecTcl/managed</filename>, which we will descrribe
+            has <filename>SpecTclRC.tcl</filename> and <filename>SpecTclInit.tcl</filename>
+            files as well as its own symbolic link back to the executable.
+        </para>
+        <para>
+            The remainder of this chapter will show example
+            <filename>SpecTclInit.tcl</filename>, <filename>SpecTclRC.tcl</filename>
+            and a script <filename>start.bash</filename> that will work togethr
+            to start SpecTcl under the manager.  We'll also describe how
+            to setup SpecTcl within the program manager so that it starts when
+            the experiment is booted and stops when it is shutdown.
+            This will require two more scripts: <filename>stop.bash</filename> and
+            <filename>stop.tcl</filename> in the <filename>SpecTcl/managed</filename>
+            directory which we will describe.
+        </para>
+
     </chapter>
     <chapter>
        <title>Starting a Remote Displayer With xaminerunner</title>
