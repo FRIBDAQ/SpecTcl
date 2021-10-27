@@ -113,6 +113,48 @@ proc Xamine::getLocalMemory { } {
 
     return [list $key $size]
 }
+##
+# Xamine::getMirrorMemory
+#   This is the same as getLocalMemory, but we need to set up or access
+#   a mirror.
+#   What we do is get what we need to call the compiled
+#   Tcl wrapper for getSpecTclMemory.  On success, we'll hunt down
+#   the mirror that was created for us...we'll then return the same two element list
+#   that Xamine::getLocalMemory produces...for the local mirror.
+#
+proc Xamine::getMirrorMemory {} {
+    puts "get mirror memory"
+    set spectclHost [Xamine::getHost]
+    set restPort    [Xamine::getPort]
+    set mirrorPort  [Xamine::getMirrorPort]
+    set spectclUser [Xamine::getUser]
+    
+    set status [catch {
+        puts "Starting mirroring."
+        Xamine::startMirrorIfNeeded \
+            $spectclHost $restPort $mirrorPort $spectclUser
+    } msg]
+    if {$status} {
+        error "Failed to start/attach mirror: $msg"
+    }
+    #  Figure out the mirrored memory key from the list of mirrors
+    # SpecTcl is maintaining.
+    
+    set myHost [exec hostname]
+    if {[Xamine::isLocal $myHost]} {
+        set myHost localhost ;      # Host in the mirror list.
+    }
+    set mirrors [$Xamine::restClient mirror]
+    
+    foreach mirror $mirrors {
+        set mirrorHost [dict get $mirror host]
+        if {$myHost eq $mirrorHost} {
+            return [list [dict get $mirror shmkey]  [$Xamine::restClient shmemsize]]
+        }
+    }
+    error "Mirror setup failed to set up a lasting mirror"    
+}
+    
 
     
 ##

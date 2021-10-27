@@ -44,7 +44,7 @@ class GetPortCommand : public CTCLObjectProcessor {
 private:
     std::string m_port;                // Might be a service.
 public:
-    GetPortCommand(CTCLInterpreter& interp, const char* port);
+    GetPortCommand(CTCLInterpreter& interp, const char* port, const char* pCommand);
     virtual ~GetPortCommand();
     int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 

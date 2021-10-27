@@ -79,9 +79,10 @@ GetHostCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& obj
  * GetPortCommand constructor
  *   @param interp - interpreter on which the command is being registered.
  *   @param port   - stringified port (could be a service).
- */
-GetPortCommand::GetPortCommand(CTCLInterpreter& interp, const char* port) :
-  CTCLObjectProcessor(interp, "Xamine::getPort", TCLPLUS::kfTRUE),
+ *   @param pCommand - command to register.
+ */ 
+GetPortCommand::GetPortCommand(CTCLInterpreter& interp, const char* port, const char* pCommand) :
+  CTCLObjectProcessor(interp, pCommand, TCLPLUS::kfTRUE),
     m_port(port)
 {}
 

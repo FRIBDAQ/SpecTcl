@@ -32,6 +32,7 @@
 
 #include "Info.h"
 #include "TclXamine.h"
+#include "Mirror.h"
 #include "XamineGateHandlers.h"
 #include <string>
 #include <iostream>
@@ -93,7 +94,8 @@ static int AppInit(Tcl_Interp* pInterp)
     }
     
     new GetHostCommand(*pOInterp, parsed.host_arg);
-    new GetPortCommand(*pOInterp, parsed.port_arg);
+    new GetPortCommand(*pOInterp, parsed.port_arg, "Xamine::getPort");
+    new GetPortCommand(*pOInterp, parsed.mirror_arg, "Xamine::getMirrorPort");
     
     // The user passed into to GetUserCommand is
     //  -  The command line --user value if present or
@@ -109,6 +111,7 @@ static int AppInit(Tcl_Interp* pInterp)
     new IsLocalCommand(*pOInterp);
     new TclXamine(*pOInterp);
     new XamineGateHandler(*pOInterp);
+    new CTCLMirrorSetup(*pOInterp);
  
     // source bindir/xaminerunner.tcl  bindir is assumed to be
     //  TclLibPath../bin

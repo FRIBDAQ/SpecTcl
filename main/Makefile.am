@@ -26,8 +26,9 @@ SUBDIRS = Replace \
 					scalerWrapper \
 					packaged \
 					Python db PyQtGUI\
-					restclient xaminerunner \
-					mirrorclient
+					restclient \
+					mirrorclient \
+					xaminerunner 
 
 ACLOCAL_AMFLAGS=-I m4
 

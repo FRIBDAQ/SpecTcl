@@ -60,6 +60,8 @@ TclXamine::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         std::string sub = objv[1];
         if (sub == "genenv") {
             genenv(interp, objv);
+        } else if (sub == "checkmem") {
+          checkmem(interp, objv);
         } else if (sub == "start") {
                 start(interp, objv);
         } else {
@@ -107,6 +109,40 @@ TclXamine::genenv(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     if (!Xamine_genenv(name.c_str(), size)) {
         throw CErrnoException("Unable to set up Xamine environment variables");
     }
+}
+/**
+ * checkmem
+ *    See if we can actually map to a specific Xamine memory.
+ *    We could get the info about al ocal memory but still not be able
+ *    to map if SpecTcl is running in a persistent container.
+ * @param interp - interpreter running the command.
+ * @param objv  - command words.
+ */
+void
+TclXamine::checkmem(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+  requireExactly(objv, 4, "Xamine::Xamine checkmem key bytes");
+  std::string name = objv[2];
+  int         size = objv[3];
+  
+  volatile Xamine_shared* p;
+  int status = Xamine_MapMemory(const_cast<char*>(name.c_str()), size, &p);
+  
+  
+  // Success is status true and p != -1 as a pointer.
+  
+  volatile Xamine_shared* badptr =
+    const_cast<volatile Xamine_shared*>(reinterpret_cast<Xamine_shared*>(-1));
+  bool result;
+  if (status && (p != badptr) ) {
+    result = true;
+  } else {
+    result = false;
+  }
+  CTCLObject r;
+  r.Bind(interp);
+  r = result;
+  interp.setResult(r);
 }
 /**
  * start

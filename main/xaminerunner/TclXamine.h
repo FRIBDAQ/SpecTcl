@@ -49,16 +49,8 @@ public:
     // Sub command executors.
 private:
     void genenv(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void checkmem(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void start(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    void stop(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    void setGateHandler(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    void pollGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    void startGatePollThread(
-        CTCLInterpreter& interp, std::vector<CTCLObject>& objv
-    );
-    void enterGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    void removeGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    void enumerateGates(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     
     // Utility methods:
     

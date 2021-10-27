@@ -4,28 +4,47 @@ package require Tk
 
 wm withdraw .
 
+##
+# useMirroring
+#   If we need to use mirroring, this is called.
+#
+
+proc useMirroring {} {
+    puts "Use mirroring"
+    set m [Xamine::getMirrorMemory]
+    puts "Xamine get mirror memory got $m"
+    Xamine::Xamine genenv [lindex $m 0] [lindex $m 1]
+    Xamine::Xamine start
+    Xamine::connectGates
+}
+
 
 set host [Xamine::getHost]
+Xamine::initRestClient $host  [Xamine::getPort] [Xamine::getUser]
+
+close stdin
 
 if {[Xamine::isLocal $host]} {
 
     # Local SpecTcl
     
-    Xamine::initRestClient $host  [Xamine::getPort] [Xamine::getUser]
+    
     
     set m [Xamine::getLocalMemory]
-    Xamine::Xamine genenv [lindex $m 0] [lindex $m 1]
-    Xamine::Xamine start
+    set key [lindex $m 0]
+    set size [lindex $m 1]
+    if {[Xamine::Xamine checkmem $key $size]} {
+        Xamine::Xamine genenv $key $size
+        Xamine::Xamine start
+        
     
-    #after 1500;    # Wait for Xamine to be alive.
-
-    Xamine::connectGates
-    
-    
-    close stdin
+        Xamine::connectGates
+    } else {    
+        
+        useMirroring
+    }
 } else {
     # Remote SpecTcl
 
-    puts stderr "Remote SpecTcl is not yet supported"
-    exit -1
+    useMirroring
 }
