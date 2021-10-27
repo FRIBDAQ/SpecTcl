@@ -13,6 +13,7 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/share/caendpp
 	$(mkinstalldirs) @prefix@/share/examples
 	$(mkinstalldirs) @prefix@/share/examples/caendpp
+	$(mkinstalldirs) @prefix@/share/remote
 	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
 	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
 	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
@@ -27,7 +28,7 @@ install-exec-local:
 	$(INSTALL_DATA) @srcdir@/dppexample/*.cpp @prefix@/share/examples/caendpp
 	$(INSTALL_DATA) @srcdir@/dppexample/*.h @prefix@/share/examples/caendpp
 	$(INSTALL_DATA) @srcdir@/dppexample/Makefile @prefix@/share/examples/caendpp
-
+	$(INSTALL_DATA) @builddir@@/remote/*   @prefix@/share/remote
 
 
 
@@ -49,4 +50,4 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/qtpy.xml	            -o @builddir@/qtpy
 	@HTMLDOCBOOK@ @srcdir@/batch.xml	    -o @builddir@/batch
 	@HTMLDOCBOOK@ @srcdir@/CAENDPP.xml          -o @builddir@/caendpp
-
+	@HTMLDOCBOOK@ @srcdir@/remote.xml           -o @builddir@/remote

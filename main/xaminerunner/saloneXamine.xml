@@ -297,7 +297,7 @@ if {[array names env DAQTCLLIBS]  ne ""} {             <co id='ex.REST.daqenvche
        <para>
         The following example shows how to run the SpecTcl Tree parameter
         (standard) GUI.  The assumption in this script is that the
-        user Fox started the SpecTcl headless under the NSCLDAQ environment
+        user <literal>fox</literal> started the SpecTcl headless under the NSCLDAQ environment
         advertising its REST interface as <literal>SpecTcl_REST</literal>.
         The assumption is that the NSCLDAQ environment, version 12.0 or later
         was set up when the script was run.

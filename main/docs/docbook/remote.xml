@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>SpecTcl Client Display Interface</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>October 27, 2021</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+       <title>INTRODUCTION</title>
+       <para>
+        This document is intended for the following audiences:
+       </para>
+       <itemizedlist>
+        <listitem>
+           <para>
+              Users of NSCLDAQ that want a persistent SpecTcl to run under
+              the NSCLDAQ-12+ experiment manager.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Users of SpecTcl that want to start up a remote displayer.  This
+              includes users of SpecTcl within the NSCLDAQ-12+ experiment manager
+              environment.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+               Users of SpecTcl that want to remote control a SpecTcl that may
+               be running headless in the experiment manager environment.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Programmers that want to write their own displayers or otherwise
+              gain access to the SpecTcl display memory.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Programmers that need to know the structure of the SpecTcl display
+              memory.
+           </para>
+        </listitem>
+       </itemizedlist>
+    </chapter>
+    <chapter>
+       <title>Running SpecTcl Within the NSCLDAQ-12.0+ Experiment Manager.</title>
+       <para>
+       </para>
+    </chapter>
+    <chapter>
+       <title>Starting a Remote Displayer With xaminerunner</title>
+       <para>
+       </para>
+    </chapter>
+    <chapter>
+       <title>Running Spectcl Scripts Remotely Via the REST Server</title>
+       <para>
+       </para>
+    </chapter>
+    <chapter>
+       <title>Using the Mirror API to Access SpecTcl Shared Display Memory.</title>
+       <para>
+       </para>
+    </chapter>
+    <chapter>
+       <title>Structure Of the SpecTcl Shared Display Memory</title>
+       <para>
+       </para>
+    </chapter>
+    <appendix>
+        <title>New SpecTclInit.tcl features.</title>
+        <variablelist>
+            <varlistentry>
+               <term><varname>HTTPDPort</varname></term>
+               <listitem>
+                   <para>
+                    This variable can be set in SpecTcl 5.0 and later. If it is
+                    defined in SpecTclInit.tcl, it must be an integer value.
+                    SpecTcl will then start an HTTPD/REST server listening on the
+                    port number that is the value of that variable.
+                   </para>
+                   <para>
+                    Non privileged users of SpecTcl must select a value
+                    larger than <literal>1023</literal>.  If the specified
+                    port is already being used, SpecTcl will search for a nearby
+                    port to use.  The port number actually selected will be
+                    output in the SpecTcl startup messages.
+                   </para>
+                   <para>
+                    As described later it is also possible, in the NSCLDAQ
+                    environment, to get the NSCLDAQ port manager to allocate
+                    a port number and advertise a service that can be translated
+                    by client software.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><varname>MirrorPort</varname></term>
+               <listitem>
+                   <para>
+                    This variable can be set in SpecTcl 5.10 and later.  If it
+                    is defined in SpecTclInit.tcl, it must be an integer value
+                    greater than <literal>1023</literal>.   If defined, the
+                    value is used as the listener port for the display memory
+                    mirror server.  
+                   </para>
+                   <para>
+                    The display memory mirror server supports clients creating
+                    memory regions that are mirrors of the SpecTcl display shared
+                    memory.
+                   </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Both of the new variables support describing a listen port for a server.
+            The NSCLDAQ running system provides a mechanism for allocating such ports
+            from a large pool of reserved ports.  Allocated ports are associated
+            with a name and user that can be resolved by clients in systems
+            that have NSCLDAQ installed (but not necessarily running).
+        </para>
+        <para>
+            A simplified allocation interface is included in SpecTcl-5.10+ as long
+            as the NSCLDAQ environment variables for NSCLDAQ-12.0+ are set up.
+        </para>
+        <para>
+            The example below is a fragment from a <filename>SpecTclInit.tcl</filename>
+            script that uses this capability to assign and advertise ports
+            for the REST and Mirror servers:
+        </para>
+        <example>
+            <title>Advertising REST and Mirror Ports With the NSCLDAQ PortManager</title>
+            <programlisting>
+lappend auto_path [file join $SpecTclHome TclLibs]
+if {[array names env DAQTCLLIBS]  ne ""} {         <co id='portman.tcllibs' />
+    lappend auto_path $env(DAQTCLLIBS)
+}
+package require DAQService                         <co id='portman.package' />
+set HTTPDPort [SpecTcl::getServicePort SpecTcl_REST] <co id='portman.advertise' />
+set MirrorPort [SpecTcl::getServicePort SpecTcl_MIRROR]
+
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='portman.tcllibs' >
+                <para>
+                    Starting with NSCLDAQ-12.0, the <filename>daqsetup.bash</filename>
+                    script exports the environment variable <literal>DAQTCLLIBS</literal>.
+                    This sectio of code tests for the existence of that variable and,
+                    if defined, adds its value to the Tcl library package search
+                    path.  If you are using a version earlier than NSCLDAQ-12.0,
+                    you must either define <literal>TCLLIBPATH</literal> to point
+                    to the <literal>$DAQROOT/TclLibs</literal>, or manually add
+                    that directory to the <varname>auto_path</varname>.
+                </para>
+            </callout>
+            <callout arearefs='portman.package' >
+                <para>
+                    The <literal>DAQService</literal> package provides a simplified
+                    interface to the NSCLDAQ port manager.  It does, however
+                    require the ability to load the NSCLDAQ packages that
+                    interface with that port manager, hence the code to
+                    extend the <varname>auto_path</varname> variable previously
+                    described.
+                </para>
+            </callout>
+            <callout arearefs='portman.advertise' >
+                <para>
+                    The <literal>SpecTcl::getServicePort</literal> proc
+                    takes, as an argument, the name of a service you wish to
+                    advertise.  It returns the port number allocated to that
+                    service.  This is used to set the values of both
+                    <varname>HTTPDPort</varname> and <varname>MirrorPort</varname>
+                </para>
+            </callout>
+        </calloutlist>
+    </appendix>
+</book>
