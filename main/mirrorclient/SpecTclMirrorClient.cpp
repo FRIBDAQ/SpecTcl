@@ -31,6 +31,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <iostream>
+#include <stdio.h>
+
 static const char* ExecDirs=SPECTCL_BIN;
 static const unsigned MAP_RETRY_SECS=1;
 static const unsigned MAP_RETRIES=10;
@@ -45,12 +48,31 @@ static const char* ppMessages[] = {
     "Unable to get the name of the logged in user",
     "Unable to retrieve memory size",
     "Unable to retrieve the list of existing mirrors.",
-    "Unable to set up the mirror client"
+    "Unable to set up the mirror client",
+    "gethostname failed"
     
 };
 static const unsigned nMsgs = sizeof(ppMessages)/sizeof(const char*);
 
 // Utility functions.
+
+/**
+ * sameHost
+ *   Determine if two host names refer to the same host.
+ *   We match the fqdns of the names.  Note that this can miss that localhost
+ *   is the same as some named host but that's been dealt with elsewhere.
+ *  @param h1 - first host.
+ *  @param h2 - second host
+ *  @return bool - true if the two hosts have the same fqdn.
+ */
+static bool
+sameHost(const char* h1, const char* h2)
+{
+    std::string strH1 = Os::getfqdn(h1);
+    std::string strH2 = Os::getfqdn(h2);
+    
+    return strH1 == strH2;
+}
 
 /**
  * translatePort
@@ -105,6 +127,7 @@ isLocalHost(const char* host)
     char gottenhostname[1024];
     memset(gottenhostname, 0, 1024);  // ensure null termination.
     if (gethostname(gottenhostname, sizeof(gottenhostname) - 1)) {
+        lastError = MIRROR_CANTGETHOSTNAME;
         throw std::runtime_error("gethostname() failed");
     }
     if (strHost == gottenhostname) return true;
@@ -126,13 +149,15 @@ isLocalHost(const char* host)
 static void*
 MapMemory(const char* name, size_t size)
 {
+    volatile Xamine_shared* pResult;
     int status =
-            Xamine_MapMemory(const_cast<char*>(name, size, &pResult)
-        if (status) {
-            return pResult;
-        } else {
-            return nullptr;
-        }   
+            Xamine_MapMemory(const_cast<char*>(name), size, &pResult);
+    if (status && (pResult != reinterpret_cast<void*>(-1))) {
+        return const_cast<Xamine_shared*>(pResult);
+    } else {
+        return nullptr;
+    }
+    return nullptr;                  // Can't actually get here but g++ complained.
 }
 
 /**
@@ -156,6 +181,29 @@ mapSpecTclLocalMemory(const char* host, int port, size_t size)
     catch(...) {
         return nullptr;
     }
+}
+/**
+ * mapExistingMirror
+ *    Maps an existing mirror, if it really does exist.
+ * @param mirrors - mirror list.
+ * @param size    - memory size.
+ * @return void*  - nullptr if no matching mirror else pointer to mirror map.
+ */
+static void*
+mapExistingMirror(const std::vector<MirrorInfo>& mirrors, size_t size)
+{
+    char gottenhostname[1024];
+    memset(gottenhostname, 0, 1024);  // ensure null termination.
+    if (gethostname(gottenhostname, sizeof(gottenhostname) - 1)) {
+        lastError = MIRROR_CANTGETHOSTNAME;
+        throw std::runtime_error("gethostname() failed");
+    }
+    for (auto item : mirrors) {
+            if (gottenhostname, item.m_host.c_str()) {
+                return MapMemory(item.m_memoryName.c_str(), size);
+            }
+    }
+    return nullptr;
 }
 
 /**
@@ -181,19 +229,19 @@ mapSpecTclLocalMemory(const char* host, int port, size_t size)
  */
 static void*
 getMirrorIfLocal(
-    const char* host, int rest, const
-    std::vector<MirrorInfo>& mirrors, size_t size
+    const char* host, int rest, 
+    const std::vector<MirrorInfo>& mirrors, size_t size
 )
 {
     // Handle the special case of SpecTcl run locally (both of them).
     if (isLocalHost(host)) {
-        return mapSpecTclLocalMemory(host, rest, size);
-    } else {
-        for (auto item : mirrors) {
-            if (sameHost(host, item.m_host)) {
-                return MapMemory(item.m_memoryName, size);
-            }
+        void* pResult = mapSpecTclLocalMemory(host, rest, size);
+        if (!pResult) {
+            pResult = mapExistingMirror(mirrors, size);
         }
+        return pResult;
+    } else {
+        return mapExistingMirror(mirrors, size);
     }
     // No match
     
@@ -225,21 +273,23 @@ startMirroring(const char* host, int mirror, int rest, size_t size)
         
         void* pResult(nullptr);
         for (int i =0; i < MAP_RETRIES; i++) {
-            sleep(MIRROR_RETRY_SECS);
-            auto mirrors = GetMirrorList();
-            pResult = getMirrorIfLocal(host, rest, size);
+            sleep(MAP_RETRY_SECS);
+            auto mirrors = GetMirrorList(host, rest);
+            pResult = getMirrorIfLocal(host, rest, mirrors, size);
             if (pResult) break;
         }
+        if (!pResult) lastError = MIRROR_SETUPFAILED;
         return pResult;
     } else {
         // child
         
         // Close stdin,out,error
         
-        close(0);
-        close(1);
-        close(2);
+        //close(0);
+        //close(1);
+        //close(2);
         pid_t session = setsid();          // Create a new session.
+        std::cerr << "Child session " << session << std::endl;
         if (session < 0) {
             exit(EXIT_FAILURE);            // failed
         }
@@ -259,13 +309,15 @@ startMirroring(const char* host, int mirror, int rest, size_t size)
         std::string restarg = "--restport=";
         restarg +=  std::to_string(rest);
         
+        std::cerr << program << " " << hostarg << " " << mirrorarg << " " << restarg <<std::endl;
+        
         execl(
-            program.c_str(),
+            program.c_str(), program.c_str(),
             hostarg.c_str(), mirrorarg.c_str(), restarg.c_str(),
             nullptr
         );
         // If we got here the execl failed.
-        
+        perror("Failed to execl");
         exit(EXIT_FAILURE);
     }
 }
@@ -300,6 +352,7 @@ getSpecTclMemory(const char* host, const char* rest, const char* mirror, const c
     try {
         restPort = translatePort(host, rest, user, MIRROR_NORESTSVC);
         mirrorPort = translatePort(host, mirror, user, MIRROR_NOMIRRORSVC);
+    }
     catch (...) {
         return nullptr;             // translatePort returns the
     }
@@ -328,7 +381,7 @@ getSpecTclMemory(const char* host, const char* rest, const char* mirror, const c
     if (result) return result;
     
     try {
-        return startMirroring(host mirrorPort, restport, spectrumBytes);
+        return startMirroring(host, mirrorPort, restPort, spectrumBytes);
     } catch(...) {
         lastError = MIRROR_SETUPFAILED;
     }
@@ -341,7 +394,7 @@ getSpecTclMemory(const char* host, const char* rest, const char* mirror, const c
 
 extern "C" {
 int
-errorCode()
+Mirror_errorCode()
 {
     return lastError;
 }
@@ -349,7 +402,7 @@ errorCode()
 
 extern "C" {
 const char*
-errorString(unsigned code)
+Mirror_errorString(unsigned code)
 {
     if (code < nMsgs) {
         return ppMessages[lastError];

@@ -78,7 +78,7 @@ getSpecTclMemory(const char* host, const char* rest, const char* mirror, const c
  *  @return int  - Error status from the failed getSpecTclMemory call.
  */
 int
-errorCode();
+Mirror_errorCode();
 
 /**
  * errorString
@@ -89,7 +89,7 @@ errorCode();
  * @return const char*  - Pointer to the static error message string.
  */
 const char*
-errorString(unsigned code);
+Mirror_errorString(unsigned code);
 
 /*------------------------------------------------------------------------*/
 /*  Error code symbolic values:                                           */
@@ -101,6 +101,7 @@ static const unsigned MIRROR_CANTGETUSERNAME=3; // getlogin failed.
 static const unsigned MIRROR_CANTGETSIZE=4;
 static const unsigned MIRROR_CANTGETMIRRORS=5;
 static const unsigned MIRROR_SETUPFAILED=6;
+static const unsigned MIRROR_CANTGETHOSTNAME = 7;
 
 #ifdef __cplusplus
 }

@@ -133,7 +133,7 @@ GetSpecTclSharedMemory(const char* host, int port)
     
     checkStatus(root);
     
-    return root["detail"].asSTring();
+    return root["detail"].asString();
 }
 /**
  * LookupPort

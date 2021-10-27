@@ -31,7 +31,7 @@ noinst_HEADERS=cmdline.h
 cmdline.h cmdline.c : @srcdir@/mirroropts.ggo
 	@GENGETOPT@ --unamed-opts <@srcdir@/mirroropts.ggo
 
-libMirrorClient_la_INCLUDES=MirrorClient.h SpecTclMirrorClient.h
+include_HEADERS=MirrorClient.h SpecTclMirrorClient.h
 libMirrorClient_la_SOURCES=MirrorClient.cpp SpecTclMirrorClient.cpp \
 	CPortManager.cpp CPortManager.h \
 	CPortManagerException.h CPortManagerException.cpp \
