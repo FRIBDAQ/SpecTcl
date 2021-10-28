@@ -141,7 +141,284 @@
             <filename>stop.tcl</filename> in the <filename>SpecTcl/managed</filename>
             directory which we will describe.
         </para>
+        <section>
+            <title>SpecTclInit.tcl in Managed SpecTcl</title>
+            <para>
+                SpecTclInit.tcl contains
+                variable definitions that SpecTcl examines on
+                startup.  These variable definitions control how SpecTcl
+                starts up the three definitions we'll need to set properly are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><varname>DisplayType</varname></term>
+                   <listitem>
+                       <para>
+                        This variable determines which of the SpecTcl displayers
+                        is started by SpecTcl when it starts.  The value of
+                        <literal>none</literal> tells SpecTcl not to start any
+                        displayer program.  
+                       </para>
+                       <para>
+                        Note that SpecTcl will still create display shared memory
+                        so clients can access the spectra the user has bound
+                        into the display memory via <command>sbind</command>.
+                        The shared memory region can also be mirrored to remote
+                        systems if desired.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><varname>HTTPDPort</varname></term>
+                   <listitem>
+                       <para>
+                        If this variable is defined, SpecTcl will start it's
+                        REST server allowing remote control over SpecTcl. With
+                        SpecTcl run in the manager, this is the only way to
+                        provide a user interface to SpecTcl.  
+                       </para>
+                       <para>
+                        The value of this variable must be in integer.  In the
+                        environment of the NSCLDAQ experiment manager, it is
+                        recommended that, rather than hard-coding a numerical port,
+                        you use the NSCLDAQ port manager to allocate a port and
+                        advertise a named service.  We'll describe this process
+                        the sample <filename>SpeTclInit.tcl</filename> below.
+                       </para>
+                       <para>
+                        If you do choose to hard code a port number, this value must
+                        be unique <emphasis>system wide over all users</emphasis>.
+                        If you provide a duplicate port number, you'll wind up starting
+                        the REST server on a 'nearby' free port.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><varname>MirrorPort</varname></term>
+                   <listitem>
+                       <para>
+                        If this variable is defined, SpecTcl will start its
+                        mirror server.  The mirror server supports remote displayers
+                        by providing the ability to create and maintain a mirror of
+                        the SpecTcl  display memory on a remote or local system.
+                       </para>
+                       <para>
+                        Under the manager, at FRIB/NSCL, SpecTcl is normally
+                        run containerized, and the experiment manager uses persistent
+                        containers to accomplis that.   Since persistent containers
+                        have their own, private namespace of SYS-V shared memory
+                        segments used by SpecTcl for display shared memory,
+                        you will need to create a mirror in the local host to
+                        allow non-containerized programs or programs in transient
+                        containers (<command>singularity shell</command>) to
+                        attach displayers to SpecTcl.
+                       </para>
+                       <para>
+                        Mirroring and attached displayers to mirror will be
+                        described in the next chapter.
+                       </para>
+                       <para>
+                        As with <varname>HTTPDPort</varname>, this value  should,
+                        in most cases be gotten with the NSCLDAQ port manager as
+                        it must be a unique integer system wide.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                In the remainder of this section, we will provide a
+                sample <filename>SpecTclInit.tcl</filename> file and
+                walk through how it works.  In doing so, we will use the port
+                manager to get our server ports.  Doing so requires that 
+            </para>
+            <orderedlist>
+                <listitem>
+                   <para>
+                      The SpecTcl Tcl library directory must be added to the
+                      Tcl intepreter package search path.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      The NSCLDAQ-12.0+ environment is set up in the
+                      container via its initialization script
+                      (e.g. the initialization script source /usr/opt/daq/12.something/daqsetup.bash)
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      The value of the environment variable
+                      <varname>DAQTCLLIBS</varname> is appended to the
+                      Tcl interpreter search path so that the required Port manager
+                      interaction  packages can be sourced in.
+                   </para>
+                </listitem>
+            </orderedlist>
+            <example>
+                <title>Sample SpectclInit.tcl for Experiment Manager</title>
+                <programlisting>
+lappend auto_path [file join $SpecTclHome TclLibs]   <co id='mgrinit.spectcltcllibs' />
+if {[array names env DAQTCLLIBS]  ne ""} {           <co id='mgrinit.daqtcllibs' />
+    lappend auto_path $env(DAQTCLLIBS)
+}
+package require DAQService                          <co id='mgrinit.daqservice' />
+set HTTPDPort [SpecTcl::getServicePort SpecTcl_REST]   <co id='mgrinit.restport' />
+set MirrorPort [SpecTcl::getServicePort SpecTcl_MIRROR] <co id='mgrinit.mirrorport' />
+set DisplayType none                                <co id='mgrinit.nodisplay' />
 
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='mgrinit.spectcltcllibs' >
+                    <para>
+                        The Tcl variable <varname>SpecTclHome</varname> is defined
+                        at SpecTcl's compile and initialization time to be the
+                        top level installation directory of SpecTcl.  This
+                        line adds the <filename>TclLibs</filename> subdirectory
+                        to the Tcl library search path (<varname>auto_path</varname>).
+                        The <filename>TclLibs</filename> contains the SpecTcl
+                        Tcl library of support packages
+                    </para>
+                </callout>
+                <callout arearefs='mgrinit.daqtcllibs' >
+                    <para>
+                        This segment of the script determines if the environment
+                        variable <varname>DAQTCLLIBS</varname> has been defined and,
+                        if so, appends it to the Tcl package  search path.
+                        The NSCLDAQ 12.0+ <filename>daqsetup.bash</filename> script
+                        defines <varname>DAQTCLLIBS</varname> to point to the
+                        NSCLDAQ Tcl package library directory tree.
+                    </para>
+                    <para>
+                        We don't exit if this is not the case as there are
+                        other mechanisms to add the DAQ Tcl library packages to
+                        the search path (e.g. externally defining
+                        <varname>TCLLIBPATH</varname>).
+                    </para>
+                </callout>
+                <callout arearefs='mgrinit.daqservice' >
+                    <para>
+                        The <literal>DAQService</literal> package is a package
+                        in the SpecTcl Tcl package library that provides a simplified
+                        interface to the NSCLDAQ Port manager for advertising
+                        services and obtaining the port allocated.  Note that since
+                        this depends on the low-level NSCLDAQ port manager package,
+                        we needed, as we did previously, add the NSCLDAQ Tcl library
+                        packages to the Tcl interpreter package search paths.
+                    </para>
+                </callout>
+                <callout arearefs='mgrinit.restport' >
+                    <para>
+                        The <literal>DAQService</literal> package exports the
+                        <command>SpecTcl::getServicePort</command> proc.
+                        This proc takes a service name as a parameter and returns
+                        the port that has been allocated to that service by
+                        the port manager.  Service names shouild be unique
+                        with <emphasis>users</emphasis> requesting them.
+                    </para>
+                    <para>
+                        This line advertises the service <literal>SpecTcl_REST</literal>
+                        and assigns the resulting port to <varname>HTTPPort</varname>.
+                        The service can be looked up by clients and the resulting
+                        port then used to connect to the REST server that
+                        SpecTcl will start listening for connections on that port/
+                    </para>
+                </callout>
+                <callout arearefs='mgrinit.mirrorport' >
+                    <para>
+                        Similarly, the service <literal>SpecTcl_MIRROR</literal>
+                        is advertised and the resulting port set to the
+                        <varname>MirrorPort</varname> so that when SpecTcl
+                        starts its mirror service it will be listening on the
+                        corresponding port.
+                    </para>
+                </callout>
+                <callout arearefs='mgrinit.nodisplay' >
+                    <para>
+                        Setting the <varname>DisplayType</varname> to
+                        <literal>none</literal> means that SpecTcl will not
+                        start a spectrum display program but it will, nonetheless,
+                        create the spectrum shared memory so that local clients
+                        can display data from it and remote clients, upon setting up
+                        a mirror, can also display data from it.
+                    </para>
+                </callout>
+            </calloutlist>
+        </section>
+        <section>
+           <title>SpecTclRC.tcl for Managed SpecTcl</title>
+           <para>
+            <filename>SpecTclRC.tcl</filename> should be very minimal.
+            This is because in most cases, users use <filename>SpecTclRC.tcl</filename>
+            to create graphical user interfaces (GUIs) which managed SpecTcl's
+            cannot display.  A later chapter will describe how to run
+            these as clients of the SpecTcl REST server.
+           </para>
+           <para>
+            We recommend using SpecTclRC.tcl to:
+           </para>
+           <itemizedlist>
+            <listitem>
+               <para>
+                  Read in a SpecTcl configuration file, and bind its spectra into
+                  the SpecTcl shared memory region.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Read in any non-interactive scripts your GUI's might use
+                  that would run better locally than remotely (see, however
+                  the chapter on running scripts remotely).
+               </para>
+            </listitem>
+            
+           </itemizedlist>
+           <example>
+            <title>
+                Sample SpecTclRC.tcl Script for Managed SpecTcl.
+            </title>
+            <programlisting>
+source mydefinitions.tcl     <co id='managed.rcdefs' />
+sbind -all                   <co id='managed.rcsbind' />
+source mylocalprocs.tcl      <co id='managed.rclocalprocs' />
+            </programlisting>
+           </example>
+           <calloutlist>
+            <callout arearefs='managed.rcdefs' >
+                <para>
+                    Reads in a SpecTcl definition file that contains tree parameter
+                    definitions, spectrum definitions, gate definitions and
+                    applications as well as tree variable values.
+                </para>
+            </callout>
+            <callout arearefs='managed.rcsbind' >
+                <para>
+                    Binds all the spectra defined in <filename>mydefinitions.tcl</filename>
+                    to the display shared memory.  This makes them visible
+                    to local displayers attached to SpecTcl as well as remote
+                    displayers when mirroring has been started to the remote
+                    system.
+                </para>
+            </callout>
+            <callout arearefs='managed.rclocalprocs' >
+                <para>
+                    Sources in any Tcl procedures you want SpecTcl to hold locally.
+                    These may be procs that are invoked by SpecTcl's compiled
+                    code or utilities that your GUI scripts use that will run
+                    better or faster locally rather than remotely.
+                </para>
+                <para>
+                    It's perfectly normal and acceptable for a line like this
+                    to be omitted.
+                </para>
+            </callout>
+           </calloutlist>
+        </section>
+        <section>
+           <title>start.bash and Defining SpecTcl to the Manager.</title>
+           <para>
+           </para>
+        </section>
     </chapter>
     <chapter>
        <title>Starting a Remote Displayer With xaminerunner</title>
