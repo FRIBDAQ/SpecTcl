@@ -110,9 +110,7 @@
        </itemizedlist>
         <para>
             This implies specialized <filename>SpecTclInit.tcl</filename>,
-            <filename>SpecTclRC.tcl</filename> and, potentially a script
-            we weill cal <filename>start.bash</filename> which starts
-            SpecTcl with appropriate environment variables setup.
+            <filename>SpecTclRC.tcl</filename>.
         </para>
         <para>
             Since program definitions for the experiment manager support
@@ -132,8 +130,8 @@
         </para>
         <para>
             The remainder of this chapter will show example
-            <filename>SpecTclInit.tcl</filename>, <filename>SpecTclRC.tcl</filename>
-            and a script <filename>start.bash</filename> that will work togethr
+            <filename>SpecTclInit.tcl</filename> and <filename>SpecTclRC.tcl</filename>
+            that will work togethr
             to start SpecTcl under the manager.  We'll also describe how
             to setup SpecTcl within the program manager so that it starts when
             the experiment is booted and stops when it is shutdown.
@@ -381,6 +379,11 @@ set DisplayType none                                <co id='mgrinit.nodisplay' /
 source mydefinitions.tcl     <co id='managed.rcdefs' />
 sbind -all                   <co id='managed.rcsbind' />
 source mylocalprocs.tcl      <co id='managed.rclocalprocs' />
+
+set pidfile [open spectclpid w]
+puts $pidfile [pid]          <co id='managed.rcpid' />
+close $pidfile
+
             </programlisting>
            </example>
            <calloutlist>
@@ -412,12 +415,163 @@ source mylocalprocs.tcl      <co id='managed.rclocalprocs' />
                     to be omitted.
                 </para>
             </callout>
+            <callout arearefs='managed.rcpid' >
+                <para>
+                    Records the process id of SpecTcl in the file
+                    <filename>spectclid</filename>.  This allows us to
+                    define a command in the manager to kill SpecTcl when the
+                    system is shutting down.
+                </para>
+            </callout>
            </calloutlist>
         </section>
         <section>
-           <title>start.bash and Defining SpecTcl to the Manager.</title>
+           <title>Defining SpecTcl to the Manager.</title>
            <para>
+            Using SpecTcl with the NSCLDAQ experiment manager means defining it as
+            a program as well as defining a program to stop it.  It then means
+            attaching the start program to the <literal>BOOT</literal>
+            state transition and attaching the stop program to the
+            <literal>SHUTDOWN</literal> transition.
            </para>
+           <para>
+            Throughout this section, we will assume that
+            <filename>SpecTclRC.tcl</filename> will create a file named
+            spectclpid in its working directory that will contain its process ID.
+           </para>
+        </section>
+        <section>
+            <title>Starting SpecTcl in the Manager</title>
+            <para>
+                Use the <filename>$DAQBIN/mg_config</filename> progream specifying as
+                a parameter the name of the manager's configuration database file.
+                When the list of configuration options pops up, double click on
+                <literal>Programs</literal> to define the SpecTcl program.
+            </para>
+            <para>
+                When the list of defined programs pops up, click the
+                <guibutton>New...</guibutton> button to bring up the program editor.
+                Fill in the following fields in the editor as follows::
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>Name:</literal></term>
+                   <listitem>
+                       <para>
+                        A unique program name such as <literal>SpecTcl</literal>
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>Host</literal></term>
+                   <listitem>
+                       <para>
+                        DNS name of the computer on which you want SpecTcl to run.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>Working Directory</literal></term>
+                   <listitem>
+                       <para>
+                        The <filename>SpecTcl/managed</filename> director in which
+                        you put your <filename>SpecTclInit.tcl</filename> and
+                        <filename>SpecTclRC.tcl</filename> scripts for managed
+                        Spectcl.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>Program File:</literal></term>
+                   <listitem>
+                       <para>
+                        The path to the SpecTcl you want to run.  This
+                        can be releative.  If you created the symlink to
+                        the SpecTcl executable you want to run this can be e.g.
+                        <literal>./SpecTcl</literal>
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>Container</literal></term>
+                   <listitem>
+                       <para>
+                        If you want SpecTcl to run in a container, this should be
+                        the name of a container that you defined earlier.
+                        If left blank, SpecTcl will run in native mode.
+                        The container should have a startup script that
+                        sources in the NSCLDAQ Environment definition script,
+                        see, however, below.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>Type:</literal></term>
+                   <listitem>
+                       <para>
+                        Select the <literal>Persistent</literal> radio button
+                        to indicate that SpecTcl is expected to persist but
+                        that the data flow can continue if it exits.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                If your container or other environment do not define
+                DAQTCLLIBS as expected by the <filename>SpecTclInit.tcl</filename>
+                script we created, you can use the
+                <literal>Program Environment</literal> editor section to set this
+                or, alternatively <literal>TCLLIBPATH</literal>.
+            </para>
+            <para>
+                Click <guibutton>Ok</guibutton> to save the definition and close
+                the program list.
+            </para>
+            <para>
+                Having create the program you need to add it to a sequence triggered
+                by Boot.
+                Double click the <literal>Sequence Definition</literal> entry in
+                the top level window.  If there is no sequence triggered by
+                booting the system, type <literal>BOOT</literal> in the
+                <literal>New sequence:</literal> entry.  Pull down the
+                <literal>Trigger state:</literal> drop down menu and select
+                <literal>BOOT</literal> then click <guibutton>Add</guibutton>
+                to add the sequence.
+            </para>
+            <para>
+                Double click <literal>BOOT</literal> from the list of sequences
+                to pop up the sequence editor.  In the <literal>Program name</literal>
+                pulldown, select <literal>SpecTcl</literal> (or the name you gave
+                to your SpecTcl program definition.  Click <guibutton>Add</guibutton>
+                to add this to the <literal>BOOT</literal> sequence and
+                click <guibutton>SAVE</guibutton> to save the modified sequence.
+            </para>
+            <para>
+                You also need to kill SpecTcl when the experiment is <literal>Shutdown</literal>.
+                Define a program with the same attributes as your SpecTcl program
+                however:
+            </para>
+            <itemizedlist>
+                <listitem>
+                   <para>
+                      Select a <literal>Transitory</literal>  program type.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      For the <literal>Program File:</literal> enter:
+                      <literal>kill -9 `cat spectclpid`</literal>
+                   </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                Add this to a sequence that's triggerd by the <literal>SHUTDOWN</literal>
+                transition.  Since the programs run as shell commands this works to
+                send a <literal>SIGKILL</literal> signal to the program whose
+                PID is stored in the <filename>spectclpid</filename> file the
+                SpecTcl <filename>SpecTclInit.tcl</filename> sample file wrote
+                when SpecTcl started.
+            </para>
         </section>
     </chapter>
     <chapter>
