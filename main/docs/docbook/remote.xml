@@ -5,7 +5,7 @@
 >
 <book>
     <bookinfo>
-      <title>SpecTcl Client Display Interface</title>
+      <title>SpecTcl Client Display Interface and Headless SpecTcl</title>
       <author><firstname>Ron</firstname><surname>Fox</surname></author>
       <revhistory>
           <revision>
@@ -569,20 +569,396 @@ close $pidfile
                 transition.  Since the programs run as shell commands this works to
                 send a <literal>SIGKILL</literal> signal to the program whose
                 PID is stored in the <filename>spectclpid</filename> file the
-                SpecTcl <filename>SpecTclInit.tcl</filename> sample file wrote
-                when SpecTcl started.
+                SpecTcl <filename>SpecTclInit.tcl</filename> sample file written
+                when SpecTcl started.  A key point is that the <literal>Program File:</literal>
+                is actually a line that's submitted to a <literal>bash</literal>
+                shell for execution on the specified host
+                (possibly within the containerized environment).
             </para>
         </section>
     </chapter>
     <chapter>
        <title>Starting a Remote Displayer With xaminerunner</title>
        <para>
+        Once you have a headless SpecTcl running you will, at some point in time,
+        probably want to look at the spectra it produces.  This can be done by
+        running a supported Displayer program such as <literal>Xamine</literal>
+        or <literal>CutiePie</literal> and attaching it to the local SpecTcl
+        shared memory region (if SpecTcl is running locally) or a mirror
+        managed by the mirror server if SpecTcl is remote.
        </para>
+       <para>
+        This chapter describes a helper program that's installed in SpecTcl's
+        <filename>bin</filename> directory called <literal>xaminerunner</literal>
+        that simplifies this process for the Xamine displayer. It does the
+        following:
+       </para>
+       <itemizedlist>
+        <listitem>
+           <para>
+              Figures out if SpecTcl is running remotely and, if so, sets up
+              a mirror, if one does not already exist, of the SpecTcl shared
+              memory in the local host.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Sets up the environment variables Xamine needs to locate the shared
+              memory it's supposed to map accordingly and starts Xamine.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Accepts Xamine gate creation communications and maps them into the
+              appropriate SpecTcl REST requests to create those gates in
+              SpecTcl.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Captures new gates and new sbind operations and communiates with
+              Xamine so that the gates it displays accurately reflect the
+              gates that can be displayed on the spectra bound to the shared
+              memory.
+           </para>
+        </listitem>
+       </itemizedlist>
+       <para>
+        <literal>xaminerunner</literal> requires the SpecTcl REST server be running.
+        If SpecTcl is in a remote system it must also be running the Mirror server.
+       </para>
+       <para>
+        <literal>xaminerunner</literal> is located in
+        <filename>$SpecTclHome/bin/xaminerunner</filename>, where <literal>SpecTclHome</literal>
+        is the top level of a SpecTcl installation version 5.10 or later.
+        It's operation is controlled by command line options.  If SpecTcl is
+        running under NSCLDAQ and advertising services via the NSCLDAQ port
+        manager (as descrdibed in the previous chapter), to do named service lookup,
+        you must have setup the environment variables of an NSCLDAQ installation
+        before running <literal>xaminerunner</literal> (sourced <filename>daqsetup.bash</filename>).
+       </para>
+       <para>
+        Here are the command options accepted by <literal>xaminerunner</literal>:
+       </para>
+       <variablelist>
+        <varlistentry>
+           <term><option>--host</option>=<replaceable>DNS-or-IP</replaceable></term>
+           <listitem>
+               <para>
+                This mandatory option provides the host in which SpecTcl is
+                running.  The value of this option can be either a
+                DNS hostname that can be resolved by DNS on the system in which
+                you are running <literal>xaminerunner</literal> or an IP address.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><option>--port</option>=<replaceable>rest-port-or-service</replaceable></term>
+           <listitem>
+               <para>
+                This required option
+                provides information about the port on which the SpecTcl REST
+                server is running.  This can be either a numeric port numer or,
+                if NSCLDAQ's environment variables have been set up and SpecTcl
+                is using the NSCLDAQ port manager to advertise the REST
+                service, the name of the service that is being advertised.
+                See also <option>--user</option>
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><option>--mirror</option>=<replaceable>mirror-port-or-service</replaceable></term>
+           <listitem>
+               <para>
+                This option is required if SpecTcl is running remotely.  It's value
+                is interpreted in the same manner as
+                <option>--port</option> but is the port on which SpecTcl's mirror
+                server is listening.  If SpecTcl is local its mirror server will
+                only be contacted if SpecTcl is runnning in a persistent container
+                (e.g. by the NSCLDAQ experiment manager) in which case its shared
+                memory is invisible outside of the container.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><option>--user</option>=<replaceable>service-username</replaceable></term>
+           <listitem>
+               <para>
+                This optional option is only used if service names advetiased
+                by the NSCLDAQ port manager are used for either the
+                <option>--port</option> or <option>--mirror</option> options.
+                Service names in NSCLDAQ are qualified by the user advertising them.
+                This option supplies the name of the user running SpecTcl.  This is
+                intended for use in the experiment environment.  When running
+                an experiment, several users collaborate.  One user has started
+                SpecTcl under the experiment manager, but others may wish
+                to visualize and interact with the spectra SpecTcl creates.
+               </para>
+            </listitem>
+        </varlistentry>
+       </variablelist>
+       
     </chapter>
     <chapter>
        <title>Running Spectcl Scripts Remotely Via the REST Server</title>
        <para>
+        Especially within the experiment manager, SpecTcl can be run without
+        a controlling terminal.  In that case, it is necessary to use the
+        REST interface to tell SpecTcl what to do.  The Tcl REST client API
+        is implemented as two packages:
        </para>
+       <variablelist>
+        <varlistentry>
+           <term><literal>SpecTclRestClient</literal></term>
+           <listitem>
+               <para>
+                Provides an object oriented interface to the REST services
+                offered by SpecTcl.  This interface can be used by scripts that know
+                they will be running as REST clients.  The Reference pages in
+                the appendices will describe the API offered by this package.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><literal>SpecTclRestCommand</literal></term>
+           <listitem>
+               <para>
+                Uses <literal>SpecTclRestClient</literal> to implement all of
+                SpecTcl's commands.  This makes it possible to frame existing
+                user interface scripts with a simple start up script to run
+                them as REST clients.
+               </para>
+            </listitem>
+        </varlistentry>
+       </variablelist>
+       <para>
+        Let's start by looking at a simple framing script that starts the
+        SpecTcl Tree parameter graphical user interface -- but as a REST client.
+        Following a discussion of that script, we'll describe some of the differences
+        between SpecTcl's native commands and the SpecTcl REST command simulation.
+       </para>
+       <example>
+        <title>Running the Tree Parameter GUI as a REST client</title>
+        <programlisting>
+package require Tk                              <co id='resttree.tk' />
+
+set SpecTclHome /usr/opt/spectcl/5.10-000       <co id='resttree.auto_path'/>
+lappend auto_path [file join $SpecTclHome TclLibs]
+
+package require SpecTclRestCommand            <co id='resttree.cmdpackage' />
+
+if {[array names ::env DAQROOT] ne ""} {
+    lappend auto_path [file join $::env(DAQROOT) TclLibs] <co id='resttree.daq.auto_path' />
+}
+
+package require portAllocator                  <co id='resttree.discovery' />
+set mgr [portAllocator %AUTO% -hostname daqcompute99];
+set port [$mgr findServer SpecTcl_REST fox];  # Could be different user!
+$mgr destroy
+
+if {$port eq ""} {
+    error "There is no SpecTcl_REST service - perhaps SpecTcl isn't runnig"
+}
+
+
+SpecTclRestCommand::initialize daqcompute99  $port   <co id='resttree.initcmdpackage' />
+
+maintainVariables 2                             <co id='resttree.vars' />
+source $SpecTclHome/Script/SpecTclGui.tcl      <co id='resttree.treegui' />
+wm withdraw .                                  <co id='resttree.withdrawroot' />
+
+        </programlisting>
+       </example>
+       <calloutlist>
+        <callout arearefs='resttree.tk' >
+            <para>
+                The Tree user interface is a graphical user interface and hence,
+                needs the <literal>Tk</literal> package.  This explicit
+                <command>package require</command> allows this script to run
+                either under <command>wish</command> or <command>tclsh</command>.
+            </para>
+        </callout>
+        <callout arearefs='resttree.auto_path' >
+            <para>
+                These two lines define <varname>SpecTclHome</varname> to point
+                to the top level installation directory for SpecTcl version
+                <literal>5.10-000</literal>, the first version to support
+                remote SpecTcl's REST command  simulator.
+            </para>
+            <para>
+                <varname>SpecTclHome</varname> is normally defined by
+                SpecTcl as it starts.  We must define it ourself if our scripts
+                use it.  
+            </para>
+            <para>
+                Finally, the <filename>TclLibs</filename> subdirectory, which
+                contains the SpecTcl Tcl package library is added to the
+                <varname>auto_path</varname> variable so that it will be searched
+                to satisfy future <command>package require</command> commands.
+            </para>
+        </callout>
+        <callout arearefs='resttree.cmdpackage' >
+            <para>
+                Searches for and imports the SpecTcl command simulator over
+                REST.
+            </para>
+        </callout>
+        <callout arearefs='resttree.daq.auto_path' >
+            <para>
+                We're going to do service discovery in the NSCLDAQ port manager,
+                assuming that SpecTcl has advertised the service name
+                <literal>SpecTcl_REST</literal> for its rest server.
+                Doing this requires that we import a package from NSCLDAQ.
+                This line adds the <filename>TclLibs</filename> subdirectory
+                of the version of NSCLDAQ who's environment variables we have
+                just set up
+                to the package search path.
+            </para>
+            <para>
+                That directory contains the NSCLDAQ Tcl package library.
+            </para>
+        </callout>
+        <callout arearefs='resttree.discovery' >
+            <para>
+                This chunk of code first imports the NSCLDAQ
+                <literal>portAllocator</literal> package which contains,
+                among other things, service discovery support.
+                It then creates a <literal>portAllocator</literal> to
+                perform service discovery on the host <literal>daqcompute99</literal>
+                where, presumably SpecTcl is running.
+            </para>
+            <para>
+                The <literal>portAllocator</literal> object is then asked to
+                resolve the service <literal>SpecTcl_REST</literal> advertised
+                by the user <literal>fox</literal> into a numerical TCP/IP port
+                number.
+            </para>
+            <para>
+                If the result is an empty string, there is no matching service.
+            </para>
+        </callout>
+        <callout arearefs='resttree.initcmdpackage' >
+            <para>
+                The SpecTcl command simulator must be told where the
+                REST service it is operating over lives.  This is done with the
+                <command>SpecTclRestCommand::initialize</command>.  That command has
+                two parameters; the host in which SpecTcl is running and the
+                port on which the REST server is listening for connections.
+            </para>
+        </callout>
+        <callout arearefs='resttree.vars' >
+            <para>
+                SpecTcl documents serveral variables in which state is maintained.
+                This command tells the command simulator to maintain those variables,
+                updating them every 2 seconds.  This is one difference between
+                the simulator and the native environment.  Updates to variables
+                must be fetched from the server.   This command ensures that's done
+                periodically.
+            </para>
+        </callout>
+        <callout arearefs='resttree.treegui' >
+            <para>
+                Sources the tree parameter GUI, starting the remote Tree GUI.
+                This does not build its interface in the root window, but
+                starts a new top level in which it builds its interface.
+            </para>
+        </callout>
+        <callout arearefs='resttree.withdrawroot' >
+            <para>
+                Withdraws the root window from the display.   Once the
+                end of the script is reached, since the <literal>Tk</literal>
+                package was impored, <command>tclsh</command> enters the event
+                loop dispatching e.g. user interface events, until the application
+                is ended.
+            </para>
+        </callout>
+       </calloutlist>
+       <section>
+        <title>Differences between the Command Simulator and Native SpecTcl.</title>
+        <para>
+            In the sample framing script for the tree parameter GUI, we have already
+            seen two differences between the command simulator and running native.
+            There are a few other differences, as well as a command in both
+            SpecTcl and the command simulator to determine which environment your
+            scripts are running in.
+        </para>
+        <para>
+            This section describes all of the differences between the command
+            simulator and native SpecTcl.
+        </para>
+        <itemizedlist>
+            <listitem>
+               <para>
+                  The command simulator must be initialized via
+                  <command>SpecTclRestCommand::initialize</command>.
+                  This command tells the simulator the
+                  host on which the SpecTcl server is running and the port on which
+                  the REST server is listening for connections.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Several SpecTcl variables are not available in the command
+                  simulator unless it is asked to periodically fetch them from
+                  the SpecTcl REST server. The
+                  <command>maintainvariables</command> accepts the number
+                  of seconds between updates and sets up periodic fetches of those
+                  variables.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  The command <command>isRemote</command>  will return true
+                  (1) in the simulator and false (0) in native SpecTcl.
+                  You can use this to have your user interfaces take action that
+                  varies depending on whether or not it is running in the
+                  simulator.  One application might be to write user interfaces
+                  that know how to start themselves as REST clients or native
+                  scripts.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Several objects in SpecTcl can have traces applied to their
+                  state.  For example <command>spectrum -trace</command> can be used
+                  to execute user scripts when the spectrum dictionary is modified.
+                  The simulator supports these but at a higher latency than
+                  native SpeTcl.  
+               </para>
+               <para>
+                The server accumulates traces for clients that have expressed interest
+                in them.  The client can then request the traces that have
+                accumulated since the last time it asked.  In the simulator,
+                the first time a trace is created, the simulator expresses interest
+                in traces to the server.  It then sets up periodic polling of
+                traces the server has accumulated.  Each trace is then
+                dispatched as appopriate by the simulator.
+               </para>
+               <para>
+                A simulator variable <varname>SpecTclRestCommand::tracePollInterval</varname>
+                contains the integer number of seconds between trace polls.   It is read
+                after each trace poll and, therefore, is to some extent dynamic.
+                The default value is <literal>2</literal> (seconds).
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  The <command>execCommand</command>  executs an arbitrary
+                  command in SpecTcl returning its result to the caller.  This
+                   supports user defined SpecTcl command extensions.  It is
+                   also another use case for the
+                   <command>isRemote</command> command.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Since, for the most part, <command>rootexec</command>  is used
+                  to produce graphical results, the <command>rootexec</command>
+                  command is not supported by the simulator.
+               </para>
+            </listitem>
+        </itemizedlist>
+       </section>
     </chapter>
     <chapter>
        <title>Using the Mirror API to Access SpecTcl Shared Display Memory.</title>
