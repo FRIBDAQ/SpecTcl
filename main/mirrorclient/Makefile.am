@@ -8,14 +8,14 @@ RESTCLIENTROOT=/usr/opt/restclient
 
 
 
-mirrorclient_SOURCES=cmdline.c cimdline.h mirror.cpp \
+mirrorclient_SOURCES=cmdline.c cmdline.h mirror.cpp \
 	CmdInfo.h CmdInfo.cpp \
 	MirrorCommand.h MirrorCommand.cpp 
 
-
+mirrorclient_DEPENDENCIES=libMirrorClient.la
 
 mirrorclient_CXXFLAGS=-DSPECTCL_TCLLIBS="\"@prefix@/TclLibs\"" \
-	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@  
+	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ -I@top_srcdir@/Display
 
 mirrorclient_LDADD=@builddir@/libMirrorClient.la \
 	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
@@ -52,6 +52,7 @@ install-exec-local:
 
 noinst_PROGRAMS=unittests
 unittests_SOURCES=TestRunner.cpp mctests.cpp
+unittests_DEPENDENCIES=libMirrorClient.la
 unittests_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display \
 	@CPPUNIT_CFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
@@ -66,4 +67,4 @@ unittests_LDFLAGS=@builddir@/libMirrorClient.la \
 
 TESTS=unittests
 
-EXTRA_DIST=mirrorclientscript.tcl
+EXTRA_DIST=mirrorclientscript.tcl mirroropts.ggo
