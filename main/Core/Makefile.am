@@ -1,9 +1,11 @@
-lib_LTLIBRARIES = libTclGrammerApp.la libSpecTclMain.la
+lib_LTLIBRARIES = libSpecTclTcp.la libTclGrammerApp.la libSpecTclMain.la 
 
 libSpecTclMain_la_SOURCES=SpecTclMain.cpp
 libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la
 libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
-	-I@top_srcdir@/Utility 
+	-I@top_srcdir@/Utility
+
+
 
 COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
 
@@ -20,6 +22,10 @@ Tcp_SRC = io.cpp  os.cpp \
            CTCPNoSuchHost.h \
            CTCPNoSuchService.cpp \
            CTCPNoSuchService.h
+
+libSpecTclTcp_la_SOURCES=$(Tcp_SRC)
+libSpecTclTcp_la_CPPFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
+libSpecTclTcp_la_LIBADD=@LIBTCLPLUS_LDFLAGS@
 
 Mirror_Src = MirrorDirectory.h MirrorDirectory.cpp \
 	AbstractThreadedServer.h AbstractThreadedServer.cpp \
@@ -372,7 +378,6 @@ libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
 				$(SpectrumIO_SRC) \
 				$(TreeParam_SRC) \
 				$(Xamine_SRC) \
-				$(Tcp_SRC)   \
 				$(Mirror_Src) 
 
 # Removed -I@top_srcdir@/Tape
@@ -390,9 +395,11 @@ libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
+			@builddir@/libSpecTclTcp.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
 			@TCL_LIBS@ @ROOT_LDFLAGS@
 
+libTclGrammerApp_la_DEPENDENCIES=@builddir@/libSpecTclTcp.la
 libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 -lgsl -lgslcblas -lm
 
 
@@ -436,6 +443,7 @@ commonTestCXXFLAGS = -I@top_srcdir@/Core \
 # Removed @top_builddir@/Tape/libtape.la
 
 commonTestLdFlags = @builddir@/libTclGrammerApp.la \
+		@builddir@/libSpecTclTcp.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
