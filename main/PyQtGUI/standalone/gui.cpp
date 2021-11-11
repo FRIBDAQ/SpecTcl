@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <errno.h>
 #include "config.h"
-#include "SubManagerAPI.h"
 
 int main(int argc, char *argv[])
 {
@@ -42,9 +41,6 @@ int main(int argc, char *argv[])
     std::cout << "All good!" << std::endl;
   }
 
-  SubManagerAPI* api = SubManagerAPI::getInstance();
-  api->CreateThread();
-    
   std::string filename = std::string(getenv("INSTDIR"))+"/Script/Main.py";
   std::cout << "filename: " << filename << std::endl;
 

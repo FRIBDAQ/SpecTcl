@@ -598,7 +598,12 @@ void CTclGrammerApp::CreateDisplays()
     auto mirrorServer = new ServerListener(mirrorPortNum, pFactory);
     mirrorServer->start();
   }
-  
+
+  // Mirror port for QtPy GUI
+  int mp = atoi(mirrorPortNum);
+  std::string mport = std::to_string(mp);
+  ::setenv("MIRRORport", mport.c_str(), 1);
+
 }
 
 /*! \brief CTclGrammerApp::SelectDisplayer()

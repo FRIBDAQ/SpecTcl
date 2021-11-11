@@ -6,6 +6,7 @@ class CPyConverter {
 
 %TypeHeaderCode
 #include "CPyConverter.h"
+#include "SpecTclMirrorClient.h"
 #include "dataAccess.h"
 #include <Python.h>
 #include <iostream>
@@ -30,7 +31,7 @@ class CPyConverter {
    std::vector<float> m_maxy;
    
    void extractInfo(char* speclist);
-   PyObject* Update(char* hostname, char* port);
+   PyObject* Update(char* hostname, char* port, char* mirror, char* user);
    PyObject* ShMemToNpArray(void* addr, int size, int nbinx, int nbiny);
    PyObject* DebugFillSpectra();   
 

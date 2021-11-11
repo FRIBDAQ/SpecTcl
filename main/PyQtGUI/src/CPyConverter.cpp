@@ -27,6 +27,8 @@ CPyConverter::extractInfo(char* speclist)
   ss << std::string(speclist);  
   while (!ss.eof() &&
 	 (ss >> id >> name >> dim >> binx >> minx >> maxx >> biny >> miny >> maxy)) {
+    if (debug)
+      std::cout << id << " " << name << std::endl;    
     m_id.push_back(id);
     m_names.push_back(name);
     m_dim.push_back(dim);
@@ -40,28 +42,46 @@ CPyConverter::extractInfo(char* speclist)
 }
 
 PyObject*
-CPyConverter::Update(char* hostname, char* port)
+CPyConverter::Update(char* hostname, char* port, char* mirror, char* user)
 {
   if (debug){
     std::cout << "Inside CPyConverter::Update()" << std::endl;
-    std::cout << "hostname: " << hostname << " port: " << port << std::endl;
+    std::cout << "hostname: " << hostname << " port: " << port << " mirror: " << mirror << " user: " << user << std::endl;
   }
   
   std::string _hostname = hostname;
   std::string _port = port;  
-
-  if (debug)
-    std::cout << "Hostname --> " << _hostname << " Port --> " << _port << std::endl;
+  std::string _mirror = mirror;
+  std::string _user = user;    
   
+  if (debug){
+    std::cout << "Hostname --> " << _hostname << " Port --> " << _port << std::endl;
+    std::cout << "Mirror --> " << _mirror << " User --> " << _user << std::endl;    
+  }
+
   dataRetriever* d = dataRetriever::getInstance();
   d->SetHostPort(_hostname,_port);
   d->InitShMem();
   spec_shared *p = d->GetShMem();
+
+  /*
+  spec_shared* p = reinterpret_cast<spec_shared*>(getSpecTclMemory(_hostname.c_str(), _port.c_str(), _mirror.c_str(), _user.c_str()));
+
+  printf("Offsets into shared mem: \n");
+  printf("  dsp_xy      = %p\n", (void*)p->dsp_xy);
+  printf("  dsp_titles  = %p\n", (void*)p->dsp_titles);
+  printf("  dsp_types   = %p\n", (void*)p->dsp_types);
+  printf("  dsp_map     = %p\n", (void*)p->dsp_map);
+  printf("  dsp_spectra = %p\n", (void*)&(p->dsp_spectra));
+  printf("  Total size  = %d\n", sizeof(spec_shared));
+  */
   
   char **speclist;
   int lsize;
   lsize = p->GetSpectrumList(&speclist);
 
+  std::cout << "lsize -> " << lsize << std::endl;
+  
   Address_t addr;
   PyObject* data[lsize];
   PyObject* listData = PyList_New(lsize);
@@ -75,7 +95,7 @@ CPyConverter::Update(char* hostname, char* port)
     // add nparray to a list
     PyList_SetItem(listData, i, data[i]);
   }
-  
+
   PyObject* result = PyTuple_New(10);
   PyTuple_SetItem(result, 0, vectorToList_Int(m_id));
   PyTuple_SetItem(result, 1, vectorToList_String(m_names));
@@ -89,6 +109,8 @@ CPyConverter::Update(char* hostname, char* port)
   PyTuple_SetItem(result, 9, listData);
   
   return result;
+
+  //Py_RETURN_NONE;
 }
 
 PyObject*

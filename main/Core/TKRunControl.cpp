@@ -39,7 +39,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tcl.h>
 #include <tk.h>
 #include <iostream>
-#include "ShMemManagerAPI.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -66,16 +65,6 @@ CTKRunControl::Start()
   m_FileHandler.Set();
   CRunControl::Start();		// Update the internal state variables.
 
-  //ShMemManagerAPI* api = ShMemManagerAPI::getInstance();
-  // api->CreateThread();
-  /*
-  try {
-    api->JoinThread();
-  }
-  catch (...) {
-
-  }
-  */
 }
 
 //////////////////////////////////////////////////////////////////////////

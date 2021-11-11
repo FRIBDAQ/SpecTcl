@@ -11,7 +11,7 @@ build_file = basename + ".sbf"
 _file = basename + ".sip"
 
 pwdfile = sys.argv[1]+"/"+_file
-pwdlib = "-L"+sys.argv[2]+" -lCPyConverter -Wl,-rpath="+sys.argv[2]
+pwdlib = "-L"+sys.argv[2]+" -lMirrorClient -lCPyConverter -Wl,-rpath="+sys.argv[2]
 installdir = sys.argv[2]
 
 # Get the SIP configuration information.
@@ -30,7 +30,8 @@ makefile = sipconfig.SIPModuleMakefile(config, build_file,makefile="Makefile.sip
 makefile.extra_libs = [basename]
 
 includedir = sys.argv[1]
-makefile.extra_include_dirs = [includedir]
+incdir2 = sys.argv[3]
+makefile.extra_include_dirs = [includedir, incdir2]
 
 # Search libraries in ../src directory
 #makefile.extra_lflags= ['-L. -lCPyConverter -Wl,-rpath=.']

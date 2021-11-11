@@ -73,7 +73,7 @@ from WebWindow import WebWindow
 SETTING_BASEDIR = "workdir"
 SETTING_EXECUTABLE = "exec"
 DEBUG = False
-debugPrints = False
+debugPrints = True
 
 DEBOUNCE_DUR = 0.25
 t = None
@@ -269,7 +269,6 @@ class MainWindow(QMainWindow):
         self.wTop.updateButton.clicked.connect(self.update)                
         self.wTop.slider.valueChanged.connect(self.self_update)
 
-        # disable for the moment - serious bug to understand
         self.wTop.configButton.clicked.connect(self.configure)                        
         self.wTop.saveButton.clicked.connect(self.saveGeo)
         self.wTop.loadButton.clicked.connect(self.loadGeo)
@@ -926,13 +925,14 @@ class MainWindow(QMainWindow):
             hostnameport = str(self.wTop.server.text()).split(":")
             hostname = hostnameport[0]
             port = hostnameport[1]
-            b_hostname = hostname.encode('utf-8')
-            b_port = port.encode('utf-8')
+            user = str(self.wTop.user.text())
+            mirror = str(self.wTop.mirror.text())
             if (debugPrints):
-                print(b_hostname, b_port)
+                print(hostname.encode('utf-8'), port.encode('utf-8'), user.encode('utf-8'), mirror.encode('utf-8'))
                 # creates a dataframe for spectrum info
                 print("before cpy.CPyConverter().Update")
-            s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'))
+            s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'), bytes(mirror, encoding='utf-8'), bytes(user, encoding='utf-8'))
+
             self.spectrum_list = pd.DataFrame(
                 {'id': s[0],
                  'names': s[1],
@@ -949,7 +949,7 @@ class MainWindow(QMainWindow):
             self.create_parameter_list()
             self.create_spectrum_list()                    
             self.create_gate_list()        
-            #self.update_spectrum_info()
+            self.update_spectrum_info()
             self.isCluster = False
 
             self.createDf()
@@ -970,7 +970,6 @@ class MainWindow(QMainWindow):
         try:
             server = "http://"+self.wTop.server.text()+"/spectcl/parameter/list"
             tmpl = httplib2.Http().request(server)[1]
-            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/parameter/list")[1]
             tmp = json.loads(tmpl.decode())
             tmpid = []
             tmpname = []
@@ -997,7 +996,6 @@ class MainWindow(QMainWindow):
         try:
             server = "http://"+self.wTop.server.text()+"/spectcl/spectrum/list"
             tmpl = httplib2.Http().request(server)[1]
-            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/spectrum/list")[1]
             tmp = json.loads(tmpl.decode())
             tmppar = []
             for dic in tmp['detail']:
@@ -1020,7 +1018,6 @@ class MainWindow(QMainWindow):
         try:
             server = "http://"+self.wTop.server.text()+"/spectcl/gate/list"
             tmpl = httplib2.Http().request(server)[1]
-            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/gate/list")[1]
             tmp = json.loads(tmpl.decode())
             lst_name = []
             lst_value = []
@@ -2363,39 +2360,6 @@ class MainWindow(QMainWindow):
     ##############################
         
     ############################
-    ## Fitting functions
-    ############################
-    '''
-    def gauss(self, x, amplitude, mean, standard_deviation):
-        return amplitude*np.exp(-(x-mean)**2.0 / (2*standard_deviation**2))
-
-    def exp(self, x, a, b, c):
-        return a+b*np.exp(x*c)
-
-    def pol1(self, x, p0, p1):
-        return p0+p1*x
-
-    def pol2(self, x, p0, p1, p2):
-        return p0+p1*x+p2*x**2
-
-    def pol3(self, x, p0, p1, p2, p3):
-        return p0+p1*x+p2*x**2+p3*x**3
-
-    def gpol1(self, x, amplitude, mean, standard_deviation, p0, p1, f):
-        g = self.gauss(x, amplitude, mean, standard_deviation)
-        pol1 = self.pol1(x,p0,p1)
-        return f*g+(1-f)*pol1
-
-    def gpol2(self, x, amplitude, mean, standard_deviation, p0, p1, p2, f):
-        g = self.gauss(x, amplitude, mean, standard_deviation)
-        pol2 = self.pol1(x,p0,p1,p2)
-        return f*g+(1-f)*pol2        
-    '''
-    ############################
-    ## end of Fitting functions
-    ############################    
-
-    ############################
     ## Fitting
     ############################    
     
@@ -2483,13 +2447,6 @@ class MainWindow(QMainWindow):
                     self.drawSinglePeaks(self.peaks, self.properties, self.dataw, i)
                     self.isChecked[i] = True
 
-        '''
-        checkAll = False in self.isChecked.values()
-        if checkAll == False:
-            self.pPopup.show_box.setChecked(True)
-        else:
-            self.pPopup.show_box.setChecked(False)
-        '''
         self.wPlot.canvas.draw()                
                 
     def create_peak_signals(self):
@@ -2506,11 +2463,8 @@ class MainWindow(QMainWindow):
     def peakAnalClear(self):
         self.pPopup.peak_results.clear()
         self.removeAllPeaks()
-        #self.pPopup.show_box.setChecked(False)
         self.pPopup.remove_peakChecks()
-
         self.resetPeakDict()
-        
         
     def removePeak(self, i):
         self.peak_pos[i][0].remove()
