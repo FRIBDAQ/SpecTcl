@@ -62,7 +62,8 @@ VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
 # Removed 		    @top_builddir@/Tape/libtape.la 
 
 
-VMUSBSpecTcl_LDADD =@top_builddir@/Core/libTclGrammerApp.la \
+VMUSBSpecTcl_LDADD =@top_builddir@/Core/libSpecTclMain.la \
+		@top_builddir@/Core/libTclGrammerApp.la \
 		    @top_builddir@/calibratedparams/libCalibrations.la \
 		    @top_builddir@/Display/libXamine.la \
 	@LIBTCLPLUS_LDFLAGS@	\

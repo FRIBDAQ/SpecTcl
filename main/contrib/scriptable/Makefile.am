@@ -88,6 +88,7 @@ ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 
 
 ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
+	@top_builddir@/Core/libSpecTclMain.la \
 	@top_builddir@/Core/libTclGrammerApp.la \
 	@top_builddir@/Display/libXamine.la  \
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  \

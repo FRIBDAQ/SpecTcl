@@ -1,4 +1,8 @@
-lib_LTLIBRARIES = libTclGrammerApp.la
+lib_LTLIBRARIES = libTclGrammerApp.la libSpecTclMain.la
+
+libSpecTclMain_la_SOURCES=SpecTclMain.cpp
+libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la
+libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@
 
 COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
 

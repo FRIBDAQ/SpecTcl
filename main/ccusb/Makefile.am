@@ -29,7 +29,8 @@ AM_CPPFLAGS = -I@top_srcdir@/Utility \
 # removed 	@top_builddir@/Tape/libtape.la 
 
 
-CCUSBSpecTcl_LDFLAGS = 	@top_builddir@/Core/libTclGrammerApp.la \
+CCUSBSpecTcl_LDFLAGS = 	@top_builddir@/Core/libSpecTclMain.la \
+	@top_builddir@/Core/libTclGrammerApp.la \
 	@top_builddir@/Replace/libreplace.la \
 	@top_builddir@/calibratedparams/libCalibrations.la \
 	@top_builddir@/Display/libXamine.la          \
