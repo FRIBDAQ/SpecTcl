@@ -18,6 +18,7 @@ mirrorclient_CXXFLAGS=-DSPECTCL_TCLLIBS="\"@prefix@/TclLibs\"" \
 	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ -I@top_srcdir@/Display
 
 mirrorclient_LDADD=@builddir@/libMirrorClient.la \
+	@top_builddir@/Core/libSpecTclTcp.la \
 	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
 	@top_builddir@/Display/libXamine.la \
 	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @JSONCPP_LIBS@
@@ -41,7 +42,7 @@ libMirrorClient_la_SOURCES=MirrorClient.cpp SpecTclMirrorClient.cpp \
 libMirrorClient_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display \
 	-I$(RESTCLIENTROOT)/include @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ \
 	@JSONCPP_CFLAGS@ -DSPECTCL_BIN="\"@bindir@\""
-libMirrorClient_la_LIBADD= \
+libMirrorClient_la_LIBADD= @top_builddir@/Core/libSpecTclTcp.la \
 	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
 	@LIBEXCEPTION_LDFLAGS@ @TCL_LIBS@ @JSONCPP_LIBS@
 libMirrorClient_la_LDFLAGS=-Wl,-rpath=$(RESTCLIENTROOT)/lib 
@@ -58,7 +59,11 @@ unittests_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display \
 	@CPPUNIT_CFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 	-I@top_srcdir@/Utility @JSONCPP_CFLAGS@
-unittests_LDFLAGS=@builddir@/libMirrorClient.la \
+
+unittests_LDFLAGS= @CPPUNIT_LIBS@ @builddir@/libMirrorClient.la \
+	@top_builddir@/Core/libSpecTclTcp.la \
+	@top_builddir@/Core/libTclGrammerApp.la \
+	@top_builddir@/Display/libXamine.la \
 	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ @CPPUNIT_LIBS@ \
 	$(libMirrorClient_la_LIBADD) $(libMirrorClient_la_LDFLAGS)
 
