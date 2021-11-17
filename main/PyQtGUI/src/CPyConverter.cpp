@@ -1,3 +1,24 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2021.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Giordano Cerizza
+             Ron Fox
+             FRIB
+             Michigan State University
+             East Lansing, MI 48824-1321
+*/
+
+/** @file:  CPyConverter.cpp
+ *  @brief: Class for creation of Python extension module
+ */
+
 #include "CPyConverter.h"
 #include <stdexcept>
 #include <sys/shm.h>
@@ -11,11 +32,28 @@
 
 bool debug = false;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CPyConverter is a class defined to provide the defintion for a python extension in QtPy. SIP is a collection of tools that makes it
+// very easy to create Python bindings for C and C++ libraries. SIP comprises a set of build tools and a sip module. The build tools process
+// a set of specification files and generates C or C++ code which is then compiled to create the bindings extension module. See PyQtGUI/sip
+// for the implementation.
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 CPyConverter::CPyConverter()
 {}
 
 CPyConverter::~CPyConverter()
 {}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Formatting of the spectra information for the creation of PyObject. Each std::vector
+// will the be finally converted into PyTuple
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 void
 CPyConverter::extractInfo(char* speclist)
@@ -41,6 +79,25 @@ CPyConverter::extractInfo(char* speclist)
   }    
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Access function for the shared memory. This function is associated to the "GetData" signal
+// of the QtPy GUI. The functions utilizes the SpecTclMirrorClient API
+//
+//   getSpecTclMemory
+//     Return a pointer to a SpecTcl mirror memory.
+//     @param host - host on which SpecTcl is running.
+//     @param rest - Port on which rest server is running.  If this can be
+//                   translated to a number it's treated as a numeric port number.
+//                   If not, we interact with the NSCLDAQ port manager in host to
+//                   resolve the port number.
+//     @param mirror - Mirror port, treated identically to rest.
+//     @param user   - If not null, this is the user running SpecTcl otherwise
+//                     the current user is used.  This is noly important
+//                     for service name translations.
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 PyObject*
 CPyConverter::Update(char* hostname, char* port, char* mirror, char* user)
 {
@@ -59,29 +116,20 @@ CPyConverter::Update(char* hostname, char* port, char* mirror, char* user)
     std::cout << "Mirror --> " << _mirror << " User --> " << _user << std::endl;    
   }
 
-  dataRetriever* d = dataRetriever::getInstance();
-  d->SetHostPort(_hostname,_port);
-  d->InitShMem();
-  spec_shared *p = d->GetShMem();
-
-  /*
+  dataRetriever* d = dataRetriever::getInstance();  
   spec_shared* p = reinterpret_cast<spec_shared*>(getSpecTclMemory(_hostname.c_str(), _port.c_str(), _mirror.c_str(), _user.c_str()));
+  d->SetShMem(p);
 
-  printf("Offsets into shared mem: \n");
-  printf("  dsp_xy      = %p\n", (void*)p->dsp_xy);
-  printf("  dsp_titles  = %p\n", (void*)p->dsp_titles);
-  printf("  dsp_types   = %p\n", (void*)p->dsp_types);
-  printf("  dsp_map     = %p\n", (void*)p->dsp_map);
-  printf("  dsp_spectra = %p\n", (void*)&(p->dsp_spectra));
-  printf("  Total size  = %d\n", sizeof(spec_shared));
-  */
+  if (debug){
+    d->PrintOffsets();
+    DebugFillSpectra();
+  }
   
+  // Create list of spectra
   char **speclist;
   int lsize;
   lsize = p->GetSpectrumList(&speclist);
 
-  std::cout << "lsize -> " << lsize << std::endl;
-  
   Address_t addr;
   PyObject* data[lsize];
   PyObject* listData = PyList_New(lsize);
@@ -109,8 +157,7 @@ CPyConverter::Update(char* hostname, char* port, char* mirror, char* user)
   PyTuple_SetItem(result, 9, listData);
   
   return result;
-
-  //Py_RETURN_NONE;
+  
 }
 
 PyObject*
@@ -131,11 +178,16 @@ CPyConverter::ShMemToNpArray(void* addr, int size, int nbinx, int nbiny)
   return (PyObject*)data;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Quick debugging test for the shared memory
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 PyObject*
 CPyConverter::DebugFillSpectra()
 {
   dataRetriever* d = dataRetriever::getInstance();
-  d->InitShMem();
   spec_shared *dp = d->GetShMem();
 
   import_array();

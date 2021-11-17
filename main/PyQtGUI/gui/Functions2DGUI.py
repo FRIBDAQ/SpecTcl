@@ -9,10 +9,10 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import CPyConverter as cpy
 
-# import widgets
-from Joystick import Joystick
+# import joystick widget for moving an image
+from JoystickGUI import Joystick
 
-class Cluster2D(QDialog):
+class Fncts2D(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)

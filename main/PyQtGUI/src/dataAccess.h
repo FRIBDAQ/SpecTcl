@@ -1,3 +1,24 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2021.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Giordano Cerizza
+             Ron Fox
+	     FRIB
+             Michigan State University
+             East Lansing, MI 48824-1321
+*/
+
+/** @file:  dataAccess.h
+ *  @brief: Methods to access shared memory information
+ */
+
 #ifndef DATAACCESS_H
 #define DATAACCESS_H
 
@@ -15,7 +36,7 @@ static const Address_t kpNULL = (Address_t)0;
 
 struct spec_shared : shared_memory
 {
-  // general info on size
+  // general info on size of spectra and channels
   int getspectrumcount() {return MAXSPEC; }
   int getmaxchannels() {return SPECBYTES; }
   
@@ -36,12 +57,15 @@ struct spec_shared : shared_memory
     return ((id < 0) ? -1: getydim(id)); 
   }
 
+  // access channel via id
   int getchannels(int id) 
   { 
     return (((dsp_types[id] == _onedlong) ||
 	     (dsp_types[id] == _onedword))? 
 	    dsp_xy[id]._xchans : dsp_xy[id]._xchans * dsp_xy[id]._ychans); 
   }
+
+  // access channel via name
   int getchannels(char *name) 
   {
     int id;
@@ -81,7 +105,5 @@ struct spec_shared : shared_memory
   Address_t CreateSpectrum(int id);
   
 };
-
-
 
 #endif

@@ -1,3 +1,24 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2021.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Giordano Cerizza
+             Ron Fox
+             FRIB
+             Michigan State University
+             East Lansing, MI 48824-1321
+*/
+
+/** @file:  dataAccess.cpp
+ *  @brief: Methods to access shared memory information
+ */
+
 #include <stdio.h>
 #include <strings.h>
 #include <memory.h>
@@ -105,11 +126,9 @@ spec_shared::getinfo(spec_title info, int id)
 }
 
 // returns the id of a spectrum given the name
-
 int
 spec_shared::GetSpectrumId(char *name)
 {
-
   char *valstart;
   int  id;
   chooser_name n;

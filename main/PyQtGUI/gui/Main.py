@@ -28,7 +28,7 @@ import fit_gp2_creator
 
 import algo_factory
 # skeleton for user-based ML implementation
-import skel_creator
+import algo_skel_creator
 # already implemented examples
 import kmean_creator
 import gmm_creator
@@ -98,27 +98,27 @@ config_fit_gp2 = {
 #######################################
 ##  ML
 #######################################
-factory = algo_factory.AlgoFactory()
+algofactory = algo_factory.AlgoFactory()
 # Configurable parameters for Skel (for the full param list, please see skel_creator.py)
-config_skel = {
+config_algo_skel = {
     'param_1': 5,
     'param_2': 'test',
     'param_3': 100
 }
 
 # Configurable parameters for KMean (for the full param list, please see kmean_creator.py)
-config_kmean = {
+config_algo_kmean = {
     'n_clusters': 3,
     'n_init': 10
 }
 
 # Configurable parameters for Gaussian Mixture Model (for the full param list, please see gmm_creator.py)
-config_gmm = {
+config_algo_gmm = {
     'n_components': 4,
 }
 
 # Configurable parameters for Image Segmentation (for the full param list, please see imgseg_creator.py)
-config_img = {
+config_algo_img = {
     'nclusters': 5,
     'criteria' : (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2),
     'attempts' :10,
@@ -126,7 +126,7 @@ config_img = {
 }
 
 # Configurable parameters for Canny Edge (for the full param list, please see cannye_creator.py)
-config_canny = {
+config_algo_canny = {
     'sigma': 1,
     'kernel_size': 7,
     'lowthreshold': 0.05,
@@ -145,14 +145,14 @@ fitfactory.register_builder('G+Pol1', fit_gp1_creator.GPol1FitBuilder(), config_
 fitfactory.register_builder('G+Pol2', fit_gp2_creator.GPol2FitBuilder(), config_fit_gp2)
 
 # ML Algorithm registration
-factory.register_builder('Skeleton', skel_creator.SkelAlgoBuilder(), config_skel)
-factory.register_builder('KMean', kmean_creator.KMeanAlgoBuilder(), config_kmean)
-factory.register_builder('Gaussian MM', gmm_creator.GMMAlgoBuilder(), config_gmm)
-factory.register_builder('Image Segmentation', imgseg_creator.ImgSegAlgoBuilder(), config_img)
-factory.register_builder('Canny Edge', cannye_creator.CannyEdgeAlgoBuilder(), config_canny)
+algofactory.register_builder('Skeleton', algo_skel_creator.SkelAlgoBuilder(), config_algo_skel)
+algofactory.register_builder('KMean', kmean_creator.KMeanAlgoBuilder(), config_algo_kmean)
+algofactory.register_builder('Gaussian MM', gmm_creator.GMMAlgoBuilder(), config_algo_gmm)
+algofactory.register_builder('Image Segmentation', imgseg_creator.ImgSegAlgoBuilder(), config_algo_img)
+algofactory.register_builder('Canny Edge', cannye_creator.CannyEdgeAlgoBuilder(), config_algo_canny)
 
 app = QApplication(sys.argv)
-gui = MainWindow(factory, fitfactory)
+gui = MainWindow(algofactory, fitfactory)
 gui.show()
 sys.exit(app.exec_())
 

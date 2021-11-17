@@ -15,8 +15,7 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/d3.js/index.html @prefix@/share/d3web	
 	$(INSTALL_DATA) @srcdir@/*.py @prefix@/Script
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/Skel 
-	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/Skel
-	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/Skel
+	$(INSTALL_DATA) @srcdir@/algo_skel_creator.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/Skel
 	if [ -s @prefix@/Skel/Script ] ; \
@@ -30,8 +29,7 @@ install-exec-hook:
 	fi;
 	ln -s @prefix@/lib @prefix@/Skel/Lib
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/VMUSBSkel
-	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/VMUSBSkel
-	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/VMUSBSkel
+	$(INSTALL_DATA) @srcdir@/algo_skel_creator.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/VMUSBSkel
 	if [ -s @prefix@/VMUSBSkel/Script ] ; \
@@ -45,8 +43,7 @@ install-exec-hook:
 	fi;
 	ln -s @prefix@/lib @prefix@/VMUSBSkel/Lib
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/DDASSkel
-	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/DDASSkel
-	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/DDASSkel
+	$(INSTALL_DATA) @srcdir@/algo_skel_creator.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/DDASSkel
 	if [ -s @prefix@/DDASSkel/Script ] ; \
@@ -60,8 +57,9 @@ install-exec-hook:
 	fi;
 	ln -s @prefix@/lib @prefix@/DDASSkel/Lib
 
-EXTRA_DIST = ConfigGUI.py GUI.py __init__.py Main.py MenuGUI.py OutputGUI.py Plot.py shm_parser.py \
-	Clustering.py CannyEdgePlot.py ImgSegPlot.py Joystick.py PeakFinder.py algo_factory.py skel_creator.py skel_plot.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py \
+EXTRA_DIST = Main.py GUI.py \
+	MenuGUI.py ConfigGUI.py OutputGUI.py 1DfunctionGUI.py 2DfunctionGUI.py JoystickGUI.py PlotGUI.py\
+	shm_parser.py CannyEdgePlot.py ImgSegPlot.py algo_factory.py skel_creator.py skel_plot.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py \
 	fit_factory.py fit_skel_creator.py fit_gaus_creator.py fit_exp_creator.py fit_p1_creator.py fit_p2_creator.py fit_gp1_creator.py fit_gp2_creator.py WebWindow.py notebook_process.py logger.py \
-	jupyterqtpy_notebook_config.py	d3.js
+	jupyterqtpy_notebook_config.pyd3.js includes.py
 

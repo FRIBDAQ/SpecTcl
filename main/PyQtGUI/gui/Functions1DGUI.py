@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import CPyConverter as cpy
 
-class PeakFinder(QDialog):
+class Fncts1D(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -48,25 +48,11 @@ class PeakFinder(QDialog):
     def remove_peakChecks(self):
         if self.isCreated == True:
             self.pCheck.setParent(None)
-            '''
-            for button in self.pCheck.findChildren(QCheckBox):
-                button.deleteLater()
-
-            for grid in self.pCheck.findChildren(QGridLayout):
-                grid.deleteLater()
-
-            for box in self.pCheck.findChildren(QGroupBox):                
-                box.deleteLater()
-                
-            self.layout.removeWidget(self.pCheck)
-            '''
         self.isCreated = False
             
     def create_peakBox(self):
         peakBox = QGroupBox("Peak Finder")
 
-        #self.show_box = QCheckBox("Show Peaks")
-        
         self.peak_width_label = QLabel("Peak Width (in bins)")
         self.peak_width = QLineEdit()
         self.peak_width.setText("20")
@@ -84,7 +70,6 @@ class PeakFinder(QDialog):
         lay = QHBoxLayout()
         lay.addWidget(self.peak_analysis)
         lay.addWidget(self.peak_analysis_clear)        
-        #lay.addWidget(self.show_box)
         
         layout = QVBoxLayout()
         layout.addLayout(layy)
