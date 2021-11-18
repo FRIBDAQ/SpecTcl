@@ -40,6 +40,7 @@ from scipy.signal import find_peaks
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import CPyConverter as cpy
 
@@ -2712,14 +2713,9 @@ class MainWindow(QMainWindow):
         return poly
     
     def create_rectangle(self, plot):
-        autoAxis = plot.axis()
-        percentTB = 0.04;
-        percentLR = 0.06;
-        tb = (autoAxis[3]-autoAxis[2])*percentTB;        
-        lr = (autoAxis[1]-autoAxis[0])*percentLR;
-        rec = matplotlib.patches.Rectangle((autoAxis[0]-lr,autoAxis[2]-tb),
-                                           (autoAxis[1]-autoAxis[0])+2*lr,
-                                           (autoAxis[3]-autoAxis[2])+2*tb, fill=False, color='red', alpha=0.3, lw=2)
+        rec = matplotlib.patches.Rectangle((0, 0),
+                                           1,
+                                           1, ls="-", ec="red", fc="none", transform=plot.transAxes)
         rec = plot.add_patch(rec)
         rec.set_clip_on(False)        
         return rec
