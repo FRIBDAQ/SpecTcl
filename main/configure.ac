@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.10-001, scientificsoftware@nscl.msu.edu)
+AC_INIT(SpecTcl,5.10-002, scientificsoftware@nscl.msu.edu)
 
 
 

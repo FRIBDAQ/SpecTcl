@@ -597,12 +597,15 @@ void CTclGrammerApp::CreateDisplays()
       );
     auto mirrorServer = new ServerListener(mirrorPortNum, pFactory);
     mirrorServer->start();
+     // Mirror port for QtPy GUI
+    int mp = atoi(mirrorPortNum);
+    std::string mport = std::to_string(mp);
+    ::setenv("MIRRORport", mport.c_str(), 1);
+  } else {
+    ::setenv("MIRRORport", "0", 1);   /// local no mirror may be needed
   }
 
-  // Mirror port for QtPy GUI
-  int mp = atoi(mirrorPortNum);
-  std::string mport = std::to_string(mp);
-  ::setenv("MIRRORport", mport.c_str(), 1);
+ 
 
 }
 
@@ -950,7 +953,7 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
   new startup scheme as desired.
 */
 int CTclGrammerApp::operator()() {
-
+  try {
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
   
@@ -1088,6 +1091,20 @@ int CTclGrammerApp::operator()() {
     cerr << "SpecTcl Version: " << gpVersion << endl;
   }
 
+  }
+  catch (std::string msg) {
+    std::cerr << "Caught string exception in init: " << msg << std::endl;
+  }
+  catch (const char* msg) {
+    std::cerr << "Caught char exception in init: " << msg << std::endl;
+  }
+  catch (CException& e) {
+    std::cerr << "Caught CException in init: " << e.ReasonText() << std::endl;
+  }
+  catch (std::exception& e) {
+    std::cerr << "Caught std:exception in init: " << e.what() << std::endl;
+  }
+  
   return TCL_OK;
 }
 
