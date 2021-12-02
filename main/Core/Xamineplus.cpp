@@ -1031,7 +1031,7 @@ CXamine::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& rSor
   for (int i = 0; i < rSpectrum.Dimensionality(); i++) {
     ostringstream axisstream;
     axisstream << rSpectrum.GetLow(i) << ", " << rSpectrum.GetHigh(i)
-           << " : " << rSpectrum.Dimension(i);
+           << " : " << rSpectrum.Dimension(i) -2;   // Root correction.
     axes.push_back(axisstream.str());
   }
   // gate name:
