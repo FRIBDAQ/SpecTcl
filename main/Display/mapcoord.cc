@@ -357,7 +357,10 @@ Xamine_XPixelToChannel(
 )
 {
   auto range = getXChannelRange(specno, row, col);
-  return Transform(pixlow, pixhigh, range.first, range.second, x);
+  int chan =  Transform(pixlow, pixhigh, range.first, range.second, x);
+  if (chan < range.first) chan = range.first;              // never less than 1'st chan.
+  if (chan >= range.second) chan = range.second-1; // never > last channel.
+  return chan;
   
 }
 /**
@@ -370,7 +373,10 @@ Xamine_YPixelToChannel(
 )
 {
   auto range = getYChannelRange(specno, row, col);
-  return Transform(pixlow, pixhigh, range.first, range.second, y);
+  int channel =  Transform(pixlow, pixhigh, range.first, range.second, y);
+  if (channel < range.first) channel = range.first;
+  if (channel >= range.second) channel = range.second -1;
+  return channel;
 }
 
 

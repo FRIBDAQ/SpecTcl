@@ -60,6 +60,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "colormgr.h"
 #include "gcmgr.h"
 #include "mapcoord.h"
+#include <iostream>
+
 /* The declarations below define the help text for the custom dialog
 ** that we'll be building.
 */
@@ -384,11 +386,13 @@ void Expand::ClearPoints(XMWidget *pane,
 */
 void Expand::AddPoint(point &pt)
 {
+ 
   win_attributed *att = Xamine_GetDisplayAttributes(row, col);
   if(att == NULL) {		/* If the window nulled out on us. */
     CancelCallback(NULL);	/* Treat it like the user cancelled. */
     return;
   }
+ 
   /* Get the display attributes since they determine if we need to 
   ** use a 1-d or 2-d format for the display
   */
@@ -400,58 +404,54 @@ void Expand::AddPoint(point &pt)
     pt2_accepted = True;
     if(att->is1d()) {
       if(att->isflipped()) {
-	pt2.x = pt.y;
-	pt2.y = pt.x;
-	if(att->ismapped()) {
-	  fpx2 = Xamine_XChanToMapped(specno, pt2.x);
-	  fpy2 = Xamine_YChanToMapped(specno, pt2.y);
-	  SetMappedPoint2(fpx2);
-	} else {
-	  SetPoint2(pt2.x);
-	}
-      }
-      else {
-	if(att->ismapped()) {
-	  fpx2 = Xamine_XChanToMapped(specno, pt.x);
-	  fpy2 = Xamine_YChanToMapped(specno, pt.y);
-	  SetMappedPoint2(fpx2);
-	} else {
-	  SetPoint2(pt2.x);
-	}
-      }
-    }
-    else {
-      if(att->ismapped()) {
-	fpx1 = Xamine_XChanToMapped(specno, pt.x);
-	fpy1 = Xamine_YChanToMapped(specno, pt.y);
-	SetMappedPoint2(fpx1, fpy1);
+        pt2.x = pt.y;
+        pt2.y = pt.x;
+        if(att->ismapped()) {
+          fpx2 = Xamine_XChanToMapped(specno, pt2.x);
+          fpy2 = Xamine_YChanToMapped(specno, pt2.y);
+          SetMappedPoint2(fpx2);
+        } else {
+          SetPoint2(pt2.x);
+        }
       } else {
-	SetPoint2(pt.x, pt.y);
+        if(att->ismapped()) {
+          fpx2 = Xamine_XChanToMapped(specno, pt.x);
+          fpy2 = Xamine_YChanToMapped(specno, pt.y);
+          SetMappedPoint2(fpx2);
+        } else {
+          SetPoint2(pt2.x);
+        }
+      }
+    } else {
+      if(att->ismapped()) {
+        fpx1 = Xamine_XChanToMapped(specno, pt.x);
+        fpy1 = Xamine_YChanToMapped(specno, pt.y);
+        SetMappedPoint2(fpx1, fpy1);
+      } else {
+         SetPoint2(pt.x, pt.y);
       }
     }
-  }
-  else {
+  }  else {
     pt1 = pt;
     pt1_accepted = True;
     if(att->is1d()) {
       if(att->isflipped()) {
-	pt1.x = pt.y;
-	pt1.y = pt.x;
+        pt1.x = pt.y;
+        pt1.y = pt.x;
       }
       if(att->ismapped()) {
-	fpx1 = Xamine_XChanToMapped(specno, pt1.x);
-	SetMappedPoint1(fpx1);
+        fpx1 = Xamine_XChanToMapped(specno, pt1.x);
+        SetMappedPoint1(fpx1);
       } else {
-	SetPoint1(pt1.x);
+        SetPoint1(pt1.x);
       }
-    }
-    else {
+    }   else {
       if(att->ismapped()) {
-	fpx1 = Xamine_XChanToMapped(specno, pt.x);
-	fpy1 = Xamine_YChanToMapped(specno, pt.y);
-	SetMappedPoint1(fpx1, fpy1);
+        fpx1 = Xamine_XChanToMapped(specno, pt.x);
+        fpy1 = Xamine_YChanToMapped(specno, pt.y);
+        SetMappedPoint1(fpx1, fpy1);
       } else {
-	SetPoint1(pt.x, pt.y);
+         SetPoint1(pt.x, pt.y);
       }
     }
   }
@@ -492,37 +492,37 @@ Boolean Expand::DoAccept()
       int low = pt1.x;
       int hi  = pt2.x;
       if(low > hi) {
-	int temp = hi;
-	hi       = low;
-	low      = temp;
+        int temp = hi;
+        hi       = low;
+        low      = temp;
       }
       if(low == hi) {		/* Don't allow zero size expand... */
-	Xamine_error_msg(this,
-			 "The two expansion points must be different");
-	return False;
+         Xamine_error_msg(this,
+           "The two expansion points must be different"
+         );
+         return False;
       }
       a1->expand(low, hi);
-    }
-    else {			/* 2-d logic. */
+    }   else {			/* 2-d logic. */
       win_2d *a2 = (win_2d *)att;
       int xl = pt1.x;
       int xh = pt2.x;
       if(xl > xh) {
-	int temp = xh;
-	xh       = xl;
-	xl       = temp;
+        int temp = xh;
+        xh       = xl;
+        xl       = temp;
       }
       int yl = pt1.y;
       int yh = pt2.y;
       if(yl > yh) {
-	int temp = yh;
-	yh       = yl;
-	yl       = temp;
+         int temp = yh;
+         yh       = yl;
+         yl       = temp;
       }
       if( (xl == xh) || (yl == yh)) {
-	Xamine_error_msg(this,
-		 "The expansion rectangle must have nonzero height and width");
-	return False;
+        Xamine_error_msg(this,
+          "The expansion rectangle must have nonzero height and width");
+        return False;
       }
       a2->expand(xl,xh, yl,yh);
     }
