@@ -109,7 +109,7 @@ class MainWindow(QMainWindow):
         self.factory = factory
         self.fit_factory = fit_factory        
 
-        self.setWindowTitle("CutiePie")
+        self.setWindowTitle("CutiePie(QtPy)")
 
         #check if there are arguments or not
         try:
@@ -129,7 +129,9 @@ class MainWindow(QMainWindow):
         self.spectrum_list = pd.DataFrame()
         # dictionary for histogram
         self.h_dict = {}
-        self.h_dict_output = {}  # for saving pane geometry
+        self.h_dict_bak = {}        
+        self.h_dict_geo = {}  # for saving pane geometry
+        self.h_setup = {} # bool dict for setting histograms (false - histogram modified, true - 
         # index of the histogram
         self.index = 0 # this one is for self-adding
         self.idx = 0 # this one is global
@@ -138,6 +140,8 @@ class MainWindow(QMainWindow):
         self.isSelected = False
         self.selected_row = None
         self.selected_col = None     
+        self.old_row = 1
+        self.old_col = 1        
         # support lists
         self.h_dim = []
         self.h_lst = []
@@ -162,9 +166,9 @@ class MainWindow(QMainWindow):
         self.isLoaded = False
         self.isZoomed = False
         self.toCreateGate = False
+        self.hasChanged = True
         # tools for selected plots
         self.rec = None
-        self.optionAll = False
         self.isCluster = False
         self.onFigure = False
         # dictionary for spectcl gates
@@ -267,7 +271,8 @@ class MainWindow(QMainWindow):
         self.wTop.updateButton.clicked.connect(self.update)                
         self.wTop.slider.valueChanged.connect(self.self_update)
 
-        self.wTop.configButton.clicked.connect(self.configure)                        
+        # turned off for the moment (show/hide crash when gates are present)
+        #self.wTop.configButton.clicked.connect(self.configure)                        
         self.wTop.saveButton.clicked.connect(self.saveGeo)
         self.wTop.loadButton.clicked.connect(self.loadGeo)
 
@@ -281,7 +286,7 @@ class MainWindow(QMainWindow):
                                       "'d' delete vertex\n"
                                       "'u' update gate\n")
         self.wTop.deleteGate.clicked.connect(self.deleteGate)                        
-        self.wTop.drawGate.clicked.connect(lambda: self.drawGate(self.optionAll))
+        self.wTop.drawGate.clicked.connect(self.drawGate)
         self.wTop.cleanGate.clicked.connect(self.clearGate)
 
         # configuration signals
@@ -385,36 +390,45 @@ class MainWindow(QMainWindow):
     def on_singleclick(self, event):
         global t
         if (DEBUG):
-            print("inside on_singleclick")
+            print("Inside on_singleclick")
+        # If we are not zooming on one histogram we can select one histogram
+        # and a red rectangle will contour the plot
         if self.isZoomed == False:
             if (DEBUG):
-                print("inside on_singleclick - ZOOM false")            
+                print("Inside on_singleclick - ZOOM false")            
             try:
                 if self.rec is not None:
                     self.rec.remove()
             except:
                 pass
 
+            # by single clicking we select the plot with index selected_plot_index and draw a
+            # red rectangle on the axes to show choice
             for i, plot in enumerate(self.wPlot.figure.axes):
                 if (i == self.selected_plot_index):
-                    self.isSelected = True
-                    self.rec = self.create_rectangle(plot)
+                        self.isSelected = True
+                        self.rec = self.create_rectangle(plot)
             try:
                 self.clickToIndex(self.selected_plot_index)
             except:
                 pass
             self.wPlot.canvas.draw()
-        else:
-            if (DEBUG):            
-                print("inside on_singleclick - ZOOM true")            
-            self.wTop.createGate.setEnabled(True)
-            self.wTop.editGate.setEnabled(True)
+        else: # we are inside the zoomed histogram
+            if (DEBUG):
+                print("Inside on_singleclick - ZOOM true")            
             self.isSelected = False
-            if self.toCreateGate == True:
+            try:
+                if self.rec is not None:
+                    self.rec.remove()
+            except:
+                pass
+
+            # we can create the gate now..
+            if self.toCreateGate == True: # inside gate creation mode            
                 if (DEBUG):
-                    print("inside createGate mode")
+                    print("create the gate...")
                 self.click = [int(float(event.xdata)), int(float(event.ydata))]
-                # create interval (1D)
+                # create interval (1D)            
                 if self.wConf.button1D.isChecked():
                     self.line = self.addLine(self.click[0])
                     self.listLine.append(self.line)
@@ -426,30 +440,34 @@ class MainWindow(QMainWindow):
 
             self.wPlot.canvas.draw()
         t = None
-
+            
     def on_dblclick(self, event):
         global t
-        # select plot
-        if self.isZoomed == False:
-            self.wTop.createGate.setEnabled(False)            
-            self.wTop.editGate.setEnabled(False)
-            self.clickToIndex(self.selected_plot_index)
-            # clear existing figure
+        if (DEBUG):
+            print("Inside on_dblclick")        
+        t = None        
+        if self.isZoomed == False: # entering zooming mode
+            if (DEBUG):
+                print("Entering zooming mode...")           
+            self.hasChanged = True
+            self.isZoomed = True
+            # disabling adding histograms
+            self.wConf.histo_geo_add.setEnabled(False)
+            # enabling gate creation
+            self.wTop.createGate.setEnabled(True)                
+            self.wTop.editGate.setEnabled(True)                                
+            if (DEBUG):
+                print("inside dblclick: self.selected_plot_index", self.selected_plot_index)
             self.wPlot.figure.clear()
             self.wPlot.canvas.draw()
-            # create selected figure
+            # backing up list of histogram
+            self.h_dict_bak = self.h_dict.copy()
             try:
+                # plot corresponding histogram
                 if (DEBUG):
-                    print("double click try zoom")
-                # we are in zoomed mode
-                self.isZoomed = True
-                self.wTop.createGate.setEnabled(True)                
-                self.wTop.editGate.setEnabled(True)                
-                self.add(self.selected_plot_index) # this creates the histogram axes
-                self.wPlot.canvas.draw() # this drawing command creates the renderer 
-                a = plt.gca()
-                self.plot_histogram(a, self.selected_plot_index) # the previous step is fundamental for blitting
-                # remove color bar just for gating
+                    print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
+                self.update_plot()
+                # remove color bar just to simplify gating
                 if self.h_dim[self.selected_plot_index] == 2:
                     im = a.images
                     if im is not None:
@@ -457,19 +475,23 @@ class MainWindow(QMainWindow):
                             cb = im[-1].colorbar
                             cb.remove()
                         except IndexError:
-                            pass
-                self.drawAllGate()
+                            pass                
             except:
-                QMessageBox.about(self, "Warning", "There are no histograms defined...")
-                self.initialize_canvas(self.wConf.row, self.wConf.col)
+                pass
         else:
+            # enabling adding histograms
+            self.wConf.histo_geo_add.setEnabled(True)
+            # disabling gate creation
+            self.wTop.createGate.setEnabled(False)                
+            self.wTop.editGate.setEnabled(False)                                                
+
             if self.toCreateGate == True:
                 if self.wConf.button1D.isChecked():
                     lst = []
                     # adding gate to dictionary of regions
                     for index in range(len(self.listLine)):
                         lst.append(self.listLine[index].get_xydata())
-                    # push gate to shared memory 1D
+                    # push gate to spectcl
                     self.formatLinetoShMem(lst)
                     # save the gate for drawing later
                     self.set_line(self.wTop.listGate.currentText(), self.listLine)
@@ -477,7 +499,6 @@ class MainWindow(QMainWindow):
                     key = self.wConf.spectrum_name.text()
                     self.artist1D[self.wTop.listGate.currentText()] = self.listLine
                     self.artist_dict[key] = self.artist1D
-
                 else:
                     self.xs.append(self.xs[-1])
                     self.xs.append(self.xs[0])
@@ -497,30 +518,35 @@ class MainWindow(QMainWindow):
                     key = self.wConf.spectrum_name.text()
                     self.artist2D[self.wTop.listGate.currentText()] = self.polygon
                     self.artist_dict[key] = self.artist2D
-
-                if (DEBUG):
-                    print(self.artist_dict)
                     
+                if (DEBUG):
+                    print("Exiting gating mode...")
+                    print(self.artist_dict)
+
                 # exiting gating mode
                 self.toCreateGate = False
                 self.timer.start()
             else:
-                self.wTop.createGate.setEnabled(False)                
-                self.wTop.editGate.setEnabled(False)
-                #draw the back the original canvas
-                self.wPlot.figure.clear()
-                self.wPlot.canvas.draw()
-                for index, value in self.h_dict_output.items():
-                    a = self.select_plot(index)
-                    x,y = self.plot_position(index)
-                    a = self.wPlot.figure.add_subplot(self.grid[x,y])
-                    self.add(index) # again this creates the histogram axes
-                    self.wPlot.canvas.draw() # this drawing command creates the renderer
-                    self.plot_histogram(a, index) # the previous step is fundamental for blitting
+                if (DEBUG):
+                    print("Exiting zooming mode...")                
                 self.isZoomed = False
                 if (DEBUG):
-                    print("self.dict_region", self.dict_region)
-                self.drawAllGate()
+                    print("Reinitialization self.h_setup", self.h_setup)
+                #draw the back the original canvas
+                self.initialize_canvas(self.wConf.row, self.wConf.col)
+                if (DEBUG):
+                    print("ready to print")
+                self.h_dict = self.h_dict_bak.copy()
+                if (DEBUG):
+                    print(self.h_dict)
+                n = self.wConf.row*self.wConf.col
+                if (DEBUG):
+                    print(n)
+                    print({k: True for k in range(self.wConf.row*self.wConf.col)})
+                self.h_setup = {k: True for k in range(n)}
+                self.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
+                self.update_plot()
+
         t = None
 
     def draw_callback(self, event):
@@ -598,7 +624,7 @@ class MainWindow(QMainWindow):
             self.set_line(self.wTop.listGate.currentText(), [self.line_region])
             if (DEBUG):
                 print("update key")
-            print(self.wTop.listGate.currentText(), "\n", self.line_region.get_xydata())
+                print(self.wTop.listGate.currentText(), "\n", self.line_region.get_xydata())
             if (DEBUG):
                 print("self.dict_region", self.dict_region)
             # push gate to shared memory 2D
@@ -728,22 +754,30 @@ class MainWindow(QMainWindow):
         self.connect()
 
     def initialize_histogram(self):
-        return {"name": 0, "dim": 0, "xmin": 0, "xmax": 0, "xbin": 0,
-                "ymin": 0, "ymax": 0, "ybin": 0}        
+        return {"name": "empty", "dim": 1, "xmin": 0, "xmax": 1, "xbin": 1,
+                "ymin": 0, "ymax": 1, "ybin": 1}        
         
     def initialize_figure(self, grid):
-        self.h_dim.clear()
-        self.h_lst.clear()        
+        if (DEBUG):
+            print("initialize_figure and dictionaries")
+        # creating plots in the grid
         for i in range(self.wConf.row):
             for j in range(self.wConf.col):
                 a = self.wPlot.figure.add_subplot(grid[i,j])
-        # initialize list of figure
-        for z in range(self.wConf.row*self.wConf.col):
+        self.h_dim.clear()
+        self.h_lst.clear()
+        for z in range(self.old_row*self.old_col):
             self.h_dict[z] = self.initialize_histogram()
+            self.h_dict_geo[z] = "empty"
+            # dictionary for setup flags (i.e. if an histogram is modified then we need to set it up first)
+            self.h_setup[z] = False
             self.h_zoom_max.append(self.yhigh)
         self.h_dim = self.get_histo_key_list(self.h_dict, "dim")
         self.h_lst = self.get_histo_key_list(self.h_dict, "name")
 
+        if (DEBUG):
+            print(self.h_dict)
+        
     def create_figure(self, row, col):
         self.wConf.row = row
         self.wConf.col = col
@@ -752,12 +786,33 @@ class MainWindow(QMainWindow):
         else:
             self.grid = gridspec.GridSpec(ncols=self.wConf.col, nrows=self.wConf.row, figure=self.wPlot.figure)
         return self.grid
-    
+
+    def isGeoChanged(self):
+        if (self.old_row != int(self.wConf.histo_geo_row.currentText()) or self.old_col != int(self.wConf.histo_geo_col.currentText())):
+            if (DEBUG):
+                print("the geometry has changed")
+            self.old_row = int(self.wConf.histo_geo_row.currentText())
+            self.old_col = int(self.wConf.histo_geo_col.currentText())
+            return True
+        else:
+            return False
+        
     def initialize_canvas(self, row, col):
         # everytime a new pane geometry is created the histogram
         # dictionary and the index of the plot has to be reset
-        self.h_dict.clear()
-        self.h_dict_output.clear()
+        self.hasChanged = True
+        if (DEBUG):
+            print("initialize_canvas with dimensions", row, col)
+            print("new", row, col)
+            print("old", self.old_row, self.old_col)
+        # check if geometry changed
+        if (self.isGeoChanged()):
+            self.h_dict.clear()
+            self.h_dict_geo.clear()
+
+        if (DEBUG):
+            print(self.h_dict)
+
         self.index = 0
         self.idx = 0
         self.wPlot.figure.clear()
@@ -1125,20 +1180,45 @@ class MainWindow(QMainWindow):
             QMessageBox.about(self, "Warning", "Please click 'Get Data' to access the data...")
 
     def update_plot(self):
+        if (DEBUG):
+            print("inside update plot")
+            print(self.h_dict)
         try:
-            if self.isZoomed == False:
-                index_list = self.mapDictionaryToIndex(self.h_dict_output)
-                for index, value in self.h_dict_output.items():
-                    a = self.select_plot(index)
-                    time.sleep(0.01)
-                    self.plot_histogram(a, index)
-            else:
+            if self.isZoomed == True:
+                self.add(self.selected_plot_index) # this creates the histogram axes
+                self.wPlot.canvas.draw() # this drawing command creates the renderer
                 a = plt.gca()
-                time.sleep(0.01)            
-                self.plot_histogram(a, self.selected_plot_index)
+                time.sleep(0.01)
+                if (DEBUG):
+                    print("has it changed?", self.h_setup[self.selected_plot_index])
+                    print(self.h_setup)
+                if (self.h_setup[self.selected_plot_index]):
+                    self.setup_histogram(a, self.selected_plot_index)                
+                    self.h_setup[self.selected_plot_index] = False
+                self.plot_histogram(a, self.selected_plot_index) # the previous step is fundamental for blitting
+            else:
+                self.selected_plot_index = None
+                for index, value in self.h_dict.items():                
+                    if (DEBUG):
+                        print(index, value)
+                        print(value["name"])
+                        print(self.h_setup[index])
+                    if (value["name"] != "empty"):
+                        a = self.select_plot(index)
+                        time.sleep(0.01)
+                        if (self.h_setup[index]):
+                            self.setup_histogram(a, index)
+                            self.h_setup[index] = False
+                        self.plot_histogram(a, index)
 
             self.wPlot.figure.tight_layout()
             self.wPlot.canvas.draw_idle()
+
+            #reset index
+            self.selected_plot_index = None
+            if (DEBUG):
+                print("Reset selected index", self.selected_plot_index)
+            
         except:
             pass
 
@@ -1161,7 +1241,9 @@ class MainWindow(QMainWindow):
         fileName = self.saveFileDialog()
         try:
             f = open(fileName,"w")
-            tmp = {"row": self.wConf.row, "col": self.wConf.col, "geo": self.h_dict_output}
+            tmp = {"row": self.wConf.row, "col": self.wConf.col, "geo": self.h_dict_geo}
+            if (DEBUG):
+                print(tmp)
             QMessageBox.about(self, "Saving...", "Window configuration saved!")
             f.write(str(tmp))
             f.close()
@@ -1183,11 +1265,11 @@ class MainWindow(QMainWindow):
                 self.wConf.histo_geo_row.setCurrentIndex(index_row)
                 self.wConf.histo_geo_col.setCurrentIndex(index_col)
                 self.initialize_canvas(infoGeo["row"],infoGeo["col"])
-                self.h_dict_output = infoGeo["geo"]
-                if len(self.h_dict_output) == 0:
+                self.h_dict_geo = infoGeo["geo"]
+                if len(self.h_dict_geo) == 0:
                     QMessageBox.about(self, "Warning", "You saved an empty pane geometry...")
                 if (DEBUG):
-                    print(self.h_dict_output)
+                    print(self.h_dict_geo)
                 self.add_plot()
 
             self.update_plot()
@@ -1340,47 +1422,44 @@ class MainWindow(QMainWindow):
                 else:
                     cntr += 1
 
-    # looking for type 0 (not set) histograms 
+    # looking for first available index to add an histogram
     def check_index(self):
-        # support list is full
-        if any(x == 0 for x in self.h_dim) == self.isFull:
-            self.isFull = True
-            self.index = 0
-            return self.index
-        # support list not full, then look for the next index with value 0
+        if (DEBUG):
+            print("inside check index")
+        keys=list(self.h_dict.keys())
+        values = []
+        for index, value in self.h_dict.items():
+            values.append(value["name"])
+
+        if (DEBUG):
+            print(keys, values)
+        if "empty" in values:
+            self.index = keys[values.index("empty")]
         else:
-            idx = next((i for i, x in enumerate(self.h_dim) if x==0), None)
-            if idx is not None:
-                self.index = idx
-                return self.index
-            else:
-                self.Start = True
-                
-        if self.Start == True:
+            if (DEBUG):
+                print("list is full, set index to full")
+            self.index = keys[-1]
+            self.isFull = True
+
+        if self.isFull == True:
             if self.index == self.wConf.row*self.wConf.col-1:
                 self.index = 0
             else:
-                self.index += 1
-                    
+                self.index += 1            
+
+        if (DEBUG):
+            print("index to fill", self.index)
         return self.index
-
-    # returns mapping list for window geometry
-    def mapDictionaryToIndex(self, my_dict):
-        index_list = []
-        for key, value in my_dict.items():
-            index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
-            if index >= 0:
-                index_list.append(index)
-
-        return index_list
 
     # geometrically add plots to the right place
     def add_plot(self):
+        if (DEBUG):
+            print("Inside plot")
         try:
             # if we load the geometry from file
             if self.isLoaded:
                 counter = 0
-                for key, value in self.h_dict_output.items():
+                for key, value in self.h_dict_geo.items():
                     index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
                     # changing the index to the correct histogram to load
                     self.wConf.histo_list.setCurrentIndex(index)
@@ -1394,42 +1473,53 @@ class MainWindow(QMainWindow):
                 self.wPlot.canvas.draw()
                 self.isLoaded = False
             else:
+                if (DEBUG):
+                    print("Inside plot - not loaded")
                 # self adding
                 if self.isSelected == False:
+                    if (DEBUG):
+                        print("Inside plot - self adding")                    
                     self.idx = self.check_index()
                 # position selected by user
                 else:
+                    if (DEBUG):
+                        print("Inside plot - user adding")                                        
                     self.idx = self.selected_plot_index
 
+                if (DEBUG):
+                    print("Adding plot at index ", self.idx)
+                    
                 # updating histogram dictionary for fast access to information via get_histo_xxx       
                 self.h_dict[self.idx] = self.update_spectrum_info()        
-
+                self.h_dict_geo[self.idx] = (self.h_dict[self.idx])["name"]
+                if (DEBUG):
+                    print(self.h_dict)
+                self.h_dict_bak = self.h_dict.copy()
+                
                 self.erase_plot(self.idx)            
                 self.add(self.idx)
                 self.wPlot.canvas.draw()
-
-                # updating support list for histogram dimension
-                self.h_dim = self.get_histo_key_list(self.h_dict, "dim")
-                # updating output dictionary
-                self.h_dict_output[self.idx] = self.get_histo_name(self.idx)
+                self.isSelected = False
         except:
             QMessageBox.about(self, "Warning", "Please click 'Get Data' to access the data...")
 
     # geometrically add plots to the right place and calls plotting    
     def add(self, index):
+        if (DEBUG):
+            print("adding histogram...")
+        self.h_setup[index] = True # ready to be setup
+        if (DEBUG):
+            print(self.h_setup)
         if self.isZoomed:
             a = plt.gca()
             self.erase_plot(index)
         else:
             a = self.select_plot(index)
             x,y = self.plot_position(index)
+            if (DEBUG):
+                print("in position",x,y)
             self.erase_plot(index)
-            if self.isSelected == True:
-                a = self.wPlot.figure.add_subplot(self.grid[self.selected_row,self.selected_col])
-            else:
-                a = self.wPlot.figure.add_subplot(self.grid[x,y])
-                self.isSelected = False
-        self.setup_histogram(a, index)
+            a = self.wPlot.figure.add_subplot(self.grid[x,y])            
         
     # erase plot
     def erase_plot(self, index):
@@ -1455,7 +1545,7 @@ class MainWindow(QMainWindow):
             for index in range(self.wConf.col*self.wConf.row):
                 self.erase_plot(index)
                 # reinitialize the histograms
-                self.h_dict_output[index] = self.initialize_histogram()
+                self.h_dict[index] = self.initialize_histogram()
                 # reset support list
                 self.isFull = False
         else:
@@ -1469,24 +1559,28 @@ class MainWindow(QMainWindow):
             self.erase_plot(self.idx)
             self.isSelected = False
             # reinitialize the histogram at index
-            self.h_dict_output[self.idx] = self.initialize_histogram()
+            self.h_dict[self.idx] = self.initialize_histogram()
             # zero the element in the support list
             self.h_dim[self.idx] = 0            
             self.isFull = False
 
         if sum(self.h_dim) == 0:
             self.h_dict.clear()            
-            self.h_dict_output.clear()
+            self.h_dict_geo.clear()
             self.Start = False
             
         self.wPlot.canvas.draw()
 
     def setup_histogram(self, axis, index):
+        if (DEBUG):
+            print("Inside setup histogram")
         hdim = self.get_histo_dim(index)                    
         minx = self.get_histo_xmin(index)
         maxx = self.get_histo_xmax(index)
         binx = self.get_histo_xbin(index)
-
+        if (DEBUG):
+            print(hdim,minx,maxx,binx)
+        
         if hdim == 1:
             # update axis
             self.yhigh = self.get_histo_zoomMax(index)
@@ -1494,7 +1588,6 @@ class MainWindow(QMainWindow):
             axis.set_ylim(0,self.yhigh)
             # create histogram
             self.h_lst[index],  = axis.plot([], [], drawstyle='steps')
-
             self.h_zoom_max[index] = self.yhigh
         else:
             miny = self.get_histo_ymin(index)
@@ -1532,6 +1625,8 @@ class MainWindow(QMainWindow):
                                             cmap=self.palette)
 
         self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
+        if (DEBUG):
+            print(self.h_lst)
         
     # histo plotting
     def plot_histogram(self, axis, index, threshold=0.1):
@@ -1539,7 +1634,11 @@ class MainWindow(QMainWindow):
         minx = self.get_histo_xmin(index)
         maxx = self.get_histo_xmax(index)
         binx = self.get_histo_xbin(index)
+        if (DEBUG):
+            print("inside plot_histogram")
         w = self.get_data(index)
+        if (DEBUG):
+            print("data",sum(w))
         if hdim == 1:
             X = self.create_range(binx, minx, maxx)            
             self.h_lst[index].set_data(X, w)
@@ -1697,11 +1796,18 @@ class MainWindow(QMainWindow):
             # gate name
             text, okPressed = QInputDialog.getText(self, "Gate name", "Please choose a name for the gate:", QLineEdit.Normal, gate_name)
             if okPressed:
-                gate_name = text
-                self.wTop.listGate.addItem(gate_name)
-                # update boxes
-                self.wTop.listGate.setCurrentText(gate_name)
-
+                if text:
+                    gate_name = text
+                else:
+                    gate_name = "default_gate_"+str(self.counter)
+            else:
+                gate_name = "default_gate_"+str(self.counter)
+                if (DEBUG):
+                    print("You clicked cancel but I saved you man...gate_name is", gate_name)
+            self.wTop.listGate.addItem(gate_name)
+            # update boxes
+            self.wTop.listGate.setCurrentText(gate_name)
+                
             # gate type
             items = ("s", "c", "b", "gs", "gc", "gb")
             item, okPressed = QInputDialog.getItem(self, "Gate type", "Please choose a type for the gate:", items, 0, False)
@@ -1854,7 +1960,7 @@ class MainWindow(QMainWindow):
 
         if self.wTop.slider.value() != 0:
             self.timer.start()
-                
+
     def clearGate(self):
         if self.wTop.slider.value() != 0:
             self.timer.stop() 
@@ -1912,6 +2018,9 @@ class MainWindow(QMainWindow):
             if cntr == 2:
                 break
 
+        if (DEBUG):
+            print("Inside plot1DGate", key)
+            
         if key in self.artist_dict:
             if (DEBUG):
                 print("self.artist_dict[key]",self.artist_dict[key])
@@ -1920,9 +2029,13 @@ class MainWindow(QMainWindow):
                     print("Replace the gate")
                     print("self.artist1D[",name,"] = []")
                 self.artist1D[name] = []                
-        self.artist1D[name] = tmp
-        self.artist_dict[key] = self.artist1D
-            
+
+        if (key != 'empty'):
+            self.artist1D[name] = tmp
+            self.artist_dict[key] = self.artist1D
+        if (DEBUG):
+            print(self.artist_dict)
+        
     def plot2DGate(self, axis, key, name):
         new_line = mlines.Line2D([],[])
         for line in self.dict_region[name]:                
@@ -1940,33 +2053,39 @@ class MainWindow(QMainWindow):
                     print("Replace the gate")
                     print("self.artist2D[",name,"] = []")
                 self.artist2D[name] = []                
-        self.artist2D[name] = new_line
-        self.artist_dict[key] = self.artist2D            
 
+        if (key != 'empty'):            
+            self.artist2D[name] = new_line
+            self.artist_dict[key] = self.artist2D
+        
     def drawAllGate(self):
+        if (DEBUG):
+            print("Inside drawAllGate")
         if self.wTop.slider.value() != 0:
             self.timer.stop()
-
-        # remove all gates from canvas
-        try:
-            self.clearAllGate()
-        except:
-            pass
-            
+ 
         # loop over panel
         if self.isZoomed:
             a = plt.gca()
             h = self.wConf.spectrum_name.text()
+            if (DEBUG):
+                print("inside if self.isZoomed", h, self.artist_dict[h])
             if h in self.artist_dict:
                 for gate in self.artist_dict[h]:
                     if (DEBUG):
-                        print("gate name:", gate, " to be added in ", h)
+                        print("gate name:", gate, " to be added in histogram at index", h)
+                    '''
                     if self.wConf.button1D.isChecked():
                         self.plot1DGate(a, h, gate)
                     else:
                         self.plot2DGate(a, h, gate)            
+                    '''
         else:
+            if (DEBUG):
+                print("inside if !self.isZoomed", h, self.artist_dict[h])            
+            # dict_output doesn't exist anymore
             for index in self.h_dict_output:
+                print(index, self.h_dict_output[index])
                 h = self.h_dict_output[index]
                 a = self.select_plot(index)            
                 self.clickToIndex(index)
@@ -1975,11 +2094,13 @@ class MainWindow(QMainWindow):
                 if h in self.artist_dict:
                     for gate in self.artist_dict[h]:
                         if (DEBUG):
-                            print("gate name:", gate, " to be added in ", h)
+                            print("gate name:", gate, " to be added in histograma at index", h)
+                        '''
                         if self.wConf.button1D.isChecked():
                             self.plot1DGate(a, h, gate)
                         else:
                             self.plot2DGate(a, h, gate)
+                        '''
 
         self.wPlot.canvas.draw()            
 
@@ -1989,40 +2110,38 @@ class MainWindow(QMainWindow):
         if self.wTop.slider.value() != 0:
             self.timer.start()
 
-    def drawGate(self, option):
-        try:
-            if option == False:
-                if self.wTop.slider.value() != 0:
-                    self.timer.stop()
-                
-                if self.selected_plot_index is not None:
-                    name = self.wTop.listGate.currentText()
-                    key = self.get_histo_name(self.selected_plot_index)
-                    gtype = self.gateTypeDict[name]
-                    self.wConf.resetGateType()
-                    (self.wConf.buttonGateTypeDict[gtype]).setChecked(True)
-                    if self.isZoomed:
-                        a = plt.gca()
-                    else:
-                        a = self.select_plot(self.selected_plot_index)
-                    if self.wConf.button1D.isChecked():
-                        if (DEBUG):
-                            print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
-                        self.plot1DGate(a, key, name)
-                    else:
-                        if (DEBUG):                        
-                            print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
-                        self.plot2DGate(a, key, name)
-                    
-            self.wPlot.canvas.draw()
-            if (DEBUG):
-                print(self.artist_dict)
-        
-            if self.wTop.slider.value() != 0:
-                self.timer.start()        
-        except:
-            pass
-                
+    def drawGate(self):
+        # gates will be added with the button add and removed with clean in an agnostic way,
+        # independently from the histogram they were created
+        if (DEBUG):
+            print("inside drawGate")
+        if self.wTop.slider.value() != 0:
+            self.timer.stop()
+
+        if self.selected_plot_index is not None:
+            name = self.wTop.listGate.currentText()
+            key = self.get_histo_name(self.selected_plot_index)
+            gtype = self.gateTypeDict[name]
+            self.wConf.resetGateType()
+            (self.wConf.buttonGateTypeDict[gtype]).setChecked(True)
+            if self.isZoomed:
+                a = plt.gca()
+            else:
+                a = self.select_plot(self.selected_plot_index)
+            if self.wConf.button1D.isChecked():
+                if (DEBUG):
+                    print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
+                self.plot1DGate(a, key, name)
+            else:
+                if (DEBUG):                        
+                    print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
+                self.plot2DGate(a, key, name)
+
+
+        self.wPlot.canvas.draw()
+        if self.wTop.slider.value() != 0:
+            self.timer.start()        
+
     ##############################
     # 11) 1D/2D region integration 
     ##############################
@@ -2715,35 +2834,23 @@ class MainWindow(QMainWindow):
     def create_rectangle(self, plot):
         rec = matplotlib.patches.Rectangle((0, 0),
                                            1,
-                                           1, ls="-", ec="red", fc="none", transform=plot.transAxes)
+                                           1, ls="-", lw="2", ec="red", fc="none", transform=plot.transAxes)
         rec = plot.add_patch(rec)
         rec.set_clip_on(False)        
         return rec
 
     # hide/show configuration of the canvas
     def configure(self):
-        if self.isHidden == False:
-            try:
-                self.clearAllGate()
-            except:
-                pass
-            self.wConf.hide()
-            try:
-                self.drawAllGate()
-            except:
-                pass
-            self.isHidden = True
-        else:
-            try:
-                self.clearAllGate()            
-            except:
-                pass
-            self.wConf.show()
-            try:
-                self.drawAllGate()            
-            except:
-                pass
-            self.isHidden = False
+        if (DEBUG):
+            print("clicked configure")
+        try:
+            if self.wConf.isVisible():
+                self.wConf.hide()
+            else:
+                #self.clearAllGate()
+                self.wConf.show()
+        except Exception as e:
+            print(e)
 
     def change_bkg(self):
         if any(x == 2 for x in self.h_dim) == True:

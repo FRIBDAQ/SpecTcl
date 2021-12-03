@@ -1009,6 +1009,9 @@ int CTclGrammerApp::operator()() {
         std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
+  } else {
+    ::setenv("RESThost", "host", 1);   /// local no mirror may be needed
+    ::setenv("RESTport", "0", 1);   /// local no mirror may be needed
   }
 
 
