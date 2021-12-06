@@ -1015,9 +1015,9 @@ proc ::tkcon::EvalCmd {w cmd} {
 		    set tag [UniqueTag $w]
 		    $w insert output $res [list stderr $tag] \n$trailer stderr
 		    $w tag bind $tag <Enter> \
-			    [list $w tag configure $tag -under 1]
+			    [list $w tag configure $tag -underline 1]
 		    $w tag bind $tag <Leave> \
-			    [list $w tag configure $tag -under 0]
+			    [list $w tag configure $tag -underline 0]
 		    $w tag bind $tag <ButtonRelease-1> \
 			    "if {!\[info exists tkPriv(mouseMoved)\] || !\$tkPriv(mouseMoved)} \
 			    {[list $OPT(edit) -attach [Attach] -type error -- $PRIV(errorInfo)]}"
@@ -2980,8 +2980,8 @@ proc ::tkcon::HighlightError w {
 	    set tag [UniqueTag $w]
 	    $w tag add $tag $start+${c0}c $start+1c+${c1}c
 	    $w tag configure $tag -foreground $COLOR(stdout)
-	    $w tag bind $tag <Enter> [list $w tag configure $tag -under 1]
-	    $w tag bind $tag <Leave> [list $w tag configure $tag -under 0]
+	    $w tag bind $tag <Enter> [list $w tag configure $tag -underline 1]
+	    $w tag bind $tag <Leave> [list $w tag configure $tag -underline 0]
 	    $w tag bind $tag <ButtonRelease-1> "if {!\$tkPriv(mouseMoved)} \
 		    {[list $OPT(edit) -attach $app -type proc -find $what -- $cmd]}"
 	}
@@ -3009,8 +3009,8 @@ proc ::tkcon::HighlightError w {
 	    set tag [UniqueTag $w]
 	    $w tag add $tag $ix+1c $start
 	    $w tag configure $tag -foreground $COLOR(proc)
-	    $w tag bind $tag <Enter> [list $w tag configure $tag -under 1]
-	    $w tag bind $tag <Leave> [list $w tag configure $tag -under 0]
+	    $w tag bind $tag <Enter> [list $w tag configure $tag -underline 1]
+	    $w tag bind $tag <Leave> [list $w tag configure $tag -underline 0]
 	    $w tag bind $tag <ButtonRelease-1> "if {!\$tkPriv(mouseMoved)} \
 		    {[list $OPT(edit) -attach $app -type proc -- $cmd]}"
 	}
