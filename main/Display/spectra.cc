@@ -46,6 +46,7 @@ static const char *version="@(#)spectra.cc	8.1 6/23/95 ";
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <string>
 #include <map>
@@ -333,9 +334,9 @@ unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
     if( (ix >= 0) && (ix < xdim-2) &&
         (iy >= 0) && (iy < ydim-2)) {
       idx = ix + iy*getxdim(id);
-      lptr = (unsigned int *)getbase(id);
-      sptr = (unsigned short*)(lptr);
-      bptr = (unsigned char*)(lptr);
+      lptr =(uint32_t *)getbase(id);
+      sptr = (uint16_t*)(lptr);
+      bptr = (uint8_t *)(lptr);
       if(lptr == NULL) {
         fprintf(stderr, "Invalid spectrum base %d \n", id);
         return 0;
@@ -347,12 +348,12 @@ unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
             return 0;
       }
       return (unsigned int)lptr[idx];
-    } else if (gettype(id) == twodbyte) {
+    } else if (gettype(id) == twodword) {
         if ((char*)(sptr+idx) > Xamine_MemoryTop()) {
             return 0;
         }
         return (unsigned int)(sptr[idx]);
-    } else {  // Byte spectrum.
+      } else {  // byte
         if ((char*)(bptr+idx) > Xamine_MemoryTop()) {
             return 0;
         }

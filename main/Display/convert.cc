@@ -442,7 +442,7 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   );
   // Now we get the value:
   
-  int counts = spectra->getchannel(spec, cx, cy);
+  int counts = spectra->getchannel(spec, cx, cy); // +1's for roots underflows.
   
   // FIll in the locator:
   
