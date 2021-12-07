@@ -58,8 +58,7 @@ install-exec-hook:
 	ln -s @prefix@/lib @prefix@/DDASSkel/Lib
 
 EXTRA_DIST = Main.py GUI.py \
-	MenuGUI.py ConfigGUI.py OutputGUI.py 1DfunctionGUI.py 2DfunctionGUI.py JoystickGUI.py PlotGUI.py\
-	shm_parser.py CannyEdgePlot.py ImgSegPlot.py algo_factory.py skel_creator.py skel_plot.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py \
-	fit_factory.py fit_skel_creator.py fit_gaus_creator.py fit_exp_creator.py fit_p1_creator.py fit_p2_creator.py fit_gp1_creator.py fit_gp2_creator.py WebWindow.py notebook_process.py logger.py \
-	jupyterqtpy_notebook_config.pyd3.js includes.py
-
+	MenuGUI.py ConfigGUI.py OutputGUI.py Functions1DGUI.py Functions2DGUI.py JoystickGUI.py PlotGUI.py\
+	shm_parser.py CannyEdgePlot.py ImgSegPlot.py algo_factory.py algo_skel_creator.py fit_factory.py fit_skel_creator.py \
+	fit_gaus_creator.py fit_gp1_creator.py fit_gp2_creator.py fit_p1_creator.py fit_p2_creator.py skel_plot.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py \
+	WebWindow.py notebook_process.py logger.py jupyterqtpy_notebook_config.py d3.js 
