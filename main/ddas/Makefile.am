@@ -50,6 +50,9 @@ unittests_CXXFLAGS = @CPPUNIT_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Utility \
 unittests_LDADD = @builddir@/libDDASUnpacker.la @top_builddir@/Core/libTclGrammerApp.la  \
 	@ROOT_LDFLAGS@  @CPPUNIT_LIBS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
+AM_TESTS_ENVIRONMENT=LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@; \
+	export LD_LIBRARY_PATH;
+
 TESTS = ./unittests
 
 

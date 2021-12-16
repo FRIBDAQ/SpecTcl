@@ -83,7 +83,7 @@ CHttpdServer::start(int port)
         std::cerr << "              the server alread is started with a probed port of "
                   << m_nPort << std::endl;
         std::cerr << "              you are trying with port " << port << std::endl;
-        std::cerr <  "              it is likely the server is actually running \n";
+        std::cerr <<  "              it is likely the server is actually running \n";
         std::cerr << "              on a far different port than you think it is\n";
         
     }

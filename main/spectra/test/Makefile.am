@@ -51,4 +51,7 @@ unittests_CXXFLAGS = @ROOT_CFLAGS@ \
 										 -I@top_srcdir@/Utility
 
 
+AM_TESTS_ENVIRONMENT=LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@ ; \
+	export LD_LIBRARY_PATH;
+
 TESTS = unittests

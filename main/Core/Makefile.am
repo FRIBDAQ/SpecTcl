@@ -386,9 +386,9 @@ commonCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
 				  -I@top_srcdir@/factories \
 				  -I@top_srcdir@/Display \
-									@LIBTCLPLUS_CFLAGS@ \
-									@TCL_CPPFLAGS@ \
-									@CPPUNIT_CFLAGS@ \
+				@LIBTCLPLUS_CFLAGS@ \
+				@TCL_CPPFLAGS@ \
+				@CPPUNIT_CFLAGS@ \
 				@ROOT_CFLAGS@
 
 # Removed @top_builddir@/Tape/libtape.la
@@ -397,7 +397,7 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
-		@TCL_LIBS@ @ROOT_LDFLAGS@
+		@TCL_LIBS@ @ROOT_LDFLAGS@ @ROOT_LDFLAGS@
 
 
 scalertests_CXXFLAGS = $(commonCXXFLAGS)
@@ -470,6 +470,9 @@ evbProcessorTests_CXXFLAGS = $(commonCXXFLAGS)
 evbProcessorTests_LDADD = $(commonTestLdFlags)
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
 	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp
+
+AM_TESTS_ENVIRONMENT=LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@; \
+	export LD_LIBRARY_PATH ;
 
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \

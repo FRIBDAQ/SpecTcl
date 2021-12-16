@@ -631,14 +631,14 @@ int grobfilewrap()
 /*
 ** yyerror -- called when there is an error in the parse.
 */
-extern int grob_lineno;
+extern int grobjfilelineno;
 void grobjfileerror(char *str)
 {
   char errormsg[256];
 
 
   sprintf(errormsg, "Line %d:, %s\n",
-	  grob_lineno, str);
+	  grobjfilelineno, str);
   Xamine_error_msg(Xamine_Getpanemgr(),
 		   errormsg);
 }

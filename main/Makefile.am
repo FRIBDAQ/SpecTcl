@@ -21,12 +21,16 @@ SUBDIRS = Replace \
 					ccusb \
 					vmusb \
 					tkcon \
+					spectra \
 					compress \
 					docs \
-					spectra \
 					scalerWrapper \
 					packaged \
 					Python
+
+
+
+
 
 ACLOCAL_AMFLAGS=-I m4
 

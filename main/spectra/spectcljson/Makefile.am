@@ -58,6 +58,9 @@ unittests_LDADD = @builddir@/libSpecTclJson.la \
 unittests_LDFLAGS = -Wl,-rpath=@ROOT_LIBRARY_DIR@
 
 
+AM_TESTS_ENVIRONMENT=LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@;
+	export LD_LIBRARY_PATH;
+
 TESTS = unittests
 
 
