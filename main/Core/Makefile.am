@@ -469,6 +469,8 @@ evbProcessorTests_LDADD = $(commonTestLdFlags)
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
 	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp
 
+AM_TESTS_ENVIRONMENT=LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@; \
+	export LD_LIBRARY_PATH;
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
