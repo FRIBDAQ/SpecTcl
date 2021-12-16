@@ -3,7 +3,7 @@
 #  Manage the submodule for libtclplus
 #  Usage ./tcl++incorp tag-to-switch-to
 #
-#  e.g. ./tcl++incorp libtclplus-v3.0-008
+#  e.g. ./tcl++incorp libtclplus-v4.3-001
 #  last used in this branch.
 #
 
