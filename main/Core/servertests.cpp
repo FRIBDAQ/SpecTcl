@@ -108,7 +108,7 @@ EchoFactory::create(CSocket* pSocket, ServerListener* pListener, ClientData cd)
 EchoFactory fact;
 ////////////////////////
 
-static const std::string port="5555";
+static const std::string port="32123";
 
 class servertest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(servertest);
@@ -152,7 +152,7 @@ void servertest::noconn()
 void servertest::connect_1()
 {
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect(std::string("localhost"),  "5555"));
+    CPPUNIT_ASSERT_NO_THROW(client.Connect(std::string("localhost"), port));
     sleep(1);
     {
         CriticalSection g(m_pListener->m_Monitor);
@@ -172,7 +172,7 @@ void servertest::connect_1()
 void servertest::echo_1()
 {
     CSocket client;
-    client.Connect(std::string("localhost"), "5555");
+    client.Connect(std::string("localhost"), port);
     
     std::string msg("Hello world");
     uint32_t size = msg.size();
