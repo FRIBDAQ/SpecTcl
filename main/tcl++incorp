@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#  Manage the submodule for libtclplus
+#  Usage ./tcl++incorp tag-to-switch-to
+#
+#  e.g. ./tcl++incorp libtclplus-v4.3-001
+#  last used in this branch.
+#
+
+tag=$1
+
+(cd libtcl ; git checkout $tag)
+git add libtcl
+git commit -m"Update libtcl tag to $tag"
+
