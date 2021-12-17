@@ -32,4 +32,8 @@ unittests_LDADD = @ROOT_LDFLAGS@ \
 										@TCL_LIBS@ 
 unittests_LDFLAGS = -Wl,-rpath=@ROOT_LIBRARY_DIR@
 
+AM_TESTS_ENVIRONMENT=LD_LIBRARY_PATH=@ROOT_LIBRARAY_DIR@; \
+        export LD_LIBRARY_PATH;
+
+
 TESTS = unittests

@@ -49,13 +49,16 @@ unittests_CXXFLAGS = @JSONCPP_CFLAGS@ \
 
 unittests_CPPFLAGS = -DJSON_TEST_DIR='"@srcdir@/json"'
 
- 
+
 unittests_LDADD = @builddir@/libSpecTclJson.la \
 		@JSONCPP_LIBS@ \
 		@ROOT_LDFLAGS@ \
 		@CPPUNIT_LIBS@ 
 
 unittests_LDFLAGS = -Wl,-rpath=@ROOT_LIBRARY_DIR@
+
+AM_TESTS_ENVIRONMENT=LD_LIBRARY_PATH=@ROOT_LIBRARAY_DIR@; \
+        export LD_LIBRARY_PATH;
 
 
 TESTS = unittests

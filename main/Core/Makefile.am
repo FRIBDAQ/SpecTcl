@@ -466,6 +466,8 @@ evbProcessorTests_CXXFLAGS = $(commonCXXFLAGS)
 evbProcessorTests_LDADD = $(commonTestLdFlags)
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp failEventProcessorTests.cpp
 
+AM_TESTS_ENVIRONMENT=LD_LIBRARY_PATH=@ROOT_LIBRARAY_DIR@; \
+	export LD_LIBRARY_PATH;
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests
