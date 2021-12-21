@@ -28,7 +28,8 @@ SUBDIRS = Replace \
 					restclient \
 					mirrorclient \
 					Python db PyQtGUI\
-					xaminerunner 
+					xaminerunner \
+					rootxamine
 
 ACLOCAL_AMFLAGS=-I m4
 

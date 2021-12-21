@@ -964,5 +964,6 @@ AC_OUTPUT(Makefile
 	  restclient/Makefile
 	  xaminerunner/Makefile
 	  mirrorclient/Makefile
+	  rootxamine/Makefile
 	  )
           
