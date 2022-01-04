@@ -87,6 +87,9 @@ HistogramManager::HistogramManager(void* pMemory, const char* host, int restPort
     m_SpecTclRestPort(restPort)
 {
     memset(m_pHistograms, 0, sizeof(m_pHistograms));
+    for(int i =0; i < XAMINE_MAXSPEC; i++) {
+        m_CurrentTypes[i] = undefined;
+    }
 }
 /**
  * destructor:
@@ -136,5 +139,20 @@ HistogramManager::killAllHistograms()
 {
     for (int i = 0; i < XAMINE_MAXSPEC; i++) {
         killHistogram(i);
+    }
+}
+/**
+ * killHistogram
+ *    Destroy a histogram given its slot number.
+ * @param index - the Xamine memory slot that the histogram
+ *                corresponds to
+ */
+void
+HistogramManager::killHistogram(int index)
+{
+    if (m_pHistograms[index]) {
+        clearStorage(index);
+        delete m_pHistograms[index];
+        m_pHistograms[index] = nullptr;   // No histogram present.
     }
 }

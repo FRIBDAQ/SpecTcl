@@ -54,12 +54,14 @@
 
 class HistogramManager
 {
+
 private:
     TTimer*                   m_pRefreshTimer;
     volatile Xamine_shared*   m_pXamineMemory;
     std::string               m_SpecTclHost;
     int                       m_SpecTclRestPort;
     TH1*                      m_pHistograms[XAMINE_MAXSPEC];
+    spec_type                 m_CurrentTypes[XAMINE_MAXSPEC];
     
 public:
     
@@ -71,8 +73,9 @@ public:
 private:
     void killAllHistograms();
     void killHistogram(int index);
-    void createHistogram(int index);
     bool histogramChanged(int index);
+    void createHistogram(int index);
+    void clearStorage(int index);
 };
 
 #endif                               // include guard.
