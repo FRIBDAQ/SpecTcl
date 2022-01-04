@@ -76,6 +76,7 @@ private:
     bool histogramChanged(int index);
     void createHistogram(int index);
     void clearStorage(int index);
+    
 };
 
 #endif                               // include guard.
