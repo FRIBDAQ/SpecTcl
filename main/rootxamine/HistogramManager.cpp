@@ -195,7 +195,7 @@ HistogramManager::histogramChanged(int index)
     // All spectra have x dimension and x axis specs:
     
     TH1* pHist = m_pHistograms[index];
-    if (pHist->GetNbinsX() != m_pXamineMemory->dsp_xy[index].xchans) {
+    if (pHist->GetNbinsX() != (m_pXamineMemory->dsp_xy[index].xchans-2)) {
         return true;
     }
     TAxis* pX = pHist->GetXaxis();
@@ -212,7 +212,7 @@ HistogramManager::histogramChanged(int index)
     spec_type t = m_CurrentTypes[index];
     if ((t == twodlong) || (t == twodword) || (t == twodbyte)) {
         
-        if (pHist->GetNbinsY() != m_pXamineMemory->dsp_xy[index].ychans) {
+        if (pHist->GetNbinsY() != (m_pXamineMemory->dsp_xy[index].ychans-2)) {
             return false;     // # Y bins changed.
         }
         TAxis* pY = pHist->GetYaxis();
@@ -255,8 +255,10 @@ HistogramManager::createHistogram(int index)
     // ignored.
     // 
     
-    unsigned xbins  = m_pXamineMemory->dsp_xy[index].xchans;
-    unsigned ybins  = m_pXamineMemory->dsp_xy[index].ychans;
+    // The -2 is because Xamine keeps track of the over/undeflow bins
+    
+    unsigned xbins  = m_pXamineMemory->dsp_xy[index].xchans -2;
+    unsigned ybins  = m_pXamineMemory->dsp_xy[index].ychans -2;
     
     float xmin      = m_pXamineMemory->dsp_map[index].xmin;
     float xmax      = m_pXamineMemory->dsp_map[index].xmax;
@@ -346,6 +348,82 @@ HistogramManager::createHistogram(int index)
             );
                        
     }
+    m_CurrentTypes[index] = stype;
     gDirectory->Cd(olddir.c_str());
     
+}
+/**
+ * clearStorage
+ *     Prior to destroying a histogram, it's storage must be nulled out
+ *     to prevent Root from trying to delete/free it.  We cannot assume
+ *     that the shape of each spectrum type is actually congruent with
+ *     respect to the placement of fArray relative to a pointer to the
+ *     histogram.  Hence this code.
+ *  @param index  - Index of the spectrum whose data we null out.
+ *  @note we could use an if block and dynamic upcasts but we know
+ *    from m_CurrentTypes[index] the correct upcast to do so we do
+ *    that in a switch and throw std::invalid_argument if there's a
+ *    mistake of some sort as that's a bug.
+ *    
+ */
+void
+HistogramManager::clearStorage(int index)
+{
+    switch (m_CurrentTypes[index]) {
+    case undefined:
+        break;                           // Unused Spectrum.
+    case twodlong:                       // TH2I
+        {
+            auto pHist = dynamic_cast<TH2I*>(m_pHistograms[index]);
+            if (pHist) {
+                pHist->fArray = nullptr;
+            } else {
+                throw std::invalid_argument("Expected TH2I but the dynamic cast failed");   
+            }
+        }
+        break;
+    case onedlong:                     //TH1I
+        {
+            auto pHist = dynamic_cast<TH1I*>(m_pHistograms[index]);
+            if (pHist) {
+                pHist->fArray = nullptr;
+            } else {
+                throw std::invalid_argument("Expected TH1I but the dynamic cast failed");   
+            }
+        }
+        break;
+    case onedword:               // TH1S
+        {
+            auto pHist = dynamic_cast<TH1S*>(m_pHistograms[index]);
+            if (pHist) {
+                pHist->fArray = nullptr;
+            } else {
+                throw std::invalid_argument("Expected TH2S but the dynamic cast failed");   
+            }
+        }
+        break;
+    case twodword:              // TH2S
+        {
+            auto pHist = dynamic_cast<TH2S*>(m_pHistograms[index]);
+            if (pHist) {
+                pHist->fArray = nullptr;
+            } else {
+                throw std::invalid_argument("Expected TH2L but the dynamic cast failed");   
+            }
+        }
+        break;
+    
+    case twodbyte:
+        {
+            auto pHist = dynamic_cast<TH2C*>(m_pHistograms[index]);
+            if (pHist) {
+                pHist->fArray = nullptr;
+            } else {
+                throw std::invalid_argument("Expected TH2C but the dynamic cast failed");   
+            }
+        }
+        break;
+    default:
+        throw std::invalid_argument("HistogramManager::clearStorage - invalid spectrum type");
+    }
 }

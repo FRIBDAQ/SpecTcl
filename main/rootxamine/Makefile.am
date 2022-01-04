@@ -14,6 +14,8 @@ rootxamine_LDADD=@top_builddir@/mirrorclient/libMirrorClient.la \
 	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
 	@JSONCPP_LIBS@
 
+rootxamine_LDFLAGS=-Wl,-rpath=$(RESTCLIENTROOT)/lib 
+
 BUILT_SOURCES=cmdline.h cmdline.c
 noinst_HEADERS=cmdline.h
 
