@@ -20,6 +20,16 @@
  */
 #include "HistogramManager.h"
 #include <string.h>
+#include <stdexcept>
+
+#include <TH2I.h>
+#include <TH2S.h>
+#include <TH2C.h>
+
+#include <TH1I.h>
+#include <TH1S.h>
+
+#include <TDirectory.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -154,6 +164,7 @@ HistogramManager::killHistogram(int index)
         clearStorage(index);
         delete m_pHistograms[index];
         m_pHistograms[index] = nullptr;   // No histogram present.
+        m_CurrentTypes[index] = undefined;
     }
 }
 /**
@@ -214,5 +225,127 @@ HistogramManager::histogramChanged(int index)
     }
     
     return false;                 // unchanged.
+    
+}
+/**
+ * createHistogram
+ *    Based on the appropriate histogram type in the Xamine shared
+ *    memory, create a Root histogram that's got its storage
+ *    bound to it.
+ * @param index -index of the histogram slot in Xamine.
+ * @note this code assumes that killHistogram on this index has already
+ *       been called.  This is correct if this is called from
+ *       update().
+ */
+void
+HistogramManager::createHistogram(int index)
+{
+    
+    // Do nothing if the spectrum is undefined:
+    
+    spec_type stype = m_pXamineMemory->dsp_types[index];
+    if (stype == undefined) return;
+    std::string olddir = gDirectory->GetPath();
+    gDirectory->Cd("/");
+    
+    // Extract the axis definition and binning of the
+    // new histogram... what we do after that depends on
+    // the histogram type sadly.
+    // Note that in the 1d case the y channels an axis specs will be
+    // ignored.
+    // 
+    
+    unsigned xbins  = m_pXamineMemory->dsp_xy[index].xchans;
+    unsigned ybins  = m_pXamineMemory->dsp_xy[index].ychans;
+    
+    float xmin      = m_pXamineMemory->dsp_map[index].xmin;
+    float xmax      = m_pXamineMemory->dsp_map[index].xmax;
+    float ymin      = m_pXamineMemory->dsp_map[index].ymin;
+    float ymax      = m_pXamineMemory->dsp_map[index].ymax;
+    
+    const char* pName = const_cast<const char*>(m_pXamineMemory->dsp_titles[index]);
+    const char* title = const_cast<const char*>(m_pXamineMemory->dsp_info[index]);
+    size_t offset     = m_pXamineMemory->dsp_offsets[index];
+    
+    switch (stype) {
+        case twodlong:             // TH2I
+            {
+                auto pSpec = new TH2I(
+                    pName, title,
+                    xbins, xmin, xmax,
+                    ybins, ymin, ymax
+                );
+                pSpec->Adopt(0,nullptr);  // Free Root's storage...
+                pSpec->fN = xbins*ybins;
+                pSpec->fArray = reinterpret_cast<Int_t*>(const_cast<uint32_t*>(
+                    &(m_pXamineMemory->dsp_spectra.XAMINE_l[offset])
+                ));
+                m_pHistograms[index] = pSpec;
+            }
+            break;
+        case onedlong:                    // TH1I
+            {
+                auto pSpec = new TH1I(
+                    pName, title, xbins, xmin, xmax
+                );
+                pSpec->Adopt(0, nullptr);
+                pSpec->fN = xbins;
+                pSpec->fArray =reinterpret_cast<Int_t*>(const_cast<uint32_t*>(
+                    &(m_pXamineMemory->dsp_spectra.XAMINE_l[offset])
+                ));
+                m_pHistograms[index] = pSpec;
+            }
+            break;
+        case onedword:                    // TH1S
+            {
+                auto pSpec = new TH1S(
+                    pName, title, xbins, xmin, xmax
+                );
+                pSpec->Adopt(0, nullptr);
+                pSpec->fN = xbins;
+                pSpec->fArray = reinterpret_cast<Short_t*>(const_cast<uint16_t*>(
+                    &(m_pXamineMemory->dsp_spectra.XAMINE_w[offset])
+                ));                    
+                m_pHistograms[index] = pSpec;
+            }
+            break;
+        case twodword:                // TH2S;
+            {
+                auto pSpec = new TH2S(
+                    pName, title,
+                    xbins, xmin, xmax,
+                    ybins, ymin, ymax
+                );
+                pSpec->Adopt(0,nullptr);  // Free Root's storage...
+                pSpec->fN = xbins*ybins;
+                pSpec->fArray = reinterpret_cast<Short_t*>(const_cast<uint16_t*>(
+                    &(m_pXamineMemory->dsp_spectra.XAMINE_w[offset])
+                ));                
+                m_pHistograms[index] = pSpec;
+            }
+            break;
+        case twodbyte:             // TH2C
+            {
+                auto pSpec = new TH2C(
+                    pName, title,
+                    xbins, xmin, xmax,
+                    ybins, ymin, ymax
+                );
+                pSpec->Adopt(0,nullptr);  // Free Root's storage...
+                pSpec->fN = xbins*ybins;
+                pSpec->fArray = reinterpret_cast<Char_t*>(const_cast<uint8_t*>(
+                    &(m_pXamineMemory->dsp_spectra.XAMINE_b[offset])
+                ));
+                m_pHistograms[index] = pSpec;
+            }
+            break;
+        default:
+            gDirectory->Cd(olddir.c_str());
+            throw std::domain_error(
+                "HistogramManager::createHistogram - unrecognized spectrum type in Xamine memory"
+            );
+                       
+    }
+    gDirectory->Cd(olddir.c_str());
     
 }
