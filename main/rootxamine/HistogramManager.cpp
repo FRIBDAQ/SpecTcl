@@ -156,3 +156,63 @@ HistogramManager::killHistogram(int index)
         m_pHistograms[index] = nullptr;   // No histogram present.
     }
 }
+/**
+ * histogramChanged
+ *    @param index - index of a histogram in shared memory.
+ *    @return bool - true if the histogram has changed.
+ *    @note now that we have the current histogram type that's a
+ *          matter of asking if:
+ *          *   The histogram type has changed and if so true.
+ *          *   The histogram dimensions have changed (if so true).
+ *          *   The histogram axis definition has changed (if so true).
+ *          *   Otherwise false.
+ */
+bool
+HistogramManager::histogramChanged(int index)
+{
+    if (m_CurrentTypes[index] != m_pXamineMemory->dsp_types[index]) {
+        return true;
+    }
+    // This protects against checking any further against unused spectra
+    // If this test matches the spectrum was and is still undefined
+    // and this is the only case where m_pHistograms[index] is a nullptr.
+    
+    if (m_CurrentTypes[index] == undefined) {
+        return false;
+    }
+    
+    // All spectra have x dimension and x axis specs:
+    
+    TH1* pHist = m_pHistograms[index];
+    if (pHist->GetNbinsX() != m_pXamineMemory->dsp_xy[index].xchans) {
+        return true;
+    }
+    TAxis* pX = pHist->GetXaxis();
+    if (
+        (pX->GetXmin() != m_pXamineMemory->dsp_map[index].xmin) ||
+        (pX->GetXmax() != m_pXamineMemory->dsp_map[index].xmax)
+    ) {
+        return true;           // Y axis spec changed.
+    }
+    // Only 2d spectra have a y axis.  I don't trust Root
+    // to give me a null ptr if 1d so:
+    
+    
+    spec_type t = m_CurrentTypes[index];
+    if ((t == twodlong) || (t == twodword) || (t == twodbyte)) {
+        
+        if (pHist->GetNbinsY() != m_pXamineMemory->dsp_xy[index].ychans) {
+            return false;     // # Y bins changed.
+        }
+        TAxis* pY = pHist->GetYaxis();
+        if (
+            (pY->GetXmin() != m_pXamineMemory->dsp_map[index].ymin) ||
+            (pY->GetXmax() != m_pXamineMemory->dsp_map[index].ymax)
+        ) {
+            return true;     // Has y axis and it changed.
+        }
+    }
+    
+    return false;                 // unchanged.
+    
+}
