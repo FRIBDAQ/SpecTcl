@@ -68,9 +68,9 @@ public:
     
     void start();
     void update();
-    static void update(HistogramManager* pInstance);
 private:
     void killHistogram(int index);
+    void killAllHistograms();
     void createHistogram(int index);
     bool histogramChanged(int index);
 };

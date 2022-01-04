@@ -19,6 +19,10 @@
  *  @brief: Implementation of the HistogramManager class.
  */
 #include "HistogramManager.h"
+#include <string.h>
+
+//////////////////////////////////////////////////////////////////////////
+
 /**
  * THMTimer - histogram manager time class definition and implementation.
  *            The purpose of instances of this class is to drive the
@@ -63,4 +67,35 @@ Bool_t THMTimer::Notify()
     m_pManager->update();        // Purpose of the timer....
     Reset();                     // Get ourself rescheduled.
     return kTRUE;               // A real guess here.
+}
+
+///////////////////////////////////////////////////////////////////////
+// Implement the HistogramManager class.
+
+/**
+ * constructor:
+ *   @param pMemory - pointer to mapped Xamine or mirrored memory.
+ *   @param host    - Host in which the SpecTcl is running.
+ *   @param restPort - Port on whichthe SpecTcl REST server is listening.
+ */
+HistogramManager::HistogramManager(void* pMemory, const char* host, int restPort) :
+    m_pRefreshTimer(new THMTimer(1, this)),
+    m_pXamineMemory(const_cast<volatile Xamine_shared*>(
+        reinterpret_cast<Xamine_shared*>(pMemory))
+    ),
+    m_SpecTclHost(host),
+    m_SpecTclRestPort(restPort)
+{
+    memset(m_pHistograms, 0, sizeof(m_pHistograms));
+}
+/**
+ * destructor:
+ *    - Kill the timer.
+ *    - Kill all histograms that are currently defined.
+ */
+HistogramManager::~HistogramManager()
+{
+    m_pRefreshTimer->TurnOff();          // Pull it out of the event loop.
+    delete m_pRefreshTimer;
+    killAllHistograms();                 // Destroy the Root histos.
 }
