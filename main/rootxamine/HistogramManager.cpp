@@ -99,3 +99,13 @@ HistogramManager::~HistogramManager()
     delete m_pRefreshTimer;
     killAllHistograms();                 // Destroy the Root histos.
 }
+
+/**
+ * start
+ *    Start refreshing the histograms off the refresh timer
+ */
+void
+HistogramManager::start()
+{
+    m_pRefreshTimer->TurnOn();              // Enable the timer.
+}
