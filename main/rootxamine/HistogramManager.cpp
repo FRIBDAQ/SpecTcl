@@ -109,3 +109,32 @@ HistogramManager::start()
 {
     m_pRefreshTimer->TurnOn();              // Enable the timer.
 }
+/**
+ * update
+ *    For now this is a straightforward itration over m_pHistograms
+ *    If the histogram changed, kill it and create it.
+ *    @note killHistogram works properly on a null pointer.
+ *    @note If spectrum i in spectrum memory does not have a spectrum,
+ *           createHistgram does not create a new one.
+ */
+void
+HistogramManager::update()
+{
+    for (int i = 0; i < XAMINE_MAXSPEC; i++) {
+        if (histogramChanged(i)) {
+            killHistogram(i);
+            createHistogram(i);
+        }
+    }
+}
+/**
+ * killAllHistograms
+ *    Used in cleanup - kill all the Root histograms.
+ */
+void
+HistogramManager::killAllHistograms()
+{
+    for (int i = 0; i < XAMINE_MAXSPEC; i++) {
+        killHistogram(i);
+    }
+}

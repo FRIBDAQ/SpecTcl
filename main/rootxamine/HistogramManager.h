@@ -69,8 +69,8 @@ public:
     void start();
     void update();
 private:
-    void killHistogram(int index);
     void killAllHistograms();
+    void killHistogram(int index);
     void createHistogram(int index);
     bool histogramChanged(int index);
 };
