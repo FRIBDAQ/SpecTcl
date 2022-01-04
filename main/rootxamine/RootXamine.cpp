@@ -21,7 +21,7 @@
 
 #include <TApplication.h>
 #include <TRint.h>
-#include <HistogramManager.h>
+#include "HistogramManager.h"
 #include <SpecTclMirrorClient.h>
 #include <MirrorClientInternals.h> 
 #include <iostream>
@@ -45,6 +45,14 @@
 
 
 int main(int argc, char** argv) {
+    // Create the root interpreter which may be needed to support making
+    // the initial set of histograms - but don't enter the event loop
+    // just yet:
+    
+    gApplication = new TRint("XamineRoot", &argc, argv);
+    
+    // Parse the parameters that Root left us.
+    
     gengetopt_args_info parsedArgs;
     cmdline_parser(argc, argv, &parsedArgs);    // Exit on failure.
     
@@ -65,17 +73,14 @@ int main(int argc, char** argv) {
         std::cerr << Mirror_errorString(Mirror_errorCode()) << std::endl;
         exit(EXIT_FAILURE);
     }
-    // Create the root interpreter which may be needed to support making
-    // the initial set of histograms - but don't enter the event loop
-    // just yet:
     
-    gApplication = new TRint("XamineRoot", argc argv);
     
     // Set up the initial set of histograms and a repeating timer
     // to make REST requests of
     
     auto pManager = new HistogramManager(
         pMemory,
+        parsedArgs.host_arg,
         LookupPort(parsedArgs.host_arg, parsedArgs.rest_arg, username)
     );
     pManager->start();

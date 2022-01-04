@@ -4,8 +4,12 @@ RESTCLIENTROOT=/usr/opt/restclient
 
 rootxamine_SOURCES=RootXamine.cpp cmdline.h cmdline.c
 rootxamine_CPPFLAGS=-I@top_srcdir@/mirrorclient @ROOT_CFLAGS@ \
-	-I$(RESTCLIENTROOT)/include @JSONCPP_CFLAGS@
-rootxamine_LDADD=@top_builddir@/mirrorcient/libMirrorClient.la @ROOT_LDFLAGS@ \
+	-I$(RESTCLIENTROOT)/include @JSONCPP_CFLAGS@ \
+	-I@top_srcdir@/Display
+
+rootxamine_LDADD=@top_builddir@/mirrorclient/libMirrorClient.la \
+	@top_builddir@/Display/libXamine.la \
+	@ROOT_LDFLAGS@ \
 	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
 	@JSONCPP_LIBS@
 
