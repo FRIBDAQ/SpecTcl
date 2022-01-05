@@ -16,10 +16,22 @@ rootxamine_LDADD=@top_builddir@/mirrorclient/libMirrorClient.la \
 
 rootxamine_LDFLAGS=-Wl,-rpath=$(RESTCLIENTROOT)/lib 
 
-BUILT_SOURCES=cmdline.h cmdline.c
+BUILT_SOURCES=cmdline.h cmdline.c @builddir@/docs_built
+
+
 noinst_HEADERS=cmdline.h
+
+install-exec-local:
+	$(mkinstalldirs) @prefix@/share/rootxamine
+	$(INSTALL_DATA) @builddir@/rootxamine_docs/* @prefix@/share/rootxamine
+
 
 cmdline.h cmdline.c : @srcdir@/rxoptions.ggo
 	@GENGETOPT@ --unamed-opts <@srcdir@/rxoptions.ggo
 
-EXTRA_DIST=rxoptions.ggo
+
+@builddir@/docs_built : @srcdir@/rootxamine.xml
+	@HTMLDOCBOOK@ @srcdir@/rootxamine.xml -o @builddir@/rootxamine_docs
+	touch @builddir@/docs_built
+
+EXTRA_DIST=rxoptions.ggo rootxamine.xml
