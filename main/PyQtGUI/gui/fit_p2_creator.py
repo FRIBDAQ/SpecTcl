@@ -22,6 +22,18 @@ class Pol2Fit:
     # implementation of the fitting algorithm
     def start(self, x, y, xmin, xmax, axis, fit_results):
         fitln = None
+        if (fitpar[0] != 0.0):
+            self.p0 = fitpar[0]
+        else:
+            self.p0 = 100
+        if (fitpar[1] != 0.0):
+            self.p1 = fitpar[1]
+        else:
+            self.p1 = 10
+        if (fitpar[2] != 0.0):
+            self.p2 = fitpar[2]
+        else:
+            self.p2 = 10            
         p_init = [self.p0, self.p1, self.p2]
         popt, pcov = curve_fit(self.pol2, x, y, p0=p_init, maxfev=5000)
 

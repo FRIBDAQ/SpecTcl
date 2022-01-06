@@ -108,7 +108,7 @@ class OutputPopup(QDialog):
     def createTable(self):
         # Create table
         self.tableWidget = QTableWidget()
-        self.headers = ["   ID   ", "   Spectrum   ", "   Name   ", "   centroid X   ", "   centroid Y   ", "   FWHM   ", "   Area   "]
+        self.headers = ["   ID   ", "   Spectrum   ", "   Name   ", "   centroid X   ", "   centroid Y   ", "   FWHM  X   ", "   FWHM  Y   ", "   Area   "]
         self.tableWidget = QTableWidget(0, len(self.headers))
         self.tableWidget.setHorizontalHeaderLabels(self.headers)
         self.tableWidget.move(0,0)

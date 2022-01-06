@@ -7,12 +7,13 @@
     <bookinfo>
       <title>SpecTcl REST plugin</title>
       <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <collab><collabname>Giordano Cerizza</collabname></collab>
       <revhistory>
           <revision>
-             <revnumber>1.0</revnumber>
-             <date>May 1, 2015</date>
-             <authorinitials>RF</authorinitials>
-             <revremark>Original Release</revremark>
+             <revnumber>2.0</revnumber>
+             <date>January 3, 2022</date>
+             <authorinitials>GC</authorinitials>
+             <revremark>Updated release for SpecTcl 5.5</revremark>
           </revision>
       </revhistory>
     </bookinfo>
@@ -1628,7 +1629,7 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/list
             </para>
             <informalexample>
                 <cmdsynopsis><command>
-http://host:port/spectcl/apply/apply?type=srctype&amp;source=src<optional>&amp;size=bsize&amp;format=fmt</optional>
+http://host:port/spectcl/attach/attach?type=srctype&amp;source=src<optional>&amp;size=bsize&amp;format=fmt</optional>
                 </command></cmdsynopsis>
             </informalexample>
             <para>
@@ -1734,7 +1735,7 @@ http://host:port/spectcl/apply/apply?type=srctype&amp;source=src<optional>&amp;s
             </para>
             <informalexample>
                 <cmdsynopsis><command>
- http://host:port/spectcl/apply/list                   
+ http://host:port/spectcl/attach/list                   
                 </command></cmdsynopsis>
             </informalexample>
             <para>
@@ -2272,7 +2273,7 @@ http://host:port/specstats<optional>?pattern=globname-pattern</optional>
            </para>
            <informalexample>
             <cmdsynopsis><command>
-http://host:port/spectcl/treeparameter/list
+http://host:port/spectcl/treevariable/list
             </command></cmdsynopsis>
            </informalexample>
            <para>
@@ -2313,7 +2314,7 @@ http://host:port/spectcl/treeparameter/list
            </para>
            <informalexample>
             <cmdsynopsis><command>
-http://host:port/spectcl/treeparameter/set?name=varname&amp;value=newvalue&amp;units=newunits
+http://host:port/spectcl/treevariable/set?name=varname&amp;value=newvalue&amp;units=newunits
             </command></cmdsynopsis>
            </informalexample>
            <para>
@@ -2449,7 +2450,7 @@ http://host:port/spectcl/filter/disable?name=filtername
            <informalexample>
             <cmdsynopsis>
                 <command>
-http://host:port/spectcl/name?name=filtername&amp;file=path
+http://host:port/spectcl/filter?name=filtername&amp;file=path
                 </command>
             </cmdsynopsis>
            </informalexample>
@@ -2468,7 +2469,7 @@ http://host:port/spectcl/name?name=filtername&amp;file=path
            </para>
            <informalexample>
             <cmdsynopsis><command>
-http://host:port/spectcl/list
+http://host:port/spectcl/filter/list
             </command></cmdsynopsis>
            </informalexample>
            <para>
@@ -2872,7 +2873,7 @@ http://host:port/spectcl/rawparameter/list?id=pid
            <informalexample>
             <cmdsynopsis>
                <command>
-http://host:port/spectcl/psuedo/create?pseudo=pname&amp;body=script&amp;parameter=param1<optional>&amp;parameter=param2...</optional>         
+http://host:port/spectcl/pseudo/create?pseudo=pname&amp;body=script&amp;parameter=param1<optional>&amp;parameter=param2...</optional>         
                </command>
             </cmdsynopsis>
            </informalexample>
@@ -3808,7 +3809,7 @@ http://host:port/spectcl/script/command=<replaceable>tcl-command</replaceable>
                 <listitem>
                    <para>
                       Periodically, the client can poll the server to get the
-                      traces that fired since the last poll.s
+                      traces that fired since the last polls.
                    </para>
                 </listitem>
                 <listitem>
@@ -3875,7 +3876,7 @@ http://host:port/spectcl/trace/fetch/token=<replaceable>token-value</replaceable
             </informalexample>
             <para>
                 The <literal>detail</literal> attribute of the returned JSON will
-                 will be an object.  Each attribute represents a trace type and
+                 be an object.  Each attribute represents a trace type and
                  each of those attributes will, in turn have a value that is an
                  array.
             </para>
@@ -3888,7 +3889,7 @@ http://host:port/spectcl/trace/fetch/token=<replaceable>token-value</replaceable
                         Each element of the array describes a parameter trace.
                         Each element
                         is the Tcl list that contains the operation that fired the trace
-                        (<literal>add</literal> or <literal>delete</literal>).
+                        (<literal>add</literal> or <literal>delete</literal>)
                         followed by the trace parameters that SpecTcl provides
                         <command>parameter -trace</command> handlers (the nane
                         of the parameter that was added or deleted).
@@ -3916,7 +3917,7 @@ http://host:port/spectcl/trace/fetch/token=<replaceable>token-value</replaceable
                    <listitem>
                        <para>
                         The value of this attribute is an array.  Each element
-                        of the array describes a spectrum trace.  The elemnts
+                        of the array describes a spectrum trace.  The elements
                         are Tcl lists.  The first element of that list is the
                         operation, <literal>add</literal> or <literal>delete</literal>
                         that fired the trace while the remainder are trace parameter(s)
@@ -3931,7 +3932,7 @@ http://host:port/spectcl/trace/fetch/token=<replaceable>token-value</replaceable
                         The value of this attribute is an array. Each element
                         of the array describes a change in shared memory
                         binding status and is, itself, a three element array.
-                        The elements of the array are, in order ether the
+                        The elements of the array are, in order either the
                         text <literal>add</literal> or <literal>remove</literal>
                         indicating if the remaining elements describe a spectrum
                         being added or removed from shared memory, the name of the

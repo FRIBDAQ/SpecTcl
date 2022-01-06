@@ -116,7 +116,7 @@ config_algo_kmean = {
 config_algo_gmm = {
     'n_components': 4,
 }
-
+'''
 # Configurable parameters for Image Segmentation (for the full param list, please see imgseg_creator.py)
 config_algo_img = {
     'nclusters': 5,
@@ -134,7 +134,7 @@ config_algo_canny = {
     'weak_pixel': 75,
     'strong_pixel': 255
 }
-
+'''
 # Fitting function registration
 fitfactory.register_builder('Skeleton', fit_skel_creator.SkelFitBuilder(), config_fit_skel)
 fitfactory.register_builder('Gauss', fit_gaus_creator.GausFitBuilder(), config_fit_gaus)
@@ -148,8 +148,8 @@ fitfactory.register_builder('G+Pol2', fit_gp2_creator.GPol2FitBuilder(), config_
 algofactory.register_builder('Skeleton', algo_skel_creator.SkelAlgoBuilder(), config_algo_skel)
 algofactory.register_builder('KMean', kmean_creator.KMeanAlgoBuilder(), config_algo_kmean)
 algofactory.register_builder('Gaussian MM', gmm_creator.GMMAlgoBuilder(), config_algo_gmm)
-algofactory.register_builder('Image Segmentation', imgseg_creator.ImgSegAlgoBuilder(), config_algo_img)
-algofactory.register_builder('Canny Edge', cannye_creator.CannyEdgeAlgoBuilder(), config_algo_canny)
+#algofactory.register_builder('Image Segmentation', imgseg_creator.ImgSegAlgoBuilder(), config_algo_img)
+#algofactory.register_builder('Canny Edge', cannye_creator.CannyEdgeAlgoBuilder(), config_algo_canny)
 
 app = QApplication(sys.argv)
 gui = MainWindow(algofactory, fitfactory)

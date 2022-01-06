@@ -28,9 +28,34 @@ class GPol2Fit:
     # implementation of the fitting algorithm
     def start(self, x, y, xmin, xmax, axis, fit_results):
         fitln = None
-        amplitude = 2000
-        mean = xmin+(xmax-xmin)/2
-        standard_deviation = mean/10
+        if (fitpar[0] != 0.0):
+            self.amplitude = fitpar[0]
+        else:
+            self.amplitude = 1000
+        if (fitpar[1] != 0.0):
+            self.mean = fitpar[1]
+        else:
+            self.mean = xmin+(xmax-xmin)/2
+        if (fitpar[2] != 0.0):
+            self.standard_deviation = fitpar[2]
+        else:
+            self.standard_deviation = self.mean/10
+        if (fitpar[3] != 0.0):
+            self.p0 = fitpar[3]
+        else:
+            self.p0 = 100
+        if (fitpar[4] != 0.0):
+            self.p1 = fitpar[4]
+        else:
+            self.p1 = 10
+        if (fitpar[5] != 0.0):
+            self.p2 = fitpar[5]
+        else:
+            self.p2 = 10
+        if (fitpar[6] != 0.0):
+            self.f = fitpar[6]
+        else:
+            self.f = 0.9
         p_init = [amplitude, mean, standard_deviation, self.p0, self.p1, self.p2, self.f]
         popt, pcov = curve_fit(self.gpol2, x, y, p0=p_init, maxfev=5000)
 

@@ -89,8 +89,8 @@ class KMeanAlgo:
         print("#########################################")
         for i in range(len(cluster_center)):
             print("Cluster", i," with center (x,y)=(",cluster_center[i][0],",",cluster_center[i][1],")")
-        print("Confidence Level 90% -->", sum90/sum(weigths),"%")
-        print("Confidence Level 95% -->", sum95/sum(weigths),"%")
+        print("Confidence Level 90% -->", 100*sum90/sum(weigths),"%")
+        print("Confidence Level 95% -->", 100*sum95/sum(weigths),"%")
         print("#########################################")
 
     def extract(self, lst, index):

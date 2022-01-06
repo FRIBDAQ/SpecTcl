@@ -1,4 +1,4 @@
-import sys, csv, io
+import sys, csv, io, time
 import numpy as np
 import matplotlib
 matplotlib.use("Qt5Agg")
@@ -14,23 +14,14 @@ class Fncts1D(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.npeaks = 10
-        
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.create_peakBox())
-        self.setLayout(self.layout)
-        self.isCreated = False
-        
-    def create_peakChecks(self):
-        self.pCheck = QGroupBox("Peak Selection")
-        self.isCreated = True
-        
+    def create_peakChecks(self, npeaks):
+        pCheck = QGroupBox("Peak Selection")
         row = 0
         col = 0
         counter = 0
         self.peak_cbox = []
         deflayout = QGridLayout()
-        for i in range(self.npeaks):
+        for i in range(npeaks):
             title = "Peak "+str(i+1)
             self.peak_cbox.append(QCheckBox(title,self))
             if (i%4 == 0) and i != 0:
@@ -41,15 +32,10 @@ class Fncts1D(QDialog):
                 col = i-counter*4
             deflayout.addWidget(self.peak_cbox[i], row, col)
 
-        self.pCheck.setLayout(deflayout)
-        
-        self.layout.addWidget(self.pCheck)
+        pCheck.setLayout(deflayout)
 
-    def remove_peakChecks(self):
-        if self.isCreated == True:
-            self.pCheck.setParent(None)
-        self.isCreated = False
-            
+        return pCheck
+
     def create_peakBox(self):
         peakBox = QGroupBox("Peak Finder")
 
@@ -57,7 +43,7 @@ class Fncts1D(QDialog):
         self.peak_width = QLineEdit()
         self.peak_width.setText("20")
         self.peak_analysis = QPushButton("Scan", self)
-        self.peak_analysis_clear = QPushButton("Clear", self)        
+        self.peak_analysis_clear = QPushButton("Clear", self)
 
         self.peak_results_label = QLabel("Output")
         self.peak_results = QTextEdit()
@@ -69,15 +55,38 @@ class Fncts1D(QDialog):
 
         lay = QHBoxLayout()
         lay.addWidget(self.peak_analysis)
-        lay.addWidget(self.peak_analysis_clear)        
-        
+        lay.addWidget(self.peak_analysis_clear)
+
         layout = QVBoxLayout()
         layout.addLayout(layy)
         layout.addLayout(lay)
         layout.addWidget(self.peak_results_label)
-        layout.addWidget(self.peak_results)        
+        layout.addWidget(self.peak_results)
         layout.addStretch(1)
         peakBox.setLayout(layout)
-        
+
         return peakBox
+
+    def create_jupBox(self):    
+        jupBox = QGroupBox("Jupyter Notebook")        
+
+        self.jup_start = QPushButton("Start", self)
+        self.jup_stop = QPushButton("Stop", self)
+        self.jup_df_filename = QLineEdit()
+        filename = "df-"+time.strftime("%Y%m%d-%H%M%S")+".csv"
+        self.jup_df_filename.setText(filename)
+
+        self.jup_start.setStyleSheet("background-color:#3CB371;")
+        self.jup_stop.setEnabled(False)
+
+        layout = QHBoxLayout()
+        layout.addWidget(self.jup_start)
+        layout.addWidget(self.jup_stop)
+
+        layoutC = QVBoxLayout()
+        layoutC.addLayout(layout)
+        layoutC.addWidget(self.jup_df_filename)
+        jupBox.setLayout(layoutC)
+        
+        return jupBox        
 

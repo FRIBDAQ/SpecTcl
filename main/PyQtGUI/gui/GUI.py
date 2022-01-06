@@ -44,22 +44,6 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import CPyConverter as cpy
 
-##################################################################################
-####  CutiePie                                                                ####
-##################################################################################
-####  Menu       ####  Gate                                        ### Output ####
-##################################################################################
-####  Spectrum Type # Spectrum Definition # Special Functions # Spectrum List ####
-####  Gate Type                                                               ####  
-##################################################################################
-####                                                                          ####
-####  Plots                                                                   ####
-####                                                                          ####
-####                                                                          ####
-####                                                                          ####
-####                                                                          ####
-##################################################################################
-
 # List of implementation topics
 # 0) Class definition
 # 1) Main layout GUI
@@ -81,12 +65,12 @@ import CPyConverter as cpy
 # 17) Misc Tools
 
 # import widgets
-from MenuGUI import Menu #include Menu, Gate, Output boxes
+from MenuGUI import Menu #include server and mirror config, refresh, geometry, extra
+from ConfigGUI import Configuration # include spectrum/gate info and output popup buttons
+from SpecialFunctionsGUI import SpecialFunctions # all the extra functions we defined
 from OutputGUI import OutputPopup # popup output window
-from ConfigGUI import Configuration # include Spectrum/gate type, spectrum defs, special fnc, spectrum list and boxes
-from Functions1DGUI import Fncts1D # popup peak finder window
-from Functions2DGUI import Fncts2D # popup clustering and overlaying an image window
 from PlotGUI import Plot # area defined for the histograms 
+from PyREST import PyREST # class interface for SpecTcl REST plugin
 
 from logger import log, setup_logging, set_logger
 from notebook_process import testnotebook, startnotebook, stopnotebook
@@ -166,7 +150,7 @@ class MainWindow(QMainWindow):
         self.isLoaded = False
         self.isZoomed = False
         self.toCreateGate = False
-        self.hasChanged = True
+        self.isCreated = False
         # tools for selected plots
         self.rec = None
         self.isCluster = False
@@ -199,7 +183,6 @@ class MainWindow(QMainWindow):
         self.dbres = None
         self.clusterpts = []
         self.clusterw = []                
-        self.clusterptsW = []
 
         self.LISEpic = None
 
@@ -224,15 +207,14 @@ class MainWindow(QMainWindow):
         
         mainLayout = QVBoxLayout()
         mainLayout.setContentsMargins(0,0,0,0)
-        mainLayout.setSpacing(0.5)
         
         # top menu
         self.wTop = Menu()
-        self.wTop.setFixedHeight(100)
+        self.wTop.setFixedHeight(50)
         
         # config menu
         self.wConf = Configuration()
-        self.wConf.setFixedHeight(235)
+        self.wConf.setFixedHeight(50)
         
         # plot widget
         self.wPlot = Plot()
@@ -251,84 +233,80 @@ class MainWindow(QMainWindow):
         self.resPopup = OutputPopup()
         self.table_row = []
 
-        # peak finder option window 
-        self.pPopup = Fncts1D()
-
-        # clustering 
-        self.clPopup = Fncts2D()
+        # extra popup window
+        self.extraPopup = SpecialFunctions()
 
         # initialize factory from algo_creator
-        self.factory.initialize(self.clPopup.clusterAlgo)
+        self.factory.initialize(self.extraPopup.imaging.clusterAlgo)
         # initialize factory from fit_creator
-        self.fit_factory.initialize(self.wConf.fit_list)
+        self.fit_factory.initialize(self.extraPopup.fit_list)
         
         #################
         # 2) Signals
         #################
 
+        # configuration signals
+        self.at_startup()        
+        
         # top menu signals
-        self.wTop.exitButton.clicked.connect(self.closeAll)
         self.wTop.updateButton.clicked.connect(self.update)                
         self.wTop.slider.valueChanged.connect(self.self_update)
-
-        # turned off for the moment (show/hide crash when gates are present)
-        #self.wTop.configButton.clicked.connect(self.configure)                        
+        self.wTop.extraButton.clicked.connect(self.spfunPopup)                        
         self.wTop.saveButton.clicked.connect(self.saveGeo)
         self.wTop.loadButton.clicked.connect(self.loadGeo)
+        self.wTop.exitButton.clicked.connect(self.closeAll)
 
-        self.wTop.createGate.clicked.connect(self.createGate)
-        self.wTop.createGate.setEnabled(False)
-        self.wTop.editGate.clicked.connect(self.editGate)
-        self.wTop.editGate.setEnabled(False)
-        self.wTop.editGate.setToolTip("Key bindings for editing a gate:\n"
+        # config menu signals
+        self.wConf.histo_geo_add.clicked.connect(self.add_plot)
+        self.wConf.histo_geo_update.clicked.connect(self.update_plot)        
+        self.wConf.histo_geo_delete.clicked.connect(self.clear_plot)        
+        self.wConf.histo_geo_row.activated.connect(lambda: self.initialize_canvas(int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
+        self.wConf.histo_geo_col.activated.connect(lambda: self.initialize_canvas(int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
+        self.wConf.button2D_option.activated.connect(self.change_bkg)        
+        self.wConf.histo_geo_all.stateChanged.connect(self.applyAll)
+        
+        self.wConf.listGate.currentIndexChanged.connect(self.updateGateType)
+        self.wConf.histo_list.currentIndexChanged.connect(self.updateHistoInfo)
+        
+        self.wConf.createGate.clicked.connect(self.createGate)
+        self.wConf.createGate.setEnabled(False)
+        self.wConf.editGate.clicked.connect(self.editGate)
+        self.wConf.editGate.setEnabled(False)
+        self.wConf.editGate.setToolTip("Key bindings for editing a gate:\n"
                                       "'t' enable dragging mode\n"
                                       "'i' insert vertex\n"
                                       "'d' delete vertex\n"
                                       "'u' update gate\n")
-        self.wTop.deleteGate.clicked.connect(self.deleteGate)                        
-        self.wTop.drawGate.clicked.connect(self.drawGate)
-        self.wTop.cleanGate.clicked.connect(self.clearGate)
-
-        # configuration signals
-        self.at_startup()
-
-        self.wConf.histo_geo_row.activated.connect(lambda: self.initialize_canvas(int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
-        self.wConf.histo_geo_col.activated.connect(lambda: self.initialize_canvas(int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
-        self.wConf.histo_geo_add.clicked.connect(self.add_plot)
-
-        self.wConf.histo_geo_update.clicked.connect(self.update_plot)        
-        self.wConf.histo_geo_delete.clicked.connect(self.delete_plot)        
-        self.wConf.button2D_option.activated.connect(self.change_bkg)        
-        self.wConf.histo_geo_all.stateChanged.connect(self.applyAll)
-
-        self.wConf.peak_option.clicked.connect(self.peakPopup)
-        self.pPopup.peak_analysis.clicked.connect(self.analyzePeak)
-        self.pPopup.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
-
-        self.wConf.jup_start.clicked.connect(self.jupyterStart)
-        self.wConf.jup_stop.clicked.connect(self.jupyterStop)
-        
-        self.wConf.cluster_option.clicked.connect(self.clusterPopup)
-        self.clPopup.threshold_slider.valueChanged.connect(self.thresholdFigure)
-        self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
-        self.clPopup.loadButton.clicked.connect(self.loadFigure)
-        self.clPopup.addButton.clicked.connect(self.addFigure)
-        self.clPopup.deleteButton.clicked.connect(self.deleteFigure)
-        self.clPopup.alpha_slider.valueChanged.connect(self.transFigure)
-        self.clPopup.zoomX_slider.valueChanged.connect(self.zoomFigureX)
-        self.clPopup.zoomY_slider.valueChanged.connect(self.zoomFigureY)        
-        self.clPopup.joystick.mousemoved.connect(self.moveFigure)
-        self.clPopup.upButton.clicked.connect(self.fineUpMove)
-        self.clPopup.downButton.clicked.connect(self.fineDownMove)
-        self.clPopup.leftButton.clicked.connect(self.fineLeftMove)
-        self.clPopup.rightButton.clicked.connect(self.fineRightMove)                
-        
-        self.wConf.fit_button.clicked.connect(self.fit)
+        self.wConf.deleteGate.clicked.connect(self.deleteGate)                        
+        self.wConf.drawGate.clicked.connect(self.drawGate)
+        self.wConf.cleanGate.clicked.connect(self.clearGate)
 
         # output
-        self.wTop.integrateGate.clicked.connect(self.integrate)        
-        self.wTop.outputGate.clicked.connect(self.resultPopup)
+        self.wConf.integrateGate.clicked.connect(self.integrate)        
+        self.wConf.outputGate.clicked.connect(self.resultPopup)
         
+        self.extraPopup.peak.peak_analysis.clicked.connect(self.analyzePeak)
+        self.extraPopup.peak.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
+
+        self.extraPopup.peak.jup_start.clicked.connect(self.jupyterStart)
+        self.extraPopup.peak.jup_stop.clicked.connect(self.jupyterStop)
+
+        self.extraPopup.imaging.threshold_slider.valueChanged.connect(self.thresholdFigure)
+        self.extraPopup.imaging.analyzerButton.clicked.connect(self.analyzeCluster)
+        self.extraPopup.imaging.loadButton.clicked.connect(self.loadFigure)
+        self.extraPopup.imaging.addButton.clicked.connect(self.addFigure)
+        self.extraPopup.imaging.deleteButton.clicked.connect(self.deleteFigure)
+        self.extraPopup.imaging.alpha_slider.valueChanged.connect(self.transFigure)
+        self.extraPopup.imaging.zoomX_slider.valueChanged.connect(self.zoomFigureX)
+        self.extraPopup.imaging.zoomY_slider.valueChanged.connect(self.zoomFigureY)        
+        self.extraPopup.imaging.joystick.mousemoved.connect(self.moveFigure)
+        self.extraPopup.imaging.upButton.clicked.connect(self.fineUpMove)
+        self.extraPopup.imaging.downButton.clicked.connect(self.fineDownMove)
+        self.extraPopup.imaging.leftButton.clicked.connect(self.fineLeftMove)
+        self.extraPopup.imaging.rightButton.clicked.connect(self.fineRightMove)                
+        
+        self.extraPopup.fit_button.clicked.connect(self.fit)
+
         # for key_press_event
         self.wPlot.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
         self.wPlot.canvas.setFocus()
@@ -344,8 +322,7 @@ class MainWindow(QMainWindow):
     def closeAll(self):
         self.close()
         self.resPopup.close()
-        self.clPopup.close()
-        self.pPopup.close()                
+        self.extraPopup.close()
         
     def connect(self):
         self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
@@ -436,8 +413,10 @@ class MainWindow(QMainWindow):
                     if len(self.listLine) > 2:
                         self.removeLine()
                 else:
+                    if (DEBUG):                    
+                        print("inside create gate 2d")
                     self.polygon = self.addPolygon(self.click[0], self.click[1])
-
+                        
             self.wPlot.canvas.draw()
         t = None
             
@@ -449,42 +428,31 @@ class MainWindow(QMainWindow):
         if self.isZoomed == False: # entering zooming mode
             if (DEBUG):
                 print("Entering zooming mode...")           
-            self.hasChanged = True
             self.isZoomed = True
             # disabling adding histograms
             self.wConf.histo_geo_add.setEnabled(False)
             # enabling gate creation
-            self.wTop.createGate.setEnabled(True)                
-            self.wTop.editGate.setEnabled(True)                                
+            self.wConf.createGate.setEnabled(True)                
+            self.wConf.editGate.setEnabled(True)                                
             if (DEBUG):
                 print("inside dblclick: self.selected_plot_index", self.selected_plot_index)
             self.wPlot.figure.clear()
             self.wPlot.canvas.draw()
             # backing up list of histogram
             self.h_dict_bak = self.h_dict.copy()
-            try:
-                # plot corresponding histogram
-                if (DEBUG):
-                    print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
-                self.update_plot()
-                # remove color bar just to simplify gating
-                if self.h_dim[self.selected_plot_index] == 2:
-                    im = a.images
-                    if im is not None:
-                        try:
-                            cb = im[-1].colorbar
-                            cb.remove()
-                        except IndexError:
-                            pass                
-            except:
-                pass
+            # plot corresponding histogram
+            if (DEBUG):
+                print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
+            a = self.update_plot()
+            self.removeCb(a)
+
         else:
             # enabling adding histograms
             self.wConf.histo_geo_add.setEnabled(True)
             # disabling gate creation
-            self.wTop.createGate.setEnabled(False)                
-            self.wTop.editGate.setEnabled(False)                                                
-
+            self.wConf.createGate.setEnabled(False)                
+            self.wConf.editGate.setEnabled(False)                                                
+            
             if self.toCreateGate == True:
                 if self.wConf.button1D.isChecked():
                     lst = []
@@ -492,12 +460,13 @@ class MainWindow(QMainWindow):
                     for index in range(len(self.listLine)):
                         lst.append(self.listLine[index].get_xydata())
                     # push gate to spectcl
-                    self.formatLinetoShMem(lst)
+                    self.formatLinetoREST(lst)
                     # save the gate for drawing later
-                    self.set_line(self.wTop.listGate.currentText(), self.listLine)
+                    self.set_line(self.wConf.listGate.currentText(), self.listLine)
                     #adding to list of gates for redrawing
-                    key = self.wConf.spectrum_name.text()
-                    self.artist1D[self.wTop.listGate.currentText()] = self.listLine
+                    #key = self.wConf.spectrum_name.text()
+                    key = self.wConf.histo_list.currentText()
+                    self.artist1D[self.wConf.listGate.currentText()] = self.listLine
                     self.artist_dict[key] = self.artist1D
                 else:
                     self.xs.append(self.xs[-1])
@@ -509,26 +478,28 @@ class MainWindow(QMainWindow):
                     self.ys.pop(len(self.ys)-2)
                     self.polygon.set_data(self.xs, self.ys)
                     self.polygon.figure.canvas.draw()
-                    self.set_line(self.wTop.listGate.currentText(), [self.polygon])                    
+                    self.set_line(self.wConf.listGate.currentText(), [self.polygon])                    
                     if (DEBUG):
-                        print(self.wTop.listGate.currentText(), "\n",self.polygon.get_xydata())
+                        print(self.wConf.listGate.currentText(), "\n",self.polygon.get_xydata())
                     # push gate to shared memory 2D
-                    self.formatLinetoShMem(self.polygon)
+                    self.formatLinetoREST(self.polygon)
                     #adding to list of gates for redrawing
-                    key = self.wConf.spectrum_name.text()
-                    self.artist2D[self.wTop.listGate.currentText()] = self.polygon
+                    #key = self.wConf.spectrum_name.text()
+                    key = self.wConf.histo_list.currentText()
+                    self.artist2D[self.wConf.listGate.currentText()] = self.polygon
                     self.artist_dict[key] = self.artist2D
-                    
+
                 if (DEBUG):
                     print("Exiting gating mode...")
                     print(self.artist_dict)
-
+                
                 # exiting gating mode
                 self.toCreateGate = False
                 self.timer.start()
             else:
                 if (DEBUG):
                     print("Exiting zooming mode...")                
+                self.isCreated = False
                 self.isZoomed = False
                 if (DEBUG):
                     print("Reinitialization self.h_setup", self.h_setup)
@@ -621,17 +592,18 @@ class MainWindow(QMainWindow):
             self.line_region = plt.Line2D(x, y, color='red', mfc='r')
             self.line_region.set_data(x, y)
             self.edit_ax.add_line(self.line_region)
-            self.set_line(self.wTop.listGate.currentText(), [self.line_region])
+            self.set_line(self.wConf.listGate.currentText(), [self.line_region])
             if (DEBUG):
                 print("update key")
-                print(self.wTop.listGate.currentText(), "\n", self.line_region.get_xydata())
+                print(self.wConf.listGate.currentText(), "\n", self.line_region.get_xydata())
             if (DEBUG):
                 print("self.dict_region", self.dict_region)
             # push gate to shared memory 2D
-            self.formatLinetoShMem(self.line_region)
+            self.formatLinetoREST(self.line_region)
             # update gate
-            gate = self.wTop.listGate.currentText()
-            key = self.wConf.spectrum_name.text()
+            gate = self.wConf.listGate.currentText()
+            #key = self.wConf.spectrum_name.text()
+            key = self.wConf.histo_list.currentText()
             self.artist2D[gate] = []
             self.artist2D[gate] = self.line_region
             self.artist_dict[key] = self.artist2D
@@ -755,7 +727,7 @@ class MainWindow(QMainWindow):
 
     def initialize_histogram(self):
         return {"name": "empty", "dim": 1, "xmin": 0, "xmax": 1, "xbin": 1,
-                "ymin": 0, "ymax": 1, "ybin": 1}        
+                "ymin": 0, "ymax": 1, "ybin": 1, "parameters": [], "type": ""}        
         
     def initialize_figure(self, grid):
         if (DEBUG):
@@ -800,7 +772,6 @@ class MainWindow(QMainWindow):
     def initialize_canvas(self, row, col):
         # everytime a new pane geometry is created the histogram
         # dictionary and the index of the plot has to be reset
-        self.hasChanged = True
         if (DEBUG):
             print("initialize_canvas with dimensions", row, col)
             print("new", row, col)
@@ -813,6 +784,7 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print(self.h_dict)
 
+        self.isCreated = False
         self.index = 0
         self.idx = 0
         self.wPlot.figure.clear()
@@ -823,127 +795,93 @@ class MainWindow(QMainWindow):
     # 5) Connection to REST for gates
     ###############################################    
 
-    def sendRequest(self, url):
-        req = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
-        req.setHeader(QtNetwork.QNetworkRequest.ContentTypeHeader,"application/x-www-form-urlencoded")
-        self.nam = QtNetwork.QNetworkAccessManager()
-        self.nam.finished.connect(self.handleResponse)
-        self.nam.get(req)
-
-    def handleResponse(self, reply):
-        er = reply.error()
-        if er == QtNetwork.QNetworkReply.NoError:
-            bytes_string = reply.readAll()
-            json_ar = json.loads(str(bytes_string, 'utf-8'))
-            data = json_ar['status']
-            if (DEBUG):
-                print("Operation status: ", data)
-        else:
-            if (DEBUG):            
-                print("Operation error: ", er)
-                print(reply.errorString())
-
     def incrementNumbers(self, parameter, new_number):
         number = (re.findall(r'\d+',parameter))[0]
         out = parameter.replace(number,str(new_number).zfill(int(math.log10(self.nparams))+1))
         return out
-        
-    def formatLinetoShMem(self, lst):
-        server = "http://"+self.wTop.server.text()
-        reqStr = server + "/spectcl/gate/edit"
-        reqStr += "?name=" + self.wTop.listGate.currentText()
-        self.nparams = int(self.getParameterCount())+1
+
+    # to be rewritten completely using PyREST
+    def formatLinetoREST(self, lst):
+        name = self.wConf.listGate.currentText()
+        boundaries = []
+        parameters = []
 
         if self.wConf.button1D.isChecked():
             x, y = map(list, zip(*lst))
             x, y = map(list, zip(*x))
             low = min(x)
             high = max(x)
-            reqStr += "&high=" + str(high)
-            reqStr += "&low="  + str(low)
-            if self.gateType == "s":
-                reqStr += "&type=s"
-                reqStr += "&parameter=" + self.wConf.listParams[0].currentText()
-            else:
-                reqStr += "&type=gs"                
-                param_str = self.wConf.listParams[0].currentText()
-                for i in range(self.nparams):
-                    new_param_str = self.incrementNumbers(param_str, i)
-                    reqStr += "&parameter=" + new_param_str
-            self.sendRequest(reqStr)
+            boundaries = [low,high]
+            # access list of parameters
+            for index, value in self.h_dict.items():
+                if (value["name"] ==  self.wConf.histo_list.currentText()):
+                    if (self.gateType == "s"):
+                        parameters = value["parameters"][0]
+                    else:
+                        for i in value["parameters"]:
+                            parameters.append(i)
         else:
-            reqStr += "&type="+self.gateType
-            if self.gateType == "c" or self.gateType == "b":
-                reqStr += "&xparameter=" + self.wConf.listParams[0].currentText()
-                reqStr += "&yparameter=" + self.wConf.listParams[1].currentText()            
-            else:
-                param_str = self.wConf.listParams[0].currentText()
-                for i in range(self.nparams):
-                    new_param_str = self.incrementNumbers(param_str, i)
-                    reqStr += "&parameter=" + new_param_str                
-            
+            for index, value in self.h_dict.items():
+                if (value["name"] ==  self.wConf.histo_list.currentText()):
+                    parameters = value["parameters"]
             points = lst.get_xydata()
-            points = points[:-1]
-            for index in range(len(points)):
-                reqStr += "&xcoord("+str(index)+")="+str(points[index][0])
-                reqStr += "&ycoord("+str(index)+")="+str(points[index][1])
-            self.sendRequest(reqStr)            
-        
-    def formatShMemToLine(self, name):
+            boundaries = (points[:-1]).tolist()
+            
+        if (DEBUG):
+            print(boundaries)
+            print(parameters)            
+
+        self.rest.createGate(self.wConf.listGate.currentText(), self.gateType, parameters, boundaries)
+
+    # this has to be modified to allow to load gate previously created and being able to apply them correctly
+    def formatRESTToLine(self, name):
+        if (DEBUG):        
+            print("inside formatRESTToLine")
         lst_tmp = []
         x = []
         y = []
-        for key, value in self.gate_dict.items():
-            if key == name:
-                if self.checkVersion(httplib2.__version__) < self.checkVersion("0.10"):
-                    if "s" in str(value):
-                        xmin = min(i for i in value if isinstance(i, float))
-                        xmax = max(i for i in value if isinstance(i, float))
-                        l = mlines.Line2D([xmin, xmin], [self.ylow,self.yhigh])
-                        lst_tmp.append(l)
-                        l = mlines.Line2D([xmax, xmax], [self.ylow,self.yhigh])
-                        lst_tmp.append(l)
-                    elif "c" in str(value):
-                        polygon = mlines.Line2D([],[])
-                        points = [i for i in value if isinstance(i, list) and len(i)>2]
-                        for dic in points[0]:
-                            for key, value in dic.items():
-                                if key == "x":
-                                    x.append(value)
-                                elif key == "y":
-                                    y.append(value)                                
-                        x.append(x[0])
-                        y.append(y[0])
-                        polygon.set_data(x,y)
-                        lst_tmp.append(polygon)
-                    else:
-                        if (DEBUG):
-                            print("Not implemented yet")                        
-                else:
-                    self.gateTypeDict[key] = value[0]
-                    if value[0] == "s":
-                        for i in range(2):
-                            l = mlines.Line2D([value[i+2],value[i+2]], [self.ylow,self.yhigh])
-                            lst_tmp.append(l)
-                    elif value[0] == "c":
-                        polygon = mlines.Line2D([],[])
-                        for dic in value[2]:
-                            for key, value in dic.items():
-                                if key == "x":
-                                    x.append(value)
-                                elif key == "y":
-                                    y.append(value)                                
-                        x.append(x[0])
-                        y.append(y[0])
-                        polygon.set_data(x,y)
-                        lst_tmp.append(polygon)
-                    else:
-                        if (DEBUG):
-                            print("Not implemented yet")
-
+        #'type': 's', 'parameters': ['tdc.06'], 'low': 6281.0, 'high':        
+        types = (self.gate_dict[name])["type"]
+        parameters = (self.gate_dict[name])["parameters"]
+        if (DEBUG):
+            print(types, parameters)
+        if types == "s" or types == "gs":
+            xmin = (self.gate_dict[name])["low"]
+            xmax = (self.gate_dict[name])["high"]
+            if (DEBUG):
+                print(xmin, xmax)
+            l = mlines.Line2D([xmin, xmin], [self.ylow,self.yhigh])
+            lst_tmp.append(l)
+            l = mlines.Line2D([xmax, xmax], [self.ylow,self.yhigh])
+            lst_tmp.append(l)            
+        else:
+            polygon = mlines.Line2D([],[])
+            points = (self.gate_dict[name])["points"]
+            if (DEBUG):
+                print(points)
+            for dic in points:
+                if (DEBUG):
+                    print(dic)
+                for key, value in dic.items():
+                    if (DEBUG):
+                        print(key, value)
+                    if key == "x":
+                        x.append(value)
+                    elif key == "y":
+                        y.append(value)
+            x.append(x[0])
+            y.append(y[0])
+            if (DEBUG):
+                print(x,y)
+            polygon.set_data(x,y)
+            lst_tmp.append(polygon)
+            
         # adding gate to dictionary of regions
         self.dict_region[name] = lst_tmp
+        self.gateTypeDict[name] = types
         if (DEBUG):
+            print("adding gate to dictionary of regions")
+            print(self.dict_region)
             print("gate type dict", self.gateTypeDict)
 
     ##########################################
@@ -954,12 +892,18 @@ class MainWindow(QMainWindow):
         # trying to access the shared memory through SpecTcl Mirror Client
         try:
             # update host name and port, mirror port, and user name from GUI
-            hostnameport = str(self.wTop.server.text()).split(":")
-            hostname = hostnameport[0]
-            port = hostnameport[1]
+            hostname = str(self.wTop.server.text())
+            port = str(self.wTop.rest.text())
             user = str(self.wTop.user.text())
             mirror = str(self.wTop.mirror.text())
 
+            # configuration of the REST plugin
+            self.rest = PyREST(hostname,port)
+            # set traces
+            self.token =self.rest.startTraces(30)
+            print("trace token", self.token)
+            print(self.rest.pollTraces(self.token))
+            
             if (hostname == "hostname" or port == "port" or mirror == "mirror"):
                 raise ValueError("hostname/port/mirror are not configured!")
             
@@ -981,6 +925,15 @@ class MainWindow(QMainWindow):
                  'maxy': s[8],
                  'data': s[9]}
             )
+
+            # order the dataframe by id to avoid mismatch later on with id of new spectra
+            self.spectrum_list = self.spectrum_list.sort_values(by=['id'], ascending=True)
+
+            # replace names in the dataframe for the spectra
+            nlst = self.getSpectrumNames()
+            old_values = self.spectrum_list["names"].tolist()
+            self.spectrum_list["names"] = self.spectrum_list["names"].replace(old_values, nlst)
+            
             # update and create parameter, spectrum, and gate lists
             self.create_spectrum_list()                    
             self.create_parameter_list()
@@ -992,6 +945,15 @@ class MainWindow(QMainWindow):
         except:
             QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started or hostname/port/mirror are not configured!")
 
+    # extract correct spectrum name
+    def getSpectrumNames(self):
+        nlst = []
+        lstdict = self.rest.listSpectrum()
+        for el in lstdict:
+            nlst.append(el["name"])
+
+        return nlst
+            
     # get parameter count
     def getParameterCount(self):
         lst_param = list(self.param_list.values())
@@ -999,19 +961,23 @@ class MainWindow(QMainWindow):
         res = max(list(map(lambda sub:int(''.join([ele for ele in sub if ele.isnumeric()])), lst_param)))
         return res
 
-    # update and create spectrum list
+    # update and create spectrum list 
     def update_spectrum_parameters(self):
         try:
-            server = "http://"+self.wTop.server.text()+"/spectcl/spectrum/list"
-            tmpl = httplib2.Http().request(server)[1]
-            tmp = json.loads(tmpl.decode())
+            spec_dict = self.rest.listSpectrum()
             tmppar = []
-            for dic in tmp['detail']:
+            tmppar2 = []            
+            for dic in spec_dict:
                 for key in dic:
                     if key == 'parameters':
                         tmppar.append(dic[key]) 
-                        # adds list to dataframe           
-            self.spectrum_list['parameters'] = tmppar
+                    if key == 'type':
+                        tmppar2.append(dic[key])                         
+
+            # adds list of parameters to dataframe           
+            self.spectrum_list['parameters'] = tmppar            
+            # add list of types to dataframe
+            self.spectrum_list['type'] = tmppar2            
             if (DEBUG):
                 print(self.spectrum_list['parameters'])
                 print("Reset QComboBox")
@@ -1029,12 +995,10 @@ class MainWindow(QMainWindow):
     # update and create parameter list
     def update_parameter_list(self):
         try:
-            server = "http://"+self.wTop.server.text()+"/spectcl/parameter/list"
-            tmpl = httplib2.Http().request(server)[1]
-            tmp = json.loads(tmpl.decode())
+            par_dict = self.rest.listParameter()
             tmpid = []
             tmpname = []
-            for dic in tmp['detail']:
+            for dic in par_dict:
                 for key in dic:
                     if key == 'id':
                         tmpid.append(dic[key])
@@ -1058,94 +1022,35 @@ class MainWindow(QMainWindow):
     # update and create gate list
     def update_gate_list(self):
         try:
-            server = "http://"+self.wTop.server.text()+"/spectcl/gate/list"
-            tmpl = httplib2.Http().request(server)[1]
-            tmp = json.loads(tmpl.decode())
-            lst_name = []
-            lst_value = []
-            lst_all = []
-            ll = []                    
-
-            for dic in tmp['detail']:
-                for key in dic:
-                    lst_all.append(dic[key])
-
-            # index slice gates
-            index_s_lst = [i for i, e in enumerate(lst_all) if e == "s"]
-            # index contour gates
-            index_c_lst = [i for i, e in enumerate(lst_all) if e == "c"]
-            # index band gates
-            index_b_lst = [i for i, e in enumerate(lst_all) if e == "b"]
-            # index gamma slice gates
-            index_gs_lst = [i for i, e in enumerate(lst_all) if e == "gs"]
-            # index gamma contour gates
-            index_gc_lst = [i for i, e in enumerate(lst_all) if e == "gc"]
-            # index gamma band gates
-            index_gb_lst = [i for i, e in enumerate(lst_all) if e == "gb"]                        
-
-            if (DEBUG):            
-                print("index_s_lst", index_s_lst)
-                print("index_c_lst", index_c_lst)
-                print("index_b_lst", index_b_lst)
-                print("index_gs_lst", index_gs_lst)
-                print("index_gc_lst", index_gc_lst)
-                print("index_gb_lst", index_gb_lst)                        
-            
-            # adding slice gates
-            for i in range(len(index_s_lst)):
-                ll.append(lst_all[index_s_lst[i]-1:index_s_lst[i]+4])
-            # adding contour gates
-            for i in range(len(index_c_lst)):
-                ll.append(lst_all[index_c_lst[i]-1:index_c_lst[i]+3])
-            # adding band gates
-            for i in range(len(index_b_lst)):
-                ll.append(lst_all[index_b_lst[i]-1:index_b_lst[i]+3])
-            # adding gamma slice gates
-            for i in range(len(index_gs_lst)):
-                ll.append(lst_all[index_gs_lst[i]-1:index_gs_lst[i]+4])
-            # adding gamma contour gates
-            for i in range(len(index_gc_lst)):
-                ll.append(lst_all[index_gc_lst[i]-1:index_gc_lst[i]+3])
-            # adding gamma band gates
-            for i in range(len(index_gb_lst)):
-                ll.append(lst_all[index_gb_lst[i]-1:index_gb_lst[i]+3])
-                
-            for lst in ll:
-                lst_name.append(lst[0])
-                lst_value.append(lst[1:])
-
-            ziplst = zip(lst_name, lst_value)
-            self.gate_dict = dict(ziplst)
             if (DEBUG):
-                print(self.gate_dict)
+                print("Inside update_gate_list")
+            gate_list = self.rest.listGate()
+            self.gate_dict = {d["name"]: d for d in gate_list}
+
             # resetting ComboBox
-            self.wTop.listGate.clear()
+            self.wConf.listGate.clear()
         except:
             pass
 
     def create_gate_list(self):
+        if (DEBUG):
+            print("Inside create_gate_list")
         self.update_gate_list()
         for key, value in self.gate_dict.items():
-            if self.wTop.listGate.findText(key) == -1:
-                self.wTop.listGate.addItem(key)        
-            self.formatShMemToLine(key)
-
+            if (DEBUG):
+                print(key,"->", value)
+            if self.wConf.listGate.findText(key) == -1:
+                self.wConf.listGate.addItem(key)        
+            self.formatRESTToLine(key)
+        if (DEBUG):
+            print("Inside update_gate_list")
+            print(self.gate_dict)
+        self.updateGateType()
+        
     # update spectrum information
-    def update_spectrum_info(self):
-        hist_tmp = {}
-        hist_name = str(self.wConf.histo_list.currentText())
-        hist_dim= 0
-        hist_minx = 0
-        hist_maxx = 0
-        hist_binx = 0
-        hist_miny = 0
-        hist_maxy = 0
-        hist_biny = 0
-
+    def updateHistoInfo(self):
         try:
-            # update info on gui for spectrum name
-            self.wConf.spectrum_name.setText(hist_name)
-            # extra data from data frame to fill up the gui
+            hist_name = self.wConf.histo_list.currentText()
             select = self.spectrum_list['names'] == hist_name
             df = self.spectrum_list.loc[select]
             hist_dim = df.iloc[0]['dim']
@@ -1158,23 +1063,50 @@ class MainWindow(QMainWindow):
                 index = self.wConf.listParams[i].findText(df.iloc[0]['parameters'][i], QtCore.Qt.MatchFixedString)
                 if index >= 0:
                     self.wConf.listParams[i].setCurrentIndex(index)
+        except:
+            pass
+        
+    # add parameter list and spectrum type 
+    def update_spectrum_info(self):
+        hist_dim = 0
+        hist_type = ""
+        hist_params = []
+        hist_tmp = {}
+        hist_name = str(self.wConf.histo_list.currentText())
+        hist_minx = 0
+        hist_maxx = 0
+        hist_binx = 0
+        hist_miny = 0
+        hist_maxy = 0
+        hist_biny = 0
+        try:
+            # update info on gui for spectrum name
+            # self.wConf.spectrum_name.setText(hist_name)
+            # extra data from data frame to fill up the gui
+            select = self.spectrum_list['names'] == hist_name
+            df = self.spectrum_list.loc[select]
+            hist_dim = df.iloc[0]['dim']
+            hist_type = df.iloc[0]['type']
+            hist_params = df.iloc[0]['parameters']
+            if hist_dim == 1:
+                self.wConf.button1D.setChecked(True)
+            else:
+                self.wConf.button2D.setChecked(True)
+            self.check_histogram();
+            for i in range(hist_dim):
+                index = self.wConf.listParams[i].findText(df.iloc[0]['parameters'][i], QtCore.Qt.MatchFixedString)
+                if index >= 0:
+                    self.wConf.listParams[i].setCurrentIndex(index)
                 if i == 0:
-                    self.wConf.listParams_low[i].setText(str(df.iloc[0]['minx']))
-                    self.wConf.listParams_high[i].setText(str(df.iloc[0]['maxx']))
-                    self.wConf.listParams_bins[i].setText(str(df.iloc[0]['binx']))
-                    hist_minx = self.wConf.listParams_low[i].text().replace(' ', '')
-                    hist_maxx = self.wConf.listParams_high[i].text().replace(' ', '')
-                    hist_binx = self.wConf.listParams_bins[i].text().replace(' ', '')
+                    hist_minx = str(df.iloc[0]['minx'])
+                    hist_maxx = str(df.iloc[0]['maxx'])
+                    hist_binx = str(df.iloc[0]['binx'])
                 else :
-                    self.wConf.listParams_low[i].setText(str(df.iloc[0]['miny']))
-                    self.wConf.listParams_high[i].setText(str(df.iloc[0]['maxy']))
-                    self.wConf.listParams_bins[i].setText(str(df.iloc[0]['biny']))
-                    hist_miny = self.wConf.listParams_low[i].text().replace(' ', '')
-                    hist_maxy = self.wConf.listParams_high[i].text().replace(' ', '')
-                    hist_biny = self.wConf.listParams_bins[i].text().replace(' ', '')
-
+                    hist_miny = str(df.iloc[0]['miny'])
+                    hist_maxy = str(df.iloc[0]['maxy'])
+                    hist_biny = str(df.iloc[0]['biny'])
             hist_tmp = {"name": hist_name, "dim": hist_dim, "xmin": hist_minx, "xmax": hist_maxx, "xbin": hist_binx,
-                        "ymin": hist_miny, "ymax": hist_maxy, "ybin": hist_biny}
+                        "ymin": hist_miny, "ymax": hist_maxy, "ybin": hist_biny, "parameters": hist_params, "type": hist_type}
             return hist_tmp
         except:
             QMessageBox.about(self, "Warning", "Please click 'Get Data' to access the data...")
@@ -1184,6 +1116,7 @@ class MainWindow(QMainWindow):
             print("inside update plot")
             print(self.h_dict)
         try:
+            a = None
             if self.isZoomed == True:
                 self.add(self.selected_plot_index) # this creates the histogram axes
                 self.wPlot.canvas.draw() # this drawing command creates the renderer
@@ -1196,6 +1129,7 @@ class MainWindow(QMainWindow):
                     self.setup_histogram(a, self.selected_plot_index)                
                     self.h_setup[self.selected_plot_index] = False
                 self.plot_histogram(a, self.selected_plot_index) # the previous step is fundamental for blitting
+                self.removeCb(a)
             else:
                 self.selected_plot_index = None
                 for index, value in self.h_dict.items():                
@@ -1210,7 +1144,7 @@ class MainWindow(QMainWindow):
                             self.setup_histogram(a, index)
                             self.h_setup[index] = False
                         self.plot_histogram(a, index)
-
+                        
             self.wPlot.figure.tight_layout()
             self.wPlot.canvas.draw_idle()
 
@@ -1218,7 +1152,8 @@ class MainWindow(QMainWindow):
             self.selected_plot_index = None
             if (DEBUG):
                 print("Reset selected index", self.selected_plot_index)
-            
+            return a
+                
         except:
             pass
 
@@ -1226,8 +1161,9 @@ class MainWindow(QMainWindow):
         self.wTop.slider_label.setText("Refresh interval ({} s)".format(self.wTop.slider.value()))
         if self.wTop.slider.value() != 0:
             self.timer.setInterval(1000*int(self.wTop.slider.value()))
-            self.timer.timeout.connect(self.update)
-            self.timer.timeout.connect(self.update_plot)            
+            # this line below depends on the REST trace
+            #self.timer.timeout.connect(self.update)
+            self.timer.timeout.connect(self.update_plot)
             self.timer.start()
         else:
             self.timer.stop()
@@ -1368,6 +1304,14 @@ class MainWindow(QMainWindow):
     def get_histo_name(self, index):
         return self.h_dict[index]["name"]
 
+    # get histo type
+    def get_histo_type(self, index):
+        return self.h_dict[index]["type"]
+
+    # get histo parameters
+    def get_histo_parameters(self, index):
+        return self.h_dict[index]["parameters"]
+    
     # get histo dim
     def get_histo_dim(self, index):
         return int(float(self.h_dict[index]["dim"]))
@@ -1451,6 +1395,16 @@ class MainWindow(QMainWindow):
             print("index to fill", self.index)
         return self.index
 
+    # remove colorbar
+    def removeCb(self, axis):
+        im = axis.images
+        if im is not None:
+            try:
+                cb = im[-1].colorbar
+                cb.remove()
+            except IndexError:
+                pass
+    
     # geometrically add plots to the right place
     def add_plot(self):
         if (DEBUG):
@@ -1492,6 +1446,7 @@ class MainWindow(QMainWindow):
                 # updating histogram dictionary for fast access to information via get_histo_xxx       
                 self.h_dict[self.idx] = self.update_spectrum_info()        
                 self.h_dict_geo[self.idx] = (self.h_dict[self.idx])["name"]
+                self.h_dim[self.idx] = (self.h_dict[self.idx])["dim"]
                 if (DEBUG):
                     print(self.h_dict)
                 self.h_dict_bak = self.h_dict.copy()
@@ -1523,110 +1478,89 @@ class MainWindow(QMainWindow):
         
     # erase plot
     def erase_plot(self, index):
-        if self.isZoomed:
-            a = plt.gca()
-        else:
-            a = self.select_plot(index)
-        # if 2d histo I need a bit more efforts for the colorbar
-        if self.h_dim[index] == 2:
-            im = a.images
-            if im is not None:
-                try:
-                    cb = im[-1].colorbar
-                    cb.remove()
-                except IndexError:
-                    pass
-
-        a.clear()
+        a = None
+        try:
+            if self.isZoomed:
+                a = plt.gca()
+            else:
+                a = self.select_plot(index)
+            # if 2d histo I need a bit more efforts for the colorbar
+            if self.h_dim[index] == 2:
+                self.removeCb(a)
+            a.clear()
+            return a
+        except:
+            pass
 
     # deletes all the plots and reinitializes the canvas
-    def delete_plot(self):
+    def clear_plot(self):
         if self.forAll == True:
-            for index in range(self.wConf.col*self.wConf.row):
-                self.erase_plot(index)
-                # reinitialize the histograms
-                self.h_dict[index] = self.initialize_histogram()
-                # reset support list
-                self.isFull = False
+            self.rest.spectrumAllClear()
         else:
-            if self.isSelected == False:
-                idx = next((i for i, x in enumerate(self.h_dim) if x), None)
-                if idx is not None:
-                    self.idx = idx
-            else:
-                self.idx = self.selected_plot_index
-                
-            self.erase_plot(self.idx)
-            self.isSelected = False
-            # reinitialize the histogram at index
-            self.h_dict[self.idx] = self.initialize_histogram()
-            # zero the element in the support list
-            self.h_dim[self.idx] = 0            
-            self.isFull = False
+            name = self.wConf.histo_list.currentText()
+            self.rest.spectrumClear(name)
 
-        if sum(self.h_dim) == 0:
-            self.h_dict.clear()            
-            self.h_dict_geo.clear()
-            self.Start = False
-            
         self.wPlot.canvas.draw()
 
+    # sets up histogram
     def setup_histogram(self, axis, index):
-        if (DEBUG):
-            print("Inside setup histogram")
-        hdim = self.get_histo_dim(index)                    
-        minx = self.get_histo_xmin(index)
-        maxx = self.get_histo_xmax(index)
-        binx = self.get_histo_xbin(index)
-        if (DEBUG):
-            print(hdim,minx,maxx,binx)
+        try:
+            if (DEBUG):
+                print("Inside setup histogram")
+            hdim = self.get_histo_dim(index)                    
+            minx = self.get_histo_xmin(index)
+            maxx = self.get_histo_xmax(index)
+            binx = self.get_histo_xbin(index)
+            if (DEBUG):
+                print(hdim,minx,maxx,binx)
         
-        if hdim == 1:
-            # update axis
-            self.yhigh = self.get_histo_zoomMax(index)
-            axis.set_xlim(left=minx, right=maxx)
-            axis.set_ylim(0,self.yhigh)
-            # create histogram
-            self.h_lst[index],  = axis.plot([], [], drawstyle='steps')
-            self.h_zoom_max[index] = self.yhigh
-        else:
-            miny = self.get_histo_ymin(index)
-            maxy = self.get_histo_ymax(index)
-            biny = self.get_histo_ybin(index)
-
-            # empty data for initialization
-            w = 0*np.random.random_sample((binx,biny))
-            
-            # setup up Z gradient 
-            self.vmax = self.get_histo_zoomMax(index)
-
-            # setup up palette
-            if (self.wConf.button2D_option.currentText() == 'Dark'):
-                if self.checkVersion(matplotlib.__version__) < self.checkVersion("2.0.0"):
-                    self.palette = 'afmhot'
-                else:
-                    self.palette = 'plasma'
+            if hdim == 1:
+                # update axis
+                self.yhigh = self.get_histo_zoomMax(index)
+                axis.set_xlim(left=minx, right=maxx)
+                axis.set_ylim(0,self.yhigh)
+                # create histogram
+                self.h_lst[index],  = axis.plot([], [], drawstyle='steps')
+                self.h_zoom_max[index] = self.yhigh
             else:
-                if self.checkVersion(matplotlib.__version__) < self.checkVersion("2.0.0"):
-                    self.palette = copy(plt.cm.afmhot)                    
+                miny = self.get_histo_ymin(index)
+                maxy = self.get_histo_ymax(index)
+                biny = self.get_histo_ybin(index)
+
+                # empty data for initialization
+                w = 0*np.random.random_sample((binx,biny))
+            
+                # setup up Z gradient 
+                self.vmax = self.get_histo_zoomMax(index)
+
+                # setup up palette
+                if (self.wConf.button2D_option.currentText() == 'Dark'):
+                    if self.checkVersion(matplotlib.__version__) < self.checkVersion("2.0.0"):
+                        self.palette = 'afmhot'
+                    else:
+                        self.palette = 'plasma'
                 else:
-                    self.palette = copy(plt.cm.plasma)
-                w = np.ma.masked_where(w < 0.1, w)
-                self.palette.set_bad(color='white')
+                    if self.checkVersion(matplotlib.__version__) < self.checkVersion("2.0.0"):
+                        self.palette = copy(plt.cm.afmhot)                    
+                    else:
+                        self.palette = copy(plt.cm.plasma)
+                    w = np.ma.masked_where(w < 0.1, w)
+                    self.palette.set_bad(color='white')
 
-                
-            # create histogram
-            self.h_lst[index] = axis.imshow(w,
-                                            interpolation='none',
-                                            extent=[float(minx),float(maxx),float(miny),float(maxy)],
-                                            aspect='auto',
-                                            origin='lower',
-                                            vmin=self.vmin, vmax=self.vmax,
-                                            cmap=self.palette)
+                # create histogram
+                self.h_lst[index] = axis.imshow(w,
+                                                interpolation='none',
+                                                extent=[float(minx),float(maxx),float(miny),float(maxy)],
+                                                aspect='auto',
+                                                origin='lower',
+                                                vmin=self.vmin, vmax=self.vmax,
+                                                cmap=self.palette)
 
-        self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
-        if (DEBUG):
-            print(self.h_lst)
+            self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
+            if (DEBUG):
+                print(self.h_lst)
+        except:
+            pass
         
     # histo plotting
     def plot_histogram(self, axis, index, threshold=0.1):
@@ -1658,12 +1592,14 @@ class MainWindow(QMainWindow):
         self.wPlot.figure.canvas.blit(axis.bbox)
 
         # setup colorbar only for 2D
-        if hdim == 2:
-            divider = make_axes_locatable(axis)
-            cax = divider.append_axes('right', size='5%', pad=0.05)
-            # add colorbar
-            self.wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
-        
+        if self.isCreated == False:
+            if hdim == 2:
+                divider = make_axes_locatable(axis)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                # add colorbar
+                self.wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
+                self.isCreated = True
+                
         self.wPlot.canvas.draw_idle()
 
     # check histogram dimension from GUI
@@ -1745,32 +1681,25 @@ class MainWindow(QMainWindow):
     # helper function that converts index of geometry into index of histo list and updates info
     def clickToIndex(self, idx):
         index = self.wConf.histo_list.findText(str(self.h_dict[idx]['name']), QtCore.Qt.MatchFixedString)
+        # this is to avoid the histogram combobox to not show the first histogram at first
+        if index < 0:
+            index = 0
+        if (DEBUG):
+            print("index of combobox", index)
         self.wConf.histo_list.setCurrentIndex(index)
+        name = self.get_histo_name(idx)
         dim = self.get_histo_dim(idx)
-        name = self.h_dict[idx]['name']
-        minx = str(self.h_dict[idx]['xmin'])
-        maxx = str(self.h_dict[idx]['xmax'])
-        binx = str(self.h_dict[idx]['xbin'])
-        miny = str(self.h_dict[idx]['ymin'])
-        maxy = str(self.h_dict[idx]['ymax'])
-        biny = str(self.h_dict[idx]['ybin'])
-
-        self.wConf.spectrum_name.setText(name)
-
-        self.wConf.listParams_low[0].setText(minx)
-        self.wConf.listParams_high[0].setText(maxx)
-        self.wConf.listParams_bins[0].setText(binx)
+        minx = str(self.get_histo_xmin(idx))
+        maxx = str(self.get_histo_xmax(idx))
+        binx = str(self.get_histo_xbin(idx))
+        miny = str(self.get_histo_ymin(idx))
+        maxy = str(self.get_histo_ymax(idx))
+        biny = str(self.get_histo_ybin(idx))
 
         if dim == 1:
             self.wConf.button1D.setChecked(True)
-            self.wConf.listParams_low[1].setText('')
-            self.wConf.listParams_high[1].setText('')
-            self.wConf.listParams_bins[1].setText('')
         else:
             self.wConf.button2D.setChecked(True)
-            self.wConf.listParams_low[1].setText(miny)
-            self.wConf.listParams_high[1].setText(maxy)
-            self.wConf.listParams_bins[1].setText(biny)
         self.check_histogram();
     
     def createGate(self):
@@ -1779,14 +1708,14 @@ class MainWindow(QMainWindow):
 
         # check for histogram existance
         name = self.wConf.histo_list.currentText()
-        gate_name = self.wTop.listGate.currentText()
+        gate_name = self.wConf.listGate.currentText()
         gate_parameter = self.wConf.listParams[0].currentText()
         
         if (name==""):
             return QMessageBox.about(self,"Warning!", "Please create at least one spectrum")
         else:
             # creating entry in combobox if it doesn't exist
-            allItems = [self.wTop.listGate.itemText(i) for i in range(self.wTop.listGate.count())]
+            allItems = [self.wConf.listGate.itemText(i) for i in range(self.wConf.listGate.count())]
             result = gate_name in allItems
             while result:
                 self.counter += 1
@@ -1804,36 +1733,45 @@ class MainWindow(QMainWindow):
                 gate_name = "default_gate_"+str(self.counter)
                 if (DEBUG):
                     print("You clicked cancel but I saved you man...gate_name is", gate_name)
-            self.wTop.listGate.addItem(gate_name)
+            self.wConf.listGate.addItem(gate_name)
             # update boxes
-            self.wTop.listGate.setCurrentText(gate_name)
+            self.wConf.listGate.setCurrentText(gate_name)
                 
             # gate type
-            items = ("s", "c", "b", "gs", "gc", "gb")
+            items = None
+            if self.wConf.button1D.isChecked():
+                items = ("s", "gs")
+            else:
+                items = ("c", "b", "gc", "gb")
+
             item, okPressed = QInputDialog.getItem(self, "Gate type", "Please choose a type for the gate:", items, 0, False)
             if okPressed:
                 self.gateType = item
                 
-                # gate parameters for gamma gates
-                if self.gateType == "gs" or self.gateType == "gc" or self.gateType == "gb":
-                    text, okPressed = QInputDialog.getText(self, "Gate parameter", "Please choose a parameter for the gamma gate:", QLineEdit.Normal, gate_parameter) 
-                    if okPressed:
-                        gate_parameter = text
-
         # adding gate
         self.gateTypeDict[gate_name] = self.gateType
         if (DEBUG):
             print(self.gateTypeDict)
-        self.wConf.resetGateType()
-        (self.wConf.buttonGateTypeDict[self.gateType]).setChecked(True)
-                
-
+        gindex = self.findGateType(gate_name)
+        if (DEBUG):
+            print("index of the gate in combobox", gindex)
+        self.wConf.listGate_type.setCurrentIndex(gindex)
+              
         self.toCreateGate = True;
         self.createRegion()
         self.polygon = self.createPolygon()
         if (DEBUG):
             print("end of create gate")
 
+    def findGateType(self, gate_name):
+        # if gate is loaded and doesn't exist then add it beforehand
+        
+        gate_type = self.gateTypeDict[gate_name]
+        gate_index = self.wConf.listGate_type.findText(gate_type, QtCore.Qt.MatchFixedString)
+        if gate_index < 0:
+            gate_index = 0
+        return gate_index
+        
     def createRegion(self):
         ax = plt.gca()        
         self.cleanRegion()
@@ -1855,6 +1793,8 @@ class MainWindow(QMainWindow):
         return l
         
     def addPolygon(self, posx, posy):
+        if (DEBUG):
+            print("Inside addPolygon", posx, posy)
         ax = plt.gca()
         self.xs.append(posx)
         self.ys.append(posy)
@@ -1884,7 +1824,7 @@ class MainWindow(QMainWindow):
     def edit_init(self):
         self.edit_ax = plt.gca()
         # select the gate from the menu and apply the following code
-        name_gate = self.wTop.listGate.currentText()
+        name_gate = self.wConf.listGate.currentText()
         polygon = (self.get_line(name_gate))[0]
         self.polygon.set_visible(False)
         polygon.set_visible(False)
@@ -1910,14 +1850,12 @@ class MainWindow(QMainWindow):
             if self.wTop.slider.value() != 0:
                 self.timer.stop()
             # delete from combobox and change index
-            name = self.wTop.listGate.currentText()
-            index = self.wTop.listGate.findText(name, QtCore.Qt.MatchFixedString)
+            name = self.wConf.listGate.currentText()
+            index = self.wConf.listGate.findText(name, QtCore.Qt.MatchFixedString)
             if index >= 0:
-                self.wTop.listGate.removeItem(index)
+                self.wConf.listGate.removeItem(index)
             # delete from spectcl
-            server = "http://"+self.wTop.server.text()
-            reqStr = server + "/spectcl/gate/delete?name=" + name
-            self.sendRequest(reqStr)
+            self.rest.deleteGate(name)
             self.wPlot.canvas.draw()
 
             if self.wTop.slider.value() != 0:
@@ -1965,8 +1903,9 @@ class MainWindow(QMainWindow):
         if self.wTop.slider.value() != 0:
             self.timer.stop() 
 
-        self.wConf.resetGateType()
-        hname = self.wConf.spectrum_name.text()
+        #self.wConf.resetGateType()
+        #hname = self.wConf.spectrum_name.text()
+        hname = self.wConf.histo_list.currentText()
         # remove lines
         for k1 in self.artist_dict:
             if k1 == hname:
@@ -1992,7 +1931,7 @@ class MainWindow(QMainWindow):
             self.timer.start()
 
     def existGate(self, hname):
-        name = self.wTop.listGate.currentText()
+        name = self.wConf.listGate.currentText()
         for k1 in self.artist_dict:
             if k1 == hname:
                 for k2 in self.artist_dict[k1]:        
@@ -2063,80 +2002,40 @@ class MainWindow(QMainWindow):
             print("Inside drawAllGate")
         if self.wTop.slider.value() != 0:
             self.timer.stop()
- 
-        # loop over panel
-        if self.isZoomed:
-            a = plt.gca()
-            h = self.wConf.spectrum_name.text()
-            if (DEBUG):
-                print("inside if self.isZoomed", h, self.artist_dict[h])
-            if h in self.artist_dict:
-                for gate in self.artist_dict[h]:
-                    if (DEBUG):
-                        print("gate name:", gate, " to be added in histogram at index", h)
-                    '''
-                    if self.wConf.button1D.isChecked():
-                        self.plot1DGate(a, h, gate)
-                    else:
-                        self.plot2DGate(a, h, gate)            
-                    '''
-        else:
-            if (DEBUG):
-                print("inside if !self.isZoomed", h, self.artist_dict[h])            
-            # dict_output doesn't exist anymore
-            for index in self.h_dict_output:
-                print(index, self.h_dict_output[index])
-                h = self.h_dict_output[index]
-                a = self.select_plot(index)            
-                self.clickToIndex(index)
-                if (DEBUG):
-                    print("histogram at panel", index, "named: ", h) 
-                if h in self.artist_dict:
-                    for gate in self.artist_dict[h]:
-                        if (DEBUG):
-                            print("gate name:", gate, " to be added in histograma at index", h)
-                        '''
-                        if self.wConf.button1D.isChecked():
-                            self.plot1DGate(a, h, gate)
-                        else:
-                            self.plot2DGate(a, h, gate)
-                        '''
-
-        self.wPlot.canvas.draw()            
-
-        if (DEBUG):        
-            print(self.artist_dict)
         
         if self.wTop.slider.value() != 0:
             self.timer.start()
 
+    def updateGateType(self):
+        try: 
+            gate_name = self.wConf.listGate.currentText()
+            gindex = self.findGateType(gate_name)
+            self.wConf.listGate_type.setCurrentIndex(gindex)
+        except:
+            pass
+        
     def drawGate(self):
-        # gates will be added with the button add and removed with clean in an agnostic way,
-        # independently from the histogram they were created
         if (DEBUG):
             print("inside drawGate")
         if self.wTop.slider.value() != 0:
             self.timer.stop()
 
         if self.selected_plot_index is not None:
-            name = self.wTop.listGate.currentText()
+            name = self.wConf.listGate.currentText()
             key = self.get_histo_name(self.selected_plot_index)
             gtype = self.gateTypeDict[name]
-            self.wConf.resetGateType()
-            (self.wConf.buttonGateTypeDict[gtype]).setChecked(True)
             if self.isZoomed:
                 a = plt.gca()
             else:
                 a = self.select_plot(self.selected_plot_index)
-            if self.wConf.button1D.isChecked():
-                if (DEBUG):
-                    print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
+            if (self.wConf.button1D.isChecked() and (gtype == "s" or gtype == "gs")):
+                #if (DEBUG):
+                print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
                 self.plot1DGate(a, key, name)
             else:
                 if (DEBUG):                        
                     print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
                 self.plot2DGate(a, key, name)
-
 
         self.wPlot.canvas.draw()
         if self.wTop.slider.value() != 0:
@@ -2148,173 +2047,43 @@ class MainWindow(QMainWindow):
     
     def integrate(self):
         try:
-            # get the selected region from the combobox
-            self.wPlot.canvas.draw()
-            name = self.wTop.listGate.currentText()
-            if self.wConf.button1D.isChecked():
-                self.integrate1D(name)
-            else:
-                self.start = time.time()
-                self.integrate2D(name)
-                # to be retested if needed
-                #self.multiproc2D(25, name)            
-                #self.thread2D(10, name)
-                self.stop = time.time()
-                if (DEBUG):
-                    print("Time elapsed:", self.stop-self.start)
+            histo_name = self.wConf.histo_list.currentText()
+            gate_name = self.wConf.listGate.currentText()
+            results = self.rest.integrateGate(histo_name, gate_name)
+            self.addRegion(results)
         except:
             QMessageBox.about(self, "Warning", "No gate defined for integration...")
-            
-    def multiproc2D(self, n, name):
-        processes = []
-        for i in range(n):
-            p = multiprocessing.Process(target=self.integrate2D, args=(name, ))
-            processes.append(p)
-            p.start()
-
-        for p in processes:
-            p.join()
-        
-    def thread2D(self, n, name):
-        threads = []
-
-        for i in range(n):
-            t = threading.Thread(target=self.integrate2D, args=(name, ))
-            threads.append(t)
-            t.start()
-            
-        for t in threads:
-            t.join()
-
-    def integrate2D(self, name):
-        # histo name
-        name_histo = self.wConf.histo_list.currentText()
-        # gate name
-        name_gate = name
-        # create polygon from line2D
-        poly_xy = self.convertToList2D(self.get_line(name)[0])
-        polygon = Polygon(poly_xy)
-        # remove the duplicated last vertex
-        poly = polygon.xy[:-1]
-        p = Path(poly)
-        # converts data to points
-        select = self.spectrum_list['names'] == name_histo
-        df = self.spectrum_list.loc[select]
-        w = df.iloc[0]['data']
-
-        x = []
-        y = []
-        if len(self.points) == 0:
-            self.fillPoints(w, x, y, self.points_w, self.points)
-        isInside = p.contains_points(self.points)
-        x = list(compress(x, isInside))
-        y = list(compress(y, isInside))        
-        z = list(compress(self.points_w, isInside))
-        
-        area = sum(z)
-        centroid_x, centroid_y = self.centroid(x, y)
-        fwhm = self.fwhm(x, y)
-        # print to output window and file
-        self.addRegion(area, centroid_x, centroid_y, fwhm)            
-        
-    def fillPoints(self, data, xx, yy, zz, points):
-        for i, col in enumerate(data):
-            if sum(col):
-                for j, val in enumerate(col):
-                    x,y = self.indexToPos(j,i)
-                    if val>=self.clPopup.threshold_slider.value():
-                        if (DEBUG):
-                            print(x,y,val)
-                        xx.append(x)
-                        yy.append(y)
-                        zz.append(val)                                                
-                        points.append([x,y])
-                        
-    def indexToPos(self, i, j):
-        minx = float(self.wConf.listParams_low[0].text())-1
-        maxx = float(self.wConf.listParams_high[0].text())
-        binx = float(self.wConf.listParams_bins[0].text())
-        miny = float(self.wConf.listParams_low[1].text())-1
-        maxy = float(self.wConf.listParams_high[1].text())
-        biny = float(self.wConf.listParams_bins[1].text())
-        xstep = (maxx-minx)/binx
-        ystep = (maxy-miny)/biny        
-        return minx+(i+0.5)*xstep, miny+(j+0.5)*ystep
-
-        
-    def findInterval(self, name_histo, name_gate):
-        interval = []
-        for line in self.dict_region[name_gate]:
-            interval.append(line.get_xdata()[0])
-        return interval
-        
-    def integrate1D(self, name):
-        # histo name
-        name_histo = self.wConf.histo_list.currentText()
-        index_histo = self.wConf.histo_list.currentIndex()
-        # gate name
-        name_gate = name
-        a = [] #interval limits
-        if (name_gate==""):
-            return QMessageBox.about(self,"Warning!", "Please create at least one gate")
-        else:
-            x = []
-            y = []
-            fwhm = 0
-            minx = self.get_histo_xmin(index_histo)
-            maxx = self.get_histo_xmax(index_histo)
-            binx = self.get_histo_xbin(index_histo)
-            X = self.create_range(binx, minx, maxx)
-            tmp = self.get_data(index_histo)
-            try:
-                a = sorted(self.findInterval(name_histo, name_gate))
-                index_list = [i for i, e in enumerate(X) if e > a[0] and e < a[1]]
-                x = X[index_list[0]:index_list[-1]]
-                y = tmp[index_list[0]:index_list[-1]]
-            except:
-                pass
-
-            area = sum(y)
-            centroid_x, centroid_y = self.centroid(x, y)
-            fwhm = self.fwhm(x, y)
-            # print to output window and file
-            self.addRegion(area, centroid_x, centroid_y, fwhm)            
-            
-    def fwhm(self, xx, yy):
-        if self.wConf.button1D.isChecked():
-            max_y = max(yy) # Find the maximum y value
-            xs = []
-            i = 0
-            while i < len(xx):
-                if yy[i] > max_y/2.0:
-                    xs.append(xx[i])
-                i += 1            
-            diff = max(xs)-min(xs)
-            return round(diff,2)
-        else:
-            return "-"        
-        
-    def centroid(self, x, y):
-        length = len(x)
-        sum_x = np.sum(x)
-        sum_y = np.sum(y)
-        return round(sum_x/length,2), round(sum_y/length,2)
 
     def resultPopup(self):
         self.resPopup.setGeometry(100,100,724,500)
         self.resPopup.show()
 
-    def addRegion(self, area, centx, centy, fwhm):
+    def spfunPopup(self):
+        self.extraPopup.show()
+        
+    def addRegion(self, results):
         # Schema for output window
-        #["ID", "Spectrum", "Name", "centroid X", "centroid Y", "FWHM", "Area"]
+        #["ID", "Spectrum", "Name", "centroid X", "centroid Y", "FWHM X", "FWHM Y", "Area"]
         self.resPopup.tableWidget.setRowCount(0);
-        self.table_row.append([str(self.wTop.listGate.currentIndex()),
-                               str(self.wConf.histo_list.currentText()),
-                               str(self.wTop.listGate.currentText()),
-                               centx,
-                               centy,
-                               fwhm,
-                               area])
+        if self.wConf.button1D.isChecked():
+            self.table_row.append([str(self.wConf.listGate.currentIndex()),
+                                   str(self.wConf.histo_list.currentText()),
+                                   str(self.wConf.listGate.currentText()),
+                                   str(results["centroid"]),
+                                   "",
+                                   str(results["fwhm"]),
+                                   "",
+                                   str(results["counts"])])
+        else:
+            self.table_row.append([str(self.wConf.listGate.currentIndex()),
+                                   str(self.wConf.histo_list.currentText()),
+                                   str(self.wConf.listGate.currentText()),
+                                   str((results["centroid"])[0]),
+                                   str((results["centroid"])[1]),
+                                   str(results["fwhm"][0]),
+                                   str(results["fwhm"][1]),
+                                   str(results["counts"])])
+
         for row in self.table_row:
             inx = self.table_row.index(row)
             self.resPopup.tableWidget.insertRow(inx)
@@ -2323,26 +2092,26 @@ class MainWindow(QMainWindow):
         header = self.resPopup.tableWidget.horizontalHeader()       
         header.setSectionResizeMode(QHeaderView.Stretch)        
         self.resPopup.tableWidget.resizeColumnsToContents()
-
+        
     ############################
     # 12)  Fitting
     ############################    
     
     def axislimits(self, ax):
         left, right = ax.get_xlim()
-        if self.wConf.fit_range_min.text():
-            left = int(self.wConf.fit_range_min.text())
-        if self.wConf.fit_range_max.text():            
-            right = int(self.wConf.fit_range_max.text())            
+        if self.extraPopup.fit_range_min.text():
+            left = int(self.extraPopup.fit_range_min.text())
+        if self.extraPopup.fit_range_max.text():            
+            right = int(self.extraPopup.fit_range_max.text())            
         return left, right
-    
+
     def fit(self):
         x = []
         y = []
         x_fit = []
         y_fit = []
         histo_name = str(self.wConf.histo_list.currentText())
-        fit_funct = self.wConf.fit_list.currentText()
+        fit_funct = self.extraPopup.fit_list.currentText()
         if self.isZoomed:
             ax = plt.gca()
         else:
@@ -2363,15 +2132,31 @@ class MainWindow(QMainWindow):
         else:
             if self.wConf.button1D.isChecked():
                 # input points for fitting function
-                xtmp = self.create_range(int(float(self.wConf.listParams_bins[0].text())), int(float(self.wConf.listParams_low[0].text())), int(float(self.wConf.listParams_high[0].text())))                
+                index = self.wConf.histo_list.findText(str(self.h_dict[self.idx]['name']), QtCore.Qt.MatchFixedString)
+                minx = str(self.get_histo_xmin(self.idx))
+                maxx = str(self.get_histo_xmax(self.idx))
+                binx = str(self.get_histo_xbin(self.idx))
+
+                # giordano
+                #xtmp = self.create_range(int(float(self.wConf.listParams_bins[0].text())), int(float(self.wConf.listParams_low[0].text())), int(float(self.wConf.listParams_high[0].text())))
+                xtmp = self.create_range(int(binx), int(minx), int(maxx))
+
+                self.fitpar = [float(self.extraPopup.fit_p0.text()), float(self.extraPopup.fit_p1.text()),
+                               float(self.extraPopup.fit_p2.text()), float(self.extraPopup.fit_p3.text()),
+                               float(self.extraPopup.fit_p4.text()), float(self.extraPopup.fit_p5.text()),
+                               float(self.extraPopup.fit_p6.text()), float(self.extraPopup.fit_p7.text())]
+
+                if (DEBUG):
+                    print(self.fitpar)
+                
                 select = self.spectrum_list['names'] == histo_name
                 df = self.spectrum_list.loc[select]
                 ytmp = df.iloc[0]['data']
                 xmin, xmax = self.axislimits(ax)
-                if self.wConf.fit_range_min.text():
-                    xmin = float(self.wConf.fit_range_min.text())
-                if self.wConf.fit_range_max.text():
-                    xmax = float(self.wConf.fit_range_max.text())
+                if self.extraPopup.fit_range_min.text():
+                    xmin = float(self.extraPopup.fit_range_min.text())
+                if self.extraPopup.fit_range_max.text():
+                    xmax = float(self.extraPopup.fit_range_max.text())
                 if (DEBUG):
                     print("Sub range:", xmin, xmax)
                 # create new tmp list with subrange for fitting
@@ -2382,7 +2167,7 @@ class MainWindow(QMainWindow):
                 x = np.array(x)
                 y = np.array(y)
                 try:
-                    self.fitln = fit.start(x, y, xmin, xmax, ax, self.wConf.fit_results)
+                    self.fitln = fit.start(x, y, xmin, xmax, self.fitpar, ax, self.extraPopup.fit_results)
                 except:
                     pass
             else:
@@ -2396,7 +2181,7 @@ class MainWindow(QMainWindow):
     ############################
 
     def peakState(self, state):
-        for i, btn in enumerate(self.pPopup.peak_cbox):
+        for i, btn in enumerate(self.extraPopup.peak.peak_cbox):
             if btn.isChecked() == False:
                 try:
                     self.removePeak(i)
@@ -2409,22 +2194,21 @@ class MainWindow(QMainWindow):
                     self.isChecked[i] = True
 
         self.wPlot.canvas.draw()                
-                
-    def create_peak_signals(self):
-        for i in range(self.pPopup.npeaks):
+
+    def create_peak_signals(self, peaks):
+        for i in range(len(peaks)):
             self.isChecked[i] = False                    
-            self.pPopup.peak_cbox[i].stateChanged.connect(self.peakState)
-            self.pPopup.peak_cbox[i].setChecked(True)
+            self.extraPopup.peak.peak_cbox[i].stateChanged.connect(self.peakState)
+            self.extraPopup.peak.peak_cbox[i].setChecked(True)
             
     def update_peak_output(self, peaks, properties):
         for i in range(len(peaks)):
             s = "Peak"+str(i+1)+"\n\tpeak @ " + str(peaks[i])+", FWHM="+str(int(properties['widths'][i]))
-            self.pPopup.peak_results.append(s)
+            self.extraPopup.peak.peak_results.append(s)
 
     def peakAnalClear(self):
-        self.pPopup.peak_results.clear()
+        self.extraPopup.peak.peak_results.clear()
         self.removeAllPeaks()
-        self.pPopup.remove_peakChecks()
         self.resetPeakDict()
         
     def removePeak(self, i):
@@ -2445,27 +2229,14 @@ class MainWindow(QMainWindow):
         
     def removeAllPeaks(self):
         try:
-            for i in self.peak_pos:
-                self.pPopup.peak_cbox[i].setChecked(False)                                    
+            for i in range(len(self.peaks)):
+                self.extraPopup.peak.peak_cbox[i].setChecked(False)
+                self.isChecked[i] = False
         except:
             pass
 
-        self.resetPeakDict()
         self.wPlot.canvas.draw()
 
-    def allOn(self):
-        for i in self.peak_pos:
-            self.pPopup.peak_cbox[i].setChecked(False)                                    
-        
-    def showAll(self,b):
-        if b.text() == "Show Peaks":
-            if b.isChecked() == True:
-                if (DEBUG):
-                    print("all ON",self.isChecked)
-            else:
-                if (DEBUG):                
-                    print("all OFF",self.isChecked)                
-                
     def drawSinglePeaks(self, peaks, properties, data, index):
         a = None
         if self.isZoomed:
@@ -2480,7 +2251,7 @@ class MainWindow(QMainWindow):
 
     def analyzePeak(self):
         try:
-            width = int(self.pPopup.peak_width.text())
+            width = int(self.extraPopup.peak.peak_width.text())
             minx = self.get_histo_xmin(self.selected_plot_index)
             maxx = self.get_histo_xmax(self.selected_plot_index)
             binx = self.get_histo_xbin(self.selected_plot_index)
@@ -2489,29 +2260,39 @@ class MainWindow(QMainWindow):
             self.peaks, self.properties = find_peaks(self.dataw, prominence=1, width=width)
             
             self.update_peak_output(self.peaks, self.properties)
-
-            self.pPopup.npeaks = len(self.peaks)
-            self.pPopup.create_peakChecks()
-            self.create_peak_signals()
+            self.create_peak_signals(self.peaks)
 
         except:
             pass
 
-    # Popup command for Peak Finding
-    def peakPopup(self):
-        self.pPopup.show()
 
     ############################
     # 14) Clustering
     ############################                
 
     def initializeCluster(self):
+
+        self.clusterpts = []
+        self.clusterw = []                
+        
         # histo name
         name_histo = self.wConf.histo_list.currentText()
         # converts data to points
         select = self.spectrum_list['names'] == name_histo
         df = self.spectrum_list.loc[select]
         w = df.iloc[0]['data']
+        
+        # convert np array to matrix
+        m = np.asmatrix(w)
+
+        print(m.shape[0],m.shape[1])
+        
+        histo_minx = int(df.iloc[0]['minx'])
+        histo_maxx = int(df.iloc[0]['maxx'])
+        histo_binx = int(df.iloc[0]['binx'])-2
+        histo_miny = int(df.iloc[0]['miny'])
+        histo_maxy = int(df.iloc[0]['maxy'])
+        histo_biny = int(df.iloc[0]['biny'])-2
 
         a = None
         if self.isZoomed:
@@ -2521,65 +2302,62 @@ class MainWindow(QMainWindow):
 
         xmin, xmax = a.get_xlim()            
         ymin, ymax = a.get_ylim()
+        print(xmin, xmax, ymin, ymax)
+
         polygon = Polygon([(xmin,ymin), (xmax,ymin), (xmax,ymax), (xmin,ymax)])
         # remove the duplicated last vertex
         poly = polygon.xy[:-1]
         p = Path(poly)
 
         # set value for threshold and algo
-        self.old_threshold = self.clPopup.threshold_slider.value()
-        self.old_algo = self.clPopup.clusterAlgo.currentText()
+        self.old_threshold = self.extraPopup.imaging.threshold_slider.value()
+        self.old_algo = self.extraPopup.imaging.clusterAlgo.currentText()
+
+        print(histo_minx, histo_maxx, histo_binx, histo_miny, histo_maxy, histo_biny)
+
+        # convert bin coordinates to axis coordinates        
+        x, y = np.meshgrid(np.arange(histo_minx, histo_maxx, int((histo_maxx-histo_minx+1)/histo_binx), dtype=int),
+                           np.arange(histo_miny, histo_maxy, int((histo_maxy-histo_miny+1)/histo_biny), dtype=int)) # make a canvas with coordinates in bins
+        x, y = x.flatten(), y.flatten()
+        print(len(x),len(y))
+        points = np.vstack((x, y)).T
+        isInside = p.contains_points(points)
+
+        self.clusterpts = list(compress(points, isInside))
+        for point in self.clusterpts:
+            # convert x and y in bin units
+            x = int((point[0]-histo_minx)*(histo_binx/(histo_maxx-histo_minx)))
+            y = int((point[1]-histo_miny)*(histo_biny/(histo_maxy-histo_miny)))
+            #print(x,y)
+            val = m[(y,x)]
+            self.clusterw.append(val)
+
+        # creating masking list
+        mask_val = [int(self.extraPopup.imaging.threshold_slider.value())]*len(self.clusterpts)
+
+        mask = []
+        for x, y in zip(mask_val, self.clusterw):
+            if x < y:
+                mask.append(True)
+            else:
+                mask.append(False)                
+
+        if (DEBUG):                
+            print("before masking...")        
+            print(len(self.clusterpts), len(self.clusterw))                
+       
+        self.clusterpts = list(compress(self.clusterpts, mask))
+        self.clusterw = list(compress(self.clusterw, mask))
         
-        x = []
-        y = []
         if (DEBUG):
-            print("Filling points..")
-        self.fillPoints(w, x, y, self.points_w, self.points)
-
-        if (DEBUG):
-            print(self.points)
-        isInside = p.contains_points(self.points)
-        self.clusterpts = list(compress(self.points, isInside))
-        self.clusterw = list(compress(self.points_w, isInside))
-
-        if (DEBUG):        
+            print("after masking...")        
             print(len(self.clusterpts), len(self.clusterw))
             print(self.clusterpts[0:10], self.clusterw[0:10])
         
+        print("Done initializing cluster")
         self.isCluster = True
-        
+
     def analyzeCluster(self):
-        algo = self.clPopup.clusterAlgo.currentText()        
-        if self.isCluster == False or (self.old_threshold != self.clPopup.threshold_slider.value()):
-            self.start = time.time()
-            self.initializeCluster()
-            self.stop = time.time()
-            print("Time elapsed for initialization of clustering:", self.stop-self.start)
-
-        cluster_center=[]
-        nclusters = int(self.clPopup.clusterN.currentText())
-        algo = self.clPopup.clusterAlgo.currentText()
-
-        self.start = time.time()
-
-        a = None
-        if self.isZoomed:
-            a = plt.gca()
-        else:
-            a = self.select_plot(self.selected_plot_index)
-
-        config = self.factory._configs.get(algo)
-        print("ML algo config", config)
-        MLalgo = self.factory.create(algo, **config)
-        # add hooks for popup windows i.e. more arguments that won't be used
-        MLalgo.start(self.clusterpts, self.clusterw, nclusters, a, self.wPlot.figure)
-        self.stop = time.time()
-        print("Time elapsed for clustering:", self.stop-self.start)
-
-        self.wPlot.canvas.draw()
-
-    def thresholdFigure(self):
-        self.clPopup.threshold_label.setText("Threshold Level ({})".format(self.clPopup.threshold_slider.value()))
         try:
             a = None
             if self.isZoomed:
@@ -2587,29 +2365,76 @@ class MainWindow(QMainWindow):
             else:
                 a = self.select_plot(self.selected_plot_index)
 
-            self.plot_histogram(a, self.selected_plot_index,self.clPopup.threshold_slider.value())
+            # remove ellipses on plot if they exist
+            if a.patches:
+                a.patches = []
+                self.wPlot.canvas.draw()
+                
+            # check if new algo has been called 
+            algo = self.extraPopup.imaging.clusterAlgo.currentText()        
+            if (algo != self.old_algo):
+                self.isCluster = False
+
+            # initialization of the clusters (if needed)
+            if (self.isCluster == False or (self.old_threshold != self.extraPopup.imaging.threshold_slider.value())) and self.wConf.button2D.isChecked():
+                self.start = time.time()
+                self.initializeCluster()
+                self.stop = time.time()
+                print("Time elapsed for initialization of clustering:", self.stop-self.start)
+
+            cluster_center=[]
+            nclusters = int(self.extraPopup.imaging.clusterN.currentText())
+
+            self.start = time.time()
+
+            config = self.factory._configs.get(algo)
+            print("ML algo config", config)
+            MLalgo = self.factory.create(algo, **config)
+            # add hooks for popup windows i.e. more arguments that won't be used
+            MLalgo.start(self.clusterpts, self.clusterw, nclusters, a, self.wPlot.figure)
+
+            self.stop = time.time()
+            print("Time elapsed for clustering:", self.stop-self.start)
+
+            self.wPlot.canvas.draw()
+        except:
+            QMessageBox.about(self, "Warning", "Is it a 2D histogram?")
+            
+    def thresholdFigure(self):
+        self.extraPopup.imaging.threshold_label.setText("Threshold Level ({})".format(self.extraPopup.imaging.threshold_slider.value()))
+        try:
+            a = None
+            if self.isZoomed:
+                a = plt.gca()
+            else:
+                a = self.select_plot(self.selected_plot_index)
+
+            self.plot_histogram(a, self.selected_plot_index,self.extraPopup.imaging.threshold_slider.value())
             self.wPlot.canvas.draw()
         except:
             pass
 
-    # Popup command for Clustering/Image overlay
-    def clusterPopup(self):
-        self.clPopup.show()
-        
     ############################
     # 15) Overlaying pic
     ############################                
-        
+
+    def openFigureDialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Image Files (*.png *.jpg);;All Files (*)", options=options)
+        if fileName:
+            return fileName
+    
     def loadFigure(self):
-        try:
-            fileName, _ = self.openLoadFileNameDialog()
-            if (filename):
-                self.LISEpic = cv2.imread(fileName)
-                cv2.resize(self.LISEpic, (200, 100))
-                self.clPopup.loadLISE_name.setText(fileName)
-        except:
-            pass
-                
+        fileName = self.openFigureDialog()
+        self.extraPopup.imaging.loadLISE_name.setText(fileName)
+        print(fileName)
+        if os.path.isfile(fileName):
+            self.LISEpic = cv2.imread(fileName, 0)
+            cv2.resize(self.LISEpic, (200, 100))
+        else:
+            print ("The file " + fileName + " does not exist.")
+        
     def fineUpMove(self):
         self.imgplot.remove()        
         self.ystart += 0.002
@@ -2632,17 +2457,17 @@ class MainWindow(QMainWindow):
         
     def moveFigure(self):
         if (DEBUG):
-            print(self.clPopup.joystick.direction, self.clPopup.joystick.distance)
+            print(self.extraPopup.imaging.joystick.direction, self.extraPopup.imaging.joystick.distance)
         try:
             self.imgplot.remove()        
-            if self.clPopup.joystick.direction == "up":
-                self.ystart += self.clPopup.joystick.distance*0.03
-            elif self.clPopup.joystick.direction == "down":
-                self.ystart -= self.clPopup.joystick.distance*0.03
-            elif self.clPopup.joystick.direction == "left":
-                self.xstart -= self.clPopup.joystick.distance*0.03
+            if self.extraPopup.imaging.joystick.direction == "up":
+                self.ystart += self.extraPopup.imaging.joystick.distance*0.03
+            elif self.extraPopup.imaging.joystick.direction == "down":
+                self.ystart -= self.extraPopup.imaging.joystick.distance*0.03
+            elif self.extraPopup.imaging.joystick.direction == "left":
+                self.xstart -= self.extraPopup.imaging.joystick.distance*0.03
             else:
-                self.xstart += self.clPopup.joystick.distance*0.03        
+                self.xstart += self.extraPopup.imaging.joystick.distance*0.03        
             self.drawFigure()
         except:
             pass
@@ -2660,10 +2485,10 @@ class MainWindow(QMainWindow):
         self.ystart = 1-ystart
         
     def drawFigure(self):
-        self.alpha = self.clPopup.alpha_slider.value()/10
-        self.zoomX = self.clPopup.zoomX_slider.value()/10
-        self.zoomY = self.clPopup.zoomY_slider.value()/10        
-
+        self.alpha = self.extraPopup.imaging.alpha_slider.value()/10
+        self.zoomX = self.extraPopup.imaging.zoomX_slider.value()/10
+        self.zoomY = self.extraPopup.imaging.zoomY_slider.value()/10        
+        
         ax = plt.axes([self.xstart, self.ystart, self.zoomX, self.zoomY], frameon=True)
         ax.axis('off') 
         self.imgplot = ax.imshow(self.LISEpic,
@@ -2678,7 +2503,7 @@ class MainWindow(QMainWindow):
         self.wPlot.canvas.draw()
 
     def transFigure(self):
-        self.clPopup.alpha_label.setText("Transparency Level ({} %)".format(self.clPopup.alpha_slider.value()*10))
+        self.extraPopup.imaging.alpha_label.setText("Transparency Level ({} %)".format(self.extraPopup.imaging.alpha_slider.value()*10))
         try:
             self.deleteFigure()
             self.drawFigure()
@@ -2686,7 +2511,7 @@ class MainWindow(QMainWindow):
             pass
 
     def zoomFigureX(self):
-        self.clPopup.zoomX_label.setText("Zoom X Level ({} %)".format(self.clPopup.zoomX_slider.value()*10))
+        self.extraPopup.imaging.zoomX_label.setText("Zoom X Level ({} %)".format(self.extraPopup.imaging.zoomX_slider.value()*10))
         try:
             self.deleteFigure()
             self.drawFigure()
@@ -2694,7 +2519,7 @@ class MainWindow(QMainWindow):
             pass
 
     def zoomFigureY(self):
-        self.clPopup.zoomY_label.setText("Zoom Y Level ({} %)".format(self.clPopup.zoomY_slider.value()*10))
+        self.extraPopup.imaging.zoomY_label.setText("Zoom Y Level ({} %)".format(self.extraPopup.imaging.zoomY_slider.value()*10))
         try:
             self.deleteFigure()
             self.drawFigure()
@@ -2704,23 +2529,12 @@ class MainWindow(QMainWindow):
     def addFigure(self):
         try:
             self.indexToStartPosition(self.selected_plot_index)
-
             if self.onFigure == False:
                 self.drawFigure()
                 self.onFigure = True
         except:
-            pass
-            
-    def openLoadFileNameDialog(self):
-        try:
-            options = QFileDialog.Options()
-            options |= QFileDialog.DontUseNativeDialog
-            fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Image Files (*.png *.jpg);;All Files (*)", options=options)
-            if fileName:
-                return fileName
-        except:
-            pass
-            
+            QMessageBox.about(self, "Warning", "Please select one histogram...")
+                
     ############################
     # 16) Jupyter Notebook
     ############################                    
@@ -2740,15 +2554,15 @@ class MainWindow(QMainWindow):
         self.spectrum_list = self.spectrum_list.drop('data', 1)
         self.spectrum_list['data'] = np.array(data_to_list)
 
-        self.spectrum_list.to_csv(self.wConf.jup_df_filename.text())
+        self.spectrum_list.to_csv(self.extraPopup.peak.jup_df_filename.text())
     
     def jupyterStop(self):
         # stop the notebook process
         log("Sending interrupt signal to jupyter-notebook")
-        self.wConf.jup_start.setEnabled(True)
-        self.wConf.jup_stop.setEnabled(False)        
-        self.wConf.jup_start.setStyleSheet("background-color:#3CB371;")
-        self.wConf.jup_stop.setStyleSheet("")        
+        self.extraPopup.peak.jup_start.setEnabled(True)
+        self.extraPopup.peak.jup_stop.setEnabled(False)        
+        self.extraPopup.peak.jup_start.setStyleSheet("background-color:#3CB371;")
+        self.extraPopup.peak.jup_stop.setStyleSheet("")        
         stopnotebook()
 
     def jupyterStart(self):
@@ -2809,10 +2623,10 @@ class MainWindow(QMainWindow):
         # resume regular logging
         setup_logging(logfile)
         
-        self.wConf.jup_start.setEnabled(False)
-        self.wConf.jup_stop.setEnabled(True)        
-        self.wConf.jup_start.setStyleSheet("")        
-        self.wConf.jup_stop.setStyleSheet("background-color:#DC143C;")
+        self.extraPopup.peak.jup_start.setEnabled(False)
+        self.extraPopup.peak.jup_stop.setEnabled(True)        
+        self.extraPopup.peak.jup_start.setStyleSheet("")        
+        self.extraPopup.peak.jup_stop.setStyleSheet("background-color:#DC143C;")
 
     #######################
     # 17) Misc Tools
@@ -2838,19 +2652,6 @@ class MainWindow(QMainWindow):
         rec = plot.add_patch(rec)
         rec.set_clip_on(False)        
         return rec
-
-    # hide/show configuration of the canvas
-    def configure(self):
-        if (DEBUG):
-            print("clicked configure")
-        try:
-            if self.wConf.isVisible():
-                self.wConf.hide()
-            else:
-                #self.clearAllGate()
-                self.wConf.show()
-        except Exception as e:
-            print(e)
 
     def change_bkg(self):
         if any(x == 2 for x in self.h_dim) == True:
@@ -2883,18 +2684,9 @@ class MainWindow(QMainWindow):
     def create_disable2D(self, value):
         if value==True:
             self.wConf.listParams[1].setEnabled(False)
-            self.wConf.listParams_low[1].setText("")
-            self.wConf.listParams_low[1].setReadOnly(True)
-            self.wConf.listParams_high[1].setText("")
-            self.wConf.listParams_high[1].setReadOnly(True)
-            self.wConf.listParams_bins[1].setText("")
-            self.wConf.listParams_bins[1].setReadOnly(True)            
         else:
             self.wConf.listParams[1].setEnabled(True)
-            self.wConf.listParams_low[1].setReadOnly(False)
-            self.wConf.listParams_high[1].setReadOnly(False)            
-            self.wConf.listParams_bins[1].setReadOnly(False)
-
+            
     def checkVersion(self, version):
         l = [int(x, 10) for x in version.split('.')]
         l.reverse()

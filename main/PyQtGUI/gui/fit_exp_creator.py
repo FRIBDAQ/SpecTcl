@@ -20,8 +20,21 @@ class ExpFit:
         return a+b*np.exp(x*c)
         
     # implementation of the fitting algorithm
-    def start(self, x, y, xmin, xmax, axis, fit_results):
+    def start(self, x, y, xmin, xmax, fitpar, axis, fit_results):
         fitln = None
+        if (fitpar[0] != 0.0):
+            self.a = fitpar[0]
+        else:
+            self.a = 1
+        if (fitpar[1] != 0.0):
+            self.b = fitpar[1]
+        else:
+            self.b = 5
+        if (fitpar[2] != 0.0):
+            self.c = fitpar[2]
+        else:
+            self.c = -1
+
         p_init = [self.a, self.b, self.c]
         popt, pcov = curve_fit(self.exp, x, y, p0=p_init, maxfev=5000)
 
