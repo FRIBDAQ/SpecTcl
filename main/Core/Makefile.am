@@ -9,6 +9,9 @@ libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 
 COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
 
+NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
+NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
+
 Tcp_SRC = io.cpp  os.cpp \
 	CSocket.cpp         \
            CSocket.h  \
@@ -117,16 +120,16 @@ Filter_SRC =  EventFilter.cpp \
 	CXdrFilterOutputStageCreator.cpp
 
 Filter_INCLUDES = EventFilter.h \
-								 FilterDictionary.h  \
-								 FilterEventProcessor.h \
-								 FilterBufferDecoder.h \
-								 GatedEventFilter.h    \
-								 CXdrOutputStream.h CXdrInputStream.h \
-								 CXdrMemInputStream.h	\
-								 CFilterOutputStage.h CXdrFilterOutputStage.h \
-								 CFilterOutputStageFactory.h \
-								 CFilterOutputStageCreator.h \
-								 CXdrFilterOutputStageCreator.h
+		 FilterDictionary.h  \
+		FilterEventProcessor.h \
+		 FilterBufferDecoder.h \
+		 GatedEventFilter.h    \
+		 CXdrOutputStream.h CXdrInputStream.h \
+		 CXdrMemInputStream.h	\
+		 CFilterOutputStage.h CXdrFilterOutputStage.h \
+		 CFilterOutputStageFactory.h \
+		 CFilterOutputStageCreator.h \
+		 CXdrFilterOutputStageCreator.h
 
 Fits_SRC = CFit.cpp		\
 			CFitCreator.cpp		\
@@ -353,7 +356,8 @@ libTclGrammerApp_la_SOURCES = $(DecoderRing_SRC) \
 				$(SpectrumIO_SRC) \
 				$(TreeParam_SRC) \
 				$(Xamine_SRC) \
-				$(Mirror_Src) 
+				$(Mirror_Src)  \
+				$(NewAnalysis_SRC)
 
 # Removed -I@top_srcdir@/Tape
 
@@ -392,7 +396,8 @@ include_HEADERS = 		$(DecoderRing_INCLUDES) \
 				$(SpectrumIO_INCLUDES) \
 				$(TreeParam_INCLUDES) \
 				$(Xamine_INCLUDES) \
-				$(Mirror_Includes)
+				$(Mirror_Includes) \
+				$(NewAnalysis_INCLUDES)
 
 noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) 
 
