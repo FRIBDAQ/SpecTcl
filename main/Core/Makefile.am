@@ -214,8 +214,6 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	TCLAnalyzer.cpp EventProcessor.cpp \
 	TclGrammerApp.cpp \
 	Globals.cpp FilterCommand.cpp \
-	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
-	DocumentationException.cpp DocumentationCallback.cpp \
 	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
 	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
 	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
@@ -238,7 +236,6 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	TCLAnalyzer.h TCLHistogrammer.h TclGrammerApp.h \
 	UnbindCommand.h UngateCommand.h WriteCommand.h \
 	FilterCommand.h \
-	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
 	IntegrateCommand.h RingFormatCommand.h VersionCommand.h SContentsCommand.h \
@@ -400,7 +397,7 @@ include_HEADERS = 		$(DecoderRing_INCLUDES) \
 noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) 
 
 
-noinst_PROGRAMS =   docbuftests spectrumPkgTests \
+noinst_PROGRAMS =    spectrumPkgTests \
 					displayInterfaceTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
