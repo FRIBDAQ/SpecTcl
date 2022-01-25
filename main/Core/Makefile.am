@@ -36,27 +36,6 @@ Mirror_Src = MirrorDirectory.h MirrorDirectory.cpp \
 Mirror_Includes = MirrorMessages.h io.h os.h
 
 
-Analysis_SRC =  CBufferCallbackList.cpp \
-	CBufferProcessor.cpp         \
-	CLanguageCallback.cpp        \
-	CStandardControlCallback.cpp \
-	CStandardScalerCallback.cpp  \
-	BufferAnalysis.cpp		\
-	CAnalysisBase.cpp \
-	CAnalysisEventProcessor.cpp
-
-Analysis_INCLUDES =  CBufferCallback.h \
-	CBufferCallbackList.h       \
-	CBufferProcessor.h          \
-	CLanguageCallback.h         \
-	CStandardControlCallback.h  \
-	CStandardScalerCallback.h   \
-	SRunContext.h	            \
-	BufferAnalysis.h	\
-	CAnalysisBase.h \
-	CAnalysisEventProcessor.h 
-
-
 DecoderRing_SRC = CRingBufferDecoder.cpp \
 		RingFormatHelper.cpp \
 		RingFormatHelper10.cpp \
@@ -363,8 +342,7 @@ Xamine_INCLUDES = ButtonEvent.h XamineGate.h Point.h Xamine1D.h Xamine2D.h \
 	XamineShMemDisplayImpl.h
 
 
-libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
-				$(DecoderRing_SRC) \
+libTclGrammerApp_la_SOURCES = $(DecoderRing_SRC) \
 				$(DisplayInterface_SRC) \
 				$(Events_SRC) \
 				$(EventSource_SRC) \
@@ -403,8 +381,7 @@ libTclGrammerApp_la_DEPENDENCIES=@builddir@/libSpecTclTcp.la
 libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 -lgsl -lgslcblas -lm
 
 
-include_HEADERS = $(Analysis_INCLUDES) \
-				$(DecoderRing_INCLUDES) \
+include_HEADERS = 		$(DecoderRing_INCLUDES) \
 				$(DisplayInterface_INCLUDES) \
 				$(Events_INCLUDES) \
 				$(EventSource_INCLUDES) \
@@ -423,7 +400,7 @@ include_HEADERS = $(Analysis_INCLUDES) \
 noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) 
 
 
-noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
+noinst_PROGRAMS =   docbuftests spectrumPkgTests \
 					displayInterfaceTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
@@ -456,22 +433,11 @@ caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp \
 caendpptests_CXXFLAGS= $(commonTestCXXFLAGS)
 caendpptests_LDADD   = $(commonTestLdFlags)
 
-scalertests_CXXFLAGS = $(commonTestCXXFLAGS)
-scalertests_LDADD    = $(commonTestLdFlags)
-scalertests_SOURCES  = TestRunner.cpp \
-			 scalercallbacktests.cpp 	\
-			 controlcallbacktests.cpp
 
 gateTests_CXXFLAGS = $(commonTestCXXFLAGS)
 gateTests_LDADD    = $(commonTestLdFlags)
 gateTests_SOURCES  = TestRunner.cpp gateTests.cpp
 
-
-docbuftests_CXXFLAGS = $(commonTestCXXFLAGS)
-docbuftests_LDADD    = $(commonTestLdFlags)
-docbuftests_SOURCES  = TestRunner.cpp \
-			docexceptiontests.cpp \
-			callbacktests.cpp
 
 spectrumPkgTests_CXXFLAGS = $(commonTestCXXFLAGS)
 spectrumPkgTests_LDADD    = $(commonTestLdFlags)
@@ -544,7 +510,7 @@ mirrortests_SOURCES = TestRunner.cpp mdirtests.cpp servertests.cpp \
 	mservertests.cpp mirrorcmdtests.cpp
 
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
-TESTS = gateTests scalertests docbuftests spectrumPkgTests displayInterfaceTests \
+TESTS = gateTests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests fragIndexTests caendpptests \
 	mirrortests 
