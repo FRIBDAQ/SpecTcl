@@ -338,7 +338,7 @@
         version was introduced by Daniel Bazin to attach additiona meta data
         to parameters and to allow parameters to be organized into structures
         that better reflect the organization of the experiment being analyzed.
-        The tree paramter subsystem was adopted by SpecTcl and is now supported
+        The tree parameter subsystem was adopted by SpecTcl and is now supported
         software.
     </para>
     <para>
@@ -600,7 +600,7 @@ public:
                     </para>
                     <para>
                         The <parameter>rAnalyzer</parameter> and
-                        <parameter>rDecoder</parameter> paramters are references
+                        <parameter>rDecoder</parameter> parameters are references
                         to the analyzer and buffer decoder objects respectively.
                         The services these objects offer will be described in
                         <link linkend='chap.dataformat' endterm='chap.dataformat.title' />.
@@ -1319,7 +1319,7 @@ MyEventProcessor::operator()(
             </callout>
             <callout arearefs='evp.fcncomputedparam'>
                 <para>
-                    The sum an only be computed if both of the paramters it
+                    The sum an only be computed if both of the parameters it
                     depends on have been given values in this event.  It's a
                     common problem in SpecTcl event processors not to perform
                     this sort of check.  If we attemted to perform this sum
@@ -1956,6 +1956,650 @@ CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
                 result in a SpecTcl instance that can analyze filter files.
             </para>
         </example>
+    </section>
+    <section>
+        <title>"Using the callout analysis framework</title>
+        <para>
+            This section describes a framework for analysis that does a lot of
+            the nitty gritty decoding work for you, passing pre-digested data
+            to callback methods of classes you write.  This software was
+            introduced in SpecTcl 5.10-008 and, at this time can handle data
+            from all versions of NSCLDAQ up through 11.4.
+        </para>
+        <para>
+            Note that this software may not be suitable for use with event built
+            data since it is blind to body headers when used with NSCLDAQ-11.
+        </para>
+        <para>
+            For detailed reference information, see <classname>CAnalysisEventProcessor</classname>
+            and <classname>CAnalysisBase</classname> in the programming
+            reference manual.
+        </para>
+        <section>
+            <title>The Struture of the callout analysis software</title>
+            <para>
+                The callout
+                analysis software consists of an event processor that decodes
+                what it can from items that are not event data.  Each item decoded
+                then calls a method in an analysis object that is passed into
+                the event processor at creation time.
+            </para>
+            <para>
+                The code fragment below gives a more concrete example of what
+                I mean.  It would be placed in your <filename>MySpecTclApp.cpp</filename>
+                file:
+            </para>
+            <example>
+                <title>Idea of the callback analysis framework</title>
+                <programlisting>
+#include &lt;CAnalysisEventProcessor.h&gt;   <co id='cba.eventprocessorheader' />
+#include &lt;CAnalysisBase.h&gt;             <co id='cba.analysisbaseheader' />
+
+...
+class MyCallbackClass : public CAnalysisBase  <co id='cba.usercallbackfragment' />
+{
+...
+};
+...
+void CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
+{
+    ...
+    auto callbacks = new MyCallbackClass;    <co id='cba.instantiatecb' />
+    auto processor = new CAnalysisEventProcessor(callbacks); <co id='cba.instantiateevp' />
+    RegisterEventProcessor(*processor, "callback-processor");  <co id='cba.registerevp' />
+    ...
+    
+}
+                </programlisting>
+            </example>
+            <para>
+                Lets' go through this code fragment step-by-step.
+            </para>
+            <calloutlist>
+                <callout arearefs='cba.eventprocessorheader' >
+                    <para>
+                        This #include pulls in the class definition for
+                        <classname>CAnalysisEventProcessor</classname>. This defines
+                        the event processor class that runs the callback framework.
+                        Note that while this example only shows a single instantiation
+                        of this event processor, there's nothing to stop you from defining
+                        several callback classes and instantiating one event processor
+                        for each of them.
+                    </para>
+                </callout>
+                <callout arearefs='cba.analysisbaseheader' >
+                    <para>
+                        Instantiates the base class,
+                        <classname>CAnalysisBase</classname>,
+                        from which all callback
+                        classes must be built.  Callback classes contain the
+                        code that actually analyzes the data that
+                        <classname>CAnalysiysEventProcessor</classname> pulls out of
+                        each ring item.
+                    </para>
+                </callout>
+                <callout arearefs='cba.usercallbackfragment' >
+                    <para>
+                        In order to use the framework, you'll normally have to
+                        define a class that implements the callbacks for the
+                        type of data you want to look at.  This means
+                        deriving a class from the <classname>CAnalysis</classname>
+                        base class.  This class could (and should) be defined
+                        in header files and external program modules.  Here we
+                        should it in <filename>MySpecTclApp.cpp</filename>
+                        to simplify the example.
+                    </para>
+                </callout>
+                <callout arearefs='cba.instantiatecb' >
+                    <para>
+                        In <methodname>CreateAnalysisPipeline</methodname>,
+                        you'll create a callback object....
+                    </para>
+                </callout>
+                <callout arearefs='cba.instantiateevp' >
+                    <para>
+                        ...Then you'll create an analysis event processor
+                        providing your callback object as a construtor parameter.
+                    </para>
+                </callout>
+                <callout arearefs='cba.registerevp' >
+                    <para>
+                        Finally, you'll register the event processor in the
+                        analysis pipeline at the appropriate position and, when data
+                        are analyzed the implemented methods of your callback object
+                        will be called by the event processor it's attached to.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                To conclude this section, lets' look at the callback methods you can
+                implement, their parameterization and the sorts of error conditions
+                you can signal from your callbacks.  Note that the base class,
+                <classname>CAnalysisBase</classname> implements all of these
+                callback methods to do nothing.   You therefore only need
+                to provide methods that you need.
+            </para>
+            <para>
+                State change items document the start, stop, pause and resumption
+                of a run.  when encountered, the event processor will decode them
+                and call the <methodname>onStateChange</methodname> method.
+                The signature of this method is:
+            </para>
+            <example>
+                <title>onStateChange method signature</title>
+                <programlisting>
+ virtual void onStateChange(
+        StateChangeType type, int runNumber, time_t absoluteTime, float runTime,
+        std::string title, void* clientData
+);
+
+
+                </programlisting>
+            </example>
+            <variablelist>
+                <varlistentry>
+                   <term><type>CAnalysisBase::StateChangeType</type> <parameter>type</parameter></term>
+                   <listitem>
+                       <para>
+                        Is defined in the <classname>CAnalysisBase</classname>
+                        class and has one of the values
+                        <literal>Begin</literal>, <literal>End</literal>,
+                        <literal>Pause</literal> or <literal>Resume</literal>
+                        indicating the type of state change that took place.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>int</type> <parameter>runNumber</parameter></term>
+                   <listitem>
+                       <para>
+                        Is the run number of the run whose state is changing.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>time_t</type> <parameter>absoluteTime</parameter></term>
+                   <listitem>
+                       <para>
+                        Is the linux time of day at which the state change
+                        was logged.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>float</type> <parameter>runTime</parameter></term>
+                   <listitem>
+                       <para>
+                        Is the number of seconds into the run at which the
+                        statechange occured.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>std::string</type> <parameter>title</parameter></term>
+                   <listitem>
+                       <para>
+                        Is the title of the run that underwent the state change.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>void*</type> <parameter>clientData</parameter></term>
+                   <listitem>
+                       <para>
+                        Is additional data that is passed by the event processor.
+                        This actually points to a
+                        <classname>CAnalysisEventProcessor::ClientData</classname>
+                        struct which contais the members <structfield>s_pUserData</structfield>,
+                        that contains optional user data passed to tyhe analysis event processor
+                        when it was constructed and <structfield>s_pCaller</structfield>
+                        which is a pointer to the <classname>AnalysisEventProcessor</classname>
+                        calling the callback.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                When a scaler item is encountered, the event processor calls
+                <methodname>onScalers</methodname> which has the following
+                signature:
+            </para>
+            <example>
+                <title>onScalers callback signagure</title>
+                <programlisting>
+virtual void onScalers(
+        time_t absoluteTime, float startOffset, float endOffset,
+        std::vector&lt;unsigned&gt; scalers, bool incremental, void* clientData
+);                    
+                </programlisting>
+            </example>
+            <para>
+                The parameters have the following meaning.
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><type>time_t</type> <parameter>absoluteTime</parameter></term>
+                   <listitem>
+                       <para>
+                        The absolute time at which the data were generated.
+                        The various Unix time functions can be used to manipulate
+                        this value.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>float</type> <parameter>startOffset</parameter></term>
+                   <listitem>
+                       <para>
+                        Number of seconds into the run at which this counting interval
+                        started.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>float</type> <parameter>endOffset</parameter></term>
+                   <listitem>
+                       <para>
+                        Number of seconds into the run at which this counting interval
+                        ended.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>std::vector&lt;unsigned&gt;</type> <parameter>scalers</parameter></term>
+                   <listitem>
+                       <para>
+                        The scalers extracted from the item.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>bool</type> <parameter>incremental</parameter></term>
+                   <listitem>
+                       <para>
+                        Flag that, if true, indicates the scalers are incremental
+                        rather than cumulative.  Most NSCLDAQ systems use incremental
+                        scalers to reducd the chances of having to deal with
+                        scaler overflows.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>void* </type><parameter>clientData</parameter></term>
+                   <listitem>
+                       <para>
+                        Additional data.  See <methodname>onStateChange</methodname>
+                        for more about what this points to.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Some item types contain lists of string data.  These data types
+                have an enumerated type in <classname>CAnalysisBase</classname>
+                that describes the types of items that are string lists;
+                <literal>PacketTypes</literal> in the sbs readout, the documented
+                data packet types, <literal>MonitoredVariables</literal> the set
+                of Tcl variables being monitored. <literal>RunVariables</literal>
+                the set of variables that are readonly during a run.
+            </para>
+            <para>
+                When a stringlist item type is encountered, <methodname>onStringLists</methodname>
+                is invoked.  It has the following method signature.
+            </para>
+            <example>
+                <title>The onStringLists method signature</title>
+                <programlisting>
+virtual void onStringLists(
+        StringListType type, time_t absoluteTime, float runTime,
+        std::vector&lt;std::string&gt; strings, void* clientData
+);
+
+                </programlisting>
+            </example>
+            <para>Where:</para>
+            
+            <variablelist>
+                <varlistentry>
+                   <term><type>CAnalysisBase::StringListType</type> <parameter>type</parameter></term>
+                   <listitem>
+                       <para>
+                        The type of the item.  See above.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>time_t</type> <parameter>absoluteTime</parameter></term>
+                   <listitem>
+                       <para>
+                        The wall clock time and date at which the entry was made.
+                        The Unix time manipulation functions can be used with this
+                        type.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>float</type> <parameter>runTime</parameter></term>
+                   <listitem>
+                       <para>
+                        Number of seconds into the run at which this
+                        item was created.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>std::vector&lt;std::string&gt;</type> <parameter>strings</parameter></term>
+                   <listitem>
+                       <para>
+                        The strings in the item.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><type>void*</type> <parameter>clientData</parameter></term>
+                   <listitem>
+                       <para>
+                        Additional data.  See the description of
+                        <methodname>onStateChange</methodname> for a descrption
+                        of this parameter.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                onEvent is called when a physics event is encountered.  The signature
+                of that method is:
+            </para>
+            <example>
+                <title>onEvent method signature</title>
+                <programlisting>
+virtual unsigned onEvent(void* pEvent, void* clientData)                    
+                </programlisting>
+            </example>
+            <para>
+                <parameter>pEvent</parameter> is the pointer to the event as it
+                was passed to the event processor's <methodname>operator()</methodname>.
+                <parameter>clientData</parameter> is additional data described in
+                <methodname>onStateChange</methodname>.
+            </para>
+            <para>
+                The base class <classname>CAnalysisBase</classname> provides
+                two exception types that can be thrown and are handled by the
+                event processor.  These are derived from <classname>std::runtime_error</classname>
+                and, are constructed with a reference to a <classname>std::string</classname>
+                message.
+            </para>
+            <para>
+                If <classname>CAnalysisBase::NonFatalException</classname> is thrown,
+                the event processing pipeline is aborted with the message provided
+                displayed on stderr.  Processing continues with the next item.
+                As the name implies, if <classname>CAnalysisBase::FatalException</classname>
+                is throw, the message is displayed to stderr and SpecTcl exits.
+            </para>
+        </section>
+        <section>
+            <title>Using the callout analysis software to maintain scaler information</title>
+            <para>
+                A pre-packaged call-out class for the callout analysis framework
+                is provided in SpecTcl 5.10-008 and later.  This framework
+                maintains a set of SpecTcl Tcl interpreter variables that
+                reflect scaler values for the run being analyzed.  It was
+                initially developed for a group that wanted to integrate the
+                scaler display program with SpecTcl.
+            </para>
+            <para>
+                This section describes:
+            </para>
+            <itemizedlist>
+                <listitem>
+                   <para>
+                      How to set up your SpecTcl to use this scaler
+                      callout class.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      The Tcl variables maintained by the scaler callout processor 
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      The limitations of the scaler callout processor. 
+                   </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                The procedure for using the scaler callout
+                class is identical to the procedure for using any other
+                callout
+                analysis class.  Below we show code fragments in
+                <filename>MySpecTclApp</filename> that show how to do this:
+            </para>
+            <example>
+                <title>Using the Scaler callback analysis class</title>
+                <programlisting>
+#include &lt;CAnalysisEventProcessor.h&gt;
+#include &lt;CScalerProcessor.h&gt;        <co id='sccb.scalerprocessorhdr' />
+#include &lt;SpecTcl.h&gt;                 <co id='sccb.apihdr' />
+...
+void CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
+{
+    ...
+    auto pApi = SpecTcl::getInstance();     <co id='sccb.getinterp' />
+    auto pInterp  = pApi->getInterpreter();
+    auto pScalerProcessor = new ScalerProcessor(*pInterp);  <co id='sccb.instantiate1' />
+    auto processor = new CAnalyayisEventProcessor(pScalerProcessor); <co id='sccb.instantiate2'/>
+    RegisterEventProcessor(*processor, "Scaler-analyzer");  <co id='sccb.register' />
+    
+    ...
+}
+
+                </programlisting>
+            </example>
+            <para>
+                While this exacmpe is relatively simple, let's go through
+                it step-by-step.
+            </para>
+            <calloutlist>
+                <callout arearefs='sccb.scalerprocessorhdr' >
+                    <para>
+                        The <filename>CScalerProcessor.h</filename>
+                        header defines <classname>ScalerProcessor</classname>
+                        which is the callout
+                        processor that we want to use with the callout
+                        event processor.
+                    </para>
+                </callout>
+                <callout arearefs='sccb.apihdr' >
+                    <para>
+                        In order to maintain Tcl variables, the
+                        <classname>ScalerProcessor</classname> will need
+                        the SpecTcl interpreter.  This can be gotten
+                        via the SpecTcl API.  Therefore we include
+                        the API's header here.
+                    </para>
+                </callout>
+                <callout arearefs='sccb.getinterp' >
+                    <para>
+                        This line and the next obtain a pointer to the
+                        SpecTcl API singleton and use it to get a pointer
+                        to the SpecTcl interpreter.
+                    </para>
+                </callout>
+                <callout arearefs='sccb.instantiate1' >
+                    <para>
+                        As we did in our generic example, we instantiate
+                        our callout
+                        processor (<classname>ScalerProcessor</classname>
+                        is derived from <classname>CAnalysisBase</classname>
+                        so it can be used directly).
+                    </para>
+                </callout>
+                <callout arearefs='sccb.instantiate2' >
+                    <para>
+                        As in our generic example, we instantiate
+                        the event processor passing it a pointer to our
+                        callout
+                        processor.
+                    </para>
+                </callout>
+                <callout arearefs='sccb.register' >
+                    <para>
+                        Finally the event processor is registered
+                        in the SpecTcl data analysis pipeline.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                When the Scaler callout
+                processor has been registered as shown in the previous
+                example, when analyzing data, the following
+                Tcl global variables will be maintained. Furtheremore,
+                A set of Tcl <command>proc</command>s must be defined
+                and will be called at specific points in analysis.
+            </para>
+            <variablelist>
+                <title>Tcl variables maintained</title>
+                <varlistentry>
+                   <term><varname>RunNumber</varname></term>
+                   <listitem>
+                       <para>
+                        State transition items will extract the run
+                        number and store it in this variable.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><varname>ElapsedRunTime</varname></term>
+                   <listitem>
+                       <para>
+                            When processing items that provide the
+                            elapsed run time, this variable is updated
+                            with the number of seconds into the run
+                            specified by that time.  Note that this
+                            is a floating point value as NSCLDAQ-11
+                            provides support for sub-second precision.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><varname>RunTitle</varname></term>
+                   <listitem>
+                       <para>
+                        The titles in state transition items are extracted
+                        and stored in this variable.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><varname>ScalerRunState</varname></term>
+                   <listitem>
+                       <para>
+                        State transition items update the value of this
+                        variable to reflect the state of the run.  This
+                        variable will have a value that is one of
+                        <literal>Active, Halted, Paused</literal>.
+                       </para>
+                       <para>
+                        I would expect that <literal>Paused</literal>
+                        will be the case for only a very short time in
+                        properly ended runs  as it's item should be
+                        immediately followed by a resume item which
+                        would switch the value back to <literal>Active</literal>
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><varname>ScalerDeltaTime</varname></term>
+                   <listitem>
+                       <para>
+                        Processing of scaler items will compute the length of time
+                        over which the scalers counted to produce that
+                        item.  This will be stored (in seconds) in
+                        this variable.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><varname>Scaler_Increments(i)</varname></term>
+                   <listitem>
+                       <para>
+                        When a scaler item is processed, this variable
+                        will be updated with the counts in scaler
+                        <literal>i</literal> stored in that item.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><varname>Scaler_Totals(i)</varname></term>
+                   <listitem>
+                       <para>
+                        These variabls are zeroed on begin run
+                        transitions and store running sums of
+                        the scaler values over all scaler items seen
+                        so far.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The scaler callout
+                processor expects several Tcl procs to be defined and
+                calls them without any parameters at specific points
+                in processing.  All procs are called after the Tcl
+                variables updated by item processing has been completed.
+                There is no requirement these procs do anything but they
+                <emphasis>must</emphasis> be defined.
+                These procs are:
+            </para>
+            <variablelist>
+                <title>Tcl procs called.</title>
+                <varlistentry>
+                   <term><command>BeginRun</command></term>
+                   <listitem>
+                       <para>
+                        Called when a begin run state change item
+                        has been processed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><command>EndRun</command></term>
+                   <listitem>
+                       <para>
+                        Called when an end run state change item has been
+                        processed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><command>PauseRun</command></term>
+                   <listitem>
+                       <para>
+                        Called when a pause run state change item has been
+                        processed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><command>ResumeRun</command></term>
+                   <listitem>
+                       <para>
+                        Called when a resume run state change item has been
+                        processed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><command>Update</command></term>
+                   <listitem>
+                       <para>
+                        Called when a scaler item has been processed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </section>
 </chapter>
 <chapter id='chap.spectclapi'>
@@ -7022,7 +7666,7 @@ public:
                     </para>
                     <para>
                         <parameter>nParametersInEvent</parameter> is the number
-                        of paramters that are initially in the
+                        of parameters that are initially in the
                         event array like object that is passed to the
                         event processig pipeline.  This gets expanded as needed.
                         Furthermore, these objects are now recycled, so the
@@ -7073,7 +7717,7 @@ public:
                     </para>
                     <para>
                         The effect of this is that eventually events grow to the
-                        fit the largest numbered paramter used by the analysis case.
+                        fit the largest numbered parameter used by the analysis case.
                     </para>
                 </listitem>
             </varlistentry>
