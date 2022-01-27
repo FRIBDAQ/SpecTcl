@@ -25,7 +25,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLAnalyzer.h"
 #include <Event.h>
 #include <TreeParameter.h>
-#include <ScalerProcessor.h>
 #include <Xamine.h>
 #include <XamineEventHandler.h>
 
