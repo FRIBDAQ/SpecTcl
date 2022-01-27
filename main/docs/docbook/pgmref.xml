@@ -3925,7 +3925,7 @@ if (pSomeFilter) {
     <part>
         <title>Tree Parameter, Tree Variable API</title>
         <chapter>
-            <title>Tree parametr, tree variable API</title>
+            <title>Tree parameter, tree variable API</title>
             <para>
                 The Tree parameter subsystem was originally developed by
                 Daniel Bazin.  It has since been reimplemented  and incorporated
@@ -46539,6 +46539,703 @@ public:
                 </listitem>
             </varlistentry>
         </variablelist>
+    </refsect1>
+</refentry>
+</part>
+<part>
+   <title>Callback based analysis framework.</title>
+   <partintro>
+   <para>
+   SpecTcl Version 5.10-008 introduces a replacement for the callback
+   analysis framework that is capable of working with data from NSCLDAQ 7/8,
+   NSCLDAQ-10, NSCLDAQ-11.  This framework is described in the programming
+   guide.  This chapter provides reference information for the classes that
+   make up the framework.
+   </para>
+   </partintro>
+
+<refentry>
+   <refmeta>
+      <refentrytitle>CAnalysisEventProcessor</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CAnalysisEventProcessor</refname>
+      <refpurpose>Event processor for callback analysis.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+      <programlisting>
+#include &lt;CAnalysisEventProcessor.h&gt;
+
+class CAnalysisEventProcessor : public CEventProcessor
+{
+ public:
+    typedef struct _ClientData {
+        void*                      s_pUserData;
+        CAnalysisEventProcessor*   s_pCaller;
+    } ClientData, *pClientData;
+
+    // Construction and other canonicals
+public:
+    CAnalysisEventProcessor(CAnalysisBase* pProcessor, void* pClientData = 0);
+    virtual ~CAnalysisEventProcessor();
+
+    // The interface
+
+    virtual Bool_t operator()(
+        const Address_t pEvent, CEvent&amp; rEvent, CAnalyzer&amp; rAnalyzer,
+        CBufferDecoder&amp; rDecoder
+    );
+    virtual Bool_t OnBegin(CAnalyzer&amp; rAnalyzer, CBufferDecoder&amp; rDecoder);
+    virtual Bool_t OnEnd(CAnalyzer&amp; rAnalyzer, CBufferDecoder&amp; rDecoder);
+    virtual Bool_t OnPause(CAnalyzer&amp; rAnalyzer, CBufferDecoder&amp; rDecoder);
+    virtual Bool_t OnResume(CAnalyzer&amp; rAnalyzer, CBufferDecoder&amp; rDecoder);
+    virtual Bool_t OnOther(
+        UInt_t nType, CAnalyzer&amp; rAnalyzer, CBufferDecoder&amp; rDecoder
+    );
+
+
+
+    // Queries available to the user code:
+
+public:
+
+    CEvent*         getEvent();
+    CBufferDecoder* getDecoder();
+    CAnalyzer*      getAnalyzer();
+};
+      </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+             <title>DESCRIPTION</title>
+          <para>
+            This class provides an event processor that encapsulates
+            a callout object.  The event processor does data format specific
+            extraction of information from items and passes them to
+            methods provided by its call out object.
+          </para>
+          <para>
+          The callout object methods are descried by the base class for such
+          classes: <classname>CAnalysisBase</classname>.
+          </para>
+    </refsect1>
+    <refsect1>
+      <title>METHODS</title>
+      <para>
+        The methods provided by all event processors are not documented
+        in this manpage.  See the <classname>CEventProcessor</classname>
+        manpage for those.  We only document the public methods that
+        are provided for use by the callout objects.
+        </para>
+        
+        <variablelist>
+          <varlistentry>
+             <term>
+              <constructorsynopsis>
+                  <methodname>CAnalysisEventProcessor</methodname>
+                  <methodparam>
+                      <type>CAnalysisBase* </type><parameter>pProcessor</parameter>
+                  </methodparam>
+                  <methodparam>
+                      <type>void* </type><parameter>pClientData</parameter>
+                      <initializer>= 0</initializer>
+                  </methodparam>
+              </constructorsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                 The constructor is parameterized by a pointer to the
+                 callback object the event processor will use.  The object
+                  pointed to by this pointer must have program lifetime.
+                  The optional <parameter>pClientData</parameter> parameter
+                  provides the ability to pass arbitrary data to the
+                  callbacks.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>CEvent* </type>
+                 <methodname>getEvent</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                 Returns a pointer to the base CEvent object that is filled
+                  in when a physics event is being processed.  This pointer
+                  is meaningless unless called from the callout object's
+                  <methodname>onEvent</methodname> method.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>CBufferDecoder*</type>
+                 <methodname>getDecoder</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                 Gets a pointer to the buffer decoder object in use by
+                 the analysis pipeline. This pointer is valid from all
+                 callbacks.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>CAnalyzer* </type>
+                 <methodname>getAnalyzer</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                 Gets a pointer to the analyzer object in use by the analysis
+                 pipeline.  This pointer is valid from all callbacks.
+               </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+      <title>DATATYPES</title>
+      <para>
+       <classname>CAnalysisEventProcessor</classname> passes a parameter
+       to callbacks that is of type <classname>CAnalysisEventProcessor::ClientData</classname>.
+       This data type is a struct with the following members.
+      </para>
+    <variablelist>
+      <varlistentry>
+         <term>
+          <type>void*</type><structfield>s_pUserData</structfield>
+         </term>
+         <listitem>
+             <para>
+             The value of the <parameter>pClientData</parameter>
+             parameter of the object's constructor.
+           </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+         <term>
+          <type>CAnalysisEventProcessor*</type><structfield>s_pCaller</structfield>
+         </term>
+         <listitem>
+             <para>
+             Pointer to the object itself (e.g. the event processor's
+             <literal>this</literal> pointer).
+           </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+</refentry>
+<refentry>
+   <refmeta>
+      <refentrytitle>CAnalysisBase</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CAnalysisBase</refname>
+      <refpurpose>Base class for callout objects</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;CAnalysisBase.h&gt;
+
+class CAnalysisBase
+{
+public:
+    typedef enum _StateChangeType {
+        Begin, End, Pause, Resume
+    } StateChangeType;
+
+    typedef enum _StringListType {
+        PacketTypes, MonitoredVariables, RunVariables
+    } StringListType;
+
+public:
+    virtual void onStateChange(
+        StateChangeType type, int runNumber, time_t absoluteTime, float runTime,
+        std::string title, void* clientData
+    );
+    virtual void onScalers(
+        time_t absoluteTime, float startOffset, float endOffset,
+        std::vector&lt;unsigned&gt; scalers, bool incremental, void* clientData
+    );
+
+    virtual void onStringLists(
+        StringListType type, time_t absoluteTime, float runTime,
+        std::vector&lt;std::string&gt; strings, void* clientData
+    );
+
+    virtual unsigned onEvent(void* pEvent, void* clientData);
+
+    // Methods throw this to report an error that the framework
+    // can continue after.
+
+    class NonFatalException : public std::runtime_error {
+        public:
+            explicit NonFatalException(const std::string&amp; whatarg) :
+                std::runtime_error(whatarg) {}
+
+    };
+    // Methods throw this for errors that require the analysis
+    // to be aborted (whatever that means in the context of the
+    // framework)
+
+    class FatalException : public std::runtime_error {
+        public:
+            explicit FatalException(const std::string&amp; whatarg) :
+                std::runtime_error(whatarg) {}
+    };
+};
+
+    </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+             <title>METHODS</title>
+          <para>
+            This section describes both the call signatures of the
+            <classname>ScalerProcessor</classname> as well as what each
+            method does in some detail.
+          </para>
+          <variablelist>
+            <varlistentry>
+               <term>
+                <constructorsynopsis>
+                    <methodname>ScalerProcessor</methodname>
+                    <methodparam>
+                        <type>CTCLInterpreter&amp; </type><parameter>interp</parameter>
+                    </methodparam>
+                </constructorsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                   Initializes data structures like per run scaler totals.
+                   The <parameter>interp</parameter> object is the encapsulated
+                   Tcl interpreter in on which the scaler processor will
+                   operate.  This is normally the SpecTcl main Tcl interpreter
+                   which can be gotten via:
+                   </para>
+                   <informalexample>
+                    <programlisting>
+#include &lt;SpecTcl.h&gt;
+...
+auto pApi = SpecTcl::getInstance();
+CTCLInterpreter* pInterp = pApi-&gt;getInterpreter();
+                    </programlisting>
+                   </informalexample>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>virtual void </type>
+                   <methodname>onStateChange</methodname>
+                   <methodparam>
+                       <type>StateChangeType </type><parameter>type</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>int </type><parameter>runNumber</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>time_t </type><parameter>absoluteTime</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>float</type><parameter> runTime</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>std::string </type><parameter>title</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>void* </type><parameter>clientData</parameter>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    This method is called by the event processor it is attached
+                    to when a state change item is encountered.  The
+                    Run number, elapsed run time and runtitle
+                    are unconditionally saved in the
+                    <varname>RunNumber</varname>,
+                    <varname>ElapsedRunTime</varname>,
+                    and <varname>RunTitle</varname> Tcl global variables
+                    respectively.
+                   </para>
+                   <para>
+                    The method then analyzes the  <parameter>type</parameter>
+                    to select a new value for the
+                    <varname>ScalerRunState</varname> Tcl global variable
+                    and determines which of the Tcl procs
+                    <function>BeginRun</function>,
+                    <function>EndRun</function>
+                    <function>PauseRun</function>
+                    or <function>ResumeRun</function> to call.
+                   </para>
+                   <para>
+                   The <parameter>absoluteTime</parameter>
+                   parameter is ignored as is the <parameter>clientData</parameter>
+                  </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>virtual void </type>
+                   <methodname>onScalers</methodname>
+                   <methodparam>
+                       <type>time_t </type><parameter>absoluteTime</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>float </type><parameter>startOffset</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>float </type><parameter>endOffset</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>std::vector&lt;unsigned&gt;</type><parameter>scalers</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>bool </type><parameter>incremental</parameter>
+                   </methodparam>
+                   <methodparam>
+                       <type>void* </type><parameter>clientData</parameter>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                   Called when a scaler item is encountered. <parameter>endTime</parameter>
+                   is placed in the <varname>ElapsedRunTime</varname>.
+                   <parameter>endOffset</parameter> and
+                   <parameter>startOffset</parameter> are used to compute
+                   the value of the <varname>ElapsedRunTime</varname> Tcl
+                   global variable.
+                   </para>
+                   <para>
+                     In this implementation <parameter>incremental</parameter>
+                     is ignored and the scalers are assumed to be incremental.
+                     <parameter>scalers</parameter> are used to
+                     set the various <varname>Scaler_Increments(<replaceable>i</replaceable>)</varname>
+                     Tcl global variables and running totals over the run
+                     are maintained in the
+                     <varname>Scaler_Totals</varname>.
+                   </para>
+                   <para>
+                   The <function>Update</function> is called after all Tcl global
+                   variables have been set.
+                  </para>
+                </listitem>
+            </varlistentry>
+          </variablelist>
+    </refsect1>
+</refentry>
+<refentry>
+   <refmeta>
+      <refentrytitle>CAnalysisBase</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CAnalysisBase</refname>
+      <refpurpose>Base class for callout analyzers.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;CAnalysisBase.h&gt;
+
+class CAnalysisBase
+{
+public:
+    typedef enum _StateChangeType {
+        Begin, End, Pause, Resume
+    } StateChangeType;
+
+    typedef enum _StringListType {
+        PacketTypes, MonitoredVariables, RunVariables
+    } StringListType;
+
+public:
+    virtual void onStateChange(
+        StateChangeType type, int runNumber, time_t absoluteTime, float runTime,
+        std::string title, void* clientData
+    );
+    virtual void onScalers(
+        time_t absoluteTime, float startOffset, float endOffset,
+        std::vector&lt;unsigned&gt; scalers, bool incremental, void* clientData
+    );
+
+    virtual void onStringLists(
+        StringListType type, time_t absoluteTime, float runTime,
+        std::vector&gt;std::string&lt; strings, void* clientData
+    );
+
+    virtual unsigned onEvent(void* pEvent, void* clientData);
+
+    class NonFatalException : public std::runtime_error {
+        public:
+            explicit NonFatalException(const std::string&amp; whatarg) :
+                std::runtime_error(whatarg) {}
+
+    };
+
+    class FatalException : public std::runtime_error {
+        public:
+            explicit FatalException(const std::string&amp; whatarg) :
+                std::runtime_error(whatarg) {}
+    };
+};
+
+    </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+             <title>DESCRIPTION</title>
+          <para>
+            This is the base class for all classes you can register as
+            a callout processor with a 
+            <classname>CAnalysisEventProcessor</classname> object.
+            It provides default, no-op implementations of all of the callback
+            methods.  It also provides useful data types and exception
+            types.
+          </para>
+          <para>
+            <literal>METHODS</literal> below describes the methods and
+            their parameters.  <literal>DATA TYPES</literal>
+            describes the data types and exception classes.
+          </para>
+    </refsect1>
+    <refsect1>
+      <title>METHODS</title>
+      <para>
+      All methods described in this section have no-op implementations. This
+      makes the class not formally abstract but it allows derived classes
+      to only bother to implement the methods they intend to provide some
+      actuall processing for.
+      </para>
+      <variablelist>
+      <varlistentry>
+         <term>
+         <methodsynopsis>
+            <type>virtual void</type>
+            <methodname>onStateChange</methodname>
+            <methodparam>
+                <type>StateChangeType</type><parameter> type</parameter>
+            </methodparam>
+            <methodparam>
+                <type> int </type><parameter>runNumber</parameter>
+            </methodparam>
+            <methodparam>
+                <type>time_t</type><parameter>absoluteTime</parameter>
+            </methodparam>
+            <methodparam>
+                <type>float </type><parameter>runTime</parameter>
+            </methodparam>
+            <methodparam>
+                <type>std::string </type><parameter>title</parameter>
+            </methodparam>
+            <methodparam>
+                <type>void*</type><parameter> clientData</parameter>
+            </methodparam>
+         </methodsynopsis>
+         
+         </term>
+         <listitem>
+             <para>
+             This method is called when a state change item is encountered.
+             The <parameter>type</parameter> describes the type of state change
+             item and its values are described in <literal>DATA TYPE</literal>
+             below.
+           </para>
+           <para>
+            Basic run information is provided by the
+            <parameter>runNumber</parameter> and
+            <parameter>title</parameter> parameters.
+           </para>
+           <para>
+             "When" information is provided by the
+             <parameter>absoluteTime</parameter> parameter which is the
+             unix timestamp of the state change item.  This can be manipulated
+             by the time functions defined in &lt;time.h&gt;.
+             <parameter>runTime</parameter>, on the other hand is the number
+             of seconds into the run at which the state chane item  was
+             emitted.
+           </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+         <term>
+         <methodsynopsis>
+            <type>virtual void</type>
+            <methodname> onScalers</methodname>
+            <methodparam>
+                <type>time_t</type><parameter> absoluteTime</parameter>
+            </methodparam>
+            <methodparam>
+                <type>float </type><parameter>startOffset</parameter>
+            </methodparam>
+            <methodparam>
+                <type>float </type><parameter>endOffset</parameter>
+            </methodparam>
+            <methodparam>
+                <type>std::vector&lt;unsigned&gt; </type><parameter>scalers</parameter>
+            </methodparam>
+            <methodparam>
+                <type>bool </type><parameter>incremental</parameter>
+            </methodparam>
+            <methodparam>
+                <type>void*</type><parameter> clientData</parameter>
+            </methodparam>
+         </methodsynopsis>
+         </term>
+         <listitem>
+             <para>
+             This method is called by the event processor when a scaler
+             item is encounterd. Timing is provided by
+             <parameter>absoluteTime</parameter> which is a unix date/time stamp
+             that descdribes when the item was created, <parameter>startOffset</parameter>
+             which provides the number of seconds into the run at which the
+             counting described by this item began and
+             <parameter>endOffset</parameter> which is the number of seconds
+             into the run at which the counting interval ended.
+           </para>
+           <para>
+           The scalers themselves are provided as a vector <parameter>scalers</parameter>
+           NSCLDAQ supports either incremental or continuously counting scalers.
+           Incremental scalers (preferred) are cleared on each read.
+           continuosuly counting scalers are never cleared.   The
+           <parameter>incremental</parameter> flag is <literal>true</literal>
+           when the scalers are incremental.
+           </para>
+           <para>
+           Finally, <parameter>clientData</parameter> is a struct that includes
+           the data passed in when the event processor was constructed a
+           well as a  pointer to the event processor object.
+          </para>
+        </listitem>
+        
+      </varlistentry>
+      <varlistentry>
+         <term>
+         <methodsynopsis>
+            <type>virtual void </type>
+            <methodname>onStringLists</methodname>
+            <methodparam>
+                <type>StringListType </type><parameter>type</parameter>
+            </methodparam>
+            <methodparam>
+                <type>time_t </type><parameter>absoluteTime</parameter>
+            </methodparam>
+            <methodparam>
+                <type>float </type><parameter>runTime</parameter>
+            </methodparam>
+            <methodparam>
+                <type>std::vector&lt;std::string&gt; </type><parameter>strings</parameter>
+            </methodparam>
+            <methodparam>
+                <type>void*</type><parameter> clientData</parameter>
+            </methodparam>
+         </methodsynopsis>
+         </term>
+         <listitem>
+             <para>
+             This method is called when a string list item is encounterd.
+             There are several types of string list items that provide
+             documentation.   The <parameter>type</parameter> provides the
+             type of string list item that is being processed.
+             Timing is provided by the <parameter>absoluteTime</parameter>
+             Unix data/time stamp, while <parameter>runTime</parameter>
+             is the number of seconds into the run at which this item was
+             created.
+           </para>
+           <para>
+           The strings themselves have been marshalled into the
+           <parameter>strings</parameter> vector. Finally <parameter>clientData</parameter>
+           points to the additional data struct that contains both a pointer to
+           the user data passed to event processor constructor and a pointer to he
+           event processor itself.
+           </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+         <term>
+         <methodsynopsis>
+            <type>virtual unsigned </type>
+            <methodname>onEvent</methodname>
+            <methodparam>
+                <type>void* </type><parameter>pEvent</parameter>
+            </methodparam>
+            <methodparam>
+                <type>void*</type><parameter> clientData</parameter>
+            </methodparam>
+         </methodsynopsis>
+         </term>
+         <listitem>
+             <para>
+             Called when a physics event item is being processed.
+             <parameter>pEvent</parameter> points to the event data that
+             was passed tothe event processor's
+             <methodname>operator()</methodname> method.
+             The <parameter>clientData</parameter> actually points to a
+             struct that includes the pointer passed in as client data
+             to the event processor and a pointer to the event processor
+             itself.  The event processor implements methods to allow access
+             to the <classname>CEvent </classname> object that
+             the event processing pipeline is building up.
+           </para>
+        </listitem>
+      </varlistentry>
+      </variablelist>
+    </refsect1>
+    <refsect1>
+      <title>DATA TYPES</title>
+      <para>
+        The class defines two enumerated data types and a pair of
+        nested classes that have public access.
+      </para>
+      <para>
+        <type>StateChangeType</type> is an enumerated type that
+        is passed into <methodname>onStateChange</methodname> to
+        describe the type of state change item being processed.
+        Possible values are:
+        <literal>CAnalysisBase::Begin</literal>,
+        <literal>CAnalysisBase::End</literal>,
+        <literal>CAnalysisBase::Pause</literal> and
+        <literal>CAnalysisBase::Resume</literal>.
+      </para>
+      <para>
+        <type>StringListType</type> is passed in to
+        <methodname>onStringLists</methodname> to describe the
+        type of string list item being processes.  It has possible values:
+        <literal>CAnalysisBase::PackteType</literal>,
+        <literal>CAnalysisBase::MonitoredVariables</literal> and
+        <literal>CAnalysisBase::RunVariables</literal>
+      </para>
+      <para>
+        Two exception classes are defined.  These types are both
+        caught by the event processing methods that invoke callouts.
+        These classes both are derived from <classname>std::runtime_error</classname>.
+        They are both constructed with a std::string parameter that
+        provides the message retrieved with the class's
+        <methodname>what</methodname> method.
+      </para>
+      <para>
+        <classname>CAnalysisBase::NonFatalException</classname>,
+        when thrown, aborts the event processing pipleline emitting
+        the message it was passed to stderr.   SpecTcl will continue
+        processing with the next item.
+      </para>
+      <para>
+       On the  other hand, <classname>CAnalysisBase::FatalException</classname>
+       when thrown emits the message it was constructed with to
+       stderr and exits SpecTcl with an abnormal exit value.
+       </para>
     </refsect1>
 </refentry>
 </part>

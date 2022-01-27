@@ -2386,7 +2386,7 @@ void CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
 {
     ...
     auto pApi = SpecTcl::getInstance();     <co id='sccb.getinterp' />
-    auto pInterp  = pApi->getInterpreter();
+    auto pInterp  = pApi-&gt;getInterpreter();
     auto pScalerProcessor = new ScalerProcessor(*pInterp);  <co id='sccb.instantiate1' />
     auto processor = new CAnalyayisEventProcessor(pScalerProcessor); <co id='sccb.instantiate2'/>
     RegisterEventProcessor(*processor, "Scaler-analyzer");  <co id='sccb.register' />
