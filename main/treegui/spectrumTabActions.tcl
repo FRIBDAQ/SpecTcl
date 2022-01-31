@@ -100,12 +100,10 @@ itcl::class spectrumTabActions {
     # 
     private method LoadParameters {} {
 	set parameters [list]
-	set time [time {
 	foreach parameter [parameter -list] {
 	    lappend parameters [lindex $parameter 0]
 	}
-	}]
-	set time [time {$widget configure -parameters $parameters}]
+	$widget configure -parameters $parameters
     }
 
     ##
@@ -314,14 +312,11 @@ itcl::class spectrumTabActions {
     # @param mask - glob pattern that determines the set of spectra to load.
     #
     private method LoadSpectra mask {
-	set time [time {
 	set spectra [spectrum -list -showgate $mask]
-	}]
 	set spectrumList [list]; # Build up the data here:
 
 	# Pull each definition apart and add it to spectrumList.
 	
-	set time [time {
 	foreach spectrum $spectra {
 	    set name [lindex $spectrum 1]
 	    set type [lindex $spectrum 2]
@@ -376,11 +371,8 @@ itcl::class spectrumTabActions {
 				      $xparam $xlow $xhi $xbins \
 				      $yparam $ylow $yhi $ybins \
 				      $gate]
-
-	}}]
-	set time [time {
+   	}
 	$widget configure -spectra $spectrumList
-	}]
     }
     ##
     # Called in response to the button to clear spectra.
@@ -968,7 +960,6 @@ itcl::class spectrumTabActions {
 	if {$widget eq ""} {
 	    error "The -widget option is mandatory"
 	}
-	set time [time {
 	spectrumContainer $widget                           \
 	    -ystate disabled -arraystate normal             \
 	    -savecmd   [itcl::code $this SaveConfiguration %N]    \
@@ -987,20 +978,19 @@ itcl::class spectrumTabActions {
 	    -createcmd      [itcl::code $this CreateSpectrum]     \
 	    -failsafechanged [itcl::code $this ChangeFailsafe]    \
 	    -xchanged        [itcl::code $this SetParameterInfo %W %T]  \
-	    -ychanged        [itcl::code $this SetParameterInfo %W %T]}
-		 ]
+	    -ychanged        [itcl::code $this SetParameterInfo %W %T]
 
 
-	set time [time LoadParameters]
+	LoadParameters
 
-	set time [time {LoadSpectra [$widget cget -mask]}]
+	LoadSpectra [$widget cget -mask]
 
 	$widget disableDataType byte
 	$widget configure -datatype long -spectrumtype 1
 
 	# Load the gate menu and set it up to reload each time gates change in any way:
 
-	set time [time LoadGateMenu]
+	LoadGateMenu
 
 	set gateAddChain    [gate -trace add    [itcl::code $this gateAdded]]
 	set gateDeleteChain [gate -trace delete [itcl::code $this gateDeleted]]

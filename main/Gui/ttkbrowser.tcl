@@ -194,9 +194,7 @@ image create photo ::browser::foldericon   -format png \
 
 	# Populate the tree:
 
-        #set timing [time {
-	#$self fillAllFolders
-        #}]
+
         
 
     }
@@ -252,42 +250,32 @@ image create photo ::browser::foldericon   -format png \
         
 	# Kill off the top level folders:
 
-        set timing [time {
 	foreach id $topLevelIds {
 	    $tree delete $id
 	}
-        }]
         
 	set topLevelIds [list]
 
 	# Stock only those in the -restrict list:
 
         if {[lsearch -exact $options(-restrict) spectra] != -1} {
-            set timing [time { 
             $self fillSpectrumFolder
-            }]
             
         }
         if {[lsearch -exact $options(-restrict) parameters] != -1} {
-            set timing [time {
              $self fillParameterFolder
-             }]
         }
         if {[lsearch -exact $options(-restrict) variables] != -1} {
-            set timing [time {
             $self fillVariableFolder
-            }]
         }
         if {[lsearch -exact $options(-restrict) gates] != -1} {
-            set timing [time {
             $self fillGateFolder
-            }]
+
         }
 
 	#  Bindings for folders:
 
         
-        set timing [time {
 	$tree tag bind spectrumFolder <Button-3> \
 	    [mymethod FolderContextDispatch -spectrumfoldercommand %X %Y]
 	$tree tag bind parameterFolder <Button-3> \
@@ -325,7 +313,6 @@ image create photo ::browser::foldericon   -format png \
 	$tree tag bind variable <Double-1>  [mymethod onElementDoubleClick -variablescript %x %y]
 	$tree tag bind variable <Button-3>  [mymethod onElementContext -variablerightclick %x %y %X %Y]
 
-        }]
         
 
     }
@@ -351,7 +338,6 @@ image create photo ::browser::foldericon   -format png \
         #          itself a list containing:
         #           name, type, gate, "" "" "" "" ""  definition.
         #
-        set timing [time {
         set spectrumList [list]
         foreach definition [spectrum -list -showgate] {
             if {$options(-filterspectra) ne ""} {
@@ -371,13 +357,10 @@ image create photo ::browser::foldericon   -format png \
                           "" "" "" "" ""          \
                           $definition]				  
         }
-        }]
     
         # Fill in the spectrum tree:
     
-        set timing  [time {
             $self fillSpectrumSubtree $spectrumFolder $spectrumList
-        }]
 
     }
     # fillParameterFolder
@@ -398,9 +381,8 @@ image create photo ::browser::foldericon   -format png \
 	#  This is a 2 element list of parameter name, parameter definition:
 	#
 
-    set timing [time {
 	set parameterList [list]
-    foreach parameter [parameter -list] {
+	foreach parameter [parameter -list] {
         if {$options(-filterparameters) != ""} {
             if {![eval $options(-filterparameters) [list $parameter]]} {
                 continue
@@ -408,14 +390,11 @@ image create photo ::browser::foldericon   -format png \
         }
         lappend parameterList [list [lindex $parameter 0] $parameter]
 	}
-    }]
 
 	# Recursively stock the parameter tree algorithm is pretty much the same as
 	# for fillSpectrumSubtree
 
-    set timing [time {
         $self fillParameterSubtree $paramFolder $parameterList
-    }]
 
 
    

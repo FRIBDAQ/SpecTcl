@@ -350,7 +350,6 @@ proc writeTreeParameters fd {
 
     puts $fd "\n#Tree params:\n"
 
-    set time [time {
      foreach  info [treeparameter -list] {
         set name [lindex $info 0]
         
@@ -370,7 +369,6 @@ proc writeTreeParameters fd {
             puts $fd "treeparameter -setunit   $name [list $units]\n"
         }
      }
-    }]   
 
     return
 
@@ -587,38 +585,20 @@ proc writeFilters fd {
 #    fd  - A file desciptor open on the file to write.
 #
 proc writeAll fd {
-    set time [time {
     writeComments            $fd
-    }]
-    set time [time {
     writeTreeParameters      $fd
-    }]
-    set time [time {
     writePseudoParameters    $fd
-    }]
-    set time [time {
     writeTreeVariables       $fd
-    }]
-    set time [time {
     writeGateDefinitions     $fd
-    }]
-    set time [time {
     writeSpectrumDefinitions $fd
-    }]
-    set time [time {
     writeGateApplications    $fd
-    }]
-    set time [time {
     writeFilters             $fd
-    }]
 
     #  Now execute the observers at the global level:
 
-    set time [time {
     foreach observerName [array names ::guistate::observers] {
 	uplevel #0 $::guistate::observers($observerName) $fd
     }
-    }]
 
 }
 

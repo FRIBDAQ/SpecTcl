@@ -65,12 +65,12 @@ snit::widgetadaptor treeMenu {
 	# Take all of the names and convert them into lists that represent the widget path
 
 	set separatedNames [list]
-	set time [time {
-	foreach name $options(-items) {	    lappend separatedNames [split $name $options(-splitchar)]
+	foreach name $options(-items) {
+	    lappend separatedNames [split $name $options(-splitchar)]
 	}
-	}]
 
-	set time [time {$self buildSubMenus $win $separatedNames ""}]
+
+	$self buildSubMenus $win $separatedNames ""
     }
     ##
     # public method to dispatch a menu click
