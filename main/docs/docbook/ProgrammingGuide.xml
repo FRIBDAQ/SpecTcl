@@ -1930,7 +1930,7 @@ CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
 #include &lt;Event.h&gt;
 #include &lt;TreeParameter.h&gt;
 #include "MyEventProcessor.h"                // &lt;- this line can stay in
-#include &lt;ilterEventProcessor.h&gt;       // &lt;- add this line
+#include &lt;FilterEventProcessor.h&gt;       // &lt;- add this line
             </programlisting>
         </informalexample>
         <para>
