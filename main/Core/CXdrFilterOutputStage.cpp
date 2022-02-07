@@ -23,9 +23,11 @@
 #include <ErrnoException.h>
 
 #include <errno.h>
+#include <iostream>
+#include <string>
+
 
 using namespace std;
-
 
 /*!
    Construct the output stage.. When constructed, the output stage can't actually do anything.
@@ -59,12 +61,21 @@ CXdrFilterOutputStage::~CXdrFilterOutputStage()
 void
 CXdrFilterOutputStage::open(string filename)
 {
-  if (m_pOutputEventStream) {
-    errno = EEXIST;
-    throw CErrnoException("Opening XDR Filter output stream");
+  try {
+    if (m_pOutputEventStream) {
+      errno = EEXIST;
+      throw CErrnoException("Opening XDR Filter output stream");
+    }
+    else {
+      m_pOutputEventStream = new CXdrOutputStream(filename); // Construct and open.
+    }
+  } catch (CException& e) {
+    std::cerr << "Failed to open XDR filter output: " << e.ReasonText() << std::endl;
+    throw;
   }
-  else {
-    m_pOutputEventStream = new CXdrOutputStream(filename); // Construct and open.
+  catch (std::string& s) {
+    std::cerr << "XDR Filter Open failed: " << s << std::endl;
+    throw;
   }
 }
 
@@ -76,13 +87,23 @@ CXdrFilterOutputStage::open(string filename)
 void
 CXdrFilterOutputStage::close()
 {
-  if (m_pOutputEventStream) {
-    delete m_pOutputEventStream;
-    m_pOutputEventStream = 0;
+  try {
+    if (m_pOutputEventStream) {
+      delete m_pOutputEventStream;
+      m_pOutputEventStream = 0;
+    }
+    else {
+      errno = ENOENT;
+      throw CErrnoException("Closing CDR Filter output stream");
+    }
   }
-  else {
-    errno = ENOENT;
-    throw CErrnoException("Closing CDR Filter output stream");
+  catch (CException& e) {
+    std::cerr << "Failed to close a filter: " << e.ReasonText() << std::endl;
+    throw;
+  }
+  catch (std::string& s) {
+    std::cerr << "XDR filter close failed: " << s << std::endl;
+    throw;
   }
 }
 
@@ -101,66 +122,75 @@ void
 CXdrFilterOutputStage::DescribeEvent(vector<string> parameterNames,
 				     vector<UInt_t> parameterIds)
 {
-  if (!m_pOutputEventStream) {
-    errno = ENOENT;
-    throw CErrnoException("Describing event to closed output stream");
-  }
-
-  // We're going to need the parameter ids ourselves to fish them out of
-  // the events:
-
-  m_vParameterIds = parameterIds;
-
-  // Now format the header and write it out.
-
-  int parameterCount = parameterNames.size();
-  int totalParameterCount = parameterCount;
-
-  // See how many parameters we can fit in a block:
-  // Output successive "header" records in blocks until all parameters
-  // have been output.
-  
-  int offset(0);
-  int idx(0);
-  int nFit;
-  while (parameterCount) {
+  try {
+    if (!m_pOutputEventStream) {
+      errno = ENOENT;
+      throw CErrnoException("Describing event to closed output stream");
+    }
     
-    int nBytes = sizeof(int) + strlen("header");
-    nFit = 0;
+    // We're going to need the parameter ids ourselves to fish them out of
+    // the events:
     
-    // See how many parameters will fit in the next "header" record/block.
+    m_vParameterIds = parameterIds;
     
-    while(m_pOutputEventStream->Test(nBytes) && (idx < totalParameterCount)) {
+    // Now format the header and write it out.
+    
+    int parameterCount = parameterNames.size();
+    int totalParameterCount = parameterCount;
+    
+    // See how many parameters we can fit in a block:
+    // Output successive "header" records in blocks until all parameters
+    // have been output.
+    
+    int offset(0);
+    int idx(0);
+    int nFit;
+    while (parameterCount) {
+      
+      int nBytes = sizeof(int) + strlen("header");
+      nFit = 0;
+      
+      // See how many parameters will fit in the next "header" record/block.
+      
+      while(m_pOutputEventStream->Test(nBytes) && (idx < totalParameterCount)) {
         nBytes += parameterNames[idx].size();
         idx++;
         nFit++;
-    }
-    // We got here either beause we ran out of parameters or because
-    // we ran out of space.  If we ran out of space we need to back-up
-    // one parameter:
-    
-    if (!m_pOutputEventStream->Test(nBytes)) {
+      }
+      // We got here either beause we ran out of parameters or because
+      // we ran out of space.  If we ran out of space we need to back-up
+      // one parameter:
+      
+      if (!m_pOutputEventStream->Test(nBytes)) {
         // We ran out of space -- remove the last one...
         
         --idx;         // index of the one that didn't fit.
         --nFit;        // Number that do fit.
         nBytes -= parameterNames[idx].size();
-    }
-    // It's also possible that we hit the end and there's nothing to output;
-    
-    if (nFit) {
+      }
+      // It's also possible that we hit the end and there's nothing to output;
+      
+      if (nFit) {
         (*m_pOutputEventStream) << "header";
         (*m_pOutputEventStream) << nFit;
         for (int i = offset; i < idx; i++) {
-            (*m_pOutputEventStream) << (parameterNames[i]);
+	  (*m_pOutputEventStream) << (parameterNames[i]);
         }
         m_pOutputEventStream->Flush();
+      }
+      offset = idx;            // Next one to do.
+      parameterCount -= nFit;  // The number of parameters that are left.
+      
     }
-    offset = idx;            // Next one to do.
-    parameterCount -= nFit;  // The number of parameters that are left.
-    
+  } catch (CException& e) {
+    std::cerr << "Failed to describe event parameters to output stream" << e.ReasonText()
+	      << std::endl;
+    throw;
   }
-  
+  catch (std::string& s) {
+    std::cerr << "XDR Write of event description block failed: " << s << std::endl;
+    throw;
+  }
 }
 
 /*!
@@ -173,75 +203,85 @@ CXdrFilterOutputStage::DescribeEvent(vector<string> parameterNames,
 void
 CXdrFilterOutputStage::operator()(CEvent& event)
 {
-  if (!m_pOutputEventStream) {
-    errno = ENOENT;
-    throw CErrnoException("Writing event to output stream");
-  }
-
-  // we need to first construct and write the bitmasks.
-
-   int nParams = m_vParameterIds.size();
-   int nBitmaskwords = ((nParams + sizeof(unsigned)*8 - 1) /
-			(sizeof(unsigned)*8)); // Assumes 8 bits/byte
-   unsigned* Bitmask = new unsigned[nBitmaskwords];
-
-   for(int i = 0; i < nBitmaskwords; i++) {
-     Bitmask[i] = 0;
-   }
-   
-   // Figure out the bit mask:  A bit is set for each valid parameter:
-   
-   int nValid = 0;
-   for(int i =0; i < nParams; i++) {
-     int id = m_vParameterIds[i];
-     if((id < event.size()) && event[id].isValid()) {
-       setBit(Bitmask, i);
-       nValid++;
-     }
-   }
-
-   // No point in writing an event that has no valid parameters in the 
-   // selected subset.
-   //
-   if(!nValid) {
-     delete []Bitmask;
-     return;
-   }
-
-   // Declare required freespace to allow the output stream to close:
-   // the buffer if this event doesn't fit.
-   
-   size_t intsize   = m_pOutputEventStream->sizeofInt();
-   size_t floatsize = m_pOutputEventStream->sizeofFloat();
-   size_t hdrsize   = m_pOutputEventStream->sizeofString("event");
-
-
-   m_pOutputEventStream->Require((nBitmaskwords*intsize +
-                                 nValid*floatsize       +
-                                 hdrsize)); // Fudge??
-   
-   // Write the header:
-   
-   *m_pOutputEventStream << "event";
-
-   
-   // Write the bitmask:
-   
-   for(int i =0; i < nBitmaskwords; i++) {
+  try {
+    if (!m_pOutputEventStream) {
+      errno = ENOENT;
+      throw CErrnoException("Writing event to output stream");
+    }
+    
+    // we need to first construct and write the bitmasks.
+    
+    int nParams = m_vParameterIds.size();
+    int nBitmaskwords = ((nParams + sizeof(unsigned)*8 - 1) /
+			 (sizeof(unsigned)*8)); // Assumes 8 bits/byte
+    unsigned* Bitmask = new unsigned[nBitmaskwords];
+    
+    for(int i = 0; i < nBitmaskwords; i++) {
+      Bitmask[i] = 0;
+    }
+    
+    // Figure out the bit mask:  A bit is set for each valid parameter:
+    
+    int nValid = 0;
+    for(int i =0; i < nParams; i++) {
+      int id = m_vParameterIds[i];
+      if((id < event.size()) && event[id].isValid()) {
+	setBit(Bitmask, i);
+	nValid++;
+      }
+    }
+    
+    // No point in writing an event that has no valid parameters in the 
+    // selected subset.
+    //
+    if(!nValid) {
+      delete []Bitmask;
+      return;
+    }
+    
+    // Declare required freespace to allow the output stream to close:
+    // the buffer if this event doesn't fit.
+    
+    size_t intsize   = m_pOutputEventStream->sizeofInt();
+    size_t floatsize = m_pOutputEventStream->sizeofFloat();
+    size_t hdrsize   = m_pOutputEventStream->sizeofString("event");
+    
+    
+    m_pOutputEventStream->Require((nBitmaskwords*intsize +
+				   nValid*floatsize       +
+				   hdrsize)); // Fudge??
+    
+    // Write the header:
+    
+    *m_pOutputEventStream << "event";
+    
+    
+    // Write the bitmask:
+    
+    for(int i =0; i < nBitmaskwords; i++) {
       *m_pOutputEventStream << Bitmask[i];
-   }
-
-   // Write the valid parameters:
-   
-   for(int i =0; i < nParams; i++) {
-     int id = m_vParameterIds[i];
-     if((id < event.size()) && event[id].isValid()) {
-       *m_pOutputEventStream << event[id];
-     }
-   }
-   delete []Bitmask;
+    }
+    
+    // Write the valid parameters:
+    
+    for(int i =0; i < nParams; i++) {
+      int id = m_vParameterIds[i];
+      if((id < event.size()) && event[id].isValid()) {
+	*m_pOutputEventStream << event[id];
+      }
+    }
+    delete []Bitmask;
+  }
+  catch (CException& e ) {
+    std::cerr << "Failed to write an event to XDR output stream"
+	      << e.ReasonText() << std::endl;
+    throw;
+  }
+  catch (std::string& s) {
+    std::cerr << "Failed to write an XDR filter event: " << s << std::endl;
+    throw;
+  }
 }
-
 /*!
    Return the output stage type.
 */
