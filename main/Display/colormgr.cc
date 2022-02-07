@@ -509,7 +509,7 @@ static void GetWidgetVisualInfo (Display *d, Window w, XVisualInfo *vis)
 	if(result[i].depth > bestpseudodepth) {
 	  bestpseudodepth = result[i].depth;
 	  bestpseudo      = i;
-	  fprintf(stderr, "Pseudo visual with depth: %d \n", bestpseudodepth);
+	  // fprintf(stderr, "Pseudo visual with depth: %d \n", bestpseudodepth);
 	} 
       }
       if((result[i].c_class == TrueColor) ||
@@ -530,7 +530,7 @@ static void GetWidgetVisualInfo (Display *d, Window w, XVisualInfo *vis)
       memcpy(vis, &(result[besttrue]), sizeof(XVisualInfo));
     }
     else if(bestpseudo >= 0) {	// Falling back to a nice pseudo
-      fprintf(stderr, "Selected pseudo with depth %d\n", bestpseudodepth);
+      // fprintf(stderr, "Selected pseudo with depth %d\n", bestpseudodepth);
       memcpy(vis, &(result[bestpseudo]), sizeof(XVisualInfo));
     }
 
