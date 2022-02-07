@@ -39,7 +39,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-
+#include <Exception.h>
+#include <stdexcept>
 
 using namespace std;
 
@@ -189,6 +190,27 @@ CRingBufferDecoder::operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAna
     // Now work on the data we got.
     
     processBuffer();
+  }
+  catch (const char* msg) {
+    cerr <<  "SpecTcl exiting due  to exception caught in ringbuffer decoder: "
+	 << msg << std::endl;
+    exit(EXIT_FAILURE);
+
+  }
+  catch (std::string& msg) {
+    cerr << "SpecTcl exiting due to exception caught in ringbuffer decoder: "
+	 << msg << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  catch (CException & e) {
+    cerr << "SpecTcl exiting due to exception caught in ringbuffer decoder: "
+	 << e.ReasonText() << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  catch (std::exception& e) {
+    cerr << "SpecTcl eixting due to exception caught in ringbuffer decoder: "
+	 << e.what() << std::endl;
+    exit(EXIT_FAILURE);
   }
   catch (...) {
     cerr << "SpecTcl exiting due to buffer decoder exception\n";
@@ -606,7 +628,7 @@ CRingBufferDecoder::processBuffer()
     //
 
     if (m_nResidual > sizeof(RingItemHeader)) {
-
+      
       pRingItemHeader pItemHeader = reinterpret_cast<pRingItemHeader>(m_pBufferCursor);
       uint32_t size = m_pTranslator->TranslateLong(pItemHeader->s_size);
       if (size == 0) {
@@ -621,52 +643,52 @@ CRingBufferDecoder::processBuffer()
           debug << "--- there's a partial event buffer of size " << m_nPartialEventSize;
           debug << "    already processed " << m_nPartialEventBytes <<endl;
           dump(debug, m_pPartialEvent, m_nPartialEventSize);
-      
-        }
-      debug << "--- Most recent event body delivered was:\n";
-      dump(debug, m_pBody, m_nBodySize);
-      debug << " Last good item type: " << m_nCurrentItemType << endl;
-      debug << " entity count " << m_nEntityCount << endl;
-	
-      if (m_pGluedBuffer) {
-        debug << "---n Glued buffer exists size " << m_nGlueSize << "\n";
-        dump(debug, m_pGluedBuffer, m_nGlueSize);
-      }
 	  
-
-      throw "Failed";
-
-    }
+        }
+	debug << "--- Most recent event body delivered was:\n";
+	dump(debug, m_pBody, m_nBodySize);
+	debug << " Last good item type: " << m_nCurrentItemType << endl;
+	debug << " entity count " << m_nEntityCount << endl;
+	
+	if (m_pGluedBuffer) {
+	  debug << "---n Glued buffer exists size " << m_nGlueSize << "\n";
+	  dump(debug, m_pGluedBuffer, m_nGlueSize);
+	}
+	
+	
+	throw "Failed - due to zero length ring item.";
+	
+      }
       
-    if (size > m_nResidual) {
+      if (size > m_nResidual) {
 	// Full event does not fit in the remainder of the buffer..
 	
-      createPartialEvent();
-      m_nResidual = 0;		// By definition we're done with the buffer.
-      if (m_pGluedBuffer) {	        // Partial events are not compatible with
-        free(m_pGluedBuffer);	        // having glued buffers.
-        m_pGluedBuffer = 0;
-      }
-    } else {
+	createPartialEvent();
+	m_nResidual = 0;		// By definition we're done with the buffer.
+	if (m_pGluedBuffer) {	        // Partial events are not compatible with
+	  free(m_pGluedBuffer);	        // having glued buffers.
+	  m_pGluedBuffer = 0;
+	}
+      } else {
 	// Full event fits in the remainder of the buffer:
 	
-      dispatchEvent(m_pBufferCursor);
-      m_pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(m_pBufferCursor) + size);
-      m_nResidual    -= size;
-    
-      // If we've used up the buffer, kill off any glue buffer:
-      // Else hell will break loose on the next buffer.
-      if (m_pGluedBuffer && !m_nResidual) {
-        free(m_pGluedBuffer);
-        m_pGluedBuffer = 0;
+	dispatchEvent(m_pBufferCursor);
+	m_pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(m_pBufferCursor) + size);
+	m_nResidual    -= size;
+	
+	// If we've used up the buffer, kill off any glue buffer:
+	// Else hell will break loose on the next buffer.
+	if (m_pGluedBuffer && !m_nResidual) {
+	  free(m_pGluedBuffer);
+	  m_pGluedBuffer = 0;
+	}
       }
-    }
-  }  else {
+    }  else {
       // Allocate space for and put the remainder of the current buffer into it
       // 
       uint32_t* pNewGluedBuffer = reinterpret_cast<uint32_t*>(malloc(m_nResidual));
       memcpy(pNewGluedBuffer, m_pBufferCursor, m_nResidual);
-
+      
       // If there's an existing glued buffer get rid of it as it must be the one
       // we were originally processing:
       //
@@ -674,11 +696,11 @@ CRingBufferDecoder::processBuffer()
         free(m_pGluedBuffer);
       }
       // Either way, set m_pGluedBuffer:
-
+      
       m_pGluedBuffer = pNewGluedBuffer;
       m_nGlueSize = m_nResidual;
       m_nResidual = 0;		// Buffer is all consumed.
-							      
+      
     }
   }
   

@@ -43,7 +43,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include "Globals.h"
 #include "FilterBufferDecoder.h"
 #include "FilterEventProcessor.h"
-
+#include <stdexcept>
+#include <string>
 #include "Analyzer.h"
 
 #ifdef HAVE_STD_NAMESPACE
@@ -229,6 +230,41 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
       cerr << "Attempting to continue processing with next buffer\n";
       cerr << "---------------------------------------------------------\n";
     }
+    catch (std::exception& e) {
+      delete pEvent;
+      std::cerr << "-------------------------------------------------------\n";
+      std::cerr << " unexpected exception caught while analyzing events\n";
+      std::cerr << e.what() << std::endl;
+      std::cerr << "  Attempting to continue processing with the next buffer\n";
+      std::cerr << "---------------------------------------------------------\n";
+      
+    }
+    catch (std::string& msg) {
+      delete pEvent;
+      std::cerr << "-------------------------------------------------------\n";
+      std::cerr << " unexpected exception caught while analyzing events\n";
+      std::cerr <<  msg << std::endl;
+      std::cerr << "  Attempting to continue processing with the next buffer\n";
+      std::cerr << "---------------------------------------------------------\n";
+    }
+    catch (const char* msg) {
+      delete pEvent;
+      std::cerr << "-------------------------------------------------------\n";
+      std::cerr << " unexpected exception caught while analyzing events\n";
+      std::cerr <<  msg << std::endl;
+      std::cerr << "  Attempting to continue processing with the next buffer\n";
+      std::cerr << "----------------------------------------------------------\n";
+    }
+    catch (...) {
+      delete pEvent;
+      std::cerr << "-------------------------------------------------------\n";
+      std::cerr << " unexpected exception caught while analyzing events\n";
+      std::cerr << " unrecognized exception type\n";
+      std::cerr << "  Attempting to continue processing with the next buffer\n";
+      std::cerr << "----------------------------------------------------------\n";
+    }
+
+      
     // BUGBUGBUG - check that we are really at the end of the buffer
     //             otherwise either the entity count or the event size has
     //             lied to us.
