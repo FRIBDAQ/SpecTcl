@@ -1,5 +1,5 @@
 /*
-    This software is Copyright by the Board of Trustees of Michigan
+    This software is Copyright by the Board of Trustees of Michigs`an
     State University (c) Copyright 2005.
 
     You may use this software under the terms of the GNU public license
@@ -243,10 +243,21 @@ CXdrFilterOutputStage::operator()(CEvent& event)
     // the buffer if this event doesn't fit.
     
     size_t intsize   = m_pOutputEventStream->sizeofInt();
-    size_t floatsize = m_pOutputEventStream->sizeofFloat();
+    size_t floatsize = m_pOutputEventStream->sizeofDouble();
     size_t hdrsize   = m_pOutputEventStream->sizeofString("event");
     
-    
+    size_t bytesRequired = (nBitmaskwords*intsize +
+			    nValid*floatsize       +
+			    hdrsize);
+    if (bytesRequired > m_pOutputEventStream->getBuffersize()) {
+      delete []Bitmask;
+      std::cerr << "Filter output - throwing away an event that would need : "
+		<< bytesRequired
+		<< " bytes which is greater than output buffer size of "
+		<< m_pOutputEventStream->getBuffersize() << std::endl;
+      return;
+    }
+	
     m_pOutputEventStream->Require((nBitmaskwords*intsize +
 				   nValid*floatsize       +
 				   hdrsize)); // Fudge??
@@ -275,11 +286,11 @@ CXdrFilterOutputStage::operator()(CEvent& event)
   catch (CException& e ) {
     std::cerr << "Failed to write an event to XDR output stream"
 	      << e.ReasonText() << std::endl;
-    throw;
+    exit(EXIT_FAILURE);
   }
   catch (std::string& s) {
     std::cerr << "Failed to write an XDR filter event: " << s << std::endl;
-    throw;
+    exit(EXIT_FAILURE);
   }
 }
 /*!

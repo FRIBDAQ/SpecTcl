@@ -29,11 +29,11 @@
 #include <rpc/xdr.h>
 #endif
 #include <iostream>
+#include <sstream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
-
 
 /*!
    Construct a closed CXdrOutputStream.  This function does
@@ -181,7 +181,12 @@ CXdrOutputStream::Put(void* object, xdrproc_t converter)
 {
   int status = converter(&m_Xdr, object);
   if(!status) {
-    throw string("CXdrOutputStream::Put - converter reported a failur");
+    std::stringstream msg;
+    msg << "CXdrOutputStream::Put - converter reported a failure - "
+	<< " Position : " << xdr_getpos(&m_Xdr)
+	<< " If this is very near 8192 you've probably overflowed the output buffer\n";
+    std::string strmsg = msg.str();
+    throw strmsg;
   }
   Require(1);
 
