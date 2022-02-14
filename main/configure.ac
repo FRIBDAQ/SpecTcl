@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.10-010, scientificsoftware@nscl.msu.edu)
+AC_INIT(SpecTcl,5.10-012, scientificsoftware@nscl.msu.edu)
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
@@ -118,6 +118,7 @@ AC_CHECK_HEADER(fstream,  [AC_DEFINE([HAVE_HLESS_FSTREAM],1,[<fstream> exists])]
 AC_CHECK_HEADER(iomanip,  [AC_DEFINE([HAVE_HLESS_IOMANIP],1,[<iomanip> exists])],[])
 AC_CHECK_HEADER(sstream,  [AC_DEFINE([HAVE_HLESS_SSTREAM],1,[<sstream> exists])],[])
 AC_CHECK_HEADER(typeinfo, [AC_DEFINE([HAVE_HLESS_TYPEINFO],1,[<typeinfo> exists])],[])
+
 
 
 
@@ -848,12 +849,53 @@ AC_SUBST(ROOTCONFIG)
 
 ######################################  Checks for jsoncpp
 
-# Check for Qt libraries
+
 PKG_CHECK_MODULES(JSONCPP, [jsoncpp], [], [AC_MSG_ERROR([jsoncpp package must be installed])])
 AC_MSG_RESULT([$JSONCPP])
 
 AC_SUBST(JSONCPP_CFLAGS)
 AC_SUBST(JSONCPP_LIBS)
+
+###################################### Checks for restclient-cpp
+# Note there's no debian package for that.
+# FRIB installs it in /usr/opt/restclient which shoulid have:
+#  .../lib/librestclient-cpp.so
+#  ../include/restclient-cpp/restclient.h
+#     configure can overridet this location and will prompt for that
+#     if not found using --with-librestclient=topdir.
+# The package is on github at: https://github.com/mrtazz/restclient-cpp
+
+
+AC_MSG_CHECKING([Checking for librestclient-cpp])
+AC_MSG_NOTICE([If you need to install it it can be gotten at https://github.com/mrtazz/restclient-cpp])
+
+AC_ARG_WITH([restclient-cpp],
+	[AS_HELP_STRING([--with-restclient-cpp=topdir],[ Provide top installation directory of librestclient-cpp])],
+	[restclient_topdir=$withval],[restclient_topdir="/usr/opt/restclient"])
+
+#  Make sure we can find this beast:
+
+AC_CHECK_FILE([${restclient_topdir}/lib/librestclient-cpp.so], [libfound="yes"], [libfound="no"])
+AC_CHECK_FILE([${restclient_topdir}/include/restclient-cpp/restclient.h], [hdrfound="yes"], [hdrfound="no"])
+
+if test "${libfound}" = "no"
+then
+   AC_MSG_FAILURE([Unable to find ${restclient_topdir}/lib/librestclient-cpp.so.  Use correct --with-restclient-cpp value.  If necessary, download/build from https://github.com/mrtazz/restclient-cpp])
+fi
+
+if test "${hdrfound}" = "no"
+then
+   AC_MSG_FAILURE([Unable to find ${restclient_topdir}/include/restclient-cpp/restclient.h.  Use correct --with-restclient-cpp value. If necessary, download/build from https://github.com/mrtazz/restclient-cpp])
+fi
+
+RESTCLIENT_LDFLAGS="-L${restclient_topdir}/lib -lrestclient-cpp -Wl,-rpath=${restclient_topdir}/lib"
+RESTCLIENT_CPPFLAGS="-I${restclient_topdir}/include"
+
+AC_SUBST(RESTCLIENT_LDFLAGS)
+AC_SUBST(RESTCLIENT_CPPFLAGS)
+
+
+# Check for 
 
 # mandb:
 

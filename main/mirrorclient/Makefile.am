@@ -4,8 +4,6 @@ bin_PROGRAMS=mirrorclient
 
 
 
-RESTCLIENTROOT=/usr/opt/restclient
-
 
 
 mirrorclient_SOURCES=cmdline.c cmdline.h mirror.cpp \
@@ -19,11 +17,10 @@ mirrorclient_CXXFLAGS=-DSPECTCL_TCLLIBS="\"@prefix@/TclLibs\"" \
 
 mirrorclient_LDADD=@builddir@/libMirrorClient.la \
 	@top_builddir@/Core/libSpecTclTcp.la \
-	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
+	@RESTCLIENT_LDFLAGS@ \
 	@top_builddir@/Display/libXamine.la \
 	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @JSONCPP_LIBS@
 
-mirrorclient_LDFLAGS=	-Wl,-rpath=$(RESTCLIENTROOT)/lib 
 
 
 BUILT_SOURCES = cmdline.c cmdline.h 
@@ -40,12 +37,13 @@ libMirrorClient_la_SOURCES=MirrorClient.cpp SpecTclMirrorClient.cpp \
 
 
 libMirrorClient_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display \
-	-I$(RESTCLIENTROOT)/include @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ \
+	@RESTCLIENT_CPPFLAGS@  @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ \
 	@JSONCPP_CFLAGS@ -DSPECTCL_BIN="\"@bindir@\""
 libMirrorClient_la_LIBADD= @top_builddir@/Core/libSpecTclTcp.la \
-	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
 	@LIBEXCEPTION_LDFLAGS@ @TCL_LIBS@ @JSONCPP_LIBS@
-libMirrorClient_la_LDFLAGS=-Wl,-rpath=$(RESTCLIENTROOT)/lib 
+
+libMirrorClient_la_LDFLAGS=	@RESTCLIENT_LDFLAGS@ 
+
 
 install-exec-local:
 	$(INSTALL_SCRIPT) @srcdir@/mirrorclientscript.tcl @bindir@

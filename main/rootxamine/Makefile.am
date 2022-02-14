@@ -1,18 +1,17 @@
 bin_PROGRAMS=rootxamine
 
-RESTCLIENTROOT=/usr/opt/restclient
 
 rootxamine_SOURCES=RootXamine.cpp cmdline.h cmdline.c \
 	HistogramManager.h HistogramManager.cpp
 rootxamine_CPPFLAGS=-I@top_srcdir@/mirrorclient @ROOT_CFLAGS@ \
-	-I$(RESTCLIENTROOT)/include @JSONCPP_CFLAGS@ \
+	@RESTCLIENT_CPPFLAGS@  @JSONCPP_CFLAGS@ \
 	-I@top_srcdir@/Display
 
 rootxamine_LDADD=@top_builddir@/mirrorclient/libMirrorClient.la \
 	@top_builddir@/Display/libXamine.la \
 	@ROOT_LDFLAGS@ \
 	-L$(RESTCLIENTROOT)/lib -lrestclient-cpp \
-	@JSONCPP_LIBS@
+	@JSONCPP_LIBS@ @RESTCLIENT_LDFLAGS@
 
 rootxamine_LDFLAGS=-Wl,-rpath=$(RESTCLIENTROOT)/lib 
 
