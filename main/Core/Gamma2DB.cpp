@@ -202,7 +202,7 @@ CGamma2DB::operator[] (const UInt_t* pIndices) const
   Double_t nx = pIndices[0];
   Double_t ny = pIndices[1];
   
-  Int_t bin = m_pRootSpectrum->GetBin(nx, ny);
+  Int_t bin = m_pRootSpectrum->GetBin(nx + 1, ny + 1);
   return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
   
 }

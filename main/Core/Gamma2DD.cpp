@@ -223,8 +223,8 @@ CGamma2DD<T,R>:: operator[](const UInt_t* pIndices) const
   Double_t  x = pIndices[0];
   Double_t  y = pIndices[1];
   const TH1* pRootSpectrum = getRootSpectrum();
-  Int_t   bin = pRootSpectrum->GetBin(x, y);
-  return static_cast<ULong_t>(pRootSpectrum->GetBinContent(x, y));
+  Int_t   bin = pRootSpectrum->GetBin(x +1, y+1);
+  return static_cast<ULong_t>(pRootSpectrum->GetBinContent(bin));
 }
 
 /*!
