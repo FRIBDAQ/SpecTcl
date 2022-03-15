@@ -142,7 +142,7 @@ CMTDC32Unpacker::operator()(CEvent&                       rEvent,
       // Need to handle extended timestamp?
     } else {
       // bad datum of some sort.
-      std::cerr << "Invalid MTDC32 dummy word seen in unpacker: " << std::hex << datum << " ignoring. It's all good move along!\n";
+      //std::cerr << "Invalid MTDC32 dummy word seen in unpacker: " << std::hex << datum << " ignoring. It's all good move along!\n";
     }
     datum   = getLong(event, offset);
     longsRead++;
