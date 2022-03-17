@@ -1101,8 +1101,8 @@ snit::type SpecTclRestClient {
     method parameterNew {name number metadata} {
         set pdict [dict merge [dict create name $name number $number] $metadata]
         $self _request [$self _makeUrl rawparameter/new $pdict]
-    }     #
-#
+    }     
+    #
     #     parameterDelete
     #  Delete a parameter.
     #   @param name - optional parameter name make it an empty string if you
