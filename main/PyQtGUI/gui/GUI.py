@@ -14,6 +14,9 @@ sys.path.append(os.getcwd())
 sys.path.append("./Lib")
 sys.path.append(str(os.environ.get("INSTDIR"))+"/Lib")
 
+# removes the webproxy from spdaq machines
+os.environ['NO_PROXY'] = ""
+
 from PyQt5 import QtCore, QtNetwork
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
