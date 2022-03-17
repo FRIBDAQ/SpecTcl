@@ -27,6 +27,33 @@
 #include <iostream>
 #include <stdlib.h>
 #include "cmdline.h"
+#include <stdexcept>
+/**
+ * getPort
+ *    Figure out a port number given a string that could be a service
+ *    or just a number.
+ *
+ * @param  host - host that's advertising if it's a service.
+ * @param  portString - name of service or ascii-ized port number.
+ * @param  username - name of the user advertising the service.
+ * @return int - integer port number or throw if can't translate a service.
+ */
+static short
+getPort(const char* host, const char* portString, const char* username)
+{
+  short result;
+  char* end;
+  result = strtol(portString, &end, 0);            // Allows all bases.
+  if (result > 0) {
+    return result;
+  }
+  if (result < 0) {
+    // User gave bad port number
+    throw std::range_error("Port numbers must be > 0");
+  }
+  return LookupPort(host, portString, username);
+  
+}
 /**
  * This program attaches to a specific SpecTcl shared memory,
  * either local or mirrored (starting the mirror if needed).
@@ -77,11 +104,13 @@ int main(int argc, char** argv) {
     
     // Set up the initial set of histograms and a repeating timer
     // to make REST requests of
+
+    short port = getPort(parsedArgs.host_arg, parsedArgs.rest_arg, username);
     
     auto pManager = new HistogramManager(
         pMemory,
         parsedArgs.host_arg,
-        LookupPort(parsedArgs.host_arg, parsedArgs.rest_arg, username)
+	port
     );
     pManager->start();
     
