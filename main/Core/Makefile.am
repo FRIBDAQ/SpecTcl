@@ -61,7 +61,7 @@ DecoderRing_INCLUDES = CRingBufferDecoder.h \
 			RingFormatHelperCreator.h \
 			RingFormatHelper10Creator.h \
 			RingFormatHelper11Creator.h \
-			RingFormatHelper11Creator.h \
+			RingFormatHelper12Creator.h \
 			DataFormatPre11.h DataFormat.h	\
 			DataFormat12.h
 
