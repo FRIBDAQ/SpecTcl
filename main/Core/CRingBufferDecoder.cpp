@@ -21,6 +21,7 @@
 
 #include "RingFormatHelper10Creator.h"
 #include "RingFormatHelper11Creator.h"
+#include "RingFormatHelper12Creator.h"
 
 #include "RingFormatHelperFactory.h"
 #include "DataFormat.h"
@@ -129,12 +130,21 @@ CRingBufferDecoder::CRingBufferDecoder() :
     
     CRingFormatHelper10Creator create10;
     CRingFormatHelper11Creator create11;
+    CRingFormatHelper12Creator create12;
     
     m_pFactory->addCreator(10, 0, create10);
     m_pFactory->addCreator(10, 1, create10);  // 10.x are all the same.
     m_pFactory->addCreator(10, 2, create10);
     
     m_pFactory->addCreator(11, 0, create11);  // 11.x has body headers.
+    m_pFactory->addCreator(11,1, create11);
+    m_pFactory->addCreator(11,2, create11);
+    m_pFactory->addCreator(11,3, create11);
+    
+    m_pFactory->addCreator(11,4, create12);
+    m_pFactory->addCreator(12, 0, create12);
+    
+    
 }
 /*!
    Destructor  IF ther's a buffer assembly in process, its storage should

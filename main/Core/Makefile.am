@@ -47,7 +47,9 @@ DecoderRing_SRC = CRingBufferDecoder.cpp \
 		RingFormatHelperFactory.cpp \
 		RingFormatHelperCreator.cpp \
 		RingFormatHelper10Creator.cpp \
-		RingFormatHelper11Creator.cpp 
+		RingFormatHelper11Creator.cpp  \
+		RingFormatHelper12Creator.cpp 
+
 
 
 DecoderRing_INCLUDES = CRingBufferDecoder.h \
@@ -58,6 +60,7 @@ DecoderRing_INCLUDES = CRingBufferDecoder.h \
 			RingFormatHelperFactory.h \
 			RingFormatHelperCreator.h \
 			RingFormatHelper10Creator.h \
+			RingFormatHelper11Creator.h \
 			RingFormatHelper11Creator.h \
 			DataFormatPre11.h DataFormat.h	\
 			DataFormat12.h

@@ -30,6 +30,7 @@
  */
 class CRingFormatHelper12 : public CRingFormatHelper11
 {
+public:  
     CRingFormatHelper12();
     virtual ~CRingFormatHelper12();
     

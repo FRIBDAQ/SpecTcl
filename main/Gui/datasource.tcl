@@ -146,7 +146,9 @@ proc attachDataSource {format size sourcetype sourcespec} {
             ringformat 10.0
         } elseif {$format eq "ring11"} {
             ringformat 11.0
-        }
+        } elseif {$format eq "ring12"} {
+	    ringformat 12.0
+	}
         # Any other format CRingBufferDecoder will have to do its best to
         # sort things out.
     }
@@ -463,7 +465,7 @@ proc detach {} {
 #
 
 snit::widget formatChooser {
-    variable formats {nscl jumbo ring10 ring11};     # Valid options
+    variable formats {nscl jumbo ring10 ring11 ring12};     # Valid options
     option   -format ring11;        # Default option.
     option   -command [list];	  # Command to call if format changes.
 
@@ -493,7 +495,8 @@ snit::widget formatChooser {
 	append result "nscl     nscl buffers/events < 32K words (< 10.0)\n" 
 	append result "jumbo    nscl buffers/events >= 32KWords (< 10.0)\n"
 	append result "ring10   Ring buffer data from nscldaq 10.x\n"
-        append result "ring11   Ring buffer data from nscldaq 11.x+\n"
+        append result "ring11   Ring buffer data from nscldaq 11.x\n"
+	append result "ring12   Ring buffer data from nscldaq 12.x+\n";
 
 	return $result
     }
@@ -660,6 +663,9 @@ snit::widget formatChooser {
     }
     method ring11 {host {ringname ""}} {
         return [$self ring $host $ringname]
+    }
+    method ring12 {host {ringname ""}} {
+	return [$self ring $host $ringname]
     }
 
 }
