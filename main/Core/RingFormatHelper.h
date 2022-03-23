@@ -19,6 +19,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <vector>
 
 /**
  * @file RingFormatHelper.h
@@ -69,18 +70,32 @@ public:
     
     virtual unsigned getStringCount(
         void* pItem, BufferTranslator* pTranslator) = 0;
+    virtual std::vector<std::string> getStrings(
+        void* pItem, BufferTranslator* pTranslator
+    ) = 0;
     
     // Methods specific to scaler items:
     
     virtual unsigned getScalerCount(
         void*  pItem, BufferTranslator* pTranslator) = 0;
+    virtual std::vector<uint32_t> getScalers(
+        void* pItem, BufferTranslator* pTranslator
+    ) = 0;
     
     // Methods specific to trigger count items
     
     virtual uint64_t getTriggerCount(
         void* pItem, BufferTranslator* pTranslator) = 0;
 
-    uint16_t itemType(void* pItem);
-
+        
+    //  Utilities
+    
+    static uint16_t itemType(void* pItem);
+    static std::vector<std::string> stringListToVector(
+        unsigned n, const char* p
+    );
+    static std::vector<uint32_t> marshallScalers(
+        unsigned n, const uint32_t* p, BufferTranslator* pTranslator
+    );
 };
 #endif

@@ -136,7 +136,29 @@ CRingFormatHelper10::getStringCount(void* pItem, BufferTranslator* pTranslator)
         throw std::string("CRingFormatHelper10::getStringCount - not text item");
     }
 }
-
+/**
+ * getStrings
+ *    Return a vector of strings from a strings item.
+ * @param pItem - actually a pointer to a NSCLDAQ10::TextItem.
+ * @param pTranslator - pointer to a translator that knows how to do byte
+ *                 order conversion.
+ * @return std::vector<std::string>  - the strings in the item.
+ */
+std::vector<std::string>
+CRingFormatHelper10::getStrings(void* pItem, BufferTranslator* pTranslator)
+{
+    // This call will throw for us if the item type is not a text item.
+    
+    unsigned nStrings = getStringCount(pItem, pTranslator);
+    NSCLDAQ10::pTextItem pActual =
+        reinterpret_cast<NSCLDAQ10::pTextItem>(pItem);
+    // Get a pointer to the strings:
+    
+    const char* p = pActual->s_strings;
+    std::vector<std::string> result = stringListToVector(nStrings, p);
+    return result;
+    
+}
 // Scaler item specific methods.
 
 /**
@@ -160,6 +182,26 @@ CRingFormatHelper10::getScalerCount(void* pItem, BufferTranslator* pTranslator)
     } else {
         throw std::string("CRingFormatHelper10::getScalerCount - Not scaler item");
     }
+}
+/**
+ * getScalers
+ *    Return a vector of the scaler counts from a scaler item.
+ * @param pItem - pointer to the item.
+ * @param pTranslator - pointer to the byte order translator.
+ * @return std::vector<uint32_t> the scalers from the item.
+ */
+std::vector<uint32_t>
+CRingFormatHelper10::getScalers(void* pItem, BufferTranslator* pTranslator)
+{
+    // this throws if the wrong type of item
+    
+    unsigned n= getScalerCount(pItem, pTranslator);
+    NSCLDAQ10::pScalerItem pActual =
+            reinterpret_cast<NSCLDAQ10::pScalerItem>(pItem);
+    uint32_t* p = pActual->s_scalers;
+    std::vector<uint32_t> result = marshallScalers(n, p, pTranslator);
+    return result;
+    
 }
 // Trigger count specific methods:
 

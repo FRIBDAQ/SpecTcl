@@ -40,7 +40,9 @@
  {
     pRingItem p = reinterpret_cast<pRingItem>(pItem);
     
-    return (p->s_body.u_noBodyHeader.s_mbz != 0);
+    // This also works in 12.
+    
+    return (p->s_body.u_noBodyHeader.s_mbz < sizeof(uint32_t));
  }
  /**
   * getBodyPointer
@@ -65,19 +67,18 @@
         if (p->s_header.s_type == PHYSICS_EVENT) m_glomSourceId =
             p->s_body.u_hasBodyHeader.s_bodyHeader.s_sourceId;
 
-	// The code below will not work if the body header has been extended
-	// (e.g. by the software trigger framework (NSCLDAQ-11.4 and later):
-        //return reinterpret_cast<void*>(p->s_body.u_hasBodyHeader.s_body);
-
-	uint32_t bheaderSize =  p->s_body.u_hasBodyHeader.s_bodyHeader.s_size;
-	uint8_t* b           =
-	  reinterpret_cast<uint8_t*>(&(p->s_body.u_hasBodyHeader.s_bodyHeader));
-	b                   += bheaderSize;
-	return reinterpret_cast<void*>(b);
+           // The code below will work if the body header has been extended
+           // (e.g. by the software trigger framework (NSCLDAQ-11.4 and later):
+          
+           uint32_t bheaderSize =  p->s_body.u_hasBodyHeader.s_bodyHeader.s_size;
+           uint8_t* b           =
+             reinterpret_cast<uint8_t*>(&(p->s_body.u_hasBodyHeader.s_bodyHeader));
+           b                   += bheaderSize;
+           return reinterpret_cast<void*>(b);
 				 
     } else {
-        if (p->s_header.s_type == PHYSICS_EVENT) m_glomSourceId = 0;  // don't know.
-        return reinterpret_cast<void*>(p->s_body.u_noBodyHeader.s_body);
+          if (p->s_header.s_type == PHYSICS_EVENT) m_glomSourceId = 0;  // don't know.
+          return reinterpret_cast<void*>(p->s_body.u_noBodyHeader.s_body);
     }
  }
  /**
@@ -171,6 +172,24 @@ CRingFormatHelper11::getStringCount(void* pItem, BufferTranslator* pTranslator)
         throw std::string("CRingFormatHelper11::getStringCount - not a text item.");
     }
 }
+/**
+ * getStrings
+*    Marshall the strings in a text item into a vector.
+* @param pItem - pointer to the item.
+* @param pTranslator - pointer to the byte order translator.
+* @return std::vector<std::string> - the strings.
+*/
+std::vector<std::string>
+CRingFormatHelper11::getStrings(void* pItem, BufferTranslator* pTranslator)
+{
+    // This throws if the item is not a text itme:
+    
+    unsigned n = getStringCount(pItem, pTranslator);
+    pTextItemBody pBody =
+        reinterpret_cast<pTextItemBody>(getBodyPointer(pItem));
+    std::vector<std::string> result = stringListToVector(n, pBody->s_strings);
+    return result;
+}
 // Methods specific to scaler items.
 /**
  * getScalerCount
@@ -195,6 +214,31 @@ CRingFormatHelper11::getScalerCount(void* pItem, BufferTranslator* pTranslator)
         );
     }
 }
+/**
+ * getScalers
+ *     Marshals the scalers counts from a scaler item into a vector.
+ * @param pItem - pointer to the item.
+ * @param pTranslator - pointer to the byte order translator.
+ * @return std::vector<uint32_t>
+ * @note no account is taken of 24 bit scalers that might have trash in the
+ *       upper bits.
+ */
+std::vector<uint32_t> CRingFormatHelper11::getScalers(
+     void* pItem, BufferTranslator* pTranslator
+)
+{
+     // This throws if the item is not a scaler item.
+    
+     unsigned n = getScalerCount(pItem, pTranslator);
+     
+     pScalerItemBody pBody =
+         reinterpret_cast<pScalerItemBody>(getBodyPointer(pItem));
+     std::vector<uint32_t> result = marshallScalers(
+         n, pBody->s_scalers, pTranslator
+     );
+     return result;
+}
+
 // Methods specific to trigger count items.
 
 /**
@@ -223,12 +267,11 @@ CRingFormatHelper11::getTriggerCount(void* pItem, BufferTranslator* pTranslator)
             pBodyHeader phdr =
                 reinterpret_cast<pBodyHeader>(getBodyHeaderPointer(pItem));
             if (phdr->s_sourceId == m_glomSourceId) {
-                m_nLastEventCount = pTranslator->TranslateLong(p->s_eventCount);
-                
+                m_nLastEventCount = pTranslator->getQuad(p->s_eventCount);
             }
             return m_nLastEventCount;
         } else {
-            return pTranslator->TranslateLong(p->s_eventCount);
+            return pTranslator->getQuad(p->s_eventCount);
         }
     } else {
         throw std::string("CRingFormatHelper11::getTriggerCount - not trigger count item");

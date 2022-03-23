@@ -54,11 +54,17 @@ public:
     
     virtual unsigned getStringCount(
         void* pItem, BufferTranslator* pTranslator);
+    virtual std::vector<std::string> getStrings(
+        void* pItem, BufferTranslator* pTranslator
+    );
     
     // Methods specific to scaler items:
     
     virtual unsigned getScalerCount(
         void*  pItem, BufferTranslator* pTranslator);
+    virtual std::vector<uint32_t> getScalers(
+        void* pItem, BufferTranslator* pTranslator
+    );
     
     // Methods specific to trigger count items
     

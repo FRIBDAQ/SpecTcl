@@ -33,6 +33,7 @@
 
 class CRingFormatHelper11 : public CRingFormatHelper
 {
+protected:
     unsigned m_glomSourceId;
     uint64_t m_nLastEventCount;
     // No data implies no need for canonicals.
@@ -54,17 +55,22 @@ public:
     
     virtual unsigned getStringCount(
         void* pItem, BufferTranslator* pTranslator);
+    virtual std::vector<std::string> getStrings(
+        void* pItem, BufferTranslator* pTranslator
+    );
     
     // Methods specific to scaler items:
     
     virtual unsigned getScalerCount(
         void*  pItem, BufferTranslator* pTranslator);
-    
+    virtual std::vector<uint32_t> getScalers(
+        void* pItem, BufferTranslator* pTranslator
+    );
     // Methods specific to trigger count items
     
     virtual uint64_t getTriggerCount(
         void* pItem, BufferTranslator* pTranslator);
-private:
+protected:
     bool isStateTransition(void* pItem);
     bool isTextItem(void* pItem);
     bool isScalerItem(void* pItem);

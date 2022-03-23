@@ -24,6 +24,8 @@
 #include "RingFormatHelper.h"
 #include "DataFormatPre11.h"
 #include <unistd.h>
+#include <string.h>
+#include <BufferTranslator.h>
 
 
 /**
@@ -97,4 +99,46 @@ CRingFormatHelper::itemType(void* pItem)
     swab(&top, &tops, 2);
     
     return type | tops;
+}
+/**
+ * stringListToVector
+ *    Given a count and a pointer to null terminated strings
+ *    returns a vector of those strings.
+ *  @param n - number of strings.
+ *  @param p - pointer to a list of null terminated strings.
+ */
+std::vector<std::string>
+CRingFormatHelper::stringListToVector(unsigned n, const char* p)
+{
+    std::vector<std::string> result;
+    for (unsigned i =0 ; i < n; i++) {
+        std::string item = p;
+        result.push_back(item);
+        p += strlen(p) + 1;     // +1 for the null terminator.
+    }
+    return result;
+}
+/**
+ * marshallScalers
+ *    Pull the scaler values from somewhere into a vector.
+ *  @param n - number of scalers.
+ *  @param *p - Pointer to them.
+ *  @param pTranslator - the buffer translatgor
+ *  @return std::vector<uint32_t> - the items in the array have been translated.
+ *          To host byte order.
+ */
+std::vector<uint32_t>
+CRingFormatHelper::marshallScalers(
+    unsigned n, const uint32_t* p, BufferTranslator* pTranslator
+)
+{
+    std::vector<uint32_t> result(p, p+n);
+    
+    // Byte order translations:
+    
+    for (unsigned i =0; i < n; i++) {
+        result[i] = pTranslator->TranslateLong(result[i]);
+    }
+    
+    return result;
 }
