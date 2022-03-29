@@ -48,6 +48,9 @@ class helper10test : public CppUnit::TestFixture {
     CPPUNIT_TEST(scalers);
     CPPUNIT_TEST(badscalers_1);
     CPPUNIT_TEST(badscalers_2);
+    
+    CPPUNIT_TEST(triggers);
+    CPPUNIT_TEST(badtriggers);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -81,6 +84,9 @@ protected:
     void scalers();
     void badscalers_1();
     void badscalers_2();
+    
+    void triggers();
+    void badtriggers();
 };
 // as with the text item fillers, the caller must ensure p points to an appropriately
 // sized chu nk of memory.
@@ -369,4 +375,32 @@ void helper10test::badscalers_2()
         m_pHelper->getScalers(&item, m_pTranslator),
         std::string
     );    
+}
+// Get the trigger count from a PhysicsEventCountItem using helper:
+
+void helper10test::triggers()
+{
+    NSCLDAQ10::PhysicsEventCountItem item;
+    item.s_header.s_size = sizeof(NSCLDAQ10::PhysicsEventCountItem);
+    item.s_header.s_type = NSCLDAQ10::PHYSICS_EVENT_COUNT;
+    item.s_timeOffset = 100;
+    item.s_timestamp = time(nullptr);
+    item.s_eventCount = 0x1234567890;
+    
+    EQ(uint64_t(0x1234567890), m_pHelper->getTriggerCount(&item, m_pTranslator));
+}
+// invalid type throws.
+void helper10test::badtriggers()
+{
+    NSCLDAQ10::PhysicsEventCountItem item;
+    item.s_header.s_size = sizeof(NSCLDAQ10::PhysicsEventCountItem);
+    item.s_header.s_type = NSCLDAQ10::FIRST_USER_ITEM_CODE;
+    item.s_timeOffset = 100;
+    item.s_timestamp = time(nullptr);
+    item.s_eventCount = 0x1234567890;
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getTriggerCount(&item, m_pTranslator),
+        std::string
+    );
 }
