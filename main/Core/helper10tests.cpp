@@ -43,6 +43,11 @@ class helper10test : public CppUnit::TestFixture {
     CPPUNIT_TEST(strings);
     CPPUNIT_TEST(badstring_1);
     CPPUNIT_TEST(badstring_2);
+    
+    CPPUNIT_TEST(scalercount);
+    CPPUNIT_TEST(scalers);
+    CPPUNIT_TEST(badscalers_1);
+    CPPUNIT_TEST(badscalers_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -71,7 +76,25 @@ protected:
     void strings();
     void badstring_1();
     void badstring_2();
+    
+    void scalercount();
+    void scalers();
+    void badscalers_1();
+    void badscalers_2();
 };
+// as with the text item fillers, the caller must ensure p points to an appropriately
+// sized chu nk of memory.
+
+static void fillScalers(NSCLDAQ10::pScalerItem p, const std::vector<uint32_t>& scalers)
+{
+    p->s_header.s_type = NSCLDAQ10::INCREMENTAL_SCALERS;
+    p->s_header.s_size = sizeof(NSCLDAQ10::ScalerItem) + (scalers.size() - 1)*sizeof(uint32_t);
+    p->s_intervalStartOffset =0;
+    p->s_intervalEndOffset = 2;
+    p->s_timestamp = time(nullptr);
+    p->s_scalerCount = scalers.size();
+    memcpy(p->s_scalers, scalers.data(), scalers.size()*sizeof(uint32_t));
+}
 
 static size_t stringsizes(const std::vector<std::string>& strings)
 {
@@ -264,4 +287,86 @@ void helper10test::badstring_2()
         m_pHelper->getStrings(&item, m_pTranslator),
         std::string
     );
+}
+// Get scaler count from a scaler item:
+
+void helper10test::scalercount()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ10::ScalerItem base;
+        uint32_t  additional_scalers[31];
+    } item;
+#pragma pack(pop)
+    std::vector<uint32_t> scalers;
+    for (int i =0; i < 32; i++) {
+        scalers.push_back(10*i);
+    }
+    fillScalers(&item.base, scalers);
+    
+    EQ(unsigned(scalers.size()), m_pHelper->getScalerCount(&item, m_pTranslator));
+}
+// get scalers themselves:
+
+void helper10test::scalers()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ10::ScalerItem base;
+        uint32_t  additional_scalers[31];
+    } item;
+#pragma pack(pop)
+    std::vector<uint32_t> scalers;
+    for (int i =0; i < 32; i++) {
+        scalers.push_back(10*i);
+    }
+    fillScalers(&item.base, scalers);
+    
+    auto result = m_pHelper->getScalers(&item, m_pTranslator);
+    EQ(scalers.size(), result.size());
+    for (int i =0; i < scalers.size(); i++) {
+        EQ(scalers[i], result[i]);
+    }
+}
+// Bad item type throws strings.
+
+void helper10test::badscalers_1()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ10::ScalerItem base;
+        uint32_t  additional_scalers[31];
+    } item;
+#pragma pack(pop)
+    std::vector<uint32_t> scalers;
+    for (int i =0; i < 32; i++) {
+        scalers.push_back(10*i);
+    }
+    fillScalers(&item.base, scalers);
+    item.base.s_header.s_type = NSCLDAQ10::FIRST_USER_ITEM_CODE;
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getScalerCount(&item, m_pTranslator),
+        std::string
+    );
+}
+void helper10test::badscalers_2()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ10::ScalerItem base;
+        uint32_t  additional_scalers[31];
+    } item;
+#pragma pack(pop)
+    std::vector<uint32_t> scalers;
+    for (int i =0; i < 32; i++) {
+        scalers.push_back(10*i);
+    }
+    fillScalers(&item.base, scalers);
+    item.base.s_header.s_type = NSCLDAQ10::FIRST_USER_ITEM_CODE;
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getScalers(&item, m_pTranslator),
+        std::string
+    );    
 }
