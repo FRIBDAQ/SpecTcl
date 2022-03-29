@@ -24,7 +24,9 @@
 #include "RingFormatHelper11.h"
 #include "DataFormat.h"
 #include "BufferTranslator.h"
-
+#include <string>
+#include <string.h>
+#include <time.h>
 
 
 class ring11test : public CppUnit::TestFixture {
@@ -37,6 +39,10 @@ class ring11test : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(bodyhdr_1);
     CPPUNIT_TEST(bodyhdr_2);
+    
+    CPPUNIT_TEST(title_1);
+    CPPUNIT_TEST(title_2);
+    CPPUNIT_TEST(title_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -60,7 +66,14 @@ protected:
     
     void bodyhdr_1();
     void bodyhdr_2();
+    
+    void title_1();
+    void title_2();
+    void title_3();
+private:
+    void fillStateChangeItem(pStateChangeItem pItem, unsigned run, const char* title);
 };
+
 
 static void fillBodyHeader(RingItem* pItem)
 {
@@ -72,6 +85,19 @@ static void fillBodyHeader(RingItem* pItem)
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ring11test);
+
+void ring11test::fillStateChangeItem(
+    pStateChangeItem pItem, unsigned run, const char* title
+)
+{
+    pStateChangeItemBody pBody =
+        reinterpret_cast<pStateChangeItemBody>(m_pHelper->getBodyPointer(pItem));
+        pBody->s_runNumber = run;
+        pBody->s_timeOffset = 0;
+        pBody->s_Timestamp = time(nullptr);
+        pBody->s_offsetDivisor = 1;
+        strncpy(pBody->s_title, title, TITLE_MAXSIZE+1);
+}
 
 // Ring item without a body header.
 
@@ -134,4 +160,43 @@ void ring11test::bodyhdr_2()
     
     EQ((void*)(&item.s_body.u_hasBodyHeader.s_bodyHeader),
        m_pHelper->getBodyHeaderPointer(&item));
+}
+// Get the title when there's no body header:
+
+void ring11test::title_1()
+{
+    StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(StateChangeItemBody) + sizeof(uint32_t);
+    item.s_header.s_type   = BEGIN_RUN;
+    item.s_body.u_noBodyHeader.s_mbz = 0;
+    fillStateChangeItem(&item, 2, "This is my title");
+    
+    EQ(std::string("This is my title"), m_pHelper->getTitle(&item));
+}
+// Get the title when there is a body header:
+
+void ring11test::title_2()
+{
+    StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(StateChangeItemBody) + sizeof(BodyHeader);
+    item.s_header.s_type   = BEGIN_RUN;
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    fillStateChangeItem(&item, 2, "This is my title");
+    EQ(std::string("This is my title"), m_pHelper->getTitle(&item));
+}
+// non state change item getting title throws std::string.
+void ring11test::title_3()
+{
+    StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(StateChangeItemBody) + sizeof(BodyHeader);
+    item.s_header.s_type   = FIRST_USER_ITEM_CODE;
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    fillStateChangeItem(&item, 2, "This is my title");
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getTitle(&item),
+        std::string
+    );
 }
