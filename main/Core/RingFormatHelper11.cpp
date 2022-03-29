@@ -42,7 +42,7 @@
     
     // This also works in 12.
     
-    return (p->s_body.u_noBodyHeader.s_mbz < sizeof(uint32_t));
+    return (p->s_body.u_noBodyHeader.s_mbz > sizeof(uint32_t));
  }
  /**
   * getBodyPointer
