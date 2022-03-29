@@ -31,6 +31,9 @@ class ring11test : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(ring11test);
     CPPUNIT_TEST(hasbodyhdr_1);
     CPPUNIT_TEST(hasbodyhdr_2);
+    
+    CPPUNIT_TEST(bodyptr_1);
+    CPPUNIT_TEST(bodyptr_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -48,6 +51,9 @@ public:
 protected:
     void hasbodyhdr_1();
     void hasbodyhdr_2();
+    
+    void bodyptr_1();
+    void bodyptr_2();
 };
 
 static void fillBodyHeader(RingItem* pItem)
@@ -80,4 +86,24 @@ void ring11test::hasbodyhdr_2()
     fillBodyHeader(&item);
     
     ASSERT(m_pHelper->hasBodyHeader(&item));
+}
+// Body pointer for non body header item:
+
+void ring11test::bodyptr_1()
+{
+    RingItem item;
+    item.s_header.s_size = sizeof(RingItemHeader) + sizeof(uint32_t);
+    item.s_header.s_type = PHYSICS_EVENT;
+    item.s_body.u_noBodyHeader.s_mbz = 0;
+    
+    EQ((void*)item.s_body.u_noBodyHeader.s_body, m_pHelper->getBodyPointer(&item));
+}
+void ring11test::bodyptr_2()
+{
+     RingItem item;
+    item.s_header.s_size = sizeof(RingItemHeader) + sizeof(BodyHeader);
+    item.s_header.s_type = PHYSICS_EVENT;
+    fillBodyHeader(&item);
+    
+    EQ((void*)item.s_body.u_hasBodyHeader.s_body, m_pHelper->getBodyPointer(&item));
 }
