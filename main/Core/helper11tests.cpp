@@ -43,6 +43,10 @@ class ring11test : public CppUnit::TestFixture {
     CPPUNIT_TEST(title_1);
     CPPUNIT_TEST(title_2);
     CPPUNIT_TEST(title_3);
+    
+    CPPUNIT_TEST(run_1);
+    CPPUNIT_TEST(run_2);
+    CPPUNIT_TEST(run_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -70,6 +74,10 @@ protected:
     void title_1();
     void title_2();
     void title_3();
+    
+    void run_1();
+    void run_2();
+    void run_3();
 private:
     void fillStateChangeItem(pStateChangeItem pItem, unsigned run, const char* title);
 };
@@ -197,6 +205,46 @@ void ring11test::title_3()
     fillStateChangeItem(&item, 2, "This is my title");
     CPPUNIT_ASSERT_THROW(
         m_pHelper->getTitle(&item),
+        std::string
+    );
+}
+
+// Get the run when there's no body header:
+
+void ring11test::run_1()
+{
+    StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(StateChangeItemBody) + sizeof(uint32_t);
+    item.s_header.s_type   = BEGIN_RUN;
+    item.s_body.u_noBodyHeader.s_mbz = 0;
+    fillStateChangeItem(&item, 2, "This is my title");
+    
+    EQ(unsigned(2), m_pHelper->getRunNumber(&item, m_pTranslator));
+}
+// Get the run when there is a body header:
+
+void ring11test::run_2()
+{
+    StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(StateChangeItemBody) + sizeof(BodyHeader);
+    item.s_header.s_type   = BEGIN_RUN;
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    fillStateChangeItem(&item, 2, "This is my title");
+    EQ(unsigned(2), m_pHelper->getRunNumber(&item, m_pTranslator));
+}
+// non state change item getting title throws std::string.
+void ring11test::run_3()
+{
+    StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(StateChangeItemBody) + sizeof(BodyHeader);
+    item.s_header.s_type   = FIRST_USER_ITEM_CODE;
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    fillStateChangeItem(&item, 2, "This is my title");
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getRunNumber(&item, m_pTranslator),
         std::string
     );
 }
