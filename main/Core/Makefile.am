@@ -409,12 +409,13 @@ noinst_HEADERS = $(DecoderRing_noinst_INCLUDES)
 
 
 noinst_PROGRAMS =    spectrumPkgTests \
-					displayInterfaceTests \
-					sorterTests treeParamTests fitTests \
-					xamineTests spectraDisplayTests \
-					spectclCmdTests evbProcessorTests \
-					gateTests fragIndexTests caendpptests \
-					mirrortests newanalysistests
+			displayInterfaceTests \
+			sorterTests treeParamTests fitTests \
+			xamineTests spectraDisplayTests \
+			spectclCmdTests evbProcessorTests \
+			gateTests fragIndexTests caendpptests \
+			mirrortests newanalysistests \
+			helpertests
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -520,8 +521,12 @@ mirrortests_LDADD=$(commonTestLdFlags)
 mirrortests_SOURCES = TestRunner.cpp mdirtests.cpp servertests.cpp \
 	mservertests.cpp mirrorcmdtests.cpp
 
+helpertests_CXXFLAGS=$(commonTestCXXFLAGS)
+helpertests_LDADD=$(commonTestLdFlags)
+helpertests_SOURCES=TestRunner.cpp
+
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
-TESTS = gateTests spectrumPkgTests displayInterfaceTests \
+TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests fragIndexTests caendpptests \
 	mirrortests newanalysistests
