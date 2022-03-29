@@ -523,7 +523,7 @@ mirrortests_SOURCES = TestRunner.cpp mdirtests.cpp servertests.cpp \
 
 helpertests_CXXFLAGS=$(commonTestCXXFLAGS)
 helpertests_LDADD=$(commonTestLdFlags)
-helpertests_SOURCES=TestRunner.cpp helper10tests.cpp
+helpertests_SOURCES=TestRunner.cpp helper10tests.cpp helper11tests.cpp
 
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
