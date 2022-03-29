@@ -26,6 +26,7 @@
 #include "BufferTranslator.h"
 #include <string.h>
 #include <time.h>
+#include <vector>
 
 class helper10test : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(helper10test);
@@ -37,6 +38,11 @@ class helper10test : public CppUnit::TestFixture {
     CPPUNIT_TEST(run);
     CPPUNIT_TEST(badstate_1);
     CPPUNIT_TEST(badstate_2);
+    
+    CPPUNIT_TEST(stringcount);
+    CPPUNIT_TEST(strings);
+    CPPUNIT_TEST(badstring_1);
+    CPPUNIT_TEST(badstring_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -60,7 +66,37 @@ protected:
     void run();
     void badstate_1();
     void badstate_2();
+    
+    void stringcount();
+    void strings();
+    void badstring_1();
+    void badstring_2();
 };
+
+static size_t stringsizes(const std::vector<std::string>& strings)
+{
+    size_t result(0);
+    for(int i = 0; i < strings.size(); i++) {
+        result += strings[i].size() + 1;             // +1 is null terminator.
+    }
+    return result;
+}
+// note caller must ensure the text item is extended with sufficient
+// storage to store the strings.
+
+static void fillStrings(NSCLDAQ10::pTextItem p, const std::vector<std::string>& strings)
+{
+    p->s_header.s_size = sizeof(NSCLDAQ10::TextItem) + stringsizes(strings) - 1;
+    p->s_header.s_type = NSCLDAQ10::MONITORED_VARIABLES;
+    p->s_timeOffset = 10;
+    p->s_timestamp = time(nullptr);
+    p->s_stringCount = strings.size();
+    char* s = p->s_strings;
+    for (int i =0; i < strings.size(); i++) {
+        strcpy(s, strings[i].c_str());
+        s += strlen(s) + 1;
+    }
+}
 
 static void fillState(NSCLDAQ10::pStateChangeItem p)
 {
@@ -141,6 +177,91 @@ void helper10test::badstate_2()
     
     CPPUNIT_ASSERT_THROW(
         m_pHelper->getRunNumber(&item,  m_pTranslator),
+        std::string
+    );
+}
+// Get string count from a text item:
+
+void helper10test::stringcount()
+{
+    // Apologies to Dr. Suess.
+    std::vector<std::string> theStrings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+#pragma pack(push, 1)    
+    struct {
+        NSCLDAQ10::TextItem item;
+        char strings[200];
+    } item;
+#pragma pack(pop)
+    
+    fillStrings(&(item.item), theStrings);
+    EQ(unsigned(theStrings.size()), m_pHelper->getStringCount(&item, m_pTranslator));
+}
+// Get the strings themselves:
+
+void helper10test::strings()
+{
+    // Apologies to Dr. Suess.
+    std::vector<std::string> theStrings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+#pragma pack(push, 1)    
+    struct {
+        NSCLDAQ10::TextItem item;
+        char strings[200];
+    } item;
+#pragma pack(pop)
+    
+    fillStrings(&(item.item), theStrings);
+    auto gotten = m_pHelper->getStrings(&item, m_pTranslator);
+    EQ(theStrings.size(), gotten.size());
+    for (int i =0; i < theStrings.size(); i++) {
+        EQ(theStrings[i], gotten[i]);
+    }
+}
+// Invalid item types lead to string exceptions.
+void helper10test::badstring_1()
+{
+    // Apologies to Dr. Suess.
+    std::vector<std::string> theStrings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+#pragma pack(push, 1)    
+    struct {
+        NSCLDAQ10::TextItem item;
+        char strings[200];
+    } item;
+#pragma pack(pop)
+    
+    fillStrings(&(item.item), theStrings);
+    item.item.s_header.s_type= NSCLDAQ10::FIRST_USER_ITEM_CODE;
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getStringCount(&item, m_pTranslator),
+        std::string
+    );
+}
+void helper10test::badstring_2()
+{
+    // Apologies to Dr. Suess.
+    std::vector<std::string> theStrings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+#pragma pack(push, 1)    
+    struct {
+        NSCLDAQ10::TextItem item;
+        char strings[200];
+    } item;
+#pragma pack(pop)
+    
+    fillStrings(&(item.item), theStrings);
+    item.item.s_header.s_type= NSCLDAQ10::FIRST_USER_ITEM_CODE;
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getStrings(&item, m_pTranslator),
         std::string
     );
 }
