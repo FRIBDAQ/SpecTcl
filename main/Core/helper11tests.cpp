@@ -55,6 +55,14 @@ class ring11test : public CppUnit::TestFixture {
     CPPUNIT_TEST(strings_1);
     CPPUNIT_TEST(strings_2);
     CPPUNIT_TEST(strings_3);
+    
+    CPPUNIT_TEST(sclcount_1);
+    CPPUNIT_TEST(sclcount_2);
+    CPPUNIT_TEST(sclcount_3);
+    
+    CPPUNIT_TEST(scalers_1);
+    CPPUNIT_TEST(scalers_2);
+    CPPUNIT_TEST(scalers_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -94,9 +102,31 @@ protected:
     void strings_1();
     void strings_2();
     void strings_3();
+    
+    void sclcount_1();
+    void sclcount_2();
+    void sclcount_3();
+    
+    void scalers_1();
+    void scalers_2();
+    void scalers_3();
 private:
     void fillStateChangeItem(pStateChangeItem pItem, unsigned run, const char* title);
 };
+
+// Caller must ensure there's enough body for the scalers provided.
+
+void fillScalerItemBody(pScalerItemBody pBody, const std::vector<uint32_t>& scalers)
+{
+    pBody->s_intervalStartOffset = 10;
+    pBody->s_intervalEndOffset   = 12;
+    pBody->s_timestamp = time(nullptr);
+    pBody->s_intervalDivisor = 1;
+    pBody->s_isIncremental = 1;
+    pBody->s_scalerCount = scalers.size();
+    
+    memcpy(pBody->s_scalers, scalers.data(), scalers.size()*sizeof(uint32_t));
+}
 // Note the caller must ensure the body has enough size for the strings.
 // Returns the body size.
 ptrdiff_t fillTextItemBody(pTextItemBody pBody, const std::vector<std::string>& strings)
@@ -449,4 +479,154 @@ void ring11test::strings_3()
         std::string
     );
 }
+// Get count of scalers for non body header item.
 
+void ring11test::sclcount_1()
+{
+#pragma pack(push, 1)
+    struct {
+        ScalerItem s_item;
+        uint32_t   s_moreScalers[32];
+    } item;
+#pragma pack(pop)
+    item.s_item.s_header.s_type = PERIODIC_SCALERS;
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + 33*sizeof(uint32_t);
+    item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
+    std::vector<uint32_t> scalers;
+    for (int i=0; i < 32; i++) {
+        scalers.push_back(200*i);
+    }
+    fillScalerItemBody(
+        &item.s_item.s_body.u_noBodyHeader.s_body, scalers
+    );
+    
+    EQ(scalers.size(), size_t(m_pHelper->getScalerCount(&item, m_pTranslator)));
+}
+
+// get count of scalers for body header item.
+
+void ring11test::sclcount_2()
+{
+#pragma pack(push, 1)
+    struct {
+        ScalerItem s_item;
+        uint32_t   s_moreScalers[32];
+    } item;
+#pragma pack(pop)
+    item.s_item.s_header.s_type = PERIODIC_SCALERS;
+    item.s_item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + 32*sizeof(uint32_t);
+    fillBodyHeader(reinterpret_cast<pRingItem>(&(item.s_item)));
+     std::vector<uint32_t> scalers;
+    for (int i=0; i < 32; i++) {
+        scalers.push_back(200*i);
+    }
+    fillScalerItemBody(
+        &item.s_item.s_body.u_hasBodyHeader.s_body, scalers
+    );
+    
+    EQ(scalers.size(), size_t(m_pHelper->getScalerCount(&item, m_pTranslator)));
+}
+// std::String thrown for bad type:
+
+void ring11test::sclcount_3()
+{
+#pragma pack(push, 1)
+    struct {
+        ScalerItem s_item;
+        uint32_t   s_moreScalers[32];
+    } item;
+#pragma pack(pop)
+    item.s_item.s_header.s_type = FIRST_USER_ITEM_CODE;
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + 33*sizeof(uint32_t);
+    item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
+    std::vector<uint32_t> scalers;
+    for (int i=0; i < 32; i++) {
+        scalers.push_back(200*i);
+    }
+    fillScalerItemBody(
+        &item.s_item.s_body.u_noBodyHeader.s_body, scalers
+    );
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getScalerCount(&item, m_pTranslator),
+        std::string
+    );
+}
+// Retrieve scalers with no body header.
+
+void ring11test::scalers_1()
+{
+#pragma pack(push, 1)
+    struct {
+        ScalerItem s_item;
+        uint32_t   s_moreScalers[32];
+    } item;
+#pragma pack(pop)
+    item.s_item.s_header.s_type = PERIODIC_SCALERS;
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + 33*sizeof(uint32_t);
+    item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
+    std::vector<uint32_t> scalers;
+    for (int i=0; i < 32; i++) {
+        scalers.push_back(200*i);
+    }
+    fillScalerItemBody(
+        &item.s_item.s_body.u_noBodyHeader.s_body, scalers
+    );
+    std::vector<uint32_t> gotten = m_pHelper->getScalers(&item, m_pTranslator);
+    EQ(scalers.size(), gotten.size());
+    for (int i =0; i < scalers.size(); i++) {
+        EQ(scalers[i], gotten[i]);
+    }
+}
+// retrieve scalers when there is a body header:
+
+void ring11test::scalers_2()
+{
+#pragma pack(push, 1)
+    struct {
+        ScalerItem s_item;
+        uint32_t   s_moreScalers[32];
+    } item;
+#pragma pack(pop)
+    item.s_item.s_header.s_type = PERIODIC_SCALERS;
+    item.s_item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + 32*sizeof(uint32_t);
+    fillBodyHeader(reinterpret_cast<pRingItem>(&(item.s_item)));
+     std::vector<uint32_t> scalers;
+    for (int i=0; i < 32; i++) {
+        scalers.push_back(200*i);
+    }
+    fillScalerItemBody(
+        &item.s_item.s_body.u_hasBodyHeader.s_body, scalers
+    );
+    std::vector<uint32_t> gotten = m_pHelper->getScalers(&item, m_pTranslator);
+    EQ(scalers.size(), gotten.size());
+    for (int i =0; i < scalers.size(); i++) {
+        EQ(scalers[i], gotten[i]);
+    }
+}
+// retrieve scaler from non scaler item throws std::string
+
+void ring11test::scalers_3()
+{
+#pragma pack(push, 1)
+    struct {
+        ScalerItem s_item;
+        uint32_t   s_moreScalers[32];
+    } item;
+#pragma pack(pop)
+    item.s_item.s_header.s_type = FIRST_USER_ITEM_CODE;
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + 33*sizeof(uint32_t);
+    item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
+    std::vector<uint32_t> scalers;
+    for (int i=0; i < 32; i++) {
+        scalers.push_back(200*i);
+    }
+    fillScalerItemBody(
+        &item.s_item.s_body.u_noBodyHeader.s_body, scalers
+    );
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getScalers(&item, m_pTranslator),
+        std::string
+    );
+}
