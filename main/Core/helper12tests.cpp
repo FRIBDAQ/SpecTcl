@@ -23,10 +23,24 @@
 #include "Asserts.h"
 #include "RingFormatHelper12.h"
 #include "BufferTranslator.h"
+#include "DataFormat12.h"
 
-class aTestSuite : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE(aTestSuite);
-    CPPUNIT_TEST(test_1);
+
+/**
+ * a bit about the strategy.  12 has the following differences from 11:
+ *  - some items have an original source id field.  We must test the ability
+ *    to get stuff in those items past that field.
+ *  - The field that is mbz in items with no body header is set to sizeof(uint32_t).
+ *     we need to check out the ability to get the body and body header pointers
+ *     for items withand without body headers again.  Otherwise, everything
+ *     in the v11 tests should hold.
+ */
+
+
+class helper12test : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE(helper12test);
+    CPPUNIT_TEST(hashdr_1);
+    CPPUNIT_TEST(hashdr_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -41,11 +55,37 @@ public:
         
     }
 protected:
-    void test_1();
+    void hashdr_1();
+    void hashdr_2();
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(aTestSuite);
+CPPUNIT_TEST_SUITE_REGISTRATION(helper12test);
 
-void aTestSuite::test_1()
+static void fillBodyHeader(NSCLDAQ12::BodyHeader& hdr)
 {
+    hdr.s_size = sizeof(NSCLDAQ12::BodyHeader);
+    hdr.s_timestamp = 0x1234567890;
+    hdr.s_sourceId  = 2;
+    hdr.s_barrier   = 0;
+}
+
+// Can detect that there's no body header in a 12 item:
+void helper12test::hashdr_1()
+{
+    NSCLDAQ12::RingItem item;
+    item.s_header.s_size = sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t);
+    item.s_header.s_type = NSCLDAQ12::FIRST_USER_ITEM_CODE;
+    item.s_body.u_noBodyHeader.s_empty = sizeof(uint32_t);   // how 12 sets this.
+    
+    ASSERT(! m_pHelper->hasBodyHeader(&item));
+}
+// can detect there is a body header in a 12 item:
+
+void helper12test::hashdr_2()
+{
+    NSCLDAQ12::RingItem item;
+    item.s_header.s_size = sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader);
+    item.s_header.s_type = NSCLDAQ12::FIRST_USER_ITEM_CODE;
+    fillBodyHeader(item.s_body.u_hasBodyHeader.s_bodyHeader);
+    ASSERT(m_pHelper->hasBodyHeader(&item));
 }
