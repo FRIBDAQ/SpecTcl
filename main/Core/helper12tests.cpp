@@ -44,6 +44,9 @@ class helper12test : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(bodyptr_1);
     CPPUNIT_TEST(bodyptr_2);
+    
+    CPPUNIT_TEST(bodyhdrptr_1);
+    CPPUNIT_TEST(bodyhdrptr_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -63,6 +66,9 @@ protected:
     
     void bodyptr_1();
     void bodyptr_2();
+    
+    void bodyhdrptr_1();
+    void bodyhdrptr_2();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(helper12test);
@@ -121,5 +127,27 @@ void helper12test::bodyptr_2()
     EQ(
         &item.s_body.u_hasBodyHeader.s_body[0],
         reinterpret_cast<uint8_t*>(m_pHelper->getBodyPointer(&item))
+    );
+}
+
+// Non body header item gets null ptr:
+
+void helper12test::bodyhdrptr_1()
+{
+    NSCLDAQ12::RingItem item;
+    item.s_header.s_size = sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t);
+    item.s_header.s_type = NSCLDAQ12::FIRST_USER_ITEM_CODE;
+    item.s_body.u_noBodyHeader.s_empty = sizeof(uint32_t);   // how 12 sets this.
+    ASSERT(m_pHelper->getBodyHeaderPointer(&item) == nullptr);
+}
+void helper12test::bodyhdrptr_2()
+{
+    NSCLDAQ12::RingItem item;
+    item.s_header.s_size = sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader);
+    item.s_header.s_type = NSCLDAQ12::FIRST_USER_ITEM_CODE;
+    fillBodyHeader(item.s_body.u_hasBodyHeader.s_bodyHeader);
+    EQ(
+        &item.s_body.u_hasBodyHeader.s_bodyHeader,
+        reinterpret_cast<NSCLDAQ12::pBodyHeader>(m_pHelper->getBodyHeaderPointer(&item))
     );
 }
