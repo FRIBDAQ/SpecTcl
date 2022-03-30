@@ -63,6 +63,11 @@ class ring11test : public CppUnit::TestFixture {
     CPPUNIT_TEST(scalers_1);
     CPPUNIT_TEST(scalers_2);
     CPPUNIT_TEST(scalers_3);
+    
+    CPPUNIT_TEST(triggers_1);
+    CPPUNIT_TEST(triggers_2);
+    CPPUNIT_TEST(triggers_3);
+    CPPUNIT_TEST(triggers_4);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -110,13 +115,26 @@ protected:
     void scalers_1();
     void scalers_2();
     void scalers_3();
+    
+    void triggers_1();
+    void triggers_2();
+    void triggers_3();
+    void triggers_4();
 private:
     void fillStateChangeItem(pStateChangeItem pItem, unsigned run, const char* title);
 };
 
+static void fillEventCountBody(pPhysicsEventCountItemBody pBody, uint64_t count)
+{
+    pBody->s_timeOffset = 10;
+    pBody->s_offsetDivisor = 1;
+    pBody->s_timestamp = time(nullptr);
+    pBody->s_eventCount = count;
+}
+
 // Caller must ensure there's enough body for the scalers provided.
 
-void fillScalerItemBody(pScalerItemBody pBody, const std::vector<uint32_t>& scalers)
+static void fillScalerItemBody(pScalerItemBody pBody, const std::vector<uint32_t>& scalers)
 {
     pBody->s_intervalStartOffset = 10;
     pBody->s_intervalEndOffset   = 12;
@@ -129,7 +147,7 @@ void fillScalerItemBody(pScalerItemBody pBody, const std::vector<uint32_t>& scal
 }
 // Note the caller must ensure the body has enough size for the strings.
 // Returns the body size.
-ptrdiff_t fillTextItemBody(pTextItemBody pBody, const std::vector<std::string>& strings)
+static ptrdiff_t fillTextItemBody(pTextItemBody pBody, const std::vector<std::string>& strings)
 {
     pBody->s_timeOffset = 10;
     pBody->s_timestamp  = time(nullptr);
@@ -629,4 +647,71 @@ void ring11test::scalers_3()
         m_pHelper->getScalers(&item, m_pTranslator),
         std::string
     );
+}
+// getTriggerCount with no body header.
+
+void ring11test::triggers_1()
+{
+    PhysicsEventCountItem item;
+    item.s_header.s_type = PHYSICS_EVENT_COUNT;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(uint32_t) + sizeof(PhysicsEventCountItemBody);
+    item.s_body.u_noBodyHeader.s_mbz = 0;
+    fillEventCountBody(&(item.s_body.u_noBodyHeader.s_body), 0x1234567890);
+    
+    EQ(uint64_t(0x1234567890), m_pHelper->getTriggerCount(&item, m_pTranslator));
+}
+
+// getTriggerCount from item with body header...but no events have established the sid.
+
+void ring11test::triggers_2()
+{
+    PhysicsEventCountItem item;
+    item.s_header.s_type = PHYSICS_EVENT_COUNT;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + sizeof(PhysicsEventCountItemBody);
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    fillEventCountBody(&(item.s_body.u_hasBodyHeader.s_body), 0x1234567890);
+    
+    // Counter-intuitive.. THis is because the event sid has not yet been established.
+    
+    EQ(uint64_t(0), m_pHelper->getTriggerCount(&item, m_pTranslator));
+}
+// Non triggger count item throws std::string:
+
+void ring11test::triggers_3()
+{
+    PhysicsEventCountItem item;
+    item.s_header.s_type = FIRST_USER_ITEM_CODE;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + sizeof(PhysicsEventCountItemBody);
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    fillEventCountBody(&(item.s_body.u_hasBodyHeader.s_body), 0x1234567890);
+    
+    CPPUNIT_ASSERT_THROW(
+         m_pHelper->getTriggerCount(&item, m_pTranslator),
+         std::string
+    );
+}
+// Trigger count with body header when an event established the sid.
+
+void ring11test::triggers_4()
+{
+    {
+        PhysicsEventItem item;
+        item.s_header.s_type = PHYSICS_EVENT;
+        item.s_header.s_size = sizeof(RingItemHeader) + sizeof(BodyHeader) + sizeof(uint16_t);
+        fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+        m_pHelper->getBodyPointer(&item);    // Sets the sid
+    }
+    PhysicsEventCountItem item;
+    item.s_header.s_type = PHYSICS_EVENT_COUNT;
+    item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + sizeof(PhysicsEventCountItemBody);
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    fillEventCountBody(&(item.s_body.u_hasBodyHeader.s_body), 0x1234567890);
+    
+    // Counter-intuitive.. THis is because the event sid has not yet been established.
+    
+    EQ(uint64_t(0x1234567890), m_pHelper->getTriggerCount(&item, m_pTranslator));
 }
