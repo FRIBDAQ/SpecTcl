@@ -63,6 +63,11 @@ class helper12test : public CppUnit::TestFixture {
     CPPUNIT_TEST(scalers_1);
     CPPUNIT_TEST(scalers_2);
     CPPUNIT_TEST(scalers_3);
+    
+    CPPUNIT_TEST(triggers_1);
+    CPPUNIT_TEST(triggers_2);
+    CPPUNIT_TEST(triggers_3);
+    CPPUNIT_TEST(triggers_4);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -97,6 +102,11 @@ protected:
     void scalers_1();
     void scalers_2();
     void scalers_3();
+    
+    void triggers_1();
+    void triggers_2();
+    void triggers_3();
+    void triggers_4();
 };
 
 static const char* runTitle="This is the common run title";
@@ -154,6 +164,16 @@ static void fillScalerBody(NSCLDAQ12::ScalerItemBody& body, const std::vector<st
     body.s_originalSid = 1;
     memcpy(body.s_scalers, scalers.data(), scalers.size()*sizeof(uint32_t));
   
+}
+static void fillEventCountBody(
+    NSCLDAQ12::PhysicsEventCountItemBody& body, uint64_t count
+)
+{
+    body.s_timeOffset = 10;
+    body.s_offsetDivisor = 1;
+    body.s_timestamp = time(nullptr);;
+    body.s_originalSid = 2;
+    body.s_eventCount = count;
 }
 
 // Can detect that there's no body header in a 12 item:
@@ -444,6 +464,76 @@ void helper12test::scalers_3()
     
     CPPUNIT_ASSERT_THROW(
         m_pHelper->getScalers(&item, m_pTranslator),
+        std::string
+    );
+}
+// trigger count from no body header item.
+
+void helper12test::triggers_1()
+{
+    NSCLDAQ12::PhysicsEventCountItem  item;
+    item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t)
+        + sizeof(NSCLDAQ12::PhysicsEventCountItemBody);
+    item.s_header.s_type = NSCLDAQ12::PHYSICS_EVENT_COUNT;
+    item.s_body.u_noBodyHeader.s_empty = sizeof(uint32_t);
+    fillEventCountBody(item.s_body.u_noBodyHeader.s_body, 0x1234567890);
+    
+    EQ(uint64_t(0x1234567890), m_pHelper->getTriggerCount(&item, m_pTranslator));
+}
+// Trigger count from body header item when no physics source id has been established.
+// -> 0
+
+void helper12test::triggers_2()
+{
+    NSCLDAQ12::PhysicsEventCountItem  item;
+    item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader)
+        + sizeof(NSCLDAQ12::PhysicsEventCountItemBody);
+    item.s_header.s_type = NSCLDAQ12::PHYSICS_EVENT_COUNT;
+    fillBodyHeader(item.s_body.u_hasBodyHeader.s_bodyHeader);
+    fillEventCountBody(item.s_body.u_hasBodyHeader.s_body, 0x1234567890);
+    EQ(uint64_t(0), m_pHelper->getTriggerCount(&item, m_pTranslator));
+}
+// Trigger count with body header after physics source id estblished then
+// comes from the item.
+
+void helper12test::triggers_3()
+{
+    {
+        NSCLDAQ12::RingItem item;
+        item.s_header.s_size =
+            sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader);
+        item.s_header.s_type = NSCLDAQ12::PHYSICS_EVENT;
+        fillBodyHeader(item.s_body.u_hasBodyHeader.s_bodyHeader);
+        m_pHelper->getBodyPointer(&item);    // establishes source id.
+        
+        
+    }
+    
+    NSCLDAQ12::PhysicsEventCountItem  item;
+    item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader)
+        + sizeof(NSCLDAQ12::PhysicsEventCountItemBody);
+    item.s_header.s_type = NSCLDAQ12::PHYSICS_EVENT_COUNT;
+    fillBodyHeader(item.s_body.u_hasBodyHeader.s_bodyHeader);
+    fillEventCountBody(item.s_body.u_hasBodyHeader.s_body, 0x1234567890);
+    EQ(uint64_t(0x1234567890), m_pHelper->getTriggerCount(&item, m_pTranslator));
+}
+// triggers from a non trigger item throws std::string.
+
+void helper12test::triggers_4()
+{
+    NSCLDAQ12::PhysicsEventCountItem  item;
+    item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader)
+        + sizeof(NSCLDAQ12::PhysicsEventCountItemBody);
+    item.s_header.s_type = NSCLDAQ12::FIRST_USER_ITEM_CODE;
+    fillBodyHeader(item.s_body.u_hasBodyHeader.s_bodyHeader);
+    fillEventCountBody(item.s_body.u_hasBodyHeader.s_body, 0x1234567890);
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getTriggerCount(&item, m_pTranslator),
         std::string
     );
 }
