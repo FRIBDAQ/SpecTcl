@@ -55,6 +55,10 @@ class helper12test : public CppUnit::TestFixture {
     CPPUNIT_TEST(title_1);
     CPPUNIT_TEST(title_2);
     CPPUNIT_TEST(title_3);
+    
+    CPPUNIT_TEST(strings_1);
+    CPPUNIT_TEST(strings_2);
+    CPPUNIT_TEST(strings_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -81,6 +85,10 @@ protected:
     void title_1();
     void title_2();
     void title_3();
+    
+    void strings_1();
+    void strings_2();
+    void strings_3();
 };
 
 static const char* runTitle="This is the common run title";
@@ -105,6 +113,27 @@ static void fillStateChangeBody(NSCLDAQ12::pStateChangeItemBody pBody)
     pBody->s_originalSid = 1;      // 12.0 original source id.
     strncpy(pBody->s_title, runTitle, TITLE_MAXSIZE+1);
 
+}
+
+static ptrdiff_t fillTextBody(NSCLDAQ12::TextItemBody& body, const std::vector<std::string>& strings)
+{
+    body.s_timeOffset = 10;;
+    body.s_timestamp = time(nullptr);
+    body.s_stringCount = strings.size();
+    body.s_offsetDivisor = 1;
+    body.s_originalSid = 1;
+    char* p =        body.s_strings;
+    
+    for (int i =0; i < strings.size(); i++) {
+        strcpy(p, strings[i].c_str());
+        p += strlen(p) + 1;
+    }
+    
+    uint8_t* pEnd = reinterpret_cast<uint8_t*>(p);
+    uint8_t* pBeg = reinterpret_cast<uint8_t*>(&body);
+    
+    return pEnd - pBeg;
+    
 }
 
 // Can detect that there's no body header in a 12 item:
@@ -220,4 +249,99 @@ void helper12test::title_3()
         m_pHelper->getTitle(&item),
         std::string
     );
+}
+// get strings from a text item with no body header.
+
+void helper12test::strings_1()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ12::TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+     // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+    
+    item.s_item.s_header.s_type = NSCLDAQ12::MONITORED_VARIABLES;
+    item.s_item.s_body.u_noBodyHeader.s_empty = sizeof(uint32_t);
+    
+    uint32_t bodySize = fillTextBody(
+        item.s_item.s_body.u_noBodyHeader.s_body, strings
+    );
+    item.s_item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t)
+        + bodySize;
+    std::vector<std::string> result = m_pHelper->getStrings(&item, m_pTranslator);
+    
+    EQ(strings.size(), result.size());
+    for (int i =0; i < strings.size(); i++) {
+        EQ(strings[i], result[i]);
+    }
+}
+// get strings from a text item with a body header
+
+void helper12test::strings_2()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ12::TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+     // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+    
+    item.s_item.s_header.s_type = NSCLDAQ12::MONITORED_VARIABLES;
+    fillBodyHeader(item.s_item.s_body.u_hasBodyHeader.s_bodyHeader);
+    
+    uint32_t bodySize = fillTextBody(
+        item.s_item.s_body.u_hasBodyHeader.s_body, strings
+    );
+    item.s_item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader)
+        + bodySize;
+    std::vector<std::string> result = m_pHelper->getStrings(&item, m_pTranslator);
+    
+    EQ(strings.size(), result.size());
+    for (int i =0; i < strings.size(); i++) {
+        EQ(strings[i], result[i]);
+    }    
+}
+
+// get strings from non text item throws std::string
+
+void helper12test::strings_3()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ12::TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+     // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+    
+    item.s_item.s_header.s_type = NSCLDAQ12::FIRST_USER_ITEM_CODE;
+    item.s_item.s_body.u_noBodyHeader.s_empty = sizeof(uint32_t);
+    
+    uint32_t bodySize =
+        fillTextBody(item.s_item.s_body.u_noBodyHeader.s_body, strings);
+    item.s_item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t)
+        + bodySize;
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getStrings(&item, m_pTranslator),
+        std::string
+    );
+    
 }
