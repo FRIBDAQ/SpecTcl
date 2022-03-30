@@ -47,6 +47,14 @@ class ring11test : public CppUnit::TestFixture {
     CPPUNIT_TEST(run_1);
     CPPUNIT_TEST(run_2);
     CPPUNIT_TEST(run_3);
+    
+    CPPUNIT_TEST(strcount_1);
+    CPPUNIT_TEST(strcount_2);
+    CPPUNIT_TEST(strcount_3);
+    
+    CPPUNIT_TEST(strings_1);
+    CPPUNIT_TEST(strings_2);
+    CPPUNIT_TEST(strings_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -78,10 +86,34 @@ protected:
     void run_1();
     void run_2();
     void run_3();
+    
+    void strcount_1();
+    void strcount_2();
+    void strcount_3();
+    
+    void strings_1();
+    void strings_2();
+    void strings_3();
 private:
     void fillStateChangeItem(pStateChangeItem pItem, unsigned run, const char* title);
 };
-
+// Note the caller must ensure the body has enough size for the strings.
+// Returns the body size.
+ptrdiff_t fillTextItemBody(pTextItemBody pBody, const std::vector<std::string>& strings)
+{
+    pBody->s_timeOffset = 10;
+    pBody->s_timestamp  = time(nullptr);
+    pBody->s_stringCount = strings.size();
+    pBody->s_offsetDivisor = 1;
+    char* p = pBody->s_strings;
+    for (int i =0; i < strings.size(); i++) {
+        strcpy(p, strings[i].c_str());
+        p += strlen(p) + 1;
+    }
+    uint8_t* pEnd = reinterpret_cast<uint8_t*>(p);
+    uint8_t* pBeg = reinterpret_cast<uint8_t*>(pBody);
+    return pEnd - pBeg;                  // Body size in bytes.
+}
 
 static void fillBodyHeader(RingItem* pItem)
 {
@@ -248,3 +280,173 @@ void ring11test::run_3()
         std::string
     );
 }
+// Get string count from non body header item.
+void ring11test::strcount_1()
+{
+#pragma pack(push, 1)
+    struct {
+        TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+    // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+
+
+    item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
+    item.s_item.s_header.s_type = MONITORED_VARIABLES;
+    pTextItemBody pBody = &(item.s_item.s_body.u_noBodyHeader.s_body);
+    auto bodySize = fillTextItemBody(pBody, strings);
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + sizeof(uint32_t) + bodySize;
+    
+    EQ(strings.size(), size_t(m_pHelper->getStringCount(&item, m_pTranslator)));
+    
+}
+// Get string count from  body header item.
+
+void ring11test::strcount_2()
+{
+#pragma pack(push, 1)
+    struct {
+        TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+    // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+    item.s_item.s_header.s_type = MONITORED_VARIABLES;
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    pTextItemBody pBody= &(item.s_item.s_body.u_hasBodyHeader.s_body);
+    
+    auto bodySize = fillTextItemBody(pBody, strings);
+    item.s_item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + bodySize;
+    
+    EQ(strings.size(), size_t(m_pHelper->getStringCount(&item, m_pTranslator)));
+}
+
+// Get string count from non text item throws std::string.
+
+void ring11test::strcount_3()
+{
+#pragma pack(push, 1)
+    struct {
+        TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+    // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+
+
+    item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
+    item.s_item.s_header.s_type = FIRST_USER_ITEM_CODE;
+    pTextItemBody pBody = &(item.s_item.s_body.u_noBodyHeader.s_body);
+    auto bodySize = fillTextItemBody(pBody, strings);
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + sizeof(uint32_t) + bodySize;
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getStringCount(&item, m_pTranslator),
+        std::string
+    );
+}
+// Get strings from no body header item.
+
+void ring11test::strings_1()
+{
+#pragma pack(push, 1)
+    struct {
+        TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+    // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+
+
+    item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
+    item.s_item.s_header.s_type = MONITORED_VARIABLES;
+    pTextItemBody pBody = &(item.s_item.s_body.u_noBodyHeader.s_body);
+    auto bodySize = fillTextItemBody(pBody, strings);
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + sizeof(uint32_t) + bodySize;
+    
+    std::vector<std::string> gotten = m_pHelper->getStrings(&item, m_pTranslator);
+    EQ(strings.size(), gotten.size());
+    for (int i =0; i < strings.size(); i++) {
+        EQ(strings[i], gotten[i]);
+    }
+}
+
+// Get strings from item with body header.
+
+void ring11test::strings_2()
+{
+#pragma pack(push, 1)
+    struct {
+        TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+    // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+    item.s_item.s_header.s_type = MONITORED_VARIABLES;
+    fillBodyHeader(reinterpret_cast<pRingItem>(&item));
+    pTextItemBody pBody= &(item.s_item.s_body.u_hasBodyHeader.s_body);
+    
+    auto bodySize = fillTextItemBody(pBody, strings);
+    item.s_item.s_header.s_size =
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + bodySize;
+
+    
+
+    std::vector<std::string> gotten = m_pHelper->getStrings(&item, m_pTranslator);
+    EQ(strings.size(), gotten.size());
+    for (int i =0; i < strings.size(); i++) {
+        EQ(strings[i], gotten[i]);
+    }
+}
+
+// Get strings from non string item throws std::string exception.
+
+void ring11test::strings_3()
+{
+#pragma pack(push, 1)
+    struct {
+        TextItem  s_item;
+        char      s_moreStrings[500];
+    } item;
+#pragma pack(pop)
+    // Apologies to Dr. Suess.
+    std::vector<std::string> strings = {
+        "one string", "two string", "three string", "four",
+        "red string", "blue string", "green string", "more"
+    };
+
+
+    item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
+    item.s_item.s_header.s_type = FIRST_USER_ITEM_CODE;
+    pTextItemBody pBody = &(item.s_item.s_body.u_noBodyHeader.s_body);
+    auto bodySize = fillTextItemBody(pBody, strings);
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + sizeof(uint32_t) + bodySize;
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getStrings(&item, m_pTranslator),
+        std::string
+    );
+}
+
