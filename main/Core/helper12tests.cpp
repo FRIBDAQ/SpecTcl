@@ -59,6 +59,10 @@ class helper12test : public CppUnit::TestFixture {
     CPPUNIT_TEST(strings_1);
     CPPUNIT_TEST(strings_2);
     CPPUNIT_TEST(strings_3);
+    
+    CPPUNIT_TEST(scalers_1);
+    CPPUNIT_TEST(scalers_2);
+    CPPUNIT_TEST(scalers_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -89,6 +93,10 @@ protected:
     void strings_1();
     void strings_2();
     void strings_3();
+    
+    void scalers_1();
+    void scalers_2();
+    void scalers_3();
 };
 
 static const char* runTitle="This is the common run title";
@@ -134,6 +142,18 @@ static ptrdiff_t fillTextBody(NSCLDAQ12::TextItemBody& body, const std::vector<s
     
     return pEnd - pBeg;
     
+}
+static void fillScalerBody(NSCLDAQ12::ScalerItemBody& body, const std::vector<std::uint32_t>& scalers)
+{
+    body.s_intervalStartOffset = 10;
+    body.s_intervalEndOffset   = 12;
+    body.s_timestamp = time(nullptr);
+    body.s_intervalDivisor  = 1;  /* 11.0 sub second time intervals */
+    body.s_scalerCount = scalers.size();
+    body.s_isIncremental = 1;    /* 11.0 non-incremental scaler flag */
+    body.s_originalSid = 1;
+    memcpy(body.s_scalers, scalers.data(), scalers.size()*sizeof(uint32_t));
+  
 }
 
 // Can detect that there's no body header in a 12 item:
@@ -344,4 +364,86 @@ void helper12test::strings_3()
         std::string
     );
     
+}
+// Get scalers from an item with no body header.
+
+void helper12test::scalers_1()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ12::ScalerItem s_item;
+        uint32_t              s_moreScalers[31];
+    } item;
+#pragma pack(pop)
+    std::vector<uint32_t> scalers;
+    for (int i =0; i < 32; i++) {
+        scalers.push_back(400*i);
+    }
+    item.s_item.s_header.s_type = NSCLDAQ12::PERIODIC_SCALERS;
+    item.s_item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t) +
+        32*sizeof(uint32_t);
+    item.s_item.s_body.u_noBodyHeader.s_empty = sizeof(uint32_t);
+    fillScalerBody(item.s_item.s_body.u_noBodyHeader.s_body, scalers);
+    
+    std::vector<uint32_t> result = m_pHelper->getScalers(&item, m_pTranslator);
+    EQ(scalers.size(), result.size());
+    
+    for (int i = 0; i < scalers.size(); i++) {
+        EQ(scalers[i], result[i]);
+    }
+}
+// from an item with a body header:
+
+void helper12test::scalers_2()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ12::ScalerItem s_item;
+        uint32_t              s_moreScalers[31];
+    } item;
+#pragma pack(pop)
+    std::vector<uint32_t> scalers;
+    for (int i =0; i < 32; i++) {
+        scalers.push_back(400*i);
+    }
+    item.s_item.s_header.s_type = NSCLDAQ12::PERIODIC_SCALERS;
+    item.s_item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader) +
+        32*sizeof(uint32_t);
+    fillBodyHeader(item.s_item.s_body.u_hasBodyHeader.s_bodyHeader);
+    fillScalerBody(item.s_item.s_body.u_hasBodyHeader.s_body, scalers);
+    
+    std::vector<uint32_t> result = m_pHelper->getScalers(&item, m_pTranslator);
+    EQ(scalers.size(), result.size());
+    
+    for (int i = 0; i < scalers.size(); i++) {
+        EQ(scalers[i], result[i]);
+    }
+}
+// non scaler item results in std::string exception.
+
+void helper12test::scalers_3()
+{
+#pragma pack(push, 1)
+    struct {
+        NSCLDAQ12::ScalerItem s_item;
+        uint32_t              s_moreScalers[31];
+    } item;
+#pragma pack(pop)
+    std::vector<uint32_t> scalers;
+    for (int i =0; i < 32; i++) {
+        scalers.push_back(400*i);
+    }
+    item.s_item.s_header.s_type = NSCLDAQ12::FIRST_USER_ITEM_CODE;
+    item.s_item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader) +
+        32*sizeof(uint32_t);
+    fillBodyHeader(item.s_item.s_body.u_hasBodyHeader.s_bodyHeader);
+    fillScalerBody(item.s_item.s_body.u_hasBodyHeader.s_body, scalers);
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getScalers(&item, m_pTranslator),
+        std::string
+    );
 }
