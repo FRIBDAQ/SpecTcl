@@ -24,6 +24,8 @@
 #include "RingFormatHelper12.h"
 #include "BufferTranslator.h"
 #include "DataFormat12.h"
+#include <time.h>
+#include <string.h>
 
 
 /**
@@ -47,6 +49,12 @@ class helper12test : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(bodyhdrptr_1);
     CPPUNIT_TEST(bodyhdrptr_2);
+    
+    // Specific v11 overrides:
+    
+    CPPUNIT_TEST(title_1);
+    CPPUNIT_TEST(title_2);
+    CPPUNIT_TEST(title_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -69,7 +77,14 @@ protected:
     
     void bodyhdrptr_1();
     void bodyhdrptr_2();
+    
+    void title_1();
+    void title_2();
+    void title_3();
 };
+
+static const char* runTitle="This is the common run title";
+static uint32_t    runNumber = 12;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(helper12test);
 
@@ -79,6 +94,17 @@ static void fillBodyHeader(NSCLDAQ12::BodyHeader& hdr)
     hdr.s_timestamp = 0x1234567890;
     hdr.s_sourceId  = 2;
     hdr.s_barrier   = 0;
+}
+
+static void fillStateChangeBody(NSCLDAQ12::pStateChangeItemBody pBody)
+{
+    pBody->s_runNumber = runNumber;
+    pBody->s_timeOffset = 10;
+    pBody->s_Timestamp = time(nullptr);
+    pBody->s_offsetDivisor = 1;
+    pBody->s_originalSid = 1;      // 12.0 original source id.
+    strncpy(pBody->s_title, runTitle, TITLE_MAXSIZE+1);
+
 }
 
 // Can detect that there's no body header in a 12 item:
@@ -149,5 +175,49 @@ void helper12test::bodyhdrptr_2()
     EQ(
         &item.s_body.u_hasBodyHeader.s_bodyHeader,
         reinterpret_cast<NSCLDAQ12::pBodyHeader>(m_pHelper->getBodyHeaderPointer(&item))
+    );
+}
+// non body header state change:
+
+void helper12test::title_1()
+{
+    NSCLDAQ12::StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t)
+        + sizeof(NSCLDAQ12::StateChangeItemBody);
+    item.s_header.s_type = NSCLDAQ12::BEGIN_RUN;
+    item.s_body.u_noBodyHeader.s_empty=  sizeof(uint32_t);
+    fillStateChangeBody(&(item.s_body.u_noBodyHeader.s_body));
+    EQ(std::string(runTitle), m_pHelper->getTitle(&item));
+}
+
+// body header state change.
+
+void helper12test::title_2()
+{
+    NSCLDAQ12::StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader) +
+        sizeof(NSCLDAQ12::StateChangeItemBody);
+    item.s_header.s_type = NSCLDAQ12::BEGIN_RUN;
+    fillBodyHeader(item.s_body.u_hasBodyHeader.s_bodyHeader);
+    fillStateChangeBody(&(item.s_body.u_hasBodyHeader.s_body));
+    EQ(std::string(runTitle), m_pHelper->getTitle(&item));
+}
+// Non state change item throws:
+
+void helper12test::title_3()
+{
+    NSCLDAQ12::StateChangeItem item;
+    item.s_header.s_size =
+        sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t)
+        + sizeof(NSCLDAQ12::StateChangeItemBody);
+    item.s_header.s_type = NSCLDAQ12::FIRST_USER_ITEM_CODE;
+    item.s_body.u_noBodyHeader.s_empty=  sizeof(uint32_t);
+    fillStateChangeBody(&(item.s_body.u_noBodyHeader.s_body));
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pHelper->getTitle(&item),
+        std::string
     );
 }
