@@ -17,6 +17,7 @@
 #include "CMQDC32Unpacker.h"
 #include <Event.h>
 #include <stdint.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -30,6 +31,7 @@ static const uint32_t ALL_TYPESHFT(30);
 static const uint32_t TYPE_HEADER(1);
 static const uint32_t TYPE_DATA(0);
 static const uint32_t TYPE_TRAILER(3);
+static const uint32_t TYPE_BANK(0xc0000002);
 
 // Fields in the headers:
 
@@ -114,48 +116,66 @@ CMQDC32Unpacker::operator()(CEvent&                       rEvent,
   //
   // Get the 'header' and be sure it actually is a header and for our module id.
 
-  uint32_t header = getLong(event, offset);
+  int bankctr = 0;
+  bool bank = true;
 
-  if (header == 0xffffffff) {	// QDC had no data there will be just the two words of 0xffffffff
-    return offset + 2;
-  }
+  unsigned long datum = 0;
+  int longsRead = 0;
 
+  while (bank) {
+    datum = getLong(event, offset);
 
-  uint32_t      type   = (header &  ALL_TYPEMASK) >> ALL_TYPESHFT;
-  if (type != TYPE_HEADER) return offset;
-
-  int longsRead = 1;		// Count the longwords processed:
-
-  int           id     = (header & HDR_IDMASK) >> HDR_IDSHFT;
-  if (id != pMap->vsn) return offset;
-
-  // We've established this is our data.
-  // We're going to use the trailer to terminate so we don't need the
-  // conversion count field of the header.
-
-  offset += 2;
-  unsigned long datum = getLong(event, offset);
-  longsRead++;
-  offset += 2;
-  while (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
-    bool overflow = (datum & DATA_ISOVERFLOW) != 0;
-    if (!overflow) {
-      int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
-      int value   = datum & DATA_VALUEMASK;
-      int id      = pMap->map[channel];
-      if (id != -1) {
-	rEvent[id] = value;
-      }
-    } else if ((datum & DATA_SUBHDRMASK) == DATA_EXTSTAMP) {
-      // Need to handle extended timestamp?
-    } else {
-      // dummy datum of some sort.
-      std::cerr << "Invalid MQDC32 dummy word seen in unpacker: " << std::hex << datum << " ignoring. It's all good move along!\n";
+    // Get the 'header' and be sure it actually is a header and for our module id.
+    if (datum == 0xffffffff) {   // ADC had no data there will be just the two words of 0xffffffff
+      return offset + 2;
     }
-    datum   = getLong(event, offset);
-    longsRead++;
-    offset += 2;
+
+    // find type of datum
+    uint32_t  type   = (datum &  ALL_TYPEMASK) >> ALL_TYPESHFT;
+    // header type
+    if (type == TYPE_HEADER){
+      longsRead = 1;            // Count the longwords processed
+
+      int           id     = (datum & HDR_IDMASK) >> HDR_IDSHFT;
+      if (id != pMap->vsn) return offset;
+
+      // We've established this is our data.
+      // We're going to use the trailer to terminate so we don't need the
+      // conversion count field of the header.
+      offset += 2;
+      datum = getLong(event, offset);
+      longsRead++;
+      offset += 2;
+    }
+    // data type
+    else if (type == TYPE_DATA) {
+
+      bool overflow = (datum & DATA_ISOVERFLOW) != 0;
+      if (!overflow) {
+        int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
+        int value   = datum & DATA_VALUEMASK;
+        int id      = pMap->map[channel];
+        if (id != -1) {
+          rEvent[id] = value;
+        }
+      }
+      datum   = getLong(event, offset);
+      longsRead++;
+      offset += 2;
+    }
+    // bank type
+    else if (datum & TYPE_BANK) {  // Check if the datum is a bank trailer i.e. 0002 c000
+      bankctr++;
+      offset += 2;
+      if (bankctr == 2)
+        bank = false;
+    }
+    else {
+      std::cout << "Something is really wrong with this data" << std::endl;
+      exit(0);
+    }
   }
+
   // The datum should be the trailer.. verify this.. If so,
   // then save the count field ans parameter 32.
 
