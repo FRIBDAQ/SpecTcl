@@ -17,7 +17,6 @@
 #include "CMADC32Unpacker.h"
 #include <Event.h>
 #include <stdint.h>
-#include <cstdlib>
 
 using namespace std;
 
@@ -169,10 +168,8 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
       if (bankctr == 2)
 	bank = false;
     }
-    else {
-      std::cout << "Something is really wrong with this data" << std::endl;
-      exit(0);
-    }
+    else 
+      bank = false;
   }
 
   // The datum should be the trailer.. verify this.. If so,
