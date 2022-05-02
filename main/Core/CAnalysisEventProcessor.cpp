@@ -696,20 +696,21 @@ CAnalysisEventProcessor::ScalerBuffer10()
     CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
     NSCLDAQ10::pScalerItem pItem =
         reinterpret_cast<NSCLDAQ10::pScalerItem>(pDecoder->getItemPointer());
+    auto pHelper = pDecoder->getCurrentFormatHelper();
     
     // Fish out non scaler info.
     
     time_t stamp   = pItem->s_timestamp;
     float start    = pItem->s_intervalStartOffset;
     float end      = pItem->s_intervalEndOffset;
-    int   nScalers = pItem->s_scalerCount;
-    uint32_t* pScalers = pItem->s_scalers;
     
     // callback:
     
     ClientData cd = {m_pUserClientData, this};
     m_pUserCode->onScalers(
-        stamp, start, end, marshallScalers(nScalers, pScalers), true, &cd
+        stamp, start, end,
+	pHelper->getScalers(pItem, pDecoder->getBufferTranslator()),
+	true, &cd
     );    
 }
 /**
@@ -724,6 +725,7 @@ CAnalysisEventProcessor::ScalerBuffer11()
     CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
     DAQ11Format::pScalerItemBody pItem =
         static_cast<DAQ11Format::pScalerItemBody>(pDecoder->getBody());
+    auto pHelper = pDecoder->getCurrentFormatHelper();
     
     // Non scaler info:
     
@@ -735,15 +737,16 @@ CAnalysisEventProcessor::ScalerBuffer11()
         start = start/divisor;
         end   = end/divisor;
     }
-    int nScalers     = pItem->s_scalerCount;
     bool incremental = pItem->s_isIncremental != 0;
-    uint32_t* pScalers = pItem->s_scalers;
+
     
     // callback:
     
     ClientData cd = {m_pUserClientData, this};
     m_pUserCode->onScalers(
-        stamp, start, end, marshallScalers(nScalers, pScalers), incremental, &cd
+	stamp, start, end,
+	pHelper->getScalers(pItem,  pDecoder->getBufferTranslator()),
+	incremental, &cd
     );   
 }
 /**
