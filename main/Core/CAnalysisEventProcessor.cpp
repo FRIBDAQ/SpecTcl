@@ -745,7 +745,10 @@ CAnalysisEventProcessor::ScalerBuffer11()
     ClientData cd = {m_pUserClientData, this};
     m_pUserCode->onScalers(
 	stamp, start, end,
-	pHelper->getScalers(pItem,  pDecoder->getBufferTranslator()),
+	pHelper->getScalers(
+	   pDecoder->getItemPointer(),
+	   pDecoder->getBufferTranslator()
+	),
 	incremental, &cd
     );   
 }
