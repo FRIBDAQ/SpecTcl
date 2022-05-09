@@ -116,7 +116,7 @@ CRingFormatHelper11::getSourceId(void* pItem, BufferTranslator* pTranslator)
   uint32_t result  = 0;
   if (hasBodyHeader(pItem)) {
     BodyHeader *pHeader = reinterpret_cast<BodyHeader*>(getBodyHeaderPointer(pItem));
-    result =  pTranslator->GetLongword(pHeader->s_sourceId);
+    result =  pTranslator->TranslateLong(pHeader->s_sourceId);
   }
   return result;
 }

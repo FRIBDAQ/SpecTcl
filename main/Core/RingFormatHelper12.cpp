@@ -109,7 +109,7 @@ CRingFormatHelper12::getScalerOriginalSourceId( void* pItem, BufferTranslator* p
 {
   NSCLDAQ12::ScalerItemBody* pBody =
     reinterpret_cast<NSCLDAQ12::ScalerItemBody*>(getBodyPointer(pItem));
-  return pTranslator->GetLongword(pBody->s_originalSid);
+  return pTranslator->TranslateLong(pBody->s_originalSid);
 }
 /**
  * getTriggerCount
