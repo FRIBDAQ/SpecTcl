@@ -75,16 +75,18 @@ ScalerProcessor::onStateChange(
   std::string procName;
   std::string state;
   uint32_t sid  = getSid();
+
   switch (type) {
   case CAnalysisBase::Begin:
     state = "Active";
     procName = "BeginRun";
+    Set("StartTime", absoluteTime);
     m_totals.clear();
     break;
   case CAnalysisBase::End:
     procName = "EndRun";
     state = "Halted";
-    sid = getSid();
+    Set("StartTime", absoluteTime);    // I know this looks squirrely.
     break;
   case CAnalysisBase::Pause:
     procName = "PauseRun";
@@ -122,7 +124,8 @@ ScalerProcessor::onScalers(
 {
   Set("ElapsedRunTime", endOffset);
   Set("ScalerDeltaTime", (int)(endOffset - startOffset));
-  
+
+  Set("UpdateTime", absoluteTime);
 
   bool firstTime = m_totals.empty();
   for (int i = 0; i < scalers.size(); i++) {

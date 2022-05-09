@@ -56,6 +56,7 @@ set       ::RunStateName  "**Unknown**"
 set       ::ElapsedRunTime 0
 set       ::ScalerDeltaTime 0
 set       ::DataSource 0
+set       ::UpdateTime 0
 
 set ::scalerWin [toplevel .scalers]
 
@@ -78,10 +79,15 @@ proc Update {} {
 	set start [expr {$::ElapsedRunTime - $::ScalerDeltaTime}]
 	
 	# Construct the event... except for the scalers themselves:
-	
+
+	if {$::UpdateTime == 0} {
+	    set tod [clock seconds]
+	} else {
+	    set tod $::UpdateTime
+	}
 	set event [dict create                                                      \
 		       type Scaler start $start end $::ElapsedRunTime \
-		       realtime [clock seconds] \
+		       realtime $tod \
 		       divisor 1 incremental 1 scalers [list]  \
 		       source $::DataSource   \
 		       endsec $::ElapsedRunTime  \
