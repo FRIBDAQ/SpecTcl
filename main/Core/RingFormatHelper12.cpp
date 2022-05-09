@@ -98,7 +98,19 @@ CRingFormatHelper12::getScalers(void* pItem, BufferTranslator* pTranslator)
     return result;
     
 }
-
+/**
+ * getScalrOriginalSourceId
+ *   @param pItem - pointer to the entire item.
+ *   @param pTranslator - buffer translator.
+ *   @return uint32_t - s_originalSid field of the body
+ */
+uint32_t
+CRingFormatHelper12::getScalerOriginalSourceId( void* pItem, BufferTranslator* pTranslator)
+{
+  NSCLDAQ12::ScalerItemBody* pBody =
+    reinterpret_cast<NSCLDAQ12::ScalerItemBody*>(getBodyPointer(pItem));
+  return pTranslator->GetLongword(pBody->s_originalSid);
+}
 /**
  * getTriggerCount
  *    @param pItem - pointer to a physics trigger count item.

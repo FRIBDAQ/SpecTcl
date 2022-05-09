@@ -48,6 +48,7 @@ public:
     virtual std::vector<uint32_t> getScalers(
         void* pItem, BufferTranslator* pTranslator
     );
+    virtual uint32_t getScalerOriginalSourceId( void* pItem, BufferTranslator* pTranslator);
     
     // trigger count items:
     

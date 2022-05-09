@@ -50,6 +50,17 @@ CRingFormatHelper10::getBodyPointer(void* pItem)
     return reinterpret_cast<void*>((p->s_body));
 }
 /**
+ * getSourceId
+ *    @param pItem - pointer to the full item.
+ *    @param pTranslator - buffer translator
+ *    @return uint32_t - hard-coded zero since v10 items have no source id.
+ */
+uint32_t
+CRingFormatHelper10::getSourceId(void* pItem, BufferTranslator* pTranslator)
+{
+  return 0;
+}  
+/**
  * getBodyHeaderPointer
  *
  * Since no items in NSCLDAQ-10.0 have a body header, a null pointer is
@@ -202,6 +213,17 @@ CRingFormatHelper10::getScalers(void* pItem, BufferTranslator* pTranslator)
     std::vector<uint32_t> result = marshallScalers(n, p, pTranslator);
     return result;
     
+}
+/**
+ * getScalerOriginalSourceId
+ *   @param pItem -full item pointer.
+ *   @param pTranslator - buffer translator
+ *   @return uint32_t 0 - there's no concept of a source id in v10.
+ */
+uint32_t
+CRingFormatHelper10::getScalerOriginalSourceId(void* pItem, BufferTranslator* pTranslator)
+{
+  return 0;
 }
 // Trigger count specific methods:
 

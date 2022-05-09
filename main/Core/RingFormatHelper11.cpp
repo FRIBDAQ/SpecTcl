@@ -103,6 +103,23 @@
         return reinterpret_cast<void*>(0);
     }
  }
+/**
+ *  getSourceId
+ *    @param pItem - pointer to the full item.
+ *    @param pTranslator - buffer translator.
+ *    @return uint32_t - Return the source Id from the body header.
+ *    @retval 0 - if there is no body header.
+ */
+uint32_t
+CRingFormatHelper11::getSourceId(void* pItem, BufferTranslator* pTranslator)
+{
+  uint32_t result  = 0;
+  if (hasBodyHeader(pItem)) {
+    BodyHeader *pHeader = reinterpret_cast<BodyHeader*>(getBodyHeaderPointer(pItem));
+    result =  pTranslator->GetLongword(pHeader->s_sourceId);
+  }
+  return result;
+}
  /*------------------------------------------------------------------------
   * Private utility methods.
   */
@@ -237,6 +254,18 @@ std::vector<uint32_t> CRingFormatHelper11::getScalers(
          n, pBody->s_scalers, pTranslator
      );
      return result;
+}
+/**
+ * getScalerOriginalSourceId
+ *   @param pItem - pointer to the item.
+ *   @param pTranslator - buffer translator
+ *   @return uint32_t - V11 does not have original source ids so we return
+ *                      the body header source id:
+ */
+uint32_t
+CRingFormatHelper11::getScalerOriginalSourceId(void* pItem, BufferTranslator* pTranslator)
+{
+  return getSourceId(pItem, pTranslator);
 }
 
 // Methods specific to trigger count items.

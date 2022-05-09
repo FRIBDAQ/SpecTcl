@@ -59,7 +59,9 @@ public:
     virtual bool hasBodyHeader(void* pItem) const   = 0;
     virtual void* getBodyPointer(void* pItem)       = 0;
     virtual void* getBodyHeaderPointer(void* pItem) = 0;
-    
+    virtual uint32_t getSourceId(void* pItem, BufferTranslator* pTranslator) = 0;
+  
+  
     // Methods specific to state transitions:
     
     virtual std::string getTitle(void* pItem) = 0;
@@ -81,6 +83,7 @@ public:
     virtual std::vector<uint32_t> getScalers(
         void* pItem, BufferTranslator* pTranslator
     ) = 0;
+    virtual uint32_t getScalerOriginalSourceId(void* pItem, BufferTranslator* pTranslator) = 0;
     
     // Methods specific to trigger count items
     
