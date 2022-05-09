@@ -55,6 +55,7 @@ array set ::Scaler_Totals     [list];   #Unused I think.
 set       ::RunStateName  "**Unknown**"
 set       ::ElapsedRunTime 0
 set       ::ScalerDeltaTime 0
+set       ::DataSource 0
 
 set ::scalerWin [toplevel .scalers]
 
@@ -79,8 +80,12 @@ proc Update {} {
 	# Construct the event... except for the scalers themselves:
 	
 	set event [dict create                                                      \
-		       type Scaler start $start end $::ElapsedRunTime realtime [clock seconds] \
-		       divisor 1 incremental 1 scalers [list]        
+		       type Scaler start $start end $::ElapsedRunTime \
+		       realtime [clock seconds] \
+		       divisor 1 incremental 1 scalers [list]  \
+		       source $::DataSource   \
+		       endsec $::ElapsedRunTime  \
+		       startsec $start          \
 		  ]
 	#  Now the scaler increments.
 	
@@ -119,6 +124,8 @@ proc BeginRun {} {
 			timeoffset $::ElapsedRunTime               \
 			realtime   $::StartTime                    \
 			title      $::RunTitle                     \
+			source     $::DataSource                   \
+			endsec $::ElapsedRunTime  \
 		       ]
 	
 	handleData $event
@@ -147,6 +154,8 @@ proc EndRun {} {
 			timeoffset $::ElapsedRunTime               \
 			realtime   $::StartTime                    \
 			title      $::RunTitle                     \
+			source     $::DataSource                 \
+			endsec $::ElapsedRunTime  \
 		       ]
 	handleData $event
     } msg ]
