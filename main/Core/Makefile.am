@@ -414,8 +414,10 @@ noinst_PROGRAMS =    spectrumPkgTests \
 			xamineTests spectraDisplayTests \
 			spectclCmdTests evbProcessorTests \
 			gateTests fragIndexTests caendpptests \
-			mirrortests newanalysistests \
+			mirrortests \
 			helpertests
+# newanalysistests 
+
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -435,9 +437,9 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@TK_LIBS@ \
 		@TCL_LIBS@ @ROOT_LDFLAGS@
 
-newanalysistests_SOURCES=TestRunner.cpp scalerprocessortests.cpp
-newanalysistests_CPPFLAGS=$(commonTestCXXFLAGS)
-newanalysistests_LDADD=$(commonTestLdFlags)
+#newanalysistests_SOURCES=TestRunner.cpp scalerprocessortests.cpp
+#newanalysistests_CPPFLAGS=$(commonTestCXXFLAGS)
+#newanalysistests_LDADD=$(commonTestLdFlags)
 
 caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp \
 	modulehittests.cpp parsertest.cpp caenpmaptests.cpp caenevptests.cpp
@@ -530,6 +532,8 @@ TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests fragIndexTests caendpptests \
-	mirrortests newanalysistests
+	mirrortests
+
+# newanalysistests
 
 

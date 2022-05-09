@@ -33,6 +33,8 @@
 #include <string.h>
 #include <unistd.h>
 
+
+int currentPort = 5555;
 class mservertest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(mservertest);
     CPPUNIT_TEST(connect_1);
@@ -62,7 +64,8 @@ public:
             m_memory.dsp_types[i]  = undefined;
         }
         m_factory = new MirrorServerFactory(&m_memory);
-        m_listener = new ServerListener("5555", m_factory);
+	auto sport = std::to_string(currentPort);
+        m_listener = new ServerListener(sport.c_str(), m_factory);
         m_listener->start();
     }
     void tearDown() {
@@ -72,6 +75,7 @@ public:
         }
         delete m_listener;
         delete m_factory;
+	currentPort++;
     }
 protected:
     void connect_1();
@@ -96,7 +100,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(mservertest);
 void mservertest::connect_1()
 {
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
     CPPUNIT_ASSERT_NO_THROW(client.Shutdown());
 }
 void mservertest::connect_2()
@@ -105,7 +110,8 @@ void mservertest::connect_2()
     // that into the directory singleton.
     
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -138,7 +144,9 @@ void mservertest::get_1()
 {
     // Connect and be kosher by sending our 'memory key'.
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -183,7 +191,8 @@ void mservertest::get_2()
 {
     // Connect and be kosher by sending our 'memory key'.
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -231,7 +240,9 @@ mservertest::get_3()
 {
     // Connect and be kosher by sending our 'memory key'.
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -307,7 +318,9 @@ mservertest::spectrum_1()
     // pattern in both cases.
     
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -403,7 +416,9 @@ void mservertest::spectrum_2()
     // pattern in both cases.
     
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -514,7 +529,9 @@ mservertest::spectrum_3()
     // The usual 2two updates and validations:
     //
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -625,7 +642,9 @@ mservertest::spectrum_4()
     // The usual 2two updates and validations:
     //
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -723,7 +742,9 @@ mservertest::spectrum_5()
     // The usual 2two updates and validations:
     //
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -820,7 +841,9 @@ mservertest::spectrum_6()
     // The usual 2two updates and validations:
     //
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;
@@ -919,7 +942,9 @@ m_memory.dsp_xy[1].xchans = 256;
     // The usual 2two updates and validations:
     //
     CSocket client;
-    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", "5555"));
+    std::string sport = std::to_string(currentPort);
+    CPPUNIT_ASSERT_NO_THROW(client.Connect("localhost", sport.c_str()));
+
     
     struct _memory {
         Mirror::MessageHeader  s_header;

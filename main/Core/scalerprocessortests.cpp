@@ -27,6 +27,7 @@
 #include <string>
 #include <tcl.h>
 #include <sstream>
+#include
 
 class sptest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(sptest);
