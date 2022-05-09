@@ -26,7 +26,11 @@
 #include "CAnalysisBase.h"
 #include <vector>
 
+
 class CTCLInterpreter;
+class CRingFormatHelper;
+class BufferTranslator;
+class CRingBufferDecoder;
 
 class ScalerProcessor : public CAnalysisBase
 {
@@ -54,6 +58,13 @@ private:
   void Set(const char* varName, int value);
   void Set(const char* varName, int index, int value);
 
+  uint32_t getSid();
+  uint32_t getScalerSid();
+  CRingBufferDecoder* getDecoder();
+  void*    getItem();
+  BufferTranslator* getTranslator();
+  CRingFormatHelper* getHelper();
+  
 };
 
 

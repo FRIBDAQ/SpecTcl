@@ -24,6 +24,12 @@
 #include "CScalerProcessor.h"
 #include <TCLInterpreter.h>
 #include <stdio.h>
+#include "BufferTranslator.h"
+#include "CRingBufferDecoder.h"
+#include "RingFormatHelper.h"
+#include <Globals.h>
+#include <stdexcept>
+
 
 /**
  * constructor
@@ -68,7 +74,7 @@ ScalerProcessor::onStateChange(
 
   std::string procName;
   std::string state;
-
+  uint32_t sid  = getSid();
   switch (type) {
   case CAnalysisBase::Begin:
     state = "Active";
@@ -78,6 +84,7 @@ ScalerProcessor::onStateChange(
   case CAnalysisBase::End:
     procName = "EndRun";
     state = "Halted";
+    sid = getSid();
     break;
   case CAnalysisBase::Pause:
     procName = "PauseRun";
@@ -90,6 +97,7 @@ ScalerProcessor::onStateChange(
   }
   Set("ScalerRunState", state);
   m_Interp.GlobalEval(procName);
+  Set("DataSource", sid);
 }
 /**
  * onScalers
@@ -126,6 +134,7 @@ ScalerProcessor::onScalers(
     }
     Set("Scaler_Totals", i, m_totals[i]);
   }
+  Set("DataSource", getScalerSid());
   m_Interp.GlobalEval("Update");
 
 }
@@ -184,4 +193,80 @@ ScalerProcessor::Set(const char* varName, int index, int value)
   char fullVarName[200];
   sprintf(fullVarName, "%s(%d)", varName, index);
   Set(fullVarName, value);
+}
+/**
+ * getSid
+ *   Return the source id from the body header.
+ * @return uint32_t
+ * @todo - need a get original sid for state change items (including helpers).
+ */
+
+uint32_t
+ScalerProcessor::getSid()
+{
+  void*                   pItem = getItem();
+  BufferTranslator* pTranslator = getTranslator();
+  CRingFormatHelper* pHelper   = getHelper();
+  return pHelper->getSourceId(pItem, pTranslator);
+}
+/**
+ * getScalerSid
+ *   Get the orignal source id of a scaler item..
+ *   ALl of this works with v12 to get the original source id.
+ *  @return uint32_t - the original source id if possible else the source id.
+ */
+uint32_t
+ScalerProcessor::getScalerSid()
+{
+  
+  void*                   pItem = getItem();
+  BufferTranslator* pTranslator = getTranslator();
+  CRingFormatHelper* pHelper   = getHelper();
+  return pHelper->getScalerOriginalSourceId(pItem, pTranslator);
+}
+/**
+ * getDecoder
+ *   @return CRingBufferDecoder* - pointer to the current ring buffer decoder instance.
+ *   @throw  std::logic_error if the current decoder is not a ring buffer decoder.
+ */
+CRingBufferDecoder*
+ScalerProcessor::getDecoder()
+{
+  CRingBufferDecoder* pDecoder =
+    dynamic_cast<CRingBufferDecoder*>(gpBufferDecoder);
+  if (!pDecoder) {
+    // non ringbuffers not supported.
+    throw std::logic_error(
+        "CScalerProcessor only support event files from NSCLDAQ10 and later"
+    );
+  }
+  return pDecoder;
+}
+/**
+ * getItem
+ *   @return void* - pointer to the item being processed.
+ */
+void*
+ScalerProcessor::getItem()
+{
+  return getDecoder()->getItemPointer(); 
+}
+/**
+ *  getTranslator
+ *    @return BufferTranslator - active buffer byte order traslator.
+ */
+BufferTranslator*
+ScalerProcessor::getTranslator()
+{
+  return getDecoder()->getBufferTranslator();
+}
+/**
+ * getHelper
+ *
+ *   @return CRingFormatHelper* - pointer to the current format helper.
+ */
+CRingFormatHelper*
+ScalerProcessor::getHelper()
+{
+  return getDecoder()->getCurrentFormatHelper();
 }
