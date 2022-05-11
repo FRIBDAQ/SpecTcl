@@ -1,7 +1,13 @@
-bin_PROGRAMS=VMUSBSpecTcl
+lib_LTLIBRARIES=libVMUSBSpecTcl.la
 
-VMUSBSpecTcl_SOURCES = C785Unpacker.cpp \
-CFitButton.cpp \
+COMMON_cppflags = -I@top_srcdir@/Utility \
+	-I@top_srcdir@/Core  \
+	-I@top_srcdir@/Display \
+	-I@top_srcdir@/factories    \
+	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
+	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
+
+libVMUSBSpecTcl_la_SOURCES=CFitButton.cpp \
 CHINP.cpp \
 CMADC32Unpacker.cpp \
 CMASE.cpp \
@@ -15,17 +21,17 @@ CRateEventProcssor.cpp \
 CRateList.cpp \
 CRateProcessor.cpp \
 CStackMapCommand.cpp \
-CStackUnpacker.cpp \
+C785Unpacker.cpp \
 CV1729Unpacker.cpp \
 CV1x90Unpacker.cpp \
 CV977Unpacker.cpp \
 CMTDC32Unpacker.cpp \
 CMQDC32Unpacker.cpp \
-LICENCE.cpp \
-MySpecTclApp.cpp 
+LICENCE.cpp
 
+libVMUSBSpecTcl_la_CPPFLAGS=$(COMMON_cppflags)
 
-noinst_HEADERS = C785Unpacker.h \
+include_HEADERS= C785Unpacker.h \
 CFitButton.h \
 CHINP.h \
 CLLNLUnpacker.h \
@@ -41,28 +47,34 @@ CRateEventProcssor.h \
 CRateList.h \
 CRateProcessor.h \
 CStackMapCommand.h \
-CStackUnpacker.h \
 CV1729Unpacker.h \
 CV1x90Unpacker.h \
 CV977Unpacker.h \
 CMTDC32Unpacker.h \
-CMQDC32Unpacker.h \
+CMQDC32Unpacker.h 
+
+bin_PROGRAMS=VMUSBSpecTcl
+
+VMUSBSpecTcl_SOURCES = CStackUnpacker.cpp \
+MySpecTclApp.cpp 
+
+
+noinst_HEADERS =CStackUnpacker.h \
 MySpecTclApp.h
 
 # Removed: 	-I@top_srcdir@/Tape 
 
 
-VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
-	-I@top_srcdir@/Core  \
-	-I@top_srcdir@/Display \
-	-I@top_srcdir@/factories    \
-	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
+
+
+VMUSBSpecTcl_CPPFLAGS = $(COMMON_cppflags)
 
 # Removed 		    @top_builddir@/Tape/libtape.la 
 
 
-VMUSBSpecTcl_LDADD =@top_builddir@/Core/libSpecTclMain.la \
+VMUSBSpecTcl_DEPENDENCIES=libVMUSBSpecTcl.la
+
+VMUSBSpecTcl_LDADD =@builddir@/libVMUSBSpecTcl.la @top_builddir@/Core/libSpecTclMain.la \
 		@top_builddir@/Core/libTclGrammerApp.la \
 		    @top_builddir@/calibratedparams/libCalibrations.la \
 		    @top_builddir@/Display/libXamine.la \
@@ -77,8 +89,8 @@ VMUSBSpecTcl_LDFLAGS = 	 -g -Wl,"-rpath=@libdir@"
 
 install-exec-local:
 	$(mkinstalldirs) @prefix@/VMUSBSkel @prefix@/share/vmusb
-	for f in @srcdir@/*.cpp ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
-	for f in @srcdir@/*.h ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
+	for f in $(VMUSBSpecTcl_SOURCES) ; do $(INSTALL_DATA) @srcdir@/$$f  @prefix@/VMUSBSkel ; done
+	for f in $(noinst_HEADERS); do $(INSTALL_DATA) @srcdir@/$$f  @prefix@/VMUSBSkel ; done
 	$(INSTALL_DATA) MakefileSkel     @prefix@/VMUSBSkel/Makefile
 	$(INSTALL_SCRIPT) @srcdir@/SpecTclRC.tcl @prefix@/VMUSBSkel
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb

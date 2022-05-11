@@ -21,28 +21,7 @@ USERLDFLAGS=
 #   Append your objects to the definitions below:
 #
 
-OBJECTS= C785Unpacker.o \
-CFitButton.o \
-CHINP.o \
-CMADC32Unpacker.o \
-CMTDC32Unpacker.o \
-CMQDC32Unpacker.o \
-CMASE.o \
-CModuleUnpacker.o \
-CNADC2530Unpacker.o \
-CParamMapCommand.o \
-CPSD.o \
-CRateCommand.o \
-CRateEventProcessor.o \
-CRateEventProcssor.o \
-CRateList.o \
-CRateProcessor.o \
-CStackMapCommand.o \
-CStackUnpacker.o \
-CV1729Unpacker.o \
-CV1x90Unpacker.o \
-CV977Unpacker.o \
-LICENCE.o \
+OBJECTS= CStackUnpacker.o \
 MySpecTclApp.o 
 
 #
@@ -52,7 +31,7 @@ MySpecTclApp.o
 
 SpecTcl: $(OBJECTS)
 	$(CXXLD)  -o SpecTcl $(OBJECTS) $(USERLDFLAGS) \
-	$(LDFLAGS) 
+	-lVMUSBSpecTcl $(LDFLAGS) 
 
 
 clean:
