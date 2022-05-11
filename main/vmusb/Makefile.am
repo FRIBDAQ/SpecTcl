@@ -80,6 +80,7 @@ install-exec-local:
 	for f in @srcdir@/*.cpp ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
 	for f in @srcdir@/*.h ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
 	$(INSTALL_DATA) MakefileSkel     @prefix@/VMUSBSkel/Makefile
+	$(INSTALL_SCRIPT) @srcdir@/SpecTclRC.tcl @prefix@/VMUSBSkel
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb
 	$(INSTALL_DATA) @srcdir@/spectclSetup.tcl @srcdir@/configFile.tcl @srcdir@/constants.tcl  @prefix@/TclLibs/vmusb
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH@
@@ -94,7 +95,7 @@ install-exec-local:
 	done
 
 
-EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  vmusb.xml constants.tcl
+EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  vmusb.xml constants.tcl SpecTclRC.tcl
 
 BUILT_SOURCES = @builddir@/docs_built
 
