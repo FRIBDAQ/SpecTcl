@@ -119,6 +119,7 @@ class MainWindow(QMainWindow):
         self.h_dict_bak = {}        
         self.h_dict_geo = {}  # for saving pane geometry
         self.h_setup = {} # bool dict for setting histograms (false - histogram modified, true - 
+        self.h_limits = {} # dictionary with axis limits for the histogram
         # index of the histogram
         self.index = 0 # this one is for self-adding
         self.idx = 0 # this one is global
@@ -153,7 +154,6 @@ class MainWindow(QMainWindow):
         self.isLoaded = False
         self.isZoomed = False
         self.toCreateGate = False
-        self.isCreated = False
         # tools for selected plots
         self.rec = None
         self.isCluster = False
@@ -221,7 +221,7 @@ class MainWindow(QMainWindow):
         
         # plot widget
         self.wPlot = Plot()
-        
+
         # gui composition
         mainLayout.addWidget(self.wTop)
         mainLayout.addWidget(self.wConf)
@@ -243,7 +243,15 @@ class MainWindow(QMainWindow):
         self.factory.initialize(self.extraPopup.imaging.clusterAlgo)
         # initialize factory from fit_creator
         self.fit_factory.initialize(self.extraPopup.fit_list)
+
+        # removing buttons from toolbar
+        self.tb = self.wPlot.canvas.toolbar
+        unwanted_buttons = ['Back','Forward']
+        for x in self.tb.actions():
+            if x.text() in unwanted_buttons:
+                self.tb.removeAction(x)
         
+                
         #################
         # 2) Signals
         #################
@@ -330,7 +338,10 @@ class MainWindow(QMainWindow):
     def connect(self):
         self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
         self.pressID = self.wPlot.canvas.mpl_connect("button_press_event", self.on_press)        
-
+        self.wPlot.canvas.mpl_connect("draw_event", self.on_draw)
+        # home callback
+        self.wPlot.canvas.toolbar.actions()[0].triggered.connect(self.home_callback)
+        
     def edit_connect(self):
         self.e_draw = self.wPlot.canvas.mpl_connect('draw_event', self.draw_callback)
         self.e_press = self.wPlot.canvas.mpl_connect('button_press_event', self.button_press_callback)
@@ -347,6 +358,58 @@ class MainWindow(QMainWindow):
         self.wPlot.canvas.mpl_disconnect(self.e_release)
         self.wPlot.canvas.mpl_disconnect(self.e_key)
         self.wPlot.canvas.mpl_disconnect(self.e_motion)
+
+    def get_key(self, val):
+        for key, value in self.h_dict.items():
+            for key2, value2, in value.items():
+                if val == value2:
+                    return key
+        
+    def on_draw(self, event):
+        ax = None 
+        if self.wPlot.canvas.toolbar._active:
+            name = str(self.wConf.histo_list.currentText())
+            if (DEBUG):
+                print(self.h_dict)
+                print(self.get_key(name))
+            self.selected_plot_index = self.get_key(name)
+            if self.isZoomed:
+                ax = plt.gca()
+            else:
+                ax = self.select_plot(self.selected_plot_index)
+
+            if ax:
+                self.h_limits[self.selected_plot_index] = {}
+                self.h_limits[self.selected_plot_index]["x"] = list(ax.get_xlim())
+                self.h_limits[self.selected_plot_index]["y"] = list(ax.get_ylim())
+                self.h_limits_bak = self.h_limits
+                if (DEBUG):
+                    print("###### inside on_draw ######")
+                    print(self.selected_plot_index, self.h_limits)
+                    
+    def home_callback(self, event):
+        try:
+            if self.isZoomed:
+                name = str(self.wConf.histo_list.currentText())
+                self.selected_plot_index = self.get_key(name)
+                if (DEBUG):
+                    print("zoom mode for histogram ", name, " with index " , self.selected_plot_index)
+                    print("cleaning and setting up the zoomed pic...")
+
+                self.wPlot.figure.clear()
+                self.wPlot.canvas.draw()
+                if (DEBUG):
+                    print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
+                a = self.update_plot()
+                self.reset_axis_properties(self.selected_plot_index)
+                self.wPlot.canvas.draw()
+            else:
+                if (DEBUG):                
+                    print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
+                self.reset_axis_properties(self.selected_plot_index)
+                self.wPlot.canvas.draw()                
+        except:
+            pass
         
     def on_resize(self, event):
         self.wPlot.figure.tight_layout()
@@ -427,6 +490,8 @@ class MainWindow(QMainWindow):
         global t
         if (DEBUG):
             print("Inside on_dblclick")        
+            print("plot selected", self.selected_plot_index)
+            print("histogram limits", self.h_limits)
         t = None        
         if self.isZoomed == False: # entering zooming mode
             if (DEBUG):
@@ -448,7 +513,7 @@ class MainWindow(QMainWindow):
                 print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
             a = self.update_plot()
             self.removeCb(a)
-
+            
         else:
             # enabling adding histograms
             self.wConf.histo_geo_add.setEnabled(True)
@@ -502,7 +567,6 @@ class MainWindow(QMainWindow):
             else:
                 if (DEBUG):
                     print("Exiting zooming mode...")                
-                self.isCreated = False
                 self.isZoomed = False
                 if (DEBUG):
                     print("Reinitialization self.h_setup", self.h_setup)
@@ -749,7 +813,7 @@ class MainWindow(QMainWindow):
             self.h_zoom_max.append(self.yhigh)
         self.h_dim = self.get_histo_key_list(self.h_dict, "dim")
         self.h_lst = self.get_histo_key_list(self.h_dict, "name")
-
+        
         if (DEBUG):
             print(self.h_dict)
         
@@ -783,11 +847,11 @@ class MainWindow(QMainWindow):
         if (self.isGeoChanged()):
             self.h_dict.clear()
             self.h_dict_geo.clear()
-
+            self.h_limits = {}
+            
         if (DEBUG):
             print(self.h_dict)
 
-        self.isCreated = False
         self.index = 0
         self.idx = 0
         self.wPlot.figure.clear()
@@ -904,8 +968,9 @@ class MainWindow(QMainWindow):
             self.rest = PyREST(hostname,port)
             # set traces
             self.token =self.rest.startTraces(30)
-            print("trace token", self.token)
-            print(self.rest.pollTraces(self.token))
+            if (DEBUG):
+                print("trace token", self.token)
+                print(self.rest.pollTraces(self.token))
             
             if (hostname == "hostname" or port == "port" or mirror == "mirror"):
                 raise ValueError("hostname/port/mirror are not configured!")
@@ -966,8 +1031,12 @@ class MainWindow(QMainWindow):
 
     # update and create spectrum list 
     def update_spectrum_parameters(self):
+        if (DEBUG):
+            print("Inside update_spectrum_parameters")
         try:
             spec_dict = self.rest.listSpectrum()
+            if (DEBUG):
+                print(spec_dict)
             tmppar = []
             tmppar2 = []            
             for dic in spec_dict:
@@ -990,6 +1059,8 @@ class MainWindow(QMainWindow):
             QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started...")
 
     def create_spectrum_list(self):
+        if (DEBUG):
+            print("Inside update_spectrum_parameters")        
         self.update_spectrum_parameters()
         for name in self.spectrum_list['names']:
             if self.wConf.histo_list.findText(name) == -1:
@@ -1068,7 +1139,7 @@ class MainWindow(QMainWindow):
                     self.wConf.listParams[i].setCurrentIndex(index)
         except:
             pass
-        
+
     # add parameter list and spectrum type 
     def update_spectrum_info(self):
         hist_dim = 0
@@ -1112,7 +1183,7 @@ class MainWindow(QMainWindow):
                         "ymin": hist_miny, "ymax": hist_maxy, "ybin": hist_biny, "parameters": hist_params, "type": hist_type}
             return hist_tmp
         except:
-            QMessageBox.about(self, "Warning", "Please click 'Get Data' to access the data...")
+            QMessageBox.about(self, "Warning", "update_spectrum_info - Please click 'Get Data' to access the data...")
 
     def update_plot(self):
         if (DEBUG):
@@ -1152,7 +1223,7 @@ class MainWindow(QMainWindow):
             self.wPlot.canvas.draw_idle()
 
             #reset index
-            self.selected_plot_index = None
+            #self.selected_plot_index = None
             if (DEBUG):
                 print("Reset selected index", self.selected_plot_index)
             return a
@@ -1176,6 +1247,34 @@ class MainWindow(QMainWindow):
     # 7) Load/save geometry window
     ##########################################    
     
+    def findWholeWord(self, w):
+        return re.compile(r'\b({0})\b'.format(w), flags=re.IGNORECASE).search
+
+    def findNumbers(self, w):
+        return [int(s) for s in re.findall(r'\b\d+\b', w)]
+
+    def findHistoName(self, w):
+        return re.findall('"([^"]*)"', w)
+
+    # definition for both legacy and not window defs
+    def openGeo(self, filename):
+        cntr = 0
+        coords = []
+        spec_dict = {}
+        if (len(open(filename).readlines()) == 1):
+            return eval(open(filename,"r").read())
+        else:
+            with open(filename) as f:
+                for line in f:
+                    if (self.findWholeWord("Geometry")(line)):
+                        # find geo x,y in line
+                        coords = self.findNumbers(line)
+                    elif (self.findWholeWord("Window")(line)):
+                        spectrum = self.findHistoName(line)
+                        spec_dict[cntr] = spectrum[0]
+                        cntr+=1
+                return {'row': coords[0], 'col': coords[1], 'geo': spec_dict}
+            
     def saveGeo(self):
         fileName = self.saveFileDialog()
         try:
@@ -1192,9 +1291,10 @@ class MainWindow(QMainWindow):
     def loadGeo(self):
         fileName = self.openFileNameDialog()
         try:
-            self.isLoaded = True
-            f = open(fileName,"r").read()
-            infoGeo = eval(f)
+            if (DEBUG):
+                print("fileName:",fileName)
+                print(self.openGeo(fileName))
+            infoGeo = self.openGeo(fileName)
             self.wConf.row = infoGeo["row"]
             self.wConf.col = infoGeo["col"]
             # change index in combobox to the actual loaded values
@@ -1205,14 +1305,16 @@ class MainWindow(QMainWindow):
                 self.wConf.histo_geo_col.setCurrentIndex(index_col)
                 self.initialize_canvas(infoGeo["row"],infoGeo["col"])
                 self.h_dict_geo = infoGeo["geo"]
+                self.isLoaded = True
                 if len(self.h_dict_geo) == 0:
                     QMessageBox.about(self, "Warning", "You saved an empty pane geometry...")
-                if (DEBUG):
-                    print(self.h_dict_geo)
-                self.add_plot()
 
+            if (DEBUG):
+                print("inside loadGeo - list of histogram in geometry", self.h_dict_geo)
+                print("self.isLoaded", self.isLoaded)
+                
+            self.add_plot()
             self.update_plot()
-            
         except TypeError:
             pass
 
@@ -1411,27 +1513,42 @@ class MainWindow(QMainWindow):
     # geometrically add plots to the right place
     def add_plot(self):
         if (DEBUG):
-            print("Inside plot")
+            print("Inside add_plot")
         try:
             # if we load the geometry from file
             if self.isLoaded:
+                if (DEBUG):
+                    print("Inside add_plot - loaded")
+                    print(self.h_dict_geo)
                 counter = 0
                 for key, value in self.h_dict_geo.items():
                     index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
                     # changing the index to the correct histogram to load
                     self.wConf.histo_list.setCurrentIndex(index)
+                    if (DEBUG):
+                        print(key, value, index)
                     # updating histogram dictionary for fast access to information via get_histo_xxx
-                    self.h_dict[counter] = self.update_spectrum_info()
+                    if (index != -1) :
+                        self.h_dict[counter] = self.update_spectrum_info()
+                    counter += 1
+                if (DEBUG):
+                    print(self.h_dict)
+
+                if len(self.h_dict) != 0:
                     # updating support list for histogram dimension
                     self.h_dim = self.get_histo_key_list(self.h_dict, "dim")
-                    self.erase_plot(counter)
-                    self.add(counter)
-                    counter += 1
+                    if (DEBUG):
+                        print(self.h_dim)
+
+                for key, value in self.h_dict_geo.items():
+                    self.erase_plot(key)
+                    self.add(key)
+
                 self.wPlot.canvas.draw()
                 self.isLoaded = False
             else:
                 if (DEBUG):
-                    print("Inside plot - not loaded")
+                    print("Inside add_plot - not loaded")
                 # self adding
                 if self.isSelected == False:
                     if (DEBUG):
@@ -1459,7 +1576,7 @@ class MainWindow(QMainWindow):
                 self.wPlot.canvas.draw()
                 self.isSelected = False
         except:
-            QMessageBox.about(self, "Warning", "Please click 'Get Data' to access the data...")
+            QMessageBox.about(self, "Warning", "add_plot - Please click 'Get Data' to access the data...")
 
     # geometrically add plots to the right place and calls plotting    
     def add(self, index):
@@ -1478,7 +1595,10 @@ class MainWindow(QMainWindow):
                 print("in position",x,y)
             self.erase_plot(index)
             a = self.wPlot.figure.add_subplot(self.grid[x,y])            
+        if (DEBUG):
+            print("list of histograms in geometry", self.h_dict_geo)
         
+            
     # erase plot
     def erase_plot(self, index):
         a = None
@@ -1488,8 +1608,8 @@ class MainWindow(QMainWindow):
             else:
                 a = self.select_plot(index)
             # if 2d histo I need a bit more efforts for the colorbar
-            if self.h_dim[index] == 2:
-                self.removeCb(a)
+            #if self.h_dim[index] == 2:
+            self.removeCb(a)
             a.clear()
             return a
         except:
@@ -1562,6 +1682,7 @@ class MainWindow(QMainWindow):
             self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
             if (DEBUG):
                 print(self.h_lst)
+            self.set_axis_properties(index)
         except:
             pass
         
@@ -1595,14 +1716,12 @@ class MainWindow(QMainWindow):
         self.wPlot.figure.canvas.blit(axis.bbox)
 
         # setup colorbar only for 2D
-        if self.isCreated == False:
-            if hdim == 2:
-                divider = make_axes_locatable(axis)
-                cax = divider.append_axes('right', size='5%', pad=0.05)
-                # add colorbar
-                self.wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
-                self.isCreated = True
-                
+        if hdim == 2:
+            divider = make_axes_locatable(axis)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            # add colorbar
+            self.wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
+            
         self.wPlot.canvas.draw_idle()
 
     # check histogram dimension from GUI
@@ -1613,35 +1732,60 @@ class MainWindow(QMainWindow):
             self.create_disable2D(False)
 
     # set axis properties
-    def set_axis_properties(self, index):
-        ax = self.select_plot(index)            
+    def reset_axis_properties(self, index):
+        if (DEBUG):
+            print(index)
+            print("Inside reset_axis_properties", self.h_limits)
 
-        self.yhigh = self.get_histo_zoomMax(index)
-        self.h_zoom_max[index] = self.yhigh
-
-        hname = self.get_histo_name(index)        
-        hdim = self.get_histo_dim(index)
-        minx = self.get_histo_xmin(index)
-        maxx = self.get_histo_xmax(index)
-        binx = self.get_histo_xbin(index)
-
-        select = self.spectrum_list['names'] == hname
-        df = self.spectrum_list.loc[select]
-        x_label = str(df.iloc[0]['parameters'])
-
-        ax.set_xlim(minx,maxx)
-        ax.set_ylim(0,self.yhigh)
-        ax.set_xlabel(x_label,fontsize=10)
+        orig_histo = self.update_spectrum_info()
+        if (DEBUG):
+            print(orig_histo)
         
-        if hdim == 2:
-            miny = self.get_histo_ymin(index)
-            maxy = self.get_histo_ymax(index)
-            binsy = self.get_histo_ybin(index)
+        if self.h_limits:
+            try:
+                ax = None
+                if self.isZoomed:
+                    ax = plt.gca()
+                else:
+                    ax = self.select_plot(index)            
+                
+                if (DEBUG):                    
+                    print(self.h_limits)
+                    print(ax.get_xlim(), ax.get_ylim())
+                    print(orig_histo["xmin"],orig_histo["xmax"])
+                    print(orig_histo["ymin"],orig_histo["ymax"])                    
 
-            self.vmax = self.get_histo_zoomMax(index)
-
-        return ax
+                self.h_limits[index]["x"] = [float(orig_histo["xmin"]),float(orig_histo["xmax"])] 
+                self.h_limits[index]["y"] = [float(orig_histo["ymin"]),float(orig_histo["ymax"])]                
+                if (DEBUG):
+                    print(self.h_limits)                                
+                ax.set_xlim(self.h_limits[index]["x"][0], self.h_limits[index]["x"][1])
+                ax.set_ylim(self.h_limits[index]["y"][0], self.h_limits[index]["y"][1])
+            except:
+                QMessageBox.about(self, "Warning", "Something has failed in reset_axis_properties")
             
+    def set_axis_properties(self, index):
+        if (DEBUG):
+            print("Inside set_axis_properties", self.h_limits)
+        if self.h_limits:
+            try:
+                ax = None
+                if self.isZoomed:
+                    ax = plt.gca()
+                else:
+                    ax = self.select_plot(index)            
+                
+                if (DEBUG):                    
+                    print(ax.get_xlim(), ax.get_ylim())
+                    print(self.h_limits[index]["x"][0], self.h_limits[index]["x"][1])
+                    print(self.h_limits[index]["y"][0], self.h_limits[index]["y"][1])
+                
+                ax.set_xlim(self.h_limits[index]["x"][0], self.h_limits[index]["x"][1])
+                ax.set_ylim(self.h_limits[index]["y"][0], self.h_limits[index]["y"][1])
+
+            except:
+                pass
+
     # getting data for plotting
     def get_data(self, index):
         hname = self.get_histo_name(index)
@@ -2018,32 +2162,35 @@ class MainWindow(QMainWindow):
             pass
         
     def drawGate(self):
-        if (DEBUG):
-            print("inside drawGate")
-        if self.wTop.slider.value() != 0:
-            self.timer.stop()
+        try:
+            if (DEBUG):
+                print("inside drawGate")
+            if self.wTop.slider.value() != 0:
+                self.timer.stop()
 
-        if self.selected_plot_index is not None:
-            name = self.wConf.listGate.currentText()
-            key = self.get_histo_name(self.selected_plot_index)
-            gtype = self.gateTypeDict[name]
-            if self.isZoomed:
-                a = plt.gca()
-            else:
-                a = self.select_plot(self.selected_plot_index)
-            if (self.wConf.button1D.isChecked() and (gtype == "s" or gtype == "gs")):
-                #if (DEBUG):
-                print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
-                self.plot1DGate(a, key, name)
-            else:
-                if (DEBUG):                        
-                    print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
-                self.plot2DGate(a, key, name)
+            if self.selected_plot_index is not None:
+                name = self.wConf.listGate.currentText()
+                key = self.get_histo_name(self.selected_plot_index)
+                gtype = self.gateTypeDict[name]
+                if self.isZoomed:
+                    a = plt.gca()
+                else:
+                    a = self.select_plot(self.selected_plot_index)
+                if (self.wConf.button1D.isChecked() and (gtype == "s" or gtype == "gs")):
+                    if (DEBUG):
+                        print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
+                    self.plot1DGate(a, key, name)
+                else:
+                    if (DEBUG):                        
+                        print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
+                    self.plot2DGate(a, key, name)
 
-        self.wPlot.canvas.draw()
-        if self.wTop.slider.value() != 0:
-            self.timer.start()        
-
+            self.wPlot.canvas.draw()
+            if self.wTop.slider.value() != 0:
+                self.timer.start()        
+        except:
+            pass
+            
     ##############################
     # 11) 1D/2D region integration 
     ##############################
@@ -2436,7 +2583,8 @@ class MainWindow(QMainWindow):
     def loadFigure(self):
         fileName = self.openFigureDialog()
         self.extraPopup.imaging.loadLISE_name.setText(fileName)
-        print(fileName)
+        if (DEBUG):
+            print(fileName)
         try:
             if os.path.isfile(fileName):
                 self.LISEpic = cv2.imread(fileName, 0)

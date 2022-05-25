@@ -17,6 +17,7 @@
 #include "CMADC32Unpacker.h"
 #include <Event.h>
 #include <stdint.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -117,24 +118,25 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
   int bankctr = 0;
   bool bank = true;
 
+  uint32_t header = 0;
   unsigned long datum = 0;
   int longsRead = 0;
   
   while (bank) {
-    datum = getLong(event, offset);
+    header = getLong(event, offset);
 
     // Get the 'header' and be sure it actually is a header and for our module id.
-    if (datum == 0xffffffff) {   // ADC had no data there will be just the two words of 0xffffffff
+    if (header == 0xffffffff) {   // ADC had no data there will be just the two words of 0xffffffff
       return offset + 2;
     }
 
     // find type of datum
-    uint32_t  type   = (datum &  ALL_TYPEMASK) >> ALL_TYPESHFT;
+    uint32_t  type   = (header &  ALL_TYPEMASK) >> ALL_TYPESHFT;
     // header type
     if (type == TYPE_HEADER){
       longsRead = 1;		// Count the longwords processed
       
-      int           id     = (datum & HDR_IDMASK) >> HDR_IDSHFT;
+      int           id     = (header & HDR_IDMASK) >> HDR_IDSHFT;
       if (id != pMap->vsn) return offset;
       
       // We've established this is our data.
@@ -146,7 +148,7 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
       offset += 2;
     }      
     // data type
-    else if (type == TYPE_DATA) {
+    else if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
 
       bool overflow = (datum & DATA_ISOVERFLOW) != 0;
       if (!overflow) {
@@ -168,8 +170,10 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
       if (bankctr == 2)
 	bank = false;
     }
-    else 
-      bank = false;
+    else {
+      std::cout << "Something is really wrong with this data" << std::endl;
+      exit(0);
+    }
   }
 
   // The datum should be the trailer.. verify this.. If so,
