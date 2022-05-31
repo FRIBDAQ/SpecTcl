@@ -2,7 +2,7 @@
 #
 #  Setup the standard scripted commandsin SpecTcl.
 #
-
+package require Tk
 tk appname SpecTcl
 
 puts -nonewline "Loading SpecTcl gui..."

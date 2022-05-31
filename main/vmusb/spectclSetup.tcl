@@ -620,7 +620,7 @@ proc vmusbConfig filename {
     configRead $filename
 
     puts "Building channel maps"
-    catch {buildChannelMaps 20} msg
+    catch {buildChannelMaps 5000} msg
     puts $msg
 
     puts "Building stack maps"
