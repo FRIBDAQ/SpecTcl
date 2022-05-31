@@ -485,13 +485,18 @@ class MainWindow(QMainWindow):
                         
             self.wPlot.canvas.draw()
         t = None
-            
+
     def on_dblclick(self, event):
         global t
         if (DEBUG):
             print("Inside on_dblclick")        
             print("plot selected", self.selected_plot_index)
             print("histogram limits", self.h_limits)
+        if (self.wConf.histo_list.currentText() == ""):
+            name = self.h_dict_geo[self.selected_plot_index]
+            index = self.wConf.histo_list.findText(name)
+            self.wConf.histo_list.setCurrentIndex(index)
+            
         t = None        
         if self.isZoomed == False: # entering zooming mode
             if (DEBUG):
@@ -1213,6 +1218,7 @@ class MainWindow(QMainWindow):
                         print(self.h_setup[index])
                     if (value["name"] != "empty"):
                         a = self.select_plot(index)
+                        self.removeCb(a)
                         time.sleep(0.01)
                         if (self.h_setup[index]):
                             self.setup_histogram(a, index)
@@ -1236,7 +1242,6 @@ class MainWindow(QMainWindow):
         if self.wTop.slider.value() != 0:
             self.timer.setInterval(1000*int(self.wTop.slider.value()))
             # this line below depends on the REST trace
-            #self.timer.timeout.connect(self.update)
             self.timer.timeout.connect(self.update_plot)
             self.timer.start()
         else:
