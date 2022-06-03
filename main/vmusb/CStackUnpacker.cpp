@@ -29,6 +29,7 @@
 #include "CV1729Unpacker.h"
 #include "CMTDC32Unpacker.h"
 #include "CMQDC32Unpacker.h"
+#include "CMDPP32QDCUnpacker.h"
 
 #include <Event.h>
 #include <TCLAnalyzer.h>
@@ -61,6 +62,7 @@ static CPSD               unpackPSD;
 static CV1729Unpacker     unpackV1729;
 static CMTDC32Unpacker    unpackMTDC32;
 static CMQDC32Unpacker    unpackMQDC32;
+static CMDPP32QDCUnpacker    unpackMDPP32QDC;
 
 // table of unpackers for each type of module.
 
@@ -77,7 +79,8 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpackPSD,
     &unpackV1729,
     &unpackMTDC32,
-    &unpackMQDC32    
+    &unpackMQDC32,
+    &unpackMDPP32QDC
 };
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +138,6 @@ CStackUnpacker::operator()(const Address_t pEvent,
   // Unpack each module in the stack:
 
   unsigned int offset = 0;
-
 
 
   for (int i = 0; i < myMap.size(); i++) {
