@@ -460,6 +460,12 @@ proc buildMQDC32Map {param name} {
     }
     return [makeParamsSpectraAndMap $param $name $::typeMQDC32 $::adcChannels($name)  $resolution ]
 }
+
+proc buildMDPP32QDCMap {param name} {
+    set resolution $::channelCount($$::typeMDPP32QDC);
+
+    return [makeParamsSpectraAndMap $param $name $::typeMDPP32QDC $::adcChannels($name)  $resolution ]
+}
 #------------------------------------------------------------------
 #
 # Build a simple parameter/spectrum set and channel maps:
@@ -532,7 +538,6 @@ proc buildChannelMaps param {
 	    createFreezeButton
 
 	} else {
-	    
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)
 	    set resolution $::channelCount($type)

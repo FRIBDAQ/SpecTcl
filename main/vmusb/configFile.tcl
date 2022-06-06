@@ -508,6 +508,28 @@ proc tdc1x90 args {
     
 }
 
+#---------------------------------------------------------------
+# The mdpp32qdc command processes the creation and configuration of
+# Mesytec MDPP-32 module with QDC firmware.
+#
+proc mdpp32qdc args {
+    set subcommand [lindex $args 0]
+    set name       [lindex $args 1]
+
+    set ::readoutDeviceType($name) $::typeMDPP32QDC
+
+    # The config or create subcommand with
+    # -id config which sets the 'vsn' for this module.
+
+    if {($subcommand eq "create") || ($subcommand eq "config")} {
+      set ididx [lsearch -exact $args "-id"]
+      if {$ididx != -1} {
+        incr ididx
+        set ::adcConfiguration($name) [lindex $args $ididx]
+      }
+    }
+}
+
 
 #---------------------------------------------------------------
 #  We need to use this command to fill in the chainOrder array of 
