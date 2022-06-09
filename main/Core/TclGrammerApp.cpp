@@ -995,7 +995,7 @@ int CTclGrammerApp::operator()() {
         int hostname;
         hostname = gethostname(hostbuffer, sizeof(hostbuffer));
         std::string host(hostbuffer);
-        host += ".nscl.msu.edu";
+        //host += ".nscl.msu.edu";
       
         std::cout << "hostname: " << host << std::endl;
         std::cout << "port: " << atoi(httpdPort) << std::endl;  

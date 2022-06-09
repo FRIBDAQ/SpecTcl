@@ -68,6 +68,7 @@ class Menu(QWidget):
                 self.slider = QSlider(QtCore.Qt.Horizontal, self)
                 self.slider.setMinimum(0)
                 self.slider.setMaximum(30)
+                self.slider.setDisabled(True) #temporarily
                 
                 layout = QHBoxLayout()
                 layout.addWidget(self.userLabel)

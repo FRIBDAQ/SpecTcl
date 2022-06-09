@@ -19,6 +19,9 @@ class Plot(QWidget):
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.plusButton = QPushButton("+", self)
         self.minusButton = QPushButton("-", self)
+        self.histoLabel = QLabel(self)
+        self.histoLabel.setText("Histogram:")
+        self.toolbar.addWidget(self.histoLabel)
         self.toolbar.addWidget(self.plusButton)
         self.toolbar.addWidget(self.minusButton)
         

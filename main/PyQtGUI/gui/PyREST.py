@@ -205,7 +205,7 @@ class PyREST:
     # can be modified (except for the name)
     # A band must have a minimum of two points, while a contour requires at least three points
     
-    def createGate(self, name, types, parameters, boundaries, maskval=""):
+    def createGate(self, name, types, parameters, boundaries, maskval="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/gate/edit?name="+str(name)+"&type="+str(types)
         if str(types) == "s": # slice
             url += "&parameter="+str(parameters)+"&low="+str(boundaries[0])+"&high="+str(boundaries[1])
@@ -216,12 +216,12 @@ class PyREST:
         elif (str(types) == "c" or str(types) == "b"):  # contour or band
             url += "&xparameter="+str(parameters[0])+"&yparameter="+str(parameters[1])
             for point in boundaries:
-                url += "&xcoord="+str(point[0])+"&ycoord="+str(point[1])
+                url += "&xcoord="+str(point["x"])+"&ycoord="+str(point["y"])
         elif (str(types) == "gc" or str(types) == "gb"):  # gamma contour or band
             for i in parameters:
                 url +="&parameter="+str(i)
             for point in boundaries:
-                url += "&xcoord="+str(point[0])+"&ycoord="+str(point[1])
+                url += "&xcoord="+str(point["x"])+"&ycoord="+str(point["y"])
         elif (str(types) == "em" or str(types) == "am" or str(types) == "nm"):  # bit mask
             url += "&parameter="+str(parameters)+"&value="+str(maskval)
 
@@ -284,7 +284,7 @@ class PyREST:
     # spectrum - name of the spectrum
     # gate - name of the gate applied. If the value is -TRUE-, the spectrum has not gate applied
     
-    def applylistgate(self, pattern=""):
+    def applylistgate(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/apply/list?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         gate_dict = json.loads(tmpl.decode())
