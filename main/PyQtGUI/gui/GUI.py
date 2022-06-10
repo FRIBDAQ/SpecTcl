@@ -358,8 +358,12 @@ class MainWindow(QMainWindow):
 
     def histoHover(self, event):
         try:
+            index = 0
             if not event.inaxes: return
-            index = list(self.wPlot.figure.axes).index(event.inaxes)
+            if self.isZoomed:
+                index = self.selected_plot_index_bak
+            else:
+                index = list(self.wPlot.figure.axes).index(event.inaxes)
             self.wPlot.histoLabel.setText("Histogram:"+self.h_dict_geo[index])
         except:
             pass
@@ -754,19 +758,20 @@ class MainWindow(QMainWindow):
             self.edit_ax.add_line(self.line_region)
             self.set_line(self.wConf.listGate.currentText(), [self.line_region])
             if (DEBUG):
+                print("##########/n",self.artist_dict,"/n##########")
+            if (DEBUG):
                 print("update key")
                 print(self.wConf.listGate.currentText(), "\n", self.line_region.get_xydata())
-            if (DEBUG):
                 print("self.dict_region", self.dict_region)
+                print(x,y)
             # push gate to shared memory 2D
-            self.formatLinetoREST(self.line_region)
+            self.formatLinetoREST(x,y)
             # update gate
-            gate = self.wConf.listGate.currentText()
-            #key = self.wConf.spectrum_name.text()
-            key = self.wConf.histo_list.currentText()
-            self.artist2D[gate] = []
-            self.artist2D[gate] = self.line_region
-            self.artist_dict[key] = self.artist2D
+            gname = self.wConf.listGate.currentText()
+            hname = self.wConf.histo_list.currentText() 
+            self.artist2D[gname] = []
+            self.artist2D[gname] = [deepcopy(x), deepcopy(y)]
+            self.artist_dict[hname] = self.artist2D
             if (DEBUG):
                 print("update gate \n", self.artist_dict)
             self.edit_disconnect()
@@ -2095,35 +2100,32 @@ class MainWindow(QMainWindow):
                 self.edit_connect()
                 # initialize editing
                 self.edit_init()
-                # disabling editing of the gate                
-                self.edit_disconnect()                
         except:
             QMessageBox.about(self, "Warning", "Please create/load a gate...")
 
     def edit_init(self):
-        a = plt.gca()
+        self.edit_ax = plt.gca()
         hname = self.wConf.histo_list.currentText()
         gname = self.wConf.listGate.currentText()
+        polygon = None
 
-        print("List of the child Artists of this Artist \n",
-              *list(a.get_children()), sep ="\n")
-        lst = list(a.get_children())
+        if (DEBUG):
+            print("List of the child Artists of this Artist \n",
+                  *list(self.edit_ax.get_children()), sep ="\n")
+        lst = list(self.edit_ax.get_children())
         for obj in lst:
             if isinstance(obj, matplotlib.lines.Line2D):
-                print(obj.get_data())
-                print(obj.get_path())
-                print(self.artist_dict[hname][gname])
-                print(obj.get_xdata())
+                if (DEBUG):
+                    print(obj.get_data())
+                    print(obj.get_path())
+                    print(self.artist_dict[hname][gname])
+                    print(obj.get_xdata())
                 if obj.get_xdata() == (self.artist_dict[hname][gname])[0]:
-                    print("found the line")
+                    if (DEBUG):
+                        print("found the line")
                     obj.set_visible(False)
-
-        '''
-        self.edit_ax = plt.gca()
-        # select the gate from the menu and apply the following code
-        name_gate = self.wConf.listGate.currentText()
-        polygon = (self.get_line(name_gate))[0]
-        self.polygon.set_visible(False)
+                    polygon = obj
+                    
         polygon.set_visible(False)
         self.poly_xy = self.convertToList2D(polygon)
         if (DEBUG):
@@ -2132,14 +2134,13 @@ class MainWindow(QMainWindow):
         self.edit_ax.add_patch(self.poly)
         self.edit_ax.set_clip_on(False)
         self.edit_canvas = self.poly.figure.canvas
-        
+
         x, y = zip(*self.poly.xy)
         self.l = plt.Line2D(x, y, color='red', marker='o', mfc='r', alpha=0.2, animated=True)
         self._update_line()
         self.edit_ax.add_line(self.l)
         
         self.poly.add_callback(self.poly_changed)
-        '''
         
         self.wPlot.canvas.draw()
             
