@@ -552,7 +552,7 @@ class MainWindow(QMainWindow):
             self.wConf.histo_geo_add.setEnabled(False)
             # enabling gate creation
             self.wConf.createGate.setEnabled(True)                
-            #self.wConf.editGate.setEnabled(True)  # disabled temporarily
+            self.wConf.editGate.setEnabled(True) 
             if (DEBUG):
                 print("inside dblclick: self.selected_plot_index", self.selected_plot_index)
             self.wPlot.figure.clear()
@@ -999,9 +999,9 @@ class MainWindow(QMainWindow):
             for xx, yy in zip(x,y):
                 points["x"] = xx
                 points["y"] = yy                
-                boundaries.append(points)
-
-
+                boundaries.append(deepcopy(points))
+            boundaries.pop()
+            
         if (DEBUG):
             print(self.wConf.listGate.currentText())
             print(self.gateType)
@@ -2095,6 +2095,8 @@ class MainWindow(QMainWindow):
                 self.edit_connect()
                 # initialize editing
                 self.edit_init()
+                # disabling editing of the gate                
+                self.edit_disconnect()                
         except:
             QMessageBox.about(self, "Warning", "Please create/load a gate...")
 
