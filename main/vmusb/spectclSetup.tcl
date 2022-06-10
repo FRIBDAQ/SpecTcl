@@ -484,9 +484,11 @@ proc makeParamsSpectraAndMap {param name type channels resolution} {
     # Make the parameters and spectra:
     
     foreach parameter $channels {
-	parameter $parameter $param
-	incr param
-	makeSpectrum $parameter $resolution
+      if {$parameter != ""} {
+        parameter $parameter $param
+        makeSpectrum $parameter $resolution
+      }
+      incr param
     }
     paramMap $name $type $vsn $channels
     return $param
