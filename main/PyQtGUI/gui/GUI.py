@@ -2556,6 +2556,7 @@ class MainWindow(QMainWindow):
 
     def initializeCluster(self):
 
+        print("initializeCluster")
         self.clusterpts = []
         self.clusterw = []                
         
@@ -2569,8 +2570,8 @@ class MainWindow(QMainWindow):
         # convert np array to matrix
         m = np.asmatrix(w)
 
-        if (DEBUG):
-            print(m.shape[0],m.shape[1])
+        #if (DEBUG):
+        print("m.shape[0],m.shape[1]", m.shape[0],m.shape[1])
         
         histo_minx = int(df.iloc[0]['minx'])
         histo_maxx = int(df.iloc[0]['maxx'])
@@ -2587,8 +2588,8 @@ class MainWindow(QMainWindow):
 
         xmin, xmax = a.get_xlim()            
         ymin, ymax = a.get_ylim()
-        if (DEBUG):
-            print(xmin, xmax, ymin, ymax)
+        #if (DEBUG):
+        print("xmin", xmin, "xmax", xmax, "ymin", ymin, "ymax", ymax)
 
         polygon = Polygon([(xmin,ymin), (xmax,ymin), (xmax,ymax), (xmin,ymax)])
         # remove the duplicated last vertex
@@ -2596,7 +2597,7 @@ class MainWindow(QMainWindow):
         p = Path(poly)
 
         # set value for threshold and algo
-        self.old_threshold = self.extraPopup.imaging.threshold_slider.value()
+        #self.old_threshold = self.extraPopup.imaging.threshold_slider.value()
         self.old_algo = self.extraPopup.imaging.clusterAlgo.currentText()
 
         if (DEBUG):
@@ -2606,8 +2607,8 @@ class MainWindow(QMainWindow):
         x, y = np.meshgrid(np.arange(histo_minx, histo_maxx, int((histo_maxx-histo_minx+1)/histo_binx), dtype=int),
                            np.arange(histo_miny, histo_maxy, int((histo_maxy-histo_miny+1)/histo_biny), dtype=int)) # make a canvas with coordinates in bins
         x, y = x.flatten(), y.flatten()
-        if (DEBUG):
-            print(len(x),len(y))
+        #if (DEBUG):
+        print("x.flatten", len(x), "y.flatten", len(y))
         points = np.vstack((x, y)).T
         isInside = p.contains_points(points)
 
@@ -2616,55 +2617,34 @@ class MainWindow(QMainWindow):
             # convert x and y in bin units
             x = int((point[0]-histo_minx)*(histo_binx/(histo_maxx-histo_minx)))
             y = int((point[1]-histo_miny)*(histo_biny/(histo_maxy-histo_miny)))
-            #print(x,y)
             val = m[(y,x)]
             self.clusterw.append(val)
 
-        # creating masking list
-        mask_val = [int(self.extraPopup.imaging.threshold_slider.value())]*len(self.clusterpts)
-
-        mask = []
-        for x, y in zip(mask_val, self.clusterw):
-            if x < y:
-                mask.append(True)
-            else:
-                mask.append(False)                
-
-        if (DEBUG):                
-            print("before masking...")        
-            print(len(self.clusterpts), len(self.clusterw))                
-       
-        self.clusterpts = list(compress(self.clusterpts, mask))
-        self.clusterw = list(compress(self.clusterw, mask))
-        
-        if (DEBUG):
-            print("after masking...")        
-            print(len(self.clusterpts), len(self.clusterw))
-            print(self.clusterpts[0:10], self.clusterw[0:10])
+        #if (DEBUG):        
+        print(len(self.clusterpts), len(self.clusterw))
+        print(self.clusterpts[0:10], self.clusterw[0:10])
         
         print("Done initializing cluster")
         self.isCluster = True
+        print("self.isCluster",self.isCluster)
 
     def analyzeCluster(self):
         try:
+            print("Inside analyze cluster")
             a = None
             if self.isZoomed:
                 a = plt.gca()
             else:
                 a = self.select_plot(self.selected_plot_index)
 
-            # remove ellipses on plot if they exist
-            if a.patches:
-                a.patches = []
-                self.wPlot.canvas.draw()
-                
             # check if new algo has been called 
             algo = self.extraPopup.imaging.clusterAlgo.currentText()        
+            print("algo chosen:", algo)
             if (algo != self.old_algo):
                 self.isCluster = False
 
             # initialization of the clusters (if needed)
-            if (self.isCluster == False or (self.old_threshold != self.extraPopup.imaging.threshold_slider.value())) and self.wConf.button2D.isChecked():
+            if (self.isCluster == False and self.wConf.button2D.isChecked()):
                 self.start = time.time()
                 self.initializeCluster()
                 self.stop = time.time()
@@ -2676,16 +2656,18 @@ class MainWindow(QMainWindow):
             self.start = time.time()
 
             config = self.factory._configs.get(algo)
-            if (DEBUG):
-                print("ML algo config", config)
+            #if (DEBUG):
+            print("ML algo config", config)
             MLalgo = self.factory.create(algo, **config)
             # add hooks for popup windows i.e. more arguments that won't be used
             MLalgo.start(self.clusterpts, self.clusterw, nclusters, a, self.wPlot.figure)
 
             self.stop = time.time()
             print("Time elapsed for clustering:", self.stop-self.start)
-
+            print("self.isCluster",self.isCluster)
+            
             self.wPlot.canvas.draw()
+
         except:
             QMessageBox.about(self, "Warning", "Something is not right (2D histo? Right number of clusters?)")
             
