@@ -380,7 +380,7 @@ CProductionXamineShMem::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eTyp
 //      UInt_t nSpectrum:
 //           Number of spectrum from which to remove gate.
 //      UInt_t nId:
-//            Identification of the spectrum.
+//            Identification of the gate
 //      GateType_t eType:
 //            Type of the gate to remove (See EnterGate for
 //             details).
