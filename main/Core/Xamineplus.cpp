@@ -283,7 +283,7 @@ void
 CXamine::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
 {
   if (m_runXamine) {
-     Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
+     Int_t slot = m_pMemory->findDisplayBinding(rSpectrum) + 1;
      if (slot < 0) {
          // absent spectrum is not an error
          return;
