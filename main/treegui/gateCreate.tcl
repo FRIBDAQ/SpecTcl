@@ -210,7 +210,7 @@ snit::widget gateCreate {
 	}
 
 	set options($option) $value
-	set optinos(-type)   [dict get $gateTypes $value]
+	set options(-type)   [dict get $gateTypes $value]
     }
     ##
     # Modify the -type option.  This option is coupled to the -typename option
@@ -224,7 +224,16 @@ snit::widget gateCreate {
 	#
 	# The value must exist in the dict:
 
-	set subdict [dict filter $gateTypes value $value]
+	# Be nice to use the line below but the and gate is * which is
+	# a search wildcard.
+	#   set subdict [dict filter $gateTypes value $value]
+	set subdict [list]
+	dict for {key v} $gateTypes {
+	    if {$v eq $value} {
+		lappend subdict $key $v
+		break
+	    }
+	}
 	if {[llength $subdict] == 0} {
 	    error "$value is not a valid SpecTcl gate type"
 	}
