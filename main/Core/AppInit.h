@@ -275,5 +275,5 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS '
 */
-
-#warning "It is not necessary to include AppInit.h as it is emtpy!!"
+		      // #warning is deprecated:
+#pragma GCC warning "It is not necessary to include AppInit.h as it is emtpy!!"
