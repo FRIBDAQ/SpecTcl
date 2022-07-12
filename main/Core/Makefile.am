@@ -434,7 +434,8 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
-		@TCL_LIBS@ @ROOT_LDFLAGS@
+		@TCL_LIBS@ @ROOT_LDFLAGS@ \
+		@UFMT_LDFLAGS@
 
 newanalysistests_SOURCES=TestRunner.cpp scalerprocessortests.cpp
 newanalysistests_CPPFLAGS=$(commonTestCXXFLAGS)
