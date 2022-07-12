@@ -74,6 +74,7 @@ from SpecialFunctionsGUI import SpecialFunctions # all the extra functions we de
 from OutputGUI import OutputPopup # popup output window
 from PlotGUI import Plot # area defined for the histograms 
 from PyREST import PyREST # class interface for SpecTcl REST plugin
+from CopyPropertiesGUI import CopyProperties
 
 from logger import log, setup_logging, set_logger
 from notebook_process import testnotebook, startnotebook, stopnotebook
@@ -163,7 +164,10 @@ class MainWindow(QMainWindow):
         self.isLoaded = False
         self.isZoomed = False
         self.toCreateGate = False
-        self.toCreateSRegion = False        
+        self.toCreateSRegion = False
+        self.copyX = []
+        self.copyY = []        
+        self.copyScale = False
         # tools for selected plots
         self.rec = None
         self.isCluster = False
@@ -252,6 +256,9 @@ class MainWindow(QMainWindow):
         # extra popup window
         self.extraPopup = SpecialFunctions()
 
+        # copy attributes windows
+        self.copyAttr = CopyProperties()
+        
         # initialize factory from algo_creator
         self.factory.initialize(self.extraPopup.imaging.clusterAlgo)
         # initialize factory from fit_creator
@@ -342,7 +349,13 @@ class MainWindow(QMainWindow):
         self.wPlot.createSRegion.clicked.connect(self.createSRegion)
         self.wPlot.createSRegion.setEnabled(False)        
         self.wPlot.histo_autoscale.clicked.connect(lambda:self.autoscaleAxis(self.wPlot.histo_autoscale))        
-        
+
+        self.wPlot.copyButton.clicked.connect(self.copyPopup)
+        self.copyAttr.histoAll.clicked.connect(lambda:self.histAllAttr(self.copyAttr.histoAll))        
+        self.copyAttr.okAttr.clicked.connect(self.okCopy)
+        self.copyAttr.applyAttr.clicked.connect(self.applyCopy)
+        self.copyAttr.cancelAttr.clicked.connect(self.closeCopy)
+        self.copyAttr.selectAll.clicked.connect(self.selectAll)                
         
         # create helpers
         self.wConf.histo_list.installEventFilter(self)
@@ -382,10 +395,125 @@ class MainWindow(QMainWindow):
         except:
             pass
 
+    def histAllAttr(self, b):
+        if self.wTop.slider.value() != 0:
+            self.timer.stop()
+
+        if b.text() == "Select all properties":
+            if b.isChecked() == True:
+                self.copyAttr.axisLimitX.setChecked(True)
+                self.copyAttr.axisLimitY.setChecked(True)        
+                self.copyAttr.axisScale.setChecked(True)        
+            else:
+                self.copyAttr.axisLimitX.setChecked(False)
+                self.copyAttr.axisLimitY.setChecked(False)        
+                self.copyAttr.axisScale.setChecked(False)        
+                
+        if self.wTop.slider.value() != 0:
+            self.timer.start()                     
+
+    def okCopy(self):
+        self.update_plot()
+        self.wPlot.canvas.draw()        
+        
+    def applyCopy(self):                
+        flags = []
+        for instance in self.copyAttr.findChildren(QCheckBox):
+            if instance.isChecked():
+                if (DEBUG):
+                    print(instance.text(), instance.isChecked())
+                flags.append(True)
+            else:
+                flags.append(False)
+
+        if (DEBUG):
+            print(flags)
+            print(self.h_dict)
+            print(self.h_dict_geo)        
+            print(self.h_limits)
+            print(self.h_log)
+
+        index_og = 0
+        xlim_og = []
+        ylim_og = []        
+        scale_og = False
+        discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
+        if (DEBUG):
+            print("--> before apply copy attributes")
+            print(self.h_limits)
+        for instance in self.copyAttr.findChildren(QPushButton):
+            if (instance.text() not in discard) and instance.isChecked():
+                if (DEBUG):
+                    print(instance.text())
+                keys=list(self.h_dict_geo.keys())
+                values=list(self.h_dict_geo.values())
+                if (DEBUG):
+                    print(type(keys), type(values))
+                    print(keys, values)                
+                    print(instance.text(),"corresponds to", keys[values.index(instance.text())])
+                # find index corresponding to name in self.h_dict_geo
+                index_og = keys[values.index(self.wConf.histo_list.currentText())]
+                xlim_og = self.h_limits[index_og]["x"]
+                ylim_og = self.h_limits[index_og]["y"]                
+                scale_og = self.h_log[index_og]
+                if (DEBUG):
+                    print("original",index_og,xlim_og,ylim_og,scale_og)
+                index = keys[values.index(instance.text())]
+                # set the limits for x,y
+                if flags[0] == True:
+                    self.h_limits[index]["x"] = xlim_og
+                    self.h_setup[index] = True
+                if flags[1] == True:                    
+                    self.h_limits[index]["y"] = ylim_og                  
+                    self.h_setup[index] = True
+                # set log/lin scale
+                if flags[2] == True:                                    
+                    self.h_log[index] = scale_og
+                    self.h_setup[index] = True
+
+        if (DEBUG):                    
+            print("<--- after apply copy attributes")
+            print(self.h_limits)
+                
+    def closeCopy(self):
+        discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
+        for instance in self.copyAttr.findChildren(QPushButton):
+            if instance.text() not in discard:
+                instance.deleteLater()                
+        self.copyAttr.index_og = 0
+        self.copyAttr.xlim_og = []
+        self.copyAttr.ylim_og = []
+        self.copyAttr.scale_og = False
+        self.copyAttr.close()
+
+    def selectAll(self):
+        flag = False
+        basic = ["Ok", "Cancel", "Apply"]
+        discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]        
+        for instance in self.copyAttr.findChildren(QPushButton):
+            if instance.text() not in discard:
+                instance.setChecked(True)
+                instance.setStyleSheet('QPushButton {color: green;}')                    
+            else:
+                if instance.text() not in basic:
+                    if instance.text() == "Select all":
+                        instance.setText("Deselect all")
+                    else:
+                        instance.setText("Select all")
+                        flag = True
+
+        if flag == True:
+            for instance in self.copyAttr.findChildren(QPushButton):
+                if instance.text() not in discard:
+                    instance.setChecked(False)
+                    instance.setStyleSheet('QPushButton {color: red;}')
+                    flag = False
+                
     def closeAll(self):
         self.close()
         self.resPopup.close()
         self.extraPopup.close()
+        self.copyAttr.close()
         
     def connect(self):
         self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
@@ -1383,6 +1511,7 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print("inside update plot")
             print(self.h_dict)
+            print("self.h_setup", self.h_setup)            
         try:
             a = None
             if self.isZoomed == True:
@@ -1404,11 +1533,13 @@ class MainWindow(QMainWindow):
                     self.set_log_axis(self.selected_plot_index)
             else:
                 #self.selected_plot_index = None
+                if (DEBUG):
+                    print("inside update plot - multipanel mode")
                 for index, value in self.h_dict.items():                
                     if (DEBUG):
-                        print(index, value)
-                        print(value["name"])
-                        print(self.h_setup[index])
+                        print("index", index, "value", value)
+                        print("value[name]", value["name"])
+                        print("self.h_setup[index]", self.h_setup[index])
                     if (value["name"] != "empty"):
                         a = self.select_plot(index)
                         self.removeCb(a)
@@ -1989,6 +2120,7 @@ class MainWindow(QMainWindow):
             self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
             if (DEBUG):
                 print(self.h_lst)
+                print("inside setup histogram - before set_axis_properties")
             self.set_axis_properties(index)
         except:
             pass
@@ -2541,8 +2673,8 @@ class MainWindow(QMainWindow):
         return False
 
     def plot1DGate(self, axis, histo_name, gate_name, gate_line):
-        #if (DEBUG):
-        print("inside plot1dgate for", histo_name, "with gate", gate_name)
+        if (DEBUG):
+            print("inside plot1dgate for", histo_name, "with gate", gate_name)
         new_line = [mlines.Line2D([],[]), mlines.Line2D([],[])]
         ymin, ymax = axis.get_ybound()
         new_line[0].set_data([gate_line[0],gate_line[0]], [ymin, ymax])
@@ -2676,6 +2808,65 @@ class MainWindow(QMainWindow):
         self.resPopup.setGeometry(100,100,724,500)
         self.resPopup.show()
 
+    def copyPopup(self):
+        try:
+            self.copyAttr.histoLabel.setText(self.wConf.histo_list.currentText())
+            hdim = 1
+            for index, values in self.h_dict.items():
+                if (DEBUG):
+                    print(index)
+                for idx, value in values.items():
+                    if (DEBUG):
+                        print(idx, value)
+                    # set value for selected histogram
+                    if idx == "name":
+                        if value == self.wConf.histo_list.currentText():
+                            if (DEBUG):
+                                print("histo chosen", value)
+                            # log scale check
+                            if self.h_log[index] == True:
+                                self.copyAttr.axisSLabel.setText("Log")
+                            else:
+                                self.copyAttr.axisSLabel.setText("Linear")                                
+
+                            self.copyScale = self.h_log[index]
+                            self.copyX = ['{:.1f}'.format((self.h_limits[index]["x"])[0]), '{:.1f}'.format((self.h_limits[index]["x"])[1])]
+                            self.copyAttr.axisLimLabelX.setText("["+'{:.1f}'.format((self.h_limits[index]["x"])[0])+","+'{:.1f}'.format((self.h_limits[index]["x"])[1])+"]")
+                            # dimension check
+                            if self.wConf.button1D.isChecked():
+                                self.copyAttr.axisLimLabelY.setText("")
+                                self.copyAttr.axisLimitY.setEnabled(False)
+                            else:
+                                self.copyY = ['{:.1f}'.format((self.h_limits[index]["y"])[0]), '{:.1f}'.format((self.h_limits[index]["y"])[1])]                                
+                                self.copyAttr.axisLimLabelY.setText("["+'{:.1f}'.format((self.h_limits[index]["y"])[0])+","+'{:.1f}'.format((self.h_limits[index]["y"])[1])+"]")
+                                self.copyAttr.axisLimitY.setEnabled(True)
+                                hdim = 2
+                            if (DEBUG):
+                                print("h dimension", hdim)
+                        
+            for index, values in self.h_dict.items():
+                for idx, value in values.items():
+                    if idx == "name":
+                        if value != self.wConf.histo_list.currentText() and hdim == values["dim"]:
+                            instance = QPushButton(value, self)
+                            instance.setCheckable(True)
+                            instance.setStyleSheet('QPushButton {color: red;}')                                
+                            self.copyAttr.copy_log.addRow(instance)
+                            instance.clicked.connect(
+                                lambda state, instance=instance: self.connectCopy(instance))                        
+            
+        except:
+            pass
+        self.copyAttr.show()
+        
+    def connectCopy(self, instance):
+        if (instance.palette().color(QPalette.Text).name() == "#008000"):
+            instance.setStyleSheet('QPushButton {color: red;}')
+        else:
+            instance.setStyleSheet('QPushButton {color: green;}')        
+        if (DEBUG):
+            print(instance.isChecked())
+            
     def spfunPopup(self):
         self.extraPopup.show()
         
@@ -2908,8 +3099,8 @@ class MainWindow(QMainWindow):
         # convert np array to matrix
         m = np.asmatrix(w)
 
-        #if (DEBUG):
-        print("m.shape[0],m.shape[1]", m.shape[0],m.shape[1])
+        if (DEBUG):
+            print("m.shape[0],m.shape[1]", m.shape[0],m.shape[1])
         
         histo_minx = int(df.iloc[0]['minx'])
         histo_maxx = int(df.iloc[0]['maxx'])
@@ -2926,8 +3117,8 @@ class MainWindow(QMainWindow):
 
         xmin, xmax = a.get_xlim()            
         ymin, ymax = a.get_ylim()
-        #if (DEBUG):
-        print("xmin", xmin, "xmax", xmax, "ymin", ymin, "ymax", ymax)
+        if (DEBUG):
+            print("xmin", xmin, "xmax", xmax, "ymin", ymin, "ymax", ymax)
 
         polygon = Polygon([(xmin,ymin), (xmax,ymin), (xmax,ymax), (xmin,ymax)])
         # remove the duplicated last vertex
@@ -2945,8 +3136,8 @@ class MainWindow(QMainWindow):
         x, y = np.meshgrid(np.arange(histo_minx, histo_maxx, int((histo_maxx-histo_minx+1)/histo_binx), dtype=int),
                            np.arange(histo_miny, histo_maxy, int((histo_maxy-histo_miny+1)/histo_biny), dtype=int)) # make a canvas with coordinates in bins
         x, y = x.flatten(), y.flatten()
-        #if (DEBUG):
-        print("x.flatten", len(x), "y.flatten", len(y))
+        if (DEBUG):
+            print("x.flatten", len(x), "y.flatten", len(y))
         points = np.vstack((x, y)).T
         isInside = p.contains_points(points)
 
@@ -2958,13 +3149,14 @@ class MainWindow(QMainWindow):
             val = m[(y,x)]
             self.clusterw.append(val)
 
-        #if (DEBUG):        
-        print(len(self.clusterpts), len(self.clusterw))
-        print(self.clusterpts[0:10], self.clusterw[0:10])
+        if (DEBUG):        
+            print(len(self.clusterpts), len(self.clusterw))
+            print(self.clusterpts[0:10], self.clusterw[0:10])
         
         print("Done initializing cluster")
         self.isCluster = True
-        print("self.isCluster",self.isCluster)
+        if (DEBUG):
+            print("self.isCluster",self.isCluster)
 
     def analyzeCluster(self):
         try:
@@ -2994,15 +3186,16 @@ class MainWindow(QMainWindow):
             self.start = time.time()
 
             config = self.factory._configs.get(algo)
-            #if (DEBUG):
-            print("ML algo config", config)
+            if (DEBUG):
+                print("ML algo config", config)
             MLalgo = self.factory.create(algo, **config)
             # add hooks for popup windows i.e. more arguments that won't be used
             MLalgo.start(self.clusterpts, self.clusterw, nclusters, a, self.wPlot.figure)
 
             self.stop = time.time()
             print("Time elapsed for clustering:", self.stop-self.start)
-            print("self.isCluster",self.isCluster)
+            if (DEBUG):
+                print("self.isCluster",self.isCluster)
             
             self.wPlot.canvas.draw()
 
