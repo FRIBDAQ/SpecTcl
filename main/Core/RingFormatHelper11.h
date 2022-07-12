@@ -23,7 +23,7 @@
  * @brief Defines ring format helper for NSCLDAQ verswion 11.x+ data.
  */
 #include "RingFormatHelper.h"
-
+class RingItemFactoryBase;
 /**
  * @class CRingFormatHelper11
  *
@@ -36,10 +36,10 @@ class CRingFormatHelper11 : public CRingFormatHelper
 protected:
     unsigned m_glomSourceId;
     uint64_t m_nLastEventCount;
+    RingItemFactoryBase& m_Factory;
     // No data implies no need for canonicals.
 public:
-    CRingFormatHelper11() : m_glomSourceId(0), m_nLastEventCount(0)
-    {}
+    CRingFormatHelper11();
     
     virtual bool hasBodyHeader(void* pItem) const;
     virtual void* getBodyPointer(void* pItem);
