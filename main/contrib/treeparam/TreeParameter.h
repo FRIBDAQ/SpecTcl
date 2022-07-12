@@ -24,8 +24,8 @@
 // 	start = 1.0
 // 	stop = 100.0
 
-#warning "You are including an obsolete version of Treeparameter.h"
-
+// #warning "You are including an obsolete version of Treeparameter.h"
+#pragma GCC warning "You are including an obsolete version of Treeparameter.h"
 #ifndef TREEPARAMETER_H
 #define TREEPARAMETER_H
 

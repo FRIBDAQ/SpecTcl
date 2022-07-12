@@ -402,7 +402,7 @@ void helper12test::scalers_1()
     item.s_item.s_header.s_type = NSCLDAQ12::PERIODIC_SCALERS;
     item.s_item.s_header.s_size =
         sizeof(NSCLDAQ12::RingItemHeader) + sizeof(uint32_t) +
-        32*sizeof(uint32_t);
+        32*sizeof(uint32_t) + sizeof(NSCLDAQ12::ScalerItemBody);
     item.s_item.s_body.u_noBodyHeader.s_empty = sizeof(uint32_t);
     fillScalerBody(item.s_item.s_body.u_noBodyHeader.s_body, scalers);
     
@@ -430,7 +430,7 @@ void helper12test::scalers_2()
     item.s_item.s_header.s_type = NSCLDAQ12::PERIODIC_SCALERS;
     item.s_item.s_header.s_size =
         sizeof(NSCLDAQ12::RingItemHeader) + sizeof(NSCLDAQ12::BodyHeader) +
-        32*sizeof(uint32_t);
+        311*sizeof(uint32_t) + sizeof(NSCLDAQ12::ScalerItemBody);;
     fillBodyHeader(item.s_item.s_body.u_hasBodyHeader.s_bodyHeader);
     fillScalerBody(item.s_item.s_body.u_hasBodyHeader.s_body, scalers);
     
@@ -493,7 +493,7 @@ void helper12test::triggers_2()
     item.s_header.s_type = NSCLDAQ12::PHYSICS_EVENT_COUNT;
     fillBodyHeader(item.s_body.u_hasBodyHeader.s_bodyHeader);
     fillEventCountBody(item.s_body.u_hasBodyHeader.s_body, 0x1234567890);
-    EQ(uint64_t(0), m_pHelper->getTriggerCount(&item, m_pTranslator));
+    EQ(uint64_t(0x1234567890), m_pHelper->getTriggerCount(&item, m_pTranslator));
 }
 // Trigger count with body header after physics source id estblished then
 // comes from the item.

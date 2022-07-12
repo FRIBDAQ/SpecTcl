@@ -21,6 +21,7 @@
 #ifndef RINGFORMATHELPER12_H
 #define RINGFORMATHELPER12_H
 #include "RingFormatHelper11.h"
+
 /**
  * @class CRingFormatHelper12
  *    This class is derived from the version 11 helper because many of the
@@ -34,27 +35,6 @@ public:
     CRingFormatHelper12();
     virtual ~CRingFormatHelper12();
     
-    // State change items.
-    
-    virtual std::string getTitle(void* pItem);
-    
-    // Text Items:
-    
-    virtual std::vector<std::string> getStrings(
-        void* pItem, BufferTranslator* pTranslator
-    );
-    // Scaler items:
-    
-    virtual std::vector<uint32_t> getScalers(
-        void* pItem, BufferTranslator* pTranslator
-    );
-    virtual uint32_t getScalerOriginalSourceId( void* pItem, BufferTranslator* pTranslator);
-    
-    // trigger count items:
-    
-    virtual uint64_t getTriggerCount(
-        void* pItem, BufferTranslator* pTranslator
-    );
     
 };
 

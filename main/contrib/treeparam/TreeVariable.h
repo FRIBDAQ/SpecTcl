@@ -3,8 +3,8 @@
 	and bind them to the interpreter of SpecTcl.
 */
 
-#warning "You are including an obsolete version of TreeParameter.h"
-
+//#warning "You are including an obsolete version of TreeParameter.h"
+#pragma GCC warning "You are including an obsolete version of TreeParameter.h"
 #ifndef TREEVARIABLE_H
 #define TREEVARIABLE_H
 
