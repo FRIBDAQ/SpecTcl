@@ -39,7 +39,7 @@
  */
 CRingFormatHelper11::CRingFormatHelper11():
   m_glomSourceId(0), m_nLastEventCount(0),
-  m_Factory(FormatSelector::selectFactory(FormatSelector::v11))
+  m_Factory(&FormatSelector::selectFactory(FormatSelector::v11))
  {}
 
 /**
@@ -59,7 +59,7 @@ CRingFormatHelper11::CRingFormatHelper11():
  CRingFormatHelper11::hasBodyHeader(void* pItem) const
  {
     const ::RingItem* p = reinterpret_cast<const ::RingItem*>(pItem);
-    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(p));
+    std::unique_ptr<::CRingItem> pBase(m_Factory->makeRingItem(p));
     return pBase->hasBodyHeader();
     
  }
@@ -138,7 +138,7 @@ CRingFormatHelper11::getSourceId(void* pItem, BufferTranslator* pTranslator)
   uint32_t result  = 0;
   if (hasBodyHeader(pItem)) {
    const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
-   std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+   std::unique_ptr<::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
    result = pBase->getSourceId();
    
   }
@@ -163,10 +163,10 @@ std::string
 CRingFormatHelper11::getTitle(void* pItem)
 {
   const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
-  std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+  std::unique_ptr<::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
   try {
    std::unique_ptr<::CRingStateChangeItem> pActual(
-     m_Factory.makeStateChangeItem(*pBase)
+     m_Factory->makeStateChangeItem(*pBase)
    );
    return pActual->getTitle();
   }
@@ -190,10 +190,10 @@ unsigned
 CRingFormatHelper11::getRunNumber(void* pItem, BufferTranslator* pTranslator)
 {
  const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
-  std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+  std::unique_ptr<::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
   try {
    std::unique_ptr<::CRingStateChangeItem> pActual(
-     m_Factory.makeStateChangeItem(*pBase)
+     m_Factory->makeStateChangeItem(*pBase)
    );
    return pActual->getRunNumber();
   }
@@ -231,9 +231,9 @@ std::vector<std::string>
 CRingFormatHelper11::getStrings(void* pItem, BufferTranslator* pTranslator)
 {
   const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
-  std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+  std::unique_ptr<::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
   try {
-     std::unique_ptr<::CRingTextItem> p(m_Factory.makeTextItem(*pBase));
+     std::unique_ptr<::CRingTextItem> p(m_Factory->makeTextItem(*pBase));
      return p->getStrings();
   }
   catch (...) {
@@ -258,10 +258,10 @@ unsigned
 CRingFormatHelper11::getScalerCount(void* pItem, BufferTranslator* pTranslator)
 {
     const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
-    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+    std::unique_ptr<::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
     try {
         std::unique_ptr<CRingScalerItem> pActual(
-           m_Factory.makeScalerItem(*pBase)
+           m_Factory->makeScalerItem(*pBase)
         );
         return pActual->getScalerCount();
     }
@@ -287,10 +287,10 @@ std::vector<uint32_t> CRingFormatHelper11::getScalers(
 )
 {
      const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
-    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+    std::unique_ptr<::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
     try {
         std::unique_ptr<CRingScalerItem> pActual(
-           m_Factory.makeScalerItem(*pBase)
+           m_Factory->makeScalerItem(*pBase)
         );
         return pActual->getScalers();
     }
@@ -313,10 +313,10 @@ uint32_t
 CRingFormatHelper11::getScalerOriginalSourceId(void* pItem, BufferTranslator* pTranslator)
 {
       const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
-    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+    std::unique_ptr<::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
     try {
         std::unique_ptr<CRingScalerItem> pActual(
-           m_Factory.makeScalerItem(*pBase)
+           m_Factory->makeScalerItem(*pBase)
         );
         return pActual->getOriginalSourceId();
     }
@@ -346,38 +346,18 @@ uint64_t
 CRingFormatHelper11::getTriggerCount(void* pItem, BufferTranslator* pTranslator)
 {
     std::unique_ptr<::CRingItem> pBase(
-       m_Factory.makeRingItem(reinterpret_cast<const ::RingItem*>(pItem))
+       m_Factory->makeRingItem(reinterpret_cast<const ::RingItem*>(pItem))
     );
     try {
        std::unique_ptr<CRingPhysicsEventCountItem> p(
-         m_Factory.makePhysicsEventCountItem(*pBase)
+         m_Factory->makePhysicsEventCountItem(*pBase)
        );
        return p->getEventCount();
     }
     catch (...) {
        throw std::string("CRingFormatHelper11::getTriggerCount - not trigger count item"); 
     }
-    if (isTriggerCountItem(pItem)) {
-        pPhysicsEventCountItemBody p =
-            reinterpret_cast<pPhysicsEventCountItemBody>(getBodyPointer(pItem));
-            
-        // If there's no body header, we just hand back the event count from the
-        // body. If there is a body header, we'll hand back the prior value. unless
-        // the source id matches m_glomSourceId .
-        
-        if (hasBodyHeader(pItem)) {
-            pBodyHeader phdr =
-                reinterpret_cast<pBodyHeader>(getBodyHeaderPointer(pItem));
-            if (phdr->s_sourceId == m_glomSourceId) {
-                m_nLastEventCount = pTranslator->getQuad(p->s_eventCount);
-            }
-            return m_nLastEventCount;
-        } else {
-            return pTranslator->getQuad(p->s_eventCount);
-        }
-    } else {
-        throw std::string("CRingFormatHelper11::getTriggerCount - not trigger count item");
-    }
+    
 }
 /*-----------------------------------------------------------------------------
  * Private utilities

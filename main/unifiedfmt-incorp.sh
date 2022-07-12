@@ -2,7 +2,7 @@
 
 ##  Incorporate the unfied formatting library:
 
-# Most recently used version 1.1-001
+# Most recently used version 1.1-002
 
 REPOSITORY="https://git.frib.msu.edu/daqdev/unifiedformat.git"
 TAG=$1

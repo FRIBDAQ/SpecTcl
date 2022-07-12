@@ -36,7 +36,7 @@ class CRingFormatHelper11 : public CRingFormatHelper
 protected:
     unsigned m_glomSourceId;
     uint64_t m_nLastEventCount;
-    RingItemFactoryBase& m_Factory;
+    RingItemFactoryBase* m_Factory;
     // No data implies no need for canonicals.
 public:
     CRingFormatHelper11();
