@@ -10,6 +10,27 @@ from PyQt5.QtWidgets import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
+class Tabs(QTabWidget):
+    def __init__(self, plot):
+        QTabWidget.__init__(self)       
+        self.index = 0
+        self.plot = plot
+        self.createTabs()
+        
+    def createTabs(self):
+        self.setUpdatesEnabled(True)
+
+        self.insertTab(0,self.plot, "Tab" )
+        self.insertTab(1,QWidget(),'  +  ') 
+
+        #self.currentChanged.connect(self.addTab) 
+
+    def addTab(self, index):    
+        if index == self.count()-1 :    
+            '''last tab was clicked. add tab'''
+            self.insertTab(index, self.plot, "Tab %d" %(index+1)) 
+            self.setCurrentIndex(index)
+            
 class Plot(QWidget):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__(*args, **kwargs)

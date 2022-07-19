@@ -72,7 +72,8 @@ from MenuGUI import Menu #include server and mirror config, refresh, geometry, e
 from ConfigGUI import Configuration # include spectrum/gate info and output popup buttons
 from SpecialFunctionsGUI import SpecialFunctions # all the extra functions we defined
 from OutputGUI import OutputPopup # popup output window
-from PlotGUI import Plot # area defined for the histograms 
+from PlotGUI import Plot # area defined for the histograms
+from PlotGUI import Tabs # area defined for the Tabs
 from PyREST import PyREST # class interface for SpecTcl REST plugin
 from CopyPropertiesGUI import CopyProperties
 
@@ -131,6 +132,9 @@ class MainWindow(QMainWindow):
         # index of the histogram
         self.index = 0 # this one is for self-adding
         self.idx = 0 # this one is global
+        self.tabIndex = 0
+        self.fullScale = False        
+        self.fullScaleValue = 0
         # click selection of position in canvas
         self.selected_plot_index = None
         self.selected_plot_index_bak = None        
@@ -238,11 +242,14 @@ class MainWindow(QMainWindow):
         
         # plot widget
         self.wPlot = Plot()
+        #self.wPlot_og = None
+        #self.wTab = Tabs(self.wPlot)
 
         # gui composition
         mainLayout.addWidget(self.wTop)
         mainLayout.addWidget(self.wConf)
-        mainLayout.addWidget(self.wPlot)        
+        #mainLayout.addWidget(self.wTab)                
+        mainLayout.addWidget(self.wPlot)
         
         widget = QWidget()
         widget.setLayout(mainLayout)        
@@ -351,6 +358,10 @@ class MainWindow(QMainWindow):
         self.wPlot.histo_autoscale.clicked.connect(lambda:self.autoscaleAxis(self.wPlot.histo_autoscale))        
 
         self.wPlot.copyButton.clicked.connect(self.copyPopup)
+
+        self.wTab.currentChanged.connect(self.addTab)
+        self.wTab.tabBarClicked.connect(self.clickedTab)
+        
         self.copyAttr.histoAll.clicked.connect(lambda:self.histAllAttr(self.copyAttr.histoAll))        
         self.copyAttr.okAttr.clicked.connect(self.okCopy)
         self.copyAttr.applyAttr.clicked.connect(self.applyCopy)
@@ -403,15 +414,25 @@ class MainWindow(QMainWindow):
             if b.isChecked() == True:
                 self.copyAttr.axisLimitX.setChecked(True)
                 self.copyAttr.axisLimitY.setChecked(True)        
-                self.copyAttr.axisScale.setChecked(True)        
+                self.copyAttr.axisScale.setChecked(True)
+                self.copyAttr.histoScale.setChecked(True)                
             else:
                 self.copyAttr.axisLimitX.setChecked(False)
                 self.copyAttr.axisLimitY.setChecked(False)        
-                self.copyAttr.axisScale.setChecked(False)        
+                self.copyAttr.axisScale.setChecked(False)
+                self.copyAttr.histoScale.setChecked(False)                
+                self.fullScale = False
                 
         if self.wTop.slider.value() != 0:
             self.timer.start()                     
 
+    def addTab(self, index):
+        self.wTab.addTab(index)
+
+    def clickedTab(self, index):
+        print("Tab clicked", index)
+        self.tabIndex = index
+            
     def okCopy(self):
         self.update_plot()
         self.wPlot.canvas.draw()        
@@ -470,7 +491,16 @@ class MainWindow(QMainWindow):
                 if flags[2] == True:                                    
                     self.h_log[index] = scale_og
                     self.h_setup[index] = True
-
+                # set full scale value
+                if flags[3] == True:                                                        
+                    value = int(self.copyAttr.histoScaleValue.text())
+                    if self.wConf.button1D.isChecked():
+                        self.h_limits[index]["y"] = value
+                    else:
+                        self.fullScale = True
+                        self.fullScaleValue = value
+                    self.h_setup[index] = True
+                    
         if (DEBUG):                    
             print("<--- after apply copy attributes")
             print(self.h_limits)
@@ -1076,7 +1106,7 @@ class MainWindow(QMainWindow):
     def at_startup(self):
         self.initialize_canvas(self.wConf.row, self.wConf.col)
         self.connect()
-
+        
     def initialize_histogram(self):
         return {"name": "empty", "dim": 1, "xmin": 0, "xmax": 1, "xbin": 1,
                 "ymin": 0, "ymax": 1, "ybin": 1, "parameters": [], "type": "", "scale": False}        
@@ -1548,6 +1578,9 @@ class MainWindow(QMainWindow):
                             self.setup_histogram(a, index)
                             self.h_setup[index] = False
                         self.plot_histogram(a, index)
+                        if self.fullScale == True:
+                            if self.wConf.button2D.isChecked():
+                                self.h_lst[index].set_clim(vmin=0.001, vmax=self.fullScaleValue)                              
                         if (DEBUG):
                             print("inside update_plot")
                             print(self.h_log)
@@ -1782,6 +1815,7 @@ class MainWindow(QMainWindow):
                 self.set_log_axis(self.selected_plot_index)
 
     def autoscaleAxis(self, b):
+        print("inside autoscale")
         if b.text() == "Autoscale":
             if b.isChecked() == True:            
                 self.autoScale = True
@@ -2557,21 +2591,34 @@ class MainWindow(QMainWindow):
         polygon = None
 
         if (DEBUG):
+            print(hname,gname)
             print("List of the child Artists of this Artist \n",
                   *list(self.edit_ax.get_children()), sep ="\n")
         lst = list(self.edit_ax.get_children())
+        if (DEBUG):
+            print("..... looking for the gate .....")
+            print(self.artist_dict)
         for obj in lst:
             if isinstance(obj, matplotlib.lines.Line2D):
                 if (DEBUG):
                     print(obj.get_data())
                     print(obj.get_path())
-                    print(self.artist_dict[hname][gname])
                     print(obj.get_xdata())
-                if obj.get_xdata() == (self.artist_dict[hname][gname])[0]:
+                gate_list = self.artist_dict[hname]
+                if (DEBUG):
+                    print("gate_list", gate_list)
+                for g in gate_list:
                     if (DEBUG):
-                        print("found the line")
-                    obj.set_visible(False)
-                    polygon = obj
+                        print("g",g)
+                    for index, value in g.items():
+                        if (DEBUG):
+                            print(index, value)
+                        if index == gname:
+                            if obj.get_xdata() == value[0]:
+                                if (DEBUG):
+                                    print("found the line")
+                                obj.set_visible(False)
+                                polygon = obj
                     
         polygon.set_visible(False)
         self.poly_xy = self.convertToList2D(polygon)
@@ -2730,14 +2777,19 @@ class MainWindow(QMainWindow):
             pass
 
     def addGate(self):
-        print("inside addGate")
+        if (DEBUG):
+            print("inside addGate")
         try:
             if self.wTop.slider.value() != 0:
                 self.timer.stop()
 
             hname = self.wConf.histo_list.currentText()
             gname = self.wConf.listGate.currentText()
-            self.drawGate(hname, gname, self.artist_dict[hname][gname])
+            gate_list = self.artist_dict[hname]
+            for gate in gate_list:
+                for index, value in gate.items():
+                    if index == gname:
+                        self.drawGate(hname, gname, value)
                             
             if self.wTop.slider.value() != 0:
                 self.timer.start()        
@@ -2854,6 +2906,10 @@ class MainWindow(QMainWindow):
                             self.copyAttr.copy_log.addRow(instance)
                             instance.clicked.connect(
                                 lambda state, instance=instance: self.connectCopy(instance))                        
+
+            self.copyAttr.histoAll.setChecked(True)
+            self.histAllAttr(self.copyAttr.histoAll)
+            self.selectAll()
             
         except:
             pass
