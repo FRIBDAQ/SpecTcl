@@ -23,6 +23,7 @@
  */
 
 #include "RingFormatHelper.h"
+class RingItemFactoryBase;
 
 
 /**
@@ -33,8 +34,10 @@
  */
 class CRingFormatHelper10 : public CRingFormatHelper
 {
-    // No member data so non need for the canonicals:
+    RingItemFactoryBase& m_Factory;
     
+public:
+    CRingFormatHelper10();
 public:
     // Generic ring item access methods:
     

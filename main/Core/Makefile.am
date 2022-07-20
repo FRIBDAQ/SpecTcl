@@ -7,7 +7,7 @@ libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 
 
 
-COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
+COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
@@ -367,7 +367,7 @@ libTclGrammerApp_la_SOURCES = $(DecoderRing_SRC) \
 
 # Removed -I@top_srcdir@/Tape
 
-libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
+libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
 			-I/mnt/misc/sw/x86_64/Debian/8/root/gnu/6.08.00/include \
 				-I@top_srcdir@/Display \
 				 -I@top_srcdir@/factories \
@@ -382,7 +382,7 @@ libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			@builddir@/libSpecTclTcp.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
-			@TCL_LIBS@ @ROOT_LDFLAGS@
+			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@
 
 libTclGrammerApp_la_DEPENDENCIES=@builddir@/libSpecTclTcp.la
 libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 -lgsl -lgslcblas -lm
@@ -434,7 +434,8 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
-		@TCL_LIBS@ @ROOT_LDFLAGS@
+		@TCL_LIBS@ @ROOT_LDFLAGS@ \
+		@UFMT_LDFLAGS@
 
 newanalysistests_SOURCES=TestRunner.cpp scalerprocessortests.cpp
 newanalysistests_CPPFLAGS=$(commonTestCXXFLAGS)

@@ -581,7 +581,8 @@ void ring11test::scalers_1()
     } item;
 #pragma pack(pop)
     item.s_item.s_header.s_type = PERIODIC_SCALERS;
-    item.s_item.s_header.s_size = sizeof(RingItemHeader) + 33*sizeof(uint32_t);
+    item.s_item.s_header.s_size = sizeof(RingItemHeader) + 33*sizeof(uint32_t) +
+        sizeof(ScalerItemBody);
     item.s_item.s_body.u_noBodyHeader.s_mbz = 0;
     std::vector<uint32_t> scalers;
     for (int i=0; i < 32; i++) {
@@ -608,7 +609,8 @@ void ring11test::scalers_2()
 #pragma pack(pop)
     item.s_item.s_header.s_type = PERIODIC_SCALERS;
     item.s_item.s_header.s_size =
-        sizeof(RingItemHeader) + sizeof(BodyHeader) + 32*sizeof(uint32_t);
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + 31*sizeof(uint32_t) +
+        sizeof(ScalerItemBody);
     fillBodyHeader(reinterpret_cast<pRingItem>(&(item.s_item)));
      std::vector<uint32_t> scalers;
     for (int i=0; i < 32; i++) {
@@ -673,9 +675,9 @@ void ring11test::triggers_2()
     fillBodyHeader(reinterpret_cast<pRingItem>(&item));
     fillEventCountBody(&(item.s_body.u_hasBodyHeader.s_body), 0x1234567890);
     
-    // Counter-intuitive.. THis is because the event sid has not yet been established.
     
-    EQ(uint64_t(0), m_pHelper->getTriggerCount(&item, m_pTranslator));
+    
+    EQ(uint64_t(0x1234567890), m_pHelper->getTriggerCount(&item, m_pTranslator));
 }
 // Non triggger count item throws std::string:
 

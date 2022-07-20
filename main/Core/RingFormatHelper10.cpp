@@ -14,16 +14,35 @@
 	     East Lansing, MI 48824-1321
 */
 #include "RingFormatHelper10.h"
-#include "DataFormatPre11.h"    // Version 10.x ring formats.
 #include <BufferTranslator.h>
 #include <unistd.h>
+#include <RingItemFactoryBase.h>
+#include <NSCLDAQFormatFactorySelector.h>
+#include <CRingItem.h>
+#include <CRingStateChangeItem.h>
+#include <CRingTextItem.h>
+#include <CRingScalerItem.h>
+#include <CRingPhysicsEventCountItem.h>
+#include <v10/DataFormat.h>
+#include <memory>
+
+/**
+ * constructor
+ *    Select the correct factory and stow its reference in m_Factory
+ *    where it can be used to pull stuff out of ring items. as required.
+ *    Note wew don't own the factory, the factory selector does so we don't
+ *    need to delete it on destruction.
+ */
+CRingFormatHelper10::CRingFormatHelper10() :
+  m_Factory(FormatSelector::selectFactory(FormatSelector::v10))
+{}
 
 /**
  * hasBodyHeader
  *
  * No version 10.x ring items have body headers:
  *
- * @param pItem - Actually an NSCLDAQ10::pRingItem
+ * @param pItem - Actually an v10::pRingItem
  *
  * @return bool -false.
  */
@@ -38,7 +57,7 @@ CRingFormatHelper10::hasBodyHeader(void* pItem) const
  * Returns a pointer to the body of the ring item.  This is unconditionally
  * the storage unit that just follows the ring item header.
  *
- * @param pItem - Actually an NSCLDAQ10::pRingItem.
+ * @param pItem - Actually an v10::pRingItem.
  *
  * @return void* - Pointer to the ring item body... regardless of what it
  *                 looks like.
@@ -46,8 +65,9 @@ CRingFormatHelper10::hasBodyHeader(void* pItem) const
 void*
 CRingFormatHelper10::getBodyPointer(void* pItem)
 {
-    NSCLDAQ10::pRingItem p = reinterpret_cast<NSCLDAQ10::pRingItem>(pItem);
-    return reinterpret_cast<void*>((p->s_body));
+   v10::pRingItem pI = reinterpret_cast<v10::pRingItem>(pItem);
+   return pI->s_body;
+
 }
 /**
  * getSourceId
@@ -66,7 +86,7 @@ CRingFormatHelper10::getSourceId(void* pItem, BufferTranslator* pTranslator)
  * Since no items in NSCLDAQ-10.0 have a body header, a null pointer is
  * returned.
  *
- * @param pItem - actually an NSCLDAQ10::pRingItem
+ * @param pItem - actually an v10::pRingItem
  *
  * @return void* null.
  */
@@ -91,13 +111,17 @@ CRingFormatHelper10::getBodyHeaderPointer(void* pItem)
 std::string
 CRingFormatHelper10::getTitle(void* pItem)
 {
-    if (isStateTransition(pItem)) {
-        NSCLDAQ10::pStateChangeItem p =
-            reinterpret_cast<NSCLDAQ10::pStateChangeItem>(pItem);
-        return std::string(p->s_title);
-    } else {
-        throw std::string("CRingFormatHelper10::getTitle - not state change item");
+    const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
+    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+    try {
+      std::unique_ptr<::CRingStateChangeItem> pStateChange(
+        m_Factory.makeStateChangeItem(*pBase));   // Throws if bad type.
+        return pStateChange->getTitle();
     }
+    catch (...) {
+        throw std::string("CRingFormatHelper10::getTitle - not state change item");  
+    }
+    
 }
 /**
  * getRunNumber
@@ -114,13 +138,17 @@ CRingFormatHelper10::getTitle(void* pItem)
 unsigned
 CRingFormatHelper10::getRunNumber(void* pItem, BufferTranslator* pTranslator)
 {
-    if (isStateTransition(pItem)) {
-        NSCLDAQ10::pStateChangeItem p =
-            reinterpret_cast<NSCLDAQ10::pStateChangeItem>(pItem);
-        return pTranslator->TranslateLong(p->s_runNumber);
-    } else {
-        throw std::string("CRingFormatHelper10::getRunNumber - not state transition item");
+    const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
+    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+    try {
+      std::unique_ptr<::CRingStateChangeItem> pStateChange(
+        m_Factory.makeStateChangeItem(*pBase));   // Throws if bad type.
+        return pStateChange->getRunNumber();
     }
+    catch (...) {
+        throw std::string("CRingFormatHelper10::getRunNumber - not state change item");  
+    }
+    
 }
 
 // String item specific methods.
@@ -140,17 +168,12 @@ CRingFormatHelper10::getRunNumber(void* pItem, BufferTranslator* pTranslator)
 unsigned
 CRingFormatHelper10::getStringCount(void* pItem, BufferTranslator* pTranslator)
 {
-    if (isTextItem(pItem)) {
-        NSCLDAQ10::pTextItem p = reinterpret_cast<NSCLDAQ10::pTextItem>(pItem);
-        return pTranslator->TranslateLong(p->s_stringCount);
-    } else {
-        throw std::string("CRingFormatHelper10::getStringCount - not text item");
-    }
+    return getStrings(pItem, pTranslator).size();
 }
 /**
  * getStrings
  *    Return a vector of strings from a strings item.
- * @param pItem - actually a pointer to a NSCLDAQ10::TextItem.
+ * @param pItem - actually a pointer to a v10::TextItem.
  * @param pTranslator - pointer to a translator that knows how to do byte
  *                 order conversion.
  * @return std::vector<std::string>  - the strings in the item.
@@ -158,16 +181,15 @@ CRingFormatHelper10::getStringCount(void* pItem, BufferTranslator* pTranslator)
 std::vector<std::string>
 CRingFormatHelper10::getStrings(void* pItem, BufferTranslator* pTranslator)
 {
-    // This call will throw for us if the item type is not a text item.
-    
-    unsigned nStrings = getStringCount(pItem, pTranslator);
-    NSCLDAQ10::pTextItem pActual =
-        reinterpret_cast<NSCLDAQ10::pTextItem>(pItem);
-    // Get a pointer to the strings:
-    
-    const char* p = pActual->s_strings;
-    std::vector<std::string> result = stringListToVector(nStrings, p);
-    return result;
+    const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
+    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+    try {
+      std::unique_ptr<::CRingTextItem> p(m_Factory.makeTextItem(*pBase));
+      return p->getStrings();
+    }
+    catch (...) {
+      throw std::string("CRingFormatHelper10::getStrings - not a text item.");
+    }
     
 }
 // Scaler item specific methods.
@@ -187,12 +209,7 @@ CRingFormatHelper10::getStrings(void* pItem, BufferTranslator* pTranslator)
 unsigned
 CRingFormatHelper10::getScalerCount(void* pItem, BufferTranslator* pTranslator)
 {
-    if (isScalerItem(pItem)) {
-        NSCLDAQ10::pScalerItem p = reinterpret_cast<NSCLDAQ10::pScalerItem>(pItem);
-        return pTranslator->TranslateLong(p->s_scalerCount);
-    } else {
-        throw std::string("CRingFormatHelper10::getScalerCount - Not scaler item");
-    }
+    return getScalers(pItem, pTranslator).size();
 }
 /**
  * getScalers
@@ -204,14 +221,16 @@ CRingFormatHelper10::getScalerCount(void* pItem, BufferTranslator* pTranslator)
 std::vector<uint32_t>
 CRingFormatHelper10::getScalers(void* pItem, BufferTranslator* pTranslator)
 {
-    // this throws if the wrong type of item
+    const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
+    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+    try {
+      std::unique_ptr<::CRingScalerItem> p(m_Factory.makeScalerItem(*pBase));
+      return p->getScalers();
+    }
+    catch (...) {
+      throw std::string("CRingFormatHelper10::getScalers - not a scaler item");
+    }
     
-    unsigned n= getScalerCount(pItem, pTranslator);
-    NSCLDAQ10::pScalerItem pActual =
-            reinterpret_cast<NSCLDAQ10::pScalerItem>(pItem);
-    uint32_t* p = pActual->s_scalers;
-    std::vector<uint32_t> result = marshallScalers(n, p, pTranslator);
-    return result;
     
 }
 /**
@@ -242,15 +261,18 @@ CRingFormatHelper10::getScalerOriginalSourceId(void* pItem, BufferTranslator* pT
 uint64_t
 CRingFormatHelper10::getTriggerCount(void* pItem, BufferTranslator* pTranslator)
 {
-    if (isTriggerItem(pItem)) {
-        NSCLDAQ10::pPhysicsEventCountItem p =
-            reinterpret_cast<NSCLDAQ10::pPhysicsEventCountItem>(pItem);
-        return pTranslator->getQuad(p->s_eventCount);
-    } else {
-        throw std::string(
-            "CRingFormatHelper10::getTriggerCount - not trigger count item"
-        );
+    const ::RingItem* pRaw = reinterpret_cast<const ::RingItem*>(pItem);
+    std::unique_ptr<::CRingItem> pBase(m_Factory.makeRingItem(pRaw));
+    try {
+      std::unique_ptr<::CRingPhysicsEventCountItem> p(    // Will check
+        m_Factory.makePhysicsEventCountItem(*pBase)       // correct type.
+      );
+      return p->getEventCount();
     }
+    catch (...) {
+      throw std::string("CRingFormatHelper10::getTriggerCount - not trigger count item");
+    }
+    
 }
 /*-----------------------------------------------------------------------------
  * Private utilites:
@@ -272,10 +294,10 @@ CRingFormatHelper10::isStateTransition(void* pItem)
     uint16_t type = itemType(pItem);
     
     return (
-        (type == NSCLDAQ10::BEGIN_RUN)
-        || (type == NSCLDAQ10::END_RUN)
-        || (type == NSCLDAQ10::PAUSE_RUN)
-        || (type == NSCLDAQ10::RESUME_RUN)
+        (type == v10::BEGIN_RUN)
+        || (type == v10::END_RUN)
+        || (type == v10::PAUSE_RUN)
+        || (type == v10::RESUME_RUN)
      );
 }
 /**
@@ -290,8 +312,8 @@ CRingFormatHelper10::isTextItem(void* pItem)
     uint16_t type = itemType(pItem);
     
     return (
-        (type == NSCLDAQ10::PACKET_TYPES)
-        || (type == NSCLDAQ10::MONITORED_VARIABLES)
+        (type == v10::PACKET_TYPES)
+        || (type == v10::MONITORED_VARIABLES)
     );
 }
 /**
@@ -308,7 +330,7 @@ CRingFormatHelper10::isScalerItem(void* pItem)
 {
     uint16_t type = itemType(pItem);
     
-    return type == NSCLDAQ10::INCREMENTAL_SCALERS;
+    return type == v10::INCREMENTAL_SCALERS;
 }
 /**
  * isTriggerItem
@@ -319,5 +341,5 @@ CRingFormatHelper10::isScalerItem(void* pItem)
  */
 bool CRingFormatHelper10::isTriggerItem(void* pItem)
 {
-    return itemType(pItem) == NSCLDAQ10::PHYSICS_EVENT_COUNT;
+    return itemType(pItem) == v10::PHYSICS_EVENT_COUNT;
 }

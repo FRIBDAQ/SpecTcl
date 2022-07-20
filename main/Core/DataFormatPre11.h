@@ -49,6 +49,10 @@ namespace NSCLDAQ10 {
 
 #include <stdint.h>
 #include <time.h>
+#ifndef PSTRUCT
+#define PSTRUCT struct __attribute__((__packed__))
+#endif
+
 
 // state change item type codes:
 
@@ -86,7 +90,7 @@ static const uint32_t FIRST_USER_ITEM_CODE(32768); /* 0x8000 */
 
 /*!  All ring items have common header structures: */
 
-typedef struct _RingItemHeader {
+typedef PSTRUCT _RingItemHeader {
   uint32_t     s_size;
   uint32_t     s_type;
 } RingItemHeader, *pRingItemHeader;
@@ -96,7 +100,7 @@ typedef struct _RingItemHeader {
   header and a generic body
 */
 
-typedef struct _RingItem {
+typedef PSTRUCT _RingItem {
   RingItemHeader s_header;
   uint8_t        s_body[1];
 } RingItem, *pRingItem;
@@ -107,7 +111,7 @@ typedef struct _RingItem {
   structure shown below:
 
 */
-typedef struct _StateChangeItem {
+typedef PSTRUCT _StateChangeItem {
   RingItemHeader  s_header;
   uint32_t        s_runNumber;
   uint32_t        s_timeOffset;
@@ -119,7 +123,7 @@ typedef struct _StateChangeItem {
    Scaler items contain run time counters.
 */
 
-typedef struct _ScalerItem {
+typedef PSTRUCT _ScalerItem {
   RingItemHeader  s_header;
   uint32_t        s_intervalStartOffset;
   uint32_t        s_intervalEndOffset;
@@ -133,7 +137,7 @@ typedef struct _ScalerItem {
   are back to back in the body of the ring buffer. item.
 */
 
-typedef struct _TextItem {
+typedef PSTRUCT _TextItem {
   RingItemHeader s_header;
   uint32_t       s_timeOffset;
   uint32_t         s_timestamp;
@@ -145,7 +149,7 @@ typedef struct _TextItem {
   For now a physics event is just a header and a body of uint16_t's.
 */
 
-typedef struct _PhysicsEventItem {
+typedef PSTRUCT _PhysicsEventItem {
   RingItemHeader s_header;
   uint16_t       s_body[1];
 } PhysicsEventItem, *pPhysicsEventItem;
@@ -155,7 +159,7 @@ typedef struct _PhysicsEventItem {
    need to know how many physics events have been produced
    so that they can figure out the sampling fraction.
 */
-typedef struct __PhysicsEventCountItem {
+typedef PSTRUCT __PhysicsEventCountItem {
   RingItemHeader s_header;
   uint32_t       s_timeOffset;
   uint32_t         s_timestamp;

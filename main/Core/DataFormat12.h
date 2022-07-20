@@ -165,8 +165,9 @@ static const uint16_t GLOM_TIMESTAMP_AVERAGE = 2;
 /* Macro to make packed structs: */
 
 
-
+#ifndef PSTRUCT
 #define PSTRUCT struct __attribute__((__packed__))
+#endif
 
   /* Turn off pedantic so we can specify 0 length arrays:
 

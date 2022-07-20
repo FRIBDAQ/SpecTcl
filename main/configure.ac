@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.12-005, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl,5.12-006, daqhelp@frib.msu.edu)
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
@@ -762,6 +762,28 @@ AX_GENGETOPT
 # Check for zlib for the zip/unzip commands.
 
 AX_CHECK_ZLIB([AC_MSG_RESULT([Have zlib])], [AC_MSG_ERROR([zlib is a prerequisite for this version of SpecTcl])])
+
+# Check that the unified format library has been incorporated into
+# the source tree and configura/build it into $prefix/unifiedformat
+#
+AC_CHECK_PROG([havecmake], cmake, [1], [0])
+if `test ${havcmake} = 0`
+then
+	AC_MSG_ERROR([cmake must be in the path to build SpecTcl])
+fi
+
+AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [
+   rm -rf unfiedformat/build
+   mkdir -p unifiedformat/build
+   sourcedir="`realpath ${srcdir}`"
+   (cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
+   UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
+   UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lAbstractFormat -lV10Format -lV11Format -lV12Format -Wl,-rpath=${prefix}/unifiedformat/lib"
+   AC_SUBST(UFMT_CPPFLAGS)
+   AC_SUBST(UFMT_LDFLAGS)
+   ],
+   [AC_MSG_ERROR([You need to incorporate the unified format library with unifiedfmt-incorp.sh])
+   ])
 
 
 #
