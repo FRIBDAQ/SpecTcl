@@ -72,7 +72,8 @@ from MenuGUI import Menu #include server and mirror config, refresh, geometry, e
 from ConfigGUI import Configuration # include spectrum/gate info and output popup buttons
 from SpecialFunctionsGUI import SpecialFunctions # all the extra functions we defined
 from OutputGUI import OutputPopup # popup output window
-from PlotGUI import Plot # area defined for the histograms 
+from PlotGUI import Plot # area defined for the histograms
+from PlotGUI import Tabs # area defined for the Tabs
 from PyREST import PyREST # class interface for SpecTcl REST plugin
 from CopyPropertiesGUI import CopyProperties
 
@@ -131,6 +132,11 @@ class MainWindow(QMainWindow):
         # index of the histogram
         self.index = 0 # this one is for self-adding
         self.idx = 0 # this one is global
+        self.tabIndex = 0
+        self.fullScale = False        
+        self.fullScaleValue = 0
+        self.wTab = {}
+        self.tabIndex = 0
         # click selection of position in canvas
         self.selected_plot_index = None
         self.selected_plot_index_bak = None        
@@ -237,12 +243,13 @@ class MainWindow(QMainWindow):
         self.wConf.setFixedHeight(50)
         
         # plot widget
-        self.wPlot = Plot()
+        self.wTab[self.tabIndex] = Tabs(Plot())
 
         # gui composition
         mainLayout.addWidget(self.wTop)
         mainLayout.addWidget(self.wConf)
-        mainLayout.addWidget(self.wPlot)        
+        mainLayout.addWidget(self.wTab[self.tabIndex])                
+        #mainLayout.addWidget(self.wPlot)
         
         widget = QWidget()
         widget.setLayout(mainLayout)        
@@ -264,14 +271,6 @@ class MainWindow(QMainWindow):
         # initialize factory from fit_creator
         self.fit_factory.initialize(self.extraPopup.fit_list)
 
-        # removing buttons from toolbar
-        self.tb = self.wPlot.canvas.toolbar
-        unwanted_buttons = ['Back','Forward']
-        for x in self.tb.actions():
-            if x.text() in unwanted_buttons:
-                self.tb.removeAction(x)
-        
-                
         #################
         # 2) Signals
         #################
@@ -339,18 +338,21 @@ class MainWindow(QMainWindow):
         self.extraPopup.fit_button.clicked.connect(self.fit)
 
         # for key_press_event
-        self.wPlot.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
-        self.wPlot.canvas.setFocus()
+        self.wTab[self.tabIndex].wPlot.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
+        self.wTab[self.tabIndex].wPlot.canvas.setFocus()
         
         # plotting signals
-        self.wPlot.plusButton.clicked.connect(lambda: self.zoomIn(self.wPlot.canvas))
-        self.wPlot.minusButton.clicked.connect(lambda: self.zoomOut(self.wPlot.canvas))        
-        self.wPlot.histo_log.clicked.connect(lambda:self.logAxis(self.wPlot.histo_log))
-        self.wPlot.createSRegion.clicked.connect(self.createSRegion)
-        self.wPlot.createSRegion.setEnabled(False)        
-        self.wPlot.histo_autoscale.clicked.connect(lambda:self.autoscaleAxis(self.wPlot.histo_autoscale))        
+        self.wTab[self.tabIndex].wPlot.plusButton.clicked.connect(lambda: self.zoomIn(self.wTab[self.tabIndex].wPlot.canvas))
+        self.wTab[self.tabIndex].wPlot.minusButton.clicked.connect(lambda: self.zoomOut(self.wTab[self.tabIndex].wPlot.canvas))        
+        self.wTab[self.tabIndex].wPlot.histo_log.clicked.connect(lambda:self.logAxis(self.wTab[self.tabIndex].wPlot.histo_log))
+        self.wTab[self.tabIndex].wPlot.createSRegion.clicked.connect(self.createSRegion)
+        self.wTab[self.tabIndex].wPlot.createSRegion.setEnabled(False)        
+        self.wTab[self.tabIndex].wPlot.histo_autoscale.clicked.connect(lambda:self.autoscaleAxis(self.wTab[self.tabIndex].wPlot.histo_autoscale))        
+        self.wTab[self.tabIndex].wPlot.copyButton.clicked.connect(self.copyPopup)
 
-        self.wPlot.copyButton.clicked.connect(self.copyPopup)
+        self.wTab[self.tabIndex].currentChanged.connect(self.addTab)
+        self.wTab[self.tabIndex].tabBarClicked.connect(self.clickedTab)        
+        
         self.copyAttr.histoAll.clicked.connect(lambda:self.histAllAttr(self.copyAttr.histoAll))        
         self.copyAttr.okAttr.clicked.connect(self.okCopy)
         self.copyAttr.applyAttr.clicked.connect(self.applyCopy)
@@ -390,8 +392,8 @@ class MainWindow(QMainWindow):
             if self.isZoomed:
                 index = self.selected_plot_index_bak
             else:
-                index = list(self.wPlot.figure.axes).index(event.inaxes)
-            self.wPlot.histoLabel.setText("Histogram:"+self.h_dict_geo[index])
+                index = list(self.wTab[self.tabIndex].wPlot.figure.axes).index(event.inaxes)
+            self.wTab[self.tabIndex].wPlot.histoLabel.setText("Histogram:"+self.h_dict_geo[index])
         except:
             pass
 
@@ -403,18 +405,30 @@ class MainWindow(QMainWindow):
             if b.isChecked() == True:
                 self.copyAttr.axisLimitX.setChecked(True)
                 self.copyAttr.axisLimitY.setChecked(True)        
-                self.copyAttr.axisScale.setChecked(True)        
+                self.copyAttr.axisScale.setChecked(True)
+                self.copyAttr.histoScale.setChecked(True)                
             else:
                 self.copyAttr.axisLimitX.setChecked(False)
                 self.copyAttr.axisLimitY.setChecked(False)        
-                self.copyAttr.axisScale.setChecked(False)        
+                self.copyAttr.axisScale.setChecked(False)
+                self.copyAttr.histoScale.setChecked(False)                
+                self.fullScale = False
                 
         if self.wTop.slider.value() != 0:
             self.timer.start()                     
 
+    def addTab(self, index):
+        print("addTab index", self.tabIndex)
+        self.wTab[self.tabIndex] = Tabs(Plot())
+        self.wTab[self.tabIndex].addTab(index) #this one doesn't work as supposed
+        self.initialize_canvas(1, 1)
+        
+    def clickedTab(self, index):
+        self.tabIndex = index
+            
     def okCopy(self):
         self.update_plot()
-        self.wPlot.canvas.draw()        
+        self.wTab[self.tabIndex].wPlot.canvas.draw()        
         
     def applyCopy(self):                
         flags = []
@@ -470,7 +484,16 @@ class MainWindow(QMainWindow):
                 if flags[2] == True:                                    
                     self.h_log[index] = scale_og
                     self.h_setup[index] = True
-
+                # set full scale value
+                if flags[3] == True:                                                        
+                    value = int(self.copyAttr.histoScaleValue.text())
+                    if self.wConf.button1D.isChecked():
+                        self.h_limits[index]["y"] = value
+                    else:
+                        self.fullScale = True
+                        self.fullScaleValue = value
+                    self.h_setup[index] = True
+                    
         if (DEBUG):                    
             print("<--- after apply copy attributes")
             print(self.h_limits)
@@ -516,29 +539,29 @@ class MainWindow(QMainWindow):
         self.copyAttr.close()
         
     def connect(self):
-        self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
-        self.pressID = self.wPlot.canvas.mpl_connect("button_press_event", self.on_press)        
-        self.wPlot.canvas.mpl_connect("draw_event", self.on_draw)
-        self.wPlot.canvas.mpl_connect("motion_notify_event", self.histoHover)        
+        self.resizeID = self.wTab[self.tabIndex].wPlot.canvas.mpl_connect("resize_event", self.on_resize)
+        self.pressID = self.wTab[self.tabIndex].wPlot.canvas.mpl_connect("button_press_event", self.on_press)        
+        self.wTab[self.tabIndex].wPlot.canvas.mpl_connect("draw_event", self.on_draw)
+        self.wTab[self.tabIndex].wPlot.canvas.mpl_connect("motion_notify_event", self.histoHover)        
         # home callback
-        self.wPlot.canvas.toolbar.actions()[0].triggered.connect(self.home_callback)
+        self.wTab[self.tabIndex].wPlot.canvas.toolbar.actions()[0].triggered.connect(self.home_callback)
 
     def edit_connect(self):
-        self.e_draw = self.wPlot.canvas.mpl_connect('draw_event', self.draw_callback)
-        self.e_press = self.wPlot.canvas.mpl_connect('button_press_event', self.button_press_callback)
-        self.e_release = self.wPlot.canvas.mpl_connect('button_release_event', self.button_release_callback)
-        self.e_key = self.wPlot.canvas.mpl_connect('key_press_event', self.key_press_callback)
-        self.e_motion = self.wPlot.canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
+        self.e_draw = self.wTab[self.tabIndex].wPlot.canvas.mpl_connect('draw_event', self.draw_callback)
+        self.e_press = self.wTab[self.tabIndex].wPlot.canvas.mpl_connect('button_press_event', self.button_press_callback)
+        self.e_release = self.wTab[self.tabIndex].wPlot.canvas.mpl_connect('button_release_event', self.button_release_callback)
+        self.e_key = self.wTab[self.tabIndex].wPlot.canvas.mpl_connect('key_press_event', self.key_press_callback)
+        self.e_motion = self.wTab[self.tabIndex].wPlot.canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
 
     def disconnect(self):
-        self.wPlot.canvas.mpl_disconnect(self.pressID)        
+        self.wTab[self.tabIndex].wPlot.canvas.mpl_disconnect(self.pressID)        
 
     def edit_disconnect(self):
-        self.wPlot.canvas.mpl_disconnect(self.e_draw)
-        self.wPlot.canvas.mpl_disconnect(self.e_press)
-        self.wPlot.canvas.mpl_disconnect(self.e_release)
-        self.wPlot.canvas.mpl_disconnect(self.e_key)
-        self.wPlot.canvas.mpl_disconnect(self.e_motion)
+        self.wTab[self.tabIndex].wPlot.canvas.mpl_disconnect(self.e_draw)
+        self.wTab[self.tabIndex].wPlot.canvas.mpl_disconnect(self.e_press)
+        self.wTab[self.tabIndex].wPlot.canvas.mpl_disconnect(self.e_release)
+        self.wTab[self.tabIndex].wPlot.canvas.mpl_disconnect(self.e_key)
+        self.wTab[self.tabIndex].wPlot.canvas.mpl_disconnect(self.e_motion)
 
     def get_key(self, val):
         for key, value in self.h_dict.items():
@@ -548,7 +571,7 @@ class MainWindow(QMainWindow):
         
     def on_draw(self, event):
         ax = None 
-        if self.wPlot.canvas.toolbar._active:
+        if self.wTab[self.tabIndex].wPlot.canvas.toolbar._active:
             name = str(self.wConf.histo_list.currentText())
             if (DEBUG):
                 print(self.h_dict)
@@ -577,29 +600,29 @@ class MainWindow(QMainWindow):
                     print("zoom mode for histogram ", name, " with index " , self.selected_plot_index)
                     print("cleaning and setting up the zoomed pic...")
 
-                self.wPlot.figure.clear()
-                self.wPlot.canvas.draw()
+                self.wTab[self.tabIndex].wPlot.figure.clear()
+                self.wTab[self.tabIndex].wPlot.canvas.draw()
                 if (DEBUG):
                     print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
                 a = self.update_plot()
                 self.reset_axis_properties(self.selected_plot_index)
                 self.drawAllGates()
-                self.wPlot.canvas.draw()
+                self.wTab[self.tabIndex].wPlot.canvas.draw()
             else:
                 if (DEBUG):                
                     print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
                 self.reset_axis_properties(self.selected_plot_index)
-                self.wPlot.canvas.draw()                
+                self.wTab[self.tabIndex].wPlot.canvas.draw()                
         except:
             pass
         
     def on_resize(self, event):
-        self.wPlot.figure.tight_layout()
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.figure.tight_layout()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
 
     def on_press(self, event):        
         if not event.inaxes: return
-        self.selected_plot_index = list(self.wPlot.figure.axes).index(event.inaxes)
+        self.selected_plot_index = list(self.wTab[self.tabIndex].wPlot.figure.axes).index(event.inaxes)
         self.selected_row, self.selected_col = self.plot_position(self.selected_plot_index)
         global t
         if t is None:
@@ -629,19 +652,19 @@ class MainWindow(QMainWindow):
 
             # by single clicking we select the plot with index selected_plot_index and draw a
             # red rectangle on the axes to show choice
-            for i, plot in enumerate(self.wPlot.figure.axes):
+            for i, plot in enumerate(self.wTab[self.tabIndex].wPlot.figure.axes):
                 if (i == self.selected_plot_index):
                         self.isSelected = True
                         self.rec = self.create_rectangle(plot)
                         if self.h_log[i]:
-                            self.wPlot.histo_log.setChecked(True)
+                            self.wTab[self.tabIndex].wPlot.histo_log.setChecked(True)
                         else:
-                            self.wPlot.histo_log.setChecked(False)                    
+                            self.wTab[self.tabIndex].wPlot.histo_log.setChecked(False)                    
             try:
                 self.clickToIndex(self.selected_plot_index)
             except:
                 pass
-            self.wPlot.canvas.draw()
+            self.wTab[self.tabIndex].wPlot.canvas.draw()
         else: # we are inside the zoomed histogram
             if (DEBUG):
                 print("Inside on_singleclick - ZOOM true")            
@@ -671,7 +694,7 @@ class MainWindow(QMainWindow):
                         print("inside create gate 2d")
                     self.addPolygon(self.click[0], self.click[1])                    
                         
-            self.wPlot.canvas.draw()
+            self.wTab[self.tabIndex].wPlot.canvas.draw()
         t = None
 
     def on_dblclick(self, event):
@@ -702,13 +725,13 @@ class MainWindow(QMainWindow):
             # disabling adding histograms
             self.wConf.histo_geo_add.setEnabled(False)
             # enabling gate creation
-            self.wPlot.createSRegion.setEnabled(True)
+            self.wTab[self.tabIndex].wPlot.createSRegion.setEnabled(True)
             self.wConf.createGate.setEnabled(True)                
             self.wConf.editGate.setEnabled(True) 
             if (DEBUG):
                 print("inside dblclick: self.selected_plot_index", self.selected_plot_index)
-            self.wPlot.figure.clear()
-            self.wPlot.canvas.draw()
+            self.wTab[self.tabIndex].wPlot.figure.clear()
+            self.wTab[self.tabIndex].wPlot.canvas.draw()
             # backing up list of histogram
             self.h_dict_bak = self.h_dict.copy()
             # plot corresponding histogram
@@ -827,7 +850,7 @@ class MainWindow(QMainWindow):
                     print(self.h_log_bak)
                 self.isZoomed = False
                 # disabling gate creation
-                self.wPlot.createSRegion.setEnabled(False)
+                self.wTab[self.tabIndex].wPlot.createSRegion.setEnabled(False)
                 self.wConf.createGate.setEnabled(False)                
                 self.wConf.editGate.setEnabled(False)                                                
                 if (DEBUG):
@@ -866,13 +889,13 @@ class MainWindow(QMainWindow):
         self.drawAllGates()
         self.set_autoscale_axis()
         if self.h_log[self.selected_plot_index_bak]:
-            self.wPlot.histo_log.setChecked(True)
+            self.wTab[self.tabIndex].wPlot.histo_log.setChecked(True)
         if self.wConf.button1D.isChecked():
             self.axisScale(plt.gca(), self.selected_plot_index_bak)
         t = None
 
     def draw_callback(self, event):
-        self.background = self.wPlot.canvas.copy_from_bbox(self.edit_ax.bbox)
+        self.background = self.wTab[self.tabIndex].wPlot.canvas.copy_from_bbox(self.edit_ax.bbox)
         self.edit_ax.draw_artist(self.poly)
         self.edit_ax.draw_artist(self.l)
 
@@ -1076,18 +1099,18 @@ class MainWindow(QMainWindow):
     def at_startup(self):
         self.initialize_canvas(self.wConf.row, self.wConf.col)
         self.connect()
-
+        
     def initialize_histogram(self):
         return {"name": "empty", "dim": 1, "xmin": 0, "xmax": 1, "xbin": 1,
                 "ymin": 0, "ymax": 1, "ybin": 1, "parameters": [], "type": "", "scale": False}        
         
     def initialize_figure(self, grid):
-        if (DEBUG):
-            print("initialize_figure and dictionaries")
+        #if (DEBUG):
+        print("initialize_figure and dictionaries")
         # creating plots in the grid
         for i in range(self.wConf.row):
             for j in range(self.wConf.col):
-                a = self.wPlot.figure.add_subplot(grid[i,j])
+                a = self.wTab[self.tabIndex].wPlot.figure.add_subplot(grid[i,j])
         self.h_dim.clear()
         self.h_lst.clear()
         for z in range(self.old_row*self.old_col):
@@ -1104,12 +1127,14 @@ class MainWindow(QMainWindow):
             print(self.h_dict)
         
     def create_figure(self, row, col):
+        #if (DEBUG):
+        print("create figure")
         self.wConf.row = row
         self.wConf.col = col
         if self.checkVersion(matplotlib.__version__) < self.checkVersion("2.0.0"):
             self.grid = gridspec.GridSpec(ncols=self.wConf.col, nrows=self.wConf.row)
         else:
-            self.grid = gridspec.GridSpec(ncols=self.wConf.col, nrows=self.wConf.row, figure=self.wPlot.figure)
+            self.grid = gridspec.GridSpec(ncols=self.wConf.col, nrows=self.wConf.row, figure=self.wTab[self.tabIndex].wPlot.figure)
         return self.grid
 
     def isGeoChanged(self):
@@ -1129,6 +1154,7 @@ class MainWindow(QMainWindow):
             print("initialize_canvas with dimensions", row, col)
             print("new", row, col)
             print("old", self.old_row, self.old_col)
+            print("tabIndex", self.tabIndex)
         # check if geometry changed
         if (self.isGeoChanged()):
             self.h_dict.clear()
@@ -1140,9 +1166,9 @@ class MainWindow(QMainWindow):
 
         self.index = 0
         self.idx = 0
-        self.wPlot.figure.clear()
+        self.wTab[self.tabIndex].wPlot.figure.clear()
         self.initialize_figure(self.create_figure(row, col))
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
         
     ###############################################
     # 5) Connection to REST for gates
@@ -1516,7 +1542,7 @@ class MainWindow(QMainWindow):
             a = None
             if self.isZoomed == True:
                 self.add(self.selected_plot_index) # this creates the histogram axes
-                self.wPlot.canvas.draw() # this drawing command creates the renderer
+                self.wTab[self.tabIndex].wPlot.canvas.draw() # this drawing command creates the renderer
                 a = plt.gca()
                 time.sleep(0.01)
                 if (DEBUG):
@@ -1548,6 +1574,9 @@ class MainWindow(QMainWindow):
                             self.setup_histogram(a, index)
                             self.h_setup[index] = False
                         self.plot_histogram(a, index)
+                        if self.fullScale == True:
+                            if self.wConf.button2D.isChecked():
+                                self.h_lst[index].set_clim(vmin=0.001, vmax=self.fullScaleValue)                              
                         if (DEBUG):
                             print("inside update_plot")
                             print(self.h_log)
@@ -1561,8 +1590,8 @@ class MainWindow(QMainWindow):
                                 a.set_ylim(ymin,ymax)
                                 a.set_yscale("log")
 
-            self.wPlot.figure.tight_layout()
-            self.wPlot.canvas.draw_idle()
+            self.wTab[self.tabIndex].wPlot.figure.tight_layout()
+            self.wTab[self.tabIndex].wPlot.canvas.draw_idle()
 
             return a
                 
@@ -1755,7 +1784,7 @@ class MainWindow(QMainWindow):
             self.set_histo_zoomMax(index, ymax)
             
     def updateZoom(self):
-        for i, ax in enumerate(self.wPlot.figure.axes):
+        for i, ax in enumerate(self.wTab[self.tabIndex].wPlot.figure.axes):
             ymax = self.h_zoom_max[i]
             if self.h_dim[i] == 1:
                 ax.set_ylim(0,ymax)
@@ -1782,6 +1811,7 @@ class MainWindow(QMainWindow):
                 self.set_log_axis(self.selected_plot_index)
 
     def autoscaleAxis(self, b):
+        print("inside autoscale")
         if b.text() == "Autoscale":
             if b.isChecked() == True:            
                 self.autoScale = True
@@ -1796,7 +1826,7 @@ class MainWindow(QMainWindow):
 
     def zoomIn(self, canvas):
         if self.isZoomed == False:
-            for i, ax in enumerate(self.wPlot.figure.axes):
+            for i, ax in enumerate(self.wTab[self.tabIndex].wPlot.figure.axes):
                 if (i == self.selected_plot_index):
                     self.zoom(ax, i, "in")
                     try:
@@ -1812,7 +1842,7 @@ class MainWindow(QMainWindow):
 
     def zoomOut(self, canvas):
         if self.isZoomed == False:
-            for i, ax in enumerate(self.wPlot.figure.axes):
+            for i, ax in enumerate(self.wTab[self.tabIndex].wPlot.figure.axes):
                 if (i == self.selected_plot_index):
                     self.zoom(ax, i, "out")
                     try:
@@ -1892,7 +1922,7 @@ class MainWindow(QMainWindow):
 
     # select axes based on indexing
     def select_plot(self, index):
-        for i, plot in enumerate(self.wPlot.figure.axes):
+        for i, plot in enumerate(self.wTab[self.tabIndex].wPlot.figure.axes):
             # retrieve the subplot from the click
             if (i == index):
                 return plot
@@ -1982,7 +2012,7 @@ class MainWindow(QMainWindow):
                     self.erase_plot(key)
                     self.add(key)
 
-                self.wPlot.canvas.draw()
+                self.wTab[self.tabIndex].wPlot.canvas.draw()
                 self.isLoaded = False
             else:
                 if (DEBUG):
@@ -2011,7 +2041,7 @@ class MainWindow(QMainWindow):
                 
                 self.erase_plot(self.idx)            
                 self.add(self.idx)
-                self.wPlot.canvas.draw()
+                self.wTab[self.tabIndex].wPlot.canvas.draw()
                 self.isSelected = False
         except:
             QMessageBox.about(self, "Warning", "add_plot - Please click 'Get Data to access the data...")
@@ -2032,7 +2062,7 @@ class MainWindow(QMainWindow):
             if (DEBUG):
                 print("in position",x,y)
             self.erase_plot(index)
-            a = self.wPlot.figure.add_subplot(self.grid[x,y])            
+            a = self.wTab[self.tabIndex].wPlot.figure.add_subplot(self.grid[x,y])            
         if (DEBUG):
             print("list of histograms in geometry", self.h_dict_geo)
         
@@ -2061,7 +2091,7 @@ class MainWindow(QMainWindow):
             name = self.wConf.histo_list.currentText()
             self.rest.spectrumClear(name)
 
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
 
     # sets up histogram
     def setup_histogram(self, axis, index):
@@ -2117,7 +2147,7 @@ class MainWindow(QMainWindow):
                                                 vmin=self.vmin, vmax=self.vmax,
                                                 cmap=self.palette)
 
-            self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
+            self.axbkg[index] = self.wTab[self.tabIndex].wPlot.figure.canvas.copy_from_bbox(axis.bbox)
             if (DEBUG):
                 print(self.h_lst)
                 print("inside setup histogram - before set_axis_properties")
@@ -2151,18 +2181,18 @@ class MainWindow(QMainWindow):
                     
             self.h_lst[index].set_data(w)
 
-        self.wPlot.figure.canvas.restore_region(self.axbkg[index])
+        self.wTab[self.tabIndex].wPlot.figure.canvas.restore_region(self.axbkg[index])
         axis.draw_artist(self.h_lst[index])
-        self.wPlot.figure.canvas.blit(axis.bbox)
+        self.wTab[self.tabIndex].wPlot.figure.canvas.blit(axis.bbox)
 
         # setup colorbar only for 2D
         if hdim == 2:
             divider = make_axes_locatable(axis)
             cax = divider.append_axes('right', size='5%', pad=0.05)
             # add colorbar
-            self.wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
+            self.wTab[self.tabIndex].wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
 
-        self.wPlot.canvas.draw_idle()
+        self.wTab[self.tabIndex].wPlot.canvas.draw_idle()
 
     # check histogram dimension from GUI
     def check_histogram(self):
@@ -2271,7 +2301,7 @@ class MainWindow(QMainWindow):
                     ymax_new = np.max(data)*1.1
                     self.h_lst[index].set_clim(vmin=(ax.get_ylim())[0], vmax=ymax_new)                
                 
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
         
     def set_log_axis(self, index):
         if (DEBUG):
@@ -2296,12 +2326,12 @@ class MainWindow(QMainWindow):
             #else:
             #    print("there are no differences..")
                         
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
     
     def axisScale(self, ax, index):
         if (DEBUG):
             print("Inside axisScale")
-        if self.wPlot.histo_log.isChecked() == True:
+        if self.wTab[self.tabIndex].wPlot.histo_log.isChecked() == True:
             if (DEBUG):
                 print("needs to become log...")
             if self.wConf.button1D.isChecked():                
@@ -2557,21 +2587,34 @@ class MainWindow(QMainWindow):
         polygon = None
 
         if (DEBUG):
+            print(hname,gname)
             print("List of the child Artists of this Artist \n",
                   *list(self.edit_ax.get_children()), sep ="\n")
         lst = list(self.edit_ax.get_children())
+        if (DEBUG):
+            print("..... looking for the gate .....")
+            print(self.artist_dict)
         for obj in lst:
             if isinstance(obj, matplotlib.lines.Line2D):
                 if (DEBUG):
                     print(obj.get_data())
                     print(obj.get_path())
-                    print(self.artist_dict[hname][gname])
                     print(obj.get_xdata())
-                if obj.get_xdata() == (self.artist_dict[hname][gname])[0]:
+                gate_list = self.artist_dict[hname]
+                if (DEBUG):
+                    print("gate_list", gate_list)
+                for g in gate_list:
                     if (DEBUG):
-                        print("found the line")
-                    obj.set_visible(False)
-                    polygon = obj
+                        print("g",g)
+                    for index, value in g.items():
+                        if (DEBUG):
+                            print(index, value)
+                        if index == gname:
+                            if obj.get_xdata() == value[0]:
+                                if (DEBUG):
+                                    print("found the line")
+                                obj.set_visible(False)
+                                polygon = obj
                     
         polygon.set_visible(False)
         self.poly_xy = self.convertToList2D(polygon)
@@ -2589,7 +2632,7 @@ class MainWindow(QMainWindow):
         
         self.poly.add_callback(self.poly_changed)
         
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
             
     def zoomGate(self, line, ymax):
         x = line.get_xdata()
@@ -2618,7 +2661,7 @@ class MainWindow(QMainWindow):
             del self.artist_dict[hname][gname]
             # delete from spectcl
             self.rest.deleteGate(gname)
-            self.wPlot.canvas.draw()
+            self.wTab[self.tabIndex].wPlot.canvas.draw()
 
             if self.wTop.slider.value() != 0:
                 self.timer.start()
@@ -2655,7 +2698,7 @@ class MainWindow(QMainWindow):
                             print("found the line")
                         obj.set_visible(False)
                 
-            self.wPlot.canvas.draw()            
+            self.wTab[self.tabIndex].wPlot.canvas.draw()            
                 
             if self.wTop.slider.value() != 0:
                 self.timer.start()
@@ -2730,14 +2773,19 @@ class MainWindow(QMainWindow):
             pass
 
     def addGate(self):
-        print("inside addGate")
+        if (DEBUG):
+            print("inside addGate")
         try:
             if self.wTop.slider.value() != 0:
                 self.timer.stop()
 
             hname = self.wConf.histo_list.currentText()
             gname = self.wConf.listGate.currentText()
-            self.drawGate(hname, gname, self.artist_dict[hname][gname])
+            gate_list = self.artist_dict[hname]
+            for gate in gate_list:
+                for index, value in gate.items():
+                    if index == gname:
+                        self.drawGate(hname, gname, value)
                             
             if self.wTop.slider.value() != 0:
                 self.timer.start()        
@@ -2776,7 +2824,7 @@ class MainWindow(QMainWindow):
             else:
                 self.plot2DGate(a, histo_name, gate_name, gate_line)                                
 
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
 
         if self.wTop.slider.value() != 0:
             self.timer.start()        
@@ -2854,6 +2902,10 @@ class MainWindow(QMainWindow):
                             self.copyAttr.copy_log.addRow(instance)
                             instance.clicked.connect(
                                 lambda state, instance=instance: self.connectCopy(instance))                        
+
+            self.copyAttr.histoAll.setChecked(True)
+            self.histAllAttr(self.copyAttr.histoAll)
+            self.selectAll()
             
         except:
             pass
@@ -2987,7 +3039,7 @@ class MainWindow(QMainWindow):
                 if (DEBUG):
                     print("2D fitting is not implemented")                
 
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
 
     ############################
     # 13) Peak Finding
@@ -3006,7 +3058,7 @@ class MainWindow(QMainWindow):
                     self.drawSinglePeaks(self.peaks, self.properties, self.dataw, i)
                     self.isChecked[i] = True
 
-        self.wPlot.canvas.draw()                
+        self.wTab[self.tabIndex].wPlot.canvas.draw()                
 
     def create_peak_signals(self, peaks):
         for i in range(len(peaks)):
@@ -3048,7 +3100,7 @@ class MainWindow(QMainWindow):
         except:
             pass
 
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
 
     def drawSinglePeaks(self, peaks, properties, data, index):
         a = None
@@ -3190,14 +3242,14 @@ class MainWindow(QMainWindow):
                 print("ML algo config", config)
             MLalgo = self.factory.create(algo, **config)
             # add hooks for popup windows i.e. more arguments that won't be used
-            MLalgo.start(self.clusterpts, self.clusterw, nclusters, a, self.wPlot.figure)
+            MLalgo.start(self.clusterpts, self.clusterw, nclusters, a, self.wTab[self.tabIndex].wPlot.figure)
 
             self.stop = time.time()
             print("Time elapsed for clustering:", self.stop-self.start)
             if (DEBUG):
                 print("self.isCluster",self.isCluster)
             
-            self.wPlot.canvas.draw()
+            self.wTab[self.tabIndex].wPlot.canvas.draw()
 
         except:
             QMessageBox.about(self, "Warning", "Something is not right (2D histo? Right number of clusters?)")
@@ -3212,7 +3264,7 @@ class MainWindow(QMainWindow):
                 a = self.select_plot(self.selected_plot_index)
 
             self.plot_histogram(a, self.selected_plot_index,self.extraPopup.imaging.threshold_slider.value())
-            self.wPlot.canvas.draw()
+            self.wTab[self.tabIndex].wPlot.canvas.draw()
         except:
             pass
 
@@ -3299,12 +3351,12 @@ class MainWindow(QMainWindow):
                                  aspect='auto',
                                  alpha=self.alpha)
 
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
 
     def deleteFigure(self):
         self.imgplot.remove()
         self.onFigure = False
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
 
     def transFigure(self):
         self.extraPopup.imaging.alpha_label.setText("Transparency Level ({} %)".format(self.extraPopup.imaging.alpha_slider.value()*10))
@@ -3463,7 +3515,7 @@ class MainWindow(QMainWindow):
             for index in indices:
                 self.isSelected = False # this line is important for automatic conversion from dark to light and viceversa
         self.update_plot()
-        self.wPlot.canvas.draw()
+        self.wTab[self.tabIndex].wPlot.canvas.draw()
 
     def applyAll(self, state):
         if state == QtCore.Qt.Checked:
