@@ -32,7 +32,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 //  Read - reads from m_nReadFd (which is the same as m_nFd).
 //             also EPIPE errors are treated as an end of file.
 //  Close - If m_nPid is still alive, then the pipe is not only closed, but the
-//             SIGQUIT is sent and waitpid is done on m_nPid.
+//             SIGKILL is sent and waitpid is done on m_nPid.
 //  IsReadable - 
 //             Does a select on the pipe, looking for read or exceptional 
 //             condition.
@@ -77,6 +77,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <sys/time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -102,7 +103,8 @@ extern "C" {
 CPipeFile::~CPipeFile()
 {
   if(getState() == kfsOpen) {
-    Close();			// Close pipe if open.
+    int finalStatus;
+    Close();			// Close pipe if open.. kills/waits for child
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -268,7 +270,7 @@ CPipeFile::Close()
   CFile::Close();		// Closes read end of pipe and ensures open.
   if(m_nPid > 0) {
     int status;
-    kill(m_nPid, SIGTERM);
+    kill(m_nPid, SIGKILL);
     sleep(1);			// Give the process a second to run down.
     waitpid(m_nPid,  &status, WNOHANG);	// But no more than that.
 				// Before just allowing it to be zombified.
