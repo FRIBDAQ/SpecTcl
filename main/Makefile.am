@@ -54,7 +54,7 @@ dist-hook:
 		base=$$(basename $$file) ; \
 	  cp $$file $(distdir)/$$base ; \
 	done
-
+	rm -rf $(distdir)/unifiedformat/build
 
 install-exec-local:
 	install  -d   -m 0775 $(prefix) $(prefix)/bin $(prefix)/include

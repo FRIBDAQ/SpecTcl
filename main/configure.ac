@@ -773,7 +773,7 @@ then
 fi
 
 AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [
-   rm -rf unfiedformat/build
+   rm -rf unifiedformat/build
    mkdir -p unifiedformat/build
    sourcedir="`realpath ${srcdir}`"
    (cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
