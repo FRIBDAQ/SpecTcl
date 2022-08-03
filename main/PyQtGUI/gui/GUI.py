@@ -233,6 +233,7 @@ class MainWindow(QMainWindow):
         
         mainLayout = QVBoxLayout()
         mainLayout.setContentsMargins(0,0,0,0)
+        mainLayout.setSpacing(0)
         
         # top menu
         self.wTop = Menu()
@@ -240,7 +241,7 @@ class MainWindow(QMainWindow):
         
         # config menu
         self.wConf = Configuration()
-        self.wConf.setFixedHeight(50)
+        self.wConf.setFixedHeight(70)
         
         # plot widget
         self.wTab[self.tabIndex] = Tabs(Plot())
@@ -254,7 +255,7 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(mainLayout)        
         self.setCentralWidget(widget)
-        self.showMaximized()
+        #self.showMaximized()
 
         # output popup window
         self.resPopup = OutputPopup()
@@ -1348,6 +1349,7 @@ class MainWindow(QMainWindow):
             self.create_parameter_list()
             self.update_spectrum_info()
             self.create_gate_list()        
+            self.updateGateType()
             self.isCluster = False
 
             #self.createDf()
@@ -1592,7 +1594,7 @@ class MainWindow(QMainWindow):
 
             self.wTab[self.tabIndex].wPlot.figure.tight_layout()
             self.wTab[self.tabIndex].wPlot.canvas.draw_idle()
-
+            self.set_autoscale_axis()
             return a
                 
         except:
@@ -1742,6 +1744,7 @@ class MainWindow(QMainWindow):
             self.add_plot()
             self.update_plot()
             self.drawAllGates()
+            self.updateGateType()
             self.h_dict_geo_bak = deepcopy(self.h_dict_geo)
             self.h_log_bak = deepcopy(self.h_log)            
             if (DEBUG):
@@ -1811,7 +1814,8 @@ class MainWindow(QMainWindow):
                 self.set_log_axis(self.selected_plot_index)
 
     def autoscaleAxis(self, b):
-        print("inside autoscale")
+        if (DEBUG):
+            print("inside autoscale")
         if b.text() == "Autoscale":
             if b.isChecked() == True:            
                 self.autoScale = True
@@ -2279,30 +2283,33 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print("Inside set_autoscale_axis")
 
-        ax = None        
-        if self.isZoomed:
-            ax = plt.gca()
-            if self.autoScale:
-                data = self.get_data(self.selected_plot_index)
-                if self.h_dict[self.selected_plot_index]["dim"] == 1:            
-                    ymax_new = max(data)*1.1
-                    ax.set_ylim((ax.get_ylim())[0], ymax_new)
-                else:
-                    ymax_new = np.max(data)*1.1
-                    self.h_lst[self.selected_plot_index].set_clim(vmin=(ax.get_ylim())[0], vmax=ymax_new)
-        else:
-            for index, values in self.h_dict.items():
-                data = self.get_data(index)                
-                ax = self.select_plot(index)
-                if self.h_dict[index]["dim"] == 1:            
-                    ymax_new = max(data)*1.1
-                    ax.set_ylim((ax.get_ylim())[0], ymax_new)
-                else:
-                    ymax_new = np.max(data)*1.1
-                    self.h_lst[index].set_clim(vmin=(ax.get_ylim())[0], vmax=ymax_new)                
-                
-        self.wTab[self.tabIndex].wPlot.canvas.draw()
-        
+        try:
+            ax = None        
+            if self.isZoomed:
+                ax = plt.gca()
+                if self.autoScale:
+                    data = self.get_data(self.selected_plot_index)
+                    if self.h_dict[self.selected_plot_index]["dim"] == 1:            
+                        ymax_new = max(data)*1.1
+                        ax.set_ylim((ax.get_ylim())[0], ymax_new)
+                    else:
+                        ymax_new = np.max(data)*1.1
+                        self.h_lst[self.selected_plot_index].set_clim(vmin=(ax.get_ylim())[0], vmax=ymax_new)
+            else:
+                for index, values in self.h_dict.items():
+                    data = self.get_data(index)                
+                    ax = self.select_plot(index)
+                    if self.h_dict[index]["dim"] == 1:            
+                        ymax_new = max(data)*1.1
+                        ax.set_ylim((ax.get_ylim())[0], ymax_new)
+                    else:
+                        ymax_new = np.max(data)*1.1
+                        self.h_lst[index].set_clim(vmin=(ax.get_ylim())[0], vmax=ymax_new)                
+                        
+            self.wTab[self.tabIndex].wPlot.canvas.draw()
+        except:
+            pass
+            
     def set_log_axis(self, index):
         if (DEBUG):
             print("Inside set_log_axis")
