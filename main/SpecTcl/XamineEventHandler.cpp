@@ -176,7 +176,12 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   //           Refers to the gate created by Xamine.
   // 
 
-
+  std::cerr << "Got gate: " << rXamineGate.getName() << std::endl;
+  std::cerr << "Points: \n";
+  for (PointIterator p = rXamineGate.begin(); p != rXamineGate.end(); ++p) {
+    std::cerr << "x: " << p->X() << " y: " << p->Y() << std::endl;
+  }
+  
   CGateFactory Factory(m_pHistogrammer);; // We'll use this to create the 
 				          // Gate itself.
 
@@ -312,9 +317,9 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
       int low   = GatePoints[0].X();
       int high  = GatePoints[1].X();
       if (low > high) {
-	int temp = low;
-	low  = high;
-	high = temp;
+        int temp = low;
+        low  = high;
+        high = temp;
       }
       //  Note that high is offset by 1 channel to put it on the right side
       // of our channel:

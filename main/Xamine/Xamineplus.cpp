@@ -62,6 +62,7 @@ extern "C" {
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -250,7 +251,10 @@ CXamine::EnterGate(CDisplayGate& rGate)
  
   Xamine_point  points[GROBJ_MAXPTS];
   Xamine_point* pPoints = points;
+		std::cerr << "Entering gate -> Xamine: " << rGate.getName() << std::endl;
+		std::cerr << "Points:\n";
   for(PointIterator p = rGate.begin(); p != rGate.end(); p++, pPoints++) {
+			std::cerr << "x: " << p->X() << " y: " << p->Y() << std::endl;
     pPoints->x = p->X();
     pPoints->y = p->Y();
   }

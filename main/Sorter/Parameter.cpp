@@ -19,7 +19,7 @@ Float_t
 CParameter::RawToMapped(Float_t fRaw)
 {
   if(m_fScaled && (m_nHigh != m_nLow)) {
-    Float_t frac = fRaw/(Float_t)(1 << m_nScale);
+    Float_t frac = fRaw/(Float_t((1 << m_nScale)));
     return m_nLow + frac * (m_nHigh - m_nLow);
       
   }
@@ -40,7 +40,7 @@ CParameter::MappedToRaw(Float_t fMapped)
 {
   if(m_fScaled & (m_nLow != m_nHigh)) {
     Float_t frac = (fMapped - m_nLow)/(m_nHigh - m_nLow);
-    return frac * (Float_t)(1 << m_nScale);
+    return frac * (Float_t)((1 << m_nScale));
   }
   else {			// No scaling information.
     return fMapped;

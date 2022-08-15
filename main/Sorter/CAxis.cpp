@@ -169,7 +169,7 @@ CAxis::AxisToParameter(UInt_t nAxisValue)
 /*!  
 
 
-Converts an axis coordinate to the mapped value of a parameter.
+Converts an axis coordinate to the mapped value of a param<eter.
 If the parameter is not a mapped parameter, the raw parameter coordinates are
 returned instead (easy since in that case there's no difference 
 between mapped and unmaped).
@@ -209,26 +209,10 @@ CAxis::ComputeScale()
 
   // The scale factor is the reciprocal of the channel width:
 
-  m_fScaleFactor = ((float)(m_nChannels-1)/range);
+  m_fScaleFactor = ((float)(m_nChannels)/range);
 
   return;
 
-#ifdef OLDSCALEFACTOR
-
-
-  // This is a bit nasty..and I'm not really sure this is right.
-  // For a very very small range you want to be about exact.
-  // for a larger range, you need to allow all of that last channel
-  // to display.
-
-  Float_t range = (m_fHigh - m_fLow);
-  if (range < (m_nChannels-1)) {	// Channel size < 1.0
-    m_fScaleFactor = (float)m_nChannels/(range);
-  } 
-  else {			// Channel size >= 1.0
-    m_fScaleFactor = (float)m_nChannels/(range +1.0);
-  }
-#endif
 
 }
 
