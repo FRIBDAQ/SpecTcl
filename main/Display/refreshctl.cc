@@ -59,6 +59,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "gc.h"
 #include "xaminegc.h"
 #include "gcmgr.h"
+
 /*
  ** Macros:
  */
@@ -264,7 +265,7 @@ void Xamine_RedrawPane(int column, int row)
       db->refresh_state(row, column, rfsh_aborting);
     case rfsh_aborting:		/* Need to queue a wait/ retry procedure. */
       if(db->updatetimer(row, column) != 0) /* Already a timer queued. */
-	return;
+        return;
       pane = Xamine_GetDrawingArea(row, column);
       pane->GetAttribute(XmNuserData, &cellno);
       db->updatetimer(row, column, 

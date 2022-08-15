@@ -43,6 +43,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "dispwind.h"
 #include "dispshare.h"
 #include "axes.h"
+#include "Transform.h"
+
 #include "mapcoord.h"
 #include <Iostream.h>
 
@@ -76,12 +78,12 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
     win_1d* a1 = (win_1d*)a;
     if(a1->ismapped()) {
       if(a1->isflipped()) {
-	xmarg = (int)((float)(*xs) * XAMINE_MAPPED_MARGINSIZE);
-	ymarg = (int)((float)(*ys) * XAMINE_MARGINSIZE);
+        xmarg = (int)((float)(*xs) * XAMINE_MAPPED_MARGINSIZE);
+        ymarg = (int)((float)(*ys) * XAMINE_MARGINSIZE);
       }
       else {
-	xmarg = (int)((float)(*xs) * XAMINE_MARGINSIZE);
-	ymarg = (int)((float)(*ys) * XAMINE_MAPPED_MARGINSIZE);
+        xmarg = (int)((float)(*xs) * XAMINE_MARGINSIZE);
+      ymarg = (int)((float)(*ys) * XAMINE_MAPPED_MARGINSIZE);
       }
     }
     else {
@@ -320,6 +322,7 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   int chanlow, chanhi;
   unsigned int  cntslow, cntshi, cntssize;
 
+  
   if(attributes->isflipped()) {	/* Flipped orientation. */
     chanpix   = ypix;
     chansize  = ysize;
@@ -364,9 +367,9 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   else {
     // channel = (int)LinearPosition(chanpix, chanlow, chanhi, chansize);
    
-    channel = (int)Transform(0.0, (float)(chansize-1), 
-			(float)chanlow, (float)chanhi, 
-			(float)chanpix);
+    channel = PixelToChannel(0, chansize, chanlow, chanhi, chanpix);
+    
+    // Clipping:
     if (channel < chanlow) {
       channel = chanlow;
     }
@@ -374,10 +377,6 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
       channel = chanhi - 1;
     }
     
-    // if((channel < chanlow) || (channel > chanhi)) {
-    //   loc->counts = 0;
-    //  }
-    // else {
     loc->counts  = spectra->getchannel(spec, channel);
     // }
     if(attributes->islog()) {
@@ -385,9 +384,9 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     }
     else {
       //      countpos =(int)LinearPosition(cntspix, cntslow, cntshi, cntssize);
-      countpos = (unsigned int)Transform(0, (float)(cntssize-1), 
-			   (float)cntslow, (float)cntshi, 
-			   cntspix);
+      
+      countpos = Transform(0, cntssize, cntslow, cntshi, cntspix);
+      
     }
   }
   /*
@@ -471,10 +470,8 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
 
   //  chpix = (int)LinearPosition(chan - chanlo, 1, chanpix-1, (chanhi-chanlo));
   
-
-  chpix = (int)Transform((float)chanlo, (float)(chanhi),
-			 0.0, (float)(chanpix), chan); 
-
+  chpix = ChannelToPixel(chanlo, chanhi, 0, chanpix, chan);
+  
   /* The counts axis could be log though:  */
   int cpix;
   if(attributes->islog()) {
@@ -600,11 +597,9 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   // xp = (int)LinearPosition(xpix, xl, xh, nx);
   // yp = (int)LinearPosition(ypix, yl, yh, ny);
 
-  xp = (int)Transform(0.0, (float)(nx-1),
-		      (float)xl, (float)xh, (float)xpix);
-  yp = (int)Transform(0.0, (float)(ny-1),
-		      (float)yl, (float)yh, (float)ypix);
-		      
+  xp = PixelToChannel(0, nx, xl, xh, xpix);
+  yp = PixelToChannel(0, ny, yl, yh, ypix);
+  	      
 
   if((att->isflipped() && att->isexpanded() && att->isexpandedfirst()) ||
      (!att->isflipped() && att->isexpanded() && !att->isexpandedfirst())) {
@@ -713,11 +708,9 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   // *xpix = (int)LinearPosition(chanx - xl,1, nx, (xh-xl + 1));
   // *ypix = (int)LinearPosition(chany - yl,1, ny, (yh-yl + 1));
 
-  *xpix = (int)(Transform((float)xl, (float)xh,
-			  0.0, (float)(nx-1), (float)chanx));
-  *ypix = (int)(Transform((float)yl, (float)yh, 
-			  0.0, (float)(ny-1), (float)chany));
-		
+  *xpix = ChannelToPixel(xl, xh, 0, nx, chanx);
+  *ypix = ChannelToPixel(yl, yh, 0, ny, chany);
+  	
   /* Adjust pixel coordinates into X/Y X-11 positions: */
 
   *xpix -= orgx;

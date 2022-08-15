@@ -32,36 +32,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <math.h>
 #include "mapcoord.h"
 #include "dispshare.h"
+#include "Transform.h"
 
 extern volatile spec_shared *xamine_shared;
 
 
-/*!
-   Do an arbitrary coordinate transformation:
-   \param fSourcelow, fSourceHigh (float)
-      Define a window in the source coordinate system.
-   \param fDestLow, fDestHigh (float)
-      Define the corresponding window in the destination
-      coordinate system.
-    \param point (float)
-       The source coordinate.
-    \return float
-    \retval  the coordinate transformed as indicated by the
-             two coordinate windows.
-*/
-float Transform(float fSourceLow, float fSourceHigh,
-		float fDestLow,   float fDestHigh, 
-		float point)
-{
-  float fraction;
-  if (fSourceHigh - fSourceLow != 0) {
-    fraction = (point - fSourceLow)/(fSourceHigh - fSourceLow);
-  } 
-  else {
-    fraction = 0.0;
-  }
-  return fDestLow + fraction*(fDestHigh - fDestLow);
-}
 
 /*
 ** Functional Description:
@@ -83,8 +58,8 @@ int Xamine_XMappedToChan(int specno, float value)
   float xhi = xamine_shared->getxmax_map(specno);
   float nch = xamine_shared->getxdim(specno);
 
+	return WorldToChannel(xlo, xhi, 0, nch, value, false);
   float x = Transform(xlo, xhi, 0.0, (float)(nch-1), value);
-  return (int)(x + copysign(1.0, x)*0.5);
 
 }
 
@@ -110,8 +85,7 @@ int Xamine_YMappedToChan(int specno, float value)
   float yhi = xamine_shared->getymax_map(specno);
   float nch = xamine_shared->getydim(specno);
 
-  float y = Transform(ylo, yhi, 0.0, (float)(nch-1), value);
-  return (int)(y + copysignf(1.0, y)*0.5);
+	return WorldToChannel(ylo, yhi, 0, nch, value, false);
 
 }
 
@@ -134,8 +108,7 @@ float Xamine_XChanToMapped(int specno, float chan)
   float xhi = xamine_shared->getxmax_map(specno);
   int   nch = xamine_shared->getxdim(specno);
 
-  return Transform(0.0, (float)(nch -1),
-		   xlo, xhi, chan);
+	return ChannelToWorld(0, nch, xlo, xhi, (int)chan, false);
 }
 
 /*
@@ -157,6 +130,6 @@ float Xamine_YChanToMapped(int specno, float chan)
   float yhi = xamine_shared->getymax_map(specno);
   int   nch = xamine_shared->getydim(specno);
 
-  return Transform(0.0, (float)(nch-1), ylo, yhi, chan);
+  return ChannelToWorld(0, nch, ylo, yhi, (int)chan, false);
 
 }

@@ -403,10 +403,10 @@ void Xamine_DrawObjects(Xamine_RefreshContext *ctx, win_attributed *attributes)
     for(int i = 0; i < nobjects; i++) {
       grobj_type type = objects[i]->type();
       if( (type >= max1dtypes) || (onedspec != typeisoned[type])  ) {
-	Xamine_DeleteGrobj(specid, objects[i]->getid());
+				Xamine_DeleteGrobj(specid, objects[i]->getid());
       }
       else {
-	objects[i]->draw(wid, attributes, True);
+				objects[i]->draw(wid, attributes, True);
       }
     }
     delete []objects;		/* Free the object list. */
@@ -456,10 +456,10 @@ void Xamine_PlotObject(grobj_generic *obj, Boolean final)
   for(int r = 0; r < nr; r++) 
     for(int c = 0; c < nc; c++) {
       win_attributed *att = Xamine_GetDisplayAttributes(r, c);
-      if(att != NULL) {
-	XMWidget *w = Xamine_GetDrawingArea(r, c);
-	if(obj->getspectrum()   == att->spectrum() )
-	  obj->draw(w, att, final);
+			if(att != NULL) {
+				XMWidget *w = Xamine_GetDrawingArea(r, c);
+				if(obj->getspectrum()   == att->spectrum() )
+					obj->draw(w, att,final);
       }
     }
 }

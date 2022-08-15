@@ -296,9 +296,7 @@ DAMAGES.
 #define _MAPCOORD_H
 
 
-float Transform(float fSourceLow, float fSourceHigh,
-		float fDestLow,   float fDestHigh, 
-		float point);
+
 int Xamine_XMappedToChan(int specno, float value);
 int Xamine_YMappedToChan(int specno, float value);
 float Xamine_XChanToMapped(int specno, float chan);

@@ -150,7 +150,7 @@ superprompt.cc objcopy.cc copier.cc lblfont.cc checklist.cc \
 compatspec.cc copyatr.cc  buttonreq.cc buttondlg.cc \
 spcchoice.cc spccompatchoice.cc spclimchoice.cc ptlist.cc \
 lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc  \
-wysiwygPrint.cc
+wysiwygPrint.cc Transform.cpp Transform.h
 
 
 PARSEOBJECTS=windfile_parse.o windfile_lex.o grobfile_lex.o grobfile_parse.o \

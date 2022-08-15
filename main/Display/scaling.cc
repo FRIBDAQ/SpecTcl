@@ -132,37 +132,37 @@ Sampler *Xamine_GenerateSampler(volatile unsigned int *b,
     case sampled:		/* Reduce by sampling. */
       switch(st) {		/* Chose spectrum type... */
       case onedlong:
-	return (Sampler *)new Samplel(b, step);
+				return (Sampler *)new Samplel(b, step);
       case onedword:
-	return (Sampler *)new Samplew((unsigned short *)b, step);
+				return (Sampler *)new Samplew((unsigned short *)b, step);
       default:	
-	fprintf(stderr,"* in Plot1d/GenerateSampler invalid spectype %d\n",
-		st);
-	return (Sampler*) NULL;
+				fprintf(stderr,"* in Plot1d/GenerateSampler invalid spectype %d\n",
+					st);
+				return (Sampler*) NULL;
       }
     case summed:		/* Reduce by summing */
       switch(st) {		/* Chose spectrum type: */
       case onedlong:
-	return (Sampler *)new Suml(b, step);
+				return (Sampler *)new Suml(b, step);
       case onedword:
-	return (Sampler *)new Sumw((unsigned short *)b, step);
+				return (Sampler *)new Sumw((unsigned short *)b, step);
       default:
-	fprintf(stderr,
-		"Plot1d/GenerateSampler invalid spectrum type %d\n",
-		st);
-	return (Sampler*)NULL;
+				fprintf(stderr,
+					"Plot1d/GenerateSampler invalid spectrum type %d\n",
+				st);
+				return (Sampler*)NULL;
       }
     case averaged:		/* Reduce by averaging */
       switch(st) {		/* Chose spectrum type: */
       case onedlong:
-	return (Sampler *)new Avgl(b, step);
+				return (Sampler *)new Avgl(b, step);
       case onedword:
-	return (Sampler *)new Avgw((unsigned short *)b, step);
+				return (Sampler *)new Avgw((unsigned short *)b, step);
       default:
-	fprintf(stderr,
-		"Plot1d/GenerateSampler invalid spectrum type %d\n",
-		st);
-	return (Sampler*) NULL;
+				fprintf(stderr,
+					"Plot1d/GenerateSampler invalid spectrum type %d\n",
+				st);
+				return (Sampler*) NULL;
       }
     default:			/* Error. */
       fprintf(stderr,

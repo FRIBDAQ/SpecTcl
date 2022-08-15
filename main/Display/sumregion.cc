@@ -381,16 +381,16 @@ void AcceptSummingRegion::AddPoint(point &pt)
     if(att->isflipped()) {
       fpy = Xamine_XChanToMapped(att->spectrum(), pt.y);
       if(att->is1d()) {
-	fpx = pt.x;
+        fpx = pt.x;
       } else {
-	fpx = Xamine_YChanToMapped(att->spectrum(), pt.x);
+        fpx = Xamine_YChanToMapped(att->spectrum(), pt.x);
       }
     } else {
       fpx = Xamine_XChanToMapped(att->spectrum(), pt.x);
       if(att->is1d()) {
-	fpy = pt.y;
+        fpy = pt.y;
       } else {
-	fpy = Xamine_YChanToMapped(att->spectrum(), pt.y);
+        fpy = Xamine_YChanToMapped(att->spectrum(), pt.y);
       }
     }
     sprintf(pstring, "%.1f %.1f", fpx, fpy);
@@ -607,7 +607,7 @@ void AcceptSummingRegion::TextPoint()
       // X is either counts (1d) or transforms via y if 2d:
 
       if(!att->is1d()) {
-	x = Xamine_YMappedToChan(spec, x);
+        x = Xamine_YMappedToChan(spec, x);
       }
     } else {
       // Not flipped, x must always transform:
@@ -617,7 +617,7 @@ void AcceptSummingRegion::TextPoint()
       // If a 2-d y must also transform:
       
       if(!att->is1d()) {
-	y = Xamine_YMappedToChan(spec, y);
+        y = Xamine_YMappedToChan(spec, y);
       }
     }
   }
