@@ -158,41 +158,37 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   Xamine_Location *l = Xamine_GetCursorLocator();
   l->Spectrum(atts->spectrum());
 
-  /* Display the center of the bin as the cursor location */
+  /* Display the left (lower left). of the bin as the cursor location */
   float fx, ffy;
   float fy = 0, ffx = 0;
-  fx = (Xamine_XChanToMapped(sid, locdata.xpos+1) + 
-	Xamine_XChanToMapped(sid, locdata.xpos)) / 2.0;
-  fy = (Xamine_YChanToMapped(sid, locdata.ypos+1) +
-	 Xamine_YChanToMapped(sid, locdata.ypos)) / 2.0;
+  fx = Xamine_XChanToMapped(sid, locdata.xpos);
+  fy = Xamine_YChanToMapped(sid, locdata.ypos);
 
   // These only make sense if we are 2-d, or flipped
   if((atts->is1d()) || (atts->isflipped())) {
-    ffy = (Xamine_YChanToMapped(sid, locdata.ypos+1) + 
-	  Xamine_YChanToMapped(sid, locdata.ypos)) / 2.0;
-    ffx = (Xamine_XChanToMapped(sid, locdata.xpos+1) +
-	   Xamine_XChanToMapped(sid, locdata.xpos)) / 2.0;
+    ffy = Xamine_YChanToMapped(sid, locdata.ypos+1);
+    ffx = Xamine_XChanToMapped(sid, locdata.xpos+1);
   }
 
   if(atts->ismapped()) {
     if(atts->is1d()) {
       if(atts->isflipped()) {
-	l->Xpos(locdata.xpos);
-	l->YMappedPos(ffy);
+				l->Xpos(locdata.xpos);
+				l->YMappedPos(ffy);
       }
       else {
-	l->XMappedPos(fx);
+				l->XMappedPos(fx);
       	l->Ypos(locdata.ypos);
       }
     }
     else {
       if(atts->isflipped()) {
-	l->XMappedPos(ffx);
-	l->YMappedPos(ffy);
+				l->XMappedPos(ffx);
+				l->YMappedPos(ffy);
       }
       else {
-	l->XMappedPos(fx);
-	l->YMappedPos(fy);
+				l->XMappedPos(fx);
+				l->YMappedPos(fy);
       }
     }
   }
