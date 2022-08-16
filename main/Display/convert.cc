@@ -66,7 +66,7 @@ extern volatile spec_shared *xamine_shared;
 **   int *xs, *ys:
 **     Pointers to the window sizes.
 **   int *xp, *yp:
-**     Pointer to the pixel sizes.
+**     Pointer to the x/y origins in pixel space
 ** The raw sizes passed in will be adjusted to reflect the plotting region
 ** of the spectrum.  The raw pixel coordinates will be adjusted to cartesian
 ** (not X-11) coordinates relative to the origin of the spectrum plotting region
@@ -105,17 +105,17 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
   
   /* adjust pixels to cartesian coords relative to the window origin: */
 
-  *yp = *ys - *yp;		/* X y coords are backwards. */
+  *yp = *ys - *yp;		/*  y coords are backwards. */
 
   /* If there's an axis, then remove the margin: */
 
   if(a->showaxes()) {
 
     *xs -= xmarg;
-    *xp -= xmarg;
+    *xp += xmarg;
 
     *ys -= ymarg;
-    *yp -= ymarg;
+    *yp += ymarg;
     *xp -= 1;
     return;
   }
@@ -129,7 +129,7 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
     ymarg = ymarg >> 1;
 
     *ys -= ymarg;
-    *yp -= ymarg;
+    *yp += ymarg;
   }
   *xp -= 1;
 }
@@ -299,13 +299,14 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   pane->GetAttribute(XmNheight, &ys);
   int xsize = xs;
   int ysize = ys;
+  int orgx  = 0;
+  int orgy  = ys;
 
   /* The margins must now be figured into the picture.  When we finish this
   ** section of code: xsize, ysize will be the used segment of the display.
-  ** xpix and ypix will be the cartesian (not X11) coordinates of the
-  ** pixel within the spectrum display region.
+  ** xpix and ypix will be the x11 origin of the displayable region.
   */
-  Normalize(attributes, &xsize, &ysize, &xpix, &ypix);
+  Normalize(attributes, &xsize, &ysize, &orgx, &orgy);
 
   /* When we finish falling through this section, the following will be
   ** set up:
@@ -321,20 +322,21 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   int          cntspix;
   int chanlow, chanhi;
   unsigned int  cntslow, cntshi, cntssize;
+  
 
   
   if(attributes->isflipped()) {	/* Flipped orientation. */
-    chanpix   = ypix;
+    chanpix   = ys-ypix ;            // Since x11 Y is 'backwards'.
     chansize  = ysize;
 
     cntspix   = xpix;
     cntssize  = xsize;
   }
   else {			/* Unflipped orientation. */
-    chanpix   = xpix;
+    chanpix   = xpix - orgx;          // Remove origin offset.
     chansize  = xsize;
   
-    cntspix   = ypix;
+    cntspix   = ys - ypix;
     cntssize  = ysize;
   }
   if(a->isexpanded()) {
@@ -446,14 +448,17 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   */
   int cntspix,cntslo,cntshi;
   int chanpix,chanlo,chanhi;
-
+  int orgpix;
+  
   if(attributes->isflipped()) {
     cntspix = nx;
     chanpix = ny;
+    orgpix  = orgy;
   }
   else {
     cntspix = ny;
     chanpix = nx;
+    orgpix  = orgx;
   }
   cntslo = 0;
   cntshi = attributes->getfsval();
@@ -462,15 +467,14 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   chanhi = spectra->getxdim(specno) ; // Goes to the end of the last chan.
   if(att->isexpanded()) {
     chanlo = att->lowlimit();
-    chanhi = att->highlimit() +1; // Goes to end of last channel.
+    chanhi = att->highlimit(); // Goes to end of last channel.
   }
 
-  /* The channel axis is always linear so:  */
-  int chpix;
-
-  //  chpix = (int)LinearPosition(chan - chanlo, 1, chanpix-1, (chanhi-chanlo));
+  /* The channel axis is always linear.  But to get true screen coordinates,
+     we must fold the origin of the axis in pixels orgpix) back in.
+  */
   
-  chpix = ChannelToPixel(chanlo, chanhi, 0, chanpix, chan);
+  int chpix = ChannelToPixel(chanlo, chanhi, 0, chanpix, chan);
   
   /* The counts axis could be log though:  */
   int cpix;
@@ -498,8 +502,8 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
 
   /* Adjust for origin shift and X-11 coordinate system:  */
 
-  *xpix -= orgx;
-  *ypix = ny - (*ypix);
+  *xpix += orgx;
+  *ypix = nys - (*ypix);
 
   /* If this takes anything out of the display then clip to the edge. */
  
@@ -713,8 +717,8 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   	
   /* Adjust pixel coordinates into X/Y X-11 positions: */
 
-  *xpix -= orgx;
-  *ypix = ny - (*ypix);
+  *xpix += orgx;
+  *ypix = nys - (*ypix);
   if(clipping) {
     if(*xpix < orgx) *xpix = orgx;
     if(*xpix > nxs)  *xpix = nxs;

@@ -48,7 +48,7 @@ Transform(
 )
 {
     double zeroBased = coord - fromLow;
-    double scaled    = (coord/(fromHigh - fromLow)) * (toHigh - toLow);
+    double scaled    = (zeroBased/(fromHigh - fromLow)) * (toHigh - toLow);
     double result    = scaled + toLow;
     return result;
 }

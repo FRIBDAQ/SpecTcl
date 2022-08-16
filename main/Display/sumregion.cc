@@ -764,8 +764,7 @@ Xamine_Draw1dCut(Display *d, Drawable win, GC ctx,
       xhigh = xlow;
       xlow  = pt2->getx();
     }
-  }
-  else {
+  } else {
     return;	// Can't draw a cut with < 2 points
   }
   // start by assuming pt1 is left and pt2 is right, then correct

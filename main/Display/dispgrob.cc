@@ -186,7 +186,7 @@ int grobj_generic::insertpt(int loc,int x, int y)
   if(npts < GROBJ_MAXPTS) {
     if(loc < npts) {
       for(int i = npts; i > loc; i--)
-	pts[i] = pts[i-1];	/* Slide everything up */
+        pts[i] = pts[i-1];	/* Slide everything up */
       pts[loc].set(x,y);	/* Insert the new point */
       npts++;
       return npts;
@@ -290,16 +290,16 @@ static void DrawPlusses(Display *d, Drawable win, GC gc,
     if(flipped) {
        int t;
        switch(o->type()) {
-         case contour_2d:
-	 case summing_region_2d:	/* If necessary flip the axes */
-	 case marker_2d:
-	 case pointlist_2d:
-	    t = sx;
-	    sx= sy;
-	    sy= t;
-            break;
-	 default:
-	    break;
+          case contour_2d:
+          case summing_region_2d:	/* If necessary flip the axes */
+          case marker_2d:
+          case pointlist_2d:
+             t = sx;
+             sx= sy;
+             sy= t;
+                   break;
+          default:
+             break;
        }
     }
     cvt->SpecToScreen(&x, &y, sx, sy);

@@ -82,9 +82,7 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
 {
   XMWidget *w = (XMWidget *)userd;
   *cont = True;			/* Never stop event chaining. */
-#ifdef DEBUG
-  fprintf(stderr,"Xamine_PointerMotionCallback\n");
-#endif
+
 
   Display *disp;
   Window  widgetwin;
@@ -110,10 +108,6 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   XQueryPointer(disp, widgetwin, &root, &child, &rx, &ry, 
 		&wx, &wy, &keys_buttons);
 
-
-#ifdef DEBUG
-  fprintf(stderr, "  Pointer raw position is (%d,%d)\n", wx, wy);
-#endif
 
   /* Next get enough information to build a converter and convert the */
   /* raw position into the real position:                             */
