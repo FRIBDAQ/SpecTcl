@@ -326,17 +326,17 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
 
   
   if(attributes->isflipped()) {	/* Flipped orientation. */
-    chanpix   = ys-ypix ;            // Since x11 Y is 'backwards'.
+    chanpix   = ysize-ypix ;            // Since x11 Y is 'backwards'.
     chansize  = ysize;
 
-    cntspix   = xpix;
+    cntspix   = xpix - orgx;
     cntssize  = xsize;
   }
   else {			/* Unflipped orientation. */
     chanpix   = xpix - orgx;          // Remove origin offset.
     chansize  = xsize;
   
-    cntspix   = ys - ypix;
+    cntspix   = ysize - ypix;
     cntssize  = ysize;
   }
   if(a->isexpanded()) {
@@ -503,7 +503,7 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   /* Adjust for origin shift and X-11 coordinate system:  */
 
   *xpix += orgx;
-  *ypix = nys - (*ypix);
+  *ypix = ny - (*ypix);
 
   /* If this takes anything out of the display then clip to the edge. */
  
