@@ -544,8 +544,11 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   
   int nx = nxs;
   int ny = nys;
+  int orgx = 0;
+  int orgy = ny;
 
-  /*  Figure the X/Y channel limits represented by nx and ny pixels */
+  /*  Figure the
+  X/Y channel limits represented by nx and ny pixels */
   int xl,xh;
   int yl,yh;
   
@@ -556,17 +559,7 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     yh = (att->isflipped() ? att->xhilim()  : att->yhilim());
     xh++;
     yh++;
-    if(att->isexpandedfirst()) {
-      /*
-	int temp = xl;
-	xl = yl;
-	yl = temp;
-
-	temp = xh;
-	xh = yh;
-	yh = temp;
-      */
-    }
+    
   }
   else {
     xl = 0;
@@ -575,7 +568,14 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     yh = spectra->getydim(spec)-1;
   }
 
-  /* If the axes are flipped, then so are (xl,xh) and (yl,yh) */
+
+  /* Next normalize the coordinates to Cartesians relative to the
+  ** start of the spectrum display region.
+  */
+
+  Normalize(attributes, &nx, &ny, &orgx, &orgy);
+
+    /* If the axes are flipped, then so are (xl,xh) and (yl,yh) */
   
   if(att->isflipped()) {
     int temp;
@@ -583,17 +583,15 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     xl   = yl;
     yl   = temp;
     
+    
     temp = xh;
     xh   = yh;
-    yh   = temp;  
+    yh   = temp;
+    
   }
-
-  /* Next normalize the coordinates to Cartesians relative to the
-  ** start of the spectrum display region.
-  */
-
-  Normalize(attributes, &nx, &ny, &xpix, &ypix);
-
+  xpix = xpix - orgx;     // Pull the origin off the
+  ypix = nys  - ypix - orgy;     // coordinates.
+  
   /* Get channel values: */
 
   int xp, yp;
@@ -620,16 +618,12 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     loc->xpos = xp;
     loc->ypos = yp;
   }
+  
 
   if( ((xp >= xl) && (yp >= yl) && (xp <= xh) && (yp <= yh))) {
-    if(attributes->isflipped()) {
-      loc->counts = spectra->getchannel(spec, yp, xp);
-    }
-    else {
-      loc->counts = spectra->getchannel(spec, xp, yp);
-    }
-  }
-  else {
+    loc->counts = spectra->getchannel(spec, loc->xpos, loc->ypos);
+    
+  } else {
     loc->counts = 0;
   }
 
