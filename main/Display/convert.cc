@@ -693,7 +693,7 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
       xl   = yl;
       yl   = temp;
       temp = xh;
-    xh   = yh;
+      xh   = yh;
       yh   = temp;
     }
 
@@ -712,7 +712,7 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   /* Adjust pixel coordinates into X/Y X-11 positions: */
 
   *xpix += orgx;
-  *ypix = nys - (*ypix);
+  *ypix = ny - *ypix;
   if(clipping) {
     if(*xpix < orgx) *xpix = orgx;
     if(*xpix > nxs)  *xpix = nxs;
