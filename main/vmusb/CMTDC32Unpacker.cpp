@@ -25,7 +25,6 @@ using namespace std;
 // All longwords have a type in the top two bits:
 
 static const uint32_t ALL_TYPEMASK(0xc0000000);
-static const uint32_t ALL_FILLMASK(0x3FFFFFFF);
 static const uint32_t ALL_TYPESHFT(30);
 
 static const uint32_t TYPE_HEADER(1);
@@ -130,10 +129,7 @@ CMTDC32Unpacker::operator()(CEvent&                       rEvent,
   offset += 2;
   // datum has to be equal to TYPE_DATA = 0
   while (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
-    if ((datum & ALL_FILLMASK) == 0){
-      datum   = getLong(event, offset);
-      offset += 2;
-    } else if ((datum & DATA_SUBHDRMASK) == DATA_CHANNEL){
+    if ((datum & DATA_SUBHDRMASK) == DATA_CHANNEL){
       int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
       int value   = datum & DATA_VALUEMASK;
       int id      = pMap->map[channel];
