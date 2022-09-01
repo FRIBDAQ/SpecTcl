@@ -26,6 +26,7 @@ using namespace std;
 // All longwords have a type in the top two bits:
 
 static const uint32_t ALL_TYPEMASK(0xc0000000);
+static const uint32_t ALL_FILLMASK(0x3FFFFFFF);
 static const uint32_t ALL_TYPESHFT(30);
 
 static const uint32_t TYPE_HEADER(1);
@@ -150,19 +151,23 @@ CMQDC32Unpacker::operator()(CEvent&                       rEvent,
     }
     // data type
     else if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
-
-      bool overflow = (datum & DATA_ISOVERFLOW) != 0;
-      if (!overflow) {
-        int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
-        int value   = datum & DATA_VALUEMASK;
-        int id      = pMap->map[channel];
-        if (id != -1) {
-          rEvent[id] = value;
-        }
+      if ((datum & ALL_FILLMASK) == 0){
+	datum   = getLong(event, offset);
+	offset += 2;
+      } else {
+      	bool overflow = (datum & DATA_ISOVERFLOW) != 0;
+	if (!overflow) {
+	  int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
+	  int value   = datum & DATA_VALUEMASK;
+	  int id      = pMap->map[channel];
+	  if (id != -1) {
+	    rEvent[id] = value;
+	  }
+	}
+	datum   = getLong(event, offset);
+	longsRead++;
+	offset += 2;
       }
-      datum   = getLong(event, offset);
-      longsRead++;
-      offset += 2;
     }
     // bank type
     else if (datum & TYPE_BANK) {  // Check if the datum is a bank trailer i.e. 0002 c000
@@ -175,22 +180,23 @@ CMQDC32Unpacker::operator()(CEvent&                       rEvent,
       std::cout << "Something is really wrong with this data" << std::endl;
       exit(0);
     }
-  }
 
-  // The datum should be the trailer.. verify this.. If so,
-  // then save the count field ans parameter 32.
-
-  if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
-    uint32_t value = datum & TRAILER_COUNTMASK;
-    int      id    = pMap->map[32];
-    if (id != -1) {
-      rEvent[id] = value;
+    // The datum should be the trailer.. verify this.. If so,
+    // then save the count field ans parameter 32.
+    
+    if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
+      std::cout << "inside trailer.." << std::endl;
+      uint32_t value = datum & TRAILER_COUNTMASK;
+      int      id    = pMap->map[32];
+      if (id != -1) {
+	rEvent[id] = value;
+      }
+    }
+    else {
+      longsRead--;		// Really should not happen!!
     }
   }
-  else {
-    longsRead--;		// Really should not happen!!
-  }
-    
+
   // There will be a 0xffffffff longword for the BERR at the end of the
   // readout.
 
