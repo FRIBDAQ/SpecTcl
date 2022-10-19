@@ -1561,18 +1561,20 @@ class MainWindow(QMainWindow):
                     self.set_log_axis(self.selected_plot_index)
             else:
                 #self.selected_plot_index = None
-                if (DEBUG):
-                    print("inside update plot - multipanel mode")
+                #if (DEBUG):
+                print("inside update plot - multipanel mode")
                 for index, value in self.h_dict.items():                
-                    if (DEBUG):
-                        print("index", index, "value", value)
-                        print("value[name]", value["name"])
-                        print("self.h_setup[index]", self.h_setup[index])
+                    #if (DEBUG):
+                    print("index", index, "value", value)
+                    print("value[name]", value["name"])
+                    print("self.h_setup[index]", self.h_setup[index])
                     if (value["name"] != "empty"):
                         a = self.select_plot(index)
                         self.removeCb(a)
                         time.sleep(0.01)
                         if (self.h_setup[index]):
+                            #if (DEBUG):
+                            print("inside h setup")
                             self.setup_histogram(a, index)
                             self.h_setup[index] = False
                         self.plot_histogram(a, index)
@@ -2195,8 +2197,6 @@ class MainWindow(QMainWindow):
             cax = divider.append_axes('right', size='5%', pad=0.05)
             # add colorbar
             self.wTab[self.tabIndex].wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
-
-        self.wTab[self.tabIndex].wPlot.canvas.draw_idle()
 
     # check histogram dimension from GUI
     def check_histogram(self):
