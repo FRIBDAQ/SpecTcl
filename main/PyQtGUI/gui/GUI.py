@@ -101,7 +101,7 @@ class MainWindow(QMainWindow):
         self.factory = factory
         self.fit_factory = fit_factory        
 
-        self.setWindowTitle("CutiePie(QtPy)")
+        self.setWindowTitle("CutiePie(QtPy) - It's not a bug, it's a feature (cit.)")
         self.setMouseTracking(True)
         
         #check if there are arguments or not
@@ -133,8 +133,6 @@ class MainWindow(QMainWindow):
         self.index = 0 # this one is for self-adding
         self.idx = 0 # this one is global
         self.tabIndex = 0
-        self.fullScale = False        
-        self.fullScaleValue = 0
         self.wTab = {}
         self.tabIndex = 0
         # click selection of position in canvas
@@ -156,7 +154,9 @@ class MainWindow(QMainWindow):
         self.artist_list = []
         self.artist1D = {}
         self.artist2D = {}                        
-        # for zooming 
+        # for zooming
+        self.fullScaleValueminX = 0
+        self.fullScaleValuemaxX = 256
         self.yhigh = 1024
         self.ylow = 0
         self.vmin = 0
@@ -164,6 +164,8 @@ class MainWindow(QMainWindow):
         # configuration widget flag
         self.isHidden = False
         # flags
+        self.autoScale = False        
+        self.logScale = False
         self.isFull = False
         self.Start = False        
         self.forAll = False
@@ -407,19 +409,32 @@ class MainWindow(QMainWindow):
                 self.copyAttr.axisLimitX.setChecked(True)
                 self.copyAttr.axisLimitY.setChecked(True)        
                 self.copyAttr.axisScale.setChecked(True)
-                self.copyAttr.histoScale.setChecked(True)                
+                self.copyAttr.histoScaleminZ.setChecked(True)
+                self.copyAttr.histoScalemaxZ.setChecked(True)                                
             else:
                 self.copyAttr.axisLimitX.setChecked(False)
                 self.copyAttr.axisLimitY.setChecked(False)        
                 self.copyAttr.axisScale.setChecked(False)
-                self.copyAttr.histoScale.setChecked(False)                
-                self.fullScale = False
+                self.copyAttr.histoScaleminZ.setChecked(False)
+                self.copyAttr.histoScalemaxZ.setChecked(False)                                                
+
+        if self.wConf.button1D.isChecked():
+            self.copyAttr.histoScaleminZ.setEnabled(False)
+            self.copyAttr.histoScaleValueminZ.setEnabled(False)
+            self.copyAttr.histoScalemaxZ.setEnabled(False)
+            self.copyAttr.histoScaleValuemaxZ.setEnabled(False)                
+        else:
+            self.copyAttr.histoScaleminZ.setEnabled(True)
+            self.copyAttr.histoScaleValueminZ.setEnabled(True)
+            self.copyAttr.histoScalemaxZ.setEnabled(True)
+            self.copyAttr.histoScaleValuemaxZ.setEnabled(True)                
                 
         if self.wTop.slider.value() != 0:
             self.timer.start()                     
 
     def addTab(self, index):
-        print("addTab index", self.tabIndex)
+        if (DEBUG):
+            print("addTab index", self.tabIndex)
         self.wTab[self.tabIndex] = Tabs(Plot())
         self.wTab[self.tabIndex].addTab(index) #this one doesn't work as supposed
         self.initialize_canvas(1, 1)
@@ -428,7 +443,43 @@ class MainWindow(QMainWindow):
         self.tabIndex = index
             
     def okCopy(self):
-        self.update_plot()
+        if (DEBUG):
+            print(self.h_setup)
+            print("New limits", self.h_limits)
+            print("New minZ", self.fullScaleValueminX, "New maxZ", self.fullScaleValuemaxX)
+            print("New log axis", self.h_log)
+            print("h_lst",self.h_lst, len(self.h_lst))
+            print("h_dim",self.h_dim, len(self.h_lst))        
+
+        dim = self.h_dim[self.selected_plot_index]
+        ax = None
+
+        if not self.isZoomed:
+            for index in range(len(self.h_setup)):
+                # match dimension of the selected histogram (1d/2d)
+                if self.h_dim[index] == dim:
+                    if (DEBUG):
+                        print("Histogram at index", index, "with dimension", self.h_dim[index])
+                    # select axes
+                    ax = self.select_plot(index)
+                    # modifying axis limits
+                    if (DEBUG):
+                        print("Before",ax.get_xlim(), ax.get_ylim())                
+                    ax.set_xlim(self.h_limits[index]["x"][0], self.h_limits[index]["x"][1])
+                    ax.set_ylim(self.h_limits[index]["y"][0], self.h_limits[index]["y"][1])
+                    if (DEBUG):
+                        print("After",ax.get_xlim(), ax.get_ylim())                
+                    # modifying log/linear
+                    if self.h_log[index]:
+                        self.axisScale(ax, index)
+                        self.h_log_bak = deepcopy(self.h_log)
+
+                    if dim == 2:
+                        if (DEBUG):                        
+                            print(type(self.h_lst[index]))
+                            print(self.h_lst[index])
+                        self.h_lst[index].set_clim(vmin=self.fullScaleValueminX, vmax=self.fullScaleValuemaxX)
+
         self.wTab[self.tabIndex].wPlot.canvas.draw()        
         
     def applyCopy(self):                
@@ -459,7 +510,7 @@ class MainWindow(QMainWindow):
         for instance in self.copyAttr.findChildren(QPushButton):
             if (instance.text() not in discard) and instance.isChecked():
                 if (DEBUG):
-                    print(instance.text())
+                    print("histo destination",instance.text())
                 keys=list(self.h_dict_geo.keys())
                 values=list(self.h_dict_geo.values())
                 if (DEBUG):
@@ -472,7 +523,7 @@ class MainWindow(QMainWindow):
                 ylim_og = self.h_limits[index_og]["y"]                
                 scale_og = self.h_log[index_og]
                 if (DEBUG):
-                    print("original",index_og,xlim_og,ylim_og,scale_og)
+                    print("original values for",instance.text(),"-->",index_og,xlim_og,ylim_og,scale_og)
                 index = keys[values.index(instance.text())]
                 # set the limits for x,y
                 if flags[0] == True:
@@ -485,16 +536,21 @@ class MainWindow(QMainWindow):
                 if flags[2] == True:                                    
                     self.h_log[index] = scale_og
                     self.h_setup[index] = True
-                # set full scale value
+                # set minz
                 if flags[3] == True:                                                        
-                    value = int(self.copyAttr.histoScaleValue.text())
-                    if self.wConf.button1D.isChecked():
-                        self.h_limits[index]["y"] = value
-                    else:
-                        self.fullScale = True
-                        self.fullScaleValue = value
-                    self.h_setup[index] = True
-                    
+                    value = int(self.copyAttr.histoScaleValueminZ.text())
+                    if (DEBUG):
+                        print("value of self.copyAttr.histoScaleValueminZ", value)
+                    self.fullScaleValueminX = value
+                    self.h_setup[index] = True                                        
+                # set maxz
+                if flags[4] == True:                                                        
+                    value = int(self.copyAttr.histoScaleValuemaxZ.text())
+                    if (DEBUG):
+                        print("value of self.copyAttr.histoScaleValuemaxZ", value)                    
+                    self.fullScaleValuemaxX = value
+                    self.h_setup[index] = True                    
+
         if (DEBUG):                    
             print("<--- after apply copy attributes")
             print(self.h_limits)
@@ -708,7 +764,7 @@ class MainWindow(QMainWindow):
             print("-------------->",self.h_dict_geo)
         if self.h_dict_geo[0] == "empty":
             self.h_dict_geo = deepcopy(self.h_dict_geo_bak)
-
+        
         if (DEBUG):            
             print("updated -------------->",self.h_dict_geo)
         name = self.h_dict_geo[self.selected_plot_index]
@@ -878,6 +934,8 @@ class MainWindow(QMainWindow):
             print("Histo list selected", self.wConf.histo_list.currentText())                            
             print("Fixing index...")
             print(self.selected_plot_index,"has to be",self.selected_plot_index_bak)        
+            print("self.h_dict_geo",self.h_dict_geo)
+            print("self.h_dict_geo_bak",self.h_dict_geo_bak)
         # fixing the correct index
         if self.h_dict_geo[0] == "empty":
             self.h_dict_geo = deepcopy(self.h_dict_geo_bak)
@@ -894,7 +952,7 @@ class MainWindow(QMainWindow):
         if self.wConf.button1D.isChecked():
             self.axisScale(plt.gca(), self.selected_plot_index_bak)
         t = None
-
+        
     def draw_callback(self, event):
         self.background = self.wTab[self.tabIndex].wPlot.canvas.copy_from_bbox(self.edit_ax.bbox)
         self.edit_ax.draw_artist(self.poly)
@@ -1106,8 +1164,8 @@ class MainWindow(QMainWindow):
                 "ymin": 0, "ymax": 1, "ybin": 1, "parameters": [], "type": "", "scale": False}        
         
     def initialize_figure(self, grid):
-        #if (DEBUG):
-        print("initialize_figure and dictionaries")
+        if (DEBUG):
+            print("initialize_figure and dictionaries")
         # creating plots in the grid
         for i in range(self.wConf.row):
             for j in range(self.wConf.col):
@@ -1128,8 +1186,8 @@ class MainWindow(QMainWindow):
             print(self.h_dict)
         
     def create_figure(self, row, col):
-        #if (DEBUG):
-        print("create figure")
+        if (DEBUG):
+            print("create figure")
         self.wConf.row = row
         self.wConf.col = col
         if self.checkVersion(matplotlib.__version__) < self.checkVersion("2.0.0"):
@@ -1561,26 +1619,23 @@ class MainWindow(QMainWindow):
                     self.set_log_axis(self.selected_plot_index)
             else:
                 #self.selected_plot_index = None
-                #if (DEBUG):
-                print("inside update plot - multipanel mode")
+                if (DEBUG):
+                    print("inside update plot - multipanel mode")
                 for index, value in self.h_dict.items():                
-                    #if (DEBUG):
-                    print("index", index, "value", value)
-                    print("value[name]", value["name"])
-                    print("self.h_setup[index]", self.h_setup[index])
+                    if (DEBUG):
+                        print("index", index, "value", value)
+                        print("value[name]", value["name"])
+                        print("self.h_setup[index]", self.h_setup[index])
                     if (value["name"] != "empty"):
                         a = self.select_plot(index)
                         self.removeCb(a)
                         time.sleep(0.01)
                         if (self.h_setup[index]):
-                            #if (DEBUG):
-                            print("inside h setup")
+                            if (DEBUG):
+                                print("inside h setup")
                             self.setup_histogram(a, index)
                             self.h_setup[index] = False
                         self.plot_histogram(a, index)
-                        if self.fullScale == True:
-                            if self.wConf.button2D.isChecked():
-                                self.h_lst[index].set_clim(vmin=0.001, vmax=self.fullScaleValue)                              
                         if (DEBUG):
                             print("inside update_plot")
                             print(self.h_log)
@@ -1637,6 +1692,8 @@ class MainWindow(QMainWindow):
         x_range = {}
         y_range = {}
         ax_scale = {}
+        if (DEBUG):
+            print("Inside openGeo")
         if (len(open(filename).readlines()) == 1):
             return eval(open(filename,"r").read())
         else:
@@ -1661,9 +1718,6 @@ class MainWindow(QMainWindow):
                             print(cntr-1, tmp)
                         info_range[cntr-1] = tmp
                         
-            if (DEBUG):
-                print("info_range", info_range)
-            properties = {}
             for index, value in spec_dict.items():
                 h_name = value
                 select = self.spectrum_list['names'] == h_name
@@ -1685,9 +1739,7 @@ class MainWindow(QMainWindow):
                     print("after correction", x_range, y_range)
                     
                 properties[index] = {"name": h_name, "x": x_range, "y": y_range, "scale": scale}                        
-                if (DEBUG):
-                    print(properties[index])
-                    
+
             return {'row': coords[0], 'col': coords[1], 'geo': properties}
             
     def saveGeo(self):
@@ -1710,6 +1762,8 @@ class MainWindow(QMainWindow):
 
     def loadGeo(self):
         fileName = self.openFileNameDialog()
+        if (DEBUG):
+            print("inside loadGeo")
         try:
             if (DEBUG):
                 print("fileName:",fileName)
@@ -1734,19 +1788,24 @@ class MainWindow(QMainWindow):
                     self.h_limits[index]["x"] = val_dict["x"]
                     self.h_limits[index]["y"] = val_dict["y"]                     
                 self.isLoaded = True
+                print(self.h_limits)
                 if len(self.h_dict_geo) == 0:
                     QMessageBox.about(self, "Warning", "You saved an empty pane geometry...")
 
             if (DEBUG):
                 print("inside loadGeo - list of histogram in geometry", self.h_dict_geo)
                 print("self.isLoaded", self.isLoaded)
-
+            
             if (DEBUG):                
                 print(self.h_limits)
+
             self.add_plot()
             self.update_plot()
-            self.drawAllGates()
-            self.updateGateType()
+            try:
+                self.drawAllGates()
+                self.updateGateType()
+            except:
+                pass
             self.h_dict_geo_bak = deepcopy(self.h_dict_geo)
             self.h_log_bak = deepcopy(self.h_log)            
             if (DEBUG):
@@ -1799,6 +1858,7 @@ class MainWindow(QMainWindow):
     def logAxis(self, b):
         if b.text() == "Log":
             if b.isChecked() == True:
+                self.logScale = True
                 self.h_log[self.selected_plot_index] = True
                 self.h_dict[self.selected_plot_index]["scale"] = True
                 if (DEBUG):
@@ -1807,6 +1867,7 @@ class MainWindow(QMainWindow):
                     print(self.h_dict)
                 self.set_log_axis(self.selected_plot_index)
             else:
+                self.logScale = False                
                 self.h_log[self.selected_plot_index] = False             
                 self.h_dict[self.selected_plot_index]["scale"] = False
                 if (DEBUG):
@@ -2043,7 +2104,25 @@ class MainWindow(QMainWindow):
                 self.h_dim[self.idx] = (self.h_dict[self.idx])["dim"]
                 if (DEBUG):
                     print(self.h_dict)
+                    print(self.h_dict_geo)                
+                # set h_limits
+                xmin = float((self.h_dict[self.idx])["xmin"])
+                xmax = float((self.h_dict[self.idx])["xmax"])
+                ymin = float((self.h_dict[self.idx])["ymin"])
+                ymax = 1024
+                self.h_limits[self.idx] = {}
+                self.h_limits[self.idx]["x"]=[xmin,xmax]
+                self.h_limits[self.idx]["y"]=[ymin,ymax]                 
+                
                 self.h_dict_bak = self.h_dict.copy()
+                self.h_dict_geo_bak = deepcopy(self.h_dict_geo)
+
+                if self.logScale:
+                    self.h_log[self.idx] = True
+                else:
+                    self.h_log[self.idx] = False
+                
+                self.h_log_bak = deepcopy(self.h_log)
                 
                 self.erase_plot(self.idx)            
                 self.add(self.idx)
@@ -2209,13 +2288,13 @@ class MainWindow(QMainWindow):
     def reset_axis_properties(self, index):
         if (DEBUG):
             print(index)
-            print("Inside reset_axis_properties", self.h_limits)
+            print("Inside reset_axis_properties", self.h_limits[index])
 
         orig_histo = self.update_spectrum_info()
         if (DEBUG):
             print(orig_histo)
-        
-        if self.h_limits:
+
+        if self.h_limits[index]:
             try:
                 ax = None
                 if self.isZoomed:
@@ -2228,16 +2307,16 @@ class MainWindow(QMainWindow):
                     print(ax.get_xlim(), ax.get_ylim())
                     print(orig_histo["xmin"],orig_histo["xmax"])
                     print(orig_histo["ymin"],orig_histo["ymax"])                    
-
                 self.h_limits[index]["x"] = [float(orig_histo["xmin"]),float(orig_histo["xmax"])] 
                 self.h_limits[index]["y"] = [float(orig_histo["ymin"]),float(orig_histo["ymax"])]                
                 if (DEBUG):
                     print(self.h_limits)                                
                 ax.set_xlim(self.h_limits[index]["x"][0], self.h_limits[index]["x"][1])
-                ax.set_ylim(self.h_limits[index]["y"][0], self.h_limits[index]["y"][1])
+                if self.h_dim[index] == 2:
+                    ax.set_ylim(self.h_limits[index]["y"][0], self.h_limits[index]["y"][1])
             except:
                 QMessageBox.about(self, "Warning", "Something has failed in reset_axis_properties")
-
+        
     def get_axis_properties(self, index):
         if (DEBUG):
             print("Inside get_axis_properties")
@@ -2282,12 +2361,15 @@ class MainWindow(QMainWindow):
     def set_autoscale_axis(self):
         if (DEBUG):
             print("Inside set_autoscale_axis")
-
         try:
             ax = None        
             if self.isZoomed:
+                if (DEBUG):
+                    print("inside isZoomed")
                 ax = plt.gca()
                 if self.autoScale:
+                    if (DEBUG):                    
+                        print("inside self.autoScale")
                     data = self.get_data(self.selected_plot_index)
                     if self.h_dict[self.selected_plot_index]["dim"] == 1:            
                         ymax_new = max(data)*1.1
@@ -2295,17 +2377,45 @@ class MainWindow(QMainWindow):
                     else:
                         ymax_new = np.max(data)*1.1
                         self.h_lst[self.selected_plot_index].set_clim(vmin=(ax.get_ylim())[0], vmax=ymax_new)
+                else:
+                    if self.h_limits:
+                        if self.h_dict[self.selected_plot_index]["dim"] == 1:                                    
+                            ax.set_xlim(self.h_limits[self.selected_plot_index]["x"][0], self.h_limits[self.selected_plot_index]["x"][1])
+                            ax.set_ylim(self.h_limits[self.selected_plot_index]["y"][0], self.h_limits[self.selected_plot_index]["y"][1])
+                        else:
+                            self.h_lst[self.selected_plot_index].set_clim(vmin=(ax.get_ylim())[0], vmax=lst(self.h_lst[self.selected_plot_index].get_clim())[1])                            
+                        #    print(type(self.h_lst[self.selected_plot_index].get_clim()))
+                        #    print(list(self.h_lst[self.selected_plot_index].get_clim())[1])
+
             else:
-                for index, values in self.h_dict.items():
-                    data = self.get_data(index)                
-                    ax = self.select_plot(index)
-                    if self.h_dict[index]["dim"] == 1:            
-                        ymax_new = max(data)*1.1
-                        ax.set_ylim((ax.get_ylim())[0], ymax_new)
-                    else:
-                        ymax_new = np.max(data)*1.1
-                        self.h_lst[index].set_clim(vmin=(ax.get_ylim())[0], vmax=ymax_new)                
+                if (DEBUG):                
+                    print("inside not isZoomed")                
+                if self.autoScale:
+                    if (DEBUG):
+                        print("inside self.autoScale")
+                    for index, values in self.h_dict.items():
+                        data = self.get_data(index)                
+                        ax = self.select_plot(index)
+                        if self.h_dict[index]["dim"] == 1:            
+                            ymax_new = max(data)*1.1
+                            ax.set_ylim((ax.get_ylim())[0], ymax_new)
+                        else:
+                            ymax_new = np.max(data)*1.1
+                            self.h_lst[index].set_clim(vmin=(ax.get_ylim())[0], vmax=ymax_new)                
+                else:
+                    for index, values in self.h_dict.items():
+                        data = self.get_data(index)
+                        ax = self.select_plot(index)
+                        if self.h_limits:
+                            if self.h_dict[index]["dim"] == 1:                                                            
+                                ax.set_xlim(self.h_limits[index]["x"][0], self.h_limits[index]["x"][1])
+                                ax.set_ylim(self.h_limits[index]["y"][0], self.h_limits[index]["y"][1])
+                        else:
+                            self.h_lst[index].set_clim(vmin=(ax.get_ylim())[0], vmax=lst(self.h_lst[index].get_clim())[1])                                                        
+                            #        print(type(self.h_lst[index].get_clim()))                                
+                            #        print(list(self.h_lst[index].get_clim())[1])
                         
+                                
             self.wTab[self.tabIndex].wPlot.canvas.draw()
         except:
             pass
@@ -2356,6 +2466,8 @@ class MainWindow(QMainWindow):
         else:
             if (DEBUG):
                 print("needs to become linear...")                
+            ymin = 0.001
+            ymax = 1024
             if self.wConf.button1D.isChecked():                
                 if ax.get_yscale() == "log":
                     ymin, ymax = ax.get_ylim()
@@ -2665,7 +2777,10 @@ class MainWindow(QMainWindow):
             if index >= 0:
                 self.wConf.listGate.removeItem(index)
             # delete from artist dict
-            del self.artist_dict[hname][gname]
+            gatelist_in_histo = self.artist_dict[hname]
+            for gate in gatelist_in_histo:
+                if gate[gname] == gname:
+                    del self.artist_dict[hname][gname]
             # delete from spectcl
             self.rest.deleteGate(gname)
             self.wTab[self.tabIndex].wPlot.canvas.draw()
@@ -2677,6 +2792,9 @@ class MainWindow(QMainWindow):
         
     def clearGate(self):
         try:
+            if (DEBUG):
+                print("Inside clearGate")
+            
             if self.wTop.slider.value() != 0:
                 self.timer.stop() 
 
@@ -2684,6 +2802,9 @@ class MainWindow(QMainWindow):
             hname = self.wConf.histo_list.currentText()
             gname = self.wConf.listGate.currentText()        
 
+            if (DEBUG):            
+                print("gate",gname,"in",hname)
+            
             if self.isZoomed:
                 a = plt.gca()
             else:
@@ -2696,14 +2817,16 @@ class MainWindow(QMainWindow):
             for obj in lst:
                 if isinstance(obj, matplotlib.lines.Line2D):
                     if (DEBUG):
-                        print(obj.get_data())
-                        print(obj.get_path())
-                        print(self.artist_dict[hname][gname])
-                        print(obj.get_xdata())                
-                    if obj.get_xdata() == (self.artist_dict[hname][gname])[0]:
-                        if (DEBUG):
-                            print("found the line")
-                        obj.set_visible(False)
+                        print("obj.get_data()",obj.get_data())
+                        print("obj.get_path()",obj.get_path())
+                        print("obj.get_xdata()",obj.get_xdata())                
+                        print(self.artist_dict[hname])
+                    gatelist_in_histo = self.artist_dict[hname]
+                    for gate in gatelist_in_histo:
+                        if obj.get_xdata() == (gate[gname])[0]:
+                            if (DEBUG):
+                                print("found the line")
+                            obj.set_visible(False)
                 
             self.wTab[self.tabIndex].wPlot.canvas.draw()            
                 
@@ -2848,14 +2971,16 @@ class MainWindow(QMainWindow):
             for histo_name, gates in self.artist_dict.items():
                 if (DEBUG):
                     print(histo_name, gates)
-                if histo_name and "summing_region" not in histo_name:
-                    for gates_list in gates:
-                        if (DEBUG):
-                            print(gates_list)
-                        for gate_name, gate_line in gates_list.items():
-                            results = self.rest.integrateGate(histo_name, gate_name)
-                            self.addRegion(histo_name, gate_name, results)
-
+                if (self.wConf.histo_list.currentText() == histo_name):
+                    if histo_name and "summing_region" not in histo_name:
+                        for gates_list in gates:
+                            if (DEBUG):
+                                print(gates_list)
+                            for gate_name, gate_line in gates_list.items():
+                                results = self.rest.integrateGate(histo_name, gate_name)
+                                self.addRegion(histo_name, gate_name, results)
+                                
+            self.resultPopup()                            
         except:
             pass
 
@@ -2867,6 +2992,8 @@ class MainWindow(QMainWindow):
         try:
             self.copyAttr.histoLabel.setText(self.wConf.histo_list.currentText())
             hdim = 1
+            if self.wConf.button2D.isChecked():
+                hdim = 2
             for index, values in self.h_dict.items():
                 if (DEBUG):
                     print(index)
@@ -2887,21 +3014,15 @@ class MainWindow(QMainWindow):
                             self.copyScale = self.h_log[index]
                             self.copyX = ['{:.1f}'.format((self.h_limits[index]["x"])[0]), '{:.1f}'.format((self.h_limits[index]["x"])[1])]
                             self.copyAttr.axisLimLabelX.setText("["+'{:.1f}'.format((self.h_limits[index]["x"])[0])+","+'{:.1f}'.format((self.h_limits[index]["x"])[1])+"]")
-                            # dimension check
-                            if self.wConf.button1D.isChecked():
-                                self.copyAttr.axisLimLabelY.setText("")
-                                self.copyAttr.axisLimitY.setEnabled(False)
-                            else:
-                                self.copyY = ['{:.1f}'.format((self.h_limits[index]["y"])[0]), '{:.1f}'.format((self.h_limits[index]["y"])[1])]                                
-                                self.copyAttr.axisLimLabelY.setText("["+'{:.1f}'.format((self.h_limits[index]["y"])[0])+","+'{:.1f}'.format((self.h_limits[index]["y"])[1])+"]")
-                                self.copyAttr.axisLimitY.setEnabled(True)
-                                hdim = 2
-                            if (DEBUG):
-                                print("h dimension", hdim)
-                        
+                            self.copyY = ['{:.1f}'.format((self.h_limits[index]["y"])[0]), '{:.1f}'.format((self.h_limits[index]["y"])[1])]                                
+                            self.copyAttr.axisLimLabelY.setText("["+'{:.1f}'.format((self.h_limits[index]["y"])[0])+","+'{:.1f}'.format((self.h_limits[index]["y"])[1])+"]")                            
+
+            print(self.h_dict.items())
             for index, values in self.h_dict.items():
                 for idx, value in values.items():
                     if idx == "name":
+                        if (DEBUG):
+                            print(idx, value)
                         if value != self.wConf.histo_list.currentText() and hdim == values["dim"]:
                             instance = QPushButton(value, self)
                             instance.setCheckable(True)
