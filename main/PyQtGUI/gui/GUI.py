@@ -450,7 +450,8 @@ class MainWindow(QMainWindow):
             print("New log axis", self.h_log)
             print("h_lst",self.h_lst, len(self.h_lst))
             print("h_dim",self.h_dim, len(self.h_lst))        
-
+            print("selected histo", dim)
+            
         dim = self.h_dim[self.selected_plot_index]
         ax = None
 
@@ -491,7 +492,7 @@ class MainWindow(QMainWindow):
                 flags.append(True)
             else:
                 flags.append(False)
-
+                
         if (DEBUG):
             print(flags)
             print(self.h_dict)
@@ -499,32 +500,45 @@ class MainWindow(QMainWindow):
             print(self.h_limits)
             print(self.h_log)
 
-        index_og = 0
-        xlim_og = []
-        ylim_og = []        
-        scale_og = False
-        discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
-        if (DEBUG):
-            print("--> before apply copy attributes")
-            print(self.h_limits)
-        for instance in self.copyAttr.findChildren(QPushButton):
-            if (instance.text() not in discard) and instance.isChecked():
-                if (DEBUG):
-                    print("histo destination",instance.text())
-                keys=list(self.h_dict_geo.keys())
-                values=list(self.h_dict_geo.values())
-                if (DEBUG):
-                    print(type(keys), type(values))
-                    print(keys, values)                
-                    print(instance.text(),"corresponds to", keys[values.index(instance.text())])
-                # find index corresponding to name in self.h_dict_geo
-                index_og = keys[values.index(self.wConf.histo_list.currentText())]
-                xlim_og = self.h_limits[index_og]["x"]
-                ylim_og = self.h_limits[index_og]["y"]                
-                scale_og = self.h_log[index_og]
-                if (DEBUG):
-                    print("original values for",instance.text(),"-->",index_og,xlim_og,ylim_og,scale_og)
-                index = keys[values.index(instance.text())]
+        try:
+            dim = self.h_dim[self.selected_plot_index]
+            
+            if (DEBUG):        
+                print("h_dim",self.h_dim, len(self.h_lst))
+                print("selected histo", dim, "index", self.selected_plot_index)
+                print(self.h_dict_geo)
+
+            keys = []
+            values = []
+            index_og = 0
+            xlim_og = []
+            ylim_og = []        
+            scale_og = False
+            discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
+            if (DEBUG):
+                print("--> before apply copy attributes")
+                print(self.h_limits)
+            # creating list of target histograms
+            for instance in self.copyAttr.findChildren(QPushButton):
+                if (instance.text() not in discard) and instance.isChecked():
+                    if (DEBUG):
+                        print("histo destination",instance.text())
+                    keys=list(self.h_dict_geo.keys())
+                    values=list(self.h_dict_geo.values())
+
+            # find index corresponding to name in self.h_dict_geo
+            index_og = keys[values.index(self.wConf.histo_list.currentText())]
+            xlim_og = self.h_limits[index_og]["x"]
+            ylim_og = self.h_limits[index_og]["y"]
+            scale_og = self.h_log[index_og]
+        
+            # remove original element
+            keys.pop(self.selected_plot_index)
+            values.pop(self.selected_plot_index)
+            if (DEBUG):
+                print(keys, values)
+
+            for index in keys:
                 # set the limits for x,y
                 if flags[0] == True:
                     self.h_limits[index]["x"] = xlim_og
@@ -551,10 +565,14 @@ class MainWindow(QMainWindow):
                     self.fullScaleValuemaxX = value
                     self.h_setup[index] = True                    
 
-        if (DEBUG):                    
-            print("<--- after apply copy attributes")
-            print(self.h_limits)
-                
+                if (DEBUG):                    
+                    print("<--- after apply copy attributes")
+                    print(self.h_limits)            
+
+        except:
+            self.copyAttr.close()            
+            QMessageBox.about(self, "Warning", "Please select an histogram before copying properties...")            
+            
     def closeCopy(self):
         discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
         for instance in self.copyAttr.findChildren(QPushButton):
@@ -1788,7 +1806,8 @@ class MainWindow(QMainWindow):
                     self.h_limits[index]["x"] = val_dict["x"]
                     self.h_limits[index]["y"] = val_dict["y"]                     
                 self.isLoaded = True
-                print(self.h_limits)
+                if (DEBUG):
+                    print(self.h_limits)
                 if len(self.h_dict_geo) == 0:
                     QMessageBox.about(self, "Warning", "You saved an empty pane geometry...")
 
@@ -3017,7 +3036,8 @@ class MainWindow(QMainWindow):
                             self.copyY = ['{:.1f}'.format((self.h_limits[index]["y"])[0]), '{:.1f}'.format((self.h_limits[index]["y"])[1])]                                
                             self.copyAttr.axisLimLabelY.setText("["+'{:.1f}'.format((self.h_limits[index]["y"])[0])+","+'{:.1f}'.format((self.h_limits[index]["y"])[1])+"]")                            
 
-            print(self.h_dict.items())
+            if (DEBUG):                
+                print(self.h_dict.items())
             for index, values in self.h_dict.items():
                 for idx, value in values.items():
                     if idx == "name":
