@@ -1,8 +1,10 @@
+import random
 import numpy as np
 import matplotlib
 matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.gridspec as gridspec
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
@@ -10,28 +12,31 @@ from PyQt5.QtWidgets import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
+debug = False
+
 class Tabs(QTabWidget):
-    def __init__(self, plot):
-        QTabWidget.__init__(self)       
-        self.index = 0
-        self.wPlot = plot
+    def __init__(self):
+        QTabWidget.__init__(self)
+        self.wPlot = {}
         self.createTabs()
-        
+
     def createTabs(self):
+        self.wPlot[0] = Plot()
         self.setUpdatesEnabled(True)
+        self.insertTab(0, self.wPlot[0], "Tab" )
+        self.insertTab(1,QWidget(),'  +  ') 
 
-        self.insertTab(0,self.wPlot, "Tab" )
-        #self.insertTab(1,QWidget(),'  +  ') 
-
-        #self.currentChanged.connect(self.addTab) 
-
-    def addTab(self, index):    
-        print("Inside Tabs.addTab")
-        if index == self.count()-1 :    
-            '''last tab was clicked. add tab'''
-            self.insertTab(index, self.wPlot, "Tab %d" %(index+1)) 
+        self.currentChanged.connect(self.addTab)
+        
+    def addTab(self, index):
+        if index == self.count()-1:
+            self.wPlot[index] = Plot()
+            if (debug):
+                print("Inserting tab at index", index)
+            # last tab was clicked. add tab
+            self.insertTab(index, self.wPlot[index], "Tab %d" %(index+1)) 
             self.setCurrentIndex(index)
-            
+
 class Plot(QWidget):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__(*args, **kwargs)
@@ -65,5 +70,128 @@ class Plot(QWidget):
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
         self.setLayout(layout)
-                                                                                                            
+
+        # plotting variables for each tab
+        self.old_row = 1
+        self.old_col = 1
+        self.old_row_idx = 0
+        self.old_col_idx = 0        
+        self.index = 0
+        self.idx = 0        
+        self.h_dict = {} 
+        self.h_dict_geo = {}
+        self.h_dict_geo_bak = {}                
+        self.axbkg = {}
+        self.h_limits = {} # dictionary with axis limits for the histogram
+        self.h_log = {} # bool dict for linear/log axes
+        self.h_log_bak = {} # bool dict for linear/log axes - backup       
+        self.h_setup = {} # bool dict for setting histograms 
+        self.h_dim = []
+        self.h_lst = []
+
+        self.selected_plot_index = None
         
+        self.autoScale = False
+        self.logScale = False
+        # drawing tools
+        self.isZoomed = False
+        self.isSelected = False
+        self.rec = None
+        
+        # default canvas
+        self.InitializeCanvas(self.old_row,self.old_col)
+
+        self.histo_autoscale.clicked.connect(lambda:self.autoscaleAxis(self.histo_autoscale))
+        self.histo_log.clicked.connect(lambda:self.logAxis(self.histo_log))        
+        
+    def InitializeCanvas(self, row, col, flag = True):
+        if (debug):
+            print("InitializeCanvas with dimensions", row, col)
+            print("old size", self.old_row, self.old_col, "--> new size", row, col)
+        if flag:
+            self.h_dict.clear()
+            self.h_dict_geo.clear()
+            self.h_limits.clear()
+
+            self.index = 0
+            self.idx = 0            
+            
+        if (debug):        
+            print("The following three should be empty!")
+            print("self.h_dict",self.h_dict)
+            print("self.h_dict_geo",self.h_dict_geo)            
+            print("self.h_limits",self.h_limits)            
+
+        self.figure.clear()
+        self.InitializeFigure(self.CreateFigure(row, col), row, col, flag)        
+        self.figure.tight_layout()
+        self.canvas.draw()
+        
+    def CreateFigure(self, row, col):
+        self.grid = gridspec.GridSpec(ncols=col, nrows=row, figure=self.figure)
+        return self.grid
+
+    def InitializeHistogram(self):
+        return {"name": "empty", "dim": 1, "xmin": 0, "xmax": 1, "xbin": 1,
+                "ymin": 0, "ymax": 1, "ybin": 1, "parameters": [], "type": "", "scale": False}
+
+    # get value for a dictionary at index x with key y
+    def get_histo_key_value(self, d, index, key):
+        if key in d[index]:
+            return d[index][key]
+    
+    # get a list of elements identified by the key for a dictionary
+    def get_histo_key_list(self, d, keys):
+        lst = []
+        for key, value in d.items():
+            lst.append(self.get_histo_key_value(d, key, keys))
+        return lst
+
+    def InitializeFigure(self, grid, row, col, flag = True):
+        if (debug):
+            print("InitializeFigure")
+            print("Test of InitializeHistogram", self.InitializeHistogram())
+        for i in range(row):
+            for j in range(col):
+                a = self.figure.add_subplot(grid[i,j])
+
+        if flag:
+            self.h_dim.clear()
+            self.h_lst.clear()
+
+            for z in range(self.old_row*self.old_col):
+                self.h_dict[z] = self.InitializeHistogram()
+                self.h_dict_geo[z] = "empty"
+                self.h_log[z] = False
+                self.h_setup[z] = False
+            self.h_dim = self.get_histo_key_list(self.h_dict, "dim")
+
+            if (debug):        
+                print("These should be initialized!")
+                print("self.h_dict",self.h_dict)
+                print("self.h_dict_geo",self.h_dict_geo)            
+                print("self.h_log",self.h_log)
+                print("self.h_setup",self.h_setup)            
+                print("self.h_dim",self.h_dim)
+
+    def autoscaleAxis(self, b):
+        if b.text() == "Autoscale":
+            if b.isChecked() == True:
+                self.autoScale = True
+                if (debug):
+                    print(b.text()+" is selected")
+            else:
+                self.autoScale = False
+                if (debug):
+                    print(b.text()+" is deselected")
+
+    def logAxis(self,b):
+        if b.text() == "Log":
+            if b.isChecked() == True:
+                self.logScale = True
+                if (debug):
+                    print(b.text()+" is selected")
+            else:
+                self.logScale = False
+                if (debug):
+                    print(b.text()+" is deselected")
