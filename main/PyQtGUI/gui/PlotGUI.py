@@ -76,8 +76,6 @@ class Plot(QWidget):
         self.old_col = 1
         self.old_row_idx = 0
         self.old_col_idx = 0        
-        self.index = 0
-        self.idx = 0        
         self.h_dict = {} 
         self.h_dict_geo = {}
         self.h_dict_geo_bak = {}                
@@ -89,11 +87,14 @@ class Plot(QWidget):
         self.h_dim = []
         self.h_lst = []
 
-        self.selected_plot_index = None
+        self.selected_plot_index = 0
+        self.index = 0
         
         self.autoScale = False
         self.logScale = False
         # drawing tools
+        self.isLoaded = False
+        self.isFull = False
         self.isZoomed = False
         self.isSelected = False
         self.rec = None
@@ -126,7 +127,13 @@ class Plot(QWidget):
         self.InitializeFigure(self.CreateFigure(row, col), row, col, flag)        
         self.figure.tight_layout()
         self.canvas.draw()
-        
+
+        if (debug):
+            print("The following three should NOT be empty!")
+            print("self.h_dict",self.h_dict)
+            print("self.h_dict_geo",self.h_dict_geo)            
+            print("self.h_limits",self.h_limits)                    
+
     def CreateFigure(self, row, col):
         self.grid = gridspec.GridSpec(ncols=col, nrows=row, figure=self.figure)
         return self.grid
@@ -151,6 +158,7 @@ class Plot(QWidget):
         if (debug):
             print("InitializeFigure")
             print("Test of InitializeHistogram", self.InitializeHistogram())
+            print("row", row, "col", col)
         for i in range(row):
             for j in range(col):
                 a = self.figure.add_subplot(grid[i,j])
@@ -159,11 +167,17 @@ class Plot(QWidget):
             self.h_dim.clear()
             self.h_lst.clear()
 
-            for z in range(self.old_row*self.old_col):
+            if not self.isLoaded:
+                self.old_row = row
+                self.old_col = col
+                self.histo_log.setChecked(False)
+                
+            for z in range(self.old_row*self.old_col):            
                 self.h_dict[z] = self.InitializeHistogram()
                 self.h_dict_geo[z] = "empty"
                 self.h_log[z] = False
                 self.h_setup[z] = False
+                self.h_lst.append(None)
             self.h_dim = self.get_histo_key_list(self.h_dict, "dim")
 
             if (debug):        
@@ -173,7 +187,7 @@ class Plot(QWidget):
                 print("self.h_log",self.h_log)
                 print("self.h_setup",self.h_setup)            
                 print("self.h_dim",self.h_dim)
-
+            
     def autoscaleAxis(self, b):
         if b.text() == "Autoscale":
             if b.isChecked() == True:
