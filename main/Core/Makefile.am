@@ -63,7 +63,8 @@ DecoderRing_INCLUDES = CRingBufferDecoder.h \
 			RingFormatHelper11Creator.h \
 			RingFormatHelper12Creator.h \
 			DataFormatPre11.h DataFormat.h	\
-			DataFormat12.h AnalysisRingItems.h
+			DataFormat12.h AnalysisRingItems.h \
+			ParameterDecoding.h
 
 DecoderRing_noinst_INCLUDES = 
 
