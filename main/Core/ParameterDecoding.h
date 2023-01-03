@@ -55,7 +55,7 @@ namespace SpecTcl {                 // Long overdue to put SpecTcl classes in a 
         
         class Observer {
         public:
-            void operator()(ParameterDecoder& decoder, std::uint32_t itemType)  = 0;
+            bool operator()(ParameterDecoder& decoder, std::uint32_t itemType)  = 0;
         }
     private:
         // Private data types:
