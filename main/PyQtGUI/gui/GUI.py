@@ -311,12 +311,10 @@ class MainWindow(QMainWindow):
                 if (i == self.currentPlot.selected_plot_index):
                         self.currentPlot.isSelected = True
                         self.currentPlot.rec = self.createRectangle(plot)
-                        '''
-                        if self.h_log[i]:
-                            self.wTab[self.tabIndex].wPlot.histo_log.setChecked(True)
+                        if self.currentPlot.h_log[i]:
+                            self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(True)
                         else:
-                            self.wTab[self.tabIndex].wPlot.histo_log.setChecked(False)
-                        '''
+                            self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(False)                            
                         self.clickToIndex(self.currentPlot.selected_plot_index)
             self.currentPlot.canvas.draw()
         else:
@@ -361,8 +359,8 @@ class MainWindow(QMainWindow):
             if (DEBUG):
                 print("plot the histogram at index", self.currentPlot.selected_plot_index, "with name", (self.currentPlot.h_dict[self.currentPlot.selected_plot_index])["name"])
             self.currentPlot.selected_plot_index_bak = deepcopy(self.currentPlot.selected_plot_index)
-            a = self.updatePlot()
-            #self.removeCb(a)
+            self.updatePlot()
+
             '''
             self.drawAllGates()
             '''
@@ -394,10 +392,7 @@ class MainWindow(QMainWindow):
             n = self.currentPlot.old_row*self.currentPlot.old_col
             self.currentPlot.h_setup = {k: True for k in range(n)}
             self.currentPlot.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
-            '''
-            self.h_log = deepcopy(self.h_log_bak)
-            '''
-            self.updatePlot()
+            self.updatePlot()            
 
         t=None
 
@@ -408,8 +403,8 @@ class MainWindow(QMainWindow):
                     return key
         
     def homeCallback(self, event):
-        #if (DEBUG):
-        print("Clicked homecallback in tab", self.wTab.currentIndex())
+        if (DEBUG):
+            print("Clicked homecallback in tab", self.wTab.currentIndex())
         name = str(self.wConf.histo_list.currentText())
         index = self.get_key(name)
         self.resetAxisLimits(index)
@@ -909,7 +904,7 @@ class MainWindow(QMainWindow):
     def axisScale(self, ax, index):
         if (DEBUG):
             print("Inside axisScale")
-        if self.currentPlot.logScale:
+        if self.wTab.wPlot[self.wTab.currentIndex()].histo_log.isChecked():
             if (DEBUG):
                 print("needs to become log...")
             if (self.currentPlot.h_dict[index]["dim"] == 1) :
@@ -931,13 +926,14 @@ class MainWindow(QMainWindow):
         else:
             if (DEBUG):
                 print("needs to become linear...")
+                print(self.currentPlot.h_limits)
             if (self.currentPlot.h_dict[index]["dim"] == 1) :
                 if ax.get_yscale() == "log":
+                    ax.set_yscale("linear")
                     if (self.currentPlot.h_limits[index]):
                         ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])
                     else:
                         ax.set_ylim(self.minY,self.maxY)
-                    ax.set_yscale("linear")
             else:
                 self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
     
@@ -945,38 +941,41 @@ class MainWindow(QMainWindow):
     def setLogAxis(self):
         if (DEBUG):
             print("Clicked setLogAxis in tab", self.wTab.currentIndex())
-            print("Log scale is:", self.currentPlot.logScale, "for histogram @ index", self.currentPlot.selected_plot_index)
-        if self.currentPlot.logScale:
-            self.currentPlot.h_log[self.currentPlot.selected_plot_index] = True
-        else:
-            self.currentPlot.h_log[self.currentPlot.selected_plot_index] = False            
+            print("self.currentPlot.h_log", self.currentPlot.h_log)
+            print("self.currentPlot.h_log_bak", self.currentPlot.h_log_bak)
 
         try:
-            ax = None
-            if self.currentPlot.isZoomed:
-                ax = plt.gca()
+            if self.currentPlot.selected_plot_index != None:
+                if (DEBUG):
+                    print("histogram selected with index", self.currentPlot.selected_plot_index)
+                if self.wTab.wPlot[self.wTab.currentIndex()].histo_log.isChecked():
+                    if (DEBUG):
+                        print("histogram needs to become log")
+                    self.currentPlot.h_log[self.currentPlot.selected_plot_index] = True                    
+                else:
+                    if (DEBUG):                    
+                        print("histogram needs to become linear")
+                    self.currentPlot.h_log[self.currentPlot.selected_plot_index] = False
+                if (DEBUG):
+                    print("Summary: Inside self.currentPlot.selected_plot_index != None  --- self.currentPlot.h_log", self.currentPlot.h_log)
+                ax = None
+                if self.currentPlot.isZoomed:
+                    ax = plt.gca()
+                else:
+                    ax = self.select_plot(self.currentPlot.selected_plot_index)
+                self.axisScale(ax, self.currentPlot.selected_plot_index)
             else:
-                ax = self.select_plot(self.currentPlot.selected_plot_index)
+                if (DEBUG):                
+                    print("----> histogram NOT selected - back from zoom mode")
+                    print("Summary ----> self.currentPlot.h_log", self.currentPlot.h_log)
 
-            if (DEBUG):                
-                print("self.currentPlot.h_log", self.currentPlot.h_log)
-                print("self.currentPlot.h_log_bak", self.currentPlot.h_log_bak)            
-            
-            # loop over the two log lists, and modify the axis of the different one
-            for idx, (first, second) in enumerate(zip(list(self.currentPlot.h_log.values()),list(self.currentPlot.h_log_bak.values()))):
-                if first != second:
-                    if (DEBUG):
-                        print("----> histogram in index", idx, "time to change axis")
-                    self.axisScale(ax, idx)
-                    if (DEBUG):
-                        print("before backing", self.currentPlot.h_log, "\n", self.currentPlot.h_log_bak)
-                    self.currentPlot.h_log_bak = deepcopy(self.currentPlot.h_log)
-                    if (DEBUG):
-                        print("after backing", self.currentPlot.h_log, "\n", self.currentPlot.h_log_bak)
-                #else:
-                #    print("there are no differences..")
+                for index, value in self.currentPlot.h_log.items():
+                    if value == True:
+                        ax = self.select_plot(index)
+                        self.axisScale(ax, index)
 
             self.currentPlot.canvas.draw()
+
         except NameError:
             raise
         
@@ -992,27 +991,33 @@ class MainWindow(QMainWindow):
                 if (DEBUG):
                     print("inside isZoomed")
                 ax = plt.gca()
+                # set limits if they exist
+                if (self.currentPlot.h_limits[self.currentPlot.selected_plot_index]):
+                    ax.set_xlim(self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["x"][0], self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["x"][1])
+                    ax.set_ylim(self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"][0], self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"][1])
+                else:
+                    ax.set_xlim(float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"][0]), float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"][1]))
+                    ax.set_ylim(float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["ymin"][0]), float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["ymin"][1]))
+
                 if self.currentPlot.autoScale:
                     if (DEBUG):
                         print("Inside self.autoScale for tab with index", self.wTab.currentIndex())
-                    if (self.currentPlot.h_dict[index]["name"]) != "empty":
+                    if (self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["name"]) != "empty":
+                        if (DEBUG):
+                            print("histogram exists with index", self.currentPlot.selected_plot_index)
                         data = self.get_data(self.currentPlot.selected_plot_index)
-                        if (self.currentPlot.h_dict[index]["dim"] == 1) :
+                        if (self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["dim"] == 1) :
                             ymax_new = max(data)*1.1
                             ax.set_ylim((ax.get_ylim())[0], ymax_new)
                         else:
                             maxZ = np.max(data)*1.1
-                            self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=maxZ)
+                            self.currentPlot.h_lst[self.currentPlot.selected_plot_index].set_clim(vmin=self.minZ, vmax=maxZ)
                 else:
                     if (DEBUG):
                         print("Inside not self.autoScale for tab with index", self.wTab.currentIndex())
-                    # if h_limits exist
-                    if (self.currentPlot.h_limits[self.currentPlot.selected_plot_index]):
-                        ax.set_xlim(self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["x"][0], self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["x"][1])
-                        ax.set_ylim(self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"][0], self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"][1])
+                    if (self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["dim"] == 1) :
+                        ax.set_ylim((ax.get_ylim())[0], (ax.get_ylim())[1])
                     else:
-                        ax.set_xlim(float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"][0]), float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"][1]))
-                        ax.set_ylim(float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["ymin"][0]), float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["ymin"][1]))
                         self.currentPlot.h_lst[self.currentPlot.selected_plot_index].set_clim(vmin=self.minZ, vmax=self.maxZ)
             else:
                 if (DEBUG):
@@ -1021,20 +1026,31 @@ class MainWindow(QMainWindow):
                 if self.currentPlot.autoScale:
                     if (DEBUG):
                         print("Inside self.autoScale for tab with index", self.wTab.currentIndex())
-
+                        
                     for index, values in self.currentPlot.h_dict.items():
+                        if (DEBUG):
+                            print(index, values)
+                            
                         if (self.currentPlot.h_dict[index]["name"]) != "empty":                        
                             data = self.get_data(index)
                             ax = self.select_plot(index)
                             if self.currentPlot.h_dict[index]["dim"] == 1:
                                 ymax_new = max(data)*1.1
                                 ax.set_ylim((ax.get_ylim())[0], ymax_new)
+                                if (self.currentPlot.h_limits[index]):
+                                    ax.set_xlim(self.currentPlot.h_limits[index]["x"][0], self.currentPlot.h_limits[index]["x"][1])                                
                             else:
                                 maxZ = np.max(data)*1.1
+                                if (self.currentPlot.h_limits[index]):
+                                    ax.set_xlim(self.currentPlot.h_limits[index]["x"][0], self.currentPlot.h_limits[index]["x"][1])
+                                    ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])                                    
                                 self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=maxZ)
+
+                                
                 else:
                     if (DEBUG):
                         print("Inside not self.autoScale for tab with index", self.wTab.currentIndex())
+                        print(self.currentPlot.h_limits)
                     for index, values in self.currentPlot.h_dict.items():
                         if (self.currentPlot.h_dict[index]["name"]) != "empty":                        
                             ax = self.select_plot(index)                        
@@ -1064,7 +1080,7 @@ class MainWindow(QMainWindow):
                                 else:                                            
                                     ax.set_xlim(float(self.currentPlot.h_dict[index]["xmin"]), float(self.currentPlot.h_dict[index]["xmax"]))
                                     ax.set_ylim(float(self.currentPlot.h_dict[index]["ymin"]), float(self.currentPlot.h_dict[index]["ymax"]))
-                                    self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)                        
+                                    self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)     
 
             self.currentPlot.canvas.draw()
 
@@ -1091,10 +1107,10 @@ class MainWindow(QMainWindow):
             pass
 
     def resetAxisLimits(self, index):
-        #if (DEBUG):
-        print("Inside resetAxisLimits", self.currentPlot.h_limits[index])
-        print("original axes", self.currentPlot.h_dict[index])
-        print("original limits", self.currentPlot.h_limits[index])
+        if (DEBUG):
+            print("Inside resetAxisLimits", self.currentPlot.h_limits[index])
+            print("original axes", self.currentPlot.h_dict[index])
+            print("original limits", self.currentPlot.h_limits[index])
         ax = None
         if self.currentPlot.isZoomed:
             ax = plt.gca()
@@ -1342,7 +1358,8 @@ class MainWindow(QMainWindow):
         self.currentPlot.figure.tight_layout()
         self.currentPlot.canvas.draw_idle()
         self.setAutoscaleAxis()
-            
+        self.setLogAxis()
+        
     # geometrically add plots to the right place
     def addPlot(self):
         if (DEBUG):
@@ -1611,7 +1628,8 @@ class MainWindow(QMainWindow):
             self.currentPlot.figure.tight_layout()
             self.currentPlot.canvas.draw_idle()
             self.setAutoscaleAxis()
-
+            self.setLogAxis()
+            
             return a
         except:
             pass

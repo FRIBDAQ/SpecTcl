@@ -61,7 +61,7 @@ class Plot(QWidget):
         self.toolbar.addWidget(self.minusButton)
 
         # removing buttons from toolbar
-        unwanted_buttons = ['Back','Forward']
+        unwanted_buttons = ['Back','Forward', 'Subplots', 'Pan', 'Customize']
         for x in self.toolbar.actions():
             if x.text() in unwanted_buttons:
                 self.toolbar.removeAction(x)
@@ -88,6 +88,7 @@ class Plot(QWidget):
         self.h_lst = []
 
         self.selected_plot_index = 0
+        self.selected_plot_index_bak = 0        
         self.index = 0
         
         self.autoScale = False
