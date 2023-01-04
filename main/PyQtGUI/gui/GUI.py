@@ -1897,6 +1897,9 @@ class MainWindow(QMainWindow):
             
     def copyPopup(self):
         try:
+            if self.copyAttr.isVisible():
+                self.copyAttr.close()
+            
             if (DEBUG):            
                 print("Clicked copyPopup in tab", self.wTab.currentIndex())
             self.copyAttr.histoLabel.setText(self.wConf.histo_list.currentText())
