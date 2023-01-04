@@ -197,6 +197,8 @@ class MainWindow(QMainWindow):
 
         # home callback
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)
+        # zoom callback
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[2].triggered.connect(self.zoomCallback)
         # copy properties
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
         # summing region
@@ -236,13 +238,16 @@ class MainWindow(QMainWindow):
         self.wConf.listGate.installEventFilter(self)
         
         self.currentPlot = self.wTab.wPlot[self.wTab.currentIndex()] # definition of current plot
+
+        print(self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions())
         
     ################################
     # 3) Implementation of Signals
     ################################
 
     def bindDynamicSignal(self):
-        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)        
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[2].triggered.connect(self.zoomCallback)        
         self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxis)
         self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogAxis)
         self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
@@ -411,45 +416,35 @@ class MainWindow(QMainWindow):
             for key2, value2, in value.items():
                 if val == value2:
                     return key
-        
-    def homeCallback(self, event):
+
+    def zoomCallback(self, event):
         if (DEBUG):
-            print("Clicked homecallback in tab", self.wTab.currentIndex())
-        name = str(self.wConf.histo_list.currentText())
-        index = self.get_key(name)
-        self.resetAxisLimits(index)
-        self.currentPlot.canvas.draw()
-        
-        '''
+            print("Clicked zoomCallback in tab", self.wTab.currentIndex())
         try:
+            # update currentPlot limits with what's on the actual plot
+            ax = None
             if self.currentPlot.isZoomed:
-                #if (DEBUG):
-                print("homeCallback - zoom mode")
-
-                name = str(self.wConf.histo_list.currentText())
-                self.currentPlot.selected_plot_index = self.get_key(name)
-                #if (DEBUG):
-                print("zoom mode for histogram ", name, " with index " , self.currentPlot.selected_plot_index)
-                print("cleaning and setting up the zoomed pic...")
-
-                self.wTab[self.tabIndex].wPlot.figure.clear()
-                self.wTab[self.tabIndex].wPlot.canvas.draw()
-                if (DEBUG):
-                    print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
-                a = self.update_plot()
-                self.reset_axis_properties(self.selected_plot_index)
-                self.drawAllGates()
-                self.wTab[self.tabIndex].wPlot.canvas.draw()
+                ax = plt.gca()
             else:
-                #if (DEBUG):                
-                print("homeCallback - multipanel mode")                
-                #if (DEBUG):
-                print("plot the histogram at index", self.selected_plot_index, "with name", (self.h_dict[self.selected_plot_index])["name"])
-                self.reset_axis_properties(self.selected_plot_index)
-                self.wTab[self.tabIndex].wPlot.canvas.draw()
+                ax = self.select_plot(self.currentPlot.selected_plot_index)
+            if (DEBUG):
+                print(ax.get_xlim(), ax.get_ylim())
+                print(self.currentPlot.h_limits)
+            self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["x"] = [ax.get_xlim()[0], ax.get_xlim()[1]]
+            self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"] = [ax.get_ylim()[0], ax.get_ylim()[1]]
         except:
             pass
-        '''
+            
+    def homeCallback(self, event):
+        if (DEBUG):
+            print("Clicked homeCallback in tab", self.wTab.currentIndex())
+        try:
+            name = str(self.wConf.histo_list.currentText())
+            index = self.get_key(name)
+            self.resetAxisLimits(index)
+            self.currentPlot.canvas.draw()
+        except:
+            pass
         
     def closeAll(self):
         self.close()
@@ -1237,35 +1232,6 @@ class MainWindow(QMainWindow):
         
         self.currentPlot.canvas.draw()
         
-        '''
-        orig_histo = self.update_spectrum_info()
-        if (DEBUG):
-            print(orig_histo)
-
-        if self.h_limits[index]:
-            try:
-                ax = None
-                if self.isZoomed:
-                    ax = plt.gca()
-                else:
-                    ax = self.select_plot(index)
-
-                if (DEBUG):
-                    print(self.h_limits)
-                    print(ax.get_xlim(), ax.get_ylim())
-                    print(orig_histo["xmin"],orig_histo["xmax"])
-                    print(orig_histo["ymin"],orig_histo["ymax"])
-                self.h_limits[index]["x"] = [float(orig_histo["xmin"]),float(orig_histo["xmax"])]
-                self.h_limits[index]["y"] = [float(orig_histo["ymin"]),float(orig_histo["ymax"])]
-                if (DEBUG):
-                    print(self.h_limits)
-                ax.set_xlim(self.h_limits[index]["x"][0], self.h_limits[index]["x"][1])
-                if self.h_dim[index] == 2:
-                    ax.set_ylim(self.h_limits[index]["y"][0], self.h_limits[index]["y"][1])
-            except:
-                QMessageBox.about(self, "Warning", "Something has failed in reset_axis_properties")
-        '''
-        
     ##################################
     ## 9) Histogram operations
     ##################################
@@ -1540,17 +1506,6 @@ class MainWindow(QMainWindow):
                     print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
                     print("self.currentPlot.h_dim", self.currentPlot.h_dim)                                
                     
-                '''
-                self.h_dict_bak = self.h_dict.copy()
-                self.h_dict_geo_bak = deepcopy(self.h_dict_geo)
-
-                if self.logScale:
-                    self.h_log[self.idx] = True
-                else:
-                    self.h_log[self.idx] = False
-
-                self.h_log_bak = deepcopy(self.h_log)
-                '''
                 self.currentPlot.h_setup[self.currentPlot.index] = True
                 self.erasePlot(self.currentPlot.index)
                 #self.add(self.currentPlot.index)
@@ -1560,7 +1515,6 @@ class MainWindow(QMainWindow):
 
         except NameError:
             raise
-            #QMessageBox.about(self, "Warning", "addPlot - Please click 'Get Data to access the data...")
 
     # getting data for plotting
     def get_data(self, index):
@@ -1682,12 +1636,6 @@ class MainWindow(QMainWindow):
                     self.removeCb(a)
                 except:
                     pass
-                '''
-                if self.wConf.button1D.isChecked():
-                    self.axisScale(a, self.selected_plot_index)
-                else:
-                    self.set_log_axis(self.selected_plot_index)
-                '''
             else:
                 if (DEBUG):
                     print("Inside updatePlot - multipanel mode")
@@ -1695,42 +1643,7 @@ class MainWindow(QMainWindow):
                     if (DEBUG):
                         print("index", index, "value", value)
                     self.updateSinglePlot(index)
-                    '''
-                    if (value["name"] != "empty"):
-                        a = self.select_plot(index)
-                        if self.currentPlot.isLoaded:
-                            time.sleep(0.01)
-                            self.plotPlot(a, index)                            
-                        else:
-                            self.setupPlot(a, index)
-                            self.add(index)
-                            self.plotPlot(a, index)
 
-                        if (self.currentPlot.h_setup[index]):
-                            self.currentPlot.h_setup[index] = False
-                    '''
-                    '''
-
-                        #else:
-                        #   
-                        self.currentPlot.h_setup[index] = False
-                        self.plotPlot(a, index)
-                    '''
-                        
-                    #a = self.select_plot(index)
-
-                    #    self.plotPlot(plt.gca(), index)
-                    '''
-                    if self.h_log[index]:
-                            if (DEBUG):
-                                print("Histogram at index", index, "need to be log")
-                            if self.h_dict[index]["dim"] == 1:
-                                ymin, ymax = a.get_ylim()
-                                if ymin == 0:
-                                    ymin = 0.001
-                                a.set_ylim(ymin,ymax)
-                                a.set_yscale("log")
-                    '''
             self.currentPlot.figure.tight_layout()
             self.currentPlot.canvas.draw_idle()
             self.setAutoscaleAxis()
@@ -1764,24 +1677,6 @@ class MainWindow(QMainWindow):
             self.check_histogram();
         except:
             pass
-    
-        '''
-
-        name = self.get_histo_name(idx)
-        dim = self.get_histo_dim(idx)
-        minx = str(self.get_histo_xmin(idx))
-        maxx = str(self.get_histo_xmax(idx))
-        binx = str(self.get_histo_xbin(idx))
-        miny = str(self.get_histo_ymin(idx))
-        maxy = str(self.get_histo_ymax(idx))
-        biny = str(self.get_histo_ybin(idx))
-
-        if dim == 1:
-            self.wConf.button1D.setChecked(True)
-        else:
-            self.wConf.button2D.setChecked(True)
-        self.check_histogram();
-        '''
     
     def createSRegion(self):
         print("Clicked createSRegion in tab", self.wTab.currentIndex())        
