@@ -207,9 +207,9 @@ class MainWindow(QMainWindow):
         # log button
         self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogAxis)
         # plus button
-        #self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab[self.tabIndex].wPlot.canvas))
+        self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
         # minus button
-        #self.wTab[self.tabIndex].wPlot.minusButton.clicked.connect(lambda: self.zoomOut(self.wTab[self.tabIndex].wPlot.canvas))
+        self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))        
 
         # key press event
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
@@ -238,11 +238,13 @@ class MainWindow(QMainWindow):
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)        
         self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxis)
         self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogAxis)
+        self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
+        self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))        
         
         self.resizeID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("resize_event", self.on_resize)
         self.pressID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.on_press)
 
-        self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("motion_notify_event", self.histoHover)
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("motion_notify_event", self.histoHover)        
         
     def eventFilter(self, obj, event):
         if (obj == self.wConf.histo_list or self.wConf.listParams[0] or self.wConf.listParams[1] or self.wConf.listGate) and event.type() == QtCore.QEvent.HoverEnter:
@@ -978,6 +980,68 @@ class MainWindow(QMainWindow):
 
         except NameError:
             raise
+
+    def zoom(self, ax, index, flag):
+        if (DEBUG):
+            print("Inside zoom")
+        if self.wConf.button1D.isChecked():
+            ymax = (ax.get_ylim())[1]
+            if (DEBUG):
+                print("ymax", ymax)
+            if flag == "in":
+                ymax /= 2
+            elif flag == "out":
+                ymax *= 2
+            if (DEBUG):                
+                print("new ymax", ymax)
+            ax.set_ylim((ax.get_ylim())[0],ymax)
+        else:
+            zmax = self.currentPlot.h_lst[index].get_clim()[1]
+            if (DEBUG):
+                print("zmax",zmax)
+            if flag == "in":
+                zmax /= 2
+            elif flag == "out":
+                zmax *= 2
+            if (DEBUG):                
+                print("new zmax", zmax)            
+            self.currentPlot.h_lst[index].set_clim(vmax=zmax)
+        
+    def zoomIn(self, canvas):
+        if (DEBUG):
+            print("Inside zoomIn")
+        if self.currentPlot.isZoomed == False:
+            for i, ax in enumerate(self.currentPlot.figure.axes):
+                if (i == self.currentPlot.selected_plot_index):
+                    self.zoom(ax, i, "in")
+                    try:
+                        self.currentPlot.rec.remove()
+                        self.currentPlot.rec = self.createRectangle(ax)
+                    except:
+                        pass
+        else:
+            ax = plt.gca()
+            self.zoom(ax, self.currentPlot.selected_plot_index, "in")
+
+        canvas.draw()
+
+    def zoomOut(self, canvas):
+        if (DEBUG):
+            print("Inside zoomOut")
+        if self.currentPlot.isZoomed == False:
+            for i, ax in enumerate(self.currentPlot.figure.axes):
+                if (i == self.currentPlot.selected_plot_index):
+                    self.zoom(ax, i, "out")
+                    try:
+                        self.currentPlot.rec.remove()
+                        self.currentPlot.rec = self.createRectangle(ax)
+                    except:
+                        pass
+        else:
+            ax = plt.gca()
+            self.zoom(ax, self.currentPlot.selected_plot_index, "out")
+
+        canvas.draw()
         
     # setting autoscale+axis properties with h_limits
     def setAutoscaleAxis(self):
