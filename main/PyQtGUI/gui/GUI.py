@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # import modules and packages
 import importlib
-import io, pickle, traceback, sys, os, subprocess
+import io, pickle, traceback, sys, os, subprocess, ast
 import signal, logging, ctypes, copy, json, httplib2, cv2
 import threading, itertools, time, multiprocessing, math, re
 from ctypes import *
@@ -211,6 +211,13 @@ class MainWindow(QMainWindow):
         # minus button
         self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))        
 
+        self.copyAttr.histoAll.clicked.connect(lambda:self.histAllAttr(self.copyAttr.histoAll))
+        self.copyAttr.okAttr.clicked.connect(self.okCopy)
+        self.copyAttr.applyAttr.clicked.connect(self.applyCopy)
+        self.copyAttr.cancelAttr.clicked.connect(self.closeCopy)
+        self.copyAttr.selectAll.clicked.connect(self.selectAll)
+
+        
         # key press event
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.setFocus()
@@ -240,6 +247,7 @@ class MainWindow(QMainWindow):
         self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogAxis)
         self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
         self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))        
+        self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
         
         self.resizeID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("resize_event", self.on_resize)
         self.pressID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.on_press)
@@ -472,21 +480,55 @@ class MainWindow(QMainWindow):
         except:
             pass
         
-        '''
-        for ww in self.wTab.children():
-            print(">>",ww.metaObject().className())
-            if ("QStackedWidget" == ww.metaObject().className()):
-                print("looping over QStackedWidget")
-                x = ww.count()
-                print("number of widgets", x)
-                for i in range(ww.count()):       
-                    w = ww.widget(i) 
-                    print(w.metaObject().className(),type(w))
-                    #if w.metaObject().className() == "Plot":
-                    #    print("Found plot")
-                    #    self.wPlot = w
-        ''' 
+    def selectAll(self):
+        flag = False
+        basic = ["Ok", "Cancel", "Apply"]
+        discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
+        for instance in self.copyAttr.findChildren(QPushButton):
+            if instance.text() not in discard:
+                instance.setChecked(True)
+                instance.setStyleSheet('QPushButton {color: green;}')
+            else:
+                if instance.text() not in basic:
+                    if instance.text() == "Select all":
+                        instance.setText("Deselect all")
+                    else:
+                        instance.setText("Select all")
+                        flag = True
 
+        if flag == True:
+            for instance in self.copyAttr.findChildren(QPushButton):
+                if instance.text() not in discard:
+                    instance.setChecked(False)
+                    instance.setStyleSheet('QPushButton {color: red;}')
+                    flag = False
+
+    def histAllAttr(self, b):
+        if b.text() == "Select all properties":
+            if b.isChecked() == True:
+                self.copyAttr.axisLimitX.setChecked(True)
+                self.copyAttr.axisLimitY.setChecked(True)
+                self.copyAttr.axisScale.setChecked(True)
+                self.copyAttr.histoScaleminZ.setChecked(True)
+                self.copyAttr.histoScalemaxZ.setChecked(True)
+            else:
+                self.copyAttr.axisLimitX.setChecked(False)
+                self.copyAttr.axisLimitY.setChecked(False)
+                self.copyAttr.axisScale.setChecked(False)
+                self.copyAttr.histoScaleminZ.setChecked(False)
+                self.copyAttr.histoScalemaxZ.setChecked(False)
+
+        if self.wConf.button1D.isChecked():
+            self.copyAttr.histoScaleminZ.setEnabled(False)
+            self.copyAttr.histoScaleValueminZ.setEnabled(False)
+            self.copyAttr.histoScalemaxZ.setEnabled(False)
+            self.copyAttr.histoScaleValuemaxZ.setEnabled(False)
+        else:
+            self.copyAttr.histoScaleminZ.setEnabled(True)
+            self.copyAttr.histoScaleValueminZ.setEnabled(True)
+            self.copyAttr.histoScalemaxZ.setEnabled(True)
+            self.copyAttr.histoScaleValuemaxZ.setEnabled(True)
+        
     ##########################################
     # 6) Accessing the ShMem
     ##########################################
@@ -1419,10 +1461,10 @@ class MainWindow(QMainWindow):
             if (self.currentPlot.h_setup[index]):
                 self.currentPlot.h_setup[index] = False
 
-        self.currentPlot.figure.tight_layout()
-        self.currentPlot.canvas.draw_idle()
-        self.setAutoscaleAxis()
-        self.setLogAxis()
+        #self.currentPlot.figure.tight_layout()
+        #self.currentPlot.canvas.draw_idle()
+        #self.setAutoscaleAxis()
+        #self.setLogAxis()
         
     # geometrically add plots to the right place
     def addPlot(self):
@@ -1722,8 +1764,8 @@ class MainWindow(QMainWindow):
             self.check_histogram();
         except:
             pass
-        
-            '''
+    
+        '''
 
         name = self.get_histo_name(idx)
         dim = self.get_histo_dim(idx)
@@ -1748,9 +1790,159 @@ class MainWindow(QMainWindow):
     # 11) 1D/2D region integration
     ##############################
 
-    def copyPopup(self):
-        print("Clicked copyPopup in tab", self.wTab.currentIndex())
+    def okCopy(self):
+        if (DEBUG):
+            print("Inside okCopy")
+        self.applyCopy()
+        self.closeCopy()
 
+    def applyCopy(self):
+        if (DEBUG):
+            print("Inside applyCopy")            
+        try:
+            flags = []
+            for instance in self.copyAttr.findChildren(QCheckBox):
+                if instance.isChecked():
+                    if (DEBUG):
+                        print(instance.text(), instance.isChecked())
+                    flags.append(True)
+                else:
+                    flags.append(False)
+
+            if (DEBUG):
+                print(flags)
+        
+            dim = self.currentPlot.h_dim[self.currentPlot.selected_plot_index]
+            keys = []
+            values = []
+            xlim_src = []
+            ylim_src= []
+            zlim_src= []            
+            scale_src = None
+            discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
+            # creating list of target histograms
+            for instance in self.copyAttr.findChildren(QPushButton):
+                if (instance.text() not in discard) and instance.isChecked():
+                    if (DEBUG):
+                        print("histo destination",instance.text())
+                    keys=list(self.currentPlot.h_dict_geo.keys())
+                    values=list(self.currentPlot.h_dict_geo.values())
+
+            index_og = keys[values.index(self.wConf.histo_list.currentText())]
+            if (DEBUG):
+                print(self.currentPlot.selected_plot_index, index_og)
+                print(keys)
+                print(values)
+            # remove source element
+            keys.pop(self.currentPlot.selected_plot_index)
+            values.pop(self.currentPlot.selected_plot_index)
+            # src values to copy to destination
+            xlim_src = ast.literal_eval(self.copyAttr.axisLimLabelX.text())
+            ylim_src = ast.literal_eval(self.copyAttr.axisLimLabelY.text())
+            scale_src = self.copyAttr.axisSLabel.text()
+            zlim_src = [float(self.copyAttr.histoScaleValueminZ.text()), float(self.copyAttr.histoScaleValuemaxZ.text())]
+            if (DEBUG):
+                print(xlim_src, ylim_src, scale_src, zlim_src)
+                print(flags)
+            
+            # copy to destination
+            for index in keys:
+                # set the limits for x,y
+                if flags[0] == True:
+                    self.currentPlot.h_limits[index]["x"] = xlim_src
+                    self.currentPlot.h_setup[index] = True
+                if flags[1] == True:
+                    self.currentPlot.h_limits[index]["y"] = ylim_src
+                    self.currentPlot.h_setup[index] = True
+                # set log/lin scale
+                if flags[2] == True:
+                    self.currentPlot.h_log[index] = scale_src
+                    self.currentPlot.h_setup[index] = True
+                # set minZ/maxZ
+                if (flags[3] == True or flags[4] == True) and self.wConf.button2D.isChecked():
+                    self.currentPlot.h_setup[index] = True
+
+            if (DEBUG):                    
+                print("before applying to destination...")
+                    
+            ax = None
+            if not self.currentPlot.isZoomed:
+                for index in range(len(self.currentPlot.h_setup)):
+                    # match dimension of the selected histogram (1d/2d)
+                    if self.currentPlot.h_dim[index] == dim:
+                        # select axes
+                        ax = self.select_plot(index)
+                        # modifying axis limits
+                        ax.set_xlim(xlim_src[0], xlim_src[1])
+                        ax.set_ylim(ylim_src[0], ylim_src[1])
+                        # modifying log/linear
+                        if self.currentPlot.h_log[index]:
+                            self.axisScale(ax, index)
+                        # for 2D plot sets limits
+                        if dim == 2:
+                            self.currentPlot.h_lst[index].set_clim(vmin=zlim_src[0], vmax=zlim_src[1])
+
+            self.currentPlot.canvas.draw()
+
+        except:
+            pass
+            
+    def closeCopy(self):
+        discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
+        for instance in self.copyAttr.findChildren(QPushButton):
+            if instance.text() not in discard:
+                instance.deleteLater()
+
+        self.copyAttr.close()
+            
+    def copyPopup(self):
+        try:
+            if (DEBUG):            
+                print("Clicked copyPopup in tab", self.wTab.currentIndex())
+            self.copyAttr.histoLabel.setText(self.wConf.histo_list.currentText())
+            hdim = 1
+            if self.wConf.button2D.isChecked():
+                hdim = 2
+            # setting up info for source histogram
+            for index, values in self.currentPlot.h_dict.items():
+                if (DEBUG):
+                    print(index)
+                for idx, value in values.items():
+                    if (DEBUG):
+                        print(idx, value)
+                    if idx == "name":
+                        if value == self.wConf.histo_list.currentText():
+                            if (DEBUG):
+                                print("histo chosen", value)
+                            # log scale check
+                            if self.currentPlot.h_log[index] == True:
+                                self.copyAttr.axisSLabel.setText("Log")
+                            else:
+                                self.copyAttr.axisSLabel.setText("Linear")
+                            self.copyAttr.axisLimLabelX.setText("["+'{:.1f}'.format((self.currentPlot.h_limits[index]["x"])[0])+","+'{:.1f}'.format((self.currentPlot.h_limits[index]["x"])[1])+"]")
+                            self.copyAttr.axisLimLabelY.setText("["+'{:.1f}'.format((self.currentPlot.h_limits[index]["y"])[0])+","+'{:.1f}'.format((self.currentPlot.h_limits[index]["y"])[1])+"]")
+                        else:
+                            if hdim == values["dim"]:
+                                instance = QPushButton(value, self)
+                                instance.setCheckable(True)
+                                instance.setStyleSheet('QPushButton {color: red;}')
+                                self.copyAttr.copy_log.addRow(instance)
+                                instance.clicked.connect(
+                                    lambda state, instance=instance: self.connectCopy(instance))
+                            
+        except:
+            pass
+        self.copyAttr.show()
+
+    def connectCopy(self, instance):
+        if (instance.palette().color(QPalette.Text).name() == "#008000"):
+            instance.setStyleSheet('QPushButton {color: red;}')
+        else:
+            instance.setStyleSheet('QPushButton {color: green;}')
+        if (DEBUG):
+            print(instance.isChecked())
+
+        
     ##############################
     # 17) Misc tools
     ##############################
