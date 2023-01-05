@@ -33,7 +33,7 @@ class SpecialFunctions(QWidget):
             # fillpoints has issues with speed
             clustering = self.imaging.create_clusterBox()
             #clustering.setEnabled(False)
-            self.layout.addWidget(clustering)
+            #self.layout.addWidget(clustering)
             self.setLayout(self.layout)
 
     def create_fitBox(self):

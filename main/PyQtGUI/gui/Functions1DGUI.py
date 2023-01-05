@@ -73,7 +73,7 @@ class Fncts1D(QDialog):
         self.jup_start = QPushButton("Start", self)
         self.jup_stop = QPushButton("Stop", self)
         self.jup_df_filename = QLineEdit()
-        filename = "df-"+time.strftime("%Y%m%d-%H%M%S")+".csv"
+        filename = "df-"+time.strftime("%Y%m%d-%H%M%S")+".gzip"
         self.jup_df_filename.setText(filename)
 
         self.jup_start.setStyleSheet("background-color:#3CB371;")

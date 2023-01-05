@@ -16,6 +16,7 @@ sys.path.append(str(os.environ.get("INSTDIR"))+"/Lib")
 
 # removes the webproxy from spdaq machines
 os.environ['NO_PROXY'] = ""
+os.environ['XDG_RUNTIME_DIR'] = os.environ.get("PWD")
 
 from PyQt5 import QtCore, QtNetwork
 from PyQt5.QtWidgets import *
@@ -152,7 +153,7 @@ class MainWindow(QMainWindow):
         self.copyAttr = CopyProperties()
 
         # initialize factory from algo_creator
-        self.factory.initialize(self.extraPopup.imaging.clusterAlgo)
+        #self.factory.initialize(self.extraPopup.imaging.clusterAlgo)
         # initialize factory from fit_creator
         self.fit_factory.initialize(self.extraPopup.fit_list)
 
@@ -171,6 +172,20 @@ class MainWindow(QMainWindow):
         # gradient for 2d plots
         self.minZ = 0
         self.maxZ = 256
+
+        # for peak finding
+        self.datax = None        
+        self.datay = None
+        self.peaks = None
+        self.properties = None
+        self.peak_pos = {}
+        self.peak_vl = {}
+        self.peak_hl = {}
+        self.peak_txt = {}
+        self.isChecked = {}
+
+        # overlay
+        self.onFigure = False
         
         #################
         # 2) Signals
@@ -178,6 +193,8 @@ class MainWindow(QMainWindow):
 
         # top menu signals
         self.wTop.updateButton.clicked.connect(self.update)
+
+        self.wTop.extraButton.clicked.connect(self.spfunPopup)
         self.wTop.saveButton.clicked.connect(self.saveGeo)
         self.wTop.loadButton.clicked.connect(self.loadGeo)
         self.wTop.exitButton.clicked.connect(self.closeAll)
@@ -212,13 +229,33 @@ class MainWindow(QMainWindow):
         self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
         # minus button
         self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))        
-
+        # copy attributes
         self.copyAttr.histoAll.clicked.connect(lambda:self.histAllAttr(self.copyAttr.histoAll))
         self.copyAttr.okAttr.clicked.connect(self.okCopy)
         self.copyAttr.applyAttr.clicked.connect(self.applyCopy)
         self.copyAttr.cancelAttr.clicked.connect(self.closeCopy)
         self.copyAttr.selectAll.clicked.connect(self.selectAll)
 
+        # extra popup
+        self.extraPopup.fit_button.clicked.connect(self.fit)
+
+        self.extraPopup.peak.peak_analysis.clicked.connect(self.analyzePeak)
+        self.extraPopup.peak.peak_analysis_clear.clicked.connect(self.peakAnalClear)
+
+        self.extraPopup.peak.jup_start.clicked.connect(self.jupyterStart)
+        self.extraPopup.peak.jup_stop.clicked.connect(self.jupyterStop)
+
+        self.extraPopup.imaging.loadButton.clicked.connect(self.loadFigure)
+        self.extraPopup.imaging.addButton.clicked.connect(self.addFigure)
+        self.extraPopup.imaging.deleteButton.clicked.connect(self.deleteFigure)
+        self.extraPopup.imaging.alpha_slider.valueChanged.connect(self.transFigure)
+        self.extraPopup.imaging.zoomX_slider.valueChanged.connect(self.zoomFigureX)
+        self.extraPopup.imaging.zoomY_slider.valueChanged.connect(self.zoomFigureY)
+        self.extraPopup.imaging.joystick.mousemoved.connect(self.moveFigure)
+        self.extraPopup.imaging.upButton.clicked.connect(self.fineUpMove)
+        self.extraPopup.imaging.downButton.clicked.connect(self.fineDownMove)
+        self.extraPopup.imaging.leftButton.clicked.connect(self.fineLeftMove)
+        self.extraPopup.imaging.rightButton.clicked.connect(self.fineRightMove)
         
         # key press event
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
@@ -239,8 +276,6 @@ class MainWindow(QMainWindow):
         
         self.currentPlot = self.wTab.wPlot[self.wTab.currentIndex()] # definition of current plot
 
-        print(self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions())
-        
     ################################
     # 3) Implementation of Signals
     ################################
@@ -585,7 +620,7 @@ class MainWindow(QMainWindow):
             self.create_gate_list()
             self.updateGateType()
             '''
-            
+
         except:
             QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started or hostname/port/mirror are not configured!")
             
@@ -1685,6 +1720,12 @@ class MainWindow(QMainWindow):
     # 11) 1D/2D region integration
     ##############################
 
+    def spfunPopup(self):
+        if self.extraPopup.isVisible():
+            self.extraPopup.close()
+
+        self.extraPopup.show()
+    
     def okCopy(self):
         if (DEBUG):
             print("Inside okCopy")
@@ -1840,6 +1881,445 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print(instance.isChecked())
 
+    ############################
+    # 12)  Fitting
+    ############################
+
+    def axislimits(self, ax):
+        left, right = ax.get_xlim()
+        if self.extraPopup.fit_range_min.text():
+            left = int(self.extraPopup.fit_range_min.text())
+        else:
+            left = ax.get_xlim()[0] 
+        if self.extraPopup.fit_range_max.text():
+            right = int(self.extraPopup.fit_range_max.text())
+        else:
+            right = ax.get_xlim()[1] 
+        return left, right
+
+    def fit(self):
+        ax = None
+        histo_name = str(self.wConf.histo_list.currentText())
+        fit_funct = self.extraPopup.fit_list.currentText()
+        if self.currentPlot.isZoomed:
+            ax = plt.gca()
+        else:
+            ax = self.select_plot(self.currentPlot.selected_plot_index)
+
+        config = self.fit_factory._configs.get(fit_funct)
+        if (DEBUG):
+            print("Fit function", config)
+        fit = self.fit_factory.create(fit_funct, **config)
+
+        try:
+            if histo_name != "":
+                if self.wConf.button1D.isChecked():
+                    if (DEBUG):
+                        print("Ready to 1D fit...")
+                    x = []
+                    y = []
+                    # input points for fitting function
+                    minx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"]
+                    maxx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmax"]                    
+                    binx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xbin"]
+                    print(minx, maxx, binx)
+                    xtmp = self.create_range(binx, minx, maxx)
+                    fitpar = [float(self.extraPopup.fit_p0.text()), float(self.extraPopup.fit_p1.text()),
+                              float(self.extraPopup.fit_p2.text()), float(self.extraPopup.fit_p3.text()),
+                              float(self.extraPopup.fit_p4.text()), float(self.extraPopup.fit_p5.text()),
+                              float(self.extraPopup.fit_p6.text()), float(self.extraPopup.fit_p7.text())]
+
+                    if (DEBUG):
+                        print(fitpar)
+                    ytmp = (self.get_data(self.currentPlot.selected_plot_index)).tolist()
+                    if (DEBUG):
+                        print("xtmp", type(xtmp), "with len", len(xtmp), "ytmp", type(ytmp), "with len", len(ytmp))
+                    xmin, xmax = self.axislimits(ax)
+                    if (DEBUG):
+                        print("fitting axis limits", xmin, xmax)
+                        print(type(xtmp), type(x), type(xtmp[0]), type(xmin))
+                    # create new tmp list with subrange for fitting
+                    for i in range(len(xtmp)):
+                        if (xtmp[i]>=xmin and xtmp[i]<xmax):
+                            x.append(xtmp[i])
+                            y.append(ytmp[i])
+                    x = np.array(x)
+                    y = np.array(y)
+                            
+                    fitln = fit.start(x, y, xmin, xmax, fitpar, ax, self.extraPopup.fit_results)
+                else: 
+                    QMessageBox.about(self, "Warning", "Sorry 2D fitting is not implemented yet")
+            else:
+                QMessageBox.about(self, "Warning", "Histogram not existing. Please load an histogram...")
+
+            self.currentPlot.canvas.draw()
+
+        except NameError:
+            raise
+
+    ############################
+    # 13) Peak Finding
+    ############################
+
+    def peakState(self, state):
+        for i, btn in enumerate(self.extraPopup.peak.peak_cbox):
+            if btn.isChecked() == False:
+                try:
+                    self.removePeak(i)
+                    self.isChecked[i] = False
+                except:
+                    pass
+            else:
+                if self.isChecked[i] == False:
+                    self.drawSinglePeaks(self.peaks, self.properties, self.datay, i)
+                    self.isChecked[i] = True
+
+        self.currentPlot.canvas.draw()
+
+    def create_peak_signals(self, peaks):
+        try:
+            for i in range(len(peaks)):
+                self.isChecked[i] = False
+                self.extraPopup.peak.peak_cbox[i].stateChanged.connect(self.peakState)
+                self.extraPopup.peak.peak_cbox[i].setChecked(True)
+        except:
+            pass
+                
+    def peakAnalClear(self):
+        self.extraPopup.peak.peak_results.clear()
+        self.removeAllPeaks()
+        self.resetPeakDict()
+
+    def removePeak(self, i):
+        self.peak_pos[i][0].remove()
+        del self.peak_pos[i]
+        self.peak_vl[i].remove()
+        del self.peak_vl[i]
+        self.peak_hl[i].remove()
+        del self.peak_hl[i]
+        self.peak_txt[i].remove()
+        del self.peak_txt[i]
+
+    def resetPeakDict(self):
+        self.peak_pos = {}
+        self.peak_vl = {}
+        self.peak_hl = {}
+        self.peak_txt = {}
+
+    def removeAllPeaks(self):
+        try:
+            for i in range(len(self.peaks)):
+                self.extraPopup.peak.peak_cbox[i].setChecked(False)
+                self.isChecked[i] = False
+        except:
+            pass
+
+        self.currentPlot.canvas.draw()
+
+    def drawSinglePeaks(self, peaks, properties, data, index):
+        if (DEBUG):
+            print("inside drawSinglePeaks")
+        ax = None
+        if self.currentPlot.isZoomed:
+            ax = plt.gca()
+        else:
+            ax = self.select_plot(self.currentPlot.selected_plot_index)
+
+        x = self.datax.tolist()
+        if (DEBUG):
+            print("self.peak_pos[index]", peaks[index], int(x[peaks[index]]))
+        self.peak_pos[index] = ax.plot(x[peaks[index]], int(data[peaks[index]]), "v", color="red")
+        self.peak_vl[index] = ax.vlines(x=x[peaks[index]], ymin=data[peaks[index]] - properties["prominences"][index], ymax = data[peaks[index]], color = "red")
+        self.peak_hl[index] = ax.hlines(y=properties["width_heights"][index], xmin=properties["left_ips"][index], xmax=properties["right_ips"][index], color = "red")
+        self.peak_txt[index] = ax.text(x[peaks[index]], int(data[peaks[index]]*1.1), str(int(x[peaks[index]])))        
+
+    def update_peak_output(self, peaks, properties):
+        if (DEBUG):
+            print("Inside update_peak_output")
+            print(type(peaks), peaks)
+        x = self.datax.tolist()
+        if (DEBUG):
+            print(type(x), len(x), x)        
+        for i in range(len(peaks)):
+            if (DEBUG):
+                print("peak at index", peaks[i], "corresponds to x value of", x[peaks[i]])
+            s = "Peak"+str(i+1)+"\n\tpeak @ " + str(int(x[peaks[i]]))+", FWHM="+str(int(properties['widths'][i]))
+            self.extraPopup.peak.peak_results.append(s)
+        
+    def analyzePeak(self):
+        try:
+            ax = None
+            if self.currentPlot.isZoomed:
+                ax = plt.gca()
+            else:
+                ax = self.select_plot(self.currentPlot.selected_plot_index)
+
+            x = []
+            y = []
+            # input points for peak finding
+            width = int(self.extraPopup.peak.peak_width.text())
+            minx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"]
+            maxx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmax"]
+            binx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xbin"]
+            if (DEBUG):
+                print(minx, maxx, binx)
+            xtmp = self.create_range(binx, minx, maxx)
+            ytmp = (self.get_data(self.currentPlot.selected_plot_index)).tolist()
+            if (DEBUG):
+                print("xtmp", type(xtmp), "with len", len(xtmp), "ytmp", type(ytmp), "with len", len(ytmp))
+            xmin, xmax = ax.get_xlim()
+            if (DEBUG):
+                print("fitting axis limits", xmin, xmax)
+            # create new tmp list with subrange for fitting
+            for i in range(len(xtmp)):
+                if (xtmp[i]>=xmin and xtmp[i]<xmax):
+                    x.append(xtmp[i])
+                    y.append(ytmp[i])
+            self.datax = np.array(x)
+            self.datay = np.array(y)
+            if (DEBUG):
+                print(self.datax)
+                print(self.datay)
+                print("xtmp", type(self.datax), "with len", len(self.datax.tolist()), "ytmp", type(self.datay), "with len", len(self.datay.tolist()))            
+            self.peaks, self.properties = find_peaks(self.datay, prominence=1, width=width)
+
+            if (DEBUG):            
+                print("peak list with indices", self.peaks)
+                print("peak properties list", self.properties)
+            self.update_peak_output(self.peaks, self.properties)
+            self.create_peak_signals(self.peaks)
+
+        except:
+            pass
+
+    ############################
+    # 15) Overlaying pic
+    ############################
+
+    def openFigureDialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Image Files (*.png *.jpg);;All Files (*)", options=options)
+        if fileName:
+            return fileName
+
+    def loadFigure(self):
+        fileName = self.openFigureDialog()
+        self.extraPopup.imaging.loadLISE_name.setText(fileName)
+        if (DEBUG):
+            print(fileName)
+        try:
+            if os.path.isfile(fileName):
+                self.LISEpic = cv2.imread(fileName, 0)
+                cv2.resize(self.LISEpic, (200, 100))
+        except:
+            pass
+
+    def fineUpMove(self):
+        self.imgplot.remove()
+        self.ystart += 0.002
+        self.drawFigure()
+
+    def fineDownMove(self):
+        self.imgplot.remove()
+        self.ystart -= 0.002
+        self.drawFigure()
+
+    def fineLeftMove(self):
+        self.imgplot.remove()
+        self.xstart -= 0.002
+        self.drawFigure()
+
+    def fineRightMove(self):
+        self.imgplot.remove()
+        self.xstart += 0.002
+        self.drawFigure()
+
+    def moveFigure(self):
+        if (DEBUG):
+            print(self.extraPopup.imaging.joystick.direction, self.extraPopup.imaging.joystick.distance)
+        try:
+            self.imgplot.remove()
+            if self.extraPopup.imaging.joystick.direction == "up":
+                self.ystart += self.extraPopup.imaging.joystick.distance*0.03
+            elif self.extraPopup.imaging.joystick.direction == "down":
+                self.ystart -= self.extraPopup.imaging.joystick.distance*0.03
+            elif self.extraPopup.imaging.joystick.direction == "left":
+                self.xstart -= self.extraPopup.imaging.joystick.distance*0.03
+            else:
+                self.xstart += self.extraPopup.imaging.joystick.distance*0.03
+            self.drawFigure()
+        except:
+            pass
+
+    def indexToStartPosition(self, index):
+        if (DEBUG):
+            print("inside indexToStartPosition")
+        row = int(self.wConf.histo_geo_row.currentText())
+        col = int(self.wConf.histo_geo_col.currentText())
+        if (DEBUG):
+            print("row, col",row, col)
+        xoffs = float(1/(2*col))
+        yoffs = float(1/(2*row))
+        i, j = self.plot_position(index)
+        if (DEBUG):
+            print("plot position in geometry", i, j)
+        xstart = xoffs*(2*j+1)-0.1
+        ystart = yoffs*(2*i+1)+0.1
+
+        self.xstart = xstart
+        self.ystart = 1-ystart
+        if (DEBUG):
+            print("self.xstart", self.xstart, "self.ystart", self.ystart)
+
+    def drawFigure(self):
+        self.alpha = self.extraPopup.imaging.alpha_slider.value()/10
+        self.zoomX = self.extraPopup.imaging.zoomX_slider.value()/10
+        self.zoomY = self.extraPopup.imaging.zoomY_slider.value()/10
+
+        ax = plt.axes([self.xstart, self.ystart, self.zoomX, self.zoomY], frameon=True)
+        ax.axis('off')
+        self.imgplot = ax.imshow(self.LISEpic,
+                                 aspect='auto',
+                                 alpha=self.alpha)
+
+        self.currentPlot.canvas.draw()
+
+    def deleteFigure(self):
+        self.imgplot.remove()
+        self.onFigure = False
+        self.currentPlot.canvas.draw()
+
+    def transFigure(self):
+        self.extraPopup.imaging.alpha_label.setText("Transparency Level ({} %)".format(self.extraPopup.imaging.alpha_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass
+
+    def zoomFigureX(self):
+        self.extraPopup.imaging.zoomX_label.setText("Zoom X Level ({} %)".format(self.extraPopup.imaging.zoomX_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass
+
+    def zoomFigureY(self):
+        self.extraPopup.imaging.zoomY_label.setText("Zoom Y Level ({} %)".format(self.extraPopup.imaging.zoomY_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass
+
+    def addFigure(self):
+        try:
+            self.indexToStartPosition(self.currentPlot.selected_plot_index)
+            if self.onFigure == False:
+                self.drawFigure()
+                self.onFigure = True
+        except NameError:
+            raise
+            #QMessageBox.about(self, "Warning", "Please select one histogram...")
+        
+    ############################
+    # 16) Jupyter Notebook
+    ############################
+
+    def createDf(self):
+        try:
+            if (DEBUG):
+                print("Create dataframe for Jupyter and web")
+            data_to_list = []
+            for index, row in self.spectrum_list.iterrows():
+                tmp = row['data'].tolist()
+                data_to_list.append(tmp)
+                if (DEBUG):
+                    print("len(data_to_list) --> ", row['names'], " ", len(tmp))
+
+            if (DEBUG):
+                print([list((i, len(data_to_list[i]))) for i in range(len(data_to_list))])
+            self.spectrum_list = self.spectrum_list.drop('data', 1)
+            self.spectrum_list['data'] = np.array(data_to_list)
+
+            self.spectrum_list.to_csv(self.extraPopup.peak.jup_df_filename.text(), index=False, compression='gzip')
+        except:
+            pass
+            
+    def jupyterStop(self):
+        # stop the notebook process
+        log("Sending interrupt signal to jupyter-notebook")
+        self.extraPopup.peak.jup_start.setEnabled(True)
+        self.extraPopup.peak.jup_stop.setEnabled(False)
+        self.extraPopup.peak.jup_start.setStyleSheet("background-color:#3CB371;")
+        self.extraPopup.peak.jup_stop.setStyleSheet("")
+        stopnotebook()
+
+    def jupyterStart(self):
+        # dump df to gzip
+        self.createDf()
+        #starting jupyter server
+        s = QSettings()
+        execname = s.value(SETTING_EXECUTABLE, "jupyter-notebook")
+        if not testnotebook(execname):
+            while True:
+                QMessageBox.information(None, "Error", "It appears that Jupyter Notebook isn't where it usually is. " +
+                                        "Ensure you've installed Jupyter correctly and then press Ok to " +
+                                        "find the executable 'jupyter-notebook'", QMessageBox.Ok)
+                if testnotebook(execname):
+                    break
+                execname = QFileDialog.getOpenFileName(None, "Find jupyter-notebook executable", QDir.homePath())
+                if not execname:
+                    # user hit cancel
+                    sys.exit(0)
+                else:
+                    execname = execname[0]
+                    if testnotebook(execname):
+                        log("Jupyter found at %s" % execname)
+                        #save setting
+                        s.setValue(SETTING_EXECUTABLE, execname)
+                        break
+
+        # setup logging
+        # try to write to a log file, or redirect to stdout if debugging
+        logname = "JupyterQtPy-"+time.strftime("%Y%m%d-%H%M%S")+".log"
+        logfile = os.path.join(str(QDir.currentPath()), ".JupyterQtPy", logname)
+        if not os.path.isdir(os.path.dirname(logfile)):
+            os.mkdir(os.path.dirname(logfile))
+            try:
+                if DEBUG:
+                    raise IOError()  # force logging to console
+                setup_logging(logfile)
+            except IOError:
+                # no writable directory, log to console
+                setup_logging(None)
+
+        # workdir
+        directory = s.value(SETTING_BASEDIR, QDir.currentPath())
+
+        # setting window
+        view = WebWindow(None, None)
+        view.setWindowTitle("Jupyter CutiePie: %s" % directory)
+        # logging on docked console
+        qtlogger = QtLogger(view)
+        qtlogger.newlog.connect(view.loggerdock.log)
+        set_logger(lambda message: qtlogger.newlog.emit(message))
+
+        log("Setting home directory --> "+str(directory))
+
+        # start the notebook process
+        webaddr = startnotebook(execname, directory=directory)
+        view.loadmain(webaddr)
+
+        # resume regular logging
+        setup_logging(logfile)
+
+        self.extraPopup.peak.jup_start.setEnabled(False)
+        self.extraPopup.peak.jup_stop.setEnabled(True)
+        self.extraPopup.peak.jup_start.setStyleSheet("")
+        self.extraPopup.peak.jup_stop.setStyleSheet("background-color:#DC143C;")
         
     ##############################
     # 17) Misc tools
@@ -1850,3 +2330,10 @@ class MainWindow(QMainWindow):
         rec = plot.add_patch(rec)
         rec.set_clip_on(False)
         return rec
+
+# redirect logging
+class QtLogger(QObject):
+    newlog = pyqtSignal(str)
+
+    def __init__(self, parent):
+        super(QtLogger, self).__init__(parent)
