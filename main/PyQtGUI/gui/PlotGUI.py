@@ -87,7 +87,7 @@ class Plot(QWidget):
         self.h_dim = []
         self.h_lst = []
 
-        self.selected_plot_index = 0
+        self.selected_plot_index = None
         self.selected_plot_index_bak = 0        
         self.index = 0
         
@@ -99,6 +99,15 @@ class Plot(QWidget):
         self.isZoomed = False
         self.isSelected = False
         self.rec = None
+
+        # gates
+        self.gate_dict = {}
+        self.artist_dict = {}
+        self.artist_list = []
+        self.artist1D = {}
+        self.artist2D = {}
+        self.gateTypeDict = {}
+        self.counter = 0
         
         # default canvas
         self.InitializeCanvas(self.old_row,self.old_col)
