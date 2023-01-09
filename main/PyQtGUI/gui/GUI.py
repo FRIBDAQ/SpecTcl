@@ -245,7 +245,7 @@ class MainWindow(QMainWindow):
         # copy properties
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
         # summing region
-        #self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
+        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
         self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
         # autoscale
         self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxis)
@@ -315,7 +315,7 @@ class MainWindow(QMainWindow):
         self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))        
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
 
-        #self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)        
+        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)        
         self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
         
         self.resizeID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("resize_event", self.on_resize)
@@ -487,8 +487,7 @@ class MainWindow(QMainWindow):
                 if self.currentPlot.toCreateGate == True:
                     gate_name = self.wConf.listGate.currentText()
                 else:
-                    print("Stuff for Sregion")
-                    #gate_name = self.region_name
+                    gate_name = self.currentPlot.region_name
 
                 if self.wConf.button1D.isChecked():
                     if (DEBUG):
@@ -499,20 +498,40 @@ class MainWindow(QMainWindow):
                     artist1D[gate_name] = [deepcopy(self.currentPlot.xs[0]), deepcopy(self.currentPlot.xs[1])]
                     if (DEBUG):
                         print("artist1D for ", gate_name, "in", histo_name)
-                    if histo_name in self.currentPlot.artist_dict:
-                        if (DEBUG):
-                            print("Dictionary entry exists!")
-                        lst = self.currentPlot.artist_dict[histo_name]
-                        if (DEBUG):
-                            print("original list", lst)
-                        lst.append(artist1D)
-                        if (DEBUG):
-                            print("updated list", lst)
-                        self.currentPlot.artist_dict[histo_name] = lst
+                    if self.currentPlot.toCreateGate == True:
+                        if histo_name in self.currentPlot.artist_dict:
+                            if (DEBUG):
+                                print("Dictionary entry exists!")
+                            lst = self.currentPlot.artist_dict[histo_name]
+                            if (DEBUG):
+                                print("original list", lst)
+                            lst.append(artist1D)
+                            if (DEBUG):
+                                print("updated list", lst)
+                            self.currentPlot.artist_dict[histo_name] = lst
+                        else:
+                            self.currentPlot.artist_dict[histo_name] = [artist1D]
+                        # push gate to spectcl via PyREST
+                        self.formatLinetoREST(deepcopy(self.currentPlot.xs))
                     else:
-                        self.currentPlot.artist_dict[histo_name] = [artist1D]
-                    # push gate to spectcl via PyREST
-                    self.formatLinetoREST(deepcopy(self.currentPlot.xs))
+                        if (DEBUG):                        
+                            print("Time to save the 1D summing region into a dictionary...")
+                        if histo_name in self.currentPlot.region_dict:
+                            if (DEBUG):
+                                print("Dictionary entry exists!")
+                            lst = self.currentPlot.region_dict[histo_name]
+                            if (DEBUG):
+                                print("original list", lst)
+                            lst.append(artist1D)
+                            if (DEBUG):
+                                print("updated list", lst)
+                            self.currentPlot.region_dict[histo_name] = lst
+                        else:
+                            self.currentPlot.region_dict[histo_name] = [artist1D]
+                        self.formatLinetoREST(deepcopy(self.currentPlot.xs))                            
+                        results = self.rest.integrateGate(histo_name, gate_name)
+                        self.addRegion(histo_name, gate_name, results)
+                        self.resPopup.show()
                 else:
                     if (DEBUG):
                         print("Closing 2D gating")
@@ -532,35 +551,51 @@ class MainWindow(QMainWindow):
                     artist2D[gate_name] = [deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys)]
                     if (DEBUG):
                         print("artist2D for ", gate_name, "in", histo_name)
-                    if histo_name in self.currentPlot.artist_dict:
-                        if (DEBUG):
-                            print("Dictionary entry exists!")
-                        lst = self.currentPlot.artist_dict[histo_name]
-                        if (DEBUG):
-                            print("original list", lst)
-                        lst.append(artist2D)
-                        if (DEBUG):
-                            print("updated list", lst)
-                        self.currentPlot.artist_dict[histo_name] = lst
+                    if self.currentPlot.toCreateGate == True:
+                        if histo_name in self.currentPlot.artist_dict:
+                            if (DEBUG):
+                                print("Dictionary entry exists!")
+                            lst = self.currentPlot.artist_dict[histo_name]
+                            if (DEBUG):
+                                print("original list", lst)
+                            lst.append(artist2D)
+                            if (DEBUG):
+                                print("updated list", lst)
+                            self.currentPlot.artist_dict[histo_name] = lst
+                        else:
+                            self.currentPlot.artist_dict[histo_name] = [artist2D]
+                            if (DEBUG):
+                                print(self.currentPlot.artist_dict)
+                            # push gate to spectcl via PyREST
+                            self.formatLinetoREST(deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys))
                     else:
-                        self.currentPlot.artist_dict[histo_name] = [artist2D]
-                    if (DEBUG):
-                        print(self.currentPlot.artist_dict)
-                    # push gate to spectcl via PyREST
-                    self.formatLinetoREST(deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys))
-
+                        if (DEBUG):                                                
+                            print("Time to save the 2D summing region into a dictionary...")
+                        if histo_name in self.currentPlot.region_dict:
+                            if (DEBUG):
+                                print("Dictionary entry exists!")
+                            lst = self.currentPlot.region_dict[histo_name]
+                            if (DEBUG):
+                                print("original list", lst)
+                            lst.append(artist2D)
+                            if (DEBUG):
+                                print("updated list", lst)
+                            self.currentPlot.region_dict[histo_name] = lst
+                        else:
+                            self.currentPlot.region_dict[histo_name] = [artist2D]
+                        # push gate to spectcl via PyREST
+                        self.formatLinetoREST(deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys))                            
+                        results = self.rest.integrateGate(histo_name, gate_name)
+                        self.addRegion(histo_name, gate_name, results)
+                        self.resPopup.show()
+                        
                 if (DEBUG):
                     print("Exiting gating mode...")
                     print(self.currentPlot.artist_dict)
-                '''
-                if self.toCreateSRegion == True:
-                    results = self.rest.integrateGate(histo_name, gate_name)
-                    self.addRegion(histo_name, gate_name, results)
-                '''
+                    print(self.currentPlot.region_dict)                
                 # exiting gating mode
                 self.currentPlot.toCreateSRegion = False
                 self.currentPlot.toCreateGate = False
-                
             else:
                 if (DEBUG):
                     print("##### Exiting zooming mode...")
@@ -712,14 +747,16 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print("inside formatLinetoREST")
         name = ""
+        Type = ""
         if self.currentPlot.toCreateGate == True:
             name = self.wConf.listGate.currentText()
+            Type =  self.currentPlot.gateTypeDict[name]
         else:
-            name = self.region_name
+            name = self.currentPlot.region_name
+            Type =  self.currentPlot.regionTypeDict[name]
+        
         boundaries = []
         parameters = []
-        gateType =  self.currentPlot.gateTypeDict[name]
-        
         if self.wConf.button1D.isChecked():
             # gate 1Dgate_xamine s {aris.db1.ppac0.uc {1392.232056 1665.277466}}
             low = min(x)
@@ -730,7 +767,7 @@ class MainWindow(QMainWindow):
             # access list of parameters
             for index, value in self.currentPlot.h_dict.items():
                 if (value["name"] ==  self.wConf.histo_list.currentText()):
-                    if (gateType == "s"):
+                    if (Type == "s"):
                         parameters = value["parameters"][0]
                     else:
                         for i in value["parameters"]:
@@ -760,7 +797,7 @@ class MainWindow(QMainWindow):
             print(boundaries)
             print(parameters)
 
-        self.rest.createGate(name, gateType, parameters, boundaries)
+        self.rest.createGate(name, Type, parameters, boundaries)
 
     # this has to be modified to allow to load gate previously created and being able to apply them correctly
     def formatRESTToLine(self, name):
@@ -2095,6 +2132,35 @@ class MainWindow(QMainWindow):
             new_line.set_color('red')
         axis.add_artist(new_line)
         new_line.figure.canvas.draw()
+
+    def drawRegion(self, histo_name, region_name, region_line):
+        if (DEBUG):
+            print("Inside drawRegion")
+            print(histo_name, region_name, region_line)
+        ax = None
+        rtype = self.currentPlot.regionTypeDict[region_name]
+        if (DEBUG):
+            print(self.currentPlot.regionTypeDict)
+            print("region type to be drawn", rtype)
+        index = self.get_key(histo_name)
+
+        if self.currentPlot.isZoomed:
+            ax = plt.gca()
+            if (self.wConf.histo_list.currentText() == histo_name):
+                if (DEBUG):
+                    print("I need to draw ", region_name,"to", self.wConf.histo_list.currentText())
+                if (self.wConf.button1D.isChecked() and (rtype == "s" or rtype == "gs")):
+                    self.plot1DGate(ax, histo_name, region_name, region_line)
+                else:
+                    self.plot2DGate(ax, histo_name, region_name, region_line)
+        else:
+            ax = self.select_plot(index)
+            if (rtype == "s" or rtype == "gs"):
+                self.plot1DGate(ax, histo_name, region_name, region_line)
+            else:
+                self.plot2DGate(ax, histo_name, region_name, region_line)
+
+        self.currentPlot.canvas.draw()
         
     def drawGate(self, histo_name, gate_name, gate_line):
         if (DEBUG):
@@ -2116,7 +2182,7 @@ class MainWindow(QMainWindow):
                     self.plot2DGate(ax, histo_name, gate_name, gate_line)
         else:
             ax = self.select_plot(index)
-            if (self.wConf.button1D.isChecked() and (gtype == "s" or gtype == "gs")):
+            if (gtype == "s" or gtype == "gs"):
                 self.plot1DGate(ax, histo_name, gate_name, gate_line)
             else:
                 self.plot2DGate(ax, histo_name, gate_name, gate_line)
@@ -2127,6 +2193,7 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print("Inside drawAllGate")
             print(self.currentPlot.artist_dict)
+            print(self.currentPlot.region_dict)        
 
         for histo_name, gates in self.currentPlot.artist_dict.items():
             if (DEBUG):
@@ -2140,25 +2207,39 @@ class MainWindow(QMainWindow):
                             print(gate_name, gate_line)
                         self.drawGate(histo_name, gate_name, gate_line)
 
+        if len(self.currentPlot.region_dict):
+            if (DEBUG):            
+                print("time to draw summary regions")
+            for histo_name, regions in self.currentPlot.region_dict.items():
+                if (DEBUG):
+                    print(histo_name, regions)
+                if (histo_name):
+                    for region_list in regions:
+                        if (DEBUG):
+                            print(region_list)
+                        for region_name, region_line in region_list.items():
+                            if (DEBUG):
+                                print(region_name, region_line)
+                            self.drawRegion(histo_name, region_name, region_line)
+        
     def createSRegion(self):
-        print("Clicked createSRegion in tab", self.wTab.currentIndex())        
-        '''
-        region_name = "summing_region_"+str(self.currentPlot.counter_sr)
-        gateType = ""
         if (DEBUG):
-            print("creating", region_name,"in",self.wConf.histo_list.currentText())
+            print("Clicked createSRegion in tab", self.wTab.currentIndex())
+        self.currentPlot.region_name = "summing_region_tab_"+str(self.wTab.currentIndex())+"_"+str(self.currentPlot.counter_sr)
+        self.currentPlot.region_type = ""
+        if (DEBUG):
+            print("creating", self.currentPlot.region_name,"in",self.wConf.histo_list.currentText())
         self.currentPlot.counter_sr+=1
 
         if self.wConf.button1D.isChecked():
-            gateType = "s"
+            self.currentPlot.region_type = "s"
         else:
-            gateType = "c"
+            self.currentPlot.region_type = "c"
         # adding gate
-        self.currentPlot.gateTypeDict[region_name] = gateType
+        self.currentPlot.regionTypeDict[self.currentPlot.region_name] = self.currentPlot.region_type
 
         self.currentPlot.toCreateSRegion = True;
         self.createRegion()
-        '''
 
     def addGate(self):
         if (DEBUG):
@@ -2362,12 +2443,31 @@ class MainWindow(QMainWindow):
                                 results = self.rest.integrateGate(histo_name, gate_name)
                                 self.addRegion(histo_name, gate_name, results)
                 self.resultPopup()
+
+
+            if len(self.currentPlot.region_dict):
+                for histo_name, regions in self.currentPlot.region_dict.items():
+                    if (DEBUG):
+                        print(histo_name, regions)
+                    if (self.wConf.histo_list.currentText() == histo_name):
+                        if histo_name and "summing_region" not in histo_name:
+                            for region_list in regions:
+                                if (DEBUG):
+                                    print(region_list)
+                                for region_name, region_line in region_list.items():
+                                    results = self.rest.integrateGate(histo_name, region_name)
+                                    self.addRegion(histo_name, region_name, results)
+                self.resultPopup()
+
         except NameError:
             raise
 
 
     def resultPopup(self):
         self.resPopup.setGeometry(100,100,724,500)
+        if self.resPopup.isVisible():
+            self.resPopup.close()
+
         self.resPopup.show()
 
     def addRegion(self, histo, gate, results):
