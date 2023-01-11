@@ -213,7 +213,7 @@ class MainWindow(QMainWindow):
         # config menu signals
         self.wConf.histo_geo_add.clicked.connect(self.addPlot)
         self.wConf.histo_geo_update.clicked.connect(self.updatePlot)
-        #self.wConf.histo_geo_delete.clicked.connect(self.clear_plot)
+        self.wConf.histo_geo_delete.clicked.connect(self.clearPlot)
         
         self.wConf.histo_geo_row.activated.connect(lambda: self.wTab.wPlot[self.wTab.currentIndex()].InitializeCanvas(
             int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
@@ -237,6 +237,8 @@ class MainWindow(QMainWindow):
 
         self.wConf.integrateGate.clicked.connect(self.integrate)
         self.wConf.outputGate.clicked.connect(self.resultPopup)
+
+        self.wConf.button2D_option.activated.connect(self.changeBkg)
         
         # home callback
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)
@@ -444,6 +446,9 @@ class MainWindow(QMainWindow):
             if (DEBUG):
                 print("###### Entering zooming mode...")
             self.currentPlot.isZoomed = True
+            # make sure log is correct
+            if self.currentPlot.h_log[self.currentPlot.selected_plot_index] == False:
+                self.currentPlot.histo_log.setChecked(False)
             # disabling adding histograms
             self.wConf.histo_geo_add.setEnabled(False)
             # enabling gate creation
@@ -1778,11 +1783,12 @@ class MainWindow(QMainWindow):
 
                 # setup up palette
                 if (self.wConf.button2D_option.currentText() == 'Dark'):
-                        self.palette = 'plasma'
+                    #self.palette = 'plasma'
+                    self.palette = 'plasma_r'                    
                 else:
-                        self.palette = copy(plt.cm.plasma)
-                w = np.ma.masked_where(w < 0.1, w)
-                self.palette.set_bad(color='white')
+                    self.palette = copy(plt.cm.plasma)
+                    w = np.ma.masked_where(w < 0.1, w)
+                    self.palette.set_bad(color='white')
 
                 # create histogram
                 self.currentPlot.h_lst.insert(index, axis.imshow(w,
@@ -2033,6 +2039,15 @@ class MainWindow(QMainWindow):
             # add colorbar
             self.currentPlot.figure.colorbar(self.currentPlot.h_lst[index], cax=cax, orientation='vertical')
 
+    def clearPlot(self):
+        if (DEBUG):
+            print("Inside clearPlot")
+        a = self.select_plot(self.currentPlot.selected_plot_index)
+        a.clear()
+            
+        self.currentPlot.canvas.draw()
+
+            
     def updatePlot(self):
         if (DEBUG):
             print("Inside updatePlot")
@@ -3133,6 +3148,15 @@ class MainWindow(QMainWindow):
         rec.set_clip_on(False)
         return rec
 
+    def changeBkg(self):
+        if any(x == 2 for x in self.currentPlot.h_dim) == True:
+            indices = [i for i, x in enumerate(self.currentPlot.h_dim) if x == 2]
+            for index in indices:
+                self.currentPlot.isSelected = False # this line is important for automatic conversion from dark to light and viceversa
+        self.updatePlot()
+        self.drawAllGates()
+        self.currentPlot.canvas.draw()
+    
 # redirect logging
 class QtLogger(QObject):
     newlog = pyqtSignal(str)
