@@ -107,7 +107,18 @@ class Plot(QWidget):
         self.artist1D = {}
         self.artist2D = {}
         self.gateTypeDict = {}
+        self.region_dict = {}
+        self.regionTypeDict = {}
+        self.region_name = ""
+        self.region_type = ""
         self.counter = 0
+        self.counter_sr = 0
+        self.toCreateGate = False
+        self.toEditGate = False        
+        self.toCreateSRegion = False
+        self.xs = []
+        self.ys = []
+        self.listLine = []
         
         # default canvas
         self.InitializeCanvas(self.old_row,self.old_col)
