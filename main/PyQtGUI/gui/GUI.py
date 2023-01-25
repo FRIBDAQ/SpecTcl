@@ -36,6 +36,8 @@ import matplotlib.lines as mlines
 import matplotlib.mlab as mlab
 import matplotlib.image as mpimg
 import matplotlib.gridspec as gridspec
+from matplotlib.backend_bases import *
+from matplotlib.artist import Artist
 
 from matplotlib.patches import Polygon, Circle, Ellipse
 from matplotlib.path import Path
@@ -104,7 +106,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("CutiePie(QtPy) - It's not a bug, it's a feature (cit.)")
         self.setMouseTracking(True)
-        
+
         #check if there are arguments or not
         try:
             self.args = dict(args)
@@ -190,10 +192,10 @@ class MainWindow(QMainWindow):
 
         # editing gates
         self.showverts = True
-        self.isPressed = False
+        self.epsilon = 5  # max pixel distance to count as a vertex hit        
         self._ind = None # the active vert
-        self.last_vert_ind = None
-        self.max_ds = 10
+
+        self.bPressed = False
         
         #################
         # 2) Signals
@@ -223,14 +225,10 @@ class MainWindow(QMainWindow):
         self.wConf.createGate.clicked.connect(self.createGate)
         self.wConf.createGate.setEnabled(False)
         self.wConf.editGate.setEnabled(False)
-        '''
-        self.wConf.editGate.clicked.connect(self.editGate)
-        self.wConf.editGate.setToolTip("Key bindings for editing a gate:\n"
-                                      "'t' enable dragging mode\n"
+        self.wConf.menu.triggered.connect(self.editGate)        
+        self.wConf.editGate.setToolTip("Key bindings for Modify->Edit:\n"
                                       "'i' insert vertex\n"
-                                      "'d' delete vertex\n"
-                                      "'u' update gate\n")
-        '''
+                                      "'d' delete vertex\n")
         self.wConf.cleanGate.clicked.connect(self.clearGate)
         self.wConf.drawGate.clicked.connect(self.addGate)
         self.wConf.deleteGate.clicked.connect(self.deleteGate)
@@ -325,6 +323,12 @@ class MainWindow(QMainWindow):
 
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("motion_notify_event", self.histoHover)        
 
+    def connect(self):
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.on_press)
+
+    def disconnect(self):
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.pressID)
+        
     def eventFilter(self, obj, event):
         if (obj == self.wConf.histo_list or self.wConf.listParams[0] or self.wConf.listParams[1] or self.wConf.listGate) and event.type() == QtCore.QEvent.HoverEnter:
             self.onHovered(obj)
@@ -454,7 +458,7 @@ class MainWindow(QMainWindow):
             # enabling gate creation
             self.currentPlot.createSRegion.setEnabled(True)
             self.wConf.createGate.setEnabled(True)
-            #self.wConf.editGate.setEnabled(True)
+            self.wConf.editGate.setEnabled(True)
             if (DEBUG):
                 print("inside dblclick: self.selected_plot_index", self.currentPlot.selected_plot_index)
             # backing up list of histogram
@@ -608,7 +612,7 @@ class MainWindow(QMainWindow):
                 # disabling gate creation
                 self.currentPlot.createSRegion.setEnabled(False)
                 self.wConf.createGate.setEnabled(False)
-                #self.wConf.editGate.setEnabled(False)
+                self.wConf.editGate.setEnabled(False)
                 if (DEBUG):
                     print("Reinitialization self.h_setup", self.h_setup)
                     print("original geometry", self.currentPlot.old_row, self.currentPlot.old_col)
@@ -751,9 +755,10 @@ class MainWindow(QMainWindow):
     def formatLinetoREST(self, x = [], y = []):
         if (DEBUG):
             print("inside formatLinetoREST")
+            print("self.currentPlot.toEditGate", self.currentPlot.toEditGate)
         name = ""
         Type = ""
-        if self.currentPlot.toCreateGate == True:
+        if self.currentPlot.toCreateGate or self.currentPlot.toEditGate:
             name = self.wConf.listGate.currentText()
             Type =  self.currentPlot.gateTypeDict[name]
         else:
@@ -925,6 +930,16 @@ class MainWindow(QMainWindow):
             self.create_gate_list()
             self.updateGateType()
 
+            '''
+            # update Modify menu
+            gate_list = [self.wConf.listGate.itemText(i) for i in range(self.wConf.listGate.count())]
+            print("gate_list", gate_list)
+            for gate in gate_list:
+                self.wConf.submenuD.addAction(gate, lambda:self.wConf.drag(gate))
+                self.wConf.submenuE.addAction(gate, lambda:self.wConf.edit(gate))
+            '''
+            #except NameError:
+            #raise
         except:
             QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started or hostname/port/mirror are not configured!")
             
@@ -1856,11 +1871,6 @@ class MainWindow(QMainWindow):
             print("self.currentPlot.h_setup", self.currentPlot.h_setup)                
             print(self.currentPlot.selected_plot_index)
 
-        #self.currentPlot.figure.tight_layout()
-        #self.currentPlot.canvas.draw_idle()
-        #self.setAutoscaleAxis()
-        #self.setLogAxis()
-        
     # geometrically add plots to the right place
     def addPlot(self):
         if (DEBUG):
@@ -2119,7 +2129,7 @@ class MainWindow(QMainWindow):
     def plot1DGate(self, axis, histo_name, gate_name, gate_line):
         if (DEBUG):
             print("inside plot1dgate for", histo_name, "with gate", gate_name)
-        new_line = [mlines.Line2D([],[]), mlines.Line2D([],[])]
+        new_line = [mlines.Line2D([],[], picker=5), mlines.Line2D([],[], picker=5)]
         ymin, ymax = axis.get_ybound()
         new_line[0].set_data([gate_line[0],gate_line[0]], [ymin, ymax])
         if "summing_region" in gate_name:
@@ -2137,7 +2147,7 @@ class MainWindow(QMainWindow):
     def plot2DGate(self, axis, histo_name, gate_name, gate_line):
         if (DEBUG):
             print("inside plot2dgate for", histo_name, "with gate", gate_name)
-        new_line = mlines.Line2D([],[])
+        new_line = mlines.Line2D([],[], picker=5)
         if (DEBUG):
             print(gate_line)
         new_line.set_data(gate_line[0], gate_line[1])
@@ -2220,8 +2230,11 @@ class MainWindow(QMainWindow):
                     for gate_name, gate_line in gates_list.items():
                         if (DEBUG):
                             print(gate_name, gate_line)
-                        self.drawGate(histo_name, gate_name, gate_line)
-
+                        try:
+                            self.drawGate(histo_name, gate_name, gate_line)
+                        except:
+                            pass
+                            
         if len(self.currentPlot.region_dict):
             if (DEBUG):            
                 print("time to draw summary regions")
@@ -2236,7 +2249,7 @@ class MainWindow(QMainWindow):
                             if (DEBUG):
                                 print(region_name, region_line)
                             self.drawRegion(histo_name, region_name, region_line)
-        
+                                
     def createSRegion(self):
         if (DEBUG):
             print("Clicked createSRegion in tab", self.wTab.currentIndex())
@@ -2403,7 +2416,7 @@ class MainWindow(QMainWindow):
             print("Inside addLine", posx)
         ax = plt.gca()
         ymin, ymax = ax.get_ybound()
-        l = mlines.Line2D([posx,posx], [ymin,ymax])
+        l = mlines.Line2D([posx,posx], [ymin,ymax], picker=5)
         ax.add_line(l)
         if self.currentPlot.toCreateSRegion == True:
             l.set_color('b')
@@ -2418,7 +2431,7 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print("Inside addPolygon", posx, posy)
         ax = plt.gca()
-        self.currentPlot.polygon = mlines.Line2D([],[])
+        self.currentPlot.polygon = mlines.Line2D([],[], picker=5)
         self.currentPlot.xs.append(posx)
         self.currentPlot.ys.append(posy)
         self.currentPlot.polygon.set_data(self.currentPlot.xs, self.currentPlot.ys)
@@ -2436,6 +2449,357 @@ class MainWindow(QMainWindow):
             print("after removing lines...", self.currentPlot.xs)
         l.remove()
 
+    def releaseonclick(self, event):
+        self.currentPlot.canvas.mpl_disconnect(self.releaser)
+        self.currentPlot.canvas.mpl_disconnect(self.follower)
+        self.currentPlot.canvas.mpl_disconnect(self.sid)
+
+        xs = []
+        lst = list(self.edit_ax.get_children())
+        for obj in lst[1:]:
+            if isinstance(obj, matplotlib.lines.Line2D):
+                xs.append(obj.get_xdata()[0])
+                obj.set_color("red")
+                
+        xs.sort()
+        # update gate
+        gname = self.wConf.listGate.currentText()
+        hname = self.wConf.histo_list.currentText()
+        self.currentPlot.artist1D[gname] = []
+        self.currentPlot.artist1D[gname] = xs
+        self.currentPlot.artist_dict[hname] = [self.currentPlot.artist1D]
+        self.formatLinetoREST(deepcopy(xs))
+        
+        self.connect()
+        self.currentPlot.toEditGate = False
+        
+    def followmouse(self, event):
+        self.thisline.set_xdata([event.xdata, event.xdata])
+        self.currentPlot.canvas.draw_idle()
+
+    def clickonline(self, event):
+        self.currentPlot.toEditGate = True
+        if (DEBUG):
+            print("Inside clickonline, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
+        self.thisline = None
+        lst = list(self.edit_ax.get_children())
+        for obj in lst:
+            if isinstance(obj, matplotlib.lines.Line2D):
+                if obj == event.artist:
+                    if (DEBUG):
+                        print("id", id(obj))
+                        print("obj", obj)                    
+                        print("obj x data", obj.get_xdata())
+                        print("obj y data", obj.get_ydata())                    
+                    self.thisline = obj
+                    
+        if self.wConf.button1D.isChecked():
+            self.thisline.set_color("green")
+            self.follower = self.currentPlot.canvas.mpl_connect("motion_notify_event", self.followmouse)
+            self.releaser = self.currentPlot.canvas.mpl_connect("button_press_event", self.releaseonclick)        
+        else:
+            self.thisline.set_visible(False)
+            self.polyXY = self.convertToArray(self.thisline)
+            if self.wConf.isDrag:
+                self.polygon = Polygon(self.polyXY, facecolor = 'green', alpha=0.5)
+                self.edit_ax.add_patch(self.polygon)            
+
+                Artist.remove(self.thisline)
+
+                self.e_press = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('button_press_event', self.button_press_callback)
+                self.e_motion = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
+                self.e_release = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('button_release_event', self.button_release_callback)
+
+            elif self.wConf.isEdit:
+                
+                self.polygon = Polygon(self.polyXY, facecolor = 'green', alpha=0.5, animated=True)
+                self.edit_ax.add_patch(self.polygon)
+
+                Artist.remove(self.thisline)                
+
+                # new stuff
+                if self.polygon is None:
+                    raise RuntimeError("You must first add the polygon to a figure or canvas before defining the interactor")
+
+                canvas = self.polygon.figure.canvas
+                x, y = zip(*self.polygon.xy)
+                self.line = mlines.Line2D(x, y, marker='o', color="green", markerfacecolor="green", animated=True)
+                self.edit_ax.add_line(self.line)
+
+                self.cid = self.polygon.add_callback(self.poly_changed)
+
+                canvas.mpl_connect('draw_event', self.on_draw)
+                canvas.mpl_connect('button_press_event', self.on_button_press)
+                canvas.mpl_connect('key_press_event', self.on_key_press)
+                canvas.mpl_connect('button_release_event', self.on_button_release)
+                canvas.mpl_connect('motion_notify_event', self.on_mouse_move)
+                canvas.mpl_connect('button_press_event', self.gate_release)
+
+                self.canvas = canvas
+                
+            self.currentPlot.canvas.draw()
+
+    def gate_release(self, event):
+        if event.button == 3 and self.wConf.isEdit:
+            if (DEBUG):
+                print("Inside gate_release, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
+            self.canvas.mpl_disconnect(self.on_button_press)
+
+            self.showverts = not self.showverts
+            self.line.set_visible(self.showverts)
+            if not self.showverts:
+                self._ind = None         
+
+                        # update line position
+            pol2line = self.convertToList(self.polygon)
+            pol2line.append(pol2line[0])
+            x, y = map(list, zip(*pol2line))
+            # push gate to shared memory 2D
+            self.formatLinetoREST(x,y)
+            # update gate
+            gname = self.wConf.listGate.currentText()
+            hname = self.wConf.histo_list.currentText()
+            self.currentPlot.artist2D[gname] = []
+            self.currentPlot.artist2D[gname] = [deepcopy(x), deepcopy(y)]
+            self.currentPlot.artist_dict[hname] = [self.currentPlot.artist2D]
+
+            self.thisline = mlines.Line2D([],[], color= "red", picker=5)
+            self.thisline.set_data(x, y)
+            self.edit_ax.add_line(self.thisline)
+
+            self.polygon.set_visible(False)
+            self.line.set_visible(False)            
+            
+            self.canvas.mpl_disconnect(self.on_mouse_move)
+            self.canvas.mpl_disconnect(self.on_button_release)
+            self.canvas.mpl_disconnect(self.on_key_press)
+            self.canvas.mpl_disconnect(self.on_draw)
+            self.canvas.mpl_disconnect(self.gate_release)            
+            
+            self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.sid)
+            self.connect()
+
+            self.currentPlot.toEditGate = False
+            self.canvas.draw()
+            self.currentPlot.canvas.draw()
+            
+    def get_ind_under_point(self, event):
+        # Return the index of the point closest to the event position or *None*
+        # if no point is within ``self.epsilon`` to the event position.
+        # display coords
+        xy = np.asarray(self.polygon.xy)
+        xyt = self.polygon.get_transform().transform(xy)
+        xt, yt = xyt[:, 0], xyt[:, 1]
+        d = np.hypot(xt - event.x, yt - event.y)
+        indseq, = np.nonzero(d == d.min())
+        ind = indseq[0]
+
+        if d[ind] >= self.epsilon:
+            ind = None
+
+        return ind
+            
+    def on_button_press(self, event):
+        # Callback for mouse button presses
+        if not self.showverts:
+            return
+        if event.inaxes is None:
+            return
+        if event.button != 1:
+            return                    
+        self._ind = self.get_ind_under_point(event)
+
+    def on_button_release(self, event):
+        # Callback for mouse button releases
+        if not self.showverts:
+            return
+        if event.button != 1:
+            return
+        self._ind = None
+
+    def on_key_press(self, event):
+        # Callback for key presses
+        if not event.inaxes:
+            return
+        '''
+        if event.key == 't':
+            self.showverts = not self.showverts
+            self.line.set_visible(self.showverts)
+            if not self.showverts:
+                self._ind = None
+        '''
+        if event.key == 'd':
+            ind = self.get_ind_under_point(event)
+            if ind is not None:
+                self.polygon.xy = np.delete(self.polygon.xy,
+                                         ind, axis=0)
+                self.line.set_data(zip(*self.polygon.xy))
+        elif event.key == 'i':
+            xys = self.polygon.get_transform().transform(self.polygon.xy)
+            p = event.x, event.y  # display coords
+            for i in range(len(xys) - 1):
+                s0 = xys[i]
+                s1 = xys[i + 1]
+                d = self.dist_point_to_segment(p, s0, s1)
+                if d <= self.epsilon:
+                    self.polygon.xy = np.insert(
+                        self.polygon.xy, i+1,
+                        [event.xdata, event.ydata],
+                        axis=0)
+                    self.line.set_data(zip(*self.polygon.xy))
+                    break
+        if self.line.stale:
+            self.canvas.draw_idle()
+
+    def on_mouse_move(self, event):
+        # Callback for mouse movements
+        if not self.showverts:
+            return
+        if self._ind is None:
+            return
+        if event.inaxes is None:
+            return
+        if event.button != 1:
+            return
+        x, y = event.xdata, event.ydata
+
+        self.polygon.xy[self._ind] = x, y
+        if self._ind == 0:
+            self.polygon.xy[-1] = x, y
+        elif self._ind == len(self.polygon.xy) - 1:
+            self.polygon.xy[0] = x, y
+        self.line.set_data(zip(*self.polygon.xy))
+
+        self.canvas.restore_region(self.background)
+        self.edit_ax.draw_artist(self.polygon)
+        self.edit_ax.draw_artist(self.line)
+        self.canvas.blit(self.edit_ax.bbox)
+        self.canvas.draw_idle()
+            
+    def dist(self, x, y):
+        # Return the distance between two points.
+        d = x - y
+        return np.sqrt(np.dot(d, d))
+
+    def dist_point_to_segment(self, p, s0, s1):
+        #Get the distance of a point to a segment.
+        #  *p*, *s0*, *s1* are *xy* sequences
+        #This algorithm from
+        #http://www.geomalgorithms.com/algorithms.html
+        v = s1 - s0
+        w = p - s0
+        c1 = np.dot(w, v)
+        if c1 <= 0:
+            return self.dist(p, s0)
+        c2 = np.dot(v, v)
+        if c2 <= c1:
+            return self.dist(p, s1)
+        b = c1 / c2
+        pb = s0 + b * v
+        return self.dist(p, pb)
+            
+    def on_draw(self, event):
+        self.background = self.canvas.copy_from_bbox(self.edit_ax.bbox)
+        self.edit_ax.draw_artist(self.polygon)
+        self.edit_ax.draw_artist(self.line)
+        # do not need to blit here, this will fire before the screen is
+        # updated
+            
+    def poly_changed(self, poly):
+        # This method is called whenever the pathpatch object is called.
+        # only copy the artist props to the line (except visibility)
+        vis = self.line.get_visible()
+        Artist.update_from(self.line, poly)
+        self.line.set_visible(vis)  # don't use the poly visibility state            
+                
+    def button_press_callback(self, event):
+        if (DEBUG):
+            print("Inside button_press_callback, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
+        if (event.inaxes != self.polygon.axes):
+            return
+        contains, attrd = self.polygon.contains(event)
+        if not contains:
+            return
+        x0, y0 = self.polygon.xy[0]
+        if self.bPressed == False:
+            self.press = x0, y0, event.xdata, event.ydata
+            self.bPressed = True
+            
+    def button_release_callback(self, event):
+        # right click
+        if event.button == 3 and self.wConf.isDrag:
+            if (DEBUG):
+                print("Inside button_release_callback, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
+            self.currentPlot.canvas.mpl_disconnect(self.e_press)
+            self.currentPlot.canvas.mpl_disconnect(self.e_motion)
+            self.currentPlot.canvas.mpl_disconnect(self.e_release)
+            self.polygon.set_visible(False)
+            # update line position
+            pol2line = self.convertToList(self.polygon)
+            pol2line.append(pol2line[0])
+            x, y = map(list, zip(*pol2line))
+            # push gate to shared memory 2D
+            self.formatLinetoREST(x,y)
+            # update gate
+            gname = self.wConf.listGate.currentText()
+            hname = self.wConf.histo_list.currentText()
+            self.currentPlot.artist2D[gname] = []
+            self.currentPlot.artist2D[gname] = [deepcopy(x), deepcopy(y)]
+            self.currentPlot.artist_dict[hname] = [self.currentPlot.artist2D]
+            
+            self.thisline = mlines.Line2D([],[], color= "red", picker=5)
+            self.thisline.set_data(x, y)
+            self.edit_ax.add_line(self.thisline)
+
+            self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.sid)
+            self.connect()
+
+            self.bPressed = False           
+            self.currentPlot.toEditGate = False            
+            self.currentPlot.canvas.draw()
+            
+    def motion_notify_callback(self, event):
+        try:
+            if (DEBUG):
+                print("Inside motion_notify_callback, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
+            if (event.inaxes != self.polygon.axes):
+                return
+
+            if self.bPressed == True:
+                x0, y0, xpress, ypress = self.press
+            dx = event.xdata - xpress
+            dy = event.ydata - ypress
+            # this shift from the original position not from the modified one
+            xdx = [i+dx for i,_ in self.polyXY]
+            ydy = [i+dy for _,i in self.polyXY]
+            poly_xy = [[a, b] for a, b in zip(xdx, ydy)]
+            self.polygon.set_xy(poly_xy)
+            self.polygon.figure.canvas.draw_idle()
+
+        except:
+            pass
+            
+    def editGate(self):
+        try:
+            self.edit_ax = plt.gca()
+            self.disconnect()
+
+            '''
+            print("======= list of lines =======")
+            lst = list(self.edit_ax.get_children())
+            for obj in lst:
+                if isinstance(obj, matplotlib.lines.Line2D):
+                    print("id", id(obj), self.wConf.listGate.currentText())
+                    print("obj", obj)
+                    print("obj x data", obj.get_xdata())
+                    print("obj y data", obj.get_ydata())                    
+            '''
+            
+            self.sid = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('pick_event', self.clickonline)            
+
+        except NameError:
+            raise
+        
         
     ##############################
     # 11) 1D/2D region integration
@@ -3129,19 +3493,20 @@ class MainWindow(QMainWindow):
     # 17) Misc tools
     ##############################
 
-    def convertToList2D(self, line):
+    def convertToList(self, poly):
+        polyg = []
+        for i,tup in enumerate(poly.xy):
+            if i<len(poly.xy)-1:
+                polyg.append(list(itertools.chain(tup)))
+        return polyg
+    
+    def convertToArray(self, line):
         poly = []
         for x,y in line.get_xydata():
             poly.append([x,y])
         poly.pop()  # removing the last element because I need just a list of vertices
-        return poly
+        return np.array(poly)
 
-    def convertToList1D(self, line):
-        poly = []
-        for x,y in line.get_xydata():
-            poly.append([x,y])
-        return poly
-    
     def createRectangle(self, plot):
         rec = matplotlib.patches.Rectangle((0, 0), 1, 1, ls="-", lw="2", ec="red", fc="none", transform=plot.transAxes)
         rec = plot.add_patch(rec)

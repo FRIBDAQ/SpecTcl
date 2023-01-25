@@ -16,6 +16,9 @@ class Configuration(QWidget):
             self.oldrow = 0
             self.oldcol = 0
 
+            self.isDrag = False
+            self.isEdit = False            
+
             self.histo_list_label = QLabel("Spectrum")
             self.histo_list_label.setFixedWidth(60)
             self.histo_list = QComboBox()
@@ -29,8 +32,8 @@ class Configuration(QWidget):
             self.histo_geo_update.setStyleSheet("background-color:#bcee68;")
             self.histo_geo_delete = QPushButton("Clear", self)
             self.histo_geo_delete.setStyleSheet("background-color:#bcee68;")
-            self.histo_geo_all = QCheckBox("All",self)
-            self.histo_geo_all.setFixedWidth(35)
+            #self.histo_geo_all = QCheckBox("All",self)
+            #self.histo_geo_all.setFixedWidth(35)
             self.listParams_label = []
             self.listParams = []
             for i in range(2):
@@ -59,7 +62,12 @@ class Configuration(QWidget):
             self.listGate_type.setCurrentIndex(-1)
             self.createGate = QPushButton("Create", self)
             self.createGate.setStyleSheet("background-color:#ffc7fd;")        
-            self.editGate = QPushButton("Edit", self)
+            self.editGate = QPushButton("Modify", self)
+            self.menu = QMenu()
+            self.menu.addAction('Drag', self.drag)
+            self.menu.addAction('Edit', self.edit)
+            self.editGate.setMenu(self.menu)
+
             self.editGate.setStyleSheet("background-color:#ffc7fd;")                
             self.deleteGate = QPushButton("Delete", self)
             self.deleteGate.setStyleSheet("background-color:#cd96cd;")
@@ -87,7 +95,7 @@ class Configuration(QWidget):
             hlayout.addWidget(self.histo_geo_add)
             hlayout.addWidget(self.histo_geo_update)
             hlayout.addWidget(self.histo_geo_delete)
-            hlayout.addWidget(self.histo_geo_all)
+            #hlayout.addWidget(self.histo_geo_all)
             hlayout.addWidget(self.listParams_label[0])
             hlayout.addWidget(self.listParams[0])
             hlayout.addWidget(self.listParams_label[1])        
@@ -116,3 +124,11 @@ class Configuration(QWidget):
             layout.addLayout(hlayout2)
             self.setLayout(layout)
             
+    def drag(self):
+        self.isDrag = True
+        self.isEdit = False
+        
+    def edit(self):
+        self.isDrag = False        
+        self.isEdit = True        
+        
