@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
@@ -258,10 +259,10 @@
     <chapter>
       <title>Gating and summing regions</title>
       <para>
-	To enable to ability to create or edit (to be released soon) gates or summing region, the user needs to double click on the selected plot. Double clicking allows CutiePie to enter in
+	To enable to ability to create or edit gates or summing region, the user needs to double click on the selected plot. Double clicking allows CutiePie to enter in
 	interactive mode and new functionalities will be enabled.
 	<figure>
-          <title>Interactivity</title>
+          <title>Creating a gate</title>
           <mediaobject>
             <imageobject>
               <imagedata fileref="gate1.jpg" format="JPG"/>
@@ -272,9 +273,68 @@
 	create the lines or a polygon, depending on the histogram type. A double click command stops the creation of the gate, and pushes the shape to the TreeGui where it can be applied for further data
 	selection. To exit the interactive mode a double click command will return to the multi-panel view.
 	For "Summing region", there are a few differences: different line color, no input naming, and automatic integration with the Output popup window showing up.
+	<figure>
+          <title>Editing a gate</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="gate2.jpg" format="JPG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+	From the drop down menu to the left of the Create/Modify buttons, select the gate of interest. By clicking "Modify", a submenu with two options will appear: "drag" and "edit". 
+	Select on the plot the contour/lines of interest, they turn green. For "Drag":
+	<figure>
+          <title>A selected contour will turn into a filled polygon</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="drag1.jpg" format="JPG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+	<figure>
+          <title>By clicking once on the polygon, you can drag it anywhere you need. The polygon will follow your mouse movement without keeping the button clicked.</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="drag2.jpg" format="JPG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>	
+	<figure>
+          <title>By right-clicking the polygon will return to contour updating the gate definition with the new position.</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="drag3.jpg" format="JPG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+	For "Edit":
+	<figure>
+          <title>A selected contour will turn into a filled polygon with marked vertices.</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="edit1.jpg" format="JPG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+	<figure>
+          <title>By clicking on a vertex and dragging it, one can modify the shape of the gate. If needed, one can add a vertex by using the key-binding "i" (insert) or
+	  remove a vertex with "d" (delete)</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="edit2.jpg" format="JPG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>	
+	<figure>
+          <title>By right-clicking the polygon will return to contour updating the gate definition with the new position.</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="edit3.jpg" format="JPG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>	
       </para>
     </chapter>    
-
     <chapter>    
       <title>How to start CutiePie</title>
       <para>
@@ -368,6 +428,13 @@
 	      -	2D (contour): click "Create", choose a name, and choose the type. Single click to create the contour, double click to finalize the contour. To leave gating mode, double click.
 	      You will go back to the full geometry panel. 
             </para>
+	    <para>
+	      To modify a gate, click "Modify" and "Drag" or "Edit".
+	      To drag: select the countour/line for the gate, it will turn green. Click again to take control of the gate and move the mouse to the desired location. Remember, that the gate will follow
+	      the mouse cursor so no need to keep the button clicked. To release the gate, right click.
+	      To edit: select the countour/line for the gate, it will turn green. Select the vertex to modify and drag it to the desired location. With the key-bindings "i" and "d", one can insert or
+	      remove vertices. To release the gate, right click.
+	    </para>	    	      
           </listitem>	  	  
 	  <listitem>      
 	    <para>
