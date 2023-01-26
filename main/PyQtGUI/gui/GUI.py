@@ -133,6 +133,7 @@ class MainWindow(QMainWindow):
         
         # plot widget
         self.wTab = Tabs()
+        self.wTab.setMovable(True)
         self.currentPlot = None
         
         # gui composition
@@ -152,6 +153,9 @@ class MainWindow(QMainWindow):
         # extra popup window
         self.extraPopup = SpecialFunctions()
 
+        # Tab editing popup
+        self.tabp = TabPopup()
+        
         # copy attributes windows
         self.copyAttr = CopyProperties()
 
@@ -211,6 +215,7 @@ class MainWindow(QMainWindow):
 
         # new tab creation
         self.wTab.tabBarClicked.connect(self.clickedTab)
+        self.wTab.tabBarDoubleClicked.connect(self.doubleclickedTab)
         
         # config menu signals
         self.wConf.histo_geo_add.clicked.connect(self.addPlot)
@@ -237,6 +242,9 @@ class MainWindow(QMainWindow):
         self.wConf.outputGate.clicked.connect(self.resultPopup)
 
         self.wConf.button2D_option.activated.connect(self.changeBkg)
+
+        self.tabp.okButton.clicked.connect(self.okTab)
+        self.tabp.cancelButton.clicked.connect(self.cancelTab)        
         
         # home callback
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)
@@ -666,6 +674,26 @@ class MainWindow(QMainWindow):
     def closeAll(self):
         self.close()
 
+    def doubleclickedTab(self, index):
+        self.tabp.setWindowTitle("Rename tab...")
+        self.tabp.setGeometry(200,350,100,50)
+        if self.tabp.isVisible():
+            self.tabp.close()
+
+        self.tabp.show()
+
+    def okTab(self):
+        txt = self.wTab.tabText(self.wTab.currentIndex())
+        if self.tabp.lineedit.text() != "":
+            txt = self.tabp.lineedit.text()
+            
+        self.wTab.setTabText(self.wTab.currentIndex(), txt)
+        self.tabp.lineedit.setText("")
+        self.tabp.close()
+
+    def cancelTab(self):
+        self.tabp.close()        
+        
     def clickedTab(self, index):
         if (DEBUG):
             print("Clicked tab", index, "with name", self.wTab.tabText(index))
@@ -3528,3 +3556,24 @@ class QtLogger(QObject):
 
     def __init__(self, parent):
         super(QtLogger, self).__init__(parent)
+
+
+class TabPopup(QDialog):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.lineedit = QLineEdit(self)
+        self.okButton = QPushButton("Ok", self)
+        self.cancelButton = QPushButton("Cancel", self)
+
+        layButt = QHBoxLayout()
+        layButt.addWidget(self.okButton)
+        layButt.addWidget(self.cancelButton)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.lineedit)
+        layout.addLayout(layButt)
+        self.setLayout(layout)
+
+

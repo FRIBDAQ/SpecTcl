@@ -368,6 +368,14 @@
     </chapter>    
 
     <chapter>    
+      <title>Standalone CutiePie</title>
+      <para>
+	If a user wants to attach to an existing SpecTcl, can just launch CutiePie from /usr/opt/spectcl/5.13-000/bin/CutiePie. To be able to attach correctly to SpecTcl one has to know
+	the server hostname, the REST and the Mirror ports. 
+      </para>	
+    </chapter>        
+
+    <chapter>    
       <title>Step by step tutorial</title>    
       <para>
 	VISUALIZATION
