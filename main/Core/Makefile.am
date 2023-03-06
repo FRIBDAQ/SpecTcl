@@ -48,8 +48,8 @@ DecoderRing_SRC = CRingBufferDecoder.cpp \
 		RingFormatHelperCreator.cpp \
 		RingFormatHelper10Creator.cpp \
 		RingFormatHelper11Creator.cpp  \
-		RingFormatHelper12Creator.cpp 
-
+		RingFormatHelper12Creator.cpp  \
+		ParameterDecoding.cpp
 
 
 DecoderRing_INCLUDES = CRingBufferDecoder.h \
