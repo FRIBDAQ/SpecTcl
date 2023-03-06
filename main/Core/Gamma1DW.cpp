@@ -207,7 +207,7 @@ ULong_t
 CGamma1DW::operator[] (const UInt_t* pIndices) const
 {
   
-  Double_t n = pIndices[0];
+  Int_t n = pIndices[0];
   if (n >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, n, 
 		      std::string("Indexing 1DL gamma spectrum"));

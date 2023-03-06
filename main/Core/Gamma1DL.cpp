@@ -219,7 +219,7 @@ ULong_t
 CGamma1DL::operator[] (const UInt_t* pIndices) const
 {
   UInt_t* pStorage = (UInt_t*)getStorage();
-  Double_t n = pIndices[0];
+  Int_t n = pIndices[0];
   
   Int_t bin = m_pRootSpectrum->GetBin(n + 1);
   return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
