@@ -46,18 +46,23 @@ namespace SpecTcl {                 // Long overdue to put SpecTcl classes in a 
      *   -    Mappings between parameter numbers and SpecTcl parameters.
      *   -    Information about the variables definitions/values as well as
      *        methods to allow access to them.
-     *   -    An observer that is called after items are processed.
+     *   -    An observer that is called for unrecognized item types.
+     *        This is a hook that, in the future, can be used to support processing
+     *        of user data types.
+     *        
      * 
      */
     class ParameterDecoder {
     public:
+        
+        // Public type definitions:
+        
         // Observer interface definition
         
         class Observer {
         public:
-            bool operator()(ParameterDecoder& decoder, std::uint32_t itemType)  = 0;
-        }
-    private:
+            virtual bool operator()(ParameterDecoder& decoder, const void* pItem)  = 0;
+        };
         // Private data types:
         // Variables in VariableItem have this information.
         
@@ -67,7 +72,7 @@ namespace SpecTcl {                 // Long overdue to put SpecTcl classes in a 
         } VariableDefinition, *pVariableDefinition;
         
         // Correspondence between variable names and definitions:
-        
+    private:
         typedef std::map<std::string, VariableDefinition> VariableDictionary;
         
         //  Mapping between parameter numbers and internal Parameters
@@ -92,7 +97,7 @@ namespace SpecTcl {                 // Long overdue to put SpecTcl classes in a 
     public:
         Observer* setObserver(Observer* newObs);
         const VariableDefinition* getVariableDefinition(const char* pName);
-        operator()(const void* pItem);
+        bool operator()(const void* pItem);
         
     protected:
         void processParameterDefs(const frib::analysis::ParameterDefinitions* defs);
@@ -100,5 +105,5 @@ namespace SpecTcl {                 // Long overdue to put SpecTcl classes in a 
         void processVariableDefs(const frib::analysis::VariableItem*   pvars);
     
     };
-}
+};
 #endif
