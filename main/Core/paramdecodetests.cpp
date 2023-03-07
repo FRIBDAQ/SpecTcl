@@ -63,8 +63,12 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(PDecodeTest);
     CPPUNIT_TEST(construct_1);
     CPPUNIT_TEST(var_1);
+    CPPUNIT_TEST(var_2);
     CPPUNIT_TEST_SUITE_END();
-    
+protected:
+    void construct_1();
+    void var_1();
+    void var_2();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -80,9 +84,7 @@ public:
         delete m_pSink;
         delete m_pDecoder;
     }
-protected:
-    void construct_1();
-    void var_1();
+
 private:
     void initVar(pVariableItem pItem);
     pVariable addVarDef(
@@ -164,3 +166,27 @@ void PDecodeTest::var_1() {
     EQ(std::string("mm"), stored.s_units);
     EQ(1.234, stored.s_value);
 }
+
+// Send a few variables to the decoder:
+void PDecodeTest::var_2() {
+    union {
+        std::uint8_t raw[1000];
+        VariableItem item;
+    } data;
+    initVar(&data.item);
+    auto p = data.item.s_variables;
+    p = addVarDef(&data.item, p, "var.1", "mm", 1.234);
+    p = addVarDef(&data.item, p, "var.2", "degrees", 45.0);
+    p = addVarDef(&data.item, p, "var.3", "", 1.414);
+    
+    (*m_pDecoder)(&data);
+    
+    // We'll believe that if it's in the dictionary it's probably correct
+    // given var_1:
+    
+    auto& d = m_pDecoder->m_variableDict;
+    ASSERT(d.find("var.1") != d.end());
+    ASSERT(d.find("var.2") != d.end());
+    ASSERT(d.find("var.3") != d.end());
+}
+
