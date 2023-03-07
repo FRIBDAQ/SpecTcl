@@ -19,6 +19,7 @@
 #define CRINGBUFFERDECODER_H
 
 #include <BufferDecoder.h>
+#include <ParameterDecoding.h>
 #include <stdint.h>
 #include <string>
 
@@ -70,6 +71,7 @@ private:
   void*              m_pCurrentRingItem; // Item the access methods work on.
 
   CRingFormatHelperFactory* m_pFactory;
+  spectcl::ParameterDecoder m_UnrecognizedTypeHandler;
 
   // Canonical operations:
 
@@ -115,6 +117,10 @@ public:
   CRingFormatHelper* getDefaultFormatHelper();
   
   CRingFormatHelperFactory* getFormatFactory();
+  
+  // Get access to the unrecognized handler
+  
+  spectcl::ParameterDecoder& getUnrecognizedRingItemHandler();
   
   // Members called that can invalidate the format helper:
   

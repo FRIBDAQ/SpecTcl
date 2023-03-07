@@ -31,7 +31,7 @@
 class CTreeParameter;
 
 
-namespace SpecTcl {                 // Long overdue to put SpecTcl classes in a namespace.
+namespace spectcl {                 // Long overdue to put SpecTcl classes in a namespace.
     
 
     /**
