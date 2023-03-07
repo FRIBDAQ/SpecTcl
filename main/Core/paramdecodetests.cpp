@@ -64,11 +64,13 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(construct_1);
     CPPUNIT_TEST(var_1);
     CPPUNIT_TEST(var_2);
+    CPPUNIT_TEST(vlookup_1);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
     void var_1();
     void var_2();
+    void vlookup_1();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -189,4 +191,38 @@ void PDecodeTest::var_2() {
     ASSERT(d.find("var.2") != d.end());
     ASSERT(d.find("var.3") != d.end());
 }
+// can lookup a variable definitions/value:
 
+void PDecodeTest::vlookup_1() {
+    union {
+        std::uint8_t raw[1000];
+        VariableItem item;
+    } data;
+    initVar(&data.item);
+    auto p = data.item.s_variables;
+    p = addVarDef(&data.item, p, "var.1", "mm", 1.234);
+    p = addVarDef(&data.item, p, "var.2", "degrees", 45.0);
+    p = addVarDef(&data.item, p, "var.3", "", 1.414);
+    
+    (*m_pDecoder)(&data);
+    
+    auto v1 = m_pDecoder->getVariableDefinition("var.1");
+    ASSERT(v1 != nullptr);
+    EQ(std::string("mm"), v1->s_units);
+    EQ(1.234, v1->s_value);
+    
+    auto v2 = m_pDecoder->getVariableDefinition("var.2");
+    ASSERT(v2 != nullptr);
+    EQ(std::string("degrees"), v2->s_units);
+    EQ(45.0, v2->s_value);
+    
+    auto v3 = m_pDecoder->getVariableDefinition("var.3");
+    ASSERT(v3 != nullptr);
+    EQ(std::string(""), v3->s_units);
+    EQ(1.414, v3->s_value);
+    
+    // One that does not exist:
+    
+    auto v4 = m_pDecoder->getVariableDefinition("var.4");
+    ASSERT(v4 == nullptr);
+}
