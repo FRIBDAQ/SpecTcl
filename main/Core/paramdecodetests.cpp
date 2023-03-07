@@ -27,7 +27,14 @@
 #include <EventList.h>
 #include <Event.h>
 #include <AnalysisRingItems.h>
+
+// Want to examine the internal of ParameterDecoding so this trick rather than
+// friendness:
+
+#define private public
 #include <ParameterDecoding.h>
+#undef private
+
 #include <vector>
 // Special event sink which just records the parmaeters of the first
 // event:
