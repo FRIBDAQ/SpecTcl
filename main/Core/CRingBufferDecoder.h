@@ -19,9 +19,10 @@
 #define CRINGBUFFERDECODER_H
 
 #include <BufferDecoder.h>
-#include <ParameterDecoding.h>
 #include <stdint.h>
 #include <string>
+
+#include <ParameterDecoding.h>
 
 class BufferTranslator;
 class CRingFormatHelper;
