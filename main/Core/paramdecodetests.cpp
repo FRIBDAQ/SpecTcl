@@ -43,41 +43,51 @@ class RecordingSink : public CEventSink {
 public:
     std::vector<std::pair<uint32_t, double>> m_event;
 
-        virtual void operator()(CEventList& rEvents) {
-            CEvent& event = *(rEvents[0]);
-            auto dv = event.getDopeVector();
-            for (int i =0; i < dv.size(); i++) {
-                auto index = dv[i];
-                auto value = event[index];
-                
-                m_event.push_back({index, value});
-            }
+    virtual void operator()(CEventList& rEvents) {
+        CEvent& event = *(rEvents[0]);
+        auto dv = event.getDopeVector();
+        for (int i =0; i < dv.size(); i++) {
+            auto index = dv[i];
+            auto value = event[index];
+            
+            m_event.push_back({index, value});
         }
+    }
 };
 
-class aTestSuite : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE(aTestSuite);
-    CPPUNIT_TEST(test_1);
+using namespace frib::analysis;
+
+class PDecodeTest : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE(PDecodeTest);
+    CPPUNIT_TEST(construct_1);
     CPPUNIT_TEST_SUITE_END();
     
 private:
     RecordingSink* m_pSink;
+    spectcl::ParameterDecoder* m_pDecoder;
 public:
     void setUp() {
         gpEventSinkPipeline = new CEventSinkPipeline;
         m_pSink = new RecordingSink;
         gpEventSinkPipeline->AddEventSink(*m_pSink, "Recording");
+        m_pDecoder = new spectcl::ParameterDecoder;
     }
     void tearDown() {
         delete gpEventSinkPipeline;
         delete m_pSink;
+        delete m_pDecoder;
     }
 protected:
-    void test_1();
+    void construct_1();
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(aTestSuite);
+CPPUNIT_TEST_SUITE_REGISTRATION(PDecodeTest);
 
-void aTestSuite::test_1()
+// Maps and vars are empty:
+void PDecodeTest::construct_1()
 {
+    EQ(size_t(0), m_pDecoder->m_parameterMap.size());
+    EQ(size_t(0), m_pDecoder->m_variableDict.size());
+    ASSERT(m_pDecoder->m_pObserver == nullptr);
+    EQ(UInt_t(1), m_pDecoder->m_el.size());
 }
