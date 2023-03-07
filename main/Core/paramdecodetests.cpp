@@ -27,6 +27,8 @@
 #include <EventList.h>
 #include <Event.h>
 #include <AnalysisRingItems.h>
+#include <string.h>
+#include <string>
 
 // Want to examine the internal of ParameterDecoding so this trick rather than
 // friendness:
@@ -60,6 +62,7 @@ using namespace frib::analysis;
 class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(PDecodeTest);
     CPPUNIT_TEST(construct_1);
+    CPPUNIT_TEST(var_1);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -79,7 +82,50 @@ public:
     }
 protected:
     void construct_1();
+    void var_1();
+private:
+    void initVar(pVariableItem pItem);
+    pVariable addVarDef(
+        pVariableItem pItem, pVariable pVar,
+        const char* name, const char* units, double value
+    );
 };
+
+// Initialize a variable item:
+
+void
+PDecodeTest::initVar(pVariableItem pItem) {
+    pItem->s_header.s_type = VARIABLE_VALUES;
+    pItem->s_header.s_size = sizeof(RingItemHeader) + sizeof(std::uint32_t);
+    pItem->s_numVars = 0;
+}
+
+// Add a variable to a variable item.
+//   pItem - points to the item so sizes can be adjusted.
+//   pVar  - Is the next free storage
+//   name, units, value define the variable.
+// returns the next free storage:
+
+pVariable
+PDecodeTest::addVarDef(
+        pVariableItem pItem, pVariable pVar,
+        const char* name, const char* units, double value
+    ) {
+    
+    pVar->s_value = value;
+    strncpy(pVar->s_variableUnits, units, MAX_UNITS_LENGTH);
+    pVariable result = reinterpret_cast<pVariable>(
+        strcpy(pVar->s_variableName, name) + strlen(name) + 1
+    );
+    
+    // Adjust sizes:
+    
+    pItem->s_numVars++;
+    pItem->s_header.s_size += sizeof(Variable) + strlen(name);
+    
+    return result;
+    
+}
 
 CPPUNIT_TEST_SUITE_REGISTRATION(PDecodeTest);
 
@@ -90,4 +136,31 @@ void PDecodeTest::construct_1()
     EQ(size_t(0), m_pDecoder->m_variableDict.size());
     ASSERT(m_pDecoder->m_pObserver == nullptr);
     EQ(UInt_t(1), m_pDecoder->m_el.size());
+}
+// Can add a variable definition to the parameter decoder.
+void PDecodeTest::var_1() {
+    // Make a variable item:
+    
+    union {
+        std::uint8_t raw[1000];
+        VariableItem item;
+    } data;
+    initVar(&data.item);
+    auto p = data.item.s_variables;
+    p = addVarDef(&data.item, p, "var.1", "mm", 1.234);
+    
+    bool result = (*m_pDecoder)(&data);
+    ASSERT(result);
+    
+    // Should be in the variable dictioanry:
+    
+    EQ(size_t(1), m_pDecoder->m_variableDict.size());
+    ASSERT(
+        m_pDecoder->m_variableDict.find(std::string("var.1")) !=
+        m_pDecoder->m_variableDict.end()
+    );
+    
+    auto stored = m_pDecoder->m_variableDict[std::string("var.1")];
+    EQ(std::string("mm"), stored.s_units);
+    EQ(1.234, stored.s_value);
 }
