@@ -27,6 +27,8 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <Event.h>
+#include <EventList.h>
 
 class CTreeParameter;
 
@@ -83,6 +85,7 @@ namespace spectcl {                 // Long overdue to put SpecTcl classes in a 
         Observer*    m_pObserver;
         ParameterMap m_parameterMap;
         VariableDictionary m_variableDict;
+        CEventList m_el;
         
     public:
         ParameterDecoder();

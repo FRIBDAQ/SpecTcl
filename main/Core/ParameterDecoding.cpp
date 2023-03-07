@@ -22,8 +22,7 @@
 #include "ParameterDecoding.h"
 #include <CTreeParameter.h>
 #include <SpecTcl.h>
-#include <Event.h>
-#include <EventList.h>
+
 
 
 namespace spectcl {
@@ -31,7 +30,8 @@ namespace spectcl {
  * Construction
  */
 ParameterDecoder::ParameterDecoder() :
-    m_pObserver(nullptr)
+    m_pObserver(nullptr),
+    m_el(1)
 {}
  /**
   * destructor
@@ -179,8 +179,8 @@ void
 ParameterDecoder::processParameterItem(const frib::analysis::ParameterItem* params) {
     // These two lines make the tree parameters mean something.
     
-    CEventList el(1);
-    CTreeParameter::setEvent(*el[0]);
+    
+    CTreeParameter::setEvent(*m_el[0]);
     
     for (int i  = 0; i < params->s_parameterCount; i++) {
         auto id = params->s_parameters[i].s_number;
@@ -191,12 +191,14 @@ ParameterDecoder::processParameterItem(const frib::analysis::ParameterItem* para
     // Now that the parameters were loaded from the event, bypass the
     // analysis pipeline and invoke the data sink pipeline so that
     // the event can be histogrammed.
-    // The invalidate the event so the next event won't accumulate parameters.,
+    
     auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
+    (*pipeline)(m_el);
     
-    (*pipeline)(el);
+    // Invalidate all the parameters:
     
-    CTreeParameter::ResetAll();
+    m_el[0]->clear();
+   
 }
 /**
  *  processVariableDefs
