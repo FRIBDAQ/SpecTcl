@@ -23,7 +23,7 @@
 #include <CTreeParameter.h>
 
 
-namespace SpecTcl {
+namespace spectcl {
 /**
  * Construction
  */

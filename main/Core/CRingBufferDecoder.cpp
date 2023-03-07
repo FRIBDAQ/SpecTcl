@@ -513,7 +513,20 @@ CRingBufferDecoder::getFormatFactory()
 {
     return m_pFactory;
 }
-
+/**
+ * getUnrecognizedRingItemHandler
+ *   Provide access to the unrecognize type handler.  There are two immediate
+ *   use cases that come to mind:
+ *
+ *   #    Obtain values of user variables from an FRIB analysis pipeline data source.
+ *   #    Provide an observer to extend handling of unrecognized ring item types.
+ *
+ *  @return SpecTcl::ParameterDecoder&
+ */
+spectcl::ParameterDecoder&
+CRingBufferDecoder::getUnrecognizedRingItemHandler() {
+    return m_UnrecognizedTypeHandler;               // Trivial getter.
+}
 /*----------------------------------------------------------------------------
  * Callbacks during data analysis:
  */
@@ -655,18 +668,18 @@ CRingBufferDecoder::processBuffer()
           dump(debug, m_pPartialEvent, m_nPartialEventSize);
 	  
         }
-	debug << "--- Most recent event body delivered was:\n";
-	dump(debug, m_pBody, m_nBodySize);
-	debug << " Last good item type: " << m_nCurrentItemType << endl;
-	debug << " entity count " << m_nEntityCount << endl;
-	
-	if (m_pGluedBuffer) {
-	  debug << "---n Glued buffer exists size " << m_nGlueSize << "\n";
-	  dump(debug, m_pGluedBuffer, m_nGlueSize);
-	}
-	
-	
-	throw "Failed - due to zero length ring item.";
+        debug << "--- Most recent event body delivered was:\n";
+        dump(debug, m_pBody, m_nBodySize);
+        debug << " Last good item type: " << m_nCurrentItemType << endl;
+        debug << " entity count " << m_nEntityCount << endl;
+        
+        if (m_pGluedBuffer) {
+          debug << "---n Glued buffer exists size " << m_nGlueSize << "\n";
+          dump(debug, m_pGluedBuffer, m_nGlueSize);
+        }
+        
+        
+        throw "Failed - due to zero length ring item.";
 	
       }
       
@@ -813,9 +826,12 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
     }
     break;
 
-    // The default is just a call to onOther:
+    // The default is just a call to onOther - if the unrecognized type handler
+    // can't deal with it:
   default:
-    m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
+    if (!m_UnrecognizedTypeHandler(pEvent)) {
+        m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
+    }
     break;
   }
   m_pCurrentRingItem = 0;                    // NO longer have a current item.
