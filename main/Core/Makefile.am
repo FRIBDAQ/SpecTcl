@@ -416,7 +416,8 @@ noinst_PROGRAMS =    spectrumPkgTests \
 			spectclCmdTests evbProcessorTests \
 			gateTests fragIndexTests caendpptests \
 			mirrortests \
-			helpertests newanalysistests 
+			helpertests newanalysistests  \
+			paramdecodetests
 
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
@@ -529,10 +530,14 @@ helpertests_LDADD=$(commonTestLdFlags)
 helpertests_SOURCES=TestRunner.cpp helper10tests.cpp helper11tests.cpp \
 	helper12tests.cpp
 
+paramdecodetests_CXXFLAGS=$(commonTestCXXFLAGS)
+paramdecodetests_LDADD=$(commonTestLdFlags)
+paramdecodetests_SOURCES=TestRunner.cpp
+
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests fragIndexTests caendpptests \
-	mirrortests newanalysistests
+	mirrortests newanalysistests paramdecodetests
 
 
