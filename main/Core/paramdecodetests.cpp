@@ -65,12 +65,15 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(var_1);
     CPPUNIT_TEST(var_2);
     CPPUNIT_TEST(vlookup_1);
+    CPPUNIT_TEST(obs_1);
+    
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
     void var_1();
     void var_2();
     void vlookup_1();
+    void obs_1();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -225,4 +228,20 @@ void PDecodeTest::vlookup_1() {
     
     auto v4 = m_pDecoder->getVariableDefinition("var.4");
     ASSERT(v4 == nullptr);
+}
+// Test that we can add an observer and get the initial nullptr back:
+
+void PDecodeTest::obs_1() {
+    class Obs  : public spectcl::ParameterDecoder::Observer {
+        virtual bool operator()(spectcl::ParameterDecoder& d, const void* p) {
+            return true;
+        }
+    };
+    Obs o;
+    auto old = m_pDecoder->setObserver(&o);
+    ASSERT(old == nullptr);
+    EQ((spectcl::ParameterDecoder::Observer*)&o, m_pDecoder->m_pObserver);
+    Obs o2;
+    old = m_pDecoder->setObserver(&o2);
+    EQ((spectcl::ParameterDecoder::Observer*)&o, old);
 }
