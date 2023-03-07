@@ -21,6 +21,9 @@
 
 #include "ParameterDecoding.h"
 #include <CTreeParameter.h>
+#include <SpecTcl.h>
+#include <Event.h>
+#include <EventList.h>
 
 
 namespace spectcl {
@@ -161,7 +164,7 @@ ParameterDecoder::processParameterDefs(
                 &(p->s_parameterName[name.size()+1])   // past the null terminator.
             );
         }
- 
+        CTreeParameter::BindParameters();              // Bind all parameters to event indices.
 }
 /**
  * processParameterItem
@@ -174,12 +177,26 @@ ParameterDecoder::processParameterDefs(
  */
 void
 ParameterDecoder::processParameterItem(const frib::analysis::ParameterItem* params) {
+    // These two lines make the tree parameters mean something.
+    
+    CEventList el(1);
+    CTreeParameter::setEvent(*el[0]);
+    
     for (int i  = 0; i < params->s_parameterCount; i++) {
         auto id = params->s_parameters[i].s_number;
         if (id < m_parameterMap.size() && (m_parameterMap[i] != nullptr)) {
             *m_parameterMap[i] = params->s_parameters[i].s_value;
         }
     }
+    // Now that the parameters were loaded from the event, bypass the
+    // analysis pipeline and invoke the data sink pipeline so that
+    // the event can be histogrammed.
+    // The invalidate the event so the next event won't accumulate parameters.,
+    auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
+    
+    (*pipeline)(el);
+    
+    CTreeParameter::ResetAll();
 }
 /**
  *  processVariableDefs
@@ -193,6 +210,8 @@ void
 ParameterDecoder::processVariableDefs(const frib::analysis::VariableItem*   pvars) {
     auto n = pvars->s_numVars;
     auto p = pvars->s_variables;
+    
+    
     
     for (int i = 0; i < n; i++) {
         VariableDefinition def;
