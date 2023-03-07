@@ -43,7 +43,7 @@ namespace frib {
          */
         typedef struct _ParameterDefintion {
             std::uint32_t s_parameterNumber;
-            char          s_parameterName[0];   // Actually a cz string.
+            char          s_parameterName[1];   // Actually a cz string.
         } ParameterDefinition, *pParameterDefinition;
         
         /**
@@ -53,7 +53,7 @@ namespace frib {
         typedef struct  _ParameterDefinitions {
             RingItemHeader s_header;
             std::uint32_t  s_numParameters;
-            ParameterDefinition s_parameters [0];
+            ParameterDefinition s_parameters [1];
         } ParameterDefinitions, *pParameterDefinitions;
         
         /**
@@ -72,7 +72,7 @@ namespace frib {
             RingItemHeader s_header;
             std::uint64_t  s_triggerCount;
             std::uint32_t  s_parameterCount;
-            ParameterValue s_parameters[0];
+            ParameterValue s_parameters[1];
         } ParameterItem, *pParameterItem;
         
         /** Variable data is used to document steering parameters:
@@ -81,13 +81,13 @@ namespace frib {
         typedef struct _Variable {
             double s_value;
             char   s_variableUnits[MAX_UNITS_LENGTH];     // Fixed length
-            char   s_variableName[0];       // variable length
+            char   s_variableName[1];       // variable length
         } Variable, *pVariable;
         
         typedef struct _VariableItem {
             RingItemHeader s_header;
             std::uint32_t  s_numVars;
-            Variable       s_variables[0];
+            Variable       s_variables[1];
             
         } VariableItem, *pVariableItem;
         
@@ -103,6 +103,8 @@ namespace frib {
         static const std::uint32_t VARIABLE_VALUES       = 32769;
         static const std::uint32_t PARAMETER_DATA        = 32770;
         static const std::uint32_t TEST_DATA             = 32771;
+        
+#pragma pack(pop)
     }
 }
 

@@ -105,5 +105,5 @@ namespace spectcl {                 // Long overdue to put SpecTcl classes in a 
         void processVariableDefs(const frib::analysis::VariableItem*   pvars);
     
     };
-};
+}
 #endif
