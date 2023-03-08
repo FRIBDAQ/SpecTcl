@@ -32,7 +32,9 @@ namespace spectcl {
 ParameterDecoder::ParameterDecoder() :
     m_pObserver(nullptr),
     m_el(1)
-{}
+{
+    m_el[0] = new CEvent;        
+}
  /**
   * destructor
   */
@@ -184,8 +186,8 @@ ParameterDecoder::processParameterItem(const frib::analysis::ParameterItem* para
     
     for (int i  = 0; i < params->s_parameterCount; i++) {
         auto id = params->s_parameters[i].s_number;
-        if (id < m_parameterMap.size() && (m_parameterMap[i] != nullptr)) {
-            *m_parameterMap[i] = params->s_parameters[i].s_value;
+        if (id < m_parameterMap.size() && (m_parameterMap[id] != nullptr)) {
+            *m_parameterMap[id] = params->s_parameters[i].s_value;
         }
     }
     // Now that the parameters were loaded from the event, bypass the
