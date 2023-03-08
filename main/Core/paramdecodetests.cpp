@@ -36,6 +36,11 @@
 #define private public
 #include <ParameterDecoding.h>
 #undef private
+// Need to reset the tree parameter map between tests;
+
+#define private public
+#include <CTreeParameter.h>
+#undef private
 
 #include <vector>
 // Special event sink which just records the parmaeters of the first
@@ -91,6 +96,8 @@ public:
         delete gpEventSinkPipeline;
         delete m_pSink;
         delete m_pDecoder;
+        
+        CTreeParameter::testClearMap();
     }
 
 private:
