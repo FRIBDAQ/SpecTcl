@@ -81,7 +81,7 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(pdef_3);
     CPPUNIT_TEST(getvar_1);
     CPPUNIT_TEST(getvar_2);
-    
+    CPPUNIT_TEST(event_1);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -96,6 +96,7 @@ protected:
     void pdef_3();
     void getvar_1();
     void getvar_2();
+    void event_1();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -511,4 +512,42 @@ void PDecodeTest::getvar_2() {
     ASSERT(pV != nullptr);
     EQ(std::string("degrees"), pV->s_units);
     EQ(45.0, pV->s_value);
+}
+// An event with a single parameter value that maps to a local parameter.
+
+void PDecodeTest::event_1() {
+    // Define a local and a data stream parameter named "parameter"
+    CTreeParameter param("parameter");
+    CTreeParameter::BindParameters();
+    union {
+        ParameterDefinitions item;
+        std::uint8_t storage[1000];
+    } data;
+    
+    initPdef(&data.item);
+    auto p = data.item.s_parameters;
+    addPdef(&data.item, p, "parameter", 10);
+    ASSERT((*m_pDecoder)(&data));
+    
+    // Define an event that only has a value for that parameter then dispatch it:
+    
+    union {
+        std::uint8_t raw[1000];
+        ParameterItem item;
+    } event;
+    
+    initEvent(&event.item);
+    auto pd = event.item.s_parameters;
+    addPvalue(&event.item, pd, 10, 1.2345);
+    
+    ASSERT((*m_pDecoder)(&event));   // Process the event.
+    
+    // The recording sink should have an item with the id of the local variable
+    // and the value 1.2345:
+    
+    EQ(size_t(1), m_pSink->m_event.size());
+    auto ep = m_pSink->m_event[0];
+    EQ(std::uint32_t(param.getId()), ep.first);
+    EQ(1.2345, ep.second);
+    
 }
