@@ -35,6 +35,13 @@ using namespace std;
 #include <SpecTcl.h>
 #include <Parameter.h>
 
+// Note that the paramdecodertests place more stringent requirements on the stubs
+// so:
+
+#include<map>
+
+static std::map<std::string, CParameter*> paramMap;
+
 
 class CParameter;
 
@@ -60,14 +67,19 @@ SpecTcl::getInterpreter()
 CParameter*
 SpecTcl::FindParameter(string name)
 {
-  return (CParameter*)NULL;
+  // Performance is not critical for tests:
+  
+  if (paramMap.find(name) != paramMap.end()) return paramMap[name];
+  return (CParameter*)nullptr;
 }
 // Add a parameter as simply as possible:
 
 CParameter*
 SpecTcl::AddParameter(string name, UInt_t id, string units)
 {
-  return new CParameter(name, id, units.c_str());
+  auto result = new CParameter(name, id, units.c_str());
+  paramMap[name] = result;
+  return result;
 }
 
 
@@ -78,6 +90,7 @@ void
 TreeTestSupport::ClearMap()
 {
   CTreeParameter::testClearMap();
+  paramMap.clear();
 }
 CParameter*
 TreeTestSupport::getParameter(CTreeParameter& param)
