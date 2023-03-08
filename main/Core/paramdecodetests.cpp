@@ -66,7 +66,8 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(var_2);
     CPPUNIT_TEST(vlookup_1);
     CPPUNIT_TEST(obs_1);
-    
+    CPPUNIT_TEST(obs_2);
+    CPPUNIT_TEST(obs_3);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -74,6 +75,8 @@ protected:
     void var_2();
     void vlookup_1();
     void obs_1();
+    void obs_2();
+    void obs_3();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -244,4 +247,49 @@ void PDecodeTest::obs_1() {
     Obs o2;
     old = m_pDecoder->setObserver(&o2);
     EQ((spectcl::ParameterDecoder::Observer*)&o, old);
+}
+// Test that observer is invoked if unrecognized item:
+
+void PDecodeTest::obs_2() {
+    class Obs : public spectcl::ParameterDecoder::Observer {
+    public:
+        bool called;
+        Obs() : called(false){}
+        virtual bool operator()(spectcl::ParameterDecoder& d, const void* p) {
+            called = true;
+            return true;
+        }
+    };
+    
+    Obs o;
+    m_pDecoder->setObserver(&o);
+    RingItemHeader hdr = {
+        sizeof(RingItemHeader),
+        0x12345678,
+        sizeof(std::uint32_t)
+    };
+    ASSERT((*m_pDecoder)(&hdr));
+    ASSERT(o.called);
+}
+// Really be sure that operator() returns what the observer returned:
+
+void PDecodeTest::obs_3() {
+    class Obs : public spectcl::ParameterDecoder::Observer {
+    public:
+        bool called;
+        Obs() : called(false){}
+        virtual bool operator()(spectcl::ParameterDecoder& d, const void* p) {
+            called = true;
+            return false;
+        }
+    };
+    
+    Obs o;
+    m_pDecoder->setObserver(&o);
+    RingItemHeader hdr = {
+        sizeof(RingItemHeader),
+        0x12345678,
+        sizeof(std::uint32_t)
+    };
+    ASSERT(!(*m_pDecoder)(&hdr));
 }
