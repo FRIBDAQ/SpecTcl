@@ -82,6 +82,7 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(getvar_1);
     CPPUNIT_TEST(getvar_2);
     CPPUNIT_TEST(event_1);
+    CPPUNIT_TEST(event_2);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -97,6 +98,7 @@ protected:
     void getvar_1();
     void getvar_2();
     void event_1();
+    void event_2();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -549,5 +551,48 @@ void PDecodeTest::event_1() {
     auto ep = m_pSink->m_event[0];
     EQ(std::uint32_t(param.getId()), ep.first);
     EQ(1.2345, ep.second);
+    
+}
+// an event with several parameters:
+
+void PDecodeTest::event_2() {
+    CTreeParameterArray params("params", 10, 0);  // 00 ..09
+    CTreeParameter::BindParameters();
+    union {
+        ParameterDefinitions item;
+        std::uint8_t storage[1000];
+    } data;
+    initPdef(&data.item);
+    auto p = data.item.s_parameters;
+    
+    for (int i =0; i < 10; i++) {
+        std::stringstream sname;
+        sname << "params." << std::setw(2) << std::setfill('0') << i;
+        std::string name = sname.str();
+        p = addPdef(&data.item, p, name.c_str(), i);
+    }
+    ASSERT((*m_pDecoder)(&data));
+    
+    union {
+        std::uint8_t raw[1000];
+        ParameterItem item;
+    } event;
+    
+    initEvent(&event.item);
+    auto pd = event.item.s_parameters;
+    for (int i =0; i < 10; i++) {
+        pd = addPvalue(&event.item, pd, i, 0.5*i);
+    }
+    ASSERT((*m_pDecoder)(&event));
+    
+    // Should be 10 parameters in the event with the same indices as
+    // the params array with values 0.0 - 4.5 in steps of 0.5.
+    
+    EQ(size_t(10), m_pSink->m_event.size());
+    for (int i =0; i < 10; i++) {
+        auto datum = m_pSink->m_event[i];
+        EQ(std::uint32_t(params[i].getId()), datum.first);
+        EQ(0.5*i, datum.second);
+    }
     
 }
