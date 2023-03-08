@@ -106,7 +106,45 @@ private:
         pVariableItem pItem, pVariable pVar,
         const char* name, const char* units, double value
     );
+    void initPdef(pParameterDefinitions pItem);
+    pParameterDefinition addPdef(
+        pParameterDefinitions pItem, pParameterDefinition pNext,
+        const char* pName, std::uint32_t id
+    );
 };
+// Initialize a parameter definition item:
+
+void
+PDecodeTest::initPdef(pParameterDefinitions pItem) {
+    pItem->s_header.s_size = sizeof(RingItemHeader) + sizeof(std::uint32_t);
+    pItem->s_header.s_type = PARAMETER_DEFINITIONS;
+    pItem->s_header.s_unused = sizeof(std::uint32_t);
+    pItem->s_numParameters = 0;
+}
+// Add a new parameter definition to ta pdef ring item:
+// pItem - points to item.
+// pNext - points to the next byte of available storage for the item.
+// pName - the parameter name.
+// id    - The parameter id.
+// Returns a pointer to the next unused byte.
+
+pParameterDefinition
+PDecodeTest::addPdef(
+     pParameterDefinitions pItem, pParameterDefinition pNext,
+    const char* pName, std::uint32_t id
+) {
+    pNext->s_parameterNumber = id;
+    auto returnValue = strcpy(pNext->s_parameterName, pName) + strlen(pName) + 1;
+    
+    // Adjust the book keeping:
+    
+    pItem->s_header.s_size += sizeof(ParameterDefinition) + strlen(pName);
+    pItem->s_numParameters++;
+    
+    return reinterpret_cast<pParameterDefinition>(returnValue);
+}
+
+
 
 // Initialize a variable item:
 
@@ -114,6 +152,7 @@ void
 PDecodeTest::initVar(pVariableItem pItem) {
     pItem->s_header.s_type = VARIABLE_VALUES;
     pItem->s_header.s_size = sizeof(RingItemHeader) + sizeof(std::uint32_t);
+    pItem->s_header.s_unused = sizeof(std::uint32_t);
     pItem->s_numVars = 0;
 }
 
