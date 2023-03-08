@@ -38,9 +38,9 @@
 #undef private
 // Need to reset the tree parameter map between tests;
 
-#define private public
 #include <CTreeParameter.h>
-#undef private
+#include "TreeTestSupport.h"
+
 
 #include <vector>
 // Special event sink which just records the parmaeters of the first
@@ -73,6 +73,7 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(obs_1);
     CPPUNIT_TEST(obs_2);
     CPPUNIT_TEST(obs_3);
+    CPPUNIT_TEST(pdef_1);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -82,6 +83,7 @@ protected:
     void obs_1();
     void obs_2();
     void obs_3();
+    void pdef_1();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -97,7 +99,7 @@ public:
         delete m_pSink;
         delete m_pDecoder;
         
-        CTreeParameter::testClearMap();
+        TreeTestSupport::ClearMap();
     }
 
 private:
@@ -338,4 +340,25 @@ void PDecodeTest::obs_3() {
         sizeof(std::uint32_t)
     };
     ASSERT(!(*m_pDecoder)(&hdr));
+}
+// Can define a single parameter and the mapping is made:
+//
+void PDecodeTest::pdef_1() {
+    union {
+        ParameterDefinitions item;
+        std::uint8_t storage[1000];
+    } data;
+    
+    initPdef(&data.item);
+    auto p = data.item.s_parameters;
+    addPdef(&data.item, p, "parameter", 10);
+    
+    ASSERT((*m_pDecoder)(&data));
+    
+    // Map should contain 10:
+    
+    EQ(size_t(11), m_pDecoder->m_parameterMap.size());
+    auto param = m_pDecoder->m_parameterMap[10];
+    ASSERT(param != nullptr);
+    EQ(std::string("parameter"), param->getName());
 }

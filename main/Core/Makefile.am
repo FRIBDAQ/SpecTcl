@@ -532,7 +532,8 @@ helpertests_SOURCES=TestRunner.cpp helper10tests.cpp helper11tests.cpp \
 
 paramdecodetests_CXXFLAGS=$(commonTestCXXFLAGS)
 paramdecodetests_LDADD=$(commonTestLdFlags)
-paramdecodetests_SOURCES=TestRunner.cpp paramdecodetests.cpp
+paramdecodetests_SOURCES=TestRunner.cpp paramdecodetests.cpp \
+	testStubs.cpp TreeTestSupport.h
 
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
