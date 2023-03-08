@@ -39,7 +39,10 @@
 // Need to reset the tree parameter map between tests;
 
 #include <CTreeParameter.h>
+#include <CTreeParameterArray.h>
 #include "TreeTestSupport.h"
+#include <sstream>
+#include <iomanip>
 
 
 #include <vector>
@@ -75,6 +78,7 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(obs_3);
     CPPUNIT_TEST(pdef_1);
     CPPUNIT_TEST(pdef_2);
+    CPPUNIT_TEST(pdef_3);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -86,6 +90,7 @@ protected:
     void obs_3();
     void pdef_1();
     void pdef_2();
+    void pdef_3();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -388,4 +393,32 @@ void PDecodeTest::pdef_2() {
     
     EQ(existing.getId(), param->getId());
     EQ(existing.getName(), param->getName());
+}
+// For grins and giggles a tree parameter array one item at a time:
+//
+void PDecodeTest::pdef_3() {
+    CTreeParameterArray existing("base", 10, 0);  // 00, 01, ...09 I hope.
+    
+    union {
+        ParameterDefinitions item;
+        std::uint8_t storage[1000];
+    } data;
+    initPdef(&data.item);
+    auto p = data.item.s_parameters;
+    
+    for (int i =0; i < 10; i++) {
+        std::stringstream sname;
+        sname << "base." << std::setw(2) << std::setfill('0') << i;
+        std::string name = sname.str();
+        p = addPdef(&data.item, p, name.c_str(), i);
+    }
+    
+    (*m_pDecoder)(&data);
+    EQ(size_t(10), m_pDecoder->m_parameterMap.size());
+    for (int i =0; i < 10; i++) {
+        auto param = m_pDecoder->m_parameterMap[i];
+        ASSERT(param != nullptr);
+        EQ(existing[i].getName(), param->getName());
+        EQ(existing[i].getId(), param->getId());
+    }
 }
