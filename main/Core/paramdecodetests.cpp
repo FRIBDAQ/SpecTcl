@@ -74,6 +74,7 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(obs_2);
     CPPUNIT_TEST(obs_3);
     CPPUNIT_TEST(pdef_1);
+    CPPUNIT_TEST(pdef_2);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -84,6 +85,7 @@ protected:
     void obs_2();
     void obs_3();
     void pdef_1();
+    void pdef_2();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -361,4 +363,29 @@ void PDecodeTest::pdef_1() {
     auto param = m_pDecoder->m_parameterMap[10];
     ASSERT(param != nullptr);
     EQ(std::string("parameter"), param->getName());
+}
+// Map to an existing parameter works correctly:
+
+void PDecodeTest::pdef_2() {
+    CTreeParameter existing("existing.parameter");
+    CTreeParameter::BindParameters();   // gives the existing an id.
+    
+    union {
+        ParameterDefinitions item;
+        std::uint8_t storage[1000];
+    } data;
+    
+    initPdef(&data.item);
+    auto p = data.item.s_parameters;
+    addPdef(&data.item, p, "existing.parameter", 10);
+    
+    ASSERT((*m_pDecoder)(&data));
+    EQ(size_t(11), m_pDecoder->m_parameterMap.size());
+    auto param = m_pDecoder->m_parameterMap[10];
+    ASSERT(param != nullptr);
+    
+    // The parameters match in id and name:
+    
+    EQ(existing.getId(), param->getId());
+    EQ(existing.getName(), param->getName());
 }
