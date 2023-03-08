@@ -81,6 +81,7 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(pdef_3);
     CPPUNIT_TEST(getvar_1);
     CPPUNIT_TEST(getvar_2);
+    
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -114,6 +115,12 @@ public:
     }
 
 private:
+    void initEvent(pParameterItem pItem);
+    pParameterValue addPvalue(
+        pParameterItem pItem, pParameterValue pNext,
+        std::uint32_t id, double value
+    );
+    
     void initVar(pVariableItem pItem);
     pVariable addVarDef(
         pVariableItem pItem, pVariable pVar,
@@ -125,6 +132,44 @@ private:
         const char* pName, std::uint32_t id
     );
 };
+// Initialize an ring item that contains parameter values:
+
+void
+PDecodeTest::initEvent(pParameterItem pItem) {
+    pItem->s_header.s_size = sizeof(RingItemHeader) +
+        sizeof(std::uint64_t) + sizeof(std::uint32_t);
+    pItem->s_header.s_type = PARAMETER_DATA;
+    pItem->s_header.s_unused = sizeof(std::uint32_t);
+    
+    pItem->s_triggerCount = 1;
+    pItem->s_parameterCount = 0;
+}
+// Add a parameter value to a parmeter item:
+// pItem - points to the item.
+// pNext - points to where to put the parameter id/value pair.
+// id  -  parameter id
+// value - parameter value.
+// Returns - pointer to where to put the next item.
+//
+pParameterValue
+PDecodeTest::addPvalue(
+    pParameterItem pItem, pParameterValue pNext,
+    std::uint32_t id, double value
+) {
+    // Add the item:
+    
+    pNext->s_number = id;
+    pNext->s_value = value;
+    pNext++;
+    
+    // Adjust the book keeping:
+    
+    pItem->s_header.s_size += sizeof(ParameterValue);
+    pItem->s_parameterCount++;
+    
+    return pNext;
+}
+
 // Initialize a parameter definition item:
 
 void
