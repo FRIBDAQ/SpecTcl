@@ -79,6 +79,8 @@ class PDecodeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(pdef_1);
     CPPUNIT_TEST(pdef_2);
     CPPUNIT_TEST(pdef_3);
+    CPPUNIT_TEST(getvar_1);
+    CPPUNIT_TEST(getvar_2);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -91,6 +93,8 @@ protected:
     void pdef_1();
     void pdef_2();
     void pdef_3();
+    void getvar_1();
+    void getvar_2();
 private:
     RecordingSink* m_pSink;
     spectcl::ParameterDecoder* m_pDecoder;
@@ -421,4 +425,45 @@ void PDecodeTest::pdef_3() {
         EQ(existing[i].getName(), param->getName());
         EQ(existing[i].getId(), param->getId());
     }
+}
+//getVariableDefinition for nonexistent returns nullptr.
+
+void PDecodeTest::getvar_1() {
+    // Make some variables:
+    
+    union {
+        std::uint8_t raw[1000];
+        VariableItem item;
+    } data;
+    initVar(&data.item);
+    auto p = data.item.s_variables;
+    p = addVarDef(&data.item, p, "var.1", "mm", 1.234);
+    p = addVarDef(&data.item, p, "var.2", "degrees", 45.0);
+    p = addVarDef(&data.item, p, "var.3", "", 1.414);
+    
+    ASSERT((*m_pDecoder)(&data));
+    
+    ASSERT(m_pDecoder->getVariableDefinition("var.4") == nullptr);
+    
+}
+// Can get one that does exist:
+void PDecodeTest::getvar_2() {
+    // make some vars:
+    //
+    union {
+        std::uint8_t raw[1000];
+        VariableItem item;
+    } data;
+    initVar(&data.item);
+    auto p = data.item.s_variables;
+    p = addVarDef(&data.item, p, "var.1", "mm", 1.234);
+    p = addVarDef(&data.item, p, "var.2", "degrees", 45.0);
+    p = addVarDef(&data.item, p, "var.3", "", 1.414);
+    
+    ASSERT((*m_pDecoder)(&data));
+    
+    auto pV = m_pDecoder->getVariableDefinition("var.2");
+    ASSERT(pV != nullptr);
+    EQ(std::string("degrees"), pV->s_units);
+    EQ(45.0, pV->s_value);
 }
