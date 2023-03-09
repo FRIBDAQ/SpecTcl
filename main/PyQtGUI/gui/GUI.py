@@ -1717,9 +1717,9 @@ class MainWindow(QMainWindow):
     def check_index(self):
         if (DEBUG):
             print("inside check index")
-        keys=list(self.h_dict.keys())
+        keys=list(self.currentPlot.h_dict.keys())
         values = []
-        for index, value in self.h_dict.items():
+        for index, value in self.currentPlot.h_dict.items():
             values.append(value["name"])
 
         if (DEBUG):
