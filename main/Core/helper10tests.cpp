@@ -217,13 +217,12 @@ void helper10test::stringcount()
     std::vector<std::string> theStrings = {
         "one string", "two string", "three string", "four",
         "red string", "blue string", "green string", "more"
-    };
-#pragma pack(push, 1)    
+    }; 
     struct {
         NSCLDAQ10::TextItem item;
         char strings[200];
     } item;
-#pragma pack(pop)
+
     
     fillStrings(&(item.item), theStrings);
     EQ(unsigned(theStrings.size()), m_pHelper->getStringCount(&item, m_pTranslator));
@@ -237,12 +236,11 @@ void helper10test::strings()
         "one string", "two string", "three string", "four",
         "red string", "blue string", "green string", "more"
     };
-#pragma pack(push, 1)    
+
     struct {
         NSCLDAQ10::TextItem item;
         char strings[200];
     } item;
-#pragma pack(pop)
     
     fillStrings(&(item.item), theStrings);
     auto gotten = m_pHelper->getStrings(&item, m_pTranslator);
