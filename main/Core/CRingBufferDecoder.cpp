@@ -218,7 +218,7 @@ CRingBufferDecoder::operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAna
     exit(EXIT_FAILURE);
   }
   catch (std::exception& e) {
-    cerr << "SpecTcl eixting due to exception caught in ringbuffer decoder: "
+    cerr << "SpecTcl exiting due to exception caught in ringbuffer decoder: "
 	 << e.what() << std::endl;
     exit(EXIT_FAILURE);
   }
