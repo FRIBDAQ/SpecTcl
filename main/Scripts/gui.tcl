@@ -299,8 +299,11 @@ proc Exit {} {
     set answer [tk_messageBox -icon question -type yesno -title Exit \
 		    -message {Are you sure you want to exit SpecTcl?}]
     if {$answer == "yes"} {
-	killpidof _CutiePie
-	exit
+	try {
+	    killpidof _CutiePie
+	} finally {
+	    exit	    
+	}
     }
 }
 
