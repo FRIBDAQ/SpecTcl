@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <TCLString.h>
+#include <string>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -76,24 +77,30 @@ ListVisitor::OnMatch(CTreeParameter* parameter)
   CTCLString item;
 
   char conversion[100];
-
-  item.AppendElement(parameter->getName());
-
-  snprintf(conversion, sizeof(conversion), "%d", parameter->getBins());
-  item.AppendElement(conversion);
-
-  snprintf(conversion, sizeof(conversion), "%g", parameter->getStart());
-  item.AppendElement(conversion);
-
-  snprintf(conversion, sizeof(conversion), "%g", parameter->getStop());
-  item.AppendElement(conversion);
-
-  snprintf(conversion, sizeof(conversion), "%g", parameter->getInc());
-  item.AppendElement(conversion);
-
-  item.AppendElement(parameter->getUnit());
-
-  m_OutputList.AppendElement((const char*)item);
+  
+  std::string name = parameter->getName();
+  if (m_seen.count(name) == 0) {
+    
+    m_seen.insert(name);
+  
+    item.AppendElement(name);
+  
+    snprintf(conversion, sizeof(conversion), "%d", parameter->getBins());
+    item.AppendElement(conversion);
+  
+    snprintf(conversion, sizeof(conversion), "%g", parameter->getStart());
+    item.AppendElement(conversion);
+  
+    snprintf(conversion, sizeof(conversion), "%g", parameter->getStop());
+    item.AppendElement(conversion);
+  
+    snprintf(conversion, sizeof(conversion), "%g", parameter->getInc());
+    item.AppendElement(conversion);
+  
+    item.AppendElement(parameter->getUnit());
+  
+    m_OutputList.AppendElement((const char*)item);
+  }
 }
 
 

@@ -34,6 +34,7 @@
 #include "CMatchingVisitor.h"
 
 #include <string>
+#include <set>
 
 // forward definitions:
 
@@ -54,6 +55,12 @@ private:
    * Referenced to the result into which the list will be placed.
    */
   CTCLResult& m_OutputList;
+  
+  // Prevent duplicate lists - arguably this filtering could be done
+  // in MatchingVisitor but that's a policy decision about how to deal with
+  // dups we don't want to make there.
+  
+  std::set<std::string> m_seen;
   
 public:
   virtual ~ListVisitor();
