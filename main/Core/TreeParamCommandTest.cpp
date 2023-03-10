@@ -31,6 +31,7 @@ class TreeCommandTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(UsageTest);
   CPPUNIT_TEST(ListFunc);	// Test list function.
   CPPUNIT_TEST(ListSubCmd);	// Test list subcommand.
+  CPPUNIT_TEST(ListUnique);
   CPPUNIT_TEST(SetPropFunc);  	// Set properties via function.
   CPPUNIT_TEST(SetPropSubCmd);	// Set properties via command.
   CPPUNIT_TEST(SetIncFunc);	// Set increment via function.
@@ -74,6 +75,7 @@ protected:
   void UsageTest();
   void ListFunc();
   void ListSubCmd();
+  void ListUnique();
   void SetPropFunc();
   void SetPropSubCmd();
   void SetIncFunc();
@@ -256,6 +258,19 @@ TreeCommandTest::ListSubCmd()
   (*m_pCommand)(*pInterp, result, 3, const_cast<char**>(argv));
   ListGeorgeCheck(result, "Listing george via dispatched call");
 
+}
+void
+TreeCommandTest::ListUnique() {
+    // A tree parameter should only list once even if its defined more than once:
+    
+    CTreeParameter secondMoe("moe");
+    CTreeParameter::BindParameters();
+    CTCLInterpreter* interp = TreeTestSupport::getInterpreter();
+    CTCLResult result(interp);
+    const char* argv[3] =  {"treeparameter", "-list", "moe"};
+    (*m_pCommand)(*interp, result, 3, const_cast<char**>(argv));
+    ListMoeCheck(result, "Unique check");
+    
 }
 // Set properties of moe via a direct call to the SetDefinition function.
 // There are many error cases we must also try:
