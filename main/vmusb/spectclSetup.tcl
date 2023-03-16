@@ -535,6 +535,8 @@ proc buildChannelMaps param {
 	    set param [buildMTDC32Map $param $module]	    
 	} elseif {$::readoutDeviceType($module) eq $::typeMQDC32} {
 	    set param [buildMQDC32Map $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32QDC} {
+	    set param [buildMDPP32QDCMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
 	    set param [buildV1729Map $param $module]
 	    createFreezeButton
