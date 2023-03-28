@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.13-001, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl,5.13-003, daqhelp@frib.msu.edu)
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
@@ -43,10 +43,15 @@ AC_PROG_LIBTOOL
 
 # PYthon C/C++ extension environment build flags:
 
-PYTHON_CXXFLAGS=`pkg-config python3 --cflags`
+PKG_CHECK_MODULES(PYTHON, [python3-embed], [PYTHON_CXXFLAGS=`pkg-config --cflags python3-embed`; PYTHON_LDFLAGS=`pkg-config --libs python3-embed`],
+			  [PYTHON_CXXFLAGS=`pkg-config python3 --cflags`, PYTHON_LDFLAGS=`pkg-config python3 --libs`])
 AC_SUBST(PYTHON_CXXFLAGS)
-PYTHON_LDFLAGS=`pkg-config python3 --libs`
 AC_SUBST(PYTHON_LDFLAGS)
+
+#PYTHON_CXXFLAGS=`pkg-config python3 --cflags`
+#AC_SUBST(PYTHON_CXXFLAGS)
+#PYTHON_LDFLAGS=`pkg-config python3 --libs`
+#AC_SUBST(PYTHON_LDFLAGS)
 
 # needed for autotools version earlier than 1.14
 AM_PROG_CC_C_O
