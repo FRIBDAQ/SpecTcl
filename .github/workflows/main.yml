@@ -1,0 +1,31 @@
+name: CI test
+on:
+  push:
+    branches: [ "5.13" ]
+jobs:
+  container-test-job:
+    runs-on: ubuntu-latest
+    container:
+      image: fribdaq/frib-buster:v3.7
+      options: --cpus 1
+    steps:
+      - uses: actions/checkout@v3
+      - name: autoreconf
+        working-directory: ./main
+        run: autoreconf -if
+      - name: Configure tclc++ and unifiedformat
+        working-directory: ./main
+        run: |
+          source /opt/root/bin/thisroot.sh
+          git config --global --add safe.directory '*'
+          mkdir libtcl
+          ./tcl++incorp libtclplus-v4.3-002
+          ./unifiedfmt-incorp.sh
+      - name: Creating build directory
+        run: mkdir main/oot
+      - name: Configuring
+        working-directory: ./main/oot
+        run: ../configure --prefix=$PWD/install
+      - name: Make
+        working-directory: ./main/oot
+        run: make clean && make all && make install
