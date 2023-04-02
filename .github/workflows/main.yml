@@ -19,7 +19,7 @@ jobs:
         working-directory: ./main
         shell: bash
         run: |
-          source /usr/local/bin/thisroot.sh
+          source /usr/opt/root/root-6.24.06/bin/thisroot.sh
           git config --global --add safe.directory '*'
 
           eval `ssh-agent -s`
