@@ -15,10 +15,10 @@ jobs:
         run: autoreconf -if
       - name: Configure tclc++ and unifiedformat
         working-directory: ./main
+        shell: bash
         run: |
-          . /opt/root/bin/thisroot.sh
+          source /usr/bin/thisroot.sh
           git config --global --add safe.directory '*'
-          mkdir libtcl
           ./tcl++incorp libtclplus-v4.3-002
           ./unifiedfmt-incorp.sh
       - name: Creating build directory
