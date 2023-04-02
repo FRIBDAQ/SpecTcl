@@ -13,7 +13,7 @@ jobs:
       - name: autoreconf
         working-directory: ./main
         run: autoreconf -if
-      - uses: shaunco/ssh-agent@git-repo-mapping
+      - uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: |
             ${{ secrets.PRIVATE_KEY }}
