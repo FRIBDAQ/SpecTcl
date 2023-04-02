@@ -13,22 +13,26 @@ jobs:
       - name: autoreconf
         working-directory: ./main
         run: autoreconf -if
-      - uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: |
-            ${{ secrets.PRIVATE_KEY }}
-            ${{ secrets.PRIVATE_KEY_2 }}
-          repo-mappings: |
-            github.com/FRIBDAQ/UnifiedFormat
-            github.com/FRIBDAQ/libtclplus
       - name: Configure tclc++ and unifiedformat
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
         working-directory: ./main
         shell: bash
         run: |
           source /usr/local/bin/thisroot.sh
           git config --global --add safe.directory '*'
+
+          eval `ssh-agent -s`
+          echo "${{ secrets.PRIVATE_KEY }}" | ssh-add -
           ./tcl++incorp libtclplus-v4.3-002
+          ssh-add -D
+          
+          eval `ssh-agent -s`
+          echo "${{ secrets.PRIVATE_KEY_2 }}" | ssh-add -     
           ./unifiedfmt-incorp.sh
+          ssh-add -D
+          
+          eval `ssh-agent -k`
       - name: Creating build directory
         run: mkdir main/oot
       - name: Configuring
