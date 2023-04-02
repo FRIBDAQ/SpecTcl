@@ -33,7 +33,10 @@ jobs:
         run: mkdir main/oot
       - name: Configuring
         working-directory: ./main/oot
-        run: ../configure --prefix=$PWD/install
+        shell: bash
+        run: |
+          source /usr/opt/root/root-6.24.06/bin/thisroot.sh
+          ../configure --prefix=$PWD/install
       - name: Make
         working-directory: ./main/oot
         run: make clean && make all && make install
