@@ -16,9 +16,7 @@ jobs:
       - name: Configure tclc++ and unifiedformat
         working-directory: ./main
         run: |
-          echo "ls /opt"
-          ls /opt
-          source /opt/root/bin/thisroot.sh
+          . /opt/root/bin/thisroot.sh
           git config --global --add safe.directory '*'
           mkdir libtcl
           ./tcl++incorp libtclplus-v4.3-002
