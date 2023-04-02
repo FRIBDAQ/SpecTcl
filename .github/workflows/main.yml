@@ -6,7 +6,7 @@ jobs:
   container-test-job:
     runs-on: ubuntu-latest
     container:
-      image: fribdaq/frib-buster:v3.7
+      image: fribdaq/frib-buster-ci:v3.7
       options: --cpus 1
     steps:
       - uses: actions/checkout@v3
