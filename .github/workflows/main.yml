@@ -13,14 +13,19 @@ jobs:
       - name: autoreconf
         working-directory: ./main
         run: autoreconf -if
+      - uses: shaunco/ssh-agent@git-repo-mapping
+        with:
+          ssh-private-key: |
+            ${{ secrets.PRIVATE_KEY }}
+            ${{ secrets.PRIVATE_KEY_2 }}
+          repo-mappings: |
+            github.com/FRIBDAQ/UnifiedFormat
+            github.com/FRIBDAQ/libtclplus
       - name: Configure tclc++ and unifiedformat
         working-directory: ./main
         shell: bash
         run: |
           source /usr/local/bin/thisroot.sh
-          eval `ssh-agent -s`
-          ssh-add - <<< '${{ secrets.PRIVATE_KEY }}'
-          ssh-add - <<< '${{ secrets.PRIVATE_KEY_2 }}'
           git config --global --add safe.directory '*'
           ./tcl++incorp libtclplus-v4.3-002
           ./unifiedfmt-incorp.sh
