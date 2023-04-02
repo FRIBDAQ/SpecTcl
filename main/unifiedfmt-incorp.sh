@@ -4,7 +4,7 @@
 
 # Most recently used version 1.1-005
 
-REPOSITORY="https://github.com/FRIBDAQ/UnifiedFormat.git"
+REPOSITORY="git@github.com:FRIBDAQ/UnifiedFormat.git"
 TAG=$1
 
 rm -rf unifiedformat
