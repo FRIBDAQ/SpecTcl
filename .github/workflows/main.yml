@@ -25,10 +25,6 @@ jobs:
           eval `ssh-agent -s`
           echo "${{ secrets.PRIVATE_KEY }}" | ssh-add -
           ./tcl++incorp libtclplus-v4.3-002
-          ssh-add -D
-          
-          eval `ssh-agent -s`
-          echo "${{ secrets.PRIVATE_KEY_2 }}" | ssh-add -     
           ./unifiedfmt-incorp.sh
           ssh-add -D
           
