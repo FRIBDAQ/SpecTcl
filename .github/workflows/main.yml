@@ -17,7 +17,7 @@ jobs:
         working-directory: ./main
         shell: bash
         run: |
-          source /usr/bin/thisroot.sh
+          source /usr/local/bin/thisroot.sh
           git config --global --add safe.directory '*'
           ./tcl++incorp libtclplus-v4.3-002
           ./unifiedfmt-incorp.sh
