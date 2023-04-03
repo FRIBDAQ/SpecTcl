@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: fribdaq/frib-buster-ci:v3.7
-      options: --cpus 1
+      options: --cpus 2
     steps:
       - uses: actions/checkout@v3
       - name: autoreconf
@@ -43,4 +43,4 @@ jobs:
           ../configure --prefix=$PWD/install
       - name: Make
         working-directory: ./main/oot
-        run: make clean && make all && make install
+        run: make -j2 clean && make -j2 all && make -j2 install
