@@ -28,4 +28,4 @@ set channelCount($typePSD)     8192;	# Num channels in a default PSD spectrum.
 set channelCount($typeV1729)   8192;	# Waveform count.
 set channelCount($typeMTDC32)  16384;   # MTDC32 default resolution
 set channelCount($typeMQDC32)  4096;	# Currently only 12 chans.
-set channelCount($typeMDPP32QDC)  4096;
+set channelCount($typeMDPP32QDC)  65535;
