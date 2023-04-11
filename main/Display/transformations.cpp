@@ -23,7 +23,9 @@
 #include "axes.h"
 #include "dispshare.h"
 #include <dispwind.h>
+
 #include <stdexcept>
+#include <math.h>
 
 extern spec_shared* xamine_shared;    // Shared memory with API>
 
@@ -152,7 +154,7 @@ double xpixel_to_axis(int pix, int row, int col) {
         
         }
     }
-        // Turn these into low/high depending on the mapping state:
+    // Turn these into low/high depending on the mapping state:
     
     double low, high;
     if (attributes->ismapped()) {
@@ -175,4 +177,104 @@ double xpixel_to_axis(int pix, int row, int col) {
     return transform(static_cast<double>(pix), pixels.low, pixels.high, low, high);
         
     
+}
+/**
+ *  ypixel_to_yaxis
+ *    Convert a y pixel value to a y axis value.  This has even one more
+ *    case than the x axis - if the spectrum is 1d its counts axis could be
+ *    a log scale in which case the transformatin is not linear in the counts
+ *    scale though it is linear in log scale.  To simplify this,
+ *    we maintain the pixel value as a double so that we can take its
+ *    log10
+ *
+ *    @param pix - the ypixel value (note that coordinates ascend top to bottom).
+ *    @param row - Pane row for which we're computing this.
+ *    @param col - pane column  for which we'e computing.
+ *    
+ */
+double ypixel_to_yaxis(int pix, int row, int col) {
+    auto pixels = get_ypixel_extent(row, col);   // Pixel range.
+    auto attributes =  Xamine_GetDisplayAttributes(row, col);
+    
+    double pixel = static_cast<double>(pix);    // For log scaling.
+    
+    // Branch between 1d and 2d to figure out channel limits:
+    
+    double chlow, chhigh;        // Again for log scaling.
+    
+    
+    
+    if (attributes->is1d()) {
+        // Note 1d spectra mapping is not a problem but log scale it.
+        
+        win_1d* at1 = dynamic_cast<win_1d*>(attributes);
+        
+        // I think even autoscale sets the fsvalue
+        
+        double top = at1->getfsval();
+        double bottom = 0.0;                     // Default unless:
+        if (at1->hasfloor()) bottom = at1->getfloor();
+        if (at1->hasceiling()) top = at1->getceiling();
+        
+        // Now what we do depends on if y is linear or log:
+        
+        if (at1->islog()) {
+            // pixel value of 0 is top:
+            
+            if (pixel == 0.0) return top;
+            
+            // if bottom is nonzero :
+            
+            if (bottom > 0.0)  bottom = log10(bottom);
+            top =  log10(top);
+            pixel = log10(pixel);
+            
+            double logvalue = transform(pixel, pixels.low, pixels.high, bottom, top);
+            return exp10(logvalue);
+            
+            
+        } else {
+            // Simple linear:
+            
+            return transform(pixel, pixels.low, pixels.high, bottom, top);
+        }
+        
+    } else {
+        // 2d this is a 'channel' axis:
+        // Set the unxpanded values as the default
+    
+        int nch = xamine_shared->getydim(attributes->spectrum());
+        chlow = 1.0;
+        chhigh = static_cast<double>(nch);
+        
+        win_2d* at2 = dynamic_cast<win_2d*>(attributes);
+        
+        if (at2->isexpanded()) {
+            chlow = at2->xlowlim();
+            chhigh = at2->xhilim();
+        
+        }
+        // Turn these into low/high depending on the mapping state:
+        
+        double low, high;
+        if (attributes->ismapped()) {
+            // low/high are transformed chlow, chhigh:
+            
+            double maplow = xamine_shared->getymin_map(attributes->spectrum());
+            double maphigh= xamine_shared->getymax_map(attributes->spectrum());
+            
+            low = transform(chlow, chlow, chhigh, maplow, maphigh);
+            high = transform(chhigh, chlow, chhigh, maplow, maphigh);
+            
+        } else {
+            // low/high are chlow, chhigh
+            
+            low = chlow;
+            high= chhigh;
+        }
+        //Now we can do the pixel to axis transform:
+        
+        return transform(static_cast<double>(pix), pixels.low, pixels.high, low, high);
+        
+    }
 }
