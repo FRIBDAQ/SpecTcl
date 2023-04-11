@@ -97,8 +97,8 @@ acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
 xamineDataTypes.h wysiwygPrint.h \
 XamineSpectrumInterface.h  \
-lexsupport.c \
-superpos.cc
+lexsupport.c 
+
 
 
 libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
@@ -137,7 +137,7 @@ grobjdb.cc \
 lexsupport.c \
 dfltmgr.cc \
 XamineSpectrumInterface.cc \
-errormsg.cc
+errormsg.cc superpos.cc transformations.cpp transformations.h
 
 Xamine_CPPFLAGS = -I@top_builddir@ \
 				  -DXTFUNCPROTO -DXAMINE \
