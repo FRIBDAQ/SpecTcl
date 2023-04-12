@@ -278,3 +278,72 @@ double ypixel_to_yaxis(int pix, int row, int col) {
         
     }
 }
+/**
+ *  Transform x axis value to pixels, this is the inverse transform of xpixel_to_xaxis.
+ *
+ *  @param axis - axis value.
+ *  @param row  - Pane manager row of the spectrum we're operating on.
+ *  @param col - pane manager columne of the spectrum we're operating on.
+ *  @return int - nearest corresponsding pixel value.
+ */
+ 
+int xaxis_to_xpixel(double axis, int row, int col) {
+    auto pixels = get_xpixel_extent(row, col);   // Pixel range.
+    auto attributes =  Xamine_GetDisplayAttributes(row, col);
+    
+    // Branch between 1d and 2d to figure out channel limits:
+    
+    int chlow, chhigh;
+    // Set the unxpanded values as the default
+    
+    int nch = xamine_shared->getxdim(attributes->spectrum());
+    chlow = 1;
+    chhigh = nch;
+    
+    // Sadly isexpanded is not virtual so:
+    
+    if (attributes->is1d()) {
+        win_1d* at1 = dynamic_cast<win_1d*>(attributes);
+        // Get the channel limits:
+        
+        if (at1->isexpanded()) {
+            chlow = at1->lowlimit();
+            chhigh= at1->highlimit();
+        }
+    
+    } else {
+        // A few method changes but much the same logic for the 2d:
+        
+        win_2d* at2 = dynamic_cast<win_2d*>(attributes);
+        
+        if (at2->isexpanded()) {
+            chlow = at2->xlowlim();
+            chhigh = at2->xhilim();
+        
+        }
+    }
+    // Turn these into low/high depending on the mapping state:
+    
+    double low, high;
+    if (attributes->ismapped()) {
+        // low/high are transformed chlow, chhigh:
+        
+        double maplow = xamine_shared->getxmin_map(attributes->spectrum());
+        double maphigh= xamine_shared->getxmax_map(attributes->spectrum());
+        
+        low = transform(chlow, chlow, chhigh, maplow, maphigh);
+        high = transform(chhigh, chlow, chhigh, maplow, maphigh);
+        
+    } else {
+        // low/high are chlow, chhigh
+        
+        low = chlow;
+        high= chhigh;
+    }
+    //Now we can do the axis to pixel transformation:
+    
+    return static_cast<int>(
+        transform(axis, low, high, pixels.low, pixels.high)
+        + 0.5
+    );
+}
