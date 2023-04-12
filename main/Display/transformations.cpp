@@ -100,6 +100,21 @@ static Extent get_ypixel_extent(int row, int col) {
     return result;
 }
 
+// Clip to limits.  Note that we make no assumptions about which limit is which:
+
+static double clip(double val, double l1, double l2) {
+    // order the limits:
+    
+    if (l1 > l2) {
+        auto temp = l2;
+        l2 = l1;
+        l1 = temp;
+    }
+    if (val < l1) return l1;
+    if (val > l2) return l2;
+    return val;
+}
+
 
 /**
  * Convert an xpixel value to an x_axis value.  We've (hopefully) removed
@@ -119,7 +134,7 @@ static Extent get_ypixel_extent(int row, int col) {
  *   @param row - Pane manager row of the pane to compute for.
  *   @parm col  - Pane manager column of the pane to compute for.
  */
-double xpixel_to_axis(int pix, int row, int col) {
+double xpixel_to_xaxis(int pix, int row, int col) {
     auto pixels = get_xpixel_extent(row, col);   // Pixel range.
     auto attributes =  Xamine_GetDisplayAttributes(row, col);
     
@@ -163,8 +178,8 @@ double xpixel_to_axis(int pix, int row, int col) {
         double maplow = xamine_shared->getxmin_map(attributes->spectrum());
         double maphigh= xamine_shared->getxmax_map(attributes->spectrum());
         
-        low = transform(chlow, chlow, chhigh, maplow, maphigh);
-        high = transform(chhigh, chlow, chhigh, maplow, maphigh);
+        low = transform(chlow, 0.0, nch-2, maplow, maphigh);
+        high = transform(chhigh, 0.0, nch-2, maplow, maphigh);
         
     } else {
         // low/high are chlow, chhigh
@@ -174,8 +189,8 @@ double xpixel_to_axis(int pix, int row, int col) {
     }
     //Now we can do the pixel to axis transform:
     
-    return transform(static_cast<double>(pix), pixels.low, pixels.high, low, high);
-        
+    auto raw_result = transform(static_cast<double>(pix), pixels.low, pixels.high, low, high);
+    return clip(raw_result, low, high);
     
 }
 /**
@@ -230,13 +245,17 @@ double ypixel_to_yaxis(int pix, int row, int col) {
             pixel = log10(pixel);
             
             double logvalue = transform(pixel, pixels.low, pixels.high, bottom, top);
+            logvalue  = clip(logvalue, bottom, top);
             return exp10(logvalue);
             
             
         } else {
             // Simple linear:
             
-            return transform(pixel, pixels.low, pixels.high, bottom, top);
+            return clip(transform(
+                pixel, pixels.low, pixels.high, bottom, top),
+                bottom, top
+            );
         }
         
     } else {
@@ -274,7 +293,10 @@ double ypixel_to_yaxis(int pix, int row, int col) {
         }
         //Now we can do the pixel to axis transform:
         
-        return transform(static_cast<double>(pix), pixels.low, pixels.high, low, high);
+        return clip(
+            transform(static_cast<double>(pix), pixels.low, pixels.high, low, high),
+            low, high
+        );
         
     }
 }
@@ -343,7 +365,7 @@ int xaxis_to_xpixel(double axis, int row, int col) {
     //Now we can do the axis to pixel transformation:
     
     return static_cast<int>(nearbyint(
-        transform(axis, low, high, pixels.low, pixels.high)
+        clip(transform(axis, low, high, pixels.low, pixels.high), low, high)
     ));
 }
 /**
@@ -390,7 +412,7 @@ auto pixels = get_ypixel_extent(row, col);   // Pixel range.
             top =  log10(top);
             axis = log10(axis);
             
-            double logvalue = transform(axis,  bottom, top, pixels.low, pixels.high);
+            double logvalue = clip(transform(axis,  bottom, top, pixels.low, pixels.high), pixels.low, pixels.high);
             return static_cast<int>(nearbyint(exp10(logvalue)));
             
             
@@ -398,7 +420,7 @@ auto pixels = get_ypixel_extent(row, col);   // Pixel range.
             // Simple linear:
             
             return static_cast<int>(nearbyint(
-                transform(axis, bottom, top, pixels.low, pixels.high)
+                clip(transform(axis, bottom, top, pixels.low, pixels.high), pixels.low, pixels.high)
             ));
         }
         
@@ -438,7 +460,10 @@ auto pixels = get_ypixel_extent(row, col);   // Pixel range.
         //Now we can do the transform
         
         return static_cast<int>(nearbyint(
-            transform(axis, low, high, pixels.low, pixels.high)
+            clip(
+                 transform(axis, low, high, pixels.low, pixels.high),
+                 pixels.low, pixels.high
+            )
         ));
     }       
 }
@@ -460,7 +485,7 @@ int xpixel_to_xchan(int pix, int row, int col) {
     // use the mapping and current expansion (if any) to convert the
     // axis value ot a channel number.
     
-    double axis = xpixel_to_axis(pix, row, col);
+    double axis = xpixel_to_xaxis(pix, row, col);
     auto attributes =  Xamine_GetDisplayAttributes(row, col);
     if (!attributes->ismapped()) return static_cast<int>(nearbyint(axis));  // Axis coords are channels.
     
@@ -475,7 +500,7 @@ int xpixel_to_xchan(int pix, int row, int col) {
     double axhigh = xamine_shared->getxmax_map(specid);
     
     return static_cast<int>(nearbyint(
-        transform(axis, axlow, axhigh, chanlow, chanhi) 
+        clip(transform(axis, axlow, axhigh, chanlow, chanhi), chanlow, chanhi)
     ));
 }
 /**
@@ -494,6 +519,7 @@ int ypixel_to_ychan(int pix, int row, int col) {
     double axis = ypixel_to_yaxis(pix, row, col);
     auto attributes = Xamine_GetDisplayAttributes(row, col);
     if (attributes->is1d() || (!attributes->ismapped()))
+        if (axis < 0.0) axis = 0.0;      // CLip to origin.
         return static_cast<int>(nearbyint(axis));
     
     // Need to use mapping info to transform to channels
@@ -505,7 +531,7 @@ int ypixel_to_ychan(int pix, int row, int col) {
     double axhigh = xamine_shared->getymax_map(specid);
     
     return static_cast<int>(nearbyint(
-        transform(axis, axlow, axhigh, chanlow, chanhi)
+        clip(transform(axis, axlow, axhigh, chanlow, chanhi), chanlow, chanhi)
     ));
     
 }
@@ -562,7 +588,7 @@ int xaxis_to_xchan(double axis, int row, int col) {
     double xhigh = xamine_shared->getxmax_map(spid);
     
     return static_cast<int>(nearbyint(
-       transform(axis, xlow, xhigh, chanlow, chanhi) 
+       clip(transform(axis, xlow, xhigh, chanlow, chanhi), chanlow, chanhi) 
     ));
     
 }
@@ -588,7 +614,7 @@ int yaxis_to_ychan(double axis, int row, int col) {
         double yhigh = xamine_shared->getymax_map(spid);
         
         return static_cast<int>(nearbyint(
-           transform(axis, ylow, yhigh, chanlow, chanhi) 
+           clip(transform(axis, ylow, yhigh, chanlow, chanhi), chanlow, chanhi) 
         ));
     }
 }
@@ -612,7 +638,7 @@ double xchan_to_xaxis(int chan, int row, int col) {
     double xlow = xamine_shared->getxmin_map(spid);
     double xhigh= xamine_shared->getxmax_map(spid);
     
-    return transform(chan, clow, chigh, xlow, xhigh);
+    return clip(transform(chan, clow, chigh, xlow, xhigh), xlow, xhigh);
 }
 /**
  * Convert a y channel to a y axis value.  Only legal for 2d spectra.
@@ -633,5 +659,5 @@ double ychan_to_yaxis(int chan, int row, int col) {
     double ylow = xamine_shared->getymin_map(spid);
     double yhigh= xamine_shared->getymax_map(spid);
     
-    return transform(chan, clow, chigh, ylow, yhigh);
+    return clip(transform(chan, clow, chigh, ylow, yhigh), ylow, yhigh);
 }

@@ -32,6 +32,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <math.h>
 #include "mapcoord.h"
 #include "dispshare.h"
+#include "transformations.h"
 #include <panemgr.h>
 
 #include <iostream>
@@ -164,17 +165,12 @@ float Transform(double fSourceLow, double fSourceHigh,
 */
 int Xamine_XMappedToChan(int specno, double value)
 {
+
   double xlo = xamine_shared->getxmin_map(specno);
   double xhi = xamine_shared->getxmax_map(specno);
   double nch = xamine_shared->getxdim(specno) -2;  // Remove root chans.
+  return transform(value, xlo, xhi, 0, nch);
   
-  // There's really an extra 1/2 channel xhi we need o allow for.
-  
-  xhi +=  channelWidth(xlo, xhi, nch);
-
-  float x = Transform(xlo, xhi, 0.0, (nch+1), value);
-  
-  return x;
 
 }
 
@@ -199,12 +195,7 @@ int Xamine_YMappedToChan(int specno, double value)
   double ylo = xamine_shared->getymin_map(specno);
   double yhi = xamine_shared->getymax_map(specno);
   double nch = xamine_shared->getydim(specno) -2; // Remove root chans.
-  
-  yhi +=  channelWidth(ylo, yhi, nch);
-
-  float y = Transform(ylo, yhi, 0.0, (nch+1), value);
-  
-  return y;
+  return transform(value, ylo, yhi, 0, nch);
 }
 
 /*
@@ -225,14 +216,7 @@ float Xamine_XChanToMapped(int specno, double chan)
   double xlo = xamine_shared->getxmin_map(specno);
   double xhi = xamine_shared->getxmax_map(specno);
   int   nch = xamine_shared->getxdim(specno) - 2; // Remove root chans
-
-  // We go to the end of the last channel so xhi must be adjusted by
-  // a channel width?
-  
- xhi += channelWidth(xlo, xhi, nch-1);
-  
-  return Transform(0, (nch),    
-		   xlo, xhi, chan);                  
+  return transform(chan, 0, nch, xlo, xhi);
 }
 
 /*
@@ -253,13 +237,9 @@ float Xamine_YChanToMapped(int specno, double chan)
   double ylo = xamine_shared->getymin_map(specno);
   double yhi = xamine_shared->getymax_map(specno);
   int   nch = xamine_shared->getydim(specno) -2;  // remove root chan.
-  
-  // We go to the end of the last y channel so we need to add
-  // one more channel width to yhi:
-  
-  yhi += channelWidth(ylo,  yhi, nch - 1);
 
-  return Transform(0, (nch), ylo, yhi, chan); // Remove root chans
+  return transform(chan, 0, nch, ylo, yhi);
+  
 
 }
 /**
@@ -285,21 +265,14 @@ float Xamine_YChanToMapped(int specno, double chan)
 std::pair<int,int>
 Xamine_XChanToPixelRange(int specno, int row, int col, int pixlow, int pixhigh, int chan)
 {
-  std::pair<int,int> result;
-  
-  auto range = getXChannelRange(specno, row, col);
-  int xl = range.first;
-  int xh = range.second;
+    auto pxlo = xchan_to_xpixel(chan, row, col);
+    auto pxhi = xchan_to_xpixel(chan+1, row, col);
     
-  // Now we can do the two transforms that get us the low and high pixel limits
-  // of the channel; we use that our high limit is the low limit of the next channel.
-  
-  result.first = Transform(xl, xh, pixlow, pixhigh, chan);
-  result.second = Transform(xl, xh, pixlow, pixhigh, chan+1);
-
-  
-  
+  std::pair<int,int> result;
+  result.first = pxlo;
+  result.second = pxhi;
   return result;
+
 }
 /**
  * Xamine_YChanToPixelRange
@@ -324,19 +297,10 @@ std::pair<int,int>
 Xamine_YChanToPixelRange(int specno, int row, int col, int pixlow, int pixhigh, int chan)
 {
   std::pair<int,int> result;
-  
-  
-  auto range = getYChannelRange(specno, row, col);
-  int yl = range.first;
-  int yh = range.second;
-  
-  // Now we can do the two transforms that get us the low and high pixel limits
-  // of the channel; we use that our high limit is the low limit of the next channel.
-  
-  result.first = Transform(yl, yh, pixlow, pixhigh, chan);
-  result.second = Transform(yl, yh, pixlow, pixhigh, chan+1);
-  
+  result.first = ychan_to_ypixel(chan, row, col);
+  result.second = ychan_to_ypixel(chan+1, row, col);
   return result;
+  
 }
 /**
  * Xamine_XPixelToChannel
@@ -356,11 +320,7 @@ Xamine_XPixelToChannel(
   int specno, int row, int col, int pixlow, int pixhigh, int x
 )
 {
-  auto range = getXChannelRange(specno, row, col);
-  int chan =  Transform(pixlow, pixhigh, range.first, range.second, x);
-  if (chan < range.first) chan = range.first;              // never less than 1'st chan.
-  if (chan >= range.second) chan = range.second-1; // never > last channel.
-  return chan;
+    return xpixel_to_xchan(x, row, col);
   
 }
 /**
@@ -372,11 +332,8 @@ Xamine_YPixelToChannel(
   int specno, int row, int col, int pixlow, int pixhigh, int y
 )
 {
-  auto range = getYChannelRange(specno, row, col);
-  int channel =  Transform(pixlow, pixhigh, range.first, range.second, y);
-  if (channel < range.first) channel = range.first;
-  if (channel >= range.second) channel = range.second -1;
-  return channel;
+    return ypixel_to_ychan(y, row, col);
+  
 }
 
 
