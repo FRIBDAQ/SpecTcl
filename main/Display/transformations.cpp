@@ -347,3 +347,100 @@ int xaxis_to_xpixel(double axis, int row, int col) {
         + 0.5
     );
 }
+/**
+ * transform a yaxis value into a pixel value.  This is the inverse transform
+ * of ypixel_to_yaxis
+ *
+ * @param axis - axis coordinate value.
+ * @param row - Pane manager row holding the spectrum we're working in.
+ * @param col - Pane manager column holding the spectrum we're working in.
+ * @retun int - nearest y pixel correspnding to that  axis coordinate position.
+ */
+int yaxis_to_ypixel(double axis, int row, int col) {
+auto pixels = get_ypixel_extent(row, col);   // Pixel range.
+    auto attributes =  Xamine_GetDisplayAttributes(row, col);
+    
+    // Branch between 1d and 2d to figure out channel limits:
+    
+    double chlow, chhigh;        // Again for log scaling.
+    
+    
+    
+    if (attributes->is1d()) {
+        // Note 1d spectra mapping is not a problem but log scale it.
+        
+        win_1d* at1 = dynamic_cast<win_1d*>(attributes);
+        
+        // I think even autoscale sets the fsvalue
+        
+        double top = at1->getfsval();
+        double bottom = 0.0;                     // Default unless:
+        if (at1->hasfloor()) bottom = at1->getfloor();
+        if (at1->hasceiling()) top = at1->getceiling();
+        
+        // Now what we do depends on if y is linear or log:
+        
+        if (at1->islog()) {
+            // axis value of 0.0 in log scale is on the x axis:
+            
+            if (axis == 0.0) return pixels.high;
+            
+            // if bottom is nonzero :
+            
+            if (bottom > 0.0)  bottom = log10(bottom);
+            top =  log10(top);
+            axis = log10(axis);
+            
+            double logvalue = transform(axis,  bottom, top, pixels.low, pixels.high);
+            return static_cast<int>(exp10(logvalue) + 0.5);
+            
+            
+        } else {
+            // Simple linear:
+            
+            return static_cast<int>(
+                transform(axis, bottom, top, pixels.low, pixels.high) + 0.5
+            );
+        }
+        
+    } else {
+        // 2d this is a 'channel' axis:
+        // Set the unxpanded values as the default
+    
+        int nch = xamine_shared->getydim(attributes->spectrum());
+        chlow = 1.0;
+        chhigh = static_cast<double>(nch);
+        
+        win_2d* at2 = dynamic_cast<win_2d*>(attributes);
+        
+        if (at2->isexpanded()) {
+            chlow = at2->xlowlim();
+            chhigh = at2->xhilim();
+        
+        }
+        // Turn these into low/high depending on the mapping state:
+        
+        double low, high;
+        if (attributes->ismapped()) {
+            // low/high are transformed chlow, chhigh:
+            
+            double maplow = xamine_shared->getymin_map(attributes->spectrum());
+            double maphigh= xamine_shared->getymax_map(attributes->spectrum());
+            
+            low = transform(chlow, chlow, chhigh, maplow, maphigh);
+            high = transform(chhigh, chlow, chhigh, maplow, maphigh);
+            
+        } else {
+            // low/high are chlow, chhigh
+            
+            low = chlow;
+            high= chhigh;
+        }
+        //Now we can do the transform
+        
+        return static_cast<int>(
+            transform(axis, low, high, pixels.low, pixels.high) + 0.5
+        );
+    }
+        
+}
