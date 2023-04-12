@@ -342,10 +342,9 @@ int xaxis_to_xpixel(double axis, int row, int col) {
     }
     //Now we can do the axis to pixel transformation:
     
-    return static_cast<int>(
+    return static_cast<int>(nearbyint(
         transform(axis, low, high, pixels.low, pixels.high)
-        + 0.5
-    );
+    ));
 }
 /**
  * transform a yaxis value into a pixel value.  This is the inverse transform
@@ -392,15 +391,15 @@ auto pixels = get_ypixel_extent(row, col);   // Pixel range.
             axis = log10(axis);
             
             double logvalue = transform(axis,  bottom, top, pixels.low, pixels.high);
-            return static_cast<int>(exp10(logvalue) + 0.5);
+            return static_cast<int>(nearbyint(exp10(logvalue)));
             
             
         } else {
             // Simple linear:
             
-            return static_cast<int>(
-                transform(axis, bottom, top, pixels.low, pixels.high) + 0.5
-            );
+            return static_cast<int>(nearbyint(
+                transform(axis, bottom, top, pixels.low, pixels.high)
+            ));
         }
         
     } else {
@@ -438,9 +437,9 @@ auto pixels = get_ypixel_extent(row, col);   // Pixel range.
         }
         //Now we can do the transform
         
-        return static_cast<int>(
-            transform(axis, low, high, pixels.low, pixels.high) + 0.5
-        );
+        return static_cast<int>(nearbyint(
+            transform(axis, low, high, pixels.low, pixels.high)
+        ));
     }       
 }
 /**
@@ -451,6 +450,7 @@ auto pixels = get_ypixel_extent(row, col);   // Pixel range.
  *  @param pix  - The x pixel coordinate.
  *  @param row  - Row of the pane we're working in.
  *  @param col  - Column of the pane we're working in.
+ *  @return int - x channel number.
  */
 int xpixel_to_xchan(int pix, int row, int col) {
     
@@ -462,7 +462,7 @@ int xpixel_to_xchan(int pix, int row, int col) {
     
     double axis = xpixel_to_axis(pix, row, col);
     auto attributes =  Xamine_GetDisplayAttributes(row, col);
-    if (!attributes->ismapped()) return axis;  // Axis coords are channels.
+    if (!attributes->ismapped()) return static_cast<int>(nearbyint(axis));  // Axis coords are channels.
     
     int specid = attributes->spectrum();
     
@@ -474,7 +474,38 @@ int xpixel_to_xchan(int pix, int row, int col) {
     double axlow = xamine_shared->getxmin_map(specid);
     double axhigh = xamine_shared->getxmax_map(specid);
     
-    return static_cast<int>(
-        transform(axis, axlow, axhigh, chanlow, chanhi) + 0.5
-    );
+    return static_cast<int>(nearbyint(
+        transform(axis, axlow, axhigh, chanlow, chanhi) 
+    ));
+}
+/**
+ * Convert a y pixel to a channel number or counts (if 1d).
+ * -   For 1d this is just ypixel_to_yaxis
+ * -   For unmapped 2d thisi s just ypixel_to_yaxis
+ * -   For mapped 2d this is ypxiel_to_yaxis transformed from
+ * axis to channel coords using the mapping information.
+ *
+ *  @param pix - pixel position.
+ *  @param row - Pane row number
+ *  @param col - pane colunmn number
+ *  @return int - y channel number.
+ */
+int ypixel_to_ychan(int pix, int row, int col) {
+    double axis = ypixel_to_yaxis(pix, row, col);
+    auto attributes = Xamine_GetDisplayAttributes(row, col);
+    if (attributes->is1d() || (!attributes->ismapped()))
+        return static_cast<int>(nearbyint(axis));
+    
+    // Need to use mapping info to transform to channels
+    
+    int specid = attributes->spectrum();
+    int chanlow = 1;                      // omit underflow
+    int chanhi = xamine_shared->getydim(specid);  // Just to the overflow
+    double axlow = xamine_shared->getymin_map(specid);
+    double axhigh = xamine_shared->getymax_map(specid);
+    
+    return static_cast<int>(nearbyint(
+        transform(axis, axlow, axhigh, chanlow, chanhi)
+    ));
+    
 }
