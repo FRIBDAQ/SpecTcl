@@ -197,22 +197,22 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   if(atts->ismapped()) {
     if(atts->is1d()) {
       if(atts->isflipped()) {
-				l->Xpos(locdata.xpos);
-				l->YMappedPos(ffy);
+        l->Xpos(locdata.xpos);
+        l->YMappedPos(ffy);
       }
       else {
-				l->XMappedPos(fx);
+		l->XMappedPos(fx);
       	l->Ypos(locdata.ypos);
       }
     }
     else {
       if(atts->isflipped()) {
-				l->XMappedPos(ffx);
-				l->YMappedPos(ffy);
+        l->XMappedPos(ffx);
+        l->YMappedPos(ffy);
       }
       else {
-				l->XMappedPos(fx);
-				l->YMappedPos(fy);
+        l->XMappedPos(fx);
+        l->YMappedPos(fy);
       }
     }
   }
