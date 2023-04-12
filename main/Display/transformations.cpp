@@ -129,8 +129,8 @@ double xpixel_to_axis(int pix, int row, int col) {
     // Set the unxpanded values as the default
     
     int nch = xamine_shared->getxdim(attributes->spectrum());
-    chlow = 1;
-    chhigh = nch;
+    chlow = 0;
+    chhigh = nch-2;
     
     // Sadly isexpanded is not virtual so:
     
@@ -244,8 +244,8 @@ double ypixel_to_yaxis(int pix, int row, int col) {
         // Set the unxpanded values as the default
     
         int nch = xamine_shared->getydim(attributes->spectrum());
-        chlow = 1.0;
-        chhigh = static_cast<double>(nch);
+        chlow = 0;
+        chhigh = static_cast<double>(nch-2);
         
         win_2d* at2 = dynamic_cast<win_2d*>(attributes);
         
@@ -297,8 +297,8 @@ int xaxis_to_xpixel(double axis, int row, int col) {
     // Set the unxpanded values as the default
     
     int nch = xamine_shared->getxdim(attributes->spectrum());
-    chlow = 1;
-    chhigh = nch;
+    chlow = 0;
+    chhigh = nch-2;
     
     // Sadly isexpanded is not virtual so:
     
@@ -407,8 +407,8 @@ auto pixels = get_ypixel_extent(row, col);   // Pixel range.
         // Set the unxpanded values as the default
     
         int nch = xamine_shared->getydim(attributes->spectrum());
-        chlow = 1.0;
-        chhigh = static_cast<double>(nch);
+        chlow = 0.0;
+        chhigh = static_cast<double>(nch-2);
         
         win_2d* at2 = dynamic_cast<win_2d*>(attributes);
         
@@ -469,8 +469,8 @@ int xpixel_to_xchan(int pix, int row, int col) {
     // We can simplify by using the full mapped extent and channel extent:
     
     
-    int chanlow = 1;                      // omit underflow
-    int chanhi = xamine_shared->getxdim(specid);  // Just to the overflow
+    int chanlow = 0;                      // omit underflow
+    int chanhi = xamine_shared->getxdim(specid) -2;  // Just to the overflow
     double axlow = xamine_shared->getxmin_map(specid);
     double axhigh = xamine_shared->getxmax_map(specid);
     
@@ -499,8 +499,8 @@ int ypixel_to_ychan(int pix, int row, int col) {
     // Need to use mapping info to transform to channels
     
     int specid = attributes->spectrum();
-    int chanlow = 1;                      // omit underflow
-    int chanhi = xamine_shared->getydim(specid);  // Just to the overflow
+    int chanlow = 0;                      // omit underflow
+    int chanhi = xamine_shared->getydim(specid) -2 ;  // Just to the overflow
     double axlow = xamine_shared->getymin_map(specid);
     double axhigh = xamine_shared->getymax_map(specid);
     
@@ -508,4 +508,130 @@ int ypixel_to_ychan(int pix, int row, int col) {
         transform(axis, axlow, axhigh, chanlow, chanhi)
     ));
     
+}
+/**
+ * Convert x channel number to pixel.  This is a matter of converting
+ * the channel # to an axis coordinate and then converting that to
+ * pixel space.
+ * The conversion to axis coordinates is a unit transform if the
+ * spectrum is not in mapped mode else we can use the mapping information
+ * to do the conversion.
+ *
+ * @param chan - channel number to transofmr.
+ * @param row, col - coordinates of the pane in which we're operating.
+ * @return int - X Pixel coordinate of corresponding to the channel in the window.
+ */
+int xchan_to_xpixel(int chan, int row, int col) {
+    // FIrst convert the channel to axis coordinates, then the resulting
+    // xaxis position to pixels.
+    
+    auto xaxis = xchan_to_xaxis(chan, row, col);
+    return xaxis_to_xpixel(xaxis, row, col);
+}
+/**
+ * similarly for y channel to pixel
+ * 
+* @param chan - channel number to transofmr.
+* @param row, col - coordinates of the pane in which we're operating.
+* @return int - Y Pixel coordinate of corresponding to the channel in the window.
+*/
+int ychan_to_ypixel(int chan, int row, int col) {
+    auto yaxis = ychan_to_yaxis(chan, row, col);
+    return yaxis_to_ypixel(yaxis, row, col);
+}
+/**
+ * Convert an X axis coordinate to channel coordinates.
+ * - if the spectrum is not displayed mapped this is a unit transform.
+ * - If mapped, use the full range of channels and the xmapping information
+ * to perform the transformation.
+ *
+ * @param axis - Axis coordinate value to transform.
+ * @param row, col - coordinates of the pane we're operating in.
+ * @return  int  - correspondig x channel number.
+ */
+int xaxis_to_xchan(double axis, int row, int col) {
+    auto attributes = Xamine_GetDisplayAttributes(row, col);
+    int spid = attributes->spectrum();
+    if (!attributes->ismapped()) return static_cast<int>(nearbyint(axis));
+    
+    // mapped so we need the extent of the channels anb axis:
+    
+    int chanlow = 0;
+    int chanhi  = xamine_shared->getxdim(spid) - 2;
+    double xlow = xamine_shared->getxmin_map(spid);
+    double xhigh = xamine_shared->getxmax_map(spid);
+    
+    return static_cast<int>(nearbyint(
+       transform(axis, xlow, xhigh, chanlow, chanhi) 
+    ));
+    
+}
+/**
+ * convert a Y axis coordinate to channel coordinates
+ * 
+ * @param axis - Axis coordinate value to transform.
+ * @param row, col - coordinates of the pane we're operating in.
+ * @return  int  - correspondig y channel number.
+ */
+int yaxis_to_ychan(double axis, int row, int col) {
+    auto attributes = Xamine_GetDisplayAttributes(row, col);
+        throw std::logic_error("Attempting yaxis->ychan transform on 1d spectrum");
+    if (attributes->is1d()) {
+        int spid = attributes->spectrum();
+        if (!attributes->ismapped()) return static_cast<int>(nearbyint(axis));
+        
+        // mapped so we need the extent of the channels anb axis:
+        
+        int chanlow = 0;
+        int chanhi  = xamine_shared->getydim(spid) - 2;
+        double ylow = xamine_shared->getymin_map(spid);
+        double yhigh = xamine_shared->getymax_map(spid);
+        
+        return static_cast<int>(nearbyint(
+           transform(axis, ylow, yhigh, chanlow, chanhi) 
+        ));
+    }
+}
+
+/**
+ * convert the an X channel number to an x axis value.
+ * If not mapped, the channel number is the axis coordinate.
+ * IF mapped run the transform using the mapping data.
+ *
+ * @param chan - channel to transform.
+ * @param row, col  - Coordinates of the pane in which the transform is being done.
+ * @return double  - The axis coordinates.
+ */
+double xchan_to_xaxis(int chan, int row, int col) {
+    auto attributes = Xamine_GetDisplayAttributes(row, col);
+    if (!attributes->ismapped()) return static_cast<double>(chan);
+    
+    int spid = attributes->spectrum();
+    double clow = 0.0;
+    double chigh = xamine_shared->getxdim(spid) -2;
+    double xlow = xamine_shared->getxmin_map(spid);
+    double xhigh= xamine_shared->getxmax_map(spid);
+    
+    return transform(chan, clow, chigh, xlow, xhigh);
+}
+/**
+ * Convert a y channel to a y axis value.  Only legal for 2d spectra.
+ * 
+ *  @param chan - channel number.
+ *  @param row, col - coordinates of the pane.
+ *  @return double - corresponding axis coordinate.
+ */
+double ychan_to_yaxis(int chan, int row, int col) {
+    auto attributes = Xamine_GetDisplayAttributes(row, col);
+    if (attributes->is1d()) {
+        throw std::logic_error("Attempting ychan -> yaxs transform on a 1d");
+    }
+    if (!attributes->ismapped()) return static_cast<double>(chan);
+    int spid = attributes->spectrum();
+    double clow = 0.0;
+    double chigh = xamine_shared->getydim(spid) -2;
+    double ylow = xamine_shared->getymin_map(spid);
+    double yhigh= xamine_shared->getymax_map(spid);
+    
+    return transform(chan, clow, chigh, ylow, yhigh);
 }
