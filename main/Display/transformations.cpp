@@ -441,6 +441,40 @@ auto pixels = get_ypixel_extent(row, col);   // Pixel range.
         return static_cast<int>(
             transform(axis, low, high, pixels.low, pixels.high) + 0.5
         );
-    }
-        
+    }       
+}
+/**
+ * Convert an X pixel into a channel number.  Channels all cover a range of
+ *  [low, high) with the next channel picking up the high of the last channel.
+ *  The right most channel's high is not part of the spectrum.
+ *
+ *  @param pix  - The x pixel coordinate.
+ *  @param row  - Row of the pane we're working in.
+ *  @param col  - Column of the pane we're working in.
+ */
+int xpixel_to_xchan(int pix, int row, int col) {
+    
+    // The strategy is simple:  First convert the
+    // pixel to an axis coordinate.  If the spectrum is not mapped, we're done,
+    // if the specxtrum is displayed in mapped mode, we need to
+    // use the mapping and current expansion (if any) to convert the
+    // axis value ot a channel number.
+    
+    double axis = xpixel_to_axis(pix, row, col);
+    auto attributes =  Xamine_GetDisplayAttributes(row, col);
+    if (!attributes->ismapped()) return axis;  // Axis coords are channels.
+    
+    int specid = attributes->spectrum();
+    
+    // We can simplify by using the full mapped extent and channel extent:
+    
+    
+    int chanlow = 1;                      // omit underflow
+    int chanhi = xamine_shared->getxdim(specid);  // Just to the overflow
+    double axlow = xamine_shared->getxmin_map(specid);
+    double axhigh = xamine_shared->getxmax_map(specid);
+    
+    return static_cast<int>(
+        transform(axis, axlow, axhigh, chanlow, chanhi) + 0.5
+    );
 }
