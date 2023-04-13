@@ -523,7 +523,8 @@ int ypixel_to_ychan(int pix, int row, int col) {
     int chanhi = xamine_shared->getydim(specid) -2 ;  // Just to the overflow
     
     if (attributes->is1d() || (!attributes->ismapped())) {
-        return static_cast<int>(nearbyint(clip(axis, chanlow, chanhi)));
+        if (axis < 0.0) axis = 0.0;
+        return static_cast<int>(nearbyint(axis));
     }
     
     // Need to use mapping info to transform to channels

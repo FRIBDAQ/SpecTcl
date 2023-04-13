@@ -46,6 +46,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "refreshctl.h"
 #include "convert.h"
 #include "dispshare.h"
+#include "panemgr.h"
+#include "transformations.h"
 
 /*
 ** External references:
@@ -211,6 +213,7 @@ void GraphicalInput::MouseHit(XMWidget *wid, XtPointer call_d)
   win_attributed   *attrib;
   spec_location    loc;
 
+  
   /* Get the window attributes.  It's possible that the window has changed
   ** to a NULL spectrum at some point in all of this:
   */
@@ -238,43 +241,21 @@ void GraphicalInput::MouseHit(XMWidget *wid, XtPointer call_d)
     DelPoint();
   }
   else {			/* Accept Point */
-    Xamine_Convert1d *cvt1;
-    Xamine_Convert2d *cvt2;
-
-  
-    /* Handling differs depending on the spectrum type: */
-
-    switch(xamine_shared->gettype(attrib->spectrum())) {
-    case twodlong:
-    case twodword:
-    case twodbyte:
-      cvt2 = new Xamine_Convert2d(wid, attrib, xamine_shared);
-      cvt2->ScreenToSpec(&loc, xpix, ypix);
-
-      // Clip the coordinate to the displayable spectrum:
-
-      
-      delete cvt2;
-      break;
-    case onedlong:
-    case onedword:
-      cvt1 = new Xamine_Convert1d(wid, attrib, xamine_shared);
-      cvt1->ScreenToSpec(&loc, xpix, ypix);
-
-      // Clip the coordinate to the displayable spectrum.
-      delete cvt1;
-      break;
-    default:			/* No such spectrum... pop down etc. */
-      CancelCallback(NULL);
-      return;
-    }
- 
+    // All of this can be simplified using the functions in transformations:
+    
+    uintptr_t  index;
+    wid->GetAttribute(XmNuserData, &index);	/* Panes store pane index as userd. */
+    int row = index / WINDOW_MAXAXIS;
+    int col = index % WINDOW_MAXAXIS;
+    
+    
+    
     /* If control passes here, then loc contains the spectrum location 
      ** which corresponds to the mouse hit.
      */
     point pt;
-    pt.x = loc.xpos;
-    pt.y = loc.ypos;
+    pt.x = xpixel_to_xchan(xpix, row, col);
+    pt.y = ypixel_to_ychan(ypix, row, col); // for 1d this is the y axis height.
     
     AddPoint(pt);
   }
