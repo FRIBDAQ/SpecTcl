@@ -143,6 +143,8 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   int cx = xpixel_to_xchan(xpix, row, col);
   int cy = ypixel_to_ychan(ypix, row, col);
 
+
+
   int counts = spectra->getchannel(spec, cx, cy);
   
   // FIll in the locator:
