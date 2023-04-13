@@ -865,7 +865,7 @@ void grobj_mark2d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   pm  = Xamine_GetBackingStore(row, col);
 
   /* Next construct a converter for the drawing operation to convert
-  ** channel coords into pixels. Since the object is a 1-d we're assured
+  ** channel coords into pixels. Since the object is a 2-d we're assured
   ** that we want a 1-d converter
   */
   Xamine_Convert2d cvt(pane, at, xamine_shared);
