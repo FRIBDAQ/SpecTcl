@@ -277,10 +277,10 @@ void AcceptMarker::TextPoint()
     if(att->isflipped()) {
       pt.x = Xamine_YMappedToChan(spec, y);
       if(att->is1d()) {
-	pt.y = (int)x;
+        pt.y = (int)x;
       } 
       else {
-	pt.y = Xamine_XMappedToChan(spec, x);
+        pt.y = Xamine_XMappedToChan(spec, x);
       }
 
     }

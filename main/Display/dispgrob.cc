@@ -561,7 +561,7 @@ void grobj_mark1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   */
   Xamine_Convert1d cvt(pane, at, xamine_shared);
   
-  /* Next figure out the remaining arguments for Xamine_DrawSumRegion
+  /* Next figure out the remaining arguments for Xamine_PlotMarker
   ** These are flipped, labelit, and the graphical context.  labelit
   ** and the graphical context depend on the final argument
   */
