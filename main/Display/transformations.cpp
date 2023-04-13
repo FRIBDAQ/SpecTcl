@@ -114,6 +114,52 @@ static double clip(double val, double l1, double l2) {
     if (val > l2) return l2;
     return val;
 }
+// Figure out the x axis extent of a displayed spectrum -- takes into account
+// the expansion if it is expanded...works for both 1d and 2d spectra:
+// Returns channels if not mapped or axis coordinates if mapped.
+//                low     high
+static std::pair<double, double>
+xaxis_extent(win_attributed* attribs) {
+    // If not expanded, the channel limits are just the spectrum x dimension
+    // corrected for the two extra root channels:
+    
+    int spno = attribs->spectrum();
+    double low = 0.0;
+    int nch = xamine_shared->getxdim(spno) - 2;
+    double high = nch;
+    // To correct for expansion, we need to get the X mapping and
+    // unfortunately, the expansion state/info is dimension dependeent:
+    
+    double maplow = xamine_shared->getxmin_map(spno);
+    double maphigh = xamine_shared->getxmax_map(spno);
+    
+    if (attribs->is1d()) {
+        win_1d* a1 = dynamic_cast<win_1d*>(attribs);
+        if (a1->isexpanded()) {
+            low = a1->lowlimit();
+            high = a1->highlimit();
+        }
+    } else {
+        win_2d* a2 = dynamic_cast<win_2d*>(attribs);
+        if (a2->isexpanded()) {
+            low = a2->xlowlim();
+            high = a2->xhilim();
+        }
+    }
+    // Low/high are now the channel extent displayed.
+    //  If mapped we need to transform the channels into mapping coords.
+    //  This is a mapping between [0, nch) and [maplow, maphigh)
+    //
+    if (attribs->ismapped()) {
+        low = transform(low, 0, nch, maplow, maphigh);
+        high = transform(high, 0, nch, maplow, maphigh);
+    }
+    std::pair<double, double> result;
+    result.first = low;
+    result.second = high;
+    return result;
+    
+}
 
 
 /**
@@ -141,56 +187,14 @@ double xpixel_to_xaxis(int pix, int row, int col) {
     // Branch between 1d and 2d to figure out channel limits:
     
     int chlow, chhigh;
-    // Set the unxpanded values as the default
-    
-    int nch = xamine_shared->getxdim(attributes->spectrum());
-    chlow = 0;
-    chhigh = nch-2;
     
     // Sadly isexpanded is not virtual so:
     
-    if (attributes->is1d()) {
-        win_1d* at1 = dynamic_cast<win_1d*>(attributes);
-        // Get the channel limits:
-        
-        if (at1->isexpanded()) {
-            chlow = at1->lowlimit();
-            chhigh= at1->highlimit();
-        }
+    auto limits = xaxis_extent(attributes);
     
-    } else {
-        // A few method changes but much the same logic for the 2d:
-        
-        win_2d* at2 = dynamic_cast<win_2d*>(attributes);
-        
-        if (at2->isexpanded()) {
-            chlow = at2->xlowlim();
-            chhigh = at2->xhilim();
-        
-        }
-    }
-    // Turn these into low/high depending on the mapping state:
     
-    double low, high;
-    if (attributes->ismapped()) {
-        // low/high are transformed chlow, chhigh:
-        
-        double maplow = xamine_shared->getxmin_map(attributes->spectrum());
-        double maphigh= xamine_shared->getxmax_map(attributes->spectrum());
-        
-        low = transform(chlow, 0.0, nch-2, maplow, maphigh);
-        high = transform(chhigh, 0.0, nch-2, maplow, maphigh);
-        
-    } else {
-        // low/high are chlow, chhigh
-        
-        low = chlow;
-        high= chhigh;
-    }
-    //Now we can do the pixel to axis transform:
-    
-    auto raw_result = transform(static_cast<double>(pix), pixels.low, pixels.high, low, high);
-    return clip(raw_result, low, high);
+    auto raw_result = transform(static_cast<double>(pix), pixels.low, pixels.high, limits.first, limits.second);
+    return clip(raw_result, limits.first, limits.second);
     
 }
 /**
@@ -312,60 +316,18 @@ double ypixel_to_yaxis(int pix, int row, int col) {
 int xaxis_to_xpixel(double axis, int row, int col) {
     auto pixels = get_xpixel_extent(row, col);   // Pixel range.
     auto attributes =  Xamine_GetDisplayAttributes(row, col);
-    
-    // Branch between 1d and 2d to figure out channel limits:
-    
-    int chlow, chhigh;
+
+
     // Set the unxpanded values as the default
     
-    int nch = xamine_shared->getxdim(attributes->spectrum());
-    chlow = 0;
-    chhigh = nch-2;
+    auto limits = xaxis_extent(attributes);
     
-    // Sadly isexpanded is not virtual so:
-    
-    if (attributes->is1d()) {
-        win_1d* at1 = dynamic_cast<win_1d*>(attributes);
-        // Get the channel limits:
-        
-        if (at1->isexpanded()) {
-            chlow = at1->lowlimit();
-            chhigh= at1->highlimit();
-        }
-    
-    } else {
-        // A few method changes but much the same logic for the 2d:
-        
-        win_2d* at2 = dynamic_cast<win_2d*>(attributes);
-        
-        if (at2->isexpanded()) {
-            chlow = at2->xlowlim();
-            chhigh = at2->xhilim();
-        
-        }
-    }
-    // Turn these into low/high depending on the mapping state:
-    
-    double low, high;
-    if (attributes->ismapped()) {
-        // low/high are transformed chlow, chhigh:
-        
-        double maplow = xamine_shared->getxmin_map(attributes->spectrum());
-        double maphigh= xamine_shared->getxmax_map(attributes->spectrum());
-        
-        low = transform(chlow, chlow, chhigh, maplow, maphigh);
-        high = transform(chhigh, chlow, chhigh, maplow, maphigh);
-        
-    } else {
-        // low/high are chlow, chhigh
-        
-        low = chlow;
-        high= chhigh;
-    }
     //Now we can do the axis to pixel transformation:
     
     return static_cast<int>(nearbyint(
-        clip(transform(axis, low, high, pixels.low, pixels.high), low, high)
+        clip(transform(
+            axis, limits.first, limits.second, pixels.low, pixels.high
+        ), pixels.low, pixels.high)
     ));
 }
 /**
