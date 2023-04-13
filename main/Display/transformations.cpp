@@ -518,20 +518,22 @@ int xpixel_to_xchan(int pix, int row, int col) {
 int ypixel_to_ychan(int pix, int row, int col) {
     double axis = ypixel_to_yaxis(pix, row, col);
     auto attributes = Xamine_GetDisplayAttributes(row, col);
-    if (attributes->is1d() || (!attributes->ismapped()))
-        if (axis < 0.0) axis = 0.0;      // CLip to origin.
-        return static_cast<int>(nearbyint(axis));
-    
-    // Need to use mapping info to transform to channels
-    
     int specid = attributes->spectrum();
     int chanlow = 0;                      // omit underflow
     int chanhi = xamine_shared->getydim(specid) -2 ;  // Just to the overflow
-    double axlow = xamine_shared->getymin_map(specid);
-    double axhigh = xamine_shared->getymax_map(specid);
+    
+    if (attributes->is1d() || (!attributes->ismapped())) {
+        return static_cast<int>(nearbyint(clip(axis, chanlow, chanhi)));
+    }
+    
+    // Need to use mapping info to transform to channels
+    
+    
+    double aylow = xamine_shared->getymin_map(specid);
+    double ayhigh = xamine_shared->getymax_map(specid);
     
     return static_cast<int>(nearbyint(
-        clip(transform(axis, axlow, axhigh, chanlow, chanhi), chanlow, chanhi)
+        clip(transform(axis, aylow, ayhigh, chanlow, chanhi), chanlow, chanhi)
     ));
     
 }
