@@ -226,7 +226,7 @@ yaxis_extent(win_attributed* attribs) {
 // transforming on the counts axis when the counts are in log scale.
 
 static double
-transform_log(double value, double fromlow, double fromhi, double tolow, double tohi) {
+transform_tolog(double value, double fromlow, double fromhi, double tolow, double tohi) {
 
     if (value == 0.0) return tolow;
     
@@ -247,7 +247,23 @@ transform_log(double value, double fromlow, double fromhi, double tolow, double 
     return exp10(lresult);
     
 }
+// Transform from log -> linear 
 
+static double
+transform_fromlog(double value, double fromlow, double fromhi, double tolow, double tohi) {
+    double llow, lhi;
+    
+    lhi = log10(fromhi);
+    if (fromlow > 0.0) llow = log10(fromlow);
+    else llow = 0.0;
+    double lvalue;
+    if (value >=0.0) lvalue = log10(value);
+    else return 0.0;
+    
+    double lresult = transform(lvalue, llow, lhi, tolow, tohi);
+    return lresult;
+    
+}
 
 
 
@@ -321,7 +337,7 @@ double ypixel_to_yaxis(int pix, int row, int col) {
             // need to do a bit of work because the pixel coordinates run backwards:
             
             pix = pixels.low - pix + pixels.high;
-            result = transform_log(pix, pixels.high, pixels.low, yextent.first, yextent.second);
+            result = transform_tolog(pix, pixels.high, pixels.low, yextent.first, yextent.second);
         }
     }
     return clip(result, yextent.first, yextent.second);
@@ -374,7 +390,9 @@ int yaxis_to_ypixel(double axis, int row, int col) {
     if (attributes->is1d()) {
         win_1d* a1 = dynamic_cast<win_1d*>(attributes);
         if (a1->islog()) {
-            result = transform_log(axis, yextent.first, yextent.second, pixels.low, pixels.high);
+            result = transform_fromlog(axis, yextent.first, yextent.second, pixels.high, pixels.low);
+            
+            return clip(result, pixels.high, pixels.low);
         }
     }
     return clip(result, pixels.low, pixels.high);
