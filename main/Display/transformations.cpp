@@ -160,6 +160,95 @@ xaxis_extent(win_attributed* attribs) {
     return result;
     
 }
+//  Same for the y axis.  This is complicated by the fact that for a 1d
+// that's the counts axis.
+//
+// Note the caller for a 1d needs to still be concerned about a log transformation
+// in the event counts axis is log.
+//
+static std::pair<double, double>
+yaxis_extent(win_attributed* attribs) {
+    int spno = attribs->spectrum();
+    std::pair<double,double> result;
+    
+    // Code is completely different for 1d/2d so:
+    
+    if (attribs->is1d()) {
+        // For a 1-d the y axis is the counts axis:
+        
+        win_1d* a1 = dynamic_cast<win_1d*>(attribs);
+        result.second = a1->getfs();
+        result.first  = 0.0;
+        
+        if (a1->hasfloor()) result.first = a1->getfloor();
+        if (a1->hasceiling()) result.second = a1->getceiling(); // not sure this is needed but.
+        
+        // If yaxis is log scale it's in full decades so:
+        
+        if(a1->islog()) {
+            int floor = (result.first == 0) ? 0 :  log10(result.first);
+            int ceiling = ceil(log10(result.second));
+            result.first = int(exp10(floor));   // Eliminate rounding errors.
+            if (result.first < 10.0) result.first = 0.0; // Bottom of bottom decade.
+            result.second = int(exp10(ceiling));
+        }
+    } else {
+        // 2d is just another axis:
+        win_2d* a2 = dynamic_cast<win_2d*>(attribs);
+        result.first = 0.0;
+        int nch = xamine_shared->getydim(spno) - 2; // remove the root under/over channels.
+        result.second = nch;
+        
+        // But if its expanded:
+        
+        if (a2->isexpanded()) {
+            result.first = a2->ylowlim();
+            result.second= a2->yhilim();
+        }
+        // And finally if mapped we need to transform from
+        // channel -> mapped coords:
+        
+        if (a2->ismapped())  {
+            double maplow = xamine_shared->getymin_map(spno);
+            double maphi  = xamine_shared->getymax_map(spno);
+            
+            result.first = transform(result.first, 0.0, nch, maplow, maphi);
+            result.second = transform(result.second, 0.0, nch, maplow, maphi);
+        }
+        
+    }
+    
+    
+    return result;
+}
+
+// Do a transformation on from a linear to a log scal.
+// transforming on the counts axis when the counts are in log scale.
+
+static double
+transform_log(double value, double fromlow, double fromhi, double tolow, double tohi) {
+
+    if (value == 0.0) return tolow;
+    
+    // linearize everything by doing the log 10.  There are a few tricks:
+    // if value or fromlow are zero, we make them tolow
+    // if tolow is 0, it's log is set to 0.1 to get it close to the xaxis.
+    // All this is done to avoid domain errors on the log
+    
+    double llow;
+    double lhi = log10(tohi);
+    
+    if (tolow > 0.0) llow = log10(tolow);
+    else llow = 0.0;
+    
+    double lresult = transform(value, fromlow, fromhi, llow, lhi);
+    //if (lresult < 0.0) return 0.0;
+    
+    return exp10(lresult);
+    
+}
+
+
 
 
 /**
@@ -220,89 +309,23 @@ double ypixel_to_yaxis(int pix, int row, int col) {
     // Branch between 1d and 2d to figure out channel limits:
     
     double chlow, chhigh;        // Again for log scaling.
+    auto yextent = yaxis_extent(attributes);
     
+    // This can be used _unless_ this is a 1d spectrum with log scale:
     
+    double result = transform(pix, pixels.low, pixels.high, yextent.first, yextent.second);
     
     if (attributes->is1d()) {
-        // Note 1d spectra mapping is not a problem but log scale it.
-        
-        win_1d* at1 = dynamic_cast<win_1d*>(attributes);
-        
-        // I think even autoscale sets the fsvalue
-        
-        double top = at1->getfsval();
-        double bottom = 0.0;                     // Default unless:
-        if (at1->hasfloor()) bottom = at1->getfloor();
-        if (at1->hasceiling()) top = at1->getceiling();
-        
-        // Now what we do depends on if y is linear or log:
-        
-        if (at1->islog()) {
-            // pixel value of 0 is top:
+        win_1d* a1 = dynamic_cast<win_1d*>(attributes);
+        if (a1->islog()) {
+            // need to do a bit of work because the pixel coordinates run backwards:
             
-            if (pixel == 0.0) return top;
-            
-            // if bottom is nonzero :
-            
-            if (bottom > 0.0)  bottom = log10(bottom);
-            top =  log10(top);
-            pixel = log10(pixel);
-            
-            double logvalue = transform(pixel, pixels.low, pixels.high, bottom, top);
-            logvalue  = clip(logvalue, bottom, top);
-            return exp10(logvalue);
-            
-            
-        } else {
-            // Simple linear:
-            
-            return clip(transform(
-                pixel, pixels.low, pixels.high, bottom, top),
-                bottom, top
-            );
+            pix = pixels.low - pix + pixels.high;
+            result = transform_log(pix, pixels.high, pixels.low, yextent.first, yextent.second);
         }
-        
-    } else {
-        // 2d this is a 'channel' axis:
-        // Set the unxpanded values as the default
-    
-        int nch = xamine_shared->getydim(attributes->spectrum());
-        chlow = 0;
-        chhigh = static_cast<double>(nch-2);
-        
-        win_2d* at2 = dynamic_cast<win_2d*>(attributes);
-        
-        if (at2->isexpanded()) {
-            chlow = at2->xlowlim();
-            chhigh = at2->xhilim();
-        
-        }
-        // Turn these into low/high depending on the mapping state:
-        
-        double low, high;
-        if (attributes->ismapped()) {
-            // low/high are transformed chlow, chhigh:
-            
-            double maplow = xamine_shared->getymin_map(attributes->spectrum());
-            double maphigh= xamine_shared->getymax_map(attributes->spectrum());
-            
-            low = transform(chlow, chlow, chhigh, maplow, maphigh);
-            high = transform(chhigh, chlow, chhigh, maplow, maphigh);
-            
-        } else {
-            // low/high are chlow, chhigh
-            
-            low = chlow;
-            high= chhigh;
-        }
-        //Now we can do the pixel to axis transform:
-        
-        return clip(
-            transform(static_cast<double>(pix), pixels.low, pixels.high, low, high),
-            low, high
-        );
-        
     }
+    return clip(result, yextent.first, yextent.second);
+    
 }
 /**
  *  Transform x axis value to pixels, this is the inverse transform of xpixel_to_xaxis.
@@ -340,94 +363,22 @@ int xaxis_to_xpixel(double axis, int row, int col) {
  * @retun int - nearest y pixel correspnding to that  axis coordinate position.
  */
 int yaxis_to_ypixel(double axis, int row, int col) {
-auto pixels = get_ypixel_extent(row, col);   // Pixel range.
+    auto pixels = get_ypixel_extent(row, col);   // Pixel range.
     auto attributes =  Xamine_GetDisplayAttributes(row, col);
+    auto yextent = yaxis_extent(attributes);
     
-    // Branch between 1d and 2d to figure out channel limits:
+    // Unless the y axis is a log scale 1d, this is correct:
     
-    double chlow, chhigh;        // Again for log scaling.
-    
-    
+    double result = transform(axis, yextent.first, yextent.second, pixels.low, pixels.high);
     
     if (attributes->is1d()) {
-        // Note 1d spectra mapping is not a problem but log scale it.
-        
-        win_1d* at1 = dynamic_cast<win_1d*>(attributes);
-        
-        // I think even autoscale sets the fsvalue
-        
-        double top = at1->getfsval();
-        double bottom = 0.0;                     // Default unless:
-        if (at1->hasfloor()) bottom = at1->getfloor();
-        if (at1->hasceiling()) top = at1->getceiling();
-        
-        // Now what we do depends on if y is linear or log:
-        
-        if (at1->islog()) {
-            // axis value of 0.0 in log scale is on the x axis:
-            
-            if (axis == 0.0) return pixels.high;
-            
-            // if bottom is nonzero :
-            
-            if (bottom > 0.0)  bottom = log10(bottom);
-            top =  log10(top);
-            axis = log10(axis);
-            
-            double logvalue = clip(transform(axis,  bottom, top, pixels.low, pixels.high), pixels.low, pixels.high);
-            return static_cast<int>(nearbyint(exp10(logvalue)));
-            
-            
-        } else {
-            // Simple linear:
-            
-            return static_cast<int>(nearbyint(
-                clip(transform(axis, bottom, top, pixels.low, pixels.high), pixels.low, pixels.high)
-            ));
+        win_1d* a1 = dynamic_cast<win_1d*>(attributes);
+        if (a1->islog()) {
+            result = transform_log(axis, yextent.first, yextent.second, pixels.low, pixels.high);
         }
-        
-    } else {
-        // 2d this is a 'channel' axis:
-        // Set the unxpanded values as the default
-    
-        int nch = xamine_shared->getydim(attributes->spectrum());
-        chlow = 0.0;
-        chhigh = static_cast<double>(nch-2);
-        
-        win_2d* at2 = dynamic_cast<win_2d*>(attributes);
-        
-        if (at2->isexpanded()) {
-            chlow = at2->xlowlim();
-            chhigh = at2->xhilim();
-        
-        }
-        // Turn these into low/high depending on the mapping state:
-        
-        double low, high;
-        if (attributes->ismapped()) {
-            // low/high are transformed chlow, chhigh:
-            
-            double maplow = xamine_shared->getymin_map(attributes->spectrum());
-            double maphigh= xamine_shared->getymax_map(attributes->spectrum());
-            
-            low = transform(chlow, chlow, chhigh, maplow, maphigh);
-            high = transform(chhigh, chlow, chhigh, maplow, maphigh);
-            
-        } else {
-            // low/high are chlow, chhigh
-            
-            low = chlow;
-            high= chhigh;
-        }
-        //Now we can do the transform
-        
-        return static_cast<int>(nearbyint(
-            clip(
-                 transform(axis, low, high, pixels.low, pixels.high),
-                 pixels.low, pixels.high
-            )
-        ));
-    }       
+    }
+    return clip(result, pixels.low, pixels.high);
+           
 }
 /**
  * Convert an X pixel into a channel number.  Channels all cover a range of
