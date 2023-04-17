@@ -391,8 +391,8 @@ int yaxis_to_ypixel(double axis, int row, int col) {
         win_1d* a1 = dynamic_cast<win_1d*>(attributes);
         if (a1->islog()) {
             result = transform_fromlog(axis, yextent.first, yextent.second, pixels.high, pixels.low);
-            
-            return clip(result, pixels.high, pixels.low);
+            result = clip(result, pixels.high, pixels.low);
+            return pixels.low - result;
         }
     }
     return clip(result, pixels.low, pixels.high);
