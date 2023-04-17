@@ -168,9 +168,9 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   */
   if(atts->is1d()) {
 		
-		Xamine_Convert1d cvt(w, atts, xamine_shared);
-		cvt.ScreenToSpec(&locdata, wx, wy);
-		//return;
+    Xamine_Convert1d cvt(w, atts, xamine_shared);
+    cvt.ScreenToSpec(&locdata, wx, wy);
+    
   }
   else {
 
@@ -185,13 +185,13 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   /* Display the center of the bin as the cursor location */
   float fx, ffy;
   float fy = 0, ffx = 0;
-  fx = (Xamine_XChanToMapped(sid, locdata.xpos));
-  fy = (Xamine_YChanToMapped(sid, locdata.ypos));
+  fx = xpixel_to_xaxis(wx, row, col);  //(Xamine_XChanToMapped(sid, locdata.xpos));
+  fy = ypixel_to_yaxis(wy, row, col);   // (Xamine_YChanToMapped(sid, locdata.ypos));
 
   // These only make sense if we are 2-d, or flipped
   if((atts->is1d()) || (atts->isflipped())) {
-    ffy = (Xamine_YChanToMapped(sid, locdata.ypos));
-    ffx = (Xamine_XChanToMapped(sid, locdata.xpos));
+    ffy = xpixel_to_xaxis(wx, row, col); //(Xamine_YChanToMapped(sid, locdata.ypos));
+    ffx = ypixel_to_yaxis(wy, row, col); // (Xamine_XChanToMapped(sid, locdata.xpos));
     
   }
 

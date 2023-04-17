@@ -30,6 +30,8 @@
 #include "gcmgr.h"
 #include "mapcoord.h"
 #include <iostream>
+#include "transformations.h"
+#include "panemgr.h"
 /*
 ** Externally referenced globals:
 */
@@ -366,7 +368,8 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
 
   for (double x = low; x < hi; x += value_interval) {
     
-    int xpix = Transform(low, hi, xbase, nx, x);
+    int xpix = transform(x, low, hi, xbase, nx);
+    
     ticks.draw(xpix, ybase+2, xpix, ybase-height);
     if (label_ticks && (font != nullptr)) {
       if((rem != 0.0) || (mant != 0.0)) {
@@ -572,7 +575,8 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
   if (!font) return;
   
   for (int y = low; y < hi; y += value_interval) {
-    int ypix = ny - Transform(low, hi, ny-ybase, ny, y);
+    int ypix = ybase - transform(y, low, hi, 0, ybase);
+    //int ypix = ny - Transform(low, hi, ny-ybase, ny, y);
     
     
     ticks.draw(xbase-2, ypix, xbase+height, ypix);
@@ -656,7 +660,8 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
   if (!font) return;
   
   for (float y = low; y < hi; y += value_interval)  {
-    int ypix = ny - Transform(low, hi, ny-ybase, ny, y);
+    int ypix = ybase - transform(y, low, hi, 0, ybase);
+    //int ypix = ny - Transform(low, hi, ny-ybase, ny, y);
     ticks.draw(xbase-2, ypix, xbase+height, ypix);
     if (label_ticks && (font != nullptr)) {
       if((rem != 0.0) || (mant != 0.0))
@@ -902,6 +907,14 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
   ybase = spectrumRegion.ybase;
   nx = spectrumRegion.xmax;
   ny = spectrumRegion.ymax;
+  
+  // transformations likes pane manager row col so:
+  
+  uintptr_t                  index;
+  int          row, col;
+  pane->GetAttribute(XmNuserData, &index);	/* Panes store pane index as userd. */
+  row = index / WINDOW_MAXAXIS;
+  col = index % WINDOW_MAXAXIS;
 
   /* Draw the axis lines: */
 
@@ -966,8 +979,8 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     ** the appropriate mapped tick marks.
     */
     else {
-      float f_low = Xamine_XChanToMapped(attribs->spectrum(), low);
-      float f_hi  = Xamine_XChanToMapped(attribs->spectrum(), hi);
+      float f_low = xchan_to_xaxis(low, row, col); ///Xamine_XChanToMapped(attribs->spectrum(), low);
+      float f_hi  = xchan_to_xaxis(hi, row, col);  ///Xamine_XChanToMapped(attribs->spectrum(), hi);
       // We're really plotting one channel width past the f_hi:
       
       //if (nchans < 0) nchans = -nchans;    // In case the axis goes backwards.
@@ -1045,8 +1058,8 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       ** mapped spectrum ticks
       */
      
-        float f_ylow = Xamine_YChanToMapped(attribs->spectrum(), low);
-        float f_yhi  = Xamine_YChanToMapped(attribs->spectrum(), hi);
+        float f_ylow = ychan_to_yaxis(low, row, col); ///Xamine_YChanToMapped(attribs->spectrum(), low);
+        float f_yhi  = ychan_to_yaxis(hi, row, col);   ///Xamine_YChanToMapped(attribs->spectrum(), hi);
         xamine_shared->getylabel_map(ylabel, attribs->spectrum());
         if(attribs->isflipped())
           DrawMappedXTicks(disp, win, gc, xbase, ybase, nx, ny, f_ylow, 
