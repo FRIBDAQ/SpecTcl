@@ -24,23 +24,28 @@ class Tabs(QTabWidget):
         self.wPlot[0] = Plot()
         self.setUpdatesEnabled(True)
         self.insertTab(0, self.wPlot[0], "Tab" )
-        self.insertTab(1,QWidget(),'  +  ') 
+        self.insertTab(1,QWidget(),'  +  ')
+        self.selected_plot_index_bak = []
+        self.selected_plot_index_bak.append(None)
+        self.h_dict_geo_bak = {}
+        self.h_log_bak = {}
 
         self.currentChanged.connect(self.addTab)
-        
+
     def addTab(self, index):
         if index == self.count()-1:
             self.wPlot[index] = Plot()
             if (debug):
                 print("Inserting tab at index", index)
             # last tab was clicked. add tab
-            self.insertTab(index, self.wPlot[index], "Tab %d" %(index+1)) 
+            self.insertTab(index, self.wPlot[index], "Tab %d" %(index+1))
             self.setCurrentIndex(index)
+            self.selected_plot_index_bak.append(None)
 
 class Plot(QWidget):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__(*args, **kwargs)
-        
+
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
@@ -48,7 +53,7 @@ class Plot(QWidget):
         self.minusButton = QPushButton("-", self)
         self.copyButton = QPushButton("Copy Properties", self)
         self.histo_log = QCheckBox("Log",self)
-        self.histo_autoscale = QCheckBox("Autoscale",self)        
+        self.histo_autoscale = QCheckBox("Autoscale",self)
         self.histoLabel = QLabel(self)
         self.histoLabel.setText("Histogram:")
         self.createSRegion = QPushButton("Summing region", self)
@@ -65,7 +70,7 @@ class Plot(QWidget):
         for x in self.toolbar.actions():
             if x.text() in unwanted_buttons:
                 self.toolbar.removeAction(x)
-        
+
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
@@ -75,22 +80,22 @@ class Plot(QWidget):
         self.old_row = 1
         self.old_col = 1
         self.old_row_idx = 0
-        self.old_col_idx = 0        
-        self.h_dict = {} 
+        self.old_col_idx = 0
+        self.h_dict = {}
         self.h_dict_geo = {}
-        self.h_dict_geo_bak = {}                
+        self.h_dict_geo_bak = {}
         self.axbkg = {}
         self.h_limits = {} # dictionary with axis limits for the histogram
         self.h_log = {} # bool dict for linear/log axes
-        self.h_log_bak = {} # bool dict for linear/log axes - backup       
-        self.h_setup = {} # bool dict for setting histograms 
+        self.h_log_bak = {} # bool dict for linear/log axes - backup
+        self.h_setup = {} # bool dict for setting histograms
         self.h_dim = []
         self.h_lst = []
 
         self.selected_plot_index = None
-        self.selected_plot_index_bak = 0        
+        # self.selected_plot_index_bak = None
         self.index = 0
-        
+
         self.autoScale = False
         self.logScale = False
         # drawing tools
@@ -99,9 +104,13 @@ class Plot(QWidget):
         self.isZoomed = False
         self.isSelected = False
         self.rec = None
+        #Simon - added flag
+        self.isZoomCallback = False
+        self.isZoomInOut = False
 
         # gates
         self.gate_dict = {}
+        self.style_dict = {}
         self.artist_dict = {}
         self.artist_list = []
         self.artist1D = {}
@@ -114,18 +123,18 @@ class Plot(QWidget):
         self.counter = 0
         self.counter_sr = 0
         self.toCreateGate = False
-        self.toEditGate = False        
+        self.toEditGate = False
         self.toCreateSRegion = False
         self.xs = []
         self.ys = []
         self.listLine = []
-        
+
         # default canvas
         self.InitializeCanvas(self.old_row,self.old_col)
 
         self.histo_autoscale.clicked.connect(lambda:self.autoscaleAxis(self.histo_autoscale))
-        self.histo_log.clicked.connect(lambda:self.logAxis(self.histo_log))        
-        
+        self.histo_log.clicked.connect(lambda:self.logAxis(self.histo_log))
+
     def InitializeCanvas(self, row, col, flag = True):
         if (debug):
             print("InitializeCanvas with dimensions", row, col)
@@ -136,24 +145,24 @@ class Plot(QWidget):
             self.h_limits.clear()
 
             self.index = 0
-            self.idx = 0            
-            
-        if (debug):        
+            self.idx = 0
+
+        if (debug):
             print("The following three should be empty!")
             print("self.h_dict",self.h_dict)
-            print("self.h_dict_geo",self.h_dict_geo)            
-            print("self.h_limits",self.h_limits)            
+            print("self.h_dict_geo",self.h_dict_geo)
+            print("self.h_limits",self.h_limits)
 
         self.figure.clear()
-        self.InitializeFigure(self.CreateFigure(row, col), row, col, flag)        
+        self.InitializeFigure(self.CreateFigure(row, col), row, col, flag)
         self.figure.tight_layout()
         self.canvas.draw()
 
         if (debug):
             print("The following three should NOT be empty!")
             print("self.h_dict",self.h_dict)
-            print("self.h_dict_geo",self.h_dict_geo)            
-            print("self.h_limits",self.h_limits)                    
+            print("self.h_dict_geo",self.h_dict_geo)
+            print("self.h_limits",self.h_limits)
 
     def CreateFigure(self, row, col):
         self.grid = gridspec.GridSpec(ncols=col, nrows=row, figure=self.figure)
@@ -167,7 +176,7 @@ class Plot(QWidget):
     def get_histo_key_value(self, d, index, key):
         if key in d[index]:
             return d[index][key]
-    
+
     # get a list of elements identified by the key for a dictionary
     def get_histo_key_list(self, d, keys):
         lst = []
@@ -192,8 +201,8 @@ class Plot(QWidget):
                 self.old_row = row
                 self.old_col = col
                 self.histo_log.setChecked(False)
-                
-            for z in range(self.old_row*self.old_col):            
+
+            for z in range(self.old_row*self.old_col):
                 self.h_dict[z] = self.InitializeHistogram()
                 self.h_dict_geo[z] = "empty"
                 self.h_log[z] = False
@@ -201,14 +210,14 @@ class Plot(QWidget):
                 self.h_lst.append(None)
             self.h_dim = self.get_histo_key_list(self.h_dict, "dim")
 
-            if (debug):        
+            if (debug):
                 print("These should be initialized!")
                 print("self.h_dict",self.h_dict)
-                print("self.h_dict_geo",self.h_dict_geo)            
+                print("self.h_dict_geo",self.h_dict_geo)
                 print("self.h_log",self.h_log)
-                print("self.h_setup",self.h_setup)            
+                print("self.h_setup",self.h_setup)
                 print("self.h_dim",self.h_dim)
-            
+
     def autoscaleAxis(self, b):
         if b.text() == "Autoscale":
             if b.isChecked() == True:
