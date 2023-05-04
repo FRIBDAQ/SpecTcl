@@ -2109,7 +2109,7 @@ class MainWindow(QMainWindow):
                     for key, value in self.currentPlot.h_dict_geo.items():
                         if (DEBUG):
                             print("counter -->", counter)
-                        # index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
+                        index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
                         # changing the index to the correct histogram to load
                         # self.wConf.histo_list.setCurrentIndex(index)
                         self.updateHistoInfo(value)
