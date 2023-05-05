@@ -401,7 +401,6 @@ class MainWindow(QMainWindow):
                     self.currentPlot.rec.remove()
             except:
                 pass
-
             # by single clicking we select the plot with index selected_plot_index and draw a
             # red rectangle on the axes to show choice
             for i, plot in enumerate(self.currentPlot.figure.axes):
@@ -412,6 +411,7 @@ class MainWindow(QMainWindow):
                             self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(True)
                         else:
                             self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(False)
+                        #self.clickToIndex(self.currentPlot.selected_plot_index)
                         self.clickToName(self.currentPlot.selected_plot_index)
             self.currentPlot.canvas.draw()
         else:
@@ -454,7 +454,6 @@ class MainWindow(QMainWindow):
         name = self.currentPlot.h_dict_geo[self.currentPlot.selected_plot_index]
         index = self.wConf.histo_list.findText(name)
         self.wConf.histo_list.setCurrentIndex(index)
-        # self.wConf.histo_list.setCurrentText(self.wConf.histo_list.itemText(index))
         self.updateHistoInfo(name)
         if (DEBUG):
             print("UPDATE plot the histogram at index", self.currentPlot.selected_plot_index, "with name", self.wConf.histo_list.currentText())
@@ -505,7 +504,6 @@ class MainWindow(QMainWindow):
                 if (DEBUG):
                     print("histogram",name,"has index", index)
                 self.wConf.histo_list.setCurrentIndex(index)
-                # self.wConf.histo_list.setCurrentText(self.wConf.histo_list.itemText(index))
                 self.updateHistoInfo(name)
                 if (DEBUG):
                     print("Now histo name", self.wConf.histo_list.currentText())
@@ -1099,12 +1097,11 @@ class MainWindow(QMainWindow):
             if self.wConf.histo_list.findText(name) == -1:
                 self.wConf.histo_list.addItem(name)
 
-        #Simon - enable search in histo_list
         self.wConf.histo_list.setEditable(True)
         self.wConf.histo_list.setInsertPolicy(QComboBox.NoInsert)
         self.wConf.histo_list.completer().setCompletionMode(QCompleter.PopupCompletion)
         self.wConf.histo_list.completer().setFilterMode(QtCore.Qt.MatchContains)
-
+                
     # update parameter list for GUI
     def update_parameter_list(self):
         if (DEBUG):
@@ -1204,14 +1201,12 @@ class MainWindow(QMainWindow):
         else:
             self.create_disable2D(False)
 
-    # update spectrum information
-    #Simon - pass spectrum name in argument
+    # update spectrum information            
     def updateHistoInfo(self, hist_name):
         if (DEBUG):
             print("Inside updateHistoInfo")
             print("hist_name",hist_name)
         try:
-            # hist_name = self.wConf.histo_list.currentText()
             select = self.spectrum_list['names'] == hist_name
             df = self.spectrum_list.loc[select]
             hist_dim = df.iloc[0]['dim']
@@ -1229,7 +1224,7 @@ class MainWindow(QMainWindow):
                     self.wConf.listParams[i].setCurrentIndex(index)
         except:
             pass
-
+        
     # update and create gate list
     def create_gate_list(self):
         if (DEBUG):
@@ -1679,14 +1674,12 @@ class MainWindow(QMainWindow):
                     ax.set_ylim(self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"][0], self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"][1])
                 else:
                     ax.set_xlim(float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"]), float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmax"]))
-                    # ax.set_ylim(float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["ymin"]), float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["ymax"]))
 
                     data = self.get_data(self.currentPlot.selected_plot_index)
                     if self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["dim"] == 2:
                         maxZ = np.max(data)*1.1
                         self.currentPlot.h_lst[self.currentPlot.selected_plot_index].set_clim(vmin=self.minZ, vmax=maxZ)
-
-
+                    
                 if self.currentPlot.autoScale:
                     if (DEBUG):
                         print("Inside self.autoScale for tab with index", self.wTab.currentIndex())
@@ -2092,87 +2085,83 @@ class MainWindow(QMainWindow):
     def addPlot(self):
         if (DEBUG):
             print("Inside addPlot")
-        #Simon - if statement that goes with the search in histo_list feature
-        if self.wConf.histo_list.findText(self.wConf.histo_list.currentText(), QtCore.Qt.MatchFixedString) < 0:
-            QMessageBox.about(self, "Warning", "Spectrum name unknown")
-            self.wConf.histo_list.setCurrentIndex(0)
-            self.wConf.histo_list.setCurrentText(self.wConf.histo_list.itemText(0))
-        else:
-            try:
-                # if we load the geometry from file
-                if self.currentPlot.isLoaded:
+            print("Simon - tab -",self.wTab.currentIndex(),len(self.wTab)-1,len(self.wTab.selected_plot_index_bak))
+
+        try:
+            # if we load the geometry from file
+            if self.currentPlot.isLoaded:
+                if (DEBUG):
+                    print("Inside addPlot - loaded")
+                    print(self.currentPlot.h_dict_geo)
+                    print(self.currentPlot.h_dict)
+                counter = 0
+                for key, value in self.currentPlot.h_dict_geo.items():
                     if (DEBUG):
-                        print("Inside addPlot - loaded")
-                        print(self.currentPlot.h_dict_geo)
-                        print(self.currentPlot.h_dict)
-                    counter = 0
-                    for key, value in self.currentPlot.h_dict_geo.items():
-                        if (DEBUG):
-                            print("counter -->", counter)
-                        index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
-                        # changing the index to the correct histogram to load
-                        # self.wConf.histo_list.setCurrentIndex(index)
-                        self.updateHistoInfo(value)
-                        if (DEBUG):
-                            print(key, value, index)
-                        # updating histogram dictionary with the last info needed (dim, xbinx, ybin, parameters, and type)
-                        if (index != -1) :
-                            self.currentPlot.h_dict[counter] = self.update_spectrum_info()
-
-                        if (DEBUG):
-                            print(self.update_spectrum_info())
-                        counter += 1
+                        print("counter -->", counter)
+                    index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
+                    # changing the index to the correct histogram to load
+                    self.wConf.histo_list.setCurrentIndex(index)
+                    self.updateHistoInfo(index)
                     if (DEBUG):
-                        print("updated self.currentPlot.h_dict")
-                        print(self.currentPlot.h_dict)
-
-                    # updating support list for histogram dimension
-                    if len(self.currentPlot.h_dict) != 0:
-                        self.currentPlot.h_dim = self.currentPlot.get_histo_key_list(self.currentPlot.h_dict, "dim")
-                        if (DEBUG):
-                            print("self.currentPlot.h_dim",self.currentPlot.h_dim)
-
-                    for key, value in self.currentPlot.h_dict_geo.items():
-                        if (DEBUG):
-                            print(key, value)
-                        self.add(key)
-                else:
-                    if (DEBUG):
-                        print("Inside addPlot - not loaded")
-                    # self adding
-
-                    index = self.autoIndex()
+                        print(key, value, index)
+                    # updating histogram dictionary with the last info needed (dim, xbinx, ybin, parameters, and type)
+                    if (index != -1) :
+                        self.currentPlot.h_dict[counter] = self.update_spectrum_info()
 
                     if (DEBUG):
-                        print("Adding plot at index ", self.currentPlot.index)
+                        print(self.update_spectrum_info())
+                    counter += 1
+                if (DEBUG):
+                    print("updated self.currentPlot.h_dict")
+                    print(self.currentPlot.h_dict)
 
-                        print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-                        print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-                        print("self.currentPlot.h_dim", self.currentPlot.h_dim)
-
-                    # updating histogram dictionary for fast access to information via get_histo_xxx
-                    self.currentPlot.h_dict[self.currentPlot.index] = self.update_spectrum_info()
-                    self.currentPlot.h_dict_geo[self.currentPlot.index] = (self.currentPlot.h_dict[self.currentPlot.index])["name"]
-                    self.currentPlot.h_dim[self.currentPlot.index] = (self.currentPlot.h_dict[self.currentPlot.index])["dim"]
-                    self.currentPlot.h_limits[self.currentPlot.index] = {}
-
+                # updating support list for histogram dimension
+                if len(self.currentPlot.h_dict) != 0:
+                    self.currentPlot.h_dim = self.currentPlot.get_histo_key_list(self.currentPlot.h_dict, "dim")
                     if (DEBUG):
-                        print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-                        print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-                        print("self.currentPlot.h_dim", self.currentPlot.h_dim)
+                        print("self.currentPlot.h_dim",self.currentPlot.h_dim)
 
-                    self.currentPlot.h_setup[self.currentPlot.index] = True
-                    self.erasePlot(self.currentPlot.index)
-                    #self.add(self.currentPlot.index)
-                    self.updateSinglePlot(self.currentPlot.index)
-                    # if gate in gateList:
-                    self.drawAllGates()
-                    #Simon - the following line was commented, I think it is better if one not overlay with the previous plot (?)
-                    self.currentPlot.canvas.draw()
-                    self.currentPlot.isSelected = False
+                for key, value in self.currentPlot.h_dict_geo.items():
+                    if (DEBUG):
+                        print(key, value)
+                    self.add(key)
+            else:
+                if (DEBUG):
+                    print("Inside addPlot - not loaded")
+                # self adding
 
-            except NameError:
-                raise
+                index = self.autoIndex()
+
+                if (DEBUG):
+                    print("Adding plot at index ", self.currentPlot.index)
+
+                    print("self.currentPlot.h_dict", self.currentPlot.h_dict)
+                    print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
+                    print("self.currentPlot.h_dim", self.currentPlot.h_dim)
+
+                # updating histogram dictionary for fast access to information via get_histo_xxx
+                self.currentPlot.h_dict[self.currentPlot.index] = self.update_spectrum_info()
+                self.currentPlot.h_dict_geo[self.currentPlot.index] = (self.currentPlot.h_dict[self.currentPlot.index])["name"]
+                self.currentPlot.h_dim[self.currentPlot.index] = (self.currentPlot.h_dict[self.currentPlot.index])["dim"]
+                self.currentPlot.h_limits[self.currentPlot.index] = {}
+
+                if (DEBUG):
+                    print("self.currentPlot.h_dict", self.currentPlot.h_dict)
+                    print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
+                    print("self.currentPlot.h_dim", self.currentPlot.h_dim)
+
+                self.currentPlot.h_setup[self.currentPlot.index] = True
+                self.erasePlot(self.currentPlot.index)
+                #self.add(self.currentPlot.index)
+                self.updateSinglePlot(self.currentPlot.index)
+                # if gate in gateList:
+                self.drawAllGates()
+                #Simon - the following line was commented, I think it is better if one not overlay with the previous plot (?)
+                self.currentPlot.canvas.draw()
+                self.currentPlot.isSelected = False
+
+        except NameError:
+            raise
 
     # getting data for plotting
     def get_data(self, index):
@@ -2346,10 +2335,6 @@ class MainWindow(QMainWindow):
             if (self.currentPlot.isZoomCallback or self.currentPlot.isZoomInOut):
                 self.setAxisLimits(index)
 
-            #Simon - if statement that goes with the search in histo_list feature
-            if self.wConf.histo_list.findText(self.wConf.histo_list.currentText(), QtCore.Qt.MatchFixedString) < 0:
-                self.wConf.histo_list.setCurrentIndex(0)
-                self.wConf.histo_list.setCurrentText(self.wConf.histo_list.itemText(0))
 
             return a
         except NameError:
@@ -2396,14 +2381,29 @@ class MainWindow(QMainWindow):
     # 10) Gates
     ##############
 
+    # helper function that converts index of geometry into name of histo list and updates info
+    def clickToName(self, idx):
+        if (DEBUG):
+            print("Inside clickToName")
+            print("histo index", idx)
+            print("self.currentPlot.h_dict[idx]['name']", self.currentPlot.h_dict[idx]['name'])
+            
+        try:
+            name = str(self.currentPlot.h_dict[idx]['name'])
+            index = self.wConf.histo_list.findText(name, QtCore.Qt.MatchFixedString)
+            if (DEBUG):
+                print("index and name", index, name)
+            self.updateHistoInfo(name)
+            self.check_histogram()
+        except:
+            pass
+        
     # helper function that converts index of geometry into index of histo list and updates info
-    # Simon - deprecated, replaced by clickToName
     def clickToIndex(self, idx):
         if (DEBUG):
             print("Inside clickToIndex")
             print("histo index", idx)
             print("self.currentPlot.h_dict[idx]['name']", self.currentPlot.h_dict[idx]['name'])
-
         try:
             index = self.wConf.histo_list.findText(str(self.currentPlot.h_dict[idx]['name']), QtCore.Qt.MatchFixedString)
             if (DEBUG):
@@ -2415,27 +2415,9 @@ class MainWindow(QMainWindow):
                     print("Index of combobox", index)
             self.wConf.histo_list.setCurrentIndex(index)
             self.updateHistoInfo()
-            self.check_histogram()
-        except NameError:
-            raise
-
-    # helper function that converts index of geometry into name of histo list and updates info
-    def clickToName(self, idx):
-        if (DEBUG):
-            print("Inside clickToName")
-            print("histo index", idx)
-
-        name = self.currentPlot.h_dict[idx]['name']
-        try:
-            index = self.wConf.histo_list.findText(name, QtCore.Qt.MatchFixedString)
-            if (DEBUG):
-                print("index and name", index, name)
-            # crash if setCurrentIndex, might work with pyqt6
-            # self.wConf.histo_list.setCurrentIndex(index)
-            self.updateHistoInfo(name)
-            self.check_histogram()
-        except NameError:
-            raise
+            self.check_histogram();
+        except:
+            pass
 
     def plot1DGate(self, axis, histo_name, gate_name, gate_line):
         if (DEBUG):
@@ -2589,6 +2571,7 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print("inside addGate")
         try:
+            print("simon - ",self.wConf.histo_list)
             hname = self.wConf.histo_list.currentText()
             gname = self.wConf.listGate.currentText()
             gate_list = self.currentPlot.artist_dict[hname]
