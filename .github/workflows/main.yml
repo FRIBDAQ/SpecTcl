@@ -29,7 +29,7 @@ jobs:
           ssh-add -D
           
           echo "${{ secrets.UNIFIEDFORMAT }}" | ssh-add -
-          ./unifiedfmt-incorp.sh
+          ./unifiedfmt-incorp.sh 1.2
           ssh-add -D
           
           eval `ssh-agent -k`
