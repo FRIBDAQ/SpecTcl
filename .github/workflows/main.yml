@@ -28,10 +28,11 @@ jobs:
           ./tcl++incorp libtclplus-v4.3-002
           ssh-add -D
           
-          echo "${{ secrets.UNIFIEDFORMAT }}" | ssh-add -
+          echo "${{ secrets.UNIFIEDFMT }}" | ssh-add -
           ./unifiedfmt-incorp.sh 1.2
           ssh-add -D
-          
+      
+        
           eval `ssh-agent -k`
       - name: Creating build directory
         run: mkdir main/oot
