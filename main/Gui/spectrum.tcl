@@ -773,6 +773,11 @@ snit::widget readSpectrumDialog {
     oncget -bind     {
         return [GetCheckButton $win.bind]
     }
+    # getFilter - get the filter mask:
+    #
+    method getFilter {} {
+	$filebox cget -mask
+    }
 
 
     proc SetCheckButton {widget value} {
@@ -1274,7 +1279,7 @@ proc readSpectrumFile {} {
 
         if {$file != ""} {
             if {[file dirname $file] == "."} {
-                set filter [.savemany getFilter]
+                set filter [.readmany getFilter]
                 set dir    [file dirname $filter]
                 set file   [file join $dir $file]
             }
