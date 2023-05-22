@@ -783,7 +783,7 @@ AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [
    sourcedir="`realpath ${srcdir}`"
    (cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
    UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
-   UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lAbstractFormat -lV10Format -lV11Format -lV12Format -Wl,-rpath=${prefix}/unifiedformat/lib"
+   UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
    AC_SUBST(UFMT_CPPFLAGS)
    AC_SUBST(UFMT_LDFLAGS)
    ],
