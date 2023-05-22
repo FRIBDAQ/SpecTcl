@@ -9,7 +9,7 @@
 
 tag=$1
 
-git submodule update --init
+git submodule update --init --remote
 
 (cd libtcl ; git checkout $tag)
 git add libtcl
