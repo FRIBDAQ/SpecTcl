@@ -1,4 +1,6 @@
 [submodule "main/libtcl"]
 	path = main/libtcl
-	url = git@github.com:FRIBDAQ/libtclplus.git
+	url = https://github.com/FRIBDAQ/libtclplus.git
  
+[submodule "libtcl"]
+	url = https://github.com/FRIBDAQ/libtclplus.githttps://github.com/FRIBDAQ/libtclplus.git
