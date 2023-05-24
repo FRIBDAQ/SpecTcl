@@ -884,14 +884,12 @@ class MainWindow(QMainWindow):
         gdict = self.currentPlot.gate_dict[name]
         gate_name = gdict["name"]
         gate_type = gdict["type"]
-        gate_parameters = gdict["parameters"]
         histo_name = gdict["spectrum"]
-        if (DEBUG):
-            print(gdict["name"],gdict["type"],gdict["parameters"],gdict["spectrum"])
         x = []
         y = []
         # 1D {'name': '1Dgate_xamine', 'type': 's', 'parameters': ['aris.db1.ppac0.uc'], 'low': 1392.232056, 'high': 1665.277466}
         if gate_type == "s" or gate_type == "gs":
+            gate_parameters = gdict["parameters"]
             xmin = gdict["low"]
             xmax = gdict["high"]
             self.currentPlot.artist1D[name] = [xmin, xmax]
@@ -899,12 +897,16 @@ class MainWindow(QMainWindow):
                 print("min/max", xmin, xmax)
                 print("self.artist1D", self.currentPlot.artist1D)
             self.currentPlot.artist_dict[histo_name] = [self.currentPlot.artist1D]
+        elif gate_type == "*":
+            pass
         else:
             #{'2Dgate_xamine': {'name': '2Dgate_xamine', 'type': 'c',
             # 'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
             # 'points': [{'x': 126.876877, 'y': 29.429428}, {'x': 125.625626, 'y': 25.825825},
             #            {'x': 126.626625, 'y': 22.522522}, {'x': 129.879883, 'y': 22.522522}, {'x': 130.63063, 'y': 26.126125}, {'x': 129.629623, 'y': 29.129128}]
             #}}
+
+            gate_parameters = gdict["parameters"]
             points = gdict["points"]
             if (DEBUG):
                 print("points", points)
@@ -1101,7 +1103,7 @@ class MainWindow(QMainWindow):
         self.wConf.histo_list.setInsertPolicy(QComboBox.NoInsert)
         self.wConf.histo_list.completer().setCompletionMode(QCompleter.PopupCompletion)
         self.wConf.histo_list.completer().setFilterMode(QtCore.Qt.MatchContains)
-                
+
     # update parameter list for GUI
     def update_parameter_list(self):
         if (DEBUG):
@@ -1201,7 +1203,7 @@ class MainWindow(QMainWindow):
         else:
             self.create_disable2D(False)
 
-    # update spectrum information            
+    # update spectrum information
     def updateHistoInfo(self, hist_name):
         if (DEBUG):
             print("Inside updateHistoInfo")
@@ -1224,7 +1226,7 @@ class MainWindow(QMainWindow):
                     self.wConf.listParams[i].setCurrentIndex(index)
         except:
             pass
-        
+
     # update and create gate list
     def create_gate_list(self):
         if (DEBUG):
@@ -1679,7 +1681,7 @@ class MainWindow(QMainWindow):
                     if self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["dim"] == 2:
                         maxZ = np.max(data)*1.1
                         self.currentPlot.h_lst[self.currentPlot.selected_plot_index].set_clim(vmin=self.minZ, vmax=maxZ)
-                    
+
                 if self.currentPlot.autoScale:
                     if (DEBUG):
                         print("Inside self.autoScale for tab with index", self.wTab.currentIndex())
@@ -2173,10 +2175,13 @@ class MainWindow(QMainWindow):
         w = []
         if name == "":
             return
-        else:
+        else :
             select = self.spectrum_list['names'] == name
             df = self.spectrum_list.loc[select]
-            w = df.iloc[0]['data']
+            if "data" in df.iloc[0] :
+                w = df.iloc[0]['data']
+            else :
+                return
 
         if (DEBUG):
             print("dim:", dim)
@@ -2387,7 +2392,7 @@ class MainWindow(QMainWindow):
             print("Inside clickToName")
             print("histo index", idx)
             print("self.currentPlot.h_dict[idx]['name']", self.currentPlot.h_dict[idx]['name'])
-            
+
         try:
             name = str(self.currentPlot.h_dict[idx]['name'])
             index = self.wConf.histo_list.findText(name, QtCore.Qt.MatchFixedString)
@@ -2397,7 +2402,7 @@ class MainWindow(QMainWindow):
             self.check_histogram()
         except:
             pass
-        
+
     # helper function that converts index of geometry into index of histo list and updates info
     def clickToIndex(self, idx):
         if (DEBUG):
@@ -3144,7 +3149,7 @@ class MainWindow(QMainWindow):
                 self.resultPopup()
 
         except NameError:
-            raise
+            pass
 
 
     def resultPopup(self):
