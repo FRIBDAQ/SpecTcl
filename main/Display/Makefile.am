@@ -101,7 +101,7 @@ lexsupport.c
 
 
 
-libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
+libXamine_la_LDFLAGS = -version-info $(SOVERSION):0 $(RTLIB)
 
 libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
     specalloc.c clientbuttons.c prccheck.c
@@ -185,7 +185,7 @@ Xamine_DEPENDENCIES = menusetup.o exit.o helpmenu.o winiomenu.o \
 #Xaminetest_DEPENDENCIES = libXamine.la
 
 
-Xamine_LDFLAGS=  -g
+Xamine_LDFLAGS=  -g $(RTLIB)
 Xamine_LDADD=  @top_builddir@/XamineParsers/libXamineParsers.la @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 		@TK_LIBS@ @TCL_LIBS@ 						\
 			-lXm -lXt -lX11 -lm  $(X11EXTRA_LDFLAGS)
