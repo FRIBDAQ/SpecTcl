@@ -308,6 +308,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <string>
+#include <stdexcept>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+
 
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
@@ -323,7 +329,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #include <sys/stat.h>
 
-#ifdef HAVE_SHM_OPEN          // Darwin
+#ifdef HAVE_SHM_OPEN          // POSIX
 #include <sys/fcntl.h>
 #include <sys/mman.h>
 #endif
@@ -357,22 +363,198 @@ extern volatile  spec_shared *spectra;
 
 static int memsize;
 
+/** 
+ * Types of shared memory supported:
+ * 
+*/
+enum SharedMemoryType {
+  SYSV,
+  Posix,
+  File
+};
 
-
+struct SharedMemorySpecification {
+    SharedMemoryType s_type;
+    std::string      s_name;
+};
+
+/**
+ * AnalyzeMemoryName
+ *    Given a shared memory name analyze it and, either produce a
+ * SharedMemorySpecification or thow std::invalid_argument
+ *
+ * @param name - name of the shared memory region.
+ *      Note that this can have several forms:
+ *     - four character name with no prefix - this is a SYSV shared memory key
+ *     - sysv:four-character name - this is a SYSV Shared memory key.
+ *     - posix:name - this is a POSIX shared memory name.
+ *     - file:name - This is a path to a shared memory file (mmap).
+ */
+static SharedMemorySpecification
+AnalyzeMemoryName(const char *name)
+{
+    std::string sname(name); // Better methods for this.
+    SharedMemorySpecification result;
+
+    std::string remainder(sname); // stuff after type string.
+    std::string type_string = "sysv";
+    auto colon_pos = sname.find(":");
+
+    
+    // If there's a colon separate into prefix and remainder:
+
+    if (colon_pos != std::string::npos)
+    {
+      type_string = sname.substr(0, colon_pos);
+      std::cerr << "Setting type string to " << type_string << std::endl;
+      std::cerr.flush();
+      remainder = sname.substr(colon_pos + 1);
+    }
+    
+    result.s_name = remainder;
+
+    std::cerr << " Type: " << type_string << " remainder: " << remainder << std::endl;
+    std::cerr.flush();
+
+    // Turn the type string into a SharedMemoryType enum:
+
+    if (type_string == "sysv")
+    {
+      result.s_type = SYSV;
+    } else if (type_string == "posix") {
+      result.s_type = Posix;
+    } else if (type_string == "file") { 
+       result.s_type = File;
+    } else {
+    // invalid type string so throw:
+
+      std::stringstream s;
+      s <<  "Invalid shared memory type string: " << type_string;
+      std::string str = s.str();
+      throw std::invalid_argument(str);
+  }
+  // One more check to make:  If result.s_type is SYSV and result.s_name.len() != 4
+  // that's an error, as keys are 4 bytes long.
+
+  if ((result.s_type == SYSV) && (result.s_name.size() != 4)) {
+    std::stringstream s;
+    s << "SYSV shared memory names must be exactly 4 bytes long and '" << result.s_name << "' is not";
+    std::string str = s.str();
+    throw std::invalid_argument(str);
+  }
+  std::cerr << "Decoded name properly\n\n";
+  std::cerr.flush();
+  return result;
+}
+
 /*
 ** Functional Description:
 **   mapmemory:
 **     This local function is actually responsible for performing the
 **     map.  
 ** Formal Parameters:
-**   char *name:
-**      Name of the shared memory region.
+**   char *name: - name of the shared memory region.
+
 **   unsigned int size:
 **      bytes in shared memory region.
 ** Returns:
 **   Pointer to the shared memory or NULL on failure.
 */
 static spec_shared *mapmemory(char *name, unsigned int size)
+{
+  SharedMemorySpecification spec;
+  try {
+    spec = AnalyzeMemoryName(name);
+  }
+  catch(std::exception& e) {
+    std::cerr << "Bad shared memory name " << name << " : " << e.what() << std::endl;
+    std::cerr.flush();
+    return nullptr;
+  }
+  switch (spec.s_type) {
+    #ifdef HAVE_SYS_SHM_H
+    case SYSV:         // Requested SYSV and it's supported.
+      {
+        key_t key;			/* Shared memory key. */
+        int   id;			/* Shared memory size. */
+        char *memory;
+
+
+        /* In the UNIX implementation the name is 4 chars which map to the key */
+
+        memcpy(&key, spec.s_name.c_str(), sizeof(key));
+
+        std::cerr << "SYSV - '" << spec.s_name.c_str() <<  std::hex << " " << key << std::dec << "'\n";
+        std::cerr.flush();
+        id  = shmget(key, size, 0);	/* Get the memory key.. */
+        if(id < 0) {
+          std::cerr <<"shmget failed \n";
+          std::cerr.flush();
+
+          return (spec_shared *)NULL;
+      }
+
+        memory = (char *)shmat(id, NULL, SHM_RDONLY);
+        std::cerr << " shmat gave us: " << memory << std::endl;
+        std::cerr.flush();
+        return (spec_shared *)memory;
+  
+      }
+      break;
+    #endif
+    #ifdef HAVE_SHM_OPEN 
+    case Posix:        // Requested Posix and it's supported.
+      {
+        int fd = shm_open(spec.s_name.c_str(), O_RDONLY, 0);   // Should exist.
+        if (fd < 0) {
+          std::cerr << "failed to open POSIX shared memory file: " << spec.s_name 
+            << " : " << strerror(errno) << std::endl;
+          return nullptr;
+        }
+        void* pMemory = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+        if (pMemory == MAP_FAILED) {
+          std::cerr << "Failed to map POSIX shared memory file: " << spec.s_name
+            << " : " <<strerror(errno) << std::endl;
+
+          return nullptr;
+        }
+        return (spec_shared*)(pMemory);
+      }
+      break;          // note shm_open implies HAVE_MMAP.
+    #endif
+    #ifdef HAVE_MMAP
+    case File:       // Requested file and it' supported.
+      {
+        int fd = open(spec.s_name.c_str(), O_RDONLY);
+        if (fd < 0) {
+          std::cerr << "Failed to open shared memory backing file: " << spec.s_name
+            << " : " << strerror(errno) << std::endl;
+          return nullptr;
+        }
+        void *pMemory = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+        if (pMemory == MAP_FAILED)
+        {
+          std::cerr << "Failed to map  shared memory file: " << spec.s_name
+                    << " : " << strerror(errno) << std::endl;
+
+          return nullptr;
+        }
+        return (spec_shared *)(pMemory);
+      }
+      break;
+    #endif
+    default:
+      std::cerr << "This system does not support this shared memory type\n";
+      return nullptr;
+  }
+  // control should not land here:
+
+
+  return nullptr;
+}
+#ifdef UNDEFINED
+
+#undef HAVE_SHM_OPEN
 #ifdef HAVE_SHM_OPEN
 {
   int fd = shm_open(name, O_RDWR, S_IRUSR | S_IWUSR);
@@ -452,6 +634,8 @@ static spec_shared *mapmemory(char *name, unsigned int size)
 
   memcpy(&key, name, sizeof(key));
 
+  std::cerr << " Key '" << name << " : " << std::hex << key << std::dec << std::endl;
+  std::cerr.flush();
 
   id  = shmget(key, size, 0);	/* Get the memory key.. */
   if(id < 0) {
@@ -463,8 +647,8 @@ static spec_shared *mapmemory(char *name, unsigned int size)
   return (spec_shared *)memory;
   
 }
-#endif // CYGWIN or not
-
+#endif
+#endif
 static void 
 PrintOffsets()
 {

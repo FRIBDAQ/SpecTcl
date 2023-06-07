@@ -197,71 +197,6 @@ static int genname(char *name)
 **        the shared memory was allocated.
 */
 static int genmem(char *name, volatile void **ptr, unsigned int size)
-#if HAVE_SHM_OPEN    /* Defined on Darwin but not there */
-{
-  int fd;
-  void* pMem;
-  fd = shm_open(name,O_RDWR | O_CREAT  ,S_IRUSR | S_IWUSR);
-  if(fd < 0) {
-    perror("shm_open failed");
-    *ptr = NULL;
-    return FALSE;
-  }
-
-  if(ftruncate(fd, size) < 0) {
-    perror("ftruncate failed");
-    *ptr = NULL;
-    return FALSE;
-  }
-
-#ifdef HAVE_MMAP
-  pMem = mmap(NULL, size, PROT_READ |PROT_WRITE, MAP_SHARED, fd, 0);
-#else
-  read(fd, pMem, size);
-#endif
-
-  if(pMem == (char*)-1) {
-    perror("mmap failed");
-    *ptr = NULL;
-    return FALSE;
-  }
-  *ptr = pMem;
-  close(fd);
-  return TRUE;
-}
-
-#elif HAVE_WINDOWS_H     /* On Cygwin */
-{
-  HANDLE hMapFile;
-  void*  pMemory;
-  size += getpagesize()*64;
-
-  hMapFile = CreateFileMapping((HANDLE)0xffffffff,
-			       (LPSECURITY_ATTRIBUTES)NULL,
-			       (DWORD)PAGE_READWRITE,
-			       (DWORD)0,
-			       (DWORD)size,
-			       (LPCTSTR)name);
-  if(!hMapFile) return FALSE;
-  pMemory = MapViewOfFile(hMapFile,
-			  FILE_MAP_ALL_ACCESS,
-			  (DWORD)0, (DWORD)0,
-			  (DWORD)size);
-  if(!pMemory) return FALSE;
-
-  /*
-   BUGBUG - Note: this is only half of the story.
-            To prevent resource leaks, we also must ensure that 
-            UnmapViewOfFile is called prior to program exit.
-            For this version we put that on the todo list.
-  
-    CloseHandle(hMapFile);
-  */
-
-  *ptr = pMemory;
-  return TRUE;
-}
-#elif HAVE_SHMGET
 {				/* UNIX implementation. */
   key_t key;
   int   memid;
@@ -325,7 +260,6 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   *ptr = (void *)base;
   return -1;			/* Indicate successful finish. */
 }				/* Unix implementation. */
-#endif
 
 /*
 ** Functional Description:

@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.13-004, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl,5.13-005, daqhelp@frib.msu.edu)
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
@@ -102,8 +102,9 @@ AC_CHECK_LIB(m, pow)
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(m, logb)
 AC_CHECK_FUNCS([strdup strstr strtol tzset mktime strtod timezone])
-
-
+AC_CHECK_LIB(rt, shm_open, [RTLIB=-lrt
+AC_DEFINE([HAVE_SHM_OPEN], [1])],[RTLIB=""])
+AC_SUBST(RTLIB)
 
 
 #  The following are needed for strict ANSI c++ compilers The major features
