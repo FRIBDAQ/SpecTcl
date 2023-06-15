@@ -233,7 +233,9 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp \
 	CAENHit.cpp CAENModuleHits.cpp CAENParser.cpp CAENParameterMap.cpp \
 	CAENEventProcessor.cpp CRemoteCommand.cpp CRemoteCommand.h \
-	BindTraceSingleton.cpp BindTraceSingleton.h
+	BindTraceSingleton.cpp BindTraceSingleton.h \
+	VX2750EventBuiltEventProcessor.cpp VX2750ModuleUnpacker.cpp \
+	VX2750EventProcessor.cpp
 
 # TapeCommand.h removed
 
@@ -254,7 +256,10 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	CPipelineCommand.h CPipelineManager.h fragment.h FragmentIndex.h \
 	CEventBuilderEventProcessor.h CPipelineEventProcessor.h \
 	CUnpackEvbCommand.h CAENHit.h CAENModuleHits.h CAENParser.h \
-	CAENParameterMap.h CAENEventProcessor.h
+	CAENParameterMap.h CAENEventProcessor.h \
+	VX2750EventBuiltEventProcessor.h VX2750EventProcessor.h \
+	VX2750ModuleUnpacker.h
+
 
 
 # TapeCommand.h removed
