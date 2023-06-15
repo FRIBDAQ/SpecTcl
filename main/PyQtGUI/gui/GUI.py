@@ -11,8 +11,20 @@ import pandas as pd
 import numpy as np
 
 sys.path.append(os.getcwd())
-sys.path.append("./Lib")
-sys.path.append(str(os.environ.get("INSTDIR"))+"/Lib")
+
+# use preprocessor macro __file__ to get the installation directory
+# caveat : expects a particular format of installation directory (N.NN-NNNN)
+instPath = ""
+fileDir = os.path.dirname(os.path.abspath(__file__))
+subDirList = fileDir.split("/")
+for subDir in subDirList:
+    if subDir != "":
+        instPath += "/"+subDir
+        if re.search(r'\d+\.\d{2}-\d{3}', subDir ):
+            # specVersion = subDir
+            break
+
+sys.path.append(instPath + "/lib")
 
 # removes the webproxy from spdaq machines
 os.environ['NO_PROXY'] = ""

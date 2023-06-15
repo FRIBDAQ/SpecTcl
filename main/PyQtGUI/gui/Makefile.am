@@ -3,7 +3,8 @@ bin_PROGRAMS = _CutiePie
 include_HEADERS = CPyHelper.h
 
 _CutiePie_SOURCES = gui.cpp 
-_CutiePie_CXXFLAGS = @PYTHON_CXXFLAGS@
+# _CutiePie_CXXFLAGS = @PYTHON_CXXFLAGS@ 
+_CutiePie_CXXFLAGS = @PYTHON_CXXFLAGS@ -DINSTALLED_IN='"@prefix@"' 
 _CutiePie_LDFLAGS = @PYTHON_LDFLAGS@
 
 install-exec-hook:
@@ -32,16 +33,7 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/algo_skel_creator.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/VMUSBSkel
-	if [ -s @prefix@/VMUSBSkel/Script ] ; \
-	then \
-	     rm -rf @prefix@/VMUSBSkel/Script ; \
-	fi;
-	ln -s @prefix@/Script @prefix@/VMUSBSkel
-	if [ -s @prefix@/VMUSBSkel/Lib ] ; \
-	then \
-	     rm -rf @prefix@/VMUSBSkel/Lib ; \
-	fi;
-	ln -s @prefix@/lib @prefix@/VMUSBSkel/Lib
+	
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/algo_skel_creator.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/DDASSkel
