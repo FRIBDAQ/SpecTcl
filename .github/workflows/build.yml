@@ -59,7 +59,7 @@ jobs:
         working-directory: ./main/oot
         shell: bash
         run: |
-          source `cat /usr/opt/ROOT_PATH`/thisroot.sh
+          source `cat /usr/opt/ROOT_PATH`/bin/thisroot.sh
           ../configure --prefix=/usr/opt/spectcl/$GITHUB_REF_NAME
       - name: Make
         working-directory: ./main/oot
