@@ -56,5 +56,5 @@ jobs:
         uses: softprops/action-gh-release@v0.1.15
         with:
           files: ./*.tar.gz
-          name: Relase of ${{ inputs.tag }}
+          name: Release of ${{ inputs.tag }}
           body_path: release_body
