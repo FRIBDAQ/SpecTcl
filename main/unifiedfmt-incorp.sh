@@ -7,6 +7,11 @@
 REPOSITORY="https://github.com/FRIBDAQ/UnifiedFormat.git"
 TAG=$1
 
+if [[ ! $TAG ]]
+then
+  TAG=`cat UNIFIEDFORMAT_VERSION`
+fi
+
 rm -rf unifiedformat
 git clone $REPOSITORY unifiedformat
 (cd unifiedformat; git checkout $TAG)
