@@ -462,7 +462,7 @@ proc buildMQDC32Map {param name} {
 }
 
 proc buildMDPP32QDCMap {param name} {
-    set resolution $::channelCount($$::typeMDPP32QDC);
+    set resolution $::channelCount($::typeMDPP32QDC);
 
     return [makeParamsSpectraAndMap $param $name $::typeMDPP32QDC $::adcChannels($name)  $resolution ]
 }
