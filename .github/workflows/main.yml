@@ -6,6 +6,8 @@ on:
       - '5.13'
     tags:
       - '*'
+    paths-ignore:
+      - 'release_notes'
 
 jobs:
   buster:
