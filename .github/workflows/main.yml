@@ -8,6 +8,13 @@ on:
       - '*'
     paths-ignore:
       - 'release_notes'
+      - '**.md'
+      - '**/README'
+      - '**/NEWS'
+      - '**/AUTHORS'
+      - '**/COPYING'
+      - '**/INSTALL'
+      - '**/ChangeLog'
 
 jobs:
   buster:
