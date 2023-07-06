@@ -39,10 +39,14 @@ jobs:
 
             if [[ \$line == *"\$WRAPPER"* && \$STARTED == true ]]
             then
+              STARTED=false
               break
             fi
 
-            echo \$line >> \$OUTFILE
+            if [[ \$STARTED == true ]]
+            then
+              echo \$line >> \$OUTFILE
+            fi
           done < \$INFILE
           EOF
           
