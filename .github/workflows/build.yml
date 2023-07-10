@@ -16,9 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: fribdaq/frib-${{ inputs.os-version }}-ci
-      credentials:
-        username: changj0frib
-        password: ${{ secrets.DOCKERHUB_CHANGJ0FRIB_FOR_CI_READONLY }}
       options: --cpus 2
     steps:
       - uses: actions/checkout@v3
