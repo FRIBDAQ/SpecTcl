@@ -45,7 +45,7 @@ jobs:
 
             if [[ \$STARTED == true ]]
             then
-              echo \$line >> \$OUTFILE
+              echo "\$line" >> \$OUTFILE
             fi
           done < \$INFILE
           EOF
