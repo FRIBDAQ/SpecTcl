@@ -9,6 +9,9 @@ on:
       packaging:
         required: true
         type: boolean
+      dist-packaging:
+        default: false
+        type: boolean
 
 jobs:
   build-and-packaging:
@@ -61,18 +64,22 @@ jobs:
       - name: Make
         working-directory: ./main/oot
         run: make -j2 clean && make -j2 all && make -j2 install
-      - name: Packaging for source distribution
-        if: ${{ inputs.packaging == true }}
+      - name: Packaging for complete source distribution
+        if: ${{ inputs.packaging == true && inputs.dist-packaging == true }}
         working-directory: ./main/oot
         run: |
+          cd ../libtcl
+          make clean
+          cd ../unifiedformat
+          rm -rf build
+          cd ../oot
           make -j2 dist
-          mv spectcl-$GITHUB_REF_NAME.tar.gz spectcl-$GITHUB_REF_NAME-dist-${{ inputs.os-version }}.tar.gz
-      - name: Upload source distribution package
-        if: ${{ inputs.packaging == true }}
+      - name: Upload complete source distribution package
+        if: ${{ inputs.packaging == true && inputs.dist-packaging == true }}
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.os-version }} object distribution
-          path: ./main/oot/spectcl-${{ github.ref_name }}-dist-${{ inputs.os-version }}.tar.gz
+          name: Complete source distribution
+          path: ./main/oot/spectcl-${{ github.ref_name }}-dist.tar.gz
       - name: Packaging for binary distribution
         if: ${{ inputs.packaging == true }}
         working-directory: /usr/opt/spectcl
