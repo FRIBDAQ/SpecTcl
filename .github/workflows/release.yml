@@ -25,6 +25,8 @@ jobs:
 
           INFILE=release_notes
           OUTFILE=release_body
+          
+          echo "" > \$OUTFILE
 
           STARTED=false
 
