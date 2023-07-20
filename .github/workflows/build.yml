@@ -74,6 +74,7 @@ jobs:
           rm -rf build
           cd ../oot
           make -j2 dist
+          mv spectcl-${{ github.ref_name }}.tar.gz spectcl-${{ github.ref_name }}-dist.tar.gz
       - name: Upload complete source distribution package
         if: ${{ inputs.packaging == true && inputs.dist-packaging == true }}
         uses: actions/upload-artifact@v3
