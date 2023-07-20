@@ -1,5 +1,6 @@
 == 5.13-006 ==
-* Latest SpecTcl release with QtPy fixes
+* Fixing QtPy permissions
+* QtPy and QtPy exec reworked to not require py files
 == 5.13-006 ==
 
 == 5.13-005 ==
