@@ -27,6 +27,8 @@ exec tclsh "$0" ${1+"$@"}
 
 package provide SpecTclUtils 1.0
 package require SpecTclRESTClient
+package require dns
+
 
 #  Packages that will be available in the NSCLDAQ env:
 
@@ -145,13 +147,32 @@ proc Xamine::getMirrorMemory {} {
         set myHost localhost ;      # Host in the mirror list.
     }
     set mirrors [$Xamine::restClient mirror]
-    
+
+    puts "getMirrorMemory ($myHost : $spectclHost): \n $mirrors"
+
     foreach mirror $mirrors {
         set mirrorHost [dict get $mirror host]
         if {$myHost eq $mirrorHost} {
             return [list [dict get $mirror shmkey]  [$Xamine::restClient shmemsize]]
         }
     }
+    # Rustogramer does not do a reverse dns so the mirror hosts are
+    # IP addresses ... we might have several IPS as well:
+
+    set dnstok  [dns::resolve $myHost]
+    set myips [dns::address $dnstok]
+    dns::cleanup $dnstok
+
+    foreach mirror $mirrors {
+	set mirrorHost [dict get $mirror host]
+	foreach ip $myips {
+	    if {$ip eq $mirrorHost} {
+		return [list [dict get $mirror shmkey] [$Xamine::restClient shmemsize]]
+	    }
+	}
+    }
+    
+    
     error "Mirror setup failed to set up a lasting mirror"    
 }
     

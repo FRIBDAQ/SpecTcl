@@ -27,7 +27,7 @@
 #include <string>
 #include <client.h>
 #include <stdexcept>
-
+#include <iostream>
 /**
  * TclXamine constructor
  *
@@ -117,6 +117,8 @@ TclXamine::genenv(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
  *    to map if SpecTcl is running in a persistent container.
  * @param interp - interpreter running the command.
  * @param objv  - command words.
+ *
+ *  @note beginning with Rustogramer, the key can take several forms:
  */
 void
 TclXamine::checkmem(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
@@ -124,10 +126,11 @@ TclXamine::checkmem(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
   requireExactly(objv, 4, "Xamine::Xamine checkmem key bytes");
   std::string name = objv[2];
   int         size = objv[3];
-  
+
+  std::cerr << "Trying to map " << name << std::endl;
   volatile Xamine_shared* p;
   int status = Xamine_MapMemory(const_cast<char*>(name.c_str()), size, &p);
-  
+  std::cerr << "Back with status: " << status << std::endl;
   
   // Success is status true and p != -1 as a pointer.
   
@@ -135,8 +138,10 @@ TclXamine::checkmem(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     const_cast<volatile Xamine_shared*>(reinterpret_cast<Xamine_shared*>(-1));
   bool result;
   if (status && (p != badptr) ) {
+    std::cerr << "returning true\n";
     result = true;
   } else {
+    std::cerr << "Returning false\n";
     result = false;
   }
   CTCLObject r;
