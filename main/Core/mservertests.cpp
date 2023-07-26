@@ -34,7 +34,7 @@
 #include <unistd.h>
 
 
-int currentPort = 5555;
+int currentPort = 1100;
 class mservertest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(mservertest);
     CPPUNIT_TEST(connect_1);

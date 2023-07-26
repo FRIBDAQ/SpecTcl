@@ -23,7 +23,7 @@ class PyREST:
     #  low
     #  high
     #  units
-    def listParameter(self, pattern=""):
+    def listParameter(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/list?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         param_dict = json.loads(tmpl.decode())
@@ -114,7 +114,7 @@ class PyREST:
     #  axes - array of objects that describe the SpecTcl axes, each object has the attributes low, high, bins
     #  chantype - channel type code (i.e. long)
     #  gate - gate applied to the spectrum
-    def listSpectrum(self, pattern=""):
+    def listSpectrum(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/list?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         spectrum_dict = json.loads(tmpl.decode())
@@ -187,7 +187,7 @@ class PyREST:
     #          y
     #       1
     #          ...
-    def listGate(self, pattern=""):
+    def listGate(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/gate/list?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         gate_dict = json.loads(tmpl.decode())
@@ -375,7 +375,7 @@ class PyREST:
 
     # As spectra accumulate, fit data will be outdated. This allows the fit information to be recomputed to match current data.
     # It updates the set of fits whose names match the glob pattern in the query parameter pattern.
-    def updateFit(self, pattern=""):
+    def updateFit(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/fit/update?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         fit_dict = json.loads(tmpl.decode())
@@ -412,7 +412,7 @@ class PyREST:
     # Each object has the following attributes:
     # spectrum - name of a folded spectrum
     # gate - name of the gate used to fold the spectrum 
-    def listFold(self, pattern=""):
+    def listFold(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/fold/list?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         fold_dict = json.loads(tmpl.decode())
@@ -469,7 +469,7 @@ class PyREST:
     # Clear spectra
     ############################################################        
     
-    def spectrumClear(self, pattern=""):
+    def spectrumClear(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/zero?filter="+str(pattern)
 
         self.sendRequest(url)
@@ -505,7 +505,7 @@ class PyREST:
     # name
     # underflows
     # overflows
-    def getSpectrumStats(self, name, pattern=""):
+    def getSpectrumStats(self, name, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/specstats?name="+str(name)+"&filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         stats_dict = json.loads(tmpl.decode())
@@ -595,7 +595,7 @@ class PyREST:
     # parameters - an array of parameters names written to the output file for each event that passes the gate
     # enabled - if the filter is enabled, this attribute has value "enabled" otherwise "disabled"
     # format - contains the format string i.e. xdr
-    def listFilter(self, pattern=""):
+    def listFilter(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/filter/list?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         filt_dict = json.loads(tmpl.decode())
@@ -843,7 +843,7 @@ class PyREST:
     # tree - name of the tree to create
     # parameters - array of parameter name patterns that define the parameters to book into the tree
     # gate - name of the gate that must be satisfied to add an event to the tree
-    def listROOTtree(self, pattern=""):
+    def listROOTtree(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/roottree/list?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         root_dict = json.loads(tmpl.decode())
@@ -903,7 +903,7 @@ class PyREST:
     
     def sendRequest(self, url):
         try:
-            httplib2.Http().request(url, method="POST")[1]
+            httplib2.Http().request(url, method="GET")[1] # SpecTclREST only takes GET methods.
         except Exception as e:
             print(e.message, e.args)
             
