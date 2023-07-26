@@ -26,7 +26,7 @@
 #include <Exception.h>
 #include <stdexcept>
 #include <string>
-
+#include <iostream>
 /**
  * constructor
  *   @param interp - references the interpreter the command is registered on.
@@ -61,8 +61,9 @@ CTCLMirrorSetup::operator()(
         std::string rest = objv[2];
         std::string mirror = objv[3];
         std::string user = objv[4];
+
         if (!getSpecTclMemory(host.c_str(), rest.c_str(), mirror.c_str(), user.c_str())) {
-            throw Mirror_errorString(Mirror_errorCode());
+	  throw std::string(Mirror_errorString(Mirror_errorCode()));
         }
         
     }
