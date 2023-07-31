@@ -9,11 +9,12 @@ from copy import copy, deepcopy
 from itertools import chain, compress, zip_longest
 import pandas as pd
 import numpy as np
+import multiprocessing
 
 sys.path.append(os.getcwd())
 
 # use preprocessor macro __file__ to get the installation directory
-# caveat : expects a particular format of installation directory (N.NN-NNNN)
+# caveat : expects a particular format of installation directory (N.NN-NNN)
 instPath = ""
 fileDir = os.path.dirname(os.path.abspath(__file__))
 subDirList = fileDir.split("/")
@@ -48,6 +49,7 @@ import matplotlib.lines as mlines
 import matplotlib.mlab as mlab
 import matplotlib.image as mpimg
 import matplotlib.gridspec as gridspec
+import matplotlib.colorbar as mcolorbar
 from matplotlib.backend_bases import *
 from matplotlib.artist import Artist
 
@@ -268,9 +270,9 @@ class MainWindow(QMainWindow):
         self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
         self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
         # autoscale
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxis)
+        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxisBox)
         # log button
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogAxis)
+        self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogBox)
         # plus button
         self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
         # minus button
@@ -329,8 +331,8 @@ class MainWindow(QMainWindow):
     def bindDynamicSignal(self):
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[2].triggered.connect(self.zoomCallback)
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxis)
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogAxis)
+        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxisBox)
+        self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogBox)
         self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
         self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
@@ -385,21 +387,24 @@ class MainWindow(QMainWindow):
 
     def on_press(self, event):
         if not event.inaxes: return
-        self.currentPlot.selected_plot_index = list(self.currentPlot.figure.axes).index(event.inaxes)
+        index = list(self.currentPlot.figure.axes).index(event.inaxes)
+        if self.currentPlot.isZoomed:
+            index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
+        self.currentPlot.selected_plot_index = index
         if (DEBUG):
-            print('Inside on_press self.currentPlot.selected_plot_index ',self.currentPlot.selected_plot_index)
+            print('Inside on_press self.currentPlot.selected_plot_index ',index)
         global t
         if t is None:
-            t = threading.Timer(DEBOUNCE_DUR, self.on_singleclick, [event])
+            t = threading.Timer(DEBOUNCE_DUR, self.on_singleclick, [event,index])
             t.start()
         if event.dblclick:
             t.cancel()
             try:
-                self.on_dblclick(event)
+                self.on_dblclick(event, index)
             except:
                 pass
 
-    def on_singleclick(self, event):
+    def on_singleclick(self, event, index):
         global t
         if (DEBUG):
             print("Inside on_singleclick in tab",self.wTab.currentIndex())
@@ -413,18 +418,18 @@ class MainWindow(QMainWindow):
                     self.currentPlot.rec.remove()
             except:
                 pass
-            # by single clicking we select the plot with index selected_plot_index and draw a
-            # red rectangle on the axes to show choice
-            for i, plot in enumerate(self.currentPlot.figure.axes):
-                if (i == self.currentPlot.selected_plot_index):
-                        self.currentPlot.isSelected = True
-                        self.currentPlot.rec = self.createRectangle(plot)
-                        if self.currentPlot.h_log[i]:
-                            self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(True)
-                        else:
-                            self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(False)
-                        #self.clickToIndex(self.currentPlot.selected_plot_index)
-                        self.clickToName(self.currentPlot.selected_plot_index)
+
+            self.currentPlot.isSelected = True
+            self.currentPlot.rec = self.createRectangle(self.currentPlot.figure.axes[index])
+
+            if index in self.currentPlot.h_log:
+                if self.currentPlot.h_log[index] :
+                    self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(True)
+                else:
+                    self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(False)
+            self.clickToName(index)
+
+            #tried to blit here but not successful (?) important delay for canvas with many plots
             self.currentPlot.canvas.draw()
         else:
             if (DEBUG):
@@ -453,29 +458,29 @@ class MainWindow(QMainWindow):
                     self.addPolygon(click[0], click[1])
 
             self.currentPlot.canvas.draw()
-
         t = None
 
-    def on_dblclick(self, event):
+    def on_dblclick(self, event, idx):
         global t
+
         if (DEBUG):
             print("Inside on_dblclick in tab", self.wTab.currentIndex())
         if self.currentPlot.h_dict_geo[0] == "empty":
             self.currentPlot.h_dict_geo = deepcopy(self.wTab.h_dict_geo_bak[self.wTab.currentIndex()])
 
-        name = self.currentPlot.h_dict_geo[self.currentPlot.selected_plot_index]
+        name = self.currentPlot.h_dict_geo[idx]
         index = self.wConf.histo_list.findText(name)
         self.wConf.histo_list.setCurrentIndex(index)
         self.updateHistoInfo(name)
         if (DEBUG):
-            print("UPDATE plot the histogram at index", self.currentPlot.selected_plot_index, "with name", self.wConf.histo_list.currentText())
+            print("UPDATE plot the histogram at index", idx, "with name", self.wConf.histo_list.currentText())
 
         if self.currentPlot.isZoomed == False: # entering zooming mode
             if (DEBUG):
                 print("###### Entering zooming mode...")
             self.currentPlot.isZoomed = True
             # make sure log is correct
-            if self.currentPlot.h_log[self.currentPlot.selected_plot_index] == False:
+            if self.currentPlot.h_log[idx] == False:
                 self.currentPlot.histo_log.setChecked(False)
                 self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(False)
             else:
@@ -488,23 +493,25 @@ class MainWindow(QMainWindow):
             self.wConf.createGate.setEnabled(True)
             self.wConf.editGate.setEnabled(True)
             if (DEBUG):
-                print("inside dblclick: self.selected_plot_index", self.currentPlot.selected_plot_index)
+                print("inside dblclick: self.selected_plot_index",idx )
             # backing up list of histogram
             self.currentPlot.h_dict_bak = self.currentPlot.h_dict.copy()
             # plot corresponding histogram
             if (DEBUG):
-                print("plot the histogram at index", self.currentPlot.selected_plot_index, "with name", (self.currentPlot.h_dict[self.currentPlot.selected_plot_index])["name"])
-            self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]= deepcopy(self.currentPlot.selected_plot_index)
+                print("plot the histogram at index", idx, "with name", (self.currentPlot.h_dict[idx])["name"])
+            self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]= deepcopy(idx)
             self.updatePlot()
-            #Simon - commented following line because drawAllGates is called in updatePlot
-            #self.drawAllGates()
+
+            #Reset colorbar dictionary for replot when back from zoom mode
+            self.currentPlot.cbar = {key: False for key, value in self.currentPlot.cbar.items()}
+
         else:
             # enabling adding histograms
             self.wConf.histo_geo_add.setEnabled(True)
             if self.currentPlot.toCreateGate == True or self.currentPlot.toCreateSRegion == True:
                 if (DEBUG):
                     print("Fixing index before closing the gate")
-                    print(self.currentPlot.selected_plot_index,"has to be",self.wTab.selected_plot_index_bak[self.wTab.currentIndex()])
+                    print(idx,"has to be",self.wTab.selected_plot_index_bak[self.wTab.currentIndex()])
                     print("Before histo name", self.wConf.histo_list.currentText())
                 # fixing the correct index
                 if self.currentPlot.h_dict_geo[0] == "empty":
@@ -527,6 +534,7 @@ class MainWindow(QMainWindow):
                 else:
                     gate_name = self.currentPlot.region_name
                 #Simon - added try to be able to exit the if statment if dble click right after created a gate
+
                 try :
                     if self.wConf.button1D.isChecked():
                         if (DEBUG):
@@ -551,38 +559,26 @@ class MainWindow(QMainWindow):
                             print("artist1D for ", gate_name, "in", histo_name)
                         if self.currentPlot.toCreateGate == True:
                             if histo_name in self.currentPlot.artist_dict:
-                                if (DEBUG):
-                                    print("Dictionary entry exists!")
-                                lst = self.currentPlot.artist_dict[histo_name]
-                                if (DEBUG):
-                                    print("original list", lst)
-                                lst.append(artist1D)
-                                if (DEBUG):
-                                    print("updated list", lst)
-                                self.currentPlot.artist_dict[histo_name] = lst
+                                self.currentPlot.artist_dict[histo_name][gate_name] = artist1D[gate_name]
                             else:
-                                self.currentPlot.artist_dict[histo_name] = [artist1D]
+                                self.currentPlot.artist_dict[histo_name] = {gate_name : artist1D[gate_name]}
                             # push gate to spectcl via PyREST
                             self.formatLinetoREST(deepcopy(self.currentPlot.xs))
                         else:
                             if (DEBUG):
                                 print("Time to save the 1D summing region into a dictionary...")
+
                             if histo_name in self.currentPlot.region_dict:
-                                if (DEBUG):
-                                    print("Dictionary entry exists!")
-                                lst = self.currentPlot.region_dict[histo_name]
-                                if (DEBUG):
-                                    print("original list", lst)
-                                lst.append(artist1D)
-                                if (DEBUG):
-                                    print("updated list", lst)
-                                self.currentPlot.region_dict[histo_name] = lst
+                                self.currentPlot.region_dict[histo_name][gate_name] = artist1D[gate_name]
                             else:
-                                self.currentPlot.region_dict[histo_name] = [artist1D]
+                                self.currentPlot.region_dict[histo_name] = {gate_name : artist1D[gate_name]}
+                            if (DEBUG):
+                                print(self.currentPlot.region_dict)
                             self.formatLinetoREST(deepcopy(self.currentPlot.xs))
                             results = self.rest.integrateGate(histo_name, gate_name)
                             self.addRegion(histo_name, gate_name, results)
                             self.resPopup.show()
+
                     else:
                         if (DEBUG):
                             print("Closing 2D gating")
@@ -602,47 +598,29 @@ class MainWindow(QMainWindow):
                         #adding to list of gates for redrawing
                         artist2D[gate_name] = [deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys)]
                         # Simon - comment this debug print because hnameErroristo does not exist
-                        # if (DEBUG):
-                            # print("artist2D for ", gate_name, "in", hNameErroristo_name)
                         if self.currentPlot.toCreateGate == True:
                             if histo_name in self.currentPlot.artist_dict:
-                                if (DEBUG):
-                                    print("Dictionary entry exists!")
-                                lst = self.currentPlot.artist_dict[histo_name]
-                                if (DEBUG):
-                                    print("original list", lst)
-                                lst.append(artist2D)
-                                if (DEBUG):
-                                    print("updated list", lst)
-                                self.currentPlot.artist_dict[histo_name] = lst
+                                self.currentPlot.artist_dict[histo_name][gate_name] = artist2D[gate_name]
                             else:
-                                self.currentPlot.artist_dict[histo_name] = [artist2D]
-                                if (DEBUG):
-                                    print(self.currentPlot.artist_dict)
+                                self.currentPlot.artist_dict[histo_name] = {gate_name : artist2D[gate_name]}
+                            if (DEBUG):
+                                print(self.currentPlot.artist_dict)
                                 # push gate to spectcl via PyREST
-                            #Simon - corrected indentation of the next line
                             self.formatLinetoREST(deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys))
                         else:
                             if (DEBUG):
                                 print("Time to save the 2D summing region into a dictionary...")
                             if histo_name in self.currentPlot.region_dict:
-                                if (DEBUG):
-                                    print("Dictionary entry exists!")
-                                lst = self.currentPlot.region_dict[histo_name]
-                                if (DEBUG):
-                                    print("original list", lst)
-                                lst.append(artist2D)
-                                if (DEBUG):
-                                    print("updated list", lst)
-                                self.currentPlot.region_dict[histo_name] = lst
+                                self.currentPlot.region_dict[histo_name][gate_name] = artist2D[gate_name]
                             else:
-                                self.currentPlot.region_dict[histo_name] = [artist2D]
+                                self.currentPlot.region_dict[histo_name] = {gate_name : artist2D[gate_name]}
+                            if (DEBUG):
+                                print(self.currentPlot.region_dict)
                             # push gate to spectcl via PyREST
                             self.formatLinetoREST(deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys))
                             results = self.rest.integrateGate(histo_name, gate_name)
                             self.addRegion(histo_name, gate_name, results)
                             self.resPopup.show()
-                #Simon -added
                 except:
                     pass
                 if (DEBUG):
@@ -664,6 +642,7 @@ class MainWindow(QMainWindow):
                     #following self.h_setup deos not work, prevent retruning to unzoomed view
                     #print("Reinitialization self.h_setup", self.h_setup)
                     print("original geometry", self.currentPlot.old_row, self.currentPlot.old_col)
+
                 #draw the back the original canvas
                 self.currentPlot.InitializeCanvas(self.currentPlot.old_row, self.currentPlot.old_col, False)
                 if (DEBUG):
@@ -672,24 +651,19 @@ class MainWindow(QMainWindow):
                 self.currentPlot.h_setup = {k: True for k in range(n)}
                 self.currentPlot.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
                 self.updatePlot()
-                #Simon - commented following line because drawAllGates is called in updatePlot
-                #self.drawAllGates()
-
         t=None
 
+
     def get_key(self, val):
-        for key, value in self.currentPlot.h_dict.items():
-            for key2, value2, in value.items():
-                if val == value2:
-                    return key
+        return next((key for key, value in self.currentPlot.h_dict.items() if any(val == value2 for value2 in value.values())), None)
 
     #Simon - to show gates on all clones of a plot
     def get_keylst(self, val):
+        keys = list(self.currentPlot.h_dict.keys())
         keylst = []
-        for key, value in self.currentPlot.h_dict.items():
-            for key2, value2, in value.items():
-                if val == value2:
-                    keylst.append(key)
+        for key in keys:
+            if val in self.currentPlot.h_dict[key].values():
+                keylst.append(key)
         return keylst
 
     def zoomCallback(self, event):
@@ -705,6 +679,7 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print("Clicked homeCallback in tab", self.wTab.currentIndex())
         try:
+            print(self.wConf.histo_list)
             name = str(self.wConf.histo_list.currentText())
             index = self.get_key(name)
             self.resetAxisLimits(index)
@@ -908,7 +883,10 @@ class MainWindow(QMainWindow):
             if (DEBUG):
                 print("min/max", xmin, xmax)
                 print("self.artist1D", self.currentPlot.artist1D)
-            self.currentPlot.artist_dict[histo_name] = [self.currentPlot.artist1D]
+            if histo_name in self.currentPlot.artist_dict:
+                self.currentPlot.artist_dict[histo_name][name] = self.currentPlot.artist1D[name]
+            else:
+                self.currentPlot.artist_dict[histo_name] = {name: self.currentPlot.artist1D[name]}
         elif gate_type == "*":
             pass
         else:
@@ -923,21 +901,22 @@ class MainWindow(QMainWindow):
             if (DEBUG):
                 print("points", points)
             for dic in points:
-                for key, value in dic.items():
-                    if (DEBUG):
-                        print(key, value)
-                    if key == "x":
-                        x.append(value)
-                    elif key == "y":
-                        y.append(value)
+                x.append(dic["x"])
+                y.append(dic["y"])
             x.append(x[0])
             y.append(y[0])
             if (DEBUG):
                 print(x,y)
+                for key, value in zip(x, y):
+                    print(key, value)
+
             self.currentPlot.artist2D[name] = [x, y]
             if (DEBUG):
                 print(self.currentPlot.artist2D)
-            self.currentPlot.artist_dict[histo_name] = [self.currentPlot.artist2D]
+            if histo_name in self.currentPlot.artist_dict:
+                self.currentPlot.artist_dict[histo_name][name] = self.currentPlot.artist2D[name]
+            else:
+                self.currentPlot.artist_dict[histo_name] = {name: self.currentPlot.artist2D[name]}
 
         if (DEBUG):
             # print(self.currentPlot.artist_dict)
@@ -1122,16 +1101,8 @@ class MainWindow(QMainWindow):
             print("Inside update_parameter_list")
         try:
             par_dict = self.rest.listParameter()
-            # if (DEBUG):
-            #     print(par_dict)
-            tmpid = []
-            tmpname = []
-            for dic in par_dict:
-                for key in dic:
-                    if key == 'id':
-                        tmpid.append(dic[key])
-                    elif key == 'name':
-                        tmpname.append(dic[key])
+            tmpid = [dic['id'] for dic in par_dict if 'id' in dic]
+            tmpname = [dic['name'] for dic in par_dict if 'name' in dic]
             ziplst = zip(tmpid, tmpname)
             self.param_list = dict(ziplst)
             # resetting ComboBox
@@ -1144,15 +1115,12 @@ class MainWindow(QMainWindow):
     def create_parameter_list(self):
         if (DEBUG):
             print("Inside create_parameter_list")
-
         self.update_parameter_list()
-        # if (DEBUG):
-        #     print(self.param_list)
         for key, value in self.param_list.items():
-            for i in range(2):
-                if self.wConf.listParams[i].findText(value) == -1:
-                    self.wConf.listParams[i].addItem(value)
-
+            if self.wConf.listParams[0].findText(value) == -1:
+                self.wConf.listParams[0].addItem(value)
+            if self.wConf.listParams[1].findText(value) == -1:
+                self.wConf.listParams[1].addItem(value)
 
     # update spectrum information
     def update_spectrum_info(self):
@@ -1381,6 +1349,7 @@ class MainWindow(QMainWindow):
             pass
 
     def loadGeo(self):
+
         fileName = self.openFileNameDialog()
         if (DEBUG):
             print("Inside loadGeo")
@@ -1497,8 +1466,8 @@ class MainWindow(QMainWindow):
                 self.currentPlot.h_lst[index].set_clim(vmin=zmin, vmax=zmax)
             else:
                 self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
-        self.currentPlot.canvas.draw()
 
+    # sets y scale for 1d and z scale for 2d depending on h_log flag
     def axisScale(self, ax, index):
         if (DEBUG):
             print("Inside axisScale")
@@ -1509,6 +1478,7 @@ class MainWindow(QMainWindow):
         if self.currentPlot.h_log[index]:
             if (DEBUG):
                 print("needs to become log...")
+            print("needs to become log...")
             if (self.currentPlot.h_dict[index]["dim"] == 1) :
                 if ax.get_yscale() == "linear":
                     ymin, ymax = ax.get_ylim()
@@ -1525,67 +1495,59 @@ class MainWindow(QMainWindow):
                 zmin = math.log10(zmin)
                 zmax = math.log10(self.maxZ)
                 self.currentPlot.h_lst[index].set_clim(vmin=zmin, vmax=zmax)
+                print("Simon - h_lst index - ",index,self.currentPlot.h_lst[index])
         else:
             if (DEBUG):
                 print("needs to become linear...")
                 print(self.currentPlot.h_limits)
+            print("needs to become linear...")
             if (self.currentPlot.h_dict[index]["dim"] == 1) :
                 if ax.get_yscale() == "log":
                     ax.set_yscale("linear")
-                    if (self.currentPlot.h_limits[index]):
-                        ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])
+                    if len(self.currentPlot.h_limits) > index:
+                        if self.currentPlot.h_limits[index]:
+                            ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])
                     else:
                         ax.set_ylim(self.minY,self.maxY)
             else:
                 self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
 
+
     # setting log/linear axes
-    def setLogAxis(self):
-        if (DEBUG):
-            print("Clicked setLogAxis in tab", self.wTab.currentIndex())
-            print("self.currentPlot.h_log", self.currentPlot.h_log)
-            # print("self.currentPlot.h_log_bak", self.wTab.h_log_bak[self.wTab.currentIndex()])
-            print("self.currentPlot.selected_plot_index",self.currentPlot.selected_plot_index)
+    def setLogBox(self):
+        #in zoom mode use selected_plot_index_bak because on_press sets selected_plot_index to 0
+        # if self.currentPlot.isZoomed:
+        #     selected_plot_index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
+        # else:
+        #     selected_plot_index = self.currentPlot.selected_plot_index
+        selected_plot_idx = self.currentPlot.selected_plot_index
+        wPlot = self.wTab.wPlot[self.wTab.currentIndex()]
+
+        if DEBUG:
+            print("Clicked setLogBox in tab", self.wTab.currentIndex())
+            print("self.currentPlot.h_log", h_log)
+            print("self.currentPlot.selected_plot_index", selected_plot_idx)
 
         try:
-            if self.currentPlot.selected_plot_index != None:
-                if (DEBUG):
-                    print("histogram selected with index", self.currentPlot.selected_plot_index)
-                if self.wTab.wPlot[self.wTab.currentIndex()].histo_log.isChecked():
-                    if (DEBUG):
-                        print("histogram needs to become log")
-                    self.currentPlot.h_log[self.currentPlot.selected_plot_index] = True
-                else:
-                    if (DEBUG):
-                        print("histogram needs to become linear")
-                    self.currentPlot.h_log[self.currentPlot.selected_plot_index] = False
-                if (DEBUG):
-                    print("Summary: Inside self.currentPlot.selected_plot_index != None  --- self.currentPlot.h_log", self.currentPlot.h_log)
-                ax = None
+            if selected_plot_idx is not None:
+                if DEBUG:
+                    print("histogram selected with index", selected_plot_idx)
+                self.currentPlot.h_log[selected_plot_idx] = wPlot.histo_log.isChecked()
+                if DEBUG:
+                    scale_type = "log" if self.currentPlot.h_log[selected_plot_idx] else "linear"
+                    print("histogram needs to become", scale_type)
                 if self.currentPlot.isZoomed:
                     ax = plt.gca()
-                    # namehisto = str(self.wConf.histo_list.currentText())
-                    # indexhisto = self.get_key(namehisto)
-                    # ax = self.select_plot(indexhisto)
                 else:
-                    ax = self.select_plot(self.currentPlot.selected_plot_index)
-                self.axisScale(ax, self.currentPlot.selected_plot_index)
-            else:
-                if (DEBUG):
-                    print("----> histogram NOT selected - back from zoom mode")
-                    print("Summary ----> self.currentPlot.h_log", self.currentPlot.h_log)
+                    ax = self.select_plot(selected_plot_idx)
 
-                for index, value in self.currentPlot.h_log.items():
-                    if value == True:
-                        if (DEBUG):
-                            print("index", index, "needs to become log...")
-                        ax = self.select_plot(index)
-                        self.axisScale(ax, index)
-
-            self.currentPlot.canvas.draw()
+                self.axisScale(ax, selected_plot_idx)
+                # self.currentPlot.canvas.draw()
+                wPlot.canvas.draw()
 
         except NameError:
             raise
+
 
     def zoom(self, ax, index, flag):
         if (DEBUG):
@@ -1670,6 +1632,19 @@ class MainWindow(QMainWindow):
 
         canvas.draw()
 
+
+    def setAutoscaleAxisBox(self):
+        if (DEBUG):
+            print("setAutoscaleAxisBox in tab:", self.wTab.currentIndex(), "with name", self.wTab.tabText(self.wTab.currentIndex()))
+        wPlot = self.wTab.wPlot[self.wTab.currentIndex()]
+        try:
+            self.currentPlot.autoScale = wPlot.histo_autoscale.isChecked()
+            self.setAutoscaleAxis()
+            self.currentPlot.canvas.draw()
+        except:
+            pass
+
+
     # setting autoscale+axis properties with h_limits
     def setAutoscaleAxis(self):
         if (DEBUG):
@@ -1682,105 +1657,91 @@ class MainWindow(QMainWindow):
                 if (DEBUG):
                     print("inside isZoomed")
                 ax = plt.gca()
+
+                selected_plot_idx = self.currentPlot.selected_plot_index
+                self.currentPlot.h_log[selected_plot_idx] = self.wTab.wPlot[self.wTab.currentIndex()].histo_log.isChecked()
+                self.axisScale(ax, selected_plot_idx)
+                hist_dict_idx = self.currentPlot.h_dict[selected_plot_idx]
+                hist_limits_idx = self.currentPlot.h_limits[selected_plot_idx]
+
                 # set limits if they exist
-                if (self.currentPlot.h_limits[self.currentPlot.selected_plot_index]):
-                    ax.set_xlim(self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["x"][0], self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["x"][1])
-                    ax.set_ylim(self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"][0], self.currentPlot.h_limits[self.currentPlot.selected_plot_index]["y"][1])
+                if hist_limits_idx:
+                    ax.set_xlim(hist_limits_idx["x"][0], hist_limits_idx["x"][1])
+                    ax.set_ylim(hist_limits_idx["y"][0], hist_limits_idx["y"][1])
+                    if hist_dict_idx["dim"] == 2:
+                        zmin, zmax = self.currentPlot.h_lst[selected_plot_idx].get_clim()
+                        # ax.set_clim(vmin=self.minZ, vmax=self.maxZ)
+                        self.currentPlot.h_lst[selected_plot_idx].set_clim(vmin=zmin, vmax=zmax)
                 else:
-                    ax.set_xlim(float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"]), float(self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmax"]))
+                    if hist_dict_idx["dim"] == 1:
+                        ax.set_xlim(float(hist_dict_idx["xmin"]), float(hist_dict_idx["xmax"]))
+                    else:
+                        ax.set_xlim(float(hist_dict_idx["xmin"]), float(hist_dict_idx["xmax"]))
+                        ax.set_ylim(float(hist_dict_idx["ymin"]), float(hist_dict_idx["ymax"]))
+                        #do not self.currentPlot.h_lst[index].set_clim because already done in axisScale
 
-                    data = self.get_data(self.currentPlot.selected_plot_index)
-                    if self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["dim"] == 2:
-                        maxZ = np.max(data)*1.1
-                        self.currentPlot.h_lst[self.currentPlot.selected_plot_index].set_clim(vmin=self.minZ, vmax=maxZ)
-
+                # (re)sets y or z limits according to the maximum
                 if self.currentPlot.autoScale:
                     if (DEBUG):
                         print("Inside self.autoScale for tab with index", self.wTab.currentIndex())
-                    if (self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["name"]) != "empty":
+                    if (hist_dict_idx["name"]) != "empty":
                         if (DEBUG):
-                            print("histogram exists with index", self.currentPlot.selected_plot_index)
-                        data = self.get_data(self.currentPlot.selected_plot_index)
-                        if (self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["dim"] == 1) :
+                            print("histogram exists with index", selected_plot_idx)
+                        data = self.get_data(selected_plot_idx)
+                        if (hist_dict_idx["dim"] == 1) :
                             ymax_new = max(data)*1.1
                             ax.set_ylim((ax.get_ylim())[0], ymax_new)
                         else:
                             maxZ = np.max(data)*1.1
-                            self.currentPlot.h_lst[self.currentPlot.selected_plot_index].set_clim(vmin=self.minZ, vmax=maxZ)
-                else:
-                    if (DEBUG):
-                        print("Inside not self.autoScale for tab with index", self.wTab.currentIndex())
-                    if (self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["dim"] == 1) :
-                        ax.set_ylim((ax.get_ylim())[0], (ax.get_ylim())[1])
-                    else:
-                        self.currentPlot.h_lst[self.currentPlot.selected_plot_index].set_clim(vmin=self.minZ, vmax=self.maxZ)
+                            self.currentPlot.h_lst[selected_plot_idx].set_clim(vmin=self.minZ, vmax=maxZ)
             else:
                 if (DEBUG):
                     print("Inside multipanel option")
                     print("self.currentPlot.autoScale", self.currentPlot.autoScale)
-                if self.currentPlot.autoScale:
-                    if (DEBUG):
-                        print("Inside self.autoScale for tab with index", self.wTab.currentIndex())
 
-                    for index, values in self.currentPlot.h_dict.items():
-                        if (DEBUG):
-                            print(index, values)
+                hist_list = self.wTab.wPlot[self.wTab.currentIndex()].hist_list
+                hist_dict = self.currentPlot.h_dict
+                hist_limits = self.currentPlot.h_limits
 
-                        if (self.currentPlot.h_dict[index]["name"]) != "empty":
+                if (DEBUG):
+                    print("Inside not self.autoScale for tab with index", self.wTab.currentIndex())
+                    print(self.currentPlot.h_limits)
+
+                #read hist_list because faster to get index than from h_dict
+                for index, name in enumerate(hist_list):
+                    hist_dict_idx = hist_dict[index]
+                    if (hist_dict_idx["name"]) != "empty":
+                        ax = self.select_plot(index)
+                        self.axisScale(ax, index)
+                        # set limits if they exist
+                        if hist_limits[index]:
+                            hist_limits_idx = hist_limits[index]
+                            ax.set_xlim(hist_limits_idx["x"][0], hist_limits_idx["x"][1])
+                            ax.set_ylim(hist_limits_idx["y"][0], hist_limits_idx["y"][1])
+                            if hist_dict_idx["dim"] == 2:
+                                zmin, zmax = self.currentPlot.h_lst[index].get_clim()
+                                self.currentPlot.h_lst[index].set_clim(vmin=zmin, vmax=zmax)
+                        else:
+                            if hist_dict_idx["dim"] == 1:
+                                ax.set_xlim(float(hist_dict_idx["xmin"]), float(hist_dict_idx["xmax"]))
+                                # ax.set_ylim(self.minY, self.maxY)
+                            else:
+                                ax.set_xlim(float(hist_dict_idx["xmin"]), float(hist_dict_idx["xmax"]))
+                                ax.set_ylim(float(hist_dict_idx["ymin"]), float(hist_dict_idx["ymax"]))
+                                #do not self.currentPlot.h_lst[index].set_clim because already done in axisScale
+
+                        # (re)sets y or z limits according to the maximum
+                        if self.currentPlot.autoScale:
                             data = self.get_data(index)
-                            ax = self.select_plot(index)
-                            if self.currentPlot.h_dict[index]["dim"] == 1:
+                            if hist_dict_idx["dim"] == 1:
                                 ymax_new = max(data)*1.1
                                 ax.set_ylim((ax.get_ylim())[0], ymax_new)
-                                if (self.currentPlot.h_limits[index]):
-                                    ax.set_xlim(self.currentPlot.h_limits[index]["x"][0], self.currentPlot.h_limits[index]["x"][1])
                             else:
                                 maxZ = np.max(data)*1.1
-                                if (self.currentPlot.h_limits[index]):
-                                    ax.set_xlim(self.currentPlot.h_limits[index]["x"][0], self.currentPlot.h_limits[index]["x"][1])
-                                    ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])
                                 self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=maxZ)
-
-
-                else:
-                    if (DEBUG):
-                        print("Inside not self.autoScale for tab with index", self.wTab.currentIndex())
-                        print(self.currentPlot.h_limits)
-                    for index, values in self.currentPlot.h_dict.items():
-                        if (self.currentPlot.h_dict[index]["name"]) != "empty":
-                            ax = self.select_plot(index)
-                            if (DEBUG):
-                                print(index, values)
-                            if self.currentPlot.h_dict[index]["dim"] == 1:
-                                if (DEBUG):
-                                    print("inside 1d")
-                                    print(self.currentPlot.h_limits[index])
-                                # if h_limits exist
-                                if (self.currentPlot.h_limits[index]):
-                                    ax.set_xlim(self.currentPlot.h_limits[index]["x"][0], self.currentPlot.h_limits[index]["x"][1])
-                                    ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])
-                                else:
-                                    if (DEBUG):
-                                        print("empty limits")
-                                        print(self.currentPlot.h_dict[index]["xmin"], self.currentPlot.h_dict[index]["xmax"])
-                                    ax.set_xlim(float(self.currentPlot.h_dict[index]["xmin"]), float(self.currentPlot.h_dict[index]["xmax"]))
-                                    ax.set_ylim(self.minY, self.maxY)
-                            else:
-                                if (DEBUG):
-                                    print("inside 2d")
-                                # if h_limits exist
-                                if (self.currentPlot.h_limits[index]):
-                                    ax.set_xlim(self.currentPlot.h_limits[index]["x"][0], self.currentPlot.h_limits[index]["x"][1])
-                                    ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])
-                                else:
-                                    ax.set_xlim(float(self.currentPlot.h_dict[index]["xmin"]), float(self.currentPlot.h_dict[index]["xmax"]))
-                                    ax.set_ylim(float(self.currentPlot.h_dict[index]["ymin"]), float(self.currentPlot.h_dict[index]["ymax"]))
-                                    self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
-
-            self.currentPlot.canvas.draw()
-
         except:
             pass
+
 
     def getAxisProperties(self, index):
         if (DEBUG):
@@ -1826,7 +1787,6 @@ class MainWindow(QMainWindow):
         self.currentPlot.h_limits[index]["x"] = []
         self.currentPlot.h_limits[index]["y"] = []
 
-        self.currentPlot.canvas.draw()
 
     #Simon - used to keep modified axis ranges after zoomCallback unless homeCallback is pressed
     def setAxisLimits(self, index):
@@ -1839,10 +1799,13 @@ class MainWindow(QMainWindow):
             ax = plt.gca()
         else:
             ax = self.select_plot(index)
-        if bool(self.currentPlot.h_limits[index]):
-            print("limits x,y ", self.currentPlot.h_limits[index]["x"],self.currentPlot.h_limits[index]["y"])
-            ax.set_xlim(float(self.currentPlot.h_limits[index]["x"][0]), float(self.currentPlot.h_limits[index]["x"][1]))
-            ax.set_ylim(float(self.currentPlot.h_limits[index]["y"][0]), float(self.currentPlot.h_limits[index]["y"][1]))
+
+        if "x" in self.currentPlot.h_limits[index] and "y" in self.currentPlot.h_limits[index]:
+            x_limits = self.currentPlot.h_limits[index]["x"]
+            y_limits = self.currentPlot.h_limits[index]["y"]
+            if x_limits and y_limits:
+                ax.set_xlim(float(x_limits[0]), float(x_limits[1]))
+                ax.set_ylim(float(y_limits[0]), float(y_limits[1]))
 
         if self.currentPlot.h_log[index] and self.currentPlot.h_dim[index] == 1:
             self.axisScale(ax, index)
@@ -1852,34 +1815,6 @@ class MainWindow(QMainWindow):
             if self.currentPlot.h_log[index]:
                 self.axisScale(ax, index)
 
-
-        self.currentPlot.canvas.draw()
-
-    #Simon - used to keep modified axis ranges after zoomCallback unless homeCallback is pressed
-    def setAxisLimits2(self, axis):
-        if (DEBUG):
-            print("Inside setAxisLimits")
-        index = 0
-        for i, plot in enumerate(self.currentPlot.figure.axes):
-            if (plot == axis):
-                index = i
-        print("axes", index, self.currentPlot.h_dict[index])
-        print("log ", self.currentPlot.h_log[index])
-        print("axis limits ",axis.get_xlim(),axis.get_ylim())
-        # self.currentPlot.h_limits[index]
-
-        # if bool(self.currentPlot.h_limits[index]):
-        #     print("limits x,y ", self.currentPlot.h_limits[index]["x"],self.currentPlot.h_limits[index]["y"])
-        #     ax.set_xlim(float(self.currentPlot.h_limits[index]["x"][0]), float(self.currentPlot.h_limits[index]["x"][1]))
-        #     ax.set_ylim(float(self.currentPlot.h_limits[index]["y"][0]), float(self.currentPlot.h_limits[index]["y"][1]))
-
-        # if self.currentPlot.h_log[index] and self.currentPlot.h_dim[index] == 1:
-        #     self.axisScale(ax, index)
-
-        # if self.currentPlot.h_dim[index] == 2:
-        #     self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
-        #     if self.currentPlot.h_log[index]:
-        #         self.axisScale(ax, index)
 
     ##################################
     ## 9) Histogram operations
@@ -1901,8 +1836,10 @@ class MainWindow(QMainWindow):
             print("inside check index")
         keys=list(self.currentPlot.h_dict.keys())
         values = []
-        for index, value in self.currentPlot.h_dict.items():
-            values.append(value["name"])
+        # for index, value in self.currentPlot.h_dict.items():
+        #     values.append(value["name"])
+
+        values = [value["name"] for value in self.currentPlot.h_dict.values()]
 
         if (DEBUG):
             print(keys, values)
@@ -1915,15 +1852,15 @@ class MainWindow(QMainWindow):
             self.currentPlot.isFull = True
 
         # Simon modified following lines
-        if self.currentPlot.isFull == True:
+        if self.currentPlot.isFull:
             try:
                 if self.currentPlot.index <= self.wConf.row*self.wConf.col-1:
                     if self.currentPlot.index == self.wConf.row*self.wConf.col-1:
                         self.currentPlot.index = 0
                     else:
                         self.currentPlot.index += 1
-            except:
-                pass
+            except IndexError as e:
+                print(f"An IndexError occured: {e}")
 
         if (DEBUG):
             print("index to fill", self.currentPlot.index)
@@ -1959,6 +1896,7 @@ class MainWindow(QMainWindow):
         # if 2d histo I need a bit more efforts for the colorbar
         try:
             self.removeCb(a)
+            self.currentPlot.cbar[index] = False
         except:
             pass
 
@@ -1967,33 +1905,37 @@ class MainWindow(QMainWindow):
 
     # setup histogram
     def setupPlot(self, axis, index):
+        currentPlot = self.currentPlot
         if (DEBUG):
             print("Inside setupPlot")
-            print("histoname -->", self.currentPlot.h_dict[index]["name"])
+            print("histoname -->", currentPlot.h_dict[index]["name"])
         if (DEBUG):
-            print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-            print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-            print("self.currentPlot.h_limits",self.currentPlot.h_limits)
-            print("self.currentPlot.h_log",self.currentPlot.h_log)
-            print("self.currentPlot.h_setup",self.currentPlot.h_setup)
-            print("self.currentPlot.h_dim",self.currentPlot.h_dim)
+            print("self.currentPlot.h_dict", currentPlot.h_dict)
+            print("self.currentPlot.h_dict_geo", currentPlot.h_dict_geo)
+            print("self.currentPlot.h_limits",currentPlot.h_limits)
+            print("self.currentPlot.h_log",currentPlot.h_log)
+            print("self.currentPlot.h_setup",currentPlot.h_setup)
+            print("self.currentPlot.h_dim",currentPlot.h_dim)
             print("----------------------")
 
-        if self.currentPlot.h_dict_geo[index] != "empty":
+        if currentPlot.h_dict_geo[index] != "empty":
             #Simon - add a line - already a plot at index (not empty) so remove it (use pop here) and then add a new one.
             #Simon - if use insert only it adds new content to the list but does not replace elements.
-            self.currentPlot.h_lst.pop(index)
+            currentPlot.h_lst.pop(index)
+            #Simon - opti
+            if len(self.wTab.wPlot[self.wTab.currentIndex()].hist_list) > index :
+                self.wTab.wPlot[self.wTab.currentIndex()].hist_list.pop(index)
 
             if (DEBUG):
-                print("not empty --> ",self.currentPlot.h_dict_geo)
+                print("not empty --> ",currentPlot.h_dict_geo)
 
-            dim = int(self.currentPlot.h_dim[index])
-            minx = float(self.currentPlot.h_dict[index]["xmin"])
-            maxx = float(self.currentPlot.h_dict[index]["xmax"])
-            binx = int(self.currentPlot.h_dict[index]["xbin"])
+            dim = int(currentPlot.h_dim[index])
+            minx = float(currentPlot.h_dict[index]["xmin"])
+            maxx = float(currentPlot.h_dict[index]["xmax"])
+            binx = int(currentPlot.h_dict[index]["xbin"])
 
             if (DEBUG):
-                print("Histo", self.currentPlot.h_dict_geo[index], "dim", dim, minx, maxx, binx)
+                print("Histo", currentPlot.h_dict_geo[index], "dim", dim, minx, maxx, binx)
 
             # update axis
             if dim == 1:
@@ -2003,17 +1945,20 @@ class MainWindow(QMainWindow):
                 axis.set_ylim(self.minY,self.maxY)
                 # create histogram
                 line, = axis.plot([], [], drawstyle='steps')
-                self.currentPlot.h_lst.insert(index, line)
+                # line.set_animated(True)
+                currentPlot.h_lst.insert(index, line)
             else:
+                currentPlot = self.currentPlot
                 if (DEBUG):
                     print("2d case...")
 
-                miny = self.currentPlot.h_dict[index]["ymin"]
-                maxy = self.currentPlot.h_dict[index]["ymax"]
-                biny = self.currentPlot.h_dict[index]["ybin"]
+                miny = currentPlot.h_dict[index]["ymin"]
+                maxy = currentPlot.h_dict[index]["ymax"]
+                biny = currentPlot.h_dict[index]["ybin"]
 
                 # empty data for initialization
-                w = 0*np.random.random_sample((int(binx),int(biny)))
+                # w = 0*np.random.random_sample((int(binx),int(biny)))
+                w = np.zeros((int(binx), int(biny)))
 
                 # setup up palette
                 if (self.wConf.button2D_option.currentText() == 'Dark'):
@@ -2025,7 +1970,7 @@ class MainWindow(QMainWindow):
                     self.palette.set_bad(color='white')
 
                 # create histogram
-                self.currentPlot.h_lst.insert(index, axis.imshow(w,
+                currentPlot.h_lst.insert(index, axis.imshow(w,
                                                                  interpolation='none',
                                                                  extent=[float(minx),float(maxx),float(miny),float(maxy)],
                                                                  aspect='auto',
@@ -2033,9 +1978,14 @@ class MainWindow(QMainWindow):
                                                                  vmin=self.minZ, vmax=self.maxZ,
                                                                  cmap=self.palette))
 
-            self.currentPlot.axbkg[index] = self.currentPlot.figure.canvas.copy_from_bbox(axis.bbox)
+            currentPlot.axbkg[index] = currentPlot.figure.canvas.copy_from_bbox(axis.bbox)
             if (DEBUG):
-                print("self.currentPlot.h_lst",self.currentPlot.h_lst)
+                print("self.currentPlot.h_lst",currentPlot.h_lst)
+
+            self.currentPlot = currentPlot
+            #Simon - here fill tab dict with gates
+            self.updateHistList(index)
+
 
         if (DEBUG):
             print("done setting up the histos")
@@ -2081,19 +2031,31 @@ class MainWindow(QMainWindow):
                     print("loaded")
                 time.sleep(0.01)
                 self.plotPlot(a, index)
+
             else:
                 if (DEBUG):
                     print("not loaded")
                 self.setupPlot(a, index)
                 self.add(index)
                 self.plotPlot(a, index)
-
             if (self.currentPlot.h_setup[index]):
                 self.currentPlot.h_setup[index] = False
 
         if (DEBUG):
             print("self.currentPlot.h_setup", self.currentPlot.h_setup)
             print(self.currentPlot.selected_plot_index)
+
+
+    def updateHistList(self, index):
+         #Simon - work optimization
+        if (DEBUG):
+            print("Inside updateHistList")
+        hist_name = self.currentPlot.h_dict[index]['name']
+
+        if hist_name not in self.wTab.wPlot[self.wTab.currentIndex()].hist_list:
+        # if hist_name not in self.wTab.wPlot[self.wTab.currentIndex()].hist_list:
+            self.wTab.wPlot[self.wTab.currentIndex()].hist_list.insert(index, hist_name)
+
 
     # geometrically add plots to the right place
     def addPlot(self):
@@ -2102,14 +2064,15 @@ class MainWindow(QMainWindow):
             print("Simon - tab -",self.wTab.currentIndex(),len(self.wTab)-1,len(self.wTab.selected_plot_index_bak))
 
         try:
+            currentPlot = self.currentPlot
             # if we load the geometry from file
-            if self.currentPlot.isLoaded:
+            if currentPlot.isLoaded:
                 if (DEBUG):
                     print("Inside addPlot - loaded")
-                    print(self.currentPlot.h_dict_geo)
-                    print(self.currentPlot.h_dict)
+                    print(currentPlot.h_dict_geo)
+                    print(currentPlot.h_dict)
                 counter = 0
-                for key, value in self.currentPlot.h_dict_geo.items():
+                for key, value in currentPlot.h_dict_geo.items():
                     if (DEBUG):
                         print("counter -->", counter)
                     index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
@@ -2120,22 +2083,23 @@ class MainWindow(QMainWindow):
                         print(key, value, index)
                     # updating histogram dictionary with the last info needed (dim, xbinx, ybin, parameters, and type)
                     if (index != -1) :
-                        self.currentPlot.h_dict[counter] = self.update_spectrum_info()
+                        currentPlot.h_dict[counter] = self.update_spectrum_info()
 
                     if (DEBUG):
                         print(self.update_spectrum_info())
                     counter += 1
                 if (DEBUG):
                     print("updated self.currentPlot.h_dict")
-                    print(self.currentPlot.h_dict)
+                    print(currentPlot.h_dict)
 
                 # updating support list for histogram dimension
-                if len(self.currentPlot.h_dict) != 0:
-                    self.currentPlot.h_dim = self.currentPlot.get_histo_key_list(self.currentPlot.h_dict, "dim")
+                if len(currentPlot.h_dict) != 0:
+                    currentPlot.h_dim = currentPlot.get_histo_key_list(currentPlot.h_dict, "dim")
                     if (DEBUG):
-                        print("self.currentPlot.h_dim",self.currentPlot.h_dim)
+                        print("self.currentPlot.h_dim",currentPlot.h_dim)
 
-                for key, value in self.currentPlot.h_dict_geo.items():
+                self.currentPlot = currentPlot
+                for key, value in currentPlot.h_dict_geo.items():
                     if (DEBUG):
                         print(key, value)
                     self.add(key)
@@ -2144,36 +2108,37 @@ class MainWindow(QMainWindow):
                     print("Inside addPlot - not loaded")
                 # self adding
 
+                #reminder - following was using self.currentPlot.index instead of index
                 index = self.autoIndex()
 
                 if (DEBUG):
-                    print("Adding plot at index ", self.currentPlot.index)
+                    print("Adding plot at index ", index)
 
-                    print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-                    print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-                    print("self.currentPlot.h_dim", self.currentPlot.h_dim)
+                    print("self.currentPlot.h_dict", currentPlot.h_dict)
+                    print("self.currentPlot.h_dict_geo", currentPlot.h_dict_geo)
+                    print("self.currentPlot.h_dim", currentPlot.h_dim)
 
                 # updating histogram dictionary for fast access to information via get_histo_xxx
-                self.currentPlot.h_dict[self.currentPlot.index] = self.update_spectrum_info()
-                self.currentPlot.h_dict_geo[self.currentPlot.index] = (self.currentPlot.h_dict[self.currentPlot.index])["name"]
-                self.currentPlot.h_dim[self.currentPlot.index] = (self.currentPlot.h_dict[self.currentPlot.index])["dim"]
-                self.currentPlot.h_limits[self.currentPlot.index] = {}
+                currentPlot.h_dict[index] = self.update_spectrum_info()
+                currentPlot.h_dict_geo[index] = (currentPlot.h_dict[index])["name"]
+                currentPlot.h_dim[index] = (currentPlot.h_dict[index])["dim"]
+                currentPlot.h_limits[index] = {}
 
                 if (DEBUG):
-                    print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-                    print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-                    print("self.currentPlot.h_dim", self.currentPlot.h_dim)
+                    print("self.currentPlot.h_dict", currentPlot.h_dict)
+                    print("self.currentPlot.h_dict_geo", currentPlot.h_dict_geo)
+                    print("self.currentPlot.h_dim", currentPlot.h_dim)
 
-                self.currentPlot.h_setup[self.currentPlot.index] = True
-                self.erasePlot(self.currentPlot.index)
-                #self.add(self.currentPlot.index)
-                self.updateSinglePlot(self.currentPlot.index)
+                currentPlot.h_setup[index] = True
+                self.currentPlot = currentPlot
+                self.erasePlot(index)
+                #self.add(index)
+                self.updateSinglePlot(index)
                 # if gate in gateList:
                 self.drawAllGates()
                 #Simon - the following line was commented, I think it is better if one not overlay with the previous plot (?)
                 self.currentPlot.canvas.draw()
                 self.currentPlot.isSelected = False
-
         except NameError:
             raise
 
@@ -2190,6 +2155,12 @@ class MainWindow(QMainWindow):
         else :
             select = self.spectrum_list['names'] == name
             df = self.spectrum_list.loc[select]
+
+            try:
+                data = df.iloc[0]
+            except:
+                return
+
             if "data" in df.iloc[0] :
                 w = df.iloc[0]['data']
             else :
@@ -2213,7 +2184,6 @@ class MainWindow(QMainWindow):
             self.isEmpty = True
         else:
             self.isEmpty = False
-        #Simon - the "return w" was in the else:
         return w
 
     def create_range(self, bins, vmin, vmax):
@@ -2225,25 +2195,26 @@ class MainWindow(QMainWindow):
 
     # histo plotting
     def plotPlot(self, axis, index, threshold=0.1):
+        currentPlot = self.currentPlot
         if (DEBUG):
             print("Inside plotPlot")
             print("verification tab index", self.wTab.currentIndex())
 
-        dim = int(self.currentPlot.h_dim[index])
-        minx = float(self.currentPlot.h_dict[index]["xmin"])
-        maxx = float(self.currentPlot.h_dict[index]["xmax"])
-        binx = int(self.currentPlot.h_dict[index]["xbin"])
+        dim = int(currentPlot.h_dim[index])
+        minx = float(currentPlot.h_dict[index]["xmin"])
+        maxx = float(currentPlot.h_dict[index]["xmax"])
+        binx = int(currentPlot.h_dict[index]["xbin"])
         if (DEBUG):
             print(dim, minx, maxx, binx)
 
         if (DEBUG):
-            print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-            print("self.currentPlot.h_lst", self.currentPlot.h_lst)
+            print("self.currentPlot.h_dict", currentPlot.h_dict)
+            print("self.currentPlot.h_lst", currentPlot.h_lst)
 
         w = self.get_data(index)
         if (DEBUG):
             print("data",sum(w))
-            print(self.currentPlot.h_lst[index])
+            print(currentPlot.h_lst[index])
 
         if dim == 1:
             if (DEBUG):
@@ -2252,7 +2223,7 @@ class MainWindow(QMainWindow):
             if (DEBUG):
                 print(len(w),len(X))
                 print(type(w),type(X))
-            self.currentPlot.h_lst[index].set_data(X, w)
+            currentPlot.h_lst[index].set_data(X, w)
         else:
             if (DEBUG):
                 print("2d case..")
@@ -2260,19 +2231,23 @@ class MainWindow(QMainWindow):
                 self.palette = copy(plt.cm.plasma)
                 w = np.ma.masked_where(w < threshold, w)
                 self.palette.set_bad(color='white')
-                self.currentPlot.h_lst[index].set_cmap(self.palette)
-            self.currentPlot.h_lst[index].set_data(w)
+                currentPlot.h_lst[index].set_cmap(self.palette)
+            currentPlot.h_lst[index].set_data(w)
 
-        self.currentPlot.figure.canvas.restore_region(self.currentPlot.axbkg[index])
-        axis.draw_artist(self.currentPlot.h_lst[index])
-        self.currentPlot.figure.canvas.blit(axis.bbox)
+        currentPlot.figure.canvas.restore_region(currentPlot.axbkg[index])
+        axis.draw_artist(currentPlot.h_lst[index])
+        currentPlot.figure.canvas.blit(axis.bbox)
 
         # setup colorbar only for 2D
-        if dim == 2:
+        if dim == 2 and not currentPlot.cbar[index]:
             divider = make_axes_locatable(axis)
             cax = divider.append_axes('right', size='5%', pad=0.05)
             # add colorbar
-            self.currentPlot.figure.colorbar(self.currentPlot.h_lst[index], cax=cax, orientation='vertical')
+            currentPlot.figure.colorbar(currentPlot.h_lst[index], cax=cax, orientation='vertical')
+            #set a dictionary to avoid overlaying error bars
+            currentPlot.cbar[index] = True
+        self.currentPlot = currentPlot
+
 
     def clearPlot(self):
         if (DEBUG):
@@ -2306,13 +2281,11 @@ class MainWindow(QMainWindow):
             #Simon - because selected_plot_index comes from on_press which in zoom mode is always 0
             name = str(self.wConf.histo_list.currentText())
             index = self.autoIndex()
-            #Simon - sca for zoom feature when multiple tabs
-            if self.currentPlot.isZoomed:
-                plt.sca(self.currentPlot.figure.axes[0])
-            else :
-                plt.sca(self.select_plot(index))
+
             #x_range, y_range = self.getAxisProperties(index)
-            if self.currentPlot.isZoomed == True:
+            if self.currentPlot.isZoomed:
+                #Simon - sca for zoom feature when multiple tabs
+                plt.sca(self.currentPlot.figure.axes[0])
                 if (DEBUG):
                     print("Inside updatePlot - zoomed")
                 self.currentPlot.InitializeCanvas(1,1,False)
@@ -2327,31 +2300,31 @@ class MainWindow(QMainWindow):
 
                 self.currentPlot.h_setup[index] = False
                 self.plotPlot(a, index)
-                self.setLogAxis()
+                # self.setLogAxis()
                 # This needs to be removed for gating - may we can fix it
                 try:
                     self.removeCb(a)
                 except:
                     pass
             else:
+                # plt.sca(self.select_plot(index))
                 if (DEBUG):
                     print("Inside updatePlot - multipanel mode")
+                    debug_info = [(index, value) for index, value in self.currentPlot.h_dict.items()]
+                    print("index, value ", debug_info)
+
+                update_single_plot = self.updateSinglePlot
+
                 for index, value in self.currentPlot.h_dict.items():
-                    if (DEBUG):
-                        print("index", index, "value", value)
-                    self.updateSinglePlot(index)
-                    self.setLogAxis()
+                    update_single_plot(index)
 
             self.currentPlot.figure.tight_layout()
-            self.currentPlot.canvas.draw_idle()
             self.setAutoscaleAxis()
-            #Simon - moved the setLogAxis in the ifs because of the for loop when not zoom mode...
-            # self.setLogAxis()
             self.drawAllGates()
+            self.currentPlot.canvas.draw()
             #Simon - used to keep modified axis ranges after zoomCallback unless homeCallback is pressed
             if (self.currentPlot.isZoomCallback or self.currentPlot.isZoomInOut):
                 self.setAxisLimits(index)
-
 
             return a
         except NameError:
@@ -2361,8 +2334,11 @@ class MainWindow(QMainWindow):
     def updatePlotLimits(self):
         # update currentPlot limits with what's on the actual plot
         ax = None
-        name = str(self.wConf.histo_list.currentText())
-        index = self.get_key(name)
+        index = self.currentPlot.selected_plot_index
+        name = self.currentPlot.h_dict_geo[index]
+
+        # name = str(self.wConf.histo_list.currentText())
+        # index = self.get_key(name)
         if self.currentPlot.isZoomed:
             ax = plt.gca()
         else:
@@ -2454,6 +2430,10 @@ class MainWindow(QMainWindow):
             new_line[1].set_color('red')
         axis.add_artist(new_line[1])
 
+        axis.draw_artist(new_line[0])
+        axis.draw_artist(new_line[1])
+
+
     def plot2DGate(self, axis, histo_name, gate_name, gate_line):
         if (DEBUG):
             print("inside plot2dgate for", histo_name, "with gate", gate_name)
@@ -2466,7 +2446,9 @@ class MainWindow(QMainWindow):
         else:
             new_line.set_color('red')
         axis.add_artist(new_line)
-        new_line.figure.canvas.draw()
+        # axis.canvas.blit(new_line.get_bbox())
+        # new_line.figure.canvas.draw()
+        axis.draw_artist(new_line)
 
     def drawRegion(self, histo_name, region_name, region_line):
         if (DEBUG):
@@ -2477,8 +2459,7 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print(self.currentPlot.regionTypeDict)
             print("region type to be drawn", rtype)
-        index = self.get_key(histo_name)
-
+        # index = self.get_key(histo_name)
         if self.currentPlot.isZoomed:
             ax = plt.gca()
             if (self.wConf.histo_list.currentText() == histo_name):
@@ -2489,13 +2470,15 @@ class MainWindow(QMainWindow):
                 else:
                     self.plot2DGate(ax, histo_name, region_name, region_line)
         else:
+            index = self.get_key(histo_name)
             ax = self.select_plot(index)
             if (rtype == "s" or rtype == "gs"):
                 self.plot1DGate(ax, histo_name, region_name, region_line)
             else:
                 self.plot2DGate(ax, histo_name, region_name, region_line)
 
-        self.currentPlot.canvas.draw()
+        # ax.canvas.blit(region_line.get_bbox())
+        # self.currentPlot.canvas.draw()
 
     def drawGate(self, histo_name, gate_name, gate_line):
         if (DEBUG):
@@ -2522,47 +2505,33 @@ class MainWindow(QMainWindow):
                 else:
                     self.plot2DGate(ax, histo_name, gate_name, gate_line)
 
-        self.currentPlot.canvas.draw()
+        # self.currentPlot.canvas.draw()
+        # ax.canvas.blit(gate_line.get_bbox())
 
     def drawAllGates(self):
+        artist_dict = self.currentPlot.artist_dict
+        region_dict = self.currentPlot.region_dict
+        hist_list = self.wTab.wPlot[self.wTab.currentIndex()].hist_list
+
         if (DEBUG):
             print("Inside drawAllGate")
-            print(self.currentPlot.artist_dict)
-            print(self.currentPlot.region_dict)
+            print(artist_dict)
+            print(region_dict)
 
-        for histo_name, gates in self.currentPlot.artist_dict.items():
-            if (DEBUG):
-                print(histo_name, gates)
-            if (histo_name):
-                for gates_list in gates:
-                    if (DEBUG):
-                        print(gates_list)
-                    for gate_name, gate_line in gates_list.items():
-                        if (DEBUG):
-                            print(gate_name, gate_line)
-                        try:
-                            self.drawGate(histo_name, gate_name, gate_line)
-                        except:
-                            pass
-        if len(self.currentPlot.region_dict):
-            if (DEBUG):
-                print("time to draw summary regions")
-            #Simon - changed  the following for looping maybe not efficient
-            #problem before e.g. when try to replace a 1d that has regions with a 2d
-            for histo_name, regions in self.currentPlot.region_dict.items():
-                for key, value in self.currentPlot.h_dict.items():
-                    for key2, value2, in value.items():
-                        if histo_name == value2:
-                            if (DEBUG):
-                                print(histo_name, regions)
-                            if (histo_name):
-                                for region_list in regions:
-                                    if (DEBUG):
-                                        print(region_list)
-                                    for region_name, region_line in region_list.items():
-                                        if (DEBUG):
-                                            print(region_name, region_line)
-                                        self.drawRegion(histo_name, region_name, region_line)
+
+        artist_dict_keys = set(artist_dict.keys())
+        gates_to_draw = []
+        for hist in hist_list:
+            if hist in artist_dict_keys:
+                for gate_name, gate_line in artist_dict[hist].items():
+                    self.drawGate(hist, gate_name, gate_line)
+
+        region_dict_keys = set(region_dict.keys())
+        regions_to_draw = []
+        for hist in hist_list:
+            if hist in region_dict_keys:
+                for region_name, region_line in region_dict[hist].items():
+                    self.drawRegion(hist, region_name, region_line)
 
 
     def createSRegion(self):
@@ -2588,17 +2557,11 @@ class MainWindow(QMainWindow):
         if (DEBUG):
             print("inside addGate")
         try:
-            print("simon - ",self.wConf.histo_list)
             hname = self.wConf.histo_list.currentText()
             gname = self.wConf.listGate.currentText()
-            gate_list = self.currentPlot.artist_dict[hname]
-            for gate in gate_list:
-                for index, value in gate.items():
-                    if index == gname:
-                        self.drawGate(hname, gname, value)
-
-        # except NameError:
-        #     raise
+            gate_dict = self.currentPlot.artist_dict[hname]
+            if gname in gate_dict:
+                self.drawGate(hname, gname, value)
         except:
             pass
 
@@ -2614,12 +2577,9 @@ class MainWindow(QMainWindow):
             if index >= 0:
                 self.wConf.listGate.removeItem(index)
             # delete from artist dict
-            gatelist_in_histo = self.currentPlot.artist_dict[hname]
-            types1 = set(type(k) for k in self.currentPlot.artist_dict[hname][0].keys())
-            #for gate in gatelist_in_histo:
-            for i, gate in enumerate(gatelist_in_histo):
-                if gname in gate:
-                    del self.currentPlot.artist_dict[hname][i]
+            gatedict_in_histo = self.currentPlot.artist_dict[hname]
+            if gname in gatedict_in_histo:
+                del self.currentPlot.artist_dict[hname][gname]
             # delete from spectcl
             self.rest.deleteGate(gname)
             self.currentPlot.canvas.draw()
@@ -2646,19 +2606,17 @@ class MainWindow(QMainWindow):
                       *list(ax.get_children()), sep ="\n")
             lst = list(ax.get_children())
 	    #Simon - changed following lines
-            gatelist_in_histo = self.currentPlot.artist_dict[hname]
-            for gate in gatelist_in_histo:
-                if gname in gate:
-                    #for i, line in enumerate(lst):
-                    for line in lst:
-                        if isinstance(line, matplotlib.lines.Line2D):
-                            if self.wConf.button2D.isChecked():
-                                if round(line.get_xdata()[0],2) == round(gate[gname][0][0],2) and len(line.get_xdata()) == len(gate[gname][0]):
-                                    #ax.lines.pop(i)
-                                    line.remove()
-                            if self.wConf.button1D.isChecked():
-                                if line.get_xdata()[0] == gate[gname][0] or line.get_xdata()[0] == gate[gname][1]:
-                                    line.remove()
+            gatedict_in_histo = self.currentPlot.artist_dict[hname]
+            if gname in gatelist_in_histo:
+                for line in lst:
+                    if isinstance(line, matplotlib.lines.Line2D):
+                        if self.wConf.button2D.isChecked():
+                            if round(line.get_xdata()[0],2) == round(gate[gname][0][0],2) and len(line.get_xdata()) == len(gate[gname][0]):
+                                #ax.lines.pop(i)
+                                line.remove()
+                        if self.wConf.button1D.isChecked():
+                            if line.get_xdata()[0] == gate[gname][0] or line.get_xdata()[0] == gate[gname][1]:
+                                line.remove()
 
             self.currentPlot.canvas.draw()
 
@@ -2789,7 +2747,11 @@ class MainWindow(QMainWindow):
         hname = self.wConf.histo_list.currentText()
         self.currentPlot.artist1D[gname] = []
         self.currentPlot.artist1D[gname] = xs
-        self.currentPlot.artist_dict[hname] = [self.currentPlot.artist1D]
+        if hname in self.currentPlot.artist_dict:
+            self.currentPlot.artist_dict[hname][gname] = self.currentPlot.artist1D[gname]
+        else:
+            self.currentPlot.artist_dict[hname] = {gname : self.currentPlot.artist1D[gname]}
+
         self.formatLinetoREST(deepcopy(xs))
 
         self.connect()
@@ -2883,7 +2845,11 @@ class MainWindow(QMainWindow):
             hname = self.wConf.histo_list.currentText()
             self.currentPlot.artist2D[gname] = []
             self.currentPlot.artist2D[gname] = [deepcopy(x), deepcopy(y)]
-            self.currentPlot.artist_dict[hname] = [self.currentPlot.artist2D]
+            if hname in self.currentPlot.artist_dict:
+                self.currentPlot.artist_dict[hname][gname] = self.currentPlot.artist2D[gname]
+            else:
+                self.currentPlot.artist_dict[hname] = {gname : self.currentPlot.artist2D[gname]}
+
 
             self.thisline = mlines.Line2D([],[], color= "red", picker=5)
             self.thisline.set_data(x, y)
@@ -3067,7 +3033,10 @@ class MainWindow(QMainWindow):
             hname = self.wConf.histo_list.currentText()
             self.currentPlot.artist2D[gname] = []
             self.currentPlot.artist2D[gname] = [deepcopy(x), deepcopy(y)]
-            self.currentPlot.artist_dict[hname] = [self.currentPlot.artist2D]
+            if hname in self.currentPlot.artist_dict:
+                self.currentPlot.artist_dict[hname][gname] = self.currentPlot.artist2D[gname]
+            else:
+                self.currentPlot.artist_dict[hname] = {gname : self.currentPlot.artist2D[gname]}
 
             self.thisline = mlines.Line2D([],[], color= "red", picker=5)
             self.thisline.set_data(x, y)
@@ -3136,30 +3105,27 @@ class MainWindow(QMainWindow):
                 if (DEBUG):
                     print(histo_name, gates)
                 if (self.wConf.histo_list.currentText() == histo_name):
-                    if histo_name and "summing_region" not in histo_name:
-                        for gates_list in gates:
+                    # if histo_name and "summing_region" not in histo_name:
+                    if "summing_region" not in histo_name:
+                        for gate_name, gate_line in gates.items():
                             if (DEBUG):
-                                print(gates_list)
-                            for gate_name, gate_line in gates_list.items():
-                                results = self.rest.integrateGate(histo_name, gate_name)
-                                self.addRegion(histo_name, gate_name, results)
+                                print(gate_name, gate_line)
+                            results = self.rest.integrateGate(histo_name, gate_name)
+                            self.addRegion(histo_name, gate_name, results)
                 self.resultPopup()
 
-
-            if len(self.currentPlot.region_dict):
-                for histo_name, regions in self.currentPlot.region_dict.items():
-                    if (DEBUG):
-                        print(histo_name, regions)
-                    if (self.wConf.histo_list.currentText() == histo_name):
-                        if histo_name and "summing_region" not in histo_name:
-                            for region_list in regions:
-                                if (DEBUG):
-                                    print(region_list)
-                                for region_name, region_line in region_list.items():
-                                    results = self.rest.integrateGate(histo_name, region_name)
-                                    self.addRegion(histo_name, region_name, results)
+            for histo_name, regions in self.currentPlot.region_dict.items():
+                if (DEBUG):
+                    print(histo_name, regions)
+                if (self.wConf.histo_list.currentText() == histo_name):
+                    # if histo_name and "summing_region" not in histo_name:
+                    if "summing_region" not in histo_name:
+                        for region_name, region_line in regions.items():
+                            if (DEBUG):
+                                print(region_name, region_line)
+                            results = self.rest.integrateGate(histo_name, region_name)
+                            self.addRegion(histo_name, region_name, results)
                 self.resultPopup()
-
         except NameError:
             pass
 
@@ -3338,51 +3304,43 @@ class MainWindow(QMainWindow):
         self.copyAttr.close()
 
     def copyPopup(self):
+        if self.copyAttr.isVisible():
+            self.copyAttr.close()
+
+        self.updatePlotLimits()
+        index = self.currentPlot.selected_plot_index
+        name = self.currentPlot.h_dict_geo[index]
+
+        if (DEBUG):
+            print("Clicked copyPopup in tab", self.wTab.currentIndex())
+
+        self.copyAttr.histoLabel.setText(name)
+        hdim = 2 if self.wConf.button2D.isChecked() else 1
+        # setting up info for source histogram
         try:
-            if self.copyAttr.isVisible():
-                self.copyAttr.close()
+            for idx, values in self.currentPlot.h_dict.items():
+                if values.get("name") == name and idx == index:
+                    if hdim == 2:
+                        vmin, vmax = self.currentPlot.h_lst[idx].get_clim()
+                        self.copyAttr.histoScaleValueminZ.setText('{:.1f}'.format(vmin))
+                        self.copyAttr.histoScaleValuemaxZ.setText('{:.1f}'.format(vmax))
 
-            self.updatePlotLimits()
+                    self.copyAttr.axisSLabel.setText("Log" if self.currentPlot.h_log[idx] else "Linear")
 
-
-            if (DEBUG):
-                print("Clicked copyPopup in tab", self.wTab.currentIndex())
-            self.copyAttr.histoLabel.setText(self.wConf.histo_list.currentText())
-            hdim = 1
-            if self.wConf.button2D.isChecked():
-                hdim = 2
-            # setting up info for source histogram
-            for index, values in self.currentPlot.h_dict.items():
-                if (DEBUG):
-                    print(index,values.items())
-                for idx, value in values.items():
-                    if (DEBUG):
-                        print(idx, value)
-                    if idx == "name":
-                        if value == self.wConf.histo_list.currentText() and index == self.currentPlot.selected_plot_index :
-                            if (DEBUG):
-                                print("histo chosen", value)
-                            if hdim == 2:
-                                self.copyAttr.histoScaleValueminZ.setText('{:.1f}'.format(self.currentPlot.h_lst[index].get_clim()[0]))
-                                self.copyAttr.histoScaleValuemaxZ.setText('{:.1f}'.format(self.currentPlot.h_lst[index].get_clim()[1]))
-                            # log scale check
-                            if self.currentPlot.h_log[index] == True:
-                                self.copyAttr.axisSLabel.setText("Log")
-                            else:
-                                self.copyAttr.axisSLabel.setText("Linear")
-                            self.copyAttr.axisLimLabelX.setText("["+'{:.1f}'.format((self.currentPlot.h_limits[index]["x"])[0])+","+'{:.1f}'.format((self.currentPlot.h_limits[index]["x"])[1])+"]")
-                            self.copyAttr.axisLimLabelY.setText("["+'{:.1f}'.format((self.currentPlot.h_limits[index]["y"])[0])+","+'{:.1f}'.format((self.currentPlot.h_limits[index]["y"])[1])+"]")
-                        else:
-                            if hdim == values["dim"]:
-                                instance = QPushButton(value, self)
-                                instance.setCheckable(True)
-                                instance.setStyleSheet('QPushButton {color: red;}')
-                                self.copyAttr.copy_log.addRow(instance)
-                                instance.clicked.connect(
-                                    lambda state, instance=instance: self.connectCopy(instance))
-
-        except:
-            pass
+                    x_limits = self.currentPlot.h_limits[idx].get("x", [])
+                    y_limits = self.currentPlot.h_limits[idx].get("y", [])
+                    self.copyAttr.axisLimLabelX.setText(f"[{x_limits[0]:.1f},{x_limits[1]:.1f}]")
+                    self.copyAttr.axisLimLabelY.setText(f"[{y_limits[0]:.1f},{y_limits[1]:.1f}]")
+                else:
+                    dim = values.get("dim", 1)
+                    if hdim == dim:
+                        instance = QPushButton(values.get("name", ""), self)
+                        instance.setCheckable(True)
+                        instance.setStyleSheet('QPushButton {color: red;}')
+                        self.copyAttr.copy_log.addRow(instance)
+                        instance.clicked.connect(lambda state, instance=instance: self.connectCopy(instance))
+        except KeyError as e:
+            print(f"KeyError occured: {e}")
         self.copyAttr.show()
 
     def connectCopy(self, instance):
