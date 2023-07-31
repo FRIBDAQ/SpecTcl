@@ -1478,7 +1478,6 @@ class MainWindow(QMainWindow):
         if self.currentPlot.h_log[index]:
             if (DEBUG):
                 print("needs to become log...")
-            print("needs to become log...")
             if (self.currentPlot.h_dict[index]["dim"] == 1) :
                 if ax.get_yscale() == "linear":
                     ymin, ymax = ax.get_ylim()
@@ -1495,12 +1494,10 @@ class MainWindow(QMainWindow):
                 zmin = math.log10(zmin)
                 zmax = math.log10(self.maxZ)
                 self.currentPlot.h_lst[index].set_clim(vmin=zmin, vmax=zmax)
-                print("Simon - h_lst index - ",index,self.currentPlot.h_lst[index])
         else:
             if (DEBUG):
                 print("needs to become linear...")
                 print(self.currentPlot.h_limits)
-            print("needs to become linear...")
             if (self.currentPlot.h_dict[index]["dim"] == 1) :
                 if ax.get_yscale() == "log":
                     ax.set_yscale("linear")
@@ -1563,7 +1560,7 @@ class MainWindow(QMainWindow):
             if (DEBUG):
                 print("new ymax", ymax)
             ax.set_ylim((ax.get_ylim())[0],ymax)
-        else:
+        elif self.currentPlot.h_lst[index] is not None:
             zmax = self.currentPlot.h_lst[index].get_clim()[1]
             if (DEBUG):
                 print("zmax",zmax)
@@ -1596,11 +1593,11 @@ class MainWindow(QMainWindow):
             self.zoom(ax, index, "in")
 
         #Simon - added lines - save axis limits for updates
-        x_range, y_range = self.getAxisProperties(index)
-        self.currentPlot.h_limits[index]["x"] = x_range
-        self.currentPlot.h_limits[index]["y"] = y_range
-        self.currentPlot.isZoomInOut = True
-
+        if index in self.currentPlot.h_limits:
+            x_range, y_range = self.getAxisProperties(index)
+            self.currentPlot.h_limits[index]["x"] = x_range
+            self.currentPlot.h_limits[index]["y"] = y_range
+            self.currentPlot.isZoomInOut = True
 
         canvas.draw()
 
@@ -1625,10 +1622,11 @@ class MainWindow(QMainWindow):
             self.zoom(ax, index, "out")
 
         #Simon - added lines - save axis limits for updates
-        x_range, y_range = self.getAxisProperties(index)
-        self.currentPlot.h_limits[index]["x"] = x_range
-        self.currentPlot.h_limits[index]["y"] = y_range
-        self.currentPlot.isZoomInOut = True
+        if index in self.currentPlot.h_limits:
+            x_range, y_range = self.getAxisProperties(index)
+            self.currentPlot.h_limits[index]["x"] = x_range
+            self.currentPlot.h_limits[index]["y"] = y_range
+            self.currentPlot.isZoomInOut = True
 
         canvas.draw()
 
@@ -1839,7 +1837,11 @@ class MainWindow(QMainWindow):
         # for index, value in self.currentPlot.h_dict.items():
         #     values.append(value["name"])
 
-        values = [value["name"] for value in self.currentPlot.h_dict.values()]
+        try:
+            values = [value["name"] for value in self.currentPlot.h_dict.values()]
+        except TypeError as err:
+            print(err)
+            return
 
         if (DEBUG):
             print(keys, values)
@@ -2113,13 +2115,14 @@ class MainWindow(QMainWindow):
 
                 if (DEBUG):
                     print("Adding plot at index ", index)
-
                     print("self.currentPlot.h_dict", currentPlot.h_dict)
                     print("self.currentPlot.h_dict_geo", currentPlot.h_dict_geo)
                     print("self.currentPlot.h_dim", currentPlot.h_dim)
 
                 # updating histogram dictionary for fast access to information via get_histo_xxx
                 currentPlot.h_dict[index] = self.update_spectrum_info()
+                if currentPlot.h_dict[index] is None:
+                    return
                 currentPlot.h_dict_geo[index] = (currentPlot.h_dict[index])["name"]
                 currentPlot.h_dim[index] = (currentPlot.h_dict[index])["dim"]
                 currentPlot.h_limits[index] = {}
@@ -2255,6 +2258,8 @@ class MainWindow(QMainWindow):
             print("self.currentPlot.h_dict", self.currentPlot.h_dict)
         # Simon - added following lines to avoid None plot index
         index = self.autoIndex()
+        if index is None:
+            return
 
         if self.currentPlot.h_dict[index]["name"] != "empty" :
             a = self.select_plot(index)
@@ -2275,13 +2280,15 @@ class MainWindow(QMainWindow):
             print("self.currentPlot.h_setup", self.currentPlot.h_setup)
             print("verification tab index", self.wTab.currentIndex())
 
+        # try:
+        a = None
+        #Simon - self.currentPlot.selected_plot_index replaced index from by following lines
+        #Simon - because selected_plot_index comes from on_press which in zoom mode is always 0
+        name = str(self.wConf.histo_list.currentText())
+        index = self.autoIndex()
+        if index is None:
+            return
         try:
-            a = None
-            #Simon - self.currentPlot.selected_plot_index replaced index from by following lines
-            #Simon - because selected_plot_index comes from on_press which in zoom mode is always 0
-            name = str(self.wConf.histo_list.currentText())
-            index = self.autoIndex()
-
             #x_range, y_range = self.getAxisProperties(index)
             if self.currentPlot.isZoomed:
                 #Simon - sca for zoom feature when multiple tabs
@@ -3306,8 +3313,10 @@ class MainWindow(QMainWindow):
     def copyPopup(self):
         if self.copyAttr.isVisible():
             self.copyAttr.close()
-
-        self.updatePlotLimits()
+        try:
+            self.updatePlotLimits()
+        except:
+            return
         index = self.currentPlot.selected_plot_index
         name = self.currentPlot.h_dict_geo[index]
 
