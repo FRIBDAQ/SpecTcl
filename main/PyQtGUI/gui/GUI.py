@@ -968,9 +968,16 @@ class MainWindow(QMainWindow):
             s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'), bytes(mirror, encoding='utf-8'), bytes(user, encoding='utf-8'))
 
             # creates a dataframe for spectrum info
-            nlst = self.getSpectrumNames()
-            nlstPara = self.getSpectrumParameters()
-            nlstType = self.getSpectrumType()
+            nlst = []
+            nlstPara = []
+            nlstType = []
+            dictInfo = self.getSpectrumInfo()
+            for tup in dictInfo:
+                name = tup[0]
+                params = tup[1]
+                nlst.append(name)
+                nlstPara.append(params["parameters"])
+                nlstType.append(params["type"])
             self.spectrum_list = pd.DataFrame(
                 {'id': s[0],
                  'names': nlst,
@@ -1012,77 +1019,38 @@ class MainWindow(QMainWindow):
         except:
             QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started or hostname/port/mirror are not configured!")
 
-    # extract correct spectrum name
-    def getSpectrumNames(self):
+
+    #get histo name, type and parameters from REST and order by bindings
+    def getSpectrumInfo(self):
         if (DEBUG):
-            print("Inside getSpectrumNames")
-        nlst = []
-        lstdict = self.rest.listSpectrum()
-        for el in lstdict:
-            nlst.append(el["name"])
+            print("Inside getSpectrumInfo")
+        outDict = {}
+        inpDict = self.rest.listSpectrum()
+        bindList = self.rest.listsbind("*")
 
-        return nlst
+        # Dictionary of bindings, keyed by spectrum name
+        bindings = {}
+        for d in bindList:
+            bindings[d["name"]] = d["binding"]
 
-    #Simon -added this def
-    # extract correct spectrum paramters
-    def getSpectrumParameters(self):
-        if (DEBUG):
-            print("Inside getSpectrumParameters")
-        nlst = []
-        lstdict = self.rest.listSpectrum()
-        for el in lstdict:
-            nlst.append(el["parameters"])
+        for el in inpDict:
+            if el["name"] in bindings:
+                outDict[el["name"]] = {
+                    "parameters": el["parameters"],
+                    "type": el["type"],
+                    "binding": bindings[el["name"]],
+                }
+            else:
+                pass
+        # Order the output dictionary by binding
+        orderedOutDict = sorted(outDict.items(), key=lambda x: x[1]["binding"])
+        return orderedOutDict
 
-        return nlst
-
-    #Simon -added this def
-    # extract correct spectrum type
-    def getSpectrumType(self):
-        if (DEBUG):
-            print("Inside getSpectrumType")
-        nlst = []
-        lstdict = self.rest.listSpectrum()
-        for el in lstdict:
-            nlst.append(el["type"])
-
-        return nlst
-
-    # Simon - obsolete if fill the spectrum_list with paramters
-    # (getSpectrumParameters) and type (getSpectrumType) before create_spectrum_list
-    # update spectrum list for GUI
-    def update_spectrum_parameters(self):
-        if (DEBUG):
-            print("Inside update_spectrum_parameters")
-        try:
-            spec_dict = self.rest.listSpectrum()
-            # if (DEBUG):
-            #     print(spec_dict)
-            tmppar = []
-            tmppar2 = []
-            for dic in spec_dict:
-                for key in dic:
-                    if key == 'parameters':
-                        tmppar.append(dic[key])
-                    if key == 'type':
-                        tmppar2.append(dic[key])
-
-            # adds list of parameters to dataframe
-            self.spectrum_list['parameters'] = tmppar
-            # add list of types to dataframe
-            self.spectrum_list['type'] = tmppar2
-            if (DEBUG):
-                print(self.spectrum_list['parameters'])
-                print("Reset QComboBox")
-            # resetting ComboBox
-            self.wConf.histo_list.clear()
-        except:
-            QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started...")
 
     # create spectrum list for GUI
     def create_spectrum_list(self):
         if (DEBUG):
             print("Inside create_spectrum_list")
-        #self.update_spectrum_parameters()
         # resetting ComboBox
         self.wConf.histo_list.clear()
 
