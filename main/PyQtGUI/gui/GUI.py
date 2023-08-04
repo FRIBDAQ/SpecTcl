@@ -3414,7 +3414,11 @@ class MainWindow(QMainWindow):
                     x = np.array(x)
                     y = np.array(y)
 
-                    fitln = fit.start(x, y, xmin, xmax, fitpar, ax, self.extraPopup.fit_results)
+                    #The default start method in SkelFit doesn't set fit_results, then it causes error if in the args
+                    if fit_funct == "Skeleton":
+                        fitln = fit.start(x, y, xmin, xmax, fitpar, ax)
+                    else:
+                        fitln = fit.start(x, y, xmin, xmax, fitpar, ax, self.extraPopup.fit_results)
                 else:
                     QMessageBox.about(self, "Warning", "Sorry 2D fitting is not implemented yet")
             else:

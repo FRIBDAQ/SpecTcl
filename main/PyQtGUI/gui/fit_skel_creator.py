@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 import fit_factory
-        
+
 # Skeleton fit parameters
 # param_1 = 1
 # param_2 = 1,
@@ -17,12 +17,12 @@ class SkelFit:
     def __init__(self, param_1, param_2, param_3):
         self.param_1 = param_1
         self.param_2 = param_2
-        self.param_3 = param_3        
+        self.param_3 = param_3
 
     # implementation of the algorithm, the argument are mandatory even if not used
-    def start(self, x, y, xmin, xmax, axis, fit_results):
+    def start(self, x, y, xmin, xmax, fitpar, axis, fit_results):
         print("Skeleton example. Implementation is all yours.")
-        
+
 class SkelFitBuilder:
     def __init__(self):
         self._instance = None
