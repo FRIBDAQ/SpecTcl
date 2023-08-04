@@ -972,12 +972,11 @@ class MainWindow(QMainWindow):
             nlstPara = []
             nlstType = []
             dictInfo = self.getSpectrumInfo()
-            for tup in dictInfo:
-                name = tup[0]
-                params = tup[1]
-                nlst.append(name)
-                nlstPara.append(params["parameters"])
-                nlstType.append(params["type"])
+            for name in s[1]:
+                if name in dictInfo:
+                    nlst.append(name)
+                    nlstPara.append(dictInfo[name]["parameters"])
+                    nlstType.append(dictInfo[name]["type"])
             self.spectrum_list = pd.DataFrame(
                 {'id': s[0],
                  'names': nlst,
@@ -994,7 +993,7 @@ class MainWindow(QMainWindow):
             )
 
             # order the dataframe by id to avoid mismatch later on with id of new spectra
-            self.spectrum_list = self.spectrum_list.sort_values(by=['id'], ascending=True)
+            # self.spectrum_list = self.spectrum_list.sort_values(by=['id'], ascending=True)
 
             if (DEBUG):
                 print(self.spectrum_list)
@@ -1020,7 +1019,7 @@ class MainWindow(QMainWindow):
             QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started or hostname/port/mirror are not configured!")
 
 
-    #get histo name, type and parameters from REST and order by bindings
+    #get histo name, type and parameters from REST
     def getSpectrumInfo(self):
         if (DEBUG):
             print("Inside getSpectrumInfo")
@@ -1042,9 +1041,7 @@ class MainWindow(QMainWindow):
                 }
             else:
                 pass
-        # Order the output dictionary by binding
-        orderedOutDict = sorted(outDict.items(), key=lambda x: x[1]["binding"])
-        return orderedOutDict
+        return outDict
 
 
     # create spectrum list for GUI

@@ -114,7 +114,8 @@ spec_shared::getspecid(char *name)
 char*
 spec_shared::getname(spec_title name, int id)
 {
-  cvttitle(name, dsp_titles[id],1);
+  /* cvttitle(name, dsp_titles[id],1); */
+  cvttitle(name, dsp_titles[id],0);
   return name;
 }
 
