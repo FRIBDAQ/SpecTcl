@@ -968,30 +968,27 @@ class MainWindow(QMainWindow):
             s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'), bytes(mirror, encoding='utf-8'), bytes(user, encoding='utf-8'))
 
             # creates a dataframe for spectrum info
-            nlst = []
-            nlstPara = []
-            nlstType = []
-            dictInfo = self.getSpectrumInfo()
-            for name in s[1]:
-                if name in dictInfo:
-                    nlst.append(name)
-                    nlstPara.append(dictInfo[name]["parameters"])
-                    nlstType.append(dictInfo[name]["type"])
-            self.spectrum_list = pd.DataFrame(
-                {'id': s[0],
-                 'names': nlst,
-                 'dim' : s[2],
-                 'binx': s[3],
-                 'minx': s[4],
-                 'maxx': s[5],
-                 'biny': s[6],
-                 'miny': s[7],
-                 'maxy': s[8],
-                 'data': s[9],
-                 'parameters': nlstPara,
-                 'type': nlstType}
-            )
+            # use the spectrum name to merge both sources (REST and shared memory) of spectrum info
+            dictInfo = {"id":[],"names":[],"dim":[],"binx":[],"minx":[],"maxx":[],"biny":[],"miny":[],"maxy":[],"data":[],"parameters":[],"type":[]}
+            dictOtherInfo = self.getSpectrumInfo()
+            for i, name in enumerate(s[1]):
+                if name in dictOtherInfo:
+                    dictInfo["id"].append(s[0][i])
+                    dictInfo["names"].append(name)
+                    dictInfo["dim"].append(s[2][i])
+                    dictInfo["binx"].append(s[3][i])
+                    dictInfo["minx"].append(s[4][i])
+                    dictInfo["maxx"].append(s[5][i])
+                    dictInfo["biny"].append(s[6][i])
+                    dictInfo["miny"].append(s[7][i])
+                    dictInfo["maxy"].append(s[8][i])
+                    dictInfo["data"].append(s[9][i])
+                    dictInfo["parameters"].append(dictOtherInfo[name]["parameters"])
+                    dictInfo["type"].append(dictOtherInfo[name]["type"])
 
+            self.spectrum_list = pd.DataFrame.from_dict(dictInfo)
+
+            # likely obsolete
             # order the dataframe by id to avoid mismatch later on with id of new spectra
             # self.spectrum_list = self.spectrum_list.sort_values(by=['id'], ascending=True)
 
