@@ -8,17 +8,17 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 import fit_factory
-        
+
 class ExpFit:
     def __init__(self, a, b, c):
         self.a = a
         self.b = b
         self.c = c
-        
+
     # function defined by the user
     def exp(self, x, a, b, c):
         return a+b*np.exp(x*c)
-        
+
     # implementation of the fitting algorithm
     def start(self, x, y, xmin, xmax, fitpar, axis, fit_results):
         fitln = None
@@ -36,9 +36,9 @@ class ExpFit:
             self.c = -1
 
         p_init = [self.a, self.b, self.c]
-        popt, pcov = curve_fit(self.exp, x, y, p0=p_init, maxfev=5000)
+        popt, pcov = curve_fit(self.exp, x, y, p0=p_init, maxfev=1000000)
 
-        # plotting fit curve and printing results 
+        # plotting fit curve and printing results
         try:
             x_fit = np.linspace(x[0],x[-1], 10000)
             y_fit = self.gauss(x_fit, *popt)
@@ -49,7 +49,7 @@ class ExpFit:
                 fit_results.append(s)
         except:
             pass
-        return fitln        
+        return fitln
 
 class ExpFitBuilder:
     def __init__(self):

@@ -35,7 +35,7 @@ class Pol2Fit:
         else:
             self.p2 = 10
         p_init = [self.p0, self.p1, self.p2]
-        popt, pcov = curve_fit(self.pol2, x, y, p0=p_init, maxfev=5000)
+        popt, pcov = curve_fit(self.pol2, x, y, p0=p_init, maxfev=1000000)
 
         # plotting fit curve and printing results
         try:
