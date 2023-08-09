@@ -27,6 +27,9 @@ class Tabs(QTabWidget):
         self.insertTab(1,QWidget(),'  +  ')
         self.selected_plot_index_bak = []
         self.selected_plot_index_bak.append(None)
+        #layout is a list that keeps for each tab [numberOfRow, numberOfColumn]
+        self.layout = []
+        self.layout.append([1,1])
         self.h_dict_geo_bak = {}
         self.h_log_bak = {}
 
@@ -41,6 +44,8 @@ class Tabs(QTabWidget):
             self.insertTab(index, self.wPlot[index], "Tab %d" %(index+1))
             self.setCurrentIndex(index)
             self.selected_plot_index_bak.append(None)
+            self.layout.append([1,1])
+            print("Inserting tab at index", index,self.layout)
 
 class Plot(QWidget):
     def __init__(self, *args, **kwargs):
@@ -81,6 +86,7 @@ class Plot(QWidget):
         self.old_col = 1
         self.old_row_idx = 0
         self.old_col_idx = 0
+
         self.h_dict = {}
         self.h_dict_geo = {}
         self.h_dict_geo_bak = {}
@@ -93,9 +99,9 @@ class Plot(QWidget):
         self.h_lst = []
         self.hist_list = [] #list with names of the plotted histogram (created for drawAllGates)
         self.cbar = {}
+        self.next_plot_index = -1
 
         self.selected_plot_index = None
-        # self.selected_plot_index_bak = None
         self.index = 0
 
         self.autoScale = False
@@ -106,6 +112,7 @@ class Plot(QWidget):
         self.isZoomed = False
         self.isSelected = False
         self.rec = None
+        self.recDashed = None
         #Simon - added flag
         self.isZoomCallback = False
         self.isZoomInOut = False
