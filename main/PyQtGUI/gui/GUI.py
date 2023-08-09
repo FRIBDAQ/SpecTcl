@@ -2287,7 +2287,10 @@ class MainWindow(QMainWindow):
             self.drawAllGates()
             self.currentPlot.canvas.draw()
             #Simon - used to keep modified axis ranges after zoomCallback unless homeCallback is pressed
-            if (self.currentPlot.isZoomCallback or self.currentPlot.isZoomInOut):
+            if ((self.currentPlot.isZoomCallback or self.currentPlot.isZoomInOut) and self.currentPlot.h_dict[index]["name"] != "empty"):
+                if (DEBUG):
+                    print("Inside not self.autoScale for tab with index", self.wTab.currentIndex())
+                    print(self.currentPlot.h_limits)
                 self.setAxisLimits(index)
 
             return a
@@ -3379,6 +3382,10 @@ class MainWindow(QMainWindow):
             right = int(self.extraPopup.fit_range_max.text())
         else:
             right = ax.get_xlim()[1]
+        # Make sure xmin is always smaller than xmax.
+        if left > right:
+            left, right = right, left
+            QMessageBox.about(self, "Warning", "xmin > xmax, the provided limits will be swapped for the fit")
         return left, right
 
     def fit(self):
@@ -3454,11 +3461,11 @@ class MainWindow(QMainWindow):
                     x = np.array(x)
                     y = np.array(y)
 
-                    #The default start method in SkelFit doesn't set fit_results, then it causes error if in the args
                     if fit_funct == "Skeleton":
                         fitln = fit.start(x, y, xmin, xmax, fitpar, ax)
                     else:
                         fitln = fit.start(x, y, xmin, xmax, fitpar, ax, self.extraPopup.fit_results)
+
                 else:
                     QMessageBox.about(self, "Warning", "Sorry 2D fitting is not implemented yet")
             else:
@@ -3466,8 +3473,9 @@ class MainWindow(QMainWindow):
 
             self.currentPlot.canvas.draw()
 
-        except NameError:
-            raise
+        except NameError as err:
+            print(err)
+            pass
 
     ############################
     # 13) Peak Finding
