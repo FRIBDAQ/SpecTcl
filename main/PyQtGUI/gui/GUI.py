@@ -236,10 +236,8 @@ class MainWindow(QMainWindow):
         self.wConf.histo_geo_update.clicked.connect(self.updatePlot)
         self.wConf.histo_geo_delete.clicked.connect(self.clearPlot)
 
-        self.wConf.histo_geo_row.activated.connect(lambda: self.wTab.wPlot[self.wTab.currentIndex()].InitializeCanvas(
-            int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
-        self.wConf.histo_geo_col.activated.connect(lambda: self.wTab.wPlot[self.wTab.currentIndex()].InitializeCanvas(
-            int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
+        self.wConf.histo_geo_row.activated.connect( self.setCanvasLayout )
+        self.wConf.histo_geo_col.activated.connect( self.setCanvasLayout )
 
         self.wConf.createGate.clicked.connect(self.createGate)
         self.wConf.createGate.setEnabled(False)
@@ -413,13 +411,10 @@ class MainWindow(QMainWindow):
         if self.currentPlot.isZoomed == False:
             if (DEBUG):
                 print("Inside on_singleclick - ZOOM false")
-            try:
-                if self.currentPlot.rec is not None:
-                    self.currentPlot.rec.remove()
-            except:
-                pass
 
+            self.removeRectangle()
             self.currentPlot.isSelected = True
+            self.currentPlot.next_plot_index = self.currentPlot.selected_plot_index
             self.currentPlot.rec = self.createRectangle(self.currentPlot.figure.axes[index])
 
             if index in self.currentPlot.h_log:
@@ -478,6 +473,8 @@ class MainWindow(QMainWindow):
         if self.currentPlot.isZoomed == False: # entering zooming mode
             if (DEBUG):
                 print("###### Entering zooming mode...")
+            self.removeRectangle()
+            self.currentPlot.next_plot_index = self.currentPlot.selected_plot_index
             self.currentPlot.isZoomed = True
             # make sure log is correct
             if self.currentPlot.h_log[idx] == False:
@@ -488,6 +485,9 @@ class MainWindow(QMainWindow):
                 self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(True)
             # disabling adding histograms
             self.wConf.histo_geo_add.setEnabled(False)
+            # disabling changing canvas layout
+            self.wConf.histo_geo_row.setEnabled(False)
+            self.wConf.histo_geo_col.setEnabled(False)
             # enabling gate creation
             self.currentPlot.createSRegion.setEnabled(True)
             self.wConf.createGate.setEnabled(True)
@@ -508,6 +508,10 @@ class MainWindow(QMainWindow):
         else:
             # enabling adding histograms
             self.wConf.histo_geo_add.setEnabled(True)
+            # enabling changing canvas layout
+            self.wConf.histo_geo_row.setEnabled(True)
+            self.wConf.histo_geo_col.setEnabled(True)
+
             if self.currentPlot.toCreateGate == True or self.currentPlot.toCreateSRegion == True:
                 if (DEBUG):
                     print("Fixing index before closing the gate")
@@ -638,16 +642,18 @@ class MainWindow(QMainWindow):
                 self.currentPlot.createSRegion.setEnabled(False)
                 self.wConf.createGate.setEnabled(False)
                 self.wConf.editGate.setEnabled(False)
+
+                canvasLayout = self.wTab.layout[self.wTab.currentIndex()]
                 if (DEBUG):
                     #following self.h_setup deos not work, prevent retruning to unzoomed view
                     #print("Reinitialization self.h_setup", self.h_setup)
-                    print("original geometry", self.currentPlot.old_row, self.currentPlot.old_col)
+                    print("original geometry", canvasLayout[0], canvasLayout[1])
 
                 #draw the back the original canvas
-                self.currentPlot.InitializeCanvas(self.currentPlot.old_row, self.currentPlot.old_col, False)
+                self.currentPlot.InitializeCanvas(canvasLayout[0], canvasLayout[1], False)
                 if (DEBUG):
                     print("Ready to reload the multipanel", self.currentPlot.h_dict)
-                n = self.currentPlot.old_row*self.currentPlot.old_col
+                n = canvasLayout[0]*canvasLayout[1]
                 self.currentPlot.h_setup = {k: True for k in range(n)}
                 self.currentPlot.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
                 self.updatePlot()
@@ -719,27 +725,36 @@ class MainWindow(QMainWindow):
         self.wTab.setCurrentIndex(index)
 
         if (DEBUG):
-            print("verification tab index", self.wTab.currentIndex())
+            print("verification tab index", index)
         try:
-            if self.wTab.tabText(index) != "+":
-                self.currentPlot = self.wTab.wPlot[self.wTab.currentIndex()]
-                if (DEBUG):
-                    print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-                    print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-                    print("self.currentPlot.h_limits",self.currentPlot.h_limits)
-                    print("self.currentPlot.h_log",self.currentPlot.h_log)
-                    print("self.currentPlot.h_setup",self.currentPlot.h_setup)
-                    print("self.currentPlot.isLoaded", self.currentPlot.isLoaded)
-                    print("Histo dimensions", self.currentPlot.old_row, self.currentPlot.old_col)
-                    print("Histo dimensions index", self.currentPlot.old_row_idx, self.currentPlot.old_col_idx)
-                    print("Inside clickedTab: row.currentText(), col.currentText()",
-                          int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText()))
-                self.wConf.histo_geo_row.setCurrentIndex(self.currentPlot.old_row_idx)
-                self.wConf.histo_geo_col.setCurrentIndex(self.currentPlot.old_col_idx)
+            self.currentPlot = self.wTab.wPlot[index]
+            nRow = self.wTab.layout[index][0]
+            nCol = self.wTab.layout[index][1]
+            if (DEBUG):
+                print("self.currentPlot.h_dict", self.currentPlot.h_dict)
+                print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
+                print("self.currentPlot.h_limits",self.currentPlot.h_limits)
+                print("self.currentPlot.h_log",self.currentPlot.h_log)
+                print("self.currentPlot.h_setup",self.currentPlot.h_setup)
+                print("self.currentPlot.isLoaded", self.currentPlot.isLoaded)
+                print("Canvas layout: nRow, nCol",nRow, nCol)
+            #nRow-1 because nRow (nCol) is the number of row and the following sets an index starting at 0
+            self.wConf.histo_geo_row.setCurrentIndex(nRow-1)
+            self.wConf.histo_geo_col.setCurrentIndex(nCol-1)
+
+            self.removeRectangle()
+
             self.bindDynamicSignal()
             self.create_gate_list()
         except:
             pass
+
+    def setCanvasLayout(self):
+        indexTab = self.wTab.currentIndex()
+        nRow = int(self.wConf.histo_geo_row.currentText())
+        nCol = int(self.wConf.histo_geo_col.currentText())
+        self.wTab.layout[indexTab] = [nRow, nCol]
+        self.wTab.wPlot[indexTab].InitializeCanvas(nRow, nCol)
 
     def selectAll(self):
         flag = False
@@ -1328,7 +1343,8 @@ class MainWindow(QMainWindow):
             if index_row >= 0 and index_col >= 0:
                 self.wConf.histo_geo_row.setCurrentIndex(index_row)
                 self.wConf.histo_geo_col.setCurrentIndex(index_col)
-                self.currentPlot.InitializeCanvas(infoGeo["row"],infoGeo["col"])
+                self.setCanvasLayout()
+                # self.currentPlot.InitializeCanvas(infoGeo["row"],infoGeo["col"])
                 for index, val_dict in infoGeo["geo"].items():
                     if (DEBUG):
                         print("---->",index, val_dict)
@@ -1355,17 +1371,6 @@ class MainWindow(QMainWindow):
 
             self.wTab.h_dict_geo_bak[self.wTab.currentIndex()] = deepcopy(self.currentPlot.h_dict_geo)
             self.wTab.h_log_bak[self.wTab.currentIndex()] = deepcopy(self.currentPlot.h_log)
-
-            self.currentPlot.old_row = self.wConf.row
-            self.currentPlot.old_col = self.wConf.col
-            self.currentPlot.old_row_idx = index_row
-            self.currentPlot.old_col_idx = index_col
-
-            if (DEBUG):
-                print("self.currentPlot.old_row",self.currentPlot.old_row)
-                print("self.currentPlot.old_col",self.currentPlot.old_col)
-                print("self.currentPlot.old_row_idx",self.currentPlot.old_row_idx)
-                print("self.currentPlot.old_col_idx",self.currentPlot.old_col_idx)
 
             self.addPlot()
             self.updatePlot()
@@ -1796,8 +1801,6 @@ class MainWindow(QMainWindow):
             print("inside check index")
         keys=list(self.currentPlot.h_dict.keys())
         values = []
-        # for index, value in self.currentPlot.h_dict.items():
-        #     values.append(value["name"])
 
         try:
             values = [value["name"] for value in self.currentPlot.h_dict.values()]
@@ -1815,17 +1818,6 @@ class MainWindow(QMainWindow):
             self.currentPlot.index = keys[-1]
             self.currentPlot.isFull = True
 
-        # Simon modified following lines
-        if self.currentPlot.isFull:
-            try:
-                if self.currentPlot.index <= self.wConf.row*self.wConf.col-1:
-                    if self.currentPlot.index == self.wConf.row*self.wConf.col-1:
-                        self.currentPlot.index = 0
-                    else:
-                        self.currentPlot.index += 1
-            except IndexError as e:
-                print(f"An IndexError occured: {e}")
-
         if (DEBUG):
             print("index to fill", self.currentPlot.index)
         return self.currentPlot.index
@@ -1841,8 +1833,9 @@ class MainWindow(QMainWindow):
     def plot_position(self, index):
         cntr = 0
         # convert index to position in geometry
-        for i in range(self.currentPlot.old_row):
-            for j in range(self.currentPlot.old_col):
+        canvasLayout = self.wTab.layout[self.wTab.currentIndex()]
+        for i in range(canvasLayout[0]):
+            for j in range(canvasLayout[1]):
                 if index == cntr:
                     return i, j
                 else:
@@ -2011,7 +2004,6 @@ class MainWindow(QMainWindow):
 
 
     def updateHistList(self, index):
-         #Simon - work optimization
         if (DEBUG):
             print("Inside updateHistList")
         hist_name = self.currentPlot.h_dict[index]['name']
@@ -2025,7 +2017,7 @@ class MainWindow(QMainWindow):
     def addPlot(self):
         if (DEBUG):
             print("Inside addPlot")
-            print("Simon - tab -",self.wTab.currentIndex(),len(self.wTab)-1,len(self.wTab.selected_plot_index_bak))
+            print("check tab ",self.wTab.currentIndex(),len(self.wTab)-1,len(self.wTab.selected_plot_index_bak))
 
         try:
             currentPlot = self.currentPlot
@@ -2073,7 +2065,7 @@ class MainWindow(QMainWindow):
                 # self adding
 
                 #reminder - following was using self.currentPlot.index instead of index
-                index = self.autoIndex()
+                index = self.nextIndex()
 
                 if (DEBUG):
                     print("Adding plot at index ", index)
@@ -2101,6 +2093,9 @@ class MainWindow(QMainWindow):
                 self.updateSinglePlot(index)
                 # if gate in gateList:
                 self.drawAllGates()
+                #draw dashed red rectangle to indicate where the next plot would be added, based on next_plot_index, selected_plot_index is unchanged.
+                self.removeRectangle()
+                self.currentPlot.recDashed = self.createDashedRectangle(self.currentPlot.figure.axes[self.currentPlot.next_plot_index])
                 #Simon - the following line was commented, I think it is better if one not overlay with the previous plot (?)
                 self.currentPlot.canvas.draw()
                 self.currentPlot.isSelected = False
@@ -2337,6 +2332,54 @@ class MainWindow(QMainWindow):
             self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]= self.currentPlot.selected_plot_index
 
         return self.currentPlot.index
+
+    #Simon - go to next index
+    def nextIndex(self):
+        if (DEBUG):
+            print("Inside nextIndex")
+        tabIndex = self.wTab.currentIndex()
+        #Try to deal with all cases... not elegant
+        #first case when ex: coming back from zoom mode or if no plot selected
+        if self.currentPlot.selected_plot_index is None:
+            if self.wTab.selected_plot_index_bak[tabIndex] is not None:
+                self.forNextIndex(tabIndex,self.currentPlot.next_plot_index)
+            else :
+                self.currentPlot.index = self.check_index()
+                self.wTab.selected_plot_index_bak[tabIndex]= self.currentPlot.index
+                self.currentPlot.next_plot_index = self.setIndex(self.currentPlot.next_plot_index)
+        #second case when select a plot before clicking "Add"
+        elif self.currentPlot.selected_plot_index == self.currentPlot.next_plot_index:
+            self.currentPlot.index = self.currentPlot.selected_plot_index
+            self.wTab.selected_plot_index_bak[tabIndex]= self.currentPlot.selected_plot_index
+            self.currentPlot.next_plot_index = self.setIndex(self.currentPlot.next_plot_index)
+        #third case when click "Add" without selecting a plot, will draw in the next frame
+        elif self.currentPlot.selected_plot_index != self.currentPlot.next_plot_index and self.currentPlot.next_plot_index>=0:
+            self.forNextIndex(tabIndex,self.currentPlot.next_plot_index)
+        return self.currentPlot.index
+
+    def forNextIndex(self, tabIndex, index):
+        self.currentPlot.index = index
+        self.currentPlot.selected_plot_index = index
+        self.wTab.selected_plot_index_bak[tabIndex]= self.currentPlot.selected_plot_index
+        self.currentPlot.next_plot_index = self.setIndex(index)
+
+
+
+    def setIndex(self, indexToChange):
+        row = int(self.wConf.histo_geo_row.currentText())
+        col = int(self.wConf.histo_geo_col.currentText())
+        try:
+            #Once in the nextIndex first case change to next_plot_index to 0 (then +1)
+            if indexToChange == -1:
+                indexToChange = 0
+            if indexToChange <= row*col-1:
+                if indexToChange == row*col-1:
+                    indexToChange = 0
+                else:
+                    indexToChange += 1
+        except IndexError as e:
+            print(f"An IndexError occured: {e}")
+        return indexToChange
 
 
     ##############
@@ -3813,6 +3856,22 @@ class MainWindow(QMainWindow):
         rec = plot.add_patch(rec)
         rec.set_clip_on(False)
         return rec
+
+    def createDashedRectangle(self, plot):
+        rec = matplotlib.patches.Rectangle((0, 0), 1, 1, ls=":", lw="2", ec="red", fc="none", transform=plot.transAxes)
+        rec = plot.add_patch(rec)
+        rec.set_clip_on(False)
+        return rec
+
+    def removeRectangle(self):
+        try:
+            if self.currentPlot.rec is not None:
+                self.currentPlot.rec.remove()
+            if self.currentPlot.recDashed is not None:
+                self.currentPlot.recDashed.remove()
+        except:
+            pass
+
 
     def changeBkg(self):
         if any(x == 2 for x in self.currentPlot.h_dim) == True:
