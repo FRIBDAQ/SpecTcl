@@ -3455,7 +3455,6 @@ class MainWindow(QMainWindow):
                         print(type(xtmp), type(x), type(xtmp[0]), type(xmin))
                     # create new tmp list with subrange for fitting
                     for i in range(len(xtmp)):
-                        print("Simon - fit limits - ",i,xtmp[i],xmin,xmax)
                         if (xtmp[i]>=xmin and xtmp[i]<xmax):
                             x.append(xtmp[i])
                             y.append(ytmp[i])
