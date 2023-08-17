@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
   try {
     PyObject *obj = Py_BuildValue("s", filename.c_str());    
-    FILE *file = _Py_fopen_obj(obj, "r+");
+    FILE *file = _Py_fopen_obj(obj, "r");
     if(file != NULL) {
       PyRun_SimpleFile(file, filename.c_str());
     }
