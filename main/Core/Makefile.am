@@ -283,11 +283,13 @@ SpectrumIO_SRC =  SpectrumFormatter.cpp \
 	NSCLBinarySpectrumFormatter.cpp \
 	NSCLAsciiSpectrumFormatter.cpp  \
 	SpectrumFormatError.cpp \
-	nsclbin.cpp nsclbinerror.cpp nscldata.cpp tclstreams.cpp
+	nsclbin.cpp nsclbinerror.cpp nscldata.cpp tclstreams.cpp \
+	SpectrumFormatterJson.cpp
 
 SpectrumIO_INCLUDES = NSCLAsciiSpectrumFormatter.h NSCLBinarySpectrumFormatter.h \
 	SpectrumFormatError.h SpectrumFormatter.h SpectrumFormatterFactory.h \
-	nsclbin.h nsclbinerror.h nscldata.h nscltime.h tclstreams.h
+	nsclbin.h nsclbinerror.h nscldata.h nscltime.h tclstreams.h \
+	SpectrumFormatterJson.h
 
 TreeParam_SRC = CMatchingVisitor.cpp \
 	CTreeException.cpp \
