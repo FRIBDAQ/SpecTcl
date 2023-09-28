@@ -37,6 +37,8 @@
 #include "SpectrumFormatError.h"
 
 #include <string>
+#include <json/writer.h>
+#include <json/reader.h>
 
 /**
  * Construct the formatter.  For the most part
