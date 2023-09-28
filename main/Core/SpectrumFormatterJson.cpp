@@ -37,6 +37,8 @@
 #include "SpectrumFormatError.h"
 
 #include <string>
+#include <vector>
+#include <sstream>
 #include <json/writer.h>
 #include <json/reader.h>
 
@@ -117,5 +119,23 @@ void
 CSpectrumFormatterJson:: Write(
     std::ostream &rStream, CSpectrum &rSpectrum,
     ParameterDictionary &rDict) {
-        throw std::string("JSon write not yet implemented");
+
+        Json::Value outvec(Json::arrayValue);
+
+        Json::Value spectrum;
+        Json::Value description;
+        description["name"] = rSpectrum.getName();
+        std::stringstream type_name;
+        type_name << rSpectrum.getSpectrumType();
+        description["type_string"] = type_name.str();
+        Json::Value contents;
+
+        spectrum["description"] = description;
+        spectrum["channels"]   = contents;
+
+        outvec.append(spectrum);
+
+
+        rStream << outvec;
+
     }
