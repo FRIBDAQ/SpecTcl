@@ -175,6 +175,11 @@ CSpectrumFormatterJson:: Write(
         description["x_parameters"] = xpnames;
         description["y_parameters"] = ypnames;
 
+        auto axes = getAxisDefinitions(rSpectrum);
+        description["x_axis"] = axes.first;
+        description["y_axis"] = axes.second;
+
+
         return description;
    }
    /**
@@ -290,4 +295,36 @@ CSpectrumFormatterJson:: Write(
 
         return result;
   }
+  /**
+   *  Given a spectrum return the axis definition JSon objects
+   *  
+   * @param rSpectrum - references the spectrum.
+   * @return std::pair<Json::Value, Json::Value> - x, y axis 
+   * @note It is legal for e.g. the y axis to be Null.
+   * 
+  */
+ std::pair<Json::Value, Json::Value> 
+ CSpectrumFormatterJson::getAxisDefinitions(CSpectrum& rSpec) {
+        // There's always an x axis:
+
+        Json::Value xaxis(Json::arrayValue);
+        xaxis.append(rSpec.GetLow(0));
+        xaxis.append(rSpec.GetHigh(0));
+        xaxis.append(rSpec.Dimension(0) + 2);  // +2 for over/underflows.
+
+        if (rSpec.Dimensionality() == 1) {
+            Json::Value yaxis;
+            return std::make_pair(xaxis, yaxis);
+        } else {
+            // There's a y axis:
+
+            Json::Value yaxis(Json::arrayValue);
+            yaxis.append(rSpec.GetLow(1));
+            yaxis.append(rSpec.GetHigh(1));
+            yaxis.append(rSpec.Dimension(1) + 2);
+
+            return std::make_pair(xaxis, yaxis);
+        }
+
+ }
 
