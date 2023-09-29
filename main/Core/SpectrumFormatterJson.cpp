@@ -37,6 +37,7 @@
 #include "SpectrumFormatError.h"
 #include "Parameter.h"
 #include <histotypes.h>
+#include <sstream>
 
 // Root definitions:
 
@@ -48,6 +49,8 @@
 #include <sstream>
 #include <json/writer.h>
 #include <json/reader.h>
+
+
 
 /**
  * Construct the formatter.  For the most part
@@ -111,6 +114,21 @@ std::pair<std::string, CSpectrum *>
 CSpectrumFormatterJson::Read(
     std::istream &rStream,
     ParameterDictionary &rDict) {
+    
+    // Suck the whole file into a string stream and then
+    // parse from there:
+
+    std::stringstream contents;
+    contents << rStream.rdbuf();
+
+    Json::Value root;
+    contents >> root;
+    Json::Value spectrum = root[0];
+    SpectrumDescription desc = unpackDescription(spectrum["description"]);
+    Json::Value channels   = spectrum["channels"];
+
+
+
 
     throw CSpectrumFormatError(CSpectrumFormatError::IncompatibleFormat, "Json read not yet implemented");
 }
@@ -396,6 +414,37 @@ CSpectrumFormatterJson::getSpectrumContents(CSpectrum& rspec) {
             }
         }
     }
+
+    return result;
+}
+//  Read utilities:
+
+CSpectrumFormatterJson::SpectrumDescription
+CSpectrumFormatterJson::unpackDescription(Json::Value& desc) {
+    SpectrumDescription result;
+
+    result.name = desc["name"].asString();
+    std::stringstream buf;
+    buf.str(desc["type_string"].asCString());
+    buf >> result.type;
+    for (int i =0; i < desc["x_parameters"].size(); i++) {
+        result.xparams.push_back(desc["x_parameters"][i].asString());
+    }
+    for (int i =0; i < desc["y_parameters"].size(); i++) {
+        result.yparams.push_back(desc["y_parameters"][i].asString());
+    }
+    result.xaxis.low = desc["x_axis"][0].asDouble();
+    result.xaxis.high = desc["x_axis"][1].asDouble();
+    result.xaxis.bins = desc["x_axis"][2].asUInt();
+
+    if (!desc["y_axis"].isNull()) {
+        result.yaxis = new AxisSpecification;
+        result.yaxis->low = desc["y_axis"][0].asDouble();
+        result.yaxis->high = desc["y_axis"][1].asDouble();
+        result.yaxis->bins = desc["y_axis"][2].asUInt();
+    }
+
+
 
     return result;
 }

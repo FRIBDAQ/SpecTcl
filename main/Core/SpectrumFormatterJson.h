@@ -35,6 +35,7 @@
 #define SPECTRUMFORMATTERJSON_H
 
 #include "SpectrumFormatter.h"
+#include <histotypes.h>
 #include <vector>
 #include <string>
 #include <utility>
@@ -131,7 +132,34 @@ namespace Json {
 */
 class CSpectrumFormatterJson : public CSpectrumFormatter {
 private:
-    
+    // Internal structure the header gets marshalled into:
+
+    struct AxisSpecification
+    {
+        double low;
+        double high;
+        unsigned bins;
+    };
+    struct SpectrumDescription
+    {
+        std::string name;
+        SpectrumType_t type;
+        AxisSpecification xaxis;
+        AxisSpecification* yaxis; // Can be nullptr.
+        std::vector<std::string> xparams;
+        std::vector<std::string> yparams;
+
+        ~SpectrumDescription() {
+            delete yaxis;
+        }
+        SpectrumDescription() :
+            type(keUnknown),
+            xaxis({0.0, 0.0, 0}),
+            yaxis(0)
+        {
+        }
+    };
+
 public:
     CSpectrumFormatterJson();
     virtual ~CSpectrumFormatterJson();
@@ -158,6 +186,10 @@ private:
     std::pair<Json::Value, Json::Value> getAxisDefinitions(CSpectrum& rSpectrum);
 
     Json::Value getSpectrumContents(CSpectrum& rSpectrum);
+
+    // Utilities for reading data from spectra:
+
+    SpectrumDescription unpackDescription(Json::Value& desc);
 };
 
 
