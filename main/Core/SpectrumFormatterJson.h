@@ -35,6 +35,13 @@
 #define SPECTRUMFORMATTERJSON_H
 
 #include "SpectrumFormatter.h"
+#include <vector>
+#include <string>
+#include <utility>
+
+namespace Json {
+    class Value;
+}
 
 /**
  *   Provide a spectrum formatter (read/write support)
@@ -140,6 +147,14 @@ public:
                                                      ParameterDictionary &rDict) = 0;
     virtual void Write(std::ostream &rStream, CSpectrum &rSpectrum,
                        ParameterDictionary &rDict) = 0;
+private:
+    // Utilities for generating output:
+
+    Json::Value generateHeader(CSpectrum& rSpectrum, ParameterDictionary& pDict);
+    std::pair<std::vector<std::string>, std::vector<std::string>>
+        marshallParameters(CSpectrum& rSpectrum, ParameterDictionary& pdict);
+    std::vector<std::string> 
+        paramIdsToNames(const std::vector<UInt_t>& ids, ParameterDictionary& pdict);
 };
 
 

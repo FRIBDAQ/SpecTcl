@@ -35,6 +35,8 @@
 #include "SpectrumFormatterJson.h"
 #include "Spectrum.h"
 #include "SpectrumFormatError.h"
+#include "Parameter.h"
+#include <histotypes.h>
 
 #include <string>
 #include <vector>
@@ -123,14 +125,10 @@ CSpectrumFormatterJson:: Write(
         Json::Value outvec(Json::arrayValue);
 
         Json::Value spectrum;
-        Json::Value description;
-        description["name"] = rSpectrum.getName();
-        std::stringstream type_name;
-        type_name << rSpectrum.getSpectrumType();
-        description["type_string"] = type_name.str();
+        
         Json::Value contents;
 
-        spectrum["description"] = description;
+        spectrum["description"] = generateHeader(rSpectrum, rDict);
         spectrum["channels"]   = contents;
 
         outvec.append(spectrum);
@@ -139,3 +137,157 @@ CSpectrumFormatterJson:: Write(
         rStream << outvec;
 
     }
+
+    ////////////////////////////////////////////////////
+    // Utilities:
+
+    /***
+     * generateHeader
+     *    Generate a Json::Value that contains a spectrum's
+     *   description.
+     * 
+     * @param rSpectrum - References the spectrum.
+     * @param pDict  - reference to the parameter dictionary.
+     * 
+     * @return Json::Value - contains the contents of the 'description'
+     *   attribute of the spectrum object:
+    */
+   Json::Value
+   CSpectrumFormatterJson::generateHeader(CSpectrum& rSpectrum, ParameterDictionary& pdict) {
+        Json::Value description;
+        description["name"] = rSpectrum.getName();
+        std::stringstream type_name;
+        type_name << rSpectrum.getSpectrumType();
+        description["type_string"] = type_name.str();
+
+        // How we marshall the set of parameters to x/y parameters
+        // all depends on the spectrum type:
+
+        auto xyparams = marshallParameters(rSpectrum,  pdict);
+        Json::Value xpnames(Json::arrayValue);
+        for (auto name : xyparams.first) {
+            xpnames.append(Json::Value(name));
+        }
+        Json::Value ypnames(Json::arrayValue);
+        for (auto name : xyparams.second) {
+            ypnames.append(Json::Value(name));
+        }
+        description["x_parameters"] = xpnames;
+        description["y_parameters"] = ypnames;
+
+        return description;
+   }
+   /**
+    * marshallParameters 
+    * 
+    * Produces the vectors of x and y parameter names.
+    * How this is done depends on the spectrum type as the base class
+    * CSpectrum only provides a method to obtain the parameter ids.
+    * Method:
+    *    - Get the parameter ids:
+    *    - Turn them all into parameter names.
+    *    - Depending on the spectrum type turn that ordered vector of parmaeter
+    * names into a pair of vectors for x/y parameters.
+    * 
+    * @param rSpectrum - References the spectrum.
+    * @param pdict     - parameter dictionary (lookup id -> name).
+    * @return std::pair<std::vector<std::string>, std::vector<std::string>>
+    *   where the first vector are the x parameter names and the second vector
+    * (can be empty) is are the y parameter names.
+    * 
+   */
+   std::pair<std::vector<std::string>, std::vector<std::string>>
+   CSpectrumFormatterJson::marshallParameters(CSpectrum &rSpectrum,  ParameterDictionary &pdict) {
+        std::vector<UInt_t> parameterIds;
+        rSpectrum.GetParameterIds(parameterIds);
+        std::vector<std::string> parameterNames = paramIdsToNames(parameterIds, pdict);
+        std::vector<std::string> xp;
+        std::vector<std::string> yp;
+        switch (rSpectrum.getSpectrumType())
+        {
+        case ke1D: 
+            xp = parameterNames;
+            break;
+        case ke2D:
+            xp.push_back(parameterNames[0]);
+            yp.push_back(parameterNames[1]);
+            break;
+        case keBitmask:
+            xp = parameterNames;
+            break;
+        case keSummary:
+            xp = parameterNames;
+            break;
+        case keG1D:
+            xp = parameterNames;
+            break;
+        case keG2D:
+            xp = parameterNames;
+            break;
+        case keStrip:
+            xp.push_back(parameterNames[0]);
+            yp.push_back(parameterNames[1]);
+            break;
+        case ke2Dm:
+            for (int i = 0; i < parameterNames.size(); i+=2) {
+                xp.push_back(parameterNames[i]);
+                yp.push_back(parameterNames[i+1]);
+            }
+            break;
+        case keG2DD:
+            {
+                size_t offset = parameterNames.size()/2;  // y parameters.
+                for (size_t i = 0; i < parameterNames.size()/2; i++) {
+                    xp.push_back(parameterNames[i]);
+                    yp.push_back(parameterNames[offset]);
+                    offset++;
+                }
+            }
+            break;
+        case keGSummary:
+            xp = parameterNames;
+            break;
+        case ke2DmProj:
+            xp = parameterNames;
+            break;
+        case keUnknown:
+            throw std::string("Unknown spectrum type");
+            break;
+        default:
+            throw std::string("Undefined spectrum type");
+            break;
+        }
+        return std::make_pair(xp, yp);
+   }
+   /**
+    * parameterIdsToNames
+    *    Given a vector of parameter ids (e.g. gotten from CSpectrum::getParameterIds()),
+    *  returns the names of the parameters.
+    * 
+    * @param ids - const referencd to the ids to lookup.
+    * @param pdict - references the parameter dictionary.
+    * @return std::vector<std::string> - the paramter names in order
+    * as per ids.
+    * @note - if an id fails to lookup, the parameter name *DELETED* is
+    *  used for that slot.  This is in keeping with how SpecTcl handles
+    *  such cases.
+    *
+    *   The id lookup is O(n) in the number of parameters sadly
+    * as the parameter dictionary is keyed by parameter name.
+   */
+  std::vector<std::string>
+  CSpectrumFormatterJson::paramIdsToNames(const std::vector<UInt_t>& ids, ParameterDictionary& pdict) {
+
+        std::vector<std::string> result;
+        for (auto id : ids) {
+            auto p = std::find_if(pdict.begin(), pdict.end(), [id] (std::pair<std::string, CParameter> p) {return p.second.getNumber() == id; });
+            if (p != pdict.end()) {
+                result.push_back(p->second.getName());
+            } else {
+                result.push_back(std::string("*DELETED*"));
+            }
+        }
+
+        return result;
+  }
+
