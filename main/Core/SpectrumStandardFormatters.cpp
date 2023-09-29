@@ -298,6 +298,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include "SpectrumFormatterFactory.h"
 #include "NSCLAsciiSpectrumFormatter.h"
 #include "NSCLBinarySpectrumFormatter.h"
+#include "SpectrumFormatterJson.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -309,6 +310,7 @@ Bool_t CSpectrumStandardFormatters::m_fFirstTime = kfTRUE; //Static data member 
 
 CNSCLAsciiSpectrumFormatter   g_NSCLAscii;
 CNSCLBinarySpectrumFormatter  g_NSCLBinary;
+CSpectrumFormatterJson        g_JsonFormatter;
 
 
 CSpectrumFormatterFactory  FirstFactory;
@@ -330,7 +332,8 @@ CSpectrumStandardFormatters::CSpectrumStandardFormatters()
       { string("nsclascii"),  &g_NSCLAscii }, // Standard items...
       { string("nsclbinary"), &g_NSCLBinary },
       { string("ascii"),      &g_NSCLAscii },  // Convenience items
-      { string("binary"),     &g_NSCLBinary } 
+      { string("binary"),     &g_NSCLBinary },
+      { string("json"),   &g_JsonFormatter},
     };
     int nStandard = sizeof(RegistrationTable)/sizeof(RegistrationEntry);
 

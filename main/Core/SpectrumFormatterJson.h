@@ -144,9 +144,9 @@ public:
     // Implementation:
 
     virtual std::pair<std::string, CSpectrum *> Read(std::istream &rStream,
-                                                     ParameterDictionary &rDict) = 0;
+                                                     ParameterDictionary &rDict) ;
     virtual void Write(std::ostream &rStream, CSpectrum &rSpectrum,
-                       ParameterDictionary &rDict) = 0;
+                       ParameterDictionary &rDict) ;
 private:
     // Utilities for generating output:
 
