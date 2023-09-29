@@ -156,6 +156,8 @@ private:
     std::vector<std::string> 
         paramIdsToNames(const std::vector<UInt_t>& ids, ParameterDictionary& pdict);
     std::pair<Json::Value, Json::Value> getAxisDefinitions(CSpectrum& rSpectrum);
+
+    Json::Value getSpectrumContents(CSpectrum& rSpectrum);
 };
 
 

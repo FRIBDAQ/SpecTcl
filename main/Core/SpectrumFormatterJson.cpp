@@ -38,6 +38,11 @@
 #include "Parameter.h"
 #include <histotypes.h>
 
+// Root definitions:
+
+#include <TH1.h>
+#include <TAxis.h>
+
 #include <string>
 #include <vector>
 #include <sstream>
@@ -124,9 +129,9 @@ CSpectrumFormatterJson:: Write(
 
         Json::Value outvec(Json::arrayValue);
 
-        Json::Value spectrum;
+        Json::Value spectrum(Json::objectValue);
         
-        Json::Value contents;
+        Json::Value contents = getSpectrumContents(rSpectrum);
 
         spectrum["description"] = generateHeader(rSpectrum, rDict);
         spectrum["channels"]   = contents;
@@ -154,7 +159,7 @@ CSpectrumFormatterJson:: Write(
     */
    Json::Value
    CSpectrumFormatterJson::generateHeader(CSpectrum& rSpectrum, ParameterDictionary& pdict) {
-        Json::Value description;
+        Json::Value description(Json::objectValue);
         description["name"] = rSpectrum.getName();
         std::stringstream type_name;
         type_name << rSpectrum.getSpectrumType();
@@ -327,4 +332,73 @@ CSpectrumFormatterJson:: Write(
         }
 
  }
+ /**
+  * getSpectrumContents
+  *    Returns a Json Value that is an array which contains
+  * all of the non-zero spectrum channel.  See the comment header
+  * in SpectrumFormatterJson.h for what each channel looks like.
+  * 
+  * @param rSpec - CSpectrum& for he spectrum to dump.
+  * @return Json::Value - array of nonzero spectrum channel objects.
+  * @note This version does not return overflow/underflow bins. 
+ */
+Json::Value
+CSpectrumFormatterJson::getSpectrumContents(CSpectrum& rspec) {
+    Json::Value result(Json::arrayValue);
+    TH1* pSpec = rspec.getRootSpectrum();
+    if (rspec.Dimensionality() == 1) {
+        // 1d spectrum.
+
+        TAxis* xAxis = pSpec->GetXaxis();
+        UInt_t nBins = rspec.Dimension(0);
+        // The +1's below are because bin 0 in the root spectrum
+        // is the overflow channel.
+        for (int ix = 0; ix < nBins; ix++) {
+            auto value = pSpec->GetBinContent(ix+1);
+            if (value > 0.0) {
+                Json::Value chan(Json::objectValue);
+                chan["chan_type"] = Json::Value("Bin");
+                chan["x_coord"] = Json::Value(xAxis->GetBinCenter(ix+1));
+                chan["y_coord"] = Json::Value(0.0);
+                chan["x_bin"] = Json::Value(ix+1);
+                chan["y_bin"] = Json::Value(0);
+                chan["value"] = Json::Value(value);
+
+                result.append(chan);
+            }
+        }
+
+    } else {
+        // 2d spectrum.
+
+        TAxis* xAxis = pSpec->GetXaxis();
+        TAxis* yAxis = pSpec->GetYaxis();
+
+        UInt_t nx = rspec.Dimension(0);
+        UInt_t ny = rspec.Dimension(1);
+        // Again the +1's below have to do with the fact that
+        // bins #0 are overflows.
+
+        for (int ix = 0; ix < nx; ix++) {
+            for (int iy = 0; iy < ny; iy++) {
+                auto value = pSpec->GetBinContent(ix+1, iy+1);
+                if (value > 0.0) {
+                    Json::Value chan(Json::objectValue);
+                    chan["chan_type"] = Json::Value("Bin");
+                    chan["x_coord"] = Json::Value(xAxis->GetBinCenter(ix+1));
+                    chan["y_coord"] = Json::Value(yAxis->GetBinCenter(iy+1));
+                    chan["x_bin"]  = Json::Value(ix+1);
+                    chan["y_bin"]  = Json::Value(iy+1);
+                    chan["value"] = Json::Value(value);
+
+                    result.append(chan);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+
 
