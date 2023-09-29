@@ -315,7 +315,7 @@ CSpectrumFormatterJson:: Write(
         Json::Value xaxis(Json::arrayValue);
         xaxis.append(rSpec.GetLow(0));
         xaxis.append(rSpec.GetHigh(0));
-        xaxis.append(rSpec.Dimension(0) + 2);  // +2 for over/underflows.
+        xaxis.append(rSpec.Dimension(0));  // +2 for over/underflows.
 
         if (rSpec.Dimensionality() == 1) {
             Json::Value yaxis;
@@ -326,7 +326,7 @@ CSpectrumFormatterJson:: Write(
             Json::Value yaxis(Json::arrayValue);
             yaxis.append(rSpec.GetLow(1));
             yaxis.append(rSpec.GetHigh(1));
-            yaxis.append(rSpec.Dimension(1) + 2);
+            yaxis.append(rSpec.Dimension(1));
 
             return std::make_pair(xaxis, yaxis);
         }
@@ -350,7 +350,7 @@ CSpectrumFormatterJson::getSpectrumContents(CSpectrum& rspec) {
         // 1d spectrum.
 
         TAxis* xAxis = pSpec->GetXaxis();
-        UInt_t nBins = rspec.Dimension(0);
+        UInt_t nBins = rspec.Dimension(0) -2;
         // The +1's below are because bin 0 in the root spectrum
         // is the overflow channel.
         for (int ix = 0; ix < nBins; ix++) {
@@ -374,8 +374,8 @@ CSpectrumFormatterJson::getSpectrumContents(CSpectrum& rspec) {
         TAxis* xAxis = pSpec->GetXaxis();
         TAxis* yAxis = pSpec->GetYaxis();
 
-        UInt_t nx = rspec.Dimension(0);
-        UInt_t ny = rspec.Dimension(1);
+        UInt_t nx = rspec.Dimension(0) -2;
+        UInt_t ny = rspec.Dimension(1) -2;
         // Again the +1's below have to do with the fact that
         // bins #0 are overflows.
 
