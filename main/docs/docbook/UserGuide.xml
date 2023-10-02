@@ -8336,4 +8336,12 @@ USERCXXFLAGS=-DANALYZE_FILTERS
             </section>
         </section>
     </chapter>
+    <appendix>
+        <title>Format of NSCLASCII spectrum files.</title>
+        <para></para>
+    </appendix>
+    <appendix>
+        <title>Format of SpecTcl JSON spectrum files.</title>
+        <para></para>
+    </appendix>
 </book>
