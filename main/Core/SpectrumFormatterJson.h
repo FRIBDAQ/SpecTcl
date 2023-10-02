@@ -190,6 +190,8 @@ private:
     // Utilities for reading data from spectra:
 
     SpectrumDescription unpackDescription(Json::Value& desc);
+    CSpectrum* makeSpectrum(SpectrumDescription& desc);
+    void fillSpectrum(CSpectrum& spec, Json::Value& channels);
 };
 
 
