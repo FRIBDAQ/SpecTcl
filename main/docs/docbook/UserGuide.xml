@@ -8338,7 +8338,125 @@ USERCXXFLAGS=-DANALYZE_FILTERS
     </chapter>
     <appendix>
         <title>Format of NSCLASCII spectrum files.</title>
-        <para></para>
+        <para>
+            This chapter is intended to be read by programmers interested
+            either in:
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        writing software to read SpecTcl NSCLASCII formatted spectrum files
+                        in their own software
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        writing software to export spectrum data that can be read by SpecTcl.
+                    </para>
+                </listitem>
+            </itemizedlist>.
+            We will describe the format of spectra in files written by 
+            <command>swrite -format ascii</command> either directly or in a GUI that invokes
+            that command.
+        </para>
+        <para>
+            NSCLASCII formatted files are divided in two sections; a header that describes the
+            spectrum and a body that contains the data from bins in the spectrum that have non-zero
+            counts.  These two sections are separated by a line containing 54 <literal>-</literal>
+            characters.  E.g. a line that consists mostly of <literal>-</literal> characters.
+        </para>
+        <section>
+            <title>The header section</title>
+            <para>
+                The header part of the file contains the spectrum whose data will follow in 
+                the data section.  This consist of several lines of text.  
+            </para>
+            <para>
+                The first line of text contains the name of the spectrum as a quoted string and 
+                a parenthesized list of spectrum dimensions.  Note that for summary spectra,
+                as the X axis dimension is determined by the list of parameters, only the Y dimension
+                is provided.  These dimensions represent the
+                <emphasis>non overflow and non underflow</emphasis>
+                numberof bins on each axis of the spectrum. See 
+                <link linkend='sample-header-first-lines' endterm='sample-header-first-lines.title'/>
+                for examples of the contents of this first line of the header.  All lines in that
+                example represent first lines of the header.
+            </para>
+            <example id='sample-header-first-lines'>
+                <title id='sample-header-first-lines.title'>Sample header first lines</title>
+                <programlisting>
+"one-d" (4096)  <co id='first-line-1d' />
+
+"two-d" (1024 512) <co id='first-line-2d' />
+
+"summary" (4096) <co id='firstline-summary' />
+                </programlisting>
+            </example>
+            <para>
+                The numbers in the explanatory text refer to the numbers in 
+                <link linkend='sample-header-first-lines' endterm='sample-header-first-lines.title'/>.
+            </para>
+            <calloutlist>
+                <callout arearefs='first-line-1d'>
+                    <para>
+                        This is an example first header line for a spectrum named <literal>one-d</literal>
+                        that has <literal>4096</literal> channels of data between the under and overflow bins.
+                    </para>
+                </callout>
+                <callout arearefs='first-line-2d'>
+                    <para>
+                        This is a sample first header line for a spectrum named
+                        <literal>two-d</literal>.  The spectrum has <literal>1024</literal>
+                        bins on its X axis between the under and overflow bins and <literal>512</literal>
+                        bins on the Y axis between the under and overflow bins.
+                    </para>
+                </callout>
+                <callout arearefs='firstline-summary' >
+                    <para>
+                        This is a sample first header line for a summary spectrum.   The spectrum's name
+                        is <literal>summary</literal>  The spectrum has <literal>4096</literal>
+                        bins on the Y axis.  As with all summary spectra it will have one X axis bin for 
+                        each paramter in the summary.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+               The second line of this is the date and time at which the file was written in any of the
+               formats that is acceptable to the UNIX data and time formatting.  SpecTcl itslef will write
+               something like:
+               <literal>Wed May 10 11:34:16 2023</literal>.  Data from e.g. rustogramer may use a different
+               date/time format.  Any format that the function <function>gedate(3)</function> can parse is usable.
+               For reference, a sample date/time rustogramer may emit looks like:
+               <literal>2023-05-15 11:27:33.993974400 -04:00</literal>  Which means May 15, 20223, 11:27:33 
+               (and a nearly another second) in 
+               the time zone -4 hours from GMT.  Note that neither format is quoted in any way.
+            </para>
+            <para>
+                Line 3 of the header is the format level which is currently <literal>3</literal> 
+                if changes are made to the NSCLASCII format, this will be different.
+            </para>
+            <para>
+                Line 4 of the header are two space separated fields.  The first field is the SpecTclspectrum
+                type and he second is the channel data type.   The reader is free to choose a different channel
+                data type.  Sample values are shown in:
+                <link linkend='sample-header-line4' endterm='sample-header-line4.title' />.
+            </para>
+            <example id='sample-header-line4'>
+                <title id='sample-header-line4.title'>Sample line 4's of NSCLASCII file headers</title>
+                <programlisting>
+1 long      <co id='line4-1dlong' />
+gd word     <co id='line4-gdword' />
+2 byte      <co id='line4-2dbyte' />
+                </programlisting>
+            </example>
+            <para>
+                In the disucssion of <link linkend='sample-header-line4' endterm='sample-header-line4.title' />
+                below the numbers refer to the callout bullets in the example.
+            </para>
+        </section>
+        <section>
+            <title>The data setion</title>
+            <para></para>
+        </section>
     </appendix>
     <appendix>
         <title>Format of SpecTcl JSON spectrum files.</title>
