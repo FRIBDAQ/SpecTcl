@@ -1,4 +1,4 @@
-
+puts "In xaminerunner.tcl!!!"
 package require SpecTclUtils
 package require Tk
 
@@ -33,18 +33,21 @@ if {[Xamine::isLocal $host]} {
     set m [Xamine::getLocalMemory]
     set key [lindex $m 0]
     set size [lindex $m 1]
+    puts "Using local memory: key: $key Size: $size"
     if {[Xamine::Xamine checkmem $key $size]} {
         Xamine::Xamine genenv $key $size
         Xamine::Xamine start
         
     
         Xamine::connectGates
-    } else {    
+    } else {
+	puts "Using mirroring"
         
         useMirroring
     }
 } else {
     # Remote SpecTcl
+    puts "using mirroring"
 
     useMirroring
 }

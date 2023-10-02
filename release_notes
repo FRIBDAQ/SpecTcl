@@ -1,0 +1,9 @@
+== 5.13-006 ==
+* Fixing QtPy permissions
+* QtPy and QtPy exec reworked to not require py files
+== 5.13-006 ==
+
+== 5.13-005 ==
+### Updates:
+* Typo correction in MDPP-32 QDC support
+== 5.13-005 ==

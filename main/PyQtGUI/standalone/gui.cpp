@@ -11,38 +11,28 @@
 #include "CPyHelper.h"
 #include <cstdint>
 #include <errno.h>
-#include "config.h"
 
 int main(int argc, char *argv[])
 {
   CPyHelper pInstance;
-  CutiePieConfig conf;
-  std::string path;
-  
-  if(!getenv("INSTDIR") || !getenv("USERDIR")){
-    if (!conf.dirExist())
-      conf.dirCreate();
 
-    if (!conf.fileExist())
-      conf.fileCreate();
+  if(!getenv("USERDIR")){
+    if (access("fit_skel_creator.py", F_OK) != -1 && access("algo_skel_creator.py", F_OK) != -1) {
+        std::cout<<"\n \tUses .py files defined in the current directory, ex: fit_skel_creator.py, algo_skel_creator.py\n"<<std::endl;
+    } else{
+        std::cout << "\n \tIf you want to use your .py files, ex: fit_skel_creator.py, algo_skel_creator.py"<< std::endl;
+        std::cout << "\tPlease define USERDIR env variable as the directory where your .py files are located"<< std::endl;
+        std::cout << "\tEx: export USERDIR=/EXEMPLE/OF/PATH"<< std::endl;
+        std::cout << "\tOr have those .py files in the current working directory\n"<< std::endl;
 
-    conf.fileScan();
-
-    std::cout << "\t#################################" << std::endl;
-    std::cout << "\t# Usage for CutiePie standalone #:" << std::endl;
-    std::cout << "\t#################################" << std::endl;
-    std::cout << "\t Please set the following env variables" << std::endl;
-    std::cout << "\t export INSTDIR="+conf.getHomeScriptDir() << std::endl;
-    std::cout << "\t and"<< std::endl;
-    std::cout << "\t export USERDIR="+conf.getUserScriptDir() << std::endl;    
-
-    return 0;
+    }
   } else {
     std::cout << "All good!" << std::endl;
   }
 
-  std::string filename = std::string(getenv("INSTDIR"))+"/Script/Main.py";
-  std::cout << "filename: " << filename << std::endl;
+  //use INSTALLED_IN sets in makefile.am to @prefix@
+  std::string instPath(INSTALLED_IN);
+  std::string filename = instPath + "/Script/Main.py";
 
   try {
     PyObject *obj = Py_BuildValue("s", filename.c_str());
@@ -50,11 +40,15 @@ int main(int argc, char *argv[])
     if(file != NULL) {
       PyRun_SimpleFile(file, filename.c_str());
     }
+    else {
+      std::string errmsg = "Cannot open QtPy main from: " + filename;
+      throw std::invalid_argument(errmsg);
+    }
   }
   catch (std::exception& e)
-    {
-      std::cout << e.what() << '\n';
-    }
+  {
+    std::cout << e.what() << '\n';
+  }
 
   return 0;
 }

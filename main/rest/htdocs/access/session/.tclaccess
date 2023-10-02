@@ -1,2 +1,0 @@
-set realm "Steve"
-set callback AuthNullCallback

@@ -3,7 +3,8 @@ bin_PROGRAMS = _CutiePie
 include_HEADERS = CPyHelper.h
 
 _CutiePie_SOURCES = gui.cpp 
-_CutiePie_CXXFLAGS = @PYTHON_CXXFLAGS@
+# _CutiePie_CXXFLAGS = @PYTHON_CXXFLAGS@ 
+_CutiePie_CXXFLAGS = @PYTHON_CXXFLAGS@ -DINSTALLED_IN='"@prefix@"' 
 _CutiePie_LDFLAGS = @PYTHON_LDFLAGS@
 
 install-exec-hook:
@@ -18,44 +19,16 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/algo_skel_creator.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/Skel
-	if [ -s @prefix@/Skel/Script ] ; \
-	then \
-	     rm -rf @prefix@/Skel/Script ; \
-	fi;
-	ln -s @prefix@/Script @prefix@/Skel
-	if [ -s @prefix@/Skel/Lib ] ; \
-	then \
-	     rm -rf @prefix@/Skel/Lib ; \
-	fi;
-	ln -s @prefix@/lib @prefix@/Skel/Lib
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/algo_skel_creator.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/VMUSBSkel
-	if [ -s @prefix@/VMUSBSkel/Script ] ; \
-	then \
-	     rm -rf @prefix@/VMUSBSkel/Script ; \
-	fi;
-	ln -s @prefix@/Script @prefix@/VMUSBSkel
-	if [ -s @prefix@/VMUSBSkel/Lib ] ; \
-	then \
-	     rm -rf @prefix@/VMUSBSkel/Lib ; \
-	fi;
-	ln -s @prefix@/lib @prefix@/VMUSBSkel/Lib
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/algo_skel_creator.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/DDASSkel
-	if [ -s @prefix@/DDASSkel/Script ] ; \
-	then \
-	     rm -rf @prefix@/DDASSkel/Script ; \
-	fi;
-	ln -s @prefix@/Script @prefix@/DDASSkel
-	if [ -s @prefix@/DDASSkel/Lib ] ; \
-	then \
-	     rm -rf @prefix@/DDASSkel/Lib ; \
-	fi;
-	ln -s @prefix@/lib @prefix@/DDASSkel/Lib
+	(chmod -R g+w @prefix@)
+	(chmod -R o+x @prefix@)	
 
 EXTRA_DIST = Main.py GUI.py \
 	MenuGUI.py ConfigGUI.py OutputGUI.py Functions1DGUI.py Functions2DGUI.py JoystickGUI.py PlotGUI.py\

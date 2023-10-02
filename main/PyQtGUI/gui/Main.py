@@ -1,11 +1,33 @@
 #!/usr/bin/env python
 import io
+import re
 import sys, os
-sys.path.append(os.getcwd())
-print(os.getcwd())
-sys.path.append("./Script")
-sys.path.append(str(os.environ.get("INSTDIR"))+"/Script")
-sys.path.append(str(os.environ.get("USERDIR")))
+cwd = os.getcwd()
+
+# use preprocessor macro __file__ to get the installation directory
+# caveat : expects a particular format of installation directory (N.NN-NNNN)
+instPath = ""
+fileDir = os.path.dirname(os.path.abspath(__file__))
+subDirList = fileDir.split("/")
+for subDir in subDirList:
+    if subDir != "":
+        instPath += "/"+subDir
+        if re.search(r'\d+\.\d{2}-\d{3}', subDir ):
+            # specVersion = subDir
+            break
+
+
+# Check if the USERDIR environment variable is set.
+if "USERDIR" in os.environ:
+    sys.path.append(os.environ["USERDIR"])
+    print("The .py user-based files are in ",os.environ["USERDIR"])
+# Check if the user-based files are in the current working directory.
+elif os.path.exists(os.path.join(cwd, "fit_skel_creator.py")) and os.path.exists(os.path.join(cwd, "algo_skel_creator.py")):
+    print("The .py user-based files are in the current working directory.")
+    sys.path.append(cwd)
+
+#Script is append after USERDIR or cwd so if those are defined the priority is to them not to Script
+sys.path.append(instPath + "/Script")
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
@@ -34,6 +56,8 @@ import kmean_creator
 import gmm_creator
 import imgseg_creator
 import cannye_creator
+
+# print("Check import : ",fit_skel_creator.__file__)
 
 #######################################
 ##  Fitting
@@ -70,7 +94,7 @@ config_fit_p1 = {
 config_fit_p2 = {
     'p0': 100,
     'p1': 10,
-    'p2': 1,    
+    'p2': 1,
 }
 
 # Configurable parameters for Gaussian + 1st order Polynomial fit - NB technically they are not needed as the initial values are extracted from the plot itself
@@ -90,7 +114,7 @@ config_fit_gp2 = {
     'standard_deviation': 10,
     'p0': 100,
     'p1': 10,
-    'p2': 1,    
+    'p2': 1,
     'f': 0.9
 }
 

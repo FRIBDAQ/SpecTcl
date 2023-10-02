@@ -4687,6 +4687,73 @@ sread ?<option>-format</option> <replaceable>fmt</replaceable>?
                     <para>
                         If not provided, the default format is <literal>nsclascii</literal>
                     </para>
+                    <para>
+                        The set of formats is extensible, and documentation how to
+                        add a new format can be found in Programming Guide and 
+                        Programming Reference documents.  Three built in formats
+                        are  supported:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><literal>ascii</literal>, <literal>nsclascii</literal></term>
+                            <listitem>
+                                <para>
+                                    Provides a simple ASCII formatted file that consists of a
+                                    descriptive header.  The header is then followed by
+                                    a section containng channel data.
+                                    This format is intended to be easily reverse engineered
+                                </para>
+                                <para>
+                                    Note that this is an acceptable interchange format with
+                                    rustogramer which can both read and write 
+                                    <literal>nsclascii</literal> files.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>binary</literal>, <literal>nsclbinary</literal></term>
+                            <listitem>
+                                <para>
+                                    SMAUG formatted histograms.  Note that the details of
+                                    SMAUG format are not documented other than in the code.
+                                    <literal>binary</literal> is not recommended, while it results
+                                    in smaller files than <literal>ascii</literal> format;
+                                    firstly disk space is cheap, and secondly when written to a
+                                    gzip pipeline, ASCII formatted files compress to smaller files
+                                    than correponsing binary formatted files.
+                                </para>
+                                <para>
+                                    <literal>nsclbinary</literal> formatted files cannot interchanged
+                                    with rustogramer or, likely, any other existing program (SMAUG the
+                                    program - not the dragon, died many years ago).
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>json</literal></term>
+                            <listitem>
+                                <para>
+                                    This format provides a description of spectra and
+                                    their contents in JavaScript Object Notation (JSON).
+                                    Since spectra are an array of objects in the
+                                    file and JSON files must be fully read to be parsed,
+                                    it is not possible to read more than the first spectrum
+                                    from a JSON file.  
+                                </para>
+                                <para>
+                                    The schema for the objects written is descdribed
+                                    in the header SpectrumFormatterJson.h and will
+                                    be documented further in another document
+                                    at a later time.
+                                </para>
+                                <para>
+                                    Note that when writing spectra, bin numbers and
+                                    corresponding axis coordinates are gotten from
+                                    the underlying Root spectra.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
                 </listitem>
             </varlistentry>
             <varlistentry>
@@ -4711,6 +4778,7 @@ sread ?<option>-format</option> <replaceable>fmt</replaceable>?
                         the spectrum is connected to the histogrammer and
                         will incrmement as new data arrives.   Note that
                         only <literal>nsclascii</literal> (<literal>ascii</literal>)
+                        and <literal>json</literal>
                         spectra have information about which parameters
                         are in the spectrum and the underlying spectrum type.
                         Therefore <option>-nosnapshot</option> has no effect
@@ -4789,7 +4857,10 @@ close $file
             If <command>sread</command> is pointed to a file it can only read
             one spectrum (the first).  Using a file descriptor to identify
             the file allows several consecutive <command>swrite</command>
-            commands to process consective spectra in the file.
+            commands to process consective spectra in the file.  This is true only
+            if the format is such that the entire file does not need to be read
+            to parse the data - specifically this cannot be done with
+            <literal>-format json</literal>
         </para>
         <para>
             Note there's no requirement the file not have other data
@@ -6249,6 +6320,30 @@ swrite <option>-format</option> <replaceable>fmt file spec1 ?spec2 ... ?</replac
                         SMAUG binary format.  This format is not recommended
                         unless you have old SMAUG analysis tools you intend to
                         use on the files.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>json</literal></term>
+                <listitem>
+                    <para>
+                        This format provides a description of spectra and
+                        their contents in JavaScript Object Notation (JSON).
+                        Since spectra are an array of objects in the
+                        file and JSON files must be fully read to be parsed,
+                        it is not possible to read more than the first spectrum
+                        from a JSON file.  
+                    </para>
+                    <para>
+                        The schema for the objects written is descdribed
+                        in the header SpectrumFormatterJson.h and will
+                        be documented further in another document
+                        at a later time.
+                    </para>
+                    <para>
+                        Note that when writing spectra, bin numbers and
+                        corresponding axis coordinates are gotten from
+                        the underlying Root spectra.
                     </para>
                 </listitem>
             </varlistentry>

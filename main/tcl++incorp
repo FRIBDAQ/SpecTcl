@@ -8,11 +8,15 @@
 #
 
 tag=$1
+# if not argument is provided, use default value
+if [[ ! $tag ]];
+then
+  tag=`cat LIBTCL_VERSION`
+fi
 
 git submodule update --init --remote
 
 (cd libtcl ; git checkout $tag)
 git add libtcl
-git commit -m"Update libtcl tag to $tag"
 
 git submodule foreach 'autoreconf -if'

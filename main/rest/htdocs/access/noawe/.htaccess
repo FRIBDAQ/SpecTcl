@@ -1,5 +1,0 @@
-<Limit GET>
-order allow,deny
-allow from all
-deny from awe.sun.com
-</Limit>
