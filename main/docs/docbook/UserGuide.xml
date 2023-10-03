@@ -8757,11 +8757,309 @@ Tue Oct  3 13:48:58 2023
         </para>
         <section>
             <title> The <literal>description</literal> object.</title>
-            <para></para>
+            <para>
+                The <literal>description</literal> contains an object
+                that describes the spectrum.  That is it provides 
+                spectrum metadata.  We use the terms
+                <firstterm>description attribute</firstterm> and
+                <firstterm>description object</firstterm> interchangeably.
+                We also use the terms <firstterm>attribute</firstterm> and
+                <firstterm>field</firstterm> interchangeably.
+            </para>
+            <para>
+                The <literal>description</literal> attribute has the Following
+                fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal>name</literal></term>
+                    <listitem>
+                        <para>
+                            This attribute containst he name of the
+                            spectrum.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>type_string</literal></term>
+                    <listitem>
+                        <para>Contains the SpecTcl spectrum type string.
+                            e.g. <literal>"2"</literal> for a 2-d spectrum.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>x_axis</literal></term>
+                    <listitem>
+                        <para>
+                            Contains an X axis specification.  This is
+                            an array that will be described in 
+                            <link linkend='sec.axis-spec' endterm='sec.axis-spec.title' />.
+                            This field is always not <literal>"null"</literal>.  For a summary spectrum
+                            it will define real coordinates and bins suitable for the number
+                            of summarized parameters.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>x_parameters</literal></term>
+                    <listitem>
+                        <para>
+                            This attribute is an array containing the names of all
+                            X-axis parameters.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>y_axis</literal></term>
+                    <listitem>
+                        <para>
+                            This attribute is <literal>"null"</literal> if the
+                            spectrum has no y axis.  Otherwise it is an array
+                            that describes the Y axis of the spectrum.
+                            See <link linkend='sec.axis-spec' endterm='sec.axis-spec.title' />
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>y_parameters</literal></term>
+                    <listitem>
+                        <para>
+                            Contains an array of Y axis parameters.  This will be
+                            an empty array if there are no Y axis parameters in this
+                            spectrum type.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                </variablelist>
+            <para>
+                Have a look at the annotated example of a <literal>description</literal>
+                object for any needed clarification.
+                See 
+                <link linkend='json-description' endterm='json-description.title' />
+            </para>
+            <example id='json-description'>
+                <title id='json-description.title'>Sample <literal>description</literal> object</title>
+                <programlisting>
+"description" :
+{
+        "name" : "twod",       <co id='json.name' />
+        "type_string" : "2",   <co id='json.type' />
+        "x_axis" :             <co id='json.xaxis' />
+        [
+                0,
+                1024,
+                514
+        ],
+        "x_parameters" :       <co id='json.xparams' />
+        [
+                "event.raw.00"
+        ],
+        "y_axis" :            <co id='json.yaxis' />
+        [
+                0,
+                1024,
+                514
+        ],
+        "y_parameters" :     <co id='yparams' />
+        [
+                "event.raw.01"
+        ]
+}
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='json.name'>
+                <para>
+                    The <literal>name</literal> attribute in this
+                    description says that the spectrum was originally
+                    named <literal>twod</literal>.   It's up to the
+                    software reading this definition to decide what to do
+                    with this name.  SpecTcl uses this as the base from
+                    which a unique name is formed.
+                </para>
+                </callout>
+                <callout arearefs='json.type'>
+                    <para>
+                        The <literal>type_string</literal> attribute of the
+                        description, in this case, specifies that the spectrum
+                        is of type <literal>2</literal>, or a 
+                        simple 2-d spectrum.
+                    </para>
+                </callout>
+                <callout arearefs='json.xaxis'>
+                    <para>
+                        This array describes the X axis limits and
+                        binning, see
+                        <link linkend='sec.axis-spec' endterm='sec.axis-spec.title' />
+                        for more information.  The <literal>x_axis</literal>
+                        attribute is never <literal>"null"</literal> unlike the
+                        <literal>y_axis</literal> attribute which can be depending on
+                        the spectrum type.
+                    </para>
+                </callout>
+                <callout arearefs='json.xparams'>
+                    <para>
+                        This array valued field is the list of X axis parameters
+                        in the spectrum. This attribute specifies only one
+                        X parameter (<literal>event.raw.000</literal>) as is
+                        the case for all <literal>2</literal> typed spectra.
+                        For e.g. a <literal>g1</literal> spectrum type, there can be
+                        any number of <literal>x_parameters</literal>.
+                    </para>
+                </callout>
+                <callout arearefs='json.yaxis'>
+                    <para>
+                        Describes the y axis if there is one.  In case the spectrum
+                        type does not need a y axis specification, this attribute
+                        will have the <literal>"null"</literal> value.  In JSON,
+                        this is a reserved value that specifies the field does not
+                        have a value, like e.g. <literal>nullptr</literal> in 
+                        C++.
+                    </para>
+                </callout>
+                <callout arearefs='yparams'>
+                    <para>
+                        Provides a list of parameters for the Y axis.  In this case,
+                        for a spectrum of type <literal>2</literal> there is a single
+                        Y parameter; <literal>event.raw.01</literal>.  For spectra without
+                        Y parameters; e.g. <literal>1</literal> the value of this field
+                        will merely be an empty array.
+                    </para>
+                </callout>
+            </calloutlist>
+
+            <section id='sec.axis-spec'>
+                <title id='sec.axis-spec.title'>The axis specification</title>
+                <para>
+                    Axis specification arrays define axis limits and binning.
+                    Note that the bin counts in JSON format 
+                    <emphasis>include</emphasis> the under and overflow bins.
+                </para>
+                <para>
+                    Axis specifications are three element array which contain,
+                    in order;  The axis real coordinate low limit, the axis
+                    real coordinate high limit and the number of  bins on the axis,
+                    including the underflow and overflow bins.
+                    For example:
+                </para>
+                <informalexample>
+                    <programlisting>
+"x_axis" :             
+[
+        0,
+        1024,
+        514
+],
+                    </programlisting>
+                </informalexample>
+                <para>
+                    is equivalent to the SpecTcl axis specification
+                    <literal>{{0.0 1024.0 512}}</literal> note the
+                    512 bins because the <command>spectrum</command>
+                    axis specifications do not include under and overflow
+                    bins.
+                </para>
+            </section>
         </section>
         <section>
             <title>The <literal>channels</literal> object.</title>
-            <para></para>
+            <para>
+                The <literal>channels</literal> field of a spectrum
+                contains the data from all of the bins that do not have
+                zero counts.  Therefore <literal>channels</literal>
+                is an array of objects.  For the sake of this
+                document, we'll call each of these objects a 
+                <firstterm>channel</firstterm>.
+            </para>
+            <para>
+                <literal>channel</literal> objects have the following
+                fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal>chan_type</literal></term>
+                    <listitem>
+                        <para> 
+                            Describes the type of bin this channel is.
+                            At present, this will always be 
+                            <literal>Bin</literal> which indicates the
+                            data are for an ordinary bin.  In the future
+                            this may contain <literal>Overflow</literal>
+                            or <literal>Underflow</literal> indicating that
+                            this bin contains under or overflow counts
+                            respectively.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>value</literal></term>
+                    <listitem>
+                        <para>
+                            This field contains the number of counts in
+                            the channel described by this channel.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>x_bin</literal></term>
+                    <listitem>
+                        <para>
+                            Contains the bin number along the X axis
+                            for this bin.  Note that bin <literal>1</literal>
+                            is the first ordinary bin as bin nuber 0 is the
+                            underflow bin.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>x_coord</literal></term>
+                    <listitem>
+                        <para>Contains a world coordinate value that lies
+                        inside the bin.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>y_bin</literal></term>
+                    <listitem>
+                        <para>
+                            As with <literal>x_bin</literal> but this field
+                            contains the bin number on the Y axis.  For 
+                            spectra whose y axis are a counts axis, this is
+                            <literal>0</literal>.
+                            It would be wise to be prepared to also handle
+                            the value <literal>"null"</literal> in this 
+                            case.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>y_coord</literal></term>
+                    <listitem>
+                        <para>
+                            Same as for <literal>x_coord</literal> but 
+                            along the Y axis.  For spectrum whose Y axis
+                            is a counts axis, this will be <literal>0.0</literal>
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Below is a sample channel objects.
+            </para>
+            <informalexample>
+                <programlisting>
+{
+        "chan_type" : "Bin",
+        "value" : 1234,
+        "x_bin" : 101,
+        "x_coord" : 201,
+        "y_bin" : 101,
+        "y_coord" : 201
+},
+                </programlisting>
+            </informalexample>
+
         </section>
     </appendix>
 </book>
