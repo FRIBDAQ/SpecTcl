@@ -8667,6 +8667,101 @@ Tue Oct  3 13:48:58 2023
     </appendix>
     <appendix>
         <title>Format of SpecTcl JSON spectrum files.</title>
-        <para></para>
+        <para>
+            JavaScript Object Notation (or JSON for short), 
+            is a lightweight data-interchange format intended
+            for use with structured data.  SpecTcl uses the
+            jsoncpp package.
+            Jsoncpp is documented at <ulink url='http://open-source-parsers.github.io/jsoncpp-docs/doxygen/index.html' />.
+            The JSON organization and format documentation is at
+            <ulink url='https://www.json.org/json-en.html' />.  JSON 
+            is a fully textual format.
+        </para>
+        <para>
+            To summarize JSON, JSON defines arrays and objects.  Arrays are 
+            surrounded by <literal>[]</literal>.  Objects are surrounded by
+            <literal>{}</literal>.  An object has attributes (member data in C++).
+            Each attribute is described by a name value pair of the form.
+            Without any explanation, here is a sample spectrum file from SpecTcl
+            in JSON format:
+        </para>
+        <informalexample>
+            <programlisting>
+[
+        {
+                "channels" :
+                [
+                        {
+                                "chan_type" : "Bin",
+                                "value" : 1234,
+                                "x_bin" : 101,
+                                "x_coord" : 201,
+                                "y_bin" : 101,
+                                "y_coord" : 201
+                        },
+                        {
+                                "chan_type" : "Bin",
+                                "value" : 1000,
+                                "x_bin" : 256,
+                                "x_coord" : 511,
+                                "y_bin" : 256,
+                                "y_coord" : 511
+                        }
+                ],
+                "description" :
+                {
+                        "name" : "twod",
+                        "type_string" : "2",
+                        "x_axis" :
+                        [
+                                0,
+                                1024,
+                                514
+                        ],
+                        "x_parameters" :
+                        [
+                                "event.raw.00"
+                        ],
+                        "y_axis" :
+                        [
+                                0,
+                                1024,
+                                514
+                        ],
+                        "y_parameters" :
+                        [
+                                "event.raw.01"
+                        ]
+                }
+        }
+]
+            </programlisting>
+        </informalexample>
+        <para>
+            Note that based on our introductory paragraph, the file contains an array
+            of objects.  Each of those objecgts is a spectrum.
+        </para>
+        <para>
+            As with NSCLDASCII, JSON formatted spectrum files contain metadata which
+            descdribe the spectrum itself and data which contains the channel values
+            for bins that have non-zero values.  Unlike NSCLASCII data, channel data
+            includes inforation about the world coordinates of each channel as well 
+            as the bin coordinates of each channel. 
+        </para>
+        <para>
+            Each spectrum, therefore, is comprised of an object that has two attributes:
+            <literal>description</literal> and <literal>channels</literal>.
+            Each of these attributes is in turn an object with 
+            <literal>description</literal> providing spectrum metadata and,
+            <literal>channels</literal> providing the data in the spectrum.
+        </para>
+        <section>
+            <title> The <literal>description</literal> object.</title>
+            <para></para>
+        </section>
+        <section>
+            <title>The <literal>channels</literal> object.</title>
+            <para></para>
+        </section>
     </appendix>
 </book>
