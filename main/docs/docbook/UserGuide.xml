@@ -8452,10 +8452,217 @@ gd word     <co id='line4-gdword' />
                 In the disucssion of <link linkend='sample-header-line4' endterm='sample-header-line4.title' />
                 below the numbers refer to the callout bullets in the example.
             </para>
+            <calloutlist>
+                <callout arearefs='line4-1dlong'>
+                    <para>
+                        This line describes a 1-d spectrum with longword (32 bit) channels.
+                    </para>
+                </callout>
+                <callout arearefs='line4-gdword'>
+                    <para>
+                        This line describes a 'gamma deluxe' spectrum with word (16 bit) channels.
+                    </para>
+                </callout>
+                <callout arearefs='line4-2dbyte'>
+                    <para>
+                        This line describes a 2-d spectrum with byte (8 bit) channels.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                The fifth line of the header contains names of parameters.  There are two forats.
+                The first format used for most spectra is just a parenthesized list of space separated
+                parameter names.  Each parameter name is enclosedin <literal>"</literal> characters
+                (e.g. <literal>"aparameter"</literal>).  The second form, used only for gamma deluxe spectra
+                and 2d-multi spectra.
+                
+            </para>
+            <para>
+                While you might think that second form would be used for 2-d spectra, this is
+                not the case..  2-d spectra have a
+                pair of parameters.  The first is the X parameter, the second the Y parameter.
+                Let's look at a set of examples.  See:
+                <link linkend='sample-header-line5' endterm='sample-header-line5.title' />
+            </para>
+            <example id='sample-header-line5'>
+                <title id='sample-header-line5.title'>Sample of line 5 of the spectrum header.</title>
+                <programlisting>
+("aparameter")                         <co id='line5-single' />
+("param1" "param2")                    <co id='line5-2d' />
+("param1" "param2" "param3" "param4")  <co id='line5-several' />
+("xp1" "xp2")  ("yp1" "yp2")           <co id='line5-xy' />
+                </programlisting>
+            </example>
+            <para>
+                The numbers in the callout blobs below refer to corresponding callout blobs in 
+                <link linkend='sample-header-line5' endterm='sample-header-line5.title' />.
+            </para>
+            <calloutlist>
+                <callout arearefs='line5-single'>
+                    <para>
+                        This is how a 1-d spectrum or bitmask spectrum will look. The single parameter
+                        <literal>aparameter</literal> is specified.
+                    </para>
+                </callout>
+                <callout arearefs='line5-2d' >
+                    <para>  
+                        This is what a 2-d spectrum will look like. The X axis will be <literal>param1</literal>
+                        the Y axis will be <literal>param2</literal>.
+                    </para>
+                </callout>
+                <callout arearefs='line5-several'>
+                    <para>
+                        This list of parameters is typical of <literal>s</literal> <literal>g1</literal>, 
+                        or <literal>g2</literal>.  In the 2-d histograms (<literal>s</literal> and <literal>g2</literal>)
+                        there's no differentiation between X and Y parameters so a single parameter list is used.
+                    </para>
+                </callout>
+                <callout arearefs='line5-xy'>
+                    <para>
+                        This is how either a <literal>gd</literal> or <literal>2dm</literal> spectrum looks. 
+                        There are two lists of parameters.  The first list of parametesr are X parameters.
+                        The second list are Y parameters.  In <literal>2dm</literal> spectra there will
+                        be the same number of X and Y parameters while this need not be the case for
+                        <literal>gd</literal> spectra.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Line 6 of the header provides axis definitions.  These will be one or two parenthesized
+                list of floating point low/high pairs defining the world coordinate limits of each axis.
+                Note that while summary spectra (type <literal>s</literal>) have two axes, the X axis
+                is fully defined by the number of parameterized summarized by the spectrum.  Therefore
+                for summary spectra there is a single axis definition but it is for the Y axis.
+            </para>
+            <para> 
+                <link linkend='sample-header-line6' endterm='sample-header-line6' /> provides 
+                sample line-6 contents.
+            </para>
+            <example id='sample-header-line6'>
+                <title> id='sample-header-line6.title'>Sample contents of line 6</title>
+                <programlisting>
+(-1.0 1.0)              <co id='line6-oneaxis' />
+(1.0 1.0) (0.0 4096.0)  <co id='line6-twoaxes' />
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='line6-oneaxis' >
+                    <para>
+                        This is a typical single axis definitions for e.g. 1d, gamma 1d, bitmask,
+                        or summary spectrum types. It specifies a single axis that contains the range
+                        [-1.0 1.0)
+                    </para>
+                </callout>
+                <callout arearefs='line6-twoaxes'>
+                    <para>
+                        This is an example of specification of two axes.  The X axis spans the 
+                        range [-1.0 1.0) whie the Y axis spans the range [0.0 4096.0].  This style of
+                        specification is used by 2-d, gamma 2d, gamma deluxe, and twod sum specctra.
+                    </para>
+                </callout>
+            </calloutlist>
         </section>
         <section>
             <title>The data setion</title>
-            <para></para>
+            <para>
+                The data section of NSCLASCII spectra contains channel values for all channels with 
+                non-zero contents. 
+                The contents of each non-zero bin is one line of text.  The line contains the 
+                bin number coordinate(s) of the channel and the channel value.
+                Bin coordinates are specified as a paranethesized integer or pair of integers.
+                The bin coordinate(s) are then followed by the contents of that bin space separated
+                from the coordinates.
+            </para>
+            <para>
+                Once all non-zero channels have been specified, a sentinnel consisting of 
+                bin coordinate(s) that are <literal>-1</literal> and a bin contents that can be ignored.
+                <link linkend='asc-oned-data' endterm='asc-oned-data.title'/> is a sample of
+                a data section for a 1-d spectrum.
+            </para>
+            <example id='asc-oned-data'>
+                <title id='asc-oned-data.title'> Sample 1d data section</title>
+                <programlisting>
+(100) 7        <co id='asc-oned-channel' />
+(101) 10
+(103) 12       <co id='asc-oned-skip-zero' />
+... 
+(-1) -1        <co id='asc-oned-sentinnel' />
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='asc-oned-data' >
+                    <para>
+                        This is an example of a typical channel of 1-d data.  It specifies that there 
+                        are 7 counts in bin number 100 of the spectrum.  Note that bin 0 is the First
+                        non-underflow channel.
+                    </para>
+                </callout>
+                <callout arearefs='asc-oned-skip-zero'>
+                    <para>
+                        Note that channel number 102 does not appear in the data list.  
+                        This means that there are no counts in that bin of the spectrum.
+                    </para>
+                </callout>
+                <callout arearefs='asc-oned-sentinnel'>
+                    <para>
+                        This is one the end of data sentinnel looks like for 1-d data.
+                        This marks the end of the data section for this spectrum.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Data for a spectrum that has two dimensions is very similar.  A small sample
+                is shown in <link linkend='asc-twod-data' endterm='asc-twod-data.title' />
+            </para>
+            <example id='asc-twod-data' >
+                <title id='asc-twod-data.title'> Sample 2-d data section</title>
+                <programlisting>
+(12 100)  12
+(12 107)  15
+...
+(-1 -1) -1
+                </programlisting>
+            </example>
+            <para> 
+                I think, if you understand the format of 1-d data this is pretty clear and
+                requires no additional explanation.
+            </para>
+        </section>
+        <section>
+            <title>Sample empty spectrum files</title>
+            <para>
+                This section contains two examples.  The first provides a 1-d spectrum
+                file with no non-zero channels of data.  The second is the same for
+                a 2-d spectrum.
+            </para>
+            <example>
+                <title>Sample 1d data file with no counts</title>
+                <programlisting>
+"raw" (1024)
+Tue Oct  3 13:48:58 2023
+ 3
+1 long
+("event.raw.00")
+(0 1024)
+--------------------------------------------
+(-1) -1
+
+                </programlisting>
+            </example>
+            <example>
+                <title>Sample 2-d data file with no counts</title>
+                <programlisting>
+"twod" (512 514)
+Tue Oct  3 13:48:58 2023
+ 3
+2 long
+("event.raw.00" "event.raw.01")
+(0 1024) (0 1024)
+--------------------------------------------
+(-1 -1) -1
+
+                </programlisting>
+            </example>
         </section>
     </appendix>
     <appendix>
