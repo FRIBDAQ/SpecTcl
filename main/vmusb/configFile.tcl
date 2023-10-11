@@ -616,6 +616,8 @@ proc marker args {
 }
 proc sis3804 args {
 }
+proc delay args {
+}
 
 proc addtcldriver name {
     proc $name args {}
