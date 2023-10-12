@@ -80,7 +80,7 @@
 
 #define NAME_FORMAT "XA%02x"
 #define SHARENV_FORMAT "XAMINE_SHMEM=%s" /* Environment names/logical names. */
-#define SIZEENV_FORMAT "XAMINE_SHMEM_SIZE=%d"
+#define SIZEENV_FORMAT "XAMINE_SHMEM_SIZE=%uld"
 
 #define XAMINEENV_FILENAME "XAMINE_IMAGE"
 
@@ -281,7 +281,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
 **    False   - Failure
 */
 
-static int genenv(const char *name, int specbytes)
+static int genenv(const char *name, size_t specbytes)
 {
   /* Allocate persistent storage for the strings */
 
