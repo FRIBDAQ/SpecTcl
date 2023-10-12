@@ -29,9 +29,9 @@
 ** data structures used:
 */
 typedef struct _node {
-                 struct _node *next;
-		 long          size;
-	       } node;			/* memory node. */
+     struct _node *next;
+		 size_t        size;
+} node;			/* memory node. */
 
 /* 
 ** Local storage: 
@@ -107,7 +107,7 @@ static void remove(arenaid arena, node *st_node)
 ** Formal Parameters:
 **   caddr_t arena:
 **     Points to the arena to manage.
-**   int size:
+**   size_t size:
 **     the number of bytes in the arena.
 ** returns:
 **    caddr_t arena_id:
@@ -115,7 +115,7 @@ static void remove(arenaid arena, node *st_node)
 **      This will be NULL If the arena control block could not be allocated
 **      and filled in.
 */
-arenaid alloc_init(caddr_t arena, int size)
+arenaid alloc_init(caddr_t arena, size_t size)
 {
   node **first;
 
@@ -161,7 +161,7 @@ longmask()
 ** NOTE: In order to ensure spectrum boundary alignment, all
 **      size requests get increased to the next longword unit.
 */
-caddr_t alloc_get(arenaid arena_id, int size)
+caddr_t alloc_get(arenaid arena_id, size_t size)
 {
   
   
@@ -183,7 +183,7 @@ caddr_t alloc_get(arenaid arena_id, int size)
     }
     if(free->size > largest->size)
       largest = free;
-    free = free->next;
+      free = free->next;
   } while (free != (node *)NULL);
   
   /* When control falls here, largest points to the largest 
@@ -199,7 +199,7 @@ caddr_t alloc_get(arenaid arena_id, int size)
   
   {
     node *st_node;		/* Will point to block storage node. */
-    char *block;		/* WIll point to the user storage.   */
+    char *block;	  	/* Will point to the user storage.   */
 
     block = (char *)largest;
     block += (largest->size - size); /* Points to node part of user storage */
