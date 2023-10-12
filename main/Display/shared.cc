@@ -308,6 +308,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #include <sys/types.h>
 #include <unistd.h>
+
 #include <string>
 #include <stdexcept>
 #include <sstream>
@@ -361,7 +362,7 @@ extern volatile  spec_shared *spectra;
 ** Static defs:
 */
 
-static int memsize;
+static size_t memsize;
 
 /** 
  * Types of shared memory supported:
@@ -460,7 +461,7 @@ AnalyzeMemoryName(const char *name)
 ** Returns:
 **   Pointer to the shared memory or NULL on failure.
 */
-static spec_shared *mapmemory(char *name, unsigned int size)
+static spec_shared *mapmemory(char *name, size_t size)
 {
   SharedMemorySpecification spec;
   try {
@@ -681,7 +682,7 @@ void Xamine_initspectra()
 {
   char *name;
   char *size_string;
-  unsigned int size;
+  size_t size;
 
 
 
@@ -699,11 +700,12 @@ void Xamine_initspectra()
   }
   /* Now convert the size string to a number: */
 
-  size = atoi(size_string);
+  size = atoll(size_string);
   if(size == 0) {
     fprintf(stderr, "Xamine -- Shared memory size string was illegal\n");
     exit(-1);
   }
+  fprintf(stderr, "Shared memory '%s' size: %ld\n", size_string, size);
 
   /* Now map to the memory: */
 
