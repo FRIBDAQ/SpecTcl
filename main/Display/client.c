@@ -99,7 +99,7 @@
 */
 
 volatile Xamine_shared *Xamine_memory;
-int            Xamine_memsize;
+size_t            Xamine_memsize;
 arenaid        Xamine_memory_arena;
 /*
 ** Local storage:
@@ -363,7 +363,7 @@ PrintOffsets()
 
 }
 
-int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
+int Xamine_CreateSharedMemory(size_t specbytes,volatile Xamine_shared **ptr)
 {
 
   char name[33];
@@ -637,7 +637,7 @@ int f77xamine_mapmemory_(char *name, int *specbytes,
 **  Xamine_MapMemory which is described by the comment header way up there
 ** It's completely system dependent.
 */
-int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
+int Xamine_MapMemory(char *name, size_t specbytes,volatile Xamine_shared **ptr)
 #ifdef HAVE_WINDOWS_H
 {
   HANDLE hMapFile;
@@ -672,7 +672,7 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
 }
 #else
 {
-  int memsize;
+  size_t memsize;
   key_t key;
   int shmid;
 
