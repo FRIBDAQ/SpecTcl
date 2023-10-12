@@ -41,8 +41,8 @@
 typedef caddr_t *arenaid;
 
 
-arenaid alloc_init(caddr_t arena, int size); /* Initialize an arena */
-caddr_t alloc_get(arenaid arena_id, int size); /* Allocate memory. */
+arenaid alloc_init(caddr_t arena, size_t size); /* Initialize an arena */
+caddr_t alloc_get(arenaid arena_id, size_t size); /* Allocate memory. */
 void    alloc_free(arenaid arena_id, caddr_t storage); /* Free memory. */
 void    alloc_done(arenaid arena_id); /* End use of an arena.     */
 
