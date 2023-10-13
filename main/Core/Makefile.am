@@ -188,8 +188,8 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	SummarySpectrumB.cpp SpectrumFactory.cpp SpectrumFactoryException.cpp \
 	SnapshotSpectrum.cpp Gamma1DW.cpp Gamma1DL.cpp Gamma2DW.cpp \
 	CGammaSpectrum.cpp \
-	Gamma2DB.cpp GateMediator.cpp CAxis.cpp CParameterMapping.cpp  Parameter.cpp \
-	SpectrumS.cpp \
+	Gamma2DB.cpp GateMediator.cpp CAxis.cpp CParameterMapping.cpp  \
+	 Parameter.cpp SpectrumS.cpp \
 	Spectrum2DL.cpp Gamma2DL.cpp  SummarySpectrumL.cpp \
 	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp \
 	Gamma2DD.cpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \

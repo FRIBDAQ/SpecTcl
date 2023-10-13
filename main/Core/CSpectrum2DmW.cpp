@@ -177,7 +177,7 @@ CSpectrum2DmW::set(const UInt_t* pIndices, ULong_t nValue)
   TH1* pRootSpectrum = getRootSpectrum();
   
   pRootSpectrum->SetBinContent(
-    pRootSpectrum->GetBin(x,y), static_cast<Double_t>(nValue)
+    pRootSpectrum->GetBin(x+1,y+1), static_cast<Double_t>(nValue)
   );
 }
 
