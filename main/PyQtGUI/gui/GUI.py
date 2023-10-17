@@ -306,7 +306,7 @@ class MainWindow(QMainWindow):
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
         # summing region
         self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
-        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
+        # self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
         # autoscale
         self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.autoScaleAxisBox)
         # plus button
@@ -399,7 +399,7 @@ class MainWindow(QMainWindow):
         self.wTab.wPlot[self.wTab.currentIndex()].logButton.customContextMenuRequested.connect(self.log_handle_right_click)
 
         self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
-        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
+        # self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
 
         self.resizeID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("resize_event", self.on_resize)
         self.pressID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.on_press)
@@ -932,6 +932,14 @@ class MainWindow(QMainWindow):
             #nRow-1 because nRow (nCol) is the number of row and the following sets an index starting at 0
             self.wConf.histo_geo_row.setCurrentIndex(nRow-1)
             self.wConf.histo_geo_col.setCurrentIndex(nCol-1)
+
+            #enable/disable some widgets depending if enlarge mode of not, flags set also in on_dblclick 
+            self.wConf.histo_geo_add.setEnabled(not self.currentPlot.isEnlarged)
+            self.wConf.histo_geo_row.setEnabled(not self.currentPlot.isEnlarged)
+            self.wConf.histo_geo_col.setEnabled(not self.currentPlot.isEnlarged)
+            self.currentPlot.createSRegion.setEnabled(self.currentPlot.isEnlarged)
+            self.wConf.createGate.setEnabled(self.currentPlot.isEnlarged)
+            self.wConf.editGate.setEnabled(self.currentPlot.isEnlarged)
 
             self.removeRectangle()
             self.bindDynamicSignal()
