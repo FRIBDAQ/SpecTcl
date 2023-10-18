@@ -181,24 +181,26 @@ spec_shared::GetSpectrumList(char ***list)
   // Pull the names out of the NumberAndName map (they'll be sorted) and encode them into names:
 
   int nspec =0;
-  int type, nbins_x, nbins_y;
+  int type, nbins_x, nbins_y, dim;
   float xmin, xmax, ymin, ymax;
   spec_shared* d = dataRetriever::getInstance()->GetShMem();
   for(std::map<std::string,NumberAndName>::iterator i = NameInfo.begin(); i != NameInfo.end(); i++) {
-    type = d->GetSpectrumType(i->second.first);
+    type = d->gettype(i->second.first);
     nbins_x = d->getxdim(i->second.first);
     xmin = d->getxmin_map(i->second.first);
     xmax = d->getxmax_map(i->second.first);    
     if (d->getydim(i->second.first) == 0){
       nbins_y = 0;
       ymin = 0;
-      ymax = 0;    
+      ymax = 0;
+      dim = 1;    
     } else {
       nbins_y = d->getydim(i->second.first);    
       ymin = d->getymin_map(i->second.first);
       ymax = d->getymax_map(i->second.first);
+      dim = 2;
     }
-    sprintf(names[nspec], "%d %s %d %d %f %f %d %f %f", i->second.first, i->first.c_str(), type, nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+    sprintf(names[nspec], "%d %s %d %d %d %f %f %d %f %f", i->second.first, i->first.c_str(), type, dim, nbins_x, xmin, xmax, nbins_y, ymin, ymax);
     nspec++;
   }
 
@@ -223,9 +225,10 @@ Address_t
 spec_shared::CreateSpectrum(int id)
 {
   uint32_t nOffset = dataRetriever::getInstance()->GetShMem()->dsp_offsets[id];
-  
+
   switch(dataRetriever::getInstance()->GetShMem()->dsp_types[id]) { 
   case _twodlong:
+    // std::cout<<"Simon - CreateSpectrum _twodlong "<<std::endl;
   case _onedlong:
     nOffset = nOffset*sizeof(int32_t);
     break;
