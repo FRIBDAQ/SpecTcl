@@ -28,6 +28,8 @@
 #include <sstream>
 #include <string>
 #include "dataRetriever.h"
+#include "dataTypes.h"
+#include "dataAccess.h"
 #include <numpy/arrayobject.h>
 
 bool debug = false;
@@ -59,23 +61,24 @@ void
 CPyConverter::extractInfo(char* speclist)
 {
   std::stringstream ss;
-  int id, dim, binx, biny;
+  int id, dim, binx, biny, type;
   float minx, miny, maxx, maxy;
   std::string name;
   ss << std::string(speclist);  
   while (!ss.eof() &&
-	 (ss >> id >> name >> dim >> binx >> minx >> maxx >> biny >> miny >> maxy)) {
+	 (ss >> id >> name >> type >> dim >> binx >> minx >> maxx >> biny >> miny >> maxy)) {
     if (debug)
       std::cout << id << " " << name << std::endl;    
     m_id.push_back(id);
     m_names.push_back(name);
+    m_types.push_back(type);
     m_dim.push_back(dim);
     m_binx.push_back(binx);
     m_biny.push_back(biny);
     m_minx.push_back(minx);
     m_miny.push_back(miny);      
     m_maxx.push_back(maxx);
-    m_maxy.push_back(maxy);      
+    m_maxy.push_back(maxy);     
   }    
 }
 
@@ -120,6 +123,7 @@ CPyConverter::Update(char* hostname, char* port, char* mirror, char* user)
   spec_shared* p = reinterpret_cast<spec_shared*>(getSpecTclMemory(_hostname.c_str(), _port.c_str(), _mirror.c_str(), _user.c_str()));
   d->SetShMem(p);
 
+
   if (debug){
     d->PrintOffsets();
     DebugFillSpectra();
@@ -134,12 +138,12 @@ CPyConverter::Update(char* hostname, char* port, char* mirror, char* user)
   PyObject* data[lsize];
   PyObject* listData = PyList_New(lsize);
   
-  for (int i = 0; i < lsize; i++){
+for (int i = 0; i < lsize; i++){
     extractInfo(speclist[i]);
     // access histogram of id i
     addr = p->CreateSpectrum(m_id.at(i));
     // convert memory to np array
-    data[i] = ShMemToNpArray(addr, m_dim[i], m_binx[i], m_biny[i]);
+    data[i] = ShMemToNpArray(addr, m_dim[i], m_binx[i], m_biny[i], m_types[i]);
     // add nparray to a list
     PyList_SetItem(listData, i, data[i]);
   }
@@ -155,26 +159,42 @@ CPyConverter::Update(char* hostname, char* port, char* mirror, char* user)
   PyTuple_SetItem(result, 7, vectorToList_Float(m_miny));
   PyTuple_SetItem(result, 8, vectorToList_Float(m_maxy));
   PyTuple_SetItem(result, 9, listData);
+  // PyTuple_SetItem(result, 10, vectorToList_Int(m_types));
   
   return result;
   
 }
 
+
 PyObject*
-CPyConverter::ShMemToNpArray(void* addr, int size, int nbinx, int nbiny)
+CPyConverter::ShMemToNpArray(void* addr, int dim, int nbinx, int nbiny, int type)
 {
   PyArrayObject* data;
-
   import_array();
+  npy_intp specType = {type};
 
-  if (size == 1){
+  if (dim == 1){
     npy_intp dims = {nbinx};
-    data = (PyArrayObject*)PyArray_SimpleNewFromData(size, &dims, NPY_INT, addr);
+    if (specType == _onedlong){
+      data = (PyArrayObject*)PyArray_SimpleNewFromData(dim, &dims, NPY_INT, addr);
+    }
+    else if (specType == _onedword){
+      data = (PyArrayObject*)PyArray_SimpleNewFromData(dim, &dims, NPY_SHORT, addr);
+    }
   }
   else {
-    npy_intp dims[size] = {nbiny, nbinx};
-    data = (PyArrayObject*)PyArray_SimpleNewFromData(size, dims, NPY_INT, addr);
+    npy_intp dims[dim] = {nbiny, nbinx};
+    if (specType == _twodlong){
+      data = (PyArrayObject*)PyArray_SimpleNewFromData(dim, dims, NPY_INT, addr);
+    }
+    else if (specType == _twodword){
+      data = (PyArrayObject*)PyArray_SimpleNewFromData(dim, dims, NPY_SHORT, addr);
+    }
+    else if (specType == _twodbyte){
+      data = (PyArrayObject*)PyArray_SimpleNewFromData(dim, dims, NPY_BYTE, addr);
+    }
   }
+
   return (PyObject*)data;
 }
 

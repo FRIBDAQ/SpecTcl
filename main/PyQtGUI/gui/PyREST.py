@@ -118,7 +118,7 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/list?filter="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         spectrum_dict = json.loads(tmpl.decode())
-        return spectrum_dict["detail"]    
+        return spectrum_dict["detail"]
 
     # delete spectrum. the name parameter provides the name of the spectrum to delete
     def deleteSpectrum(self, name):
@@ -159,7 +159,7 @@ class PyREST:
     #     v - the number of counts for that channel
     
     def contentSpectrum(self, name):
-        url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/contents?"+str(name)
+        url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/contents?name="+str(name)
         tmpl = httplib2.Http().request(url)[1]
         spectrum_dict = json.loads(tmpl.decode())
         return spectrum_dict["detail"]
@@ -444,11 +444,12 @@ class PyREST:
     def getChannelContent(self, name, **kwargs):
         url = "http://"+self.server+":"+self.rest+"/spectcl/channel/get?spectrum="+str(name)+"&"
         for key, value in kwargs.items():
-            url += key+"="+value+"&"
+            url += key+"="+str(value)+"&"
         tmpl = httplib2.Http().request(url)[1]
         get_dict = json.loads(tmpl.decode())
         return get_dict["detail"]
-        
+
+
     # Spectrum channel values to be set. The arguments are:
     # spectrum (mandatory) - spectrum name
     # xchannel (mandatory) - X channel coordinate (NOT real coordinate)
