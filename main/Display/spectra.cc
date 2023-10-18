@@ -379,18 +379,19 @@ unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
 **/
 volatile unsigned int *spec_shared::getbase(int id) volatile
 {
+  size_t offset = dsp_offsets[id-1];
   volatile unsigned int *base;
   switch(gettype(id)) {
   case twodlong:
   case onedlong:
-    base =  &(dsp_spectra.XAMINE_l[dsp_offsets[id-1]]);
+    base =  &(dsp_spectra.XAMINE_l[offset]);
     break;
   case onedword:
   case twodword:
-    base =  (unsigned int *)&(dsp_spectra.XAMINE_w[dsp_offsets[id-1]]);
+    base =  (unsigned int *)&(dsp_spectra.XAMINE_w[offset]);
     break;
   case twodbyte:
-    base = (unsigned int *)&(dsp_spectra.XAMINE_b[dsp_offsets[id-1]]);
+    base = (unsigned int *)&(dsp_spectra.XAMINE_b[offset]);
     break;
   case undefined:
   default:
