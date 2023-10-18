@@ -797,13 +797,15 @@ void f77xamine_freememory_(int *loc)
 void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, const char *title,
 			     caddr_t loc, spec_type type)
 {
-  int channels;
-  int bpc;
-  int bytes;
+  unsigned int channels;
+  unsigned int bpc;
+  unsigned int bytes;
   unsigned long spec;
   unsigned long  base = (unsigned long)Xamine_memory->dsp_spectra.XAMINE_b;
-  int offset;
+  unsigned int offset;
 
+
+  
   /*
   ** Adjust the spectrum number and range check it:
   */
