@@ -74,14 +74,20 @@ class Plot(QWidget):
         self.histo_autoscale = QCheckBox("Autoscale",self)
         self.logButton = QPushButton("Log", self)
         self.logButton.setFixedWidth(50)
-        self.logButton.setStyleSheet("QPushButton { background-color: white }"
+        self.logButton.setStyleSheet("QPushButton { background-color: light gray }"
             "QPushButton:pressed { background-color: grey }" )
         self.plusButton = QPushButton("+", self)
         self.plusButton.setFixedWidth(50)
         self.minusButton = QPushButton("-", self)
         self.minusButton.setFixedWidth(50)
+        self.cutoffButton = QPushButton("Cutoff", self)
+        self.cutoffButton.setFixedWidth(70)
+        self.cutoffButton.setStyleSheet("QPushButton { background-color: light gray }"
+            "QPushButton:pressed { background-color: grey }" )
         self.customHomeButton = QPushButton("Reset", self)
         self.customHomeButton.setFixedWidth(70)
+
+
 
         spacer1 = QWidget()
         spacer1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -104,6 +110,7 @@ class Plot(QWidget):
         self.toolbar.addWidget(self.plusButton)
         self.toolbar.addWidget(self.minusButton)
         self.toolbar.addWidget(self.logButton)
+        self.toolbar.addWidget(self.cutoffButton)
         self.toolbar.addWidget(self.customHomeButton)
         self.toolbar.addWidget(spacer1)
         self.toolbar.addWidget(self.histoLabel)
