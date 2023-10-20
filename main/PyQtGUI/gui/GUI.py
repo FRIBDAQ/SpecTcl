@@ -2154,6 +2154,7 @@ class MainWindow(QMainWindow):
             #Following two lines work for "small" array, replaced by custom function
             #maximum = truncData.max()
             #minimum = np.min(truncData[np.nonzero(truncData)])
+            # minimum, maximum = self.customMinMax(data, binminy, binmaxy, binminx, binmaxx)
             minimum, maximum = self.customMinMax(data[binminy:binmaxy+1, binminx:binmaxx+1], binminy, binmaxy, binminx, binmaxx)
             result = minimum, maximum
         return result
@@ -2161,8 +2162,11 @@ class MainWindow(QMainWindow):
     # Have seen malloc error if data array too large
     # Divide data array in sub-arrays with sub-(min, max) and then find the global-(min, max)
     def customMinMax(self, data, binminy, binmaxy, binminx, binmaxx):
-        diffX = binmaxx - binminx
-        diffY = binmaxy - binminy
+        # print("Simon - customMinMax data ",data, data.shape)
+        # diffX = binmaxx - binminx
+        # diffY = binmaxy - binminy
+        diffX = data.shape[1] 
+        diffY = data.shape[0] 
         if diffX < 200 and diffY < 200:
             maximum = data.max()
             minimum = np.min(data[np.nonzero(data)])
@@ -2170,24 +2174,38 @@ class MainWindow(QMainWindow):
         else :
             stepX = diffX if diffX < 200 else 200
             stepY = diffY if diffY < 200 else 200
-            rangeX = list(range(binminx, binmaxx, stepX))
-            rangeY = list(range(binminy, binmaxy, stepY))
+            # rangeX = list(range(binminx, binmaxx, stepX))
+            # rangeY = list(range(binminy, binmaxy, stepY))
+            rangeX = list(range(0, data.shape[1], stepX))
+            rangeY = list(range(0, data.shape[0], stepY))
             subMax = []
             subMin = []
-            yprev = binmaxy+1
-            xprev = binmaxx+1
+            # yprev = binmaxy+1
+            # xprev = binmaxx+1
+            yprev = data.shape[0]+1
+            xprev = data.shape[1]+1
+            # print("Simon - customMinMax -", binminy, binmaxy, binminx, binmaxx,rangeX,rangeY)
             for x in rangeX[::-1]:
                 for y in rangeY[::-1]:
                     subData = data[y:yprev,x:xprev]
-                    nonZeroIndices = np.where(subData != 0)
+                    nonZeroIndices = np.where(subData > 0)
                     filteredSubData = subData[nonZeroIndices]
+                    # print("Simon - customMinMax in for-",y,yprev,x,xprev, nonZeroIndices, filteredSubData, filteredSubData.size)
+                    # print("Simon - customMimAx in for ",subData)
                     if filteredSubData is not None and filteredSubData.size > 0:
                         subMax.append(filteredSubData.max())
                         subMin.append(filteredSubData.min())
                     yprev = y
                 xprev = x
-            minimum = min(subMin)
-            maximum = max(subMax)
+            # print("Simon - customMinMax in for-", subMin, subMax)
+            if len(subMin) == 0:
+                minimum = self.minZ
+            if len(subMax) == 0:
+                minimum = self.maxZ
+            elif len(subMin)>0 and len(subMax)>0 :
+                minimum = min(subMin)
+                maximum = max(subMax)
+            # print("Simon - customMinMax end")
             return minimum, maximum
 
 
