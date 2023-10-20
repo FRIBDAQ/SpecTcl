@@ -51,6 +51,7 @@ import matplotlib.mlab as mlab
 import matplotlib.image as mpimg
 import matplotlib.gridspec as gridspec
 import matplotlib.colorbar as mcolorbar
+import matplotlib.colors as colors
 from matplotlib.backend_bases import *
 from matplotlib.artist import Artist
 
@@ -836,18 +837,19 @@ class MainWindow(QMainWindow):
                 n = canvasLayout[0]*canvasLayout[1]
                 self.currentPlot.h_setup = {k: True for k in range(n)}
                 self.currentPlot.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
-                for index in range(n):
-                    self.add(index)
-                    self.currentPlot.h_setup[index] = False
-                    ax = self.getSpectrumInfo("axis", index=index)
-                    self.plotPlot(ax, index)
-                    #reset the axis limits as it was before enlarge
-                    #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
-                    dim = self.getSpectrumInfoREST("dim", index=index)
-                    if dim == 1:
-                        self.setAxisScale(ax, index, "x", "y")
-                    elif dim == 2:
-                        self.setAxisScale(ax, index, "x", "y", "z")
+                for index, name in self.getGeo().items():
+                    if name is not None and name != "" and name != "empty":
+                        self.add(index)
+                        self.currentPlot.h_setup[index] = False
+                        ax = self.getSpectrumInfo("axis", index=index)
+                        self.plotPlot(ax, index)
+                        #reset the axis limits as it was before enlarge
+                        #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
+                        dim = self.getSpectrumInfoREST("dim", index=index)
+                        if dim == 1:
+                            self.setAxisScale(ax, index, "x", "y")
+                        elif dim == 2:
+                            self.setAxisScale(ax, index, "x", "y", "z")
                 
                 #drawing back the dashed red rectangle on the unenlarged spectrum
                 self.removeRectangle()
@@ -940,9 +942,11 @@ class MainWindow(QMainWindow):
         if self.cutoffp.lineeditMax.text() != "" and self.cutoffp.lineeditMax.text().isdigit():
             cutoffVal[1] = float(cutoffMax)
             self.setSpectrumInfo(cutoff=cutoffVal, index=index)
-        else:
-            print("okCutoff - wrong min/max cutoff fomat, expect just a number per field")
-            return
+        #Order may be inverted
+        if cutoffVal[0] is not None and cutoffVal[1] is not None and cutoffVal[1] < cutoffVal[0]:
+            cutoffVal = [cutoffVal[1], cutoffVal[0]]
+            self.setSpectrumInfo(cutoff=cutoffVal, index=index)
+            print("okCutoff - Warning - cutoff values swapped because min > max")
         self.updatePlot()
         self.cutoffp.close()
 
@@ -1520,6 +1524,7 @@ class MainWindow(QMainWindow):
                 print("before cpy.CPyConverter().Update")
             s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'), bytes(mirror, encoding='utf-8'), bytes(user, encoding='utf-8'))
 
+            
             # creates a dataframe for spectrum info
             # use the spectrum name to merge both sources (REST and shared memory) of spectrum info
             # info = {"id":[],"names":[],"dim":[],"binx":[],"minx":[],"maxx":[],"biny":[],"miny":[],"maxy":[],"data":[],"parameters":[],"type":[]}
@@ -1931,7 +1936,8 @@ class MainWindow(QMainWindow):
                 if axisIsAutoScale:
                     #search in the current view
                     xmin, xmax = ax.get_xlim()
-                    ymax = self.getMaxInRange(index, xmin=xmin, xmax=xmax)
+                    #getMinMaxInRange returns only max for 1d 
+                    ymax = self.getMinMaxInRange(index, xmin=xmin, xmax=xmax)
                 if axisIsLog:
                     if ymin <= 0:
                         ymin = 0.001
@@ -1959,24 +1965,55 @@ class MainWindow(QMainWindow):
                 zmin = self.getSpectrumInfo("minz", index=index)
                 zmax = self.getSpectrumInfo("maxz", index=index)
                 spectrum = self.getSpectrumInfo("spectrum", index=index)
-                if (not zmin or zmin is None or zmin == 0) and (not zmax or zmax is None or zmax == 0):
+                if (not zmin or zmin is None or zmin==0) and (not zmax or zmax is None or zmax==0):
                     zmin = self.minZ
                     zmax = self.maxZ
                 if axisIsAutoScale:
                     #search in the current view
                     xmin, xmax = ax.get_xlim()
                     ymin, ymax = ax.get_ylim()
-                    zmax = self.getMaxInRange(index, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)
+                    #getMinMaxInRange returns min and max for 2d 
+                    zmin, zmax = self.getMinMaxInRange(index, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)
                     self.setSpectrumInfo(maxz=zmax, index=index)
                     self.setSpectrumInfo(minz=zmin, index=index)
-                if axisIsLog:
-                    if zmin and zmin <= 0 :
-                        zmin = 0.001
-                    zmin = math.log10(zmin)
-                    zmax = math.log10(zmax)
                 spectrum.set_clim(vmin=zmin, vmax=zmax)
+                if axisIsLog:
+                    self.setCmapNorm("log", index)
+                else :
+                    #linearCentered not used so far but could be user choice 
+                    #while testing linearCentered notice that it is not well compatible with cutoff
+                    #self.setCmapNorm("linearCentered", index)
+                    self.setCmapNorm("linear", index)
                 self.setSpectrumInfo(spectrum=spectrum, index=index)
                 #Dont want to save z limits in spectrum info because in log: z_new = f(z_old)
+
+    def setCmapNorm(self, scale, index):
+        validScales = ["linear", "log", "linearCentered"]
+        if scale not in validScales or index is None:
+            return
+        spectrum = self.getSpectrumInfo("spectrum", index=index)
+        zmin, zmax = spectrum.get_clim()
+
+        if scale is validScales[0]:
+            spectrum.set_norm(colors.Normalize(vmin=zmin, vmax=zmax))
+        elif scale is validScales[1]:
+            if zmin and zmin <= 0 :
+                zmin = 0.001
+                print("setCmapNorm - warning - LogNorm with zmin<=0, may want to use CenteredNorm")
+            spectrum.set_norm(colors.LogNorm(vmin=zmin, vmax=zmax))
+        elif scale is validScales[2]:
+            palette = copy(plt.cm.jet)
+            palette.set_bad(color='white')
+            data = self.getSpectrumInfo("data", index=index)
+            spectrum.set_cmap(palette)
+            # set vcenter to variable set by user
+            spectrum.set_norm(centeredNorm(data,50000))
+        if self.getEnlargedSpectrum() is None:
+            ax = spectrum.axes
+            self.removeCb(ax)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            self.currentPlot.figure.colorbar(spectrum, cax=cax, orientation='vertical')
 
 
     def zoom(self, ax, index, flag):
@@ -2063,9 +2100,9 @@ class MainWindow(QMainWindow):
             else:
                 for index, name in self.getGeo().items():
                     if name:
-                        ax = self.select_plot(index)
+                        #ax = self.select_plot(index)
+                        ax = self.getSpectrumInfo("axis", index=index)
                         dim = self.getSpectrumInfoREST("dim", index=index)
-
                         #Set y for 1D and z for 2D.
                         #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
                         if dim == 1:
@@ -2079,10 +2116,10 @@ class MainWindow(QMainWindow):
 
     # get data max within user defined range
     # For 2D have to give two ranges (x,y), for 1D range x.
-    def getMaxInRange(self, index, **limits):
+    def getMinMaxInRange(self, index, **limits):
         result = None
         if not limits :
-            print("getMaxInRange - limits identifier not valid - expect xmin=val, xmax=val etc. for y with 2D")
+            print("getMinMaxInRange - limits identifier not valid - expect xmin=val, xmax=val etc. for y with 2D")
             return
         if "xmin" and "xmax" in limits:
             xmin = limits["xmin"]
@@ -2112,9 +2149,46 @@ class MainWindow(QMainWindow):
             stepy = (float(maxy)-float(miny))/float(biny)
             binminy = int((ymin-miny)/stepy)
             binmaxy = int((ymax-miny)/stepy)
-            #Dont increase by 10% here...
-            result = data[binminy:binmaxy+1, binminx:binmaxx+1].max()
+            #Dont increase max by 10% here...
+            #truncData = data[binminy:binmaxy+1, binminx:binmaxx+1]
+            #Following two lines work for "small" array, replaced by custom function
+            #maximum = truncData.max()
+            #minimum = np.min(truncData[np.nonzero(truncData)])
+            minimum, maximum = self.customMinMax(data[binminy:binmaxy+1, binminx:binmaxx+1], binminy, binmaxy, binminx, binmaxx)
+            result = minimum, maximum
         return result
+
+    # Have seen malloc error if data array too large
+    # Divide data array in sub-arrays with sub-(min, max) and then find the global-(min, max)
+    def customMinMax(self, data, binminy, binmaxy, binminx, binmaxx):
+        diffX = binmaxx - binminx
+        diffY = binmaxy - binminy
+        if diffX < 200 and diffY < 200:
+            maximum = data.max()
+            minimum = np.min(data[np.nonzero(data)])
+            return minimum, maximum
+        else :
+            stepX = diffX if diffX < 200 else 200
+            stepY = diffY if diffY < 200 else 200
+            rangeX = list(range(binminx, binmaxx, stepX))
+            rangeY = list(range(binminy, binmaxy, stepY))
+            subMax = []
+            subMin = []
+            yprev = binmaxy+1
+            xprev = binmaxx+1
+            for x in rangeX[::-1]:
+                for y in rangeY[::-1]:
+                    subData = data[y:yprev,x:xprev]
+                    nonZeroIndices = np.where(subData != 0)
+                    filteredSubData = subData[nonZeroIndices]
+                    if filteredSubData is not None and filteredSubData.size > 0:
+                        subMax.append(filteredSubData.max())
+                        subMin.append(filteredSubData.min())
+                    yprev = y
+                xprev = x
+            minimum = min(subMin)
+            maximum = max(subMax)
+            return minimum, maximum
 
 
     def getAxisProperties(self, index):
@@ -2151,17 +2225,20 @@ class MainWindow(QMainWindow):
             ax.set_xlim(xmin, xmax)
             if dim == 1:
                 #Similar to autoscale, in principle ymin and ymax are not defined in ReST for 1D so set to ymin=0 and autoscale for ymax
-                ymax = self.getMaxInRange(idx, xmin=xmin, xmax=xmax)
+                #getMinMaxInRange gives only min for 1d
+                ymax = self.getMinMaxInRange(idx, xmin=xmin, xmax=xmax)
                 ax.set_ylim(ymin, ymax)
                 if self.getSpectrumInfo("log", index=idx) :
                     ax.set_yscale("linear")
             # y limits should be known at this point for both cases 1D/2D
             if dim == 2:
                 ax.set_ylim(ymin, ymax)  
-                zmax = self.getMaxInRange(idx, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)
-                spectrum.set_clim(vmin=self.minZ, vmax=zmax)
+                #getMinMaxInRange gives min and max for 2d
+                zmin, zmax = self.getMinMaxInRange(idx, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)
+                spectrum.set_clim(vmin=zmin, vmax=zmax)
+                self.setCmapNorm("linear", idx)
                 self.setSpectrumInfo(maxz=zmax, index=idx)
-                self.setSpectrumInfo(minz=self.minZ, index=idx)
+                self.setSpectrumInfo(minz=zmin, index=idx)
                 
             self.setSpectrumInfo(log=None, index=idx)
             self.setSpectrumInfo(minx=xmin, index=idx)
@@ -2315,7 +2392,7 @@ class MainWindow(QMainWindow):
     def select_plot(self, index):
         for i, axis in enumerate(self.currentPlot.figure.axes):
             # retrieve the subplot from the click
-            if (i == index):
+            if (i == index and axis is not None):
                 return axis
 
 
@@ -2381,7 +2458,7 @@ class MainWindow(QMainWindow):
                             w = np.ma.masked_where(w < maxCutoff, w)
                         if dim == 2:
                             w = np.ma.masked_where(w < maxCutoff, w)
-            #used in getMaxInRange to take into account also the cutoff if there is one
+            #used in getMinMaxInRange to take into account also the cutoff if there is one
             self.setSpectrumInfo(data=w, index=index)
 
             # update axis
@@ -2406,15 +2483,21 @@ class MainWindow(QMainWindow):
                 # empty data for initialization
                 if w is None:
                     w = np.zeros((int(binx), int(biny))) 
+
                 # setup up palette
-                if (self.wConf.button2D_option.currentText() == 'Dark'):
-                    #self.palette = 'plasma'
-                    self.palette = 'plasma_r'
-                else:
-                    self.palette = copy(plt.cm.plasma)
-                    w = np.ma.masked_where(w < 0.1, w)
-                    self.palette.set_bad(color='white')
+                # for later ...
+                # if (self.wConf.button2D_option.currentText() == 'Dark'):
+                #     #self.palette = 'plasma'
+                #     self.palette = 'plasma_r'
+                # else:
+                #     self.palette = copy(plt.cm.plasma)
+                #     w = np.ma.masked_where(w < 0.1, w)
+                #     self.palette.set_bad(color='white')
                 
+                self.palette = copy(plt.cm.plasma)
+                w = np.ma.masked_where(w == 0, w)
+                self.palette.set_bad(color='white')
+
                 #check if enlarged mode, dont want to modify spectrum dict in enlarged mode
                 self.setSpectrumInfo(spectrum=axis.imshow(w,
                                                             interpolation='none',
@@ -2440,7 +2523,7 @@ class MainWindow(QMainWindow):
 
 
     # geometrically add plots to the right place and calls plotting
-    # should be called only by addPlot and on_dblclick when entering enlarged mode
+    # should be called only by addPlot and on_dblclick when entering/exiting enlarged mode
     def add(self, index):
         a = None
         #cannot use getSpectrumAxes here because the underlying list is built in setupPlot
@@ -2518,6 +2601,10 @@ class MainWindow(QMainWindow):
                 self.currentPlot.h_limits[index] = {}
                 self.currentPlot.h_setup[index] = True
                 self.add(index)
+                #When add with button "add" the default state is unlog
+                self.currentPlot.logButton.setDown(False)
+                #Reset log
+                self.setSpectrumInfo(log=False, index=index)
                 # if gate in gateList:
                 self.drawAllGates()
                 #draw dashed red rectangle to indicate where the next plot would be added, based on next_plot_index, selected_plot_index is unchanged.
@@ -2546,7 +2633,7 @@ class MainWindow(QMainWindow):
     # fill spectrum with new data
     # called in addPlot and updatePlot
     # dont actually draw the plot in this function
-    def plotPlot(self, axis, index, threshold=0.1):
+    def plotPlot(self, axis, index):
         currentPlot = self.currentPlot
         if (DEBUG):
             print("Inside plotPlot")
@@ -2578,7 +2665,7 @@ class MainWindow(QMainWindow):
                         w = np.ma.masked_where(w > maxCutoff, w)
         if w is None or len(w) <= 0:
             return
-        #used in getMaxInRange to take into account also the cutoff if there is one
+        #used in getMinMaxInRange to take into account also the cutoff if there is one
         self.setSpectrumInfo(data=w, index=index)
 
         if dim == 1:
@@ -2589,8 +2676,9 @@ class MainWindow(QMainWindow):
         else:
             if (DEBUG):
                 print("2d case..")
-            if (self.wConf.button2D_option.currentText() == 'Light'):
-                w = np.ma.masked_where(w < threshold, w)
+            # color modes for later...
+            # if (self.wConf.button2D_option.currentText() == 'Light'):
+            w = np.ma.masked_where(w == 0, w)
             spectrum.set_data(w)
         self.setSpectrumInfo(spectrum=spectrum, index=index)
         self.currentPlot = currentPlot
@@ -3630,15 +3718,15 @@ class MainWindow(QMainWindow):
                 # set minZ/maxZ
                 if dim == 2 and (flags[3] or flags[4]):
                     #unlog the zlim_src because setAxisScale in updatePlot will apply log() to the limits (twice if dont unlog first...)
-                    if scale_src_bool:
-                        #setAxisScale dont save zlim in the dictionnary...
-                        zmin = 10**(zlim_src[0])
-                        zmax = 10**(zlim_src[1])
-                        self.setSpectrumInfo(minz=zmin, index=index)
-                        self.setSpectrumInfo(maxz=zmax, index=index)
-                    else:
-                        self.setSpectrumInfo(minz=zlim_src[0], index=index)
-                        self.setSpectrumInfo(maxz=zlim_src[1], index=index)
+                    # if scale_src_bool:
+                    #     #setAxisScale dont save zlim in the dictionnary...
+                    #     zmin = 10**(zlim_src[0])
+                    #     zmax = 10**(zlim_src[1])
+                    #     self.setSpectrumInfo(minz=zmin, index=index)
+                    #     self.setSpectrumInfo(maxz=zmax, index=index)
+                    # else:
+                    self.setSpectrumInfo(minz=zlim_src[0], index=index)
+                    self.setSpectrumInfo(maxz=zlim_src[1], index=index)
             self.updatePlot()
         except:
             pass
@@ -4319,3 +4407,8 @@ class cutoffPopup(QDialog):
         mainLayout.addLayout(buttonsLayout, 2, 0, 1, 0)
         self.setLayout(mainLayout)
 
+class centeredNorm(colors.Normalize):
+    def __init__(self, data, vcenter=0, halfrange=None, clip=False):
+        if halfrange is None:
+            halfrange = np.max(np.abs(data - vcenter))
+        super().__init__(vmin=vcenter - halfrange, vmax=vcenter + halfrange, clip=clip)
