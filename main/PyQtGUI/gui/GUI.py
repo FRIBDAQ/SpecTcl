@@ -457,19 +457,19 @@ class MainWindow(QMainWindow):
             if self.getSpectrumInfoREST("dim", index=index) == 1:
                 if self.getSpectrumInfoREST("type", index=index) == "g1" :
                     xTitle = self.getSpectrumInfoREST("parameters", index=index)[0] + ", ..."
-                self.currentPlot.histoLabel.setText("Histogram: "+self.nameFromIndex(index)+"\nX: "+xTitle)
-                self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.0f}")
+                self.currentPlot.histoLabel.setText("Spectrum: "+self.nameFromIndex(index)+"\nX: "+xTitle)
+                self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.0f} Count: {coordinates[2]:.0f}")
             elif self.getSpectrumInfoREST("dim", index=index) == 2:
                 yTitle = self.getSpectrumInfoREST("parameters", index=index)[1]
                 if self.getSpectrumInfoREST("type", index=index) == "g2" or self.getSpectrumInfoREST("type", index=index) == "m2" or self.getSpectrumInfoREST("type", index=index) == "gd":
                     xTitle = self.getSpectrumInfoREST("parameters", index=index)[0] + ", ..."
                     yTitle = self.getSpectrumInfoREST("parameters", index=index)[1] + ", ..."
-                self.currentPlot.histoLabel.setText("Histogram: "+self.nameFromIndex(index)+"\nX: "+xTitle+" Y: "+yTitle) 
-                self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.2f}  Z: {coordinates[2]:.0f}")        
+                self.currentPlot.histoLabel.setText("Spectrum: "+self.nameFromIndex(index)+"\nX: "+xTitle+" Y: "+yTitle) 
+                self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.2f}  Count: {coordinates[2]:.0f}")        
                 if self.getSpectrumInfoREST("type", index=index) == "s" :
                     xTitle = self.getSpectrumInfoREST("parameters", index=index)[0] + ", ..."
-                    self.currentPlot.histoLabel.setText("Histogram: "+self.nameFromIndex(index)+"\nX: "+xTitle) 
-                    self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.2f}  Z: {coordinates[2]:.0f}") 
+                    self.currentPlot.histoLabel.setText("Spectrum: "+self.nameFromIndex(index)+"\nX: "+xTitle) 
+                    self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.2f}  Count: {coordinates[2]:.0f}") 
         except:
             pass
 
@@ -491,10 +491,9 @@ class MainWindow(QMainWindow):
             binminx = int((x-minx)/stepx)
             if dim == 1:
                 if "coordinates" == info:
-                    #shift of 1 to investigate...
-                    y = data[binminx+1:binminx+2]
+                    count = data[binminx+1:binminx+2]
                     # y = data[binminx:binminx+1]
-                    result = [x,y[0],'']
+                    result = [x,y,count[0]]
                 elif "bins" == info:
                     result = [binminx,'','']
             elif dim == 2:
