@@ -37,6 +37,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtTest import *
 
+
 from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
@@ -310,6 +311,7 @@ class MainWindow(QMainWindow):
 
         # zoom callback
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[1].triggered.connect(self.zoomCallback)
+
         # copy properties
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
         # summing region
@@ -378,6 +380,11 @@ class MainWindow(QMainWindow):
         self.wConf.histo_list.installEventFilter(self)
         self.wConf.listGate.installEventFilter(self)
         self.wConf.listGate.installEventFilter(self)
+
+        # Hotkeys
+        # zoom (click-drag)
+        self.shortcutZoomDrag = QShortcut(QKeySequence("Alt+Z"), self)
+        self.shortcutZoomDrag.activated.connect(self.zoomKeyCallback)
 
         self.currentPlot = self.wTab.wPlot[self.wTab.currentIndex()] # definition of current plot
 
@@ -519,6 +526,12 @@ class MainWindow(QMainWindow):
         self.currentPlot.canvas.draw()
 
 
+    #Hotkey triggering toolbar zoom action 
+    def zoomKeyCallback(self):
+        self.currentPlot.canvas.toolbar.actions()[1].triggered.emit()
+        self.currentPlot.canvas.toolbar.actions()[1].setChecked(True)
+
+
     # Introduced for endding zoom action (toolbar) on release
     # For this purpose dont need to check if release outside of axis (it can happen)
     # small delay introduced such that updatePlotLimits is executed after on_release.
@@ -532,9 +545,11 @@ class MainWindow(QMainWindow):
             self.currentPlot.zoomPress = False
 
 
+
     # when mouse pressed in main window
     # Introduced for endding zoom action (toolbar) see on_release and on_press too
     def mousePressEvent(self, event: QMouseEvent) -> None:
+        # print("Simon - mousePressEvent - ",self.currentPlot.zoomPress,self.currentPlot.canvas.toolbar.actions()[1].isChecked())
         if not self.currentPlot.zoomPress : return 
         #height and width determined empirically... better if overestimated because event handled by on_press in that case
         #these values doesnt change with window resizing but could change if decide to change the layout.
@@ -556,6 +571,7 @@ class MainWindow(QMainWindow):
 
 
     def on_press(self, event):
+        # print("Simon - on_press - ",self.currentPlot.zoomPress,self.currentPlot.canvas.toolbar.actions()[1].isChecked())
         #if initate zoom (magnifying glass) but dont press in axes, reset the action
         if self.currentPlot.zoomPress and not event.inaxes: 
             self.currentPlot.canvas.toolbar.actions()[1].triggered.emit()
@@ -2777,6 +2793,7 @@ class MainWindow(QMainWindow):
         ax = None
         index = self.currentPlot.selected_plot_index
         ax = self.getSpectrumInfo("axis", index=index)
+        if ax is None : return
         im = ax.images
 
         time.sleep(sleepTime)
