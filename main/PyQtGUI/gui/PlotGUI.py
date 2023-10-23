@@ -77,9 +77,9 @@ class Plot(QWidget):
         self.logButton.setStyleSheet("QPushButton { background-color: light gray }"
             "QPushButton:pressed { background-color: grey }" )
         self.plusButton = QPushButton("+", self)
-        self.plusButton.setFixedWidth(50)
+        self.plusButton.setFixedWidth(30)
         self.minusButton = QPushButton("-", self)
-        self.minusButton.setFixedWidth(50)
+        self.minusButton.setFixedWidth(30)
         self.cutoffButton = QPushButton("Cutoff", self)
         self.cutoffButton.setFixedWidth(70)
         self.cutoffButton.setStyleSheet("QPushButton { background-color: light gray }"
