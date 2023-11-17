@@ -105,13 +105,14 @@ class Configuration(QGridLayout):
             self.button2D_option.addItem("Dark")
 
             #Gate menu
-            self.gate_list_label = QLabel("   Gate")            
-            self.gate_list_label.setFixedWidth(40)            
-            self.listGate = QComboBox()
-            self.listGate.setFixedWidth(125) 
-            self.listGate_type_label = QLabel("  ")
-            self.listGate_type_label.setFixedWidth(20)
-            self.listGate_type = ["s", "c", "b", "gs", "gc", "gb"]
+            # self.gate_list_label = QLabel("   Gate")            
+            # self.gate_list_label.setFixedWidth(40)            
+            # self.listGate = QComboBox()
+            # self.listGate.setFixedWidth(125) 
+            # self.listGate_type_label = QLabel("  ")
+            # self.listGate_type_label.setFixedWidth(20)
+            # self.listGate_type = ["s", "c", "b", "gs", "gc", "gb"]
+
             # self.listGate_type.addItem("s")
             # self.listGate_type.addItem("c")
             # self.listGate_type.addItem("b")
@@ -167,9 +168,9 @@ class Configuration(QGridLayout):
             spectrumLayout.addWidget(self.histo_geo_add)
             spectrumLayout.addWidget(self.histo_geo_update)
 
-            gateLayout.addWidget(self.gate_list_label)
-            gateLayout.addWidget(self.listGate)
-            gateLayout.addWidget(self.listGate_type_label)
+            # gateLayout.addWidget(self.gate_list_label)
+            # gateLayout.addWidget(self.listGate)
+            # gateLayout.addWidget(self.listGate_type_label)
             gateLayout.addWidget(self.createGate)
             # gateLayout.addWidget(self.editGate)
             gateLayout.addWidget(self.integrateGate)
