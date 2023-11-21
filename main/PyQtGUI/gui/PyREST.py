@@ -196,7 +196,6 @@ class PyREST:
     # delete gate. the name parameter provides the name of the gate to delete
     def deleteGate(self, name):
         url = "http://"+self.server+":"+self.rest+"/spectcl/gate/delete?name="+str(name)
-
         self.sendRequest(url)
 
     # edit/create gate. It creates or redefines an existing gate. The name parameter specifies the name of the gate.
@@ -208,7 +207,7 @@ class PyREST:
     def createGate(self, name, types, parameters, boundaries, maskval="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/gate/edit?name="+str(name)+"&type="+str(types)
         if str(types) == "s": # slice
-            url += "&parameter="+str(parameters)+"&low="+str(boundaries[0])+"&high="+str(boundaries[1])
+            url += "&parameter="+str(parameters[0])+"&low="+str(boundaries[0])+"&high="+str(boundaries[1])
         elif str(types) == "gs": # gamma slice
             for i in parameters:
                 url += "&parameter="+str(i)
@@ -224,7 +223,11 @@ class PyREST:
                 url += "&xcoord="+str(point["x"])+"&ycoord="+str(point["y"])
         elif (str(types) == "em" or str(types) == "am" or str(types) == "nm"):  # bit mask
             url += "&parameter="+str(parameters)+"&value="+str(maskval)
-
+        #want + gate here for c and b gates on m2 spectrum (for cutiepie)
+        elif str(types) == "+":
+            url = "http://"+self.server+":"+self.rest+"/spectcl/gate/edit?name="+str(name)+"&type=%2B"
+            for i in parameters:
+                url +="&gate="+str(i)
         self.sendRequest(url)
 
     # Creates a simple 1d gate. This must be of type s or gs. It can have one or more parameters. The query parameters are:
@@ -285,7 +288,7 @@ class PyREST:
     # gate - name of the gate applied. If the value is -TRUE-, the spectrum has not gate applied
     
     def applylistgate(self, pattern="*"):
-        url = "http://"+self.server+":"+self.rest+"/spectcl/apply/list?filter="+str(pattern)
+        url = "http://"+self.server+":"+self.rest+"/spectcl/apply/list?pattern="+str(pattern)
         tmpl = httplib2.Http().request(url)[1]
         gate_dict = json.loads(tmpl.decode())
         return gate_dict["detail"]
@@ -904,7 +907,12 @@ class PyREST:
     
     def sendRequest(self, url):
         try:
-            httplib2.Http().request(url, method="GET")[1] # SpecTclREST only takes GET methods.
+            response = httplib2.Http().request(url, method="GET")[1] # SpecTclREST only takes GET methods.
+            #May have other bad keywords
+            badKeyWords = ["bad parameter", "Invalid gate"]
+            for kw in badKeyWords :
+                if kw in str(response) :
+                    print("Error - PyREST - sendRequest - suspicious REST request status ", response)
         except Exception as e:
             print(e.message, e.args)
             

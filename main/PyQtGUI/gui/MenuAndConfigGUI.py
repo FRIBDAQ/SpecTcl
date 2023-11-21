@@ -105,13 +105,14 @@ class Configuration(QGridLayout):
             self.button2D_option.addItem("Dark")
 
             #Gate menu
-            self.gate_list_label = QLabel("   Gate")            
-            self.gate_list_label.setFixedWidth(40)            
-            self.listGate = QComboBox()
-            self.listGate.setFixedWidth(125) 
-            self.listGate_type_label = QLabel("  ")
-            self.listGate_type_label.setFixedWidth(20)
-            self.listGate_type = ["s", "c", "b", "gs", "gc", "gb"]
+            # self.gate_list_label = QLabel("   Gate")            
+            # self.gate_list_label.setFixedWidth(40)            
+            # self.listGate = QComboBox()
+            # self.listGate.setFixedWidth(125) 
+            # self.listGate_type_label = QLabel("  ")
+            # self.listGate_type_label.setFixedWidth(20)
+            # self.listGate_type = ["s", "c", "b", "gs", "gc", "gb"]
+
             # self.listGate_type.addItem("s")
             # self.listGate_type.addItem("c")
             # self.listGate_type.addItem("b")
@@ -120,21 +121,26 @@ class Configuration(QGridLayout):
             # self.listGate_type.addItem("gb")
             # self.listGate_type.setCurrentIndex(-1)
 
-            self.createGate = QPushButton("Create")
+            self.createGate = QPushButton("Gate")
             self.createGate.setFixedWidth(85)
-            self.createGate.setStyleSheet("background-color:#ffc7fd;")        
+            self.createGate.setStyleSheet("background-color:#ffc7fd;")       
 
-            self.editGate = QPushButton("Modify")
-            self.editGate.setFixedWidth(85)
-            self.menu = QMenu()
-            self.menu.addAction('Drag', self.drag)
-            self.menu.addAction('Edit', self.edit)
-            self.editGate.setMenu(self.menu)
-            self.editGate.setStyleSheet("background-color:#ffc7fd;")  
+            self.createSumRegionButton = QPushButton("Sum. Region")
+            self.createSumRegionButton.setFixedWidth(85)
+            self.createSumRegionButton.setStyleSheet("background-color:#ffc7fd;") 
 
-            self.integrateGate = QPushButton("Integrate")
-            self.integrateGate.setFixedWidth(85)
-            self.integrateGate.setStyleSheet("background-color:#9f79ee;")
+            # self.editGate = QPushButton("Modify")
+            # self.editGate.setFixedWidth(85)
+            # self.menu = QMenu()
+            # #For 1d: Edit, for 2d: Drag and edit 
+            # self.menu.addAction('Drag', self.drag)
+            # self.menu.addAction('Edit', self.edit)
+            # self.editGate.setMenu(self.menu)
+            # self.editGate.setStyleSheet("background-color:#ffc7fd;")  
+
+            self.integrateGateAndRegion = QPushButton("Integrate")
+            self.integrateGateAndRegion.setFixedWidth(85)
+            self.integrateGateAndRegion.setStyleSheet("background-color:#9f79ee;")
 
             self.extraButton = QPushButton("Extra")
             self.extraButton.setFixedWidth(85)
@@ -166,12 +172,9 @@ class Configuration(QGridLayout):
             spectrumLayout.addWidget(self.histo_geo_add)
             spectrumLayout.addWidget(self.histo_geo_update)
 
-            gateLayout.addWidget(self.gate_list_label)
-            gateLayout.addWidget(self.listGate)
-            gateLayout.addWidget(self.listGate_type_label)
             gateLayout.addWidget(self.createGate)
-            gateLayout.addWidget(self.editGate)
-            gateLayout.addWidget(self.integrateGate)
+            gateLayout.addWidget(self.createSumRegionButton)
+            gateLayout.addWidget(self.integrateGateAndRegion)
 
             othersLayout.addWidget(self.extraButton)
             othersLayout.addWidget(self.exitButton)
