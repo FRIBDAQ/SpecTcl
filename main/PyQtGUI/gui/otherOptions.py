@@ -8,6 +8,7 @@ import matplotlib.cm as cm
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import CPyConverter as cpy
+from PyQt5.QtCore import Qt
 
 class options(QDialog):
 
@@ -21,10 +22,12 @@ class options(QDialog):
         self.gateEditDisable = QCheckBox("Disable gate edition",self)
         self.gateHide = QCheckBox("Hide gate",self)
 
+
         layout = QGridLayout()
-        layout.addWidget(self.gateAnnotation)
-        layout.addWidget(self.gateEditDisable)
-        layout.addWidget(self.gateHide)
+        layout.addWidget(self.gateAnnotation, 1, 1, 1, 1)
+        layout.addWidget(self.gateEditDisable, 2, 1, 1, 1)
+        layout.addWidget(self.gateHide, 3, 1, 1, 1)
+        layout.setAlignment(Qt.AlignTop)
         pCheck.setLayout(layout)
 
         return pCheck

@@ -123,7 +123,11 @@ class Configuration(QGridLayout):
 
             self.createGate = QPushButton("Gate")
             self.createGate.setFixedWidth(85)
-            self.createGate.setStyleSheet("background-color:#ffc7fd;")        
+            self.createGate.setStyleSheet("background-color:#ffc7fd;")       
+
+            self.createSumRegionButton = QPushButton("Sum. Region")
+            self.createSumRegionButton.setFixedWidth(85)
+            self.createSumRegionButton.setStyleSheet("background-color:#ffc7fd;") 
 
             # self.editGate = QPushButton("Modify")
             # self.editGate.setFixedWidth(85)
@@ -134,9 +138,9 @@ class Configuration(QGridLayout):
             # self.editGate.setMenu(self.menu)
             # self.editGate.setStyleSheet("background-color:#ffc7fd;")  
 
-            self.integrateGate = QPushButton("Integrate")
-            self.integrateGate.setFixedWidth(85)
-            self.integrateGate.setStyleSheet("background-color:#9f79ee;")
+            self.integrateGateAndRegion = QPushButton("Integrate")
+            self.integrateGateAndRegion.setFixedWidth(85)
+            self.integrateGateAndRegion.setStyleSheet("background-color:#9f79ee;")
 
             self.extraButton = QPushButton("Extra")
             self.extraButton.setFixedWidth(85)
@@ -168,12 +172,9 @@ class Configuration(QGridLayout):
             spectrumLayout.addWidget(self.histo_geo_add)
             spectrumLayout.addWidget(self.histo_geo_update)
 
-            # gateLayout.addWidget(self.gate_list_label)
-            # gateLayout.addWidget(self.listGate)
-            # gateLayout.addWidget(self.listGate_type_label)
             gateLayout.addWidget(self.createGate)
-            # gateLayout.addWidget(self.editGate)
-            gateLayout.addWidget(self.integrateGate)
+            gateLayout.addWidget(self.createSumRegionButton)
+            gateLayout.addWidget(self.integrateGateAndRegion)
 
             othersLayout.addWidget(self.extraButton)
             othersLayout.addWidget(self.exitButton)

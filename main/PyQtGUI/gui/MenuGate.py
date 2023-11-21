@@ -44,9 +44,9 @@ class MenuGate(QWidget):
         self.listGateType = QComboBox()
         self.listGateType.setFixedWidth(45)
 
-        self.gatePointLabel = QLabel("Points: ")
-        self.gatePoint = QTextEdit()
-        self.gatePoint.setReadOnly(True)
+        self.regionPointLabel = QLabel("Points: ")
+        self.regionPoint = QTextEdit()
+        self.regionPoint.setReadOnly(True)
 
         self.ok = QPushButton("Ok", self)       
         self.cancel = QPushButton("Cancel", self)         
@@ -57,7 +57,7 @@ class MenuGate(QWidget):
         # Holds previous points [x,y] for drawing 2d gate 
         self.prevPoint = []   
         # Temporary holds gate lines - to control edition with on_singleclick and on_dblclick (reset once gate is pushed to ReST)
-        self.listGateLine = []
+        self.listRegionLine = []
         # Holds the spectrum index on which createGate is called (if one uses the plot index 
         # it is possible to loose the spectrum (e.g. parameters) info if user selects another plot before saving the gate)
         self.gateSpectrumIndex = 0
@@ -75,8 +75,8 @@ class MenuGate(QWidget):
         layout.addWidget(self.gateTypeLabel, 2, 3, 1, 1)
         layout.addWidget(self.listGateType, 2, 4, 1, 1)  
 
-        layout.addWidget(self.gatePointLabel, 3, 1, 1, 1)           
-        layout.addWidget(self.gatePoint, 4, 1, 1, 4)           
+        layout.addWidget(self.regionPointLabel, 3, 1, 1, 1)           
+        layout.addWidget(self.regionPoint, 4, 1, 1, 4)           
 
         self.lay = QHBoxLayout()
         self.lay.addWidget(self.preview)            
@@ -96,22 +96,21 @@ class MenuGate(QWidget):
 
 
     def clearInfo(self):
-        for line in self.listGateLine:
+        for line in self.listRegionLine:
             line.remove()
-        self.listGateLine.clear()
+        self.listRegionLine.clear()
         self.prevPoint.clear()
         self.listGateType.clear()
-        self.gatePoint.clear()
+        self.regionPoint.clear()
         self.gateSpectrumIndex = 0
         self.gateEditOption = None
         self.gateNameList.clear()
         self.gateNameList.setCurrentText('None')
-        self.gatePoint.setReadOnly(True)
+        self.regionPoint.setReadOnly(True)
 
 
     #override close method, want to reset all info if close with [X]
     def closeEvent(self, event):
-        print("Simon close event")
         self.clearInfo()
         event.accept()
 

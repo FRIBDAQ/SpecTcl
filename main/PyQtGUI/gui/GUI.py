@@ -91,13 +91,16 @@ import CPyConverter as cpy
 # import widgets
 from MenuAndConfigGUI import * #All widgets of the top menu section
 from SpecialFunctionsGUI import SpecialFunctions # all the extra functions we defined
-from OutputGUI import OutputPopup # popup output window
+# from OutputGUI import OutputPopup # popup output window
 from PlotGUI import Plot # area defined for the histograms
 from PlotGUI import Tabs # area defined for the Tabs
 from PyREST import PyREST # class interface for SpecTcl REST plugin
 from CopyPropertiesGUI import CopyProperties
 from connectConfigGUI import ConnectConfiguration #class for the connection configuration popup
 from MenuGate import MenuGate #class for the gate creation/edition popup
+from MenuSumRegion import MenuSumRegion #class for the gate creation/edition popup
+from OutputIntegrate import OutputIntegratePopup #popup for gate/summing region integrate outputs
+# from OutputIntegrate import TableModel #table model for popup for gate/summing region
 
 from logger import log, setup_logging, set_logger
 from notebook_process import testnotebook, startnotebook, stopnotebook
@@ -201,9 +204,9 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
         # output popup window
-        self.resPopup = OutputPopup()
-        self.table_row = []
-        self.ctr = 0
+        # self.resPopup = OutputPopup()
+        # self.table_row = []
+        # self.ctr = 0
 
         # extra popup window
         self.extraPopup = SpecialFunctions()
@@ -213,6 +216,12 @@ class MainWindow(QMainWindow):
 
         # cutoff editing popup
         self.cutoffp = cutoffPopup()
+
+        # summing region popup
+        self.sumRegionPopup = MenuSumRegion()
+
+        # integrate gate and summing region popup
+        self.integratePopup = OutputIntegratePopup()
 
         # connection configuration windows
         self.connectConfig = ConnectConfiguration()
@@ -238,6 +247,9 @@ class MainWindow(QMainWindow):
         self.spectrum_list = pd.DataFrame()
         #spectrum_dict_rest {key:name_spectrum, value:{info_spectrum}}, created when connect and updated continuously with traces (if any), hidden to user.
         self.spectrum_dict_rest = {}
+
+        #list of summing region line labels of the displayed spectrum {spectrumName : [sumRegionLabel, ...]}
+        self.sumRegionDict = {} 
 
 
         # default min/max for x,y
@@ -310,12 +322,19 @@ class MainWindow(QMainWindow):
         self.gatePopup.gateActionCreate.clicked.connect(self.createGate)
         self.gatePopup.gateActionEdit.clicked.connect(self.editGate)
 
+        # summing region
+        self.wConf.createSumRegionButton.clicked.connect(self.createSumRegion)
+        self.sumRegionPopup.ok.clicked.connect(self.okSumRegion)
+        self.sumRegionPopup.cancel.clicked.connect(self.cancelSumRegion)
+        self.sumRegionPopup.delete.clicked.connect(self.deleteSumRegion)
+
         # self.wConf.editGate.setToolTip("Key bindings for Modify->Edit:\n"
         #                               "'i' insert vertex\n"
         #                               "'d' delete vertex\n")
 
-        self.wConf.integrateGate.clicked.connect(self.integrate)
-
+        #integrate gate and summing region
+        self.wConf.integrateGateAndRegion.clicked.connect(self.integrate)
+        self.integratePopup.ok.clicked.connect(self.okIntegrate)
 
         self.tabp.okButton.clicked.connect(self.okTab)
         self.tabp.cancelButton.clicked.connect(self.cancelTab)
@@ -326,12 +345,8 @@ class MainWindow(QMainWindow):
 
         # zoom callback
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[1].triggered.connect(self.zoomCallback)
-
         # copy properties
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
-        # summing region
-        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
-        # self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
         # autoscale
         self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.autoScaleAxisBox)
         # plus button
@@ -370,7 +385,6 @@ class MainWindow(QMainWindow):
 
         self.extraPopup.options.gateAnnotation.clicked.connect(self.gateAnnotationCallBack)
         self.extraPopup.options.gateHide.clicked.connect(self.updatePlot)
-
 
         self.extraPopup.imaging.loadButton.clicked.connect(self.loadFigure)
         self.extraPopup.imaging.addButton.clicked.connect(self.addFigure)
@@ -422,7 +436,6 @@ class MainWindow(QMainWindow):
                 self.wTab.wPlot[self.wTab.currentIndex()].minusButton.disconnect()
                 self.wTab.wPlot[self.wTab.currentIndex()].copyButton.disconnect()
                 self.wTab.wPlot[self.wTab.currentIndex()].customHomeButton.disconnect()
-                self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.disconnect()
                 self.wTab.countClickTab[index] = False
 
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[1].triggered.connect(self.zoomCallback)
@@ -439,9 +452,6 @@ class MainWindow(QMainWindow):
         self.wTab.wPlot[self.wTab.currentIndex()].logButton.clicked.connect(lambda: self.logButtonCallback(self.currentPlot.selected_plot_index))
         self.wTab.wPlot[self.wTab.currentIndex()].logButton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.wTab.wPlot[self.wTab.currentIndex()].logButton.customContextMenuRequested.connect(self.log_handle_right_click)
-
-        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
-        # self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
 
         self.resizeID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("resize_event", self.on_resize)
         self.pressID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.on_press)
@@ -505,9 +515,10 @@ class MainWindow(QMainWindow):
                 self.currentPlot.gateLabel.setText("Gate applied: "+gateName+"\n") 
             else :
                 self.currentPlot.gateLabel.setText("Gate applied: \n") 
-
         except:
-            pass
+            self.currentPlot.histoLabel.setText("Spectrum: \nX: Y:")
+            self.currentPlot.pointerLabel.setText(f"Pointer:\nX: Y: Count: ")
+            self.currentPlot.gateLabel.setText("Gate applied: \n")
 
 
     #called in histoHover, return the bin position under mouse pointer
@@ -613,15 +624,18 @@ class MainWindow(QMainWindow):
         # if gatePopup exit with [X], want to reset everything as if gateEditor hasn't been openned
         if (self.currentPlot.toCreateGate or self.currentPlot.toEditGate) and not self.gatePopup.isVisible():
             self.cancelGate()
+        # if sumRegionPopup exit with [X]
+        if self.currentPlot.toCreateSumRegion and not self.sumRegionPopup.isVisible():
+            self.cancelSumRegion()
 
         index = list(self.currentPlot.figure.axes).index(event.inaxes)
         if self.currentPlot.isEnlarged:
             index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
         self.currentPlot.selected_plot_index = index
-        #removed the timer on thread, cause problem for populating gatePoint in the gate popup
+        #removed the timer on thread, cause problem for populating regionPoint in the gate popup
         #Dont know (Simon) why a small delay was needed
         if event.dblclick:
-            if self.currentPlot.toCreateGate or self.currentPlot.toCreateSRegion :
+            if self.currentPlot.toCreateGate or self.currentPlot.toCreateSumRegion :
                 #dont need to do anything special here, the 2d line is closed when click okGate
                 # self.on_dblclick_gate(event, index)
                 pass
@@ -630,14 +644,20 @@ class MainWindow(QMainWindow):
             else :
                 self.on_dblclick(index)
         else :
-            if self.currentPlot.toCreateGate or self.currentPlot.toCreateSRegion :
+            if self.currentPlot.toCreateGate :
                 #1: left mouse button, 3: right mouse button
                 if event.button == 1:
                     self.on_singleclick_gate(event, index)
                 if event.button == 3:
                     self.on_singleclick_gate_right(index)
             elif self.currentPlot.toEditGate:
-                self.on_singleclick_gate_edit(event, index)
+                self.on_singleclick_gate_edit(event)
+            elif self.currentPlot.toCreateSumRegion :
+                #1: left mouse button, 3: right mouse button
+                if event.button == 1:
+                    self.on_singleclick_sumRegion(event, index)
+                if event.button == 3:
+                    self.on_singleclick_sumRegion_right(index)
             else :
                 self.on_singleclick(index)
 
@@ -726,26 +746,26 @@ class MainWindow(QMainWindow):
                 #second arg = 0 not used for 1d
                 #l = self.addLine(self.closestBinPos(index, float(event.xdata)), 0, index)
                 l = self.addLine(float(event.xdata), 0, index)
-                self.gatePopup.listGateLine.append(l)
+                self.gatePopup.listRegionLine.append(l)
                 # removes the lines n-1 (n is the latest) from the plot
-                if len(self.gatePopup.listGateLine) > 2:
+                if len(self.gatePopup.listRegionLine) > 2:
                     self.removePrevLine()
                 
                 lineText = ""
-                for nbLine in range(len(self.gatePopup.listGateLine)):
+                for nbLine in range(len(self.gatePopup.listRegionLine)):
                     if nbLine == 0:
-                        lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listGateLine[nbLine].get_xdata()[0]:.5f}") 
+                        lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}") 
                     else :
-                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listGateLine[nbLine].get_xdata()[0]:.5f}") 
-                self.gatePopup.gatePoint.clear()
-                self.gatePopup.gatePoint.insertPlainText(lineText)
+                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}") 
+                self.gatePopup.regionPoint.clear()
+                self.gatePopup.regionPoint.insertPlainText(lineText)
 
             elif dim == 2:
                 #If exist, remove line between the last and first points of the contour (closing_segment), except for band gate type
-                tempLine = [line for line in self.gatePopup.listGateLine if line.get_label() is "closing_segment"]
+                tempLine = [line for line in self.gatePopup.listRegionLine if line.get_label() is "closing_segment"]
                 if gateType not in ["b", "gb"] and len(tempLine) == 1 :
                     tempLine[0].remove()
-                    self.gatePopup.listGateLine.pop()
+                    self.gatePopup.listRegionLine.pop()
 
                 # Add a new line based on clicked location
                 #xBinned, yBinned= self.closestBinPos(index, float(event.xdata), float(event.ydata))
@@ -753,34 +773,34 @@ class MainWindow(QMainWindow):
                 #xBinned, yBinned= self.closestBinPos(index, float(event.xdata), float(event.ydata))
                 l = self.addLine(float(event.xdata), float(event.ydata), index)
                 if l is not None :
-                    self.gatePopup.listGateLine.append(l)
+                    self.gatePopup.listRegionLine.append(l)
 
                 # Add text in gatePopup
-                lineNb = len(self.gatePopup.listGateLine)
+                lineNb = len(self.gatePopup.listRegionLine)
                 lineText = ""
                 for nbLine in range(lineNb):
                     if nbLine == 0:
-                            lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listGateLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listGateLine[nbLine].get_ydata()[0]:.5f}") 
+                            lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
                     else :
-                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listGateLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listGateLine[nbLine].get_ydata()[0]:.5f}") 
+                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
                 if lineNb == 0 :
                     lineText = lineText + (f"{lineNb}: X= {float(event.xdata):.5f}   Y= {float(event.ydata):.5f}") 
                 else :
                     lineText = lineText + (f"\n{lineNb}: X= {float(event.xdata):.5f}   Y= {float(event.ydata):.5f}") 
-                self.gatePopup.gatePoint.clear()
-                self.gatePopup.gatePoint.insertPlainText(lineText)
+                self.gatePopup.regionPoint.clear()
+                self.gatePopup.regionPoint.insertPlainText(lineText)
 
                 # Close contour, draw a line between the last and first points, except for band gate type
                 if gateType not in ["b", "gb"] and lineNb > 1 :
                     # Special label to identify this segment elsewhere in the code
                     label = "closing_segment"
-                    #xBinned, yBinned= self.closestBinPos(index, self.gatePopup.listGateLine[0].get_xdata()[0], self.gatePopup.listGateLine[0].get_ydata()[0])
+                    #xBinned, yBinned= self.closestBinPos(index, self.gatePopup.listRegionLine[0].get_xdata()[0], self.gatePopup.listRegionLine[0].get_ydata()[0])
                     #l = self.addLine(xBinned, yBinned, index, label)
-                    l = self.addLine(self.gatePopup.listGateLine[0].get_xdata()[0], self.gatePopup.listGateLine[0].get_ydata()[0], index, label)
+                    l = self.addLine(self.gatePopup.listRegionLine[0].get_xdata()[0], self.gatePopup.listRegionLine[0].get_ydata()[0], index, label)
                     if l is not None :
-                        self.gatePopup.listGateLine.append(l)
+                        self.gatePopup.listRegionLine.append(l)
 
-                # for line in self.gatePopup.listGateLine:
+                # for line in self.gatePopup.listRegionLine:
                 #     print("Simon on_singleclick_gate - line -", line, line.get_label())
 
             self.currentPlot.canvas.draw()
@@ -797,46 +817,160 @@ class MainWindow(QMainWindow):
             
             if dim == 2:
                 if gateType in gateTypeList1:
-                    lineNb = len(self.gatePopup.listGateLine) 
+                    lineNb = len(self.gatePopup.listRegionLine) 
                     # Reset prevPoint for next new line to first point of line n-1 
-                    self.gatePopup.prevPoint = [self.gatePopup.listGateLine[-2].get_xdata()[0], self.gatePopup.listGateLine[-2].get_ydata()[0]]
+                    try:
+                        self.gatePopup.prevPoint = [self.gatePopup.listRegionLine[-2].get_xdata()[0], self.gatePopup.listRegionLine[-2].get_ydata()[0]]
+                    except IndexError:
+                        return
                     # if contour has only 3 lines, remove the two last lines 
                     if lineNb == 3 :
                         for i in range(2):
-                            self.gatePopup.listGateLine[-1].remove()
-                            self.gatePopup.listGateLine.pop(-1)
+                            self.gatePopup.listRegionLine[-1].remove()
+                            self.gatePopup.listRegionLine.pop(-1)
                     # save n-2 line, remove line n-1 and change first point of the closing_segment to last point of saved n-2 line
                     elif lineNb > 3:
-                        tempLine = self.gatePopup.listGateLine[-3]
-                        self.gatePopup.listGateLine[-2].remove()
-                        self.gatePopup.listGateLine.pop(-2)
-                        self.gatePopup.listGateLine[-1].set_xdata([tempLine.get_xdata()[1], self.gatePopup.listGateLine[0].get_xdata()[0]]) 
-                        self.gatePopup.listGateLine[-1].set_ydata([tempLine.get_ydata()[1], self.gatePopup.listGateLine[0].get_ydata()[0]]) 
+                        tempLine = self.gatePopup.listRegionLine[-3]
+                        self.gatePopup.listRegionLine[-2].remove()
+                        self.gatePopup.listRegionLine.pop(-2)
+                        self.gatePopup.listRegionLine[-1].set_xdata([tempLine.get_xdata()[1], self.gatePopup.listRegionLine[0].get_xdata()[0]]) 
+                        self.gatePopup.listRegionLine[-1].set_ydata([tempLine.get_ydata()[1], self.gatePopup.listRegionLine[0].get_ydata()[0]]) 
                 
                 # For band type we dont want to reconnect the extremities
                 if gateType in gateTypeList2:
-                    lineNb = len(self.gatePopup.listGateLine) 
+                    lineNb = len(self.gatePopup.listRegionLine) 
                     # remove the last line
                     if lineNb >= 2 :                   
                         # Reset prevPoint for next new line to last point of line n-2
-                        self.gatePopup.prevPoint = [self.gatePopup.listGateLine[-2].get_xdata()[1], self.gatePopup.listGateLine[-2].get_ydata()[1]]
-                        self.gatePopup.listGateLine[-1].remove()
-                        self.gatePopup.listGateLine.pop(-1)
+                        self.gatePopup.prevPoint = [self.gatePopup.listRegionLine[-2].get_xdata()[1], self.gatePopup.listRegionLine[-2].get_ydata()[1]]
+                        self.gatePopup.listRegionLine[-1].remove()
+                        self.gatePopup.listRegionLine.pop(-1)
 
                 # Add text in gatePopup
-                lineNb = len(self.gatePopup.listGateLine)
+                lineNb = len(self.gatePopup.listRegionLine)
                 lineText = ""
                 for nbLine in range(lineNb):
                     if nbLine == 0:
-                            lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listGateLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listGateLine[nbLine].get_ydata()[0]:.5f}") 
+                            lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
                     else :
-                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listGateLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listGateLine[nbLine].get_ydata()[0]:.5f}") 
+                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
                 if lineNb == 1 :
-                    lineText = lineText + (f"\n{lineNb}: X= {self.gatePopup.listGateLine[0].get_xdata()[1]:.5f}   Y= {self.gatePopup.listGateLine[0].get_ydata()[1]:.5f}") 
-                self.gatePopup.gatePoint.clear()
-                self.gatePopup.gatePoint.insertPlainText(lineText)
+                    lineText = lineText + (f"\n{lineNb}: X= {self.gatePopup.listRegionLine[0].get_xdata()[1]:.5f}   Y= {self.gatePopup.listRegionLine[0].get_ydata()[1]:.5f}") 
+                self.gatePopup.regionPoint.clear()
+                self.gatePopup.regionPoint.insertPlainText(lineText)
 
             self.currentPlot.canvas.draw()
+
+
+
+    #called by on_press when create summing region mode
+    #add new 2DLines in ax and set text points of sumRegionPopup
+    #similar to on_singleclick_gate, should merge both (difference in isEnlarged, popup object and need type check for gate)
+    def on_singleclick_sumRegion(self, event, index):
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        if dim == 1:
+            # second arg = 0 not used for 1d
+            #l = self.addLine(self.closestBinPos(index, float(event.xdata)), 0, index)
+            l = self.addLine(float(event.xdata), 0, index)
+            self.sumRegionPopup.listRegionLine.append(l)
+            # removes the lines n-1 (n is the latest) from the plot
+            if len(self.sumRegionPopup.listRegionLine) > 2:
+                self.removePrevLine()
+            
+            lineText = ""
+            for nbLine in range(len(self.sumRegionPopup.listRegionLine)):
+                if nbLine == 0:
+                    lineText = lineText + (f"{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}") 
+                else :
+                    lineText = lineText + (f"\n{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}") 
+            self.sumRegionPopup.regionPoint.clear()
+            self.sumRegionPopup.regionPoint.insertPlainText(lineText)
+        elif dim == 2:
+            #If exist, remove line between the last and first points of the contour (closing_segment)
+            tempLine = [line for line in self.sumRegionPopup.listRegionLine if line.get_label() is "closing_segment"]
+            if len(tempLine) == 1 :
+                tempLine[0].remove()
+                self.sumRegionPopup.listRegionLine.pop()
+
+            # Add a new line based on clicked location
+            #xBinned, yBinned= self.closestBinPos(index, float(event.xdata), float(event.ydata))
+            #l = self.addLine(xBinned, yBinned, index)
+            #xBinned, yBinned= self.closestBinPos(index, float(event.xdata), float(event.ydata))
+            l = self.addLine(float(event.xdata), float(event.ydata), index)
+            if l is not None :
+                self.sumRegionPopup.listRegionLine.append(l)
+
+            # Add text in sumRegionPopup
+            lineNb = len(self.sumRegionPopup.listRegionLine)
+            lineText = ""
+            for nbLine in range(lineNb):
+                if nbLine == 0:
+                        lineText = lineText + (f"{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.sumRegionPopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+                else :
+                    lineText = lineText + (f"\n{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.sumRegionPopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+            if lineNb == 0 :
+                lineText = lineText + (f"{lineNb}: X= {float(event.xdata):.5f}   Y= {float(event.ydata):.5f}") 
+            else :
+                lineText = lineText + (f"\n{lineNb}: X= {float(event.xdata):.5f}   Y= {float(event.ydata):.5f}") 
+            self.sumRegionPopup.regionPoint.clear()
+            self.sumRegionPopup.regionPoint.insertPlainText(lineText)
+
+            # Close contour, draw a line between the last and first points, except for band gate type
+            if lineNb > 1 :
+                # Special label to identify this segment elsewhere in the code
+                label = "closing_segment"
+                #xBinned, yBinned= self.closestBinPos(index, self.sumRegionPopup.listRegionLine[0].get_xdata()[0], self.sumRegionPopup.listRegionLine[0].get_ydata()[0])
+                #l = self.addLine(xBinned, yBinned, index, label)
+                l = self.addLine(self.sumRegionPopup.listRegionLine[0].get_xdata()[0], self.sumRegionPopup.listRegionLine[0].get_ydata()[0], index, label)
+                if l is not None :
+                    self.sumRegionPopup.listRegionLine.append(l)
+
+            # for line in self.sumRegionPopup.listRegionLine:
+            #     print("Simon on_singleclick_gate - line -", line, line.get_label())
+
+        self.currentPlot.canvas.draw()
+
+
+    # called by on_press, right click when creating a summing region is removing the last point and so change contour lines and update point text
+    # Similar to on_singleclick_gate_right, should merge both (difference in isEnlarged, gateType,  )
+    def on_singleclick_sumRegion_right(self, index):
+        
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        
+        if dim == 2:
+            lineNb = len(self.sumRegionPopup.listRegionLine) 
+            # Reset prevPoint for next new line to first point of line n-1 
+            try:
+                self.sumRegionPopup.prevPoint = [self.sumRegionPopup.listRegionLine[-2].get_xdata()[0], self.sumRegionPopup.listRegionLine[-2].get_ydata()[0]]
+            except IndexError:
+                return
+            # if contour has only 3 lines, remove the two last lines 
+            if lineNb == 3 :
+                for i in range(2):
+                    self.sumRegionPopup.listRegionLine[-1].remove()
+                    self.sumRegionPopup.listRegionLine.pop(-1)
+            # save n-2 line, remove line n-1 and change first point of the closing_segment to last point of saved n-2 line
+            elif lineNb > 3:
+                tempLine = self.sumRegionPopup.listRegionLine[-3]
+                self.sumRegionPopup.listRegionLine[-2].remove()
+                self.sumRegionPopup.listRegionLine.pop(-2)
+                self.sumRegionPopup.listRegionLine[-1].set_xdata([tempLine.get_xdata()[1], self.sumRegionPopup.listRegionLine[0].get_xdata()[0]]) 
+                self.sumRegionPopup.listRegionLine[-1].set_ydata([tempLine.get_ydata()[1], self.sumRegionPopup.listRegionLine[0].get_ydata()[0]]) 
+        
+            # Add text in sumRegionPopup
+            lineNb = len(self.sumRegionPopup.listRegionLine)
+            lineText = ""
+            for nbLine in range(lineNb):
+                if nbLine == 0:
+                        lineText = lineText + (f"{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.sumRegionPopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+                else :
+                    lineText = lineText + (f"\n{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.sumRegionPopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+            if lineNb == 1 :
+                lineText = lineText + (f"\n{lineNb}: X= {self.sumRegionPopup.listRegionLine[0].get_xdata()[1]:.5f}   Y= {self.sumRegionPopup.listRegionLine[0].get_ydata()[1]:.5f}") 
+            self.sumRegionPopup.regionPoint.clear()
+            self.sumRegionPopup.regionPoint.insertPlainText(lineText)
+
+        self.currentPlot.canvas.draw()
 
 
     #called by on_press when not in ceate/edit gate mode
@@ -863,14 +997,20 @@ class MainWindow(QMainWindow):
             self.wConf.histo_geo_row.setEnabled(False)
             self.wConf.histo_geo_col.setEnabled(False)
             # enabling gate creation
-            self.currentPlot.createSRegion.setEnabled(True)
+            # self.currentPlot.createSRegion.setEnabled(True)
             self.wConf.createGate.setEnabled(True)
-            if (DEBUG):
-                print("inside dblclick: self.selected_plot_index",idx )
             # plot corresponding histogram
             self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]= deepcopy(idx)
+
+            # print("Simon - in dbl_click before reseet canvas - ", self.getSpectrumInfo("spectrum", index=idx).axes.get_xlim())
+            # self.axesChilds()
+
             #setup single pad canvas
             self.currentPlot.InitializeCanvas(1,1,False)
+
+            # print("Simon - in dbl_click before reseet canvas - ", self.getSpectrumInfo("spectrum", index=idx).axes.get_xlim())
+
+
             self.add(idx)
             self.currentPlot.h_setup[idx] = False
             self.updatePlot()
@@ -884,7 +1024,7 @@ class MainWindow(QMainWindow):
             if (DEBUG):
                 print("##### Exiting zooming mode...")
             # disabling gate creation
-            self.currentPlot.createSRegion.setEnabled(False)
+            # self.currentPlot.createSRegion.setEnabled(False)
             self.wConf.createGate.setEnabled(False)
 
             #important that zoomPlotInfo is set only while in zoom mode (None only here)
@@ -997,7 +1137,7 @@ class MainWindow(QMainWindow):
             self.wConf.histo_geo_add.setEnabled(not self.currentPlot.isEnlarged)
             self.wConf.histo_geo_row.setEnabled(not self.currentPlot.isEnlarged)
             self.wConf.histo_geo_col.setEnabled(not self.currentPlot.isEnlarged)
-            self.currentPlot.createSRegion.setEnabled(self.currentPlot.isEnlarged)
+            # self.currentPlot.createSRegion.setEnabled(self.currentPlot.isEnlarged)
             self.wConf.createGate.setEnabled(self.currentPlot.isEnlarged)
             self.removeRectangle()
             self.bindDynamicSignal()
@@ -1039,8 +1179,8 @@ class MainWindow(QMainWindow):
         self.connectShMem()
         self.closeConnect()
 
-    #called in okGate, if was adding a new gate the pushed gate is gatePopup.listGateLine
-    #if was editing a gate, the pushed gate is based on the gatePopup.gatePoint text
+    #called in okGate, if was adding a new gate the pushed gate is gatePopup.listRegionLine
+    #if was editing a gate, the pushed gate is based on the gatePopup.regionPoint text
     def pushGateToREST(self, gateName, gateType):
         if gateName is None or gateName == "None" :
             print("Warning - pushGateToREST - gateName is None, no push to ReST, please choose a gate name")
@@ -1091,12 +1231,12 @@ class MainWindow(QMainWindow):
                 for point in points:
                     boundaries.append({"x": point[0], "y": point[1]})
         else:
-            if len(self.gatePopup.listGateLine) == 0:
+            if len(self.gatePopup.listRegionLine) == 0:
                 return
             if dim == 1:
                 if gateType in ["s", "gs"] :
                     # gate 1Dgate_xamine s {aris.db1.ppac0.uc {1392.232056 1665.277466}}
-                    boundaries = [self.gatePopup.listGateLine[0].get_xdata()[0],self.gatePopup.listGateLine[1].get_xdata()[0]]
+                    boundaries = [self.gatePopup.listRegionLine[0].get_xdata()[0],self.gatePopup.listRegionLine[1].get_xdata()[0]]
                     # sort such that lowest first
                     if boundaries[0] > boundaries[1]:
                         boundaries.sort()
@@ -1107,7 +1247,7 @@ class MainWindow(QMainWindow):
                 # 'points': [{'x': 126.876877, 'y': 29.429428}, {'x': 125.625626, 'y': 25.825825},
                 #            {'x': 126.626625, 'y': 22.522522}, {'x': 129.879883, 'y': 22.522522}, {'x': 130.63063, 'y': 26.126125}, {'x': 129.629623, 'y': 29.129128}]
                 #}}
-                for iline, line in enumerate(self.gatePopup.listGateLine):
+                for iline, line in enumerate(self.gatePopup.listRegionLine):
                     if line.get_label() is not "closing_segment":
                         #Add both points of the first line to boundaries
                         if iline == 0 :
@@ -1131,12 +1271,12 @@ class MainWindow(QMainWindow):
             self.rest.createGate(gateName, gateType, parameters, boundaries)
 
 
-    # format gatePopup.gatePoint into (1d) [x0, x1, ...] or (2d) [[x0, y0], [x1, y1], ...]
+    # format gatePopup.regionPoint into (1d) [x0, x1, ...] or (2d) [[x0, y0], [x1, y1], ...]
     def formatGatePopupPointText(self, dim):
         points = []
         pointDict = {}
         #first split when new lines
-        textBlockLines = self.gatePopup.gatePoint.toPlainText().split("\n")
+        textBlockLines = self.gatePopup.regionPoint.toPlainText().split("\n")
         #loop on each line
         for line in textBlockLines:
             #pass on blank line
@@ -1509,6 +1649,62 @@ class MainWindow(QMainWindow):
             return None 
         else :
             return gateName
+
+
+    #give spectrum index and line2D of summing region to fill sumRegionDict
+    def setSumRegion(self, index, line):
+        if index is None : 
+            return
+        labelSplit = line.get_label().split("_-_")
+        if len(labelSplit) == 3 and labelSplit[0] == "sumReg":
+            spectrumName = self.nameFromIndex(index)
+            if spectrumName not in self.sumRegionDict:
+                self.sumRegionDict[spectrumName] = [line]
+            else :
+                self.sumRegionDict[spectrumName].append(line)
+
+
+    #return list with summing regions drawn on the spectrum at index
+    def getSumRegion(self, index):
+        result = None
+        if index is None : 
+            return
+        spectrumName = self.nameFromIndex(index)
+        if spectrumName not in self.sumRegionDict:
+            pass
+        else :
+            result = self.sumRegionDict[spectrumName]
+        return result
+
+
+    #delete summing region line2D in sumRegionDict, identified with label
+    def deleteSumRegionDict(self, labelSumRegion):
+        labelSplit = labelSumRegion.split("_-_")
+        if len(labelSplit) == 3 and labelSplit[0] == "sumReg":
+            for spectrumName, regionList in self.sumRegionDict.items():
+                for line in regionList:
+                    if line.get_label() == labelSumRegion:
+                        #remove all line2D with labelSumRegion in the entire currentPlot 
+                        for ax in self.currentPlot.figure.axes:
+                            toRemove = [child for child in ax.get_children() if isinstance(child, matplotlib.lines.Line2D) and child.get_label() == labelSumRegion]
+                            for linetoRemove in toRemove:
+                                linetoRemove.remove()
+                        #remove line from dict
+                        regionList.remove(line)
+    
+
+    #check if needs to delete a spectrumName key in sumRegionDict and all sumRegion associated
+    def refreshSpectrumSumRegionDict(self):
+        histoList = [self.wConf.histo_list.itemText(i) for i in range(self.wConf.histo_list.count())]
+        keyToDelete = []
+        for spectrumNameSumReg in self.sumRegionDict.keys():
+            if spectrumNameSumReg not in histoList:
+                #in principle there should not be line2D drawn so no need to delete those
+                keyToDelete.append(spectrumNameSumReg)
+        if len(keyToDelete) > 0:
+            for key in keyToDelete:
+                del self.sumRegionDict[key]
+
 
 
     ##########################################
@@ -2350,11 +2546,20 @@ class MainWindow(QMainWindow):
                 axis.set_ylim(self.minY,self.maxY)
                 # create histogram
                 line, = axis.plot([], [], drawstyle='steps')
+
+
+                # axisTest = self.getSpectrumInfo("axis", index=index)
+                # self.axesChildsTest(axisTest)
+                # print("Simon - in setupPlot before spectrum=line- ")
+
                 self.setSpectrumInfo(spectrum=line, index=index)
                 if len(w) > 0:
                     X = np.array(self.createRange(binx, minx, maxx))
                     line.set_data(X, w)
                     self.setSpectrumInfo(spectrum=line, index=index)
+                
+                # self.axesChilds()
+                # print("Simon - in setupPlot after spectrum=line- ")
             else:
                 if (DEBUG):
                     print("2d case...")
@@ -2473,6 +2678,16 @@ class MainWindow(QMainWindow):
                 self.currentPlot.recDashed = self.createDashedRectangle(self.currentPlot.figure.axes[self.currentPlot.next_plot_index])
 
                 self.currentPlot.figure.tight_layout()
+
+                # print("Simon - in drawPlot - before canvas draw")
+                # for testAx in self.currentPlot.figure.axes:
+                #     axisLines = testAx.get_lines()
+                #     sumRegionLines = [line for line in axisLines if "sumReg_-_" in line.get_label()]
+                #     print("Simon - testAx sumRegionLines ", sumRegionLines)
+                #     for line in sumRegionLines:
+                #         line.draw_artist()
+                # self.axesChilds()
+
                 self.currentPlot.canvas.draw()
                 self.currentPlot.isSelected = False
         except NameError:
@@ -2560,6 +2775,9 @@ class MainWindow(QMainWindow):
         # if gatePopup exit with [X]
         if (self.currentPlot.toCreateGate or self.currentPlot.toEditGate) and not self.gatePopup.isVisible():
             self.cancelGate()
+        # if sumRegionPopup exit with [X]
+        if self.currentPlot.toCreateSumRegion and not self.sumRegionPopup.isVisible():
+            self.cancelSumRegion()
 
         try:
             #x_range, y_range = self.getAxisProperties(index)
@@ -2897,7 +3115,7 @@ class MainWindow(QMainWindow):
     ##############
 
 
-    #add to axes the gate applied to a spectrum (identified by index)
+    #add to axes the gate/summing region applied to a spectrum (identified by index)
     def drawGateTest(self, index):
         spectrumName = self.nameFromIndex(index)
         spectrumType = self.getSpectrumInfoREST("type", name=spectrumName)
@@ -2933,11 +3151,9 @@ class MainWindow(QMainWindow):
                 for iLine in range(2):
                     #define a label to find the line among axes childs and update its properties (limits, visiblility, annotate...)
                     lineLabel = "gate_-_" + gate["name"] + "_-_" + str(iLine)
+
                     #Remove gate if exists then redraw it
                     toRemove = [gateLine for gateLine in ax.get_children() if type(gateLine) == matplotlib.lines.Line2D and gateLine.get_label() == lineLabel]
-                    # print("Simon - toRemove gateLine",toRemove)
-                    # if len(toRemove) == 1:
-                    #     toRemove[0].remove()
                     for lineToRemove in toRemove :
                         lineToRemove.remove()
 
@@ -2945,12 +3161,12 @@ class MainWindow(QMainWindow):
                         continue
 
                     line = mlines.Line2D([xlim[iLine],xlim[iLine]],[ylim[0],ylim[1]], picker=5, color='red', label=lineLabel)
-
                     ax.add_artist(line)
 
             elif dim ==2:
                 #define a label to find the line among axes childs and update its properties (limits, visiblility, annotate...)
                 lineLabel = "gate_-_" + gate["name"] + "_-_"
+
                 #Remove gate if exists then redraw it
                 toRemove = [gateLine for gateLine in ax.get_children() if type(gateLine) == matplotlib.lines.Line2D and lineLabel in gateLine.get_label()]
                 for lineToRemove in toRemove :
@@ -2976,6 +3192,30 @@ class MainWindow(QMainWindow):
             else :
                 self.setGateAnnotation(index,False)
 
+        #draw summing region 
+        lineListSumReg = self.getSumRegion(index)
+        if lineListSumReg is None :
+            return
+        for sumRegionLine in lineListSumReg:
+            if dim == 1 or dim == 2 :
+                lineLabel = sumRegionLine.get_label()
+
+                #Remove sumRegion if exists then redraw it
+                toRemove = [line for line in ax.get_children() if type(line) == matplotlib.lines.Line2D and line.get_label() == lineLabel]
+                for lineToRemove in toRemove :
+                    lineToRemove.remove()
+
+                # if self.extraPopup.options.sumRegionHide.isChecked():
+                #     continue
+
+                xlim = sumRegionLine.get_xdata()
+                ylim = sumRegionLine.get_ydata()
+                if dim == 1:
+                    ylim = ax.get_ylim()
+
+                line = mlines.Line2D(xlim, ylim, picker=5, color='blue', label=lineLabel)
+                ax.add_artist(line)
+
 
     #callback for gate annotation, calls setGateAnnotation
     def gateAnnotationCallBack(self):
@@ -2995,11 +3235,14 @@ class MainWindow(QMainWindow):
 
     # set and unset gate annotation of a spectrum according to doAnnotate flag
     def setGateAnnotation(self, index, doAnnotate):
-        spectrum = self.getSpectrumInfo("spectrum", index=index)
+        ax = self.getSpectrumInfo("axis", index=index)
+        if ax is None:
+            return
+        # spectrum = self.getSpectrumInfo("spectrum", index=index)
+        # if spectrum is None :
+        #     return 
+        # ax = spectrum.axes
         dim = self.getSpectrumInfoREST("dim", index=index)
-        if spectrum is None :
-            return 
-        ax = spectrum.axes
 
         for child in ax.get_children():
             if type(child) == matplotlib.lines.Line2D :
@@ -3028,8 +3271,6 @@ class MainWindow(QMainWindow):
                         positionY = 0.95
                         offsetX = (ax.get_xlim()[1] - ax.get_xlim()[0])*0.002
 
-
-
                         if doAnnotate:
                             xy = self.getXYAnnotation(self.getSpectrumInfo("name", index=index), gateName, (positionX + offsetX, positionY))
                             # fist xy coordinate in data scale and second coordinate in axes fraction
@@ -3053,8 +3294,8 @@ class MainWindow(QMainWindow):
                             #     annotation = ax.annotate(labelBuff, xy=(positionX + offsetX, yLowestBbox - annotationBbox.get_height()), xycoords=("data", "data"), color=color, fontsize=8)
                         else :
                             child.set_color('red')
-                        spectrum.axes = ax
-                        self.setSpectrumInfo(spectrum=spectrum, index=index)
+                        # spectrum.axes = ax
+                        # self.setSpectrumInfo(spectrum=spectrum, index=index)
                     elif dim == 2:
                         #Skip annotation if exists
                         toRemove = [an for an in ax.get_children() if type(an) == matplotlib.text.Annotation and an.get_text() == gateName]
@@ -3088,8 +3329,9 @@ class MainWindow(QMainWindow):
                             #     annotation = ax.annotate(labelBuff, xy=(positionX + offsetX, yLowestBbox - annotationBbox.get_height()), xycoords=("data", "data"), color=color, fontsize=8)
                         else :
                             child.set_color('red')
-                        spectrum.axes = ax
-                        self.setSpectrumInfo(spectrum=spectrum, index=index)
+                        # spectrum.axes = ax
+                        # self.setSpectrumInfo(spectrum=spectrum, index=index)
+
 
     #goes with the annotation feature, associate a color to a gateName  
     def getGateColor(self, gateName):
@@ -3117,81 +3359,170 @@ class MainWindow(QMainWindow):
                     return (xy[0], xy[1]-0.05)
 
 
-    #obselete but keep it here while working on its updated version
-    def drawRegion(self, histo_name, region_name, region_line):
-        if (DEBUG):
-            print("Inside drawRegion")
-            print(histo_name, region_name, region_line)
-        ax = None
-        rtype = self.currentPlot.regionTypeDict[region_name]
-        if (DEBUG):
-            print(self.currentPlot.regionTypeDict)
-            print("region type to be drawn", rtype)
-        # index = self.get_key(histo_name)
-        if self.currentPlot.isEnlarged:
-            ax = plt.gca()
-            if (self.wConf.histo_list.currentText() == histo_name):
-                if (DEBUG):
-                    print("I need to draw ", region_name,"to", self.wConf.histo_list.currentText())
-                if (self.wConf.button1D.isChecked() and (rtype == "s" or rtype == "gs")):
-                    self.plot1DGate(ax, histo_name, region_name, region_line)
-                else:
-                    self.plot2DGate(ax, histo_name, region_name, region_line)
+
+
+    # add copy of listRegionLine to axis before deleting the later one (considered a temporary line)
+    # Identify this region line with label
+    def saveSumRegion(self, index):
+        spectrumName = self.nameFromIndex(index)
+        spectrum = self.getSpectrumInfo("spectrum", index=index)
+        ax = spectrum.axes
+        dim = self.getSpectrumInfoREST("dim", name=spectrumName)
+        if ax is None :
+            return
+        regionName = self.sumRegionPopup.sumRegionNameList.currentText()
+
+        # self.axesChilds()
+        if dim == 1:
+            ylim = ax.get_ybound()
+            #two lines for 1d 
+            if len(self.sumRegionPopup.listRegionLine) != 2:
+                return
+            for iLine in range(2):
+                xlim = self.sumRegionPopup.listRegionLine[iLine].get_xdata()
+                #define a label to find the line among axes childs and update its properties (limits, visiblility, annotate...)
+                lineLabel = "sumReg_-_" + regionName + "_-_" + str(iLine)
+
+                line = mlines.Line2D([xlim[0],xlim[0]], [ylim[0],ylim[1]], picker=5, color='blue', label=lineLabel)
+                self.setSumRegion(index, line)
+                ax.add_artist(line)
+
+        elif dim ==2:
+            #define a label to find the line among axes childs and update its properties (limits, visiblility, annotate...)
+            lineLabel = "sumReg_-_" + regionName + "_-_"
+
+            xPoints = []
+            yPoints = []
+            for iLine, line in enumerate(self.sumRegionPopup.listRegionLine):
+                if iLine == 0:
+                    for iPoint in range(2):
+                        xPoints.append(self.sumRegionPopup.listRegionLine[iLine].get_xdata()[iPoint])
+                        yPoints.append(self.sumRegionPopup.listRegionLine[iLine].get_ydata()[iPoint])
+                else :
+                    xPoints.append(self.sumRegionPopup.listRegionLine[iLine].get_xdata()[1])
+                    yPoints.append(self.sumRegionPopup.listRegionLine[iLine].get_ydata()[1])
+
+            line = mlines.Line2D(xPoints,yPoints, picker=5, color='blue', label=lineLabel)
+            self.setSumRegion(index, line)
+            ax.add_artist(line)
+
+
+
+    #callback for createSumRegionButton, show popup to define name
+    def createSumRegion(self):
+        self.sumRegionPopup.sumRegionNameList.setEditable(True)
+        self.sumRegionPopup.sumRegionNameList.setInsertPolicy(QComboBox.NoInsert)
+
+        if self.currentPlot.selected_plot_index is None:
+            return QMessageBox.about(self,"Warning!", "Please add/select a spectrum")
         else:
-            pass
-            # index = self.get_key(histo_name)
-            # ax = self.select_plot(index)
-            # if (rtype == "s" or rtype == "gs"):
-            #     self.plot1DGate(ax, histo_name, region_name, region_line)
-            # else:
-            #     self.plot2DGate(ax, histo_name, region_name, region_line)
+            self.sumRegionPopup.clearInfo()
+
+            spectrumName = self.nameFromIndex(self.currentPlot.selected_plot_index)
+            dim = self.getSpectrumInfoREST("dim", name=spectrumName)
+            ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
+            if ax is None:
+                return
+
+            #refresh sumRegionDict (remove key if spectrum has been deleted in treegui)
+            self.refreshSpectrumSumRegionDict()
+
+            #set summing region name list 
+            sumRegionLabels = [child.get_label() for child in ax.get_children() if isinstance(child, matplotlib.lines.Line2D) and "_-_" in child.get_label()]
+            for label in sumRegionLabels :
+                if dim == 1:
+                    label = label.split("_-_")
+                    #two lines per region for 1d so just take one label
+                    if label[0] == "sumReg" and label[2] == '0':
+                        self.sumRegionPopup.sumRegionNameList.addItem(label[1])
+                elif dim == 2:
+                    label = label.split("_-_")
+                    if label[0] == "sumReg":
+                        self.sumRegionPopup.sumRegionNameList.addItem(label[1])
+            self.sumRegionPopup.sumRegionNameList.setCurrentText("None")
+            self.sumRegionPopup.sumRegionNameList.completer().setCompletionMode(QCompleter.PopupCompletion)
+            self.sumRegionPopup.sumRegionNameList.completer().setFilterMode(QtCore.Qt.MatchContains)
+            self.sumRegionPopup.sumRegionNameListSaved = [self.sumRegionPopup.sumRegionNameList.itemText(i) for i in range(self.sumRegionPopup.sumRegionNameList.count()) if self.sumRegionPopup.sumRegionNameList.itemText(i) != "None"]
+
+            self.currentPlot.toCreateSumRegion = True
+            self.sumRegionPopup.sumRegionSpectrumIndex = self.currentPlot.selected_plot_index
+        self.sumRegionPopup.show()
 
 
-    #obselete but keep it here while working on its updated version
-    def drawAllGates(self):
-        artist_dict = self.currentPlot.artist_dict
-        region_dict = self.currentPlot.region_dict
-        hist_list = self.currentPlot.hist_list
+    #button of the cutoff window, sets the cutoff values in the spectrum dict
+    def okSumRegion(self):
+        # if sumRegionName already exists issue warning
+        sumRegionName = self.sumRegionPopup.sumRegionNameList.currentText()
+        
+        if sumRegionName in self.sumRegionPopup.sumRegionNameListSaved:
+            msgBox = QMessageBox(self)
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+            msgBox.setText("Summing region name already exists.")
+            msgBox.setInformativeText('Do you want to overwrite "' + sumRegionName + '" summing region definition?')
+            msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+            msgBox.setDefaultButton(QMessageBox.Cancel)
+            ret = msgBox.exec()
+            if ret == QMessageBox.Yes:
+                pass
+            elif ret == QMessageBox.Cancel:
+                return
+        #maybe better solution, the separator in region line labels are _-_ so dont want to find that in the region name
+        elif "_-_" in sumRegionName :
+            msgBox = QMessageBox(self)
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+            msgBox.setText('Region name must not include "_-_"')
+            msgBox.setStandardButtons(QMessageBox.Ok)
+            msgBox.setDefaultButton(QMessageBox.Ok)
+            ret = msgBox.exec()
+            if ret == QMessageBox.Ok:
+                pass
+        #"save"/draw a new version of the region line in ax before deleting listRegionLine in closeEvent of the popup
+        self.saveSumRegion(self.sumRegionPopup.sumRegionSpectrumIndex)
+        self.cancelSumRegion()
 
-        region_dict_keys = set(region_dict.keys())
-        for hist in hist_list:
-            if hist in region_dict_keys:
-                for region_name, region_line in region_dict[hist].items():
-                    self.drawRegion(hist, region_name, region_line)
+
+    #close sumRegionPopup
+    def cancelSumRegion(self):
+        self.currentPlot.toCreateSumRegion = False
+        self.sumRegionPopup.close()
+        self.updatePlot()
 
 
-    #obselete but keep it here while working on its updated version
-    def createSRegion(self):
-        if (DEBUG):
-            print("Clicked createSRegion in tab", self.wTab.currentIndex())
-        self.currentPlot.region_name = "summing_region_tab_"+str(self.wTab.currentIndex())+"_"+str(self.currentPlot.counter_sr)
-        self.currentPlot.region_type = ""
-        if (DEBUG):
-            print("creating", self.currentPlot.region_name,"in",self.wConf.histo_list.currentText())
-        self.currentPlot.counter_sr+=1
-
-        if self.wConf.button1D.isChecked():
-            self.currentPlot.region_type = "s"
+    #delete summing region according to self.sumRegionPopup.sumRegionNameList.currentText()
+    def deleteSumRegion(self):
+        spectrumName = self.nameFromIndex(self.currentPlot.selected_plot_index)
+        dim = self.getSpectrumInfoREST("dim", name=spectrumName)
+        ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
+        if ax is None:
+            return
+        sumRegionName = self.sumRegionPopup.sumRegionNameList.currentText()
+        
+        #if sumRegionName not saved nothing to delete yet
+        if sumRegionName not in self.sumRegionPopup.sumRegionNameListSaved:
+            msgBox = QMessageBox(self)
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+            msgBox.setText("Cannot delete summing region " + sumRegionName + " not found")
+            msgBox.setStandardButtons(QMessageBox.Ok)
+            ret = msgBox.exec()
+            if ret == QMessageBox.Ok:
+                return
+        #delete summing region from sumRegionDict and line2D drawn in currentPlot
         else:
-            self.currentPlot.region_type = "c"
-        # adding gate
-        self.currentPlot.regionTypeDict[self.currentPlot.region_name] = self.currentPlot.region_type
+            if dim == 1 :
+                for iLine in range(2):
+                    label = "sumReg_-_" + sumRegionName + "_-_" + str(iLine)
+                    self.deleteSumRegionDict(label)
+            elif dim == 2:
+                label = "sumReg_-_" + sumRegionName + "_-_"
+                self.deleteSumRegionDict(label)
 
-        self.currentPlot.toCreateSRegion = True;
-        self.createRegion()
-
-
-    #obselete but keep it here while working on its updated version
-    def createRegion(self):
-        ax = plt.gca()
-        self.cleanRegion()
-
-
-    #obselete but keep it here while working on its updated version
-    def cleanRegion(self):
-        self.currentPlot.xs.clear()
-        self.currentPlot.ys.clear()
-        self.gatePopup.listGateLine = []
+        # reset the current list region name to None
+        self.sumRegionPopup.sumRegionNameList.setCurrentText("None")
+        self.currentPlot.figure.tight_layout()
+        self.currentPlot.canvas.draw()
 
 
     # callback for gatePopup.ok button, do some checks and push gate to REST
@@ -3226,7 +3557,7 @@ class MainWindow(QMainWindow):
                 if ret == QMessageBox.Ok:
                     pass
         self.pushGateToREST(gateName,self.gatePopup.listGateType.currentText())
-        #in the following lines removed in listGateLine to avoid double drawing, since the gate has been pushed to ReST it will be drawn from ReST info
+        #in the following lines removed in listRegionLine to avoid double drawing, since the gate has been pushed to ReST it will be drawn from ReST info
         self.gatePopup.clearInfo()
         self.cancelGate()
         # self.currentPlot.toCreateGate = False
@@ -3276,7 +3607,7 @@ class MainWindow(QMainWindow):
                 self.gatePopup.preview.clicked.disconnect(self.gatePopupPreview)
         except TypeError:
             pass
-        #Had issue with these two signals when multiple tab(?), use shortcutInsertGatePoint now
+        #Had issue with these two signals when multiple tab(?), use shortcutInsertRegionPoint now
         # try:
         #     if hasattr(self, 'sidOnKeyPressEditGate') :
         #         self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.sidOnKeyPressEditGate)
@@ -3288,8 +3619,13 @@ class MainWindow(QMainWindow):
         # except TypeError:
         #     pass
         try:
-            if hasattr(self, 'shortcutInsertGatePoint') :
-                self.shortcutInsertGatePoint.setEnabled(False)
+            if hasattr(self, 'shortcutInsertRegionPoint') :
+                self.shortcutInsertRegionPoint.setEnabled(False)
+        except TypeError:
+            pass
+        try:
+            if hasattr(self, 'sidTableIntegrateCopy') :
+                self.integratePopup.resultsText.itemSelectionChanged.disconnect(self.sidTableIntegrateCopy)
         except TypeError:
             pass
             
@@ -3356,7 +3692,7 @@ class MainWindow(QMainWindow):
             self.gatePopup.show()
 
 
-    #Draw a preview of the gate in case modified by editing the text gatePopup.gatePoint
+    #Draw a preview of the gate in case modified by editing the text gatePopup.regionPoint
     def onGatePopupPreview(self):
         ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
         if ax is None :
@@ -3392,20 +3728,9 @@ class MainWindow(QMainWindow):
 
 
     def checkConnections(self):
-        # num_connections = 0
-        # # Get the current plot canvas
-        # current_canvas = self.wTab.wPlot[self.wTab.currentIndex()].canvas
-        # # Get the connections list
-        # connections = current_canvas.manager.connections
-        # # Iterate through the connections list
-        # for connection in connections:
-        #     num_connections += 1
-        #     print("Simon checkConnections-", num_connections, connection)
-
         # Check if there are any connections to the canvas
         # if self.wTab.wPlot[self.wTab.currentIndex()].canvas.figure.callbacks.callbacks:
         if self.wTab.wPlot[self.wTab.currentIndex()].canvas.callbacks.callbacks:
-            print("There are connections to the canvas:")
             for event_name, callbacks_dict in self.wTab.wPlot[self.wTab.currentIndex()].canvas.callbacks.callbacks.items():
                 print(f"Event: {event_name}, Callbacks: {callbacks_dict}")
 
@@ -3447,8 +3772,8 @@ class MainWindow(QMainWindow):
         # self.sidOnKeyReleaseEditGate = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('key_release_event', self.onKeyReleaseEditGate)
         #two previous lines dont work with multitab, dont understand why because do the same with pick_event and no problem with this one.
         #So use qt shortcut, no release action so reset altPressed flag in on_singleclick_gate_edit
-        self.shortcutInsertGatePoint = QShortcut(QKeySequence("Alt+E"), self)
-        self.shortcutInsertGatePoint.activated.connect(self.onKeyActivateEditGate)
+        self.shortcutInsertRegionPoint = QShortcut(QKeySequence("Alt+E"), self)
+        self.shortcutInsertRegionPoint.activated.connect(self.onKeyActivateEditGate)
 
 
         if self.gatePopup.gateSpectrumIndex is None:
@@ -3468,11 +3793,12 @@ class MainWindow(QMainWindow):
                 if dim == 1:
                     label = label.split("_-_")
                     #two lines per gate for 1d so just take one label
-                    if label[2] == '0':
+                    if label[0] == 'gate' and label[2] == '0':
                         self.gatePopup.gateNameList.addItem(label[1])
                 elif dim == 2:
                     label = label.split("_-_")
-                    self.gatePopup.gateNameList.addItem(label[1])
+                    if label[0] == 'gate' :
+                        self.gatePopup.gateNameList.addItem(label[1])
             self.gatePopup.gateNameList.setCurrentText("-- select a gate --")
             self.gatePopup.gateNameList.completer().setCompletionMode(QCompleter.PopupCompletion)
             self.gatePopup.gateNameList.completer().setFilterMode(QtCore.Qt.MatchContains)
@@ -3481,18 +3807,18 @@ class MainWindow(QMainWindow):
             self.currentPlot.toEditGate = True
             self.altPressed = False
             self.currentPlot.toCreateGate = False
-            self.gatePopup.gatePoint.setReadOnly(False)
+            self.gatePopup.regionPoint.setReadOnly(False)
 
 
     #if change gate type while creating gate, reset the new gate info (name and point)
     def gateTypeListChanged(self):
         self.gatePopup.gateNameList.clear()
         self.gatePopup.gateNameList.setCurrentText("None")
-        for line in self.gatePopup.listGateLine:
+        for line in self.gatePopup.listRegionLine:
             line.remove()
-        self.gatePopup.listGateLine.clear()
+        self.gatePopup.listRegionLine.clear()
         self.gatePopup.prevPoint.clear()
-        self.gatePopup.gatePoint.clear()
+        self.gatePopup.regionPoint.clear()
         self.gatePopup.gateSpectrumIndex = 0
         self.gatePopup.gateEditOption = None
         
@@ -3507,7 +3833,7 @@ class MainWindow(QMainWindow):
         gateName = self.gatePopup.gateNameList.currentText()
         gateFoundAtIdx = self.gatePopup.gateNameList.findText(gateName)
         if gateFoundAtIdx == -1 :
-            self.gatePopup.gatePoint.clear()
+            self.gatePopup.regionPoint.clear()
             self.gatePopup.listGateType.clear()
             return
         
@@ -3550,12 +3876,18 @@ class MainWindow(QMainWindow):
             l = mlines.Line2D([posx,posx], [ymin,ymax], picker=5, label=label)
             ax.add_line(l)
         elif dim == 2:
-            xyPrev = self.gatePopup.prevPoint
-            self.gatePopup.prevPoint = [posx, posy]
-            # If we are adding the closing segment we want to save the n-1 last point (prev prev) 
-            # because closing segment will be removed before drawing from click
-            if label == "closing_segment":
-                self.gatePopup.prevPoint = xyPrev
+            if self.currentPlot.toCreateGate :
+                xyPrev = self.gatePopup.prevPoint
+                self.gatePopup.prevPoint = [posx, posy]
+                # If we are adding the closing segment we want to save the n-1 last point (prev prev) 
+                # because closing segment will be removed before drawing from click
+                if label == "closing_segment":
+                    self.gatePopup.prevPoint = xyPrev
+            elif self.currentPlot.toCreateSumRegion :
+                xyPrev = self.sumRegionPopup.prevPoint
+                self.sumRegionPopup.prevPoint = [posx, posy]
+                if label == "closing_segment":
+                    self.sumRegionPopup.prevPoint = xyPrev
             if xyPrev is None or len(xyPrev) == 0 :
                return
             else :
@@ -3563,7 +3895,7 @@ class MainWindow(QMainWindow):
                 ax.add_line(l)
         if l is None :
             return 
-        elif self.currentPlot.toCreateSRegion :
+        elif self.currentPlot.toCreateSumRegion :
             l.set_color('b')
         else:
             l.set_color('r')
@@ -3572,13 +3904,15 @@ class MainWindow(QMainWindow):
 
     #called in on_singleclick_gate to remove previous point by right click while making a new gate
     def removePrevLine(self):
-        l = self.gatePopup.listGateLine[0]
-        l.remove()
-        self.gatePopup.listGateLine.pop(0)
-        if len(self.currentPlot.xs)>0:
-            self.currentPlot.xs.pop(0)
-        if (DEBUG):
-            print("after removing lines...", self.currentPlot.xs)
+        popup = None
+        if self.currentPlot.toCreateGate :
+            popup = self.gatePopup
+        elif self.currentPlot.toCreateSumRegion :
+            popup = self.sumRegionPopup
+        if popup is not None:
+            l = popup.listRegionLine[0]
+            l.remove()
+            popup.listRegionLine.pop(0)
         
 
     #reset signals to continue adding/modifying gate point
@@ -3720,9 +4054,21 @@ class MainWindow(QMainWindow):
                         return
                     # calculate the distance between each marker and the event.
                     distances = np.linalg.norm(markerPos - self.xyRef.reshape(2, -1), axis=0)
-                    dataRadius = abs(ax.transData.inverted().transform([[self.epsilon, 0]])[0, 0])
+                    # dataRadius = abs(ax.transData.inverted().transform([[self.epsilon, 0]])[0, 0])
+                    # dataRadius = self.epsilon
+
+                    #not fan of plt.gcf()...
+                    xlims = ax.get_xlim()
+                    ylims = ax.get_ylim()
+                    figTest = plt.gcf()
+                    plottingAreaWidth, plottingAreaHeight = figTest.get_size_inches() * figTest.dpi
+                    radX = self.pixel_to_data_distance(self.epsilon, xlims, plottingAreaWidth)
+                    radY = self.pixel_to_data_distance(self.epsilon, ylims, plottingAreaHeight)
+                    dataRadius = math.sqrt(radX*radX + radY*radY)
+
                     # get the marker index if marker is close to the click position.
                     markerIdx = np.where(distances <= dataRadius)[0]
+                    # print("Simon - followmouse -", markerIdx, markerPos, distances, dataRadius, self.xyRef, radX, radY)
                     if markerIdx.size == 0:
                         pass
                     else:
@@ -3741,8 +4087,15 @@ class MainWindow(QMainWindow):
         self.currentPlot.canvas.draw_idle()
 
 
+    # Function to transform pixel distance to data coordinate distance
+    def pixel_to_data_distance(self, pixel_distance, axis_limits, plotting_area_size):
+        axis_range = axis_limits[1] - axis_limits[0]
+        pixel_to_data_ratio = axis_range / plotting_area_size
+        return pixel_distance * pixel_to_data_ratio
+
+
     #goes with hotkey to edit gate, depending if left or right click, add or delete gate point (2d)
-    def on_singleclick_gate_edit(self, event, index):
+    def on_singleclick_gate_edit(self, event):
         dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
         ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
         if ax is None:
@@ -3774,7 +4127,7 @@ class MainWindow(QMainWindow):
 
 
 
-    #udpate the gatePopup.gatePoint text according to the gateList [line2D]
+    #udpate the gatePopup.regionPoint text according to the gateList [line2D]
     def updateTextGatePopup(self, gateList):
         # Add text in gatePopup
         dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
@@ -3800,8 +4153,8 @@ class MainWindow(QMainWindow):
                 else :
                     lineText = lineText + (f"\n{nbLine}: X= {lines[nbLine][0]:.5f}   Y= {lines[nbLine][1]:.5f}") 
 
-        self.gatePopup.gatePoint.clear()
-        self.gatePopup.gatePoint.insertPlainText(lineText)
+        self.gatePopup.regionPoint.clear()
+        self.gatePopup.regionPoint.insertPlainText(lineText)
 
 
     # For gate editing when pick_event signal
@@ -3825,7 +4178,7 @@ class MainWindow(QMainWindow):
                 self.editThisGateLine = lineCandidate[0]
         else :
             return
-        #Following block sets the name and type in gatePopup and get the segment number to update self.gatePopup.listGateLine
+        #Following block sets the name and type in gatePopup and get the segment number to update self.gatePopup.listRegionLine
         labelSplit = lineCandidate[0].get_label().split("_-_")
         if len(labelSplit) != 3 or labelSplit[0] != "gate":
             print("Warning - clickOnGateLine - lineLabel not in the expected format")
@@ -3837,7 +4190,7 @@ class MainWindow(QMainWindow):
         self.gatePopup.listGateType.clear()
         self.gatePopup.listGateType.addItem(gate[0]["type"])
 
-        #Fill listGateLine with the axis child, in order to use pushGateToRest later in okGate
+        #Fill listRegionLine with the axis child, in order to use pushGateToRest later in okGate
         gateIdentifier = "gate_-_" + gateName + "_-_"
         gateLines = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier in child.get_label()]
 
@@ -3885,83 +4238,260 @@ class MainWindow(QMainWindow):
     ##############################
 
     def integrate(self):
-        if (DEBUG):
-            print("Inside integrate")
-            print(self.currentPlot.artist_dict)
-        try:
-            for histo_name, gates in self.currentPlot.artist_dict.items():
-                if (DEBUG):
-                    print(histo_name, gates)
-                if (self.wConf.histo_list.currentText() == histo_name):
-                    # if histo_name and "summing_region" not in histo_name:
-                    if "summing_region" not in histo_name:
-                        for gate_name, gate_line in gates.items():
-                            if (DEBUG):
-                                print(gate_name, gate_line)
-                            results = self.rest.integrateGate(histo_name, gate_name)
-                            self.addRegion(histo_name, gate_name, results)
-                self.resultPopup()
-
-            for histo_name, regions in self.currentPlot.region_dict.items():
-                if (DEBUG):
-                    print(histo_name, regions)
-                if (self.wConf.histo_list.currentText() == histo_name):
-                    # if histo_name and "summing_region" not in histo_name:
-                    if "summing_region" not in histo_name:
-                        for region_name, region_line in regions.items():
-                            if (DEBUG):
-                                print(region_name, region_line)
-                            results = self.rest.integrateGate(histo_name, region_name)
-                            self.addRegion(histo_name, region_name, results)
-                self.resultPopup()
-        except NameError:
-            pass
-
-
-    def resultPopup(self):
-        self.resPopup.setGeometry(100,100,724,500)
-        if self.resPopup.isVisible():
-            self.resPopup.close()
-
-        self.resPopup.show()
-
-
-    def addRegion(self, histo, gate, results):
-        if (DEBUG):
-            print("Inside addRegion")
-        # Schema for output window
-        #["ID", "Spectrum", "Name", "centroid X", "centroid Y", "FWHM X", "FWHM Y", "Area"]
-        self.resPopup.tableWidget.setRowCount(0);
-
-        if (DEBUG):
-            print(results)
-        hname = histo
-        gname = gate
-        cx = 0
-        cy = 0
-        fwhmx = 0
-        fwhmy = 0
-        if isinstance(results["centroid"], list):
-            cx = str(results["centroid"][0])
-            cy = str(results["centroid"][1])
-            fwhmx = str(results["fwhm"][0])
-            fwhmy = str(results["fwhm"][1])
+        ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
+        if ax is None or self.currentPlot.selected_plot_index is None:
+            return QMessageBox.about(self,"Warning!", "Please add/select one spectrum")
         else:
-            cx = str(results["centroid"])
-            fwhmx = str(results["fwhm"])
-        counts = str(results["counts"])
+            index = self.currentPlot.selected_plot_index
 
-        self.table_row.append([self.ctr, hname, gname, cx, cy, fwhmx, fwhmy, counts])
-        self.ctr += 1
+            #reset info 
+            self.integratePopup.clearInfo()
+            self.disconnectGateSignals()
 
-        for row in self.table_row:
-            inx = self.table_row.index(row)
-            self.resPopup.tableWidget.insertRow(inx)
-            for i in range(len(row)):
-                self.resPopup.tableWidget.setItem(inx,i,QTableWidgetItem(str(row[i])))
-        header = self.resPopup.tableWidget.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.Stretch)
-        self.resPopup.tableWidget.resizeColumnsToContents()
+            #Set column headers of the results table
+            colHeader = ['Spectrum', 'Region', 'Counts', 'Centroid X', 'Centroid Y', 'FWHM X', 'FWHM Y']
+            for col, header in enumerate(colHeader):
+                headerItem = QTableWidgetItem(header)
+                font = self.integratePopup.resultsText.font()
+                font.setBold(True)
+                headerItem.setFont(font)
+                self.integratePopup.resultsText.setHorizontalHeaderItem(col, headerItem)
+
+            #get a results dict for summing region
+            resultsCombined = {}
+            results = self.integrateSummingRegion(index)
+
+            #now get a results dict for gates
+            gateIdentifier = "gate_-_" 
+            gateLines = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier in child.get_label()]
+            resultsGate = self.integrateGateLocal(index, gateLines)
+
+            #combining integration results 
+            if results is not None and len(results) > 0 and resultsGate is not None and len(resultsGate) > 0:
+                resultsCombined = results
+                for specName, listGateResults in resultsGate.items():
+                    if specName in resultsCombined.keys():
+                        resultsCombined[specName].append(listGateResults[0])
+                    else :
+                        resultsCombined[specName] = listGateResults
+            elif results is not None and len(results) > 0:
+                resultsCombined = results                
+            else :
+                resultsCombined = resultsGate
+
+            #if no result set default message
+            if resultsCombined is None or len(resultsCombined) == 0:
+                self.integratePopup.resultsText.insertRow(0)
+                default = "Nothing to integrate"
+                newItem = QTableWidgetItem(default)
+                self.integratePopup.resultsText.setItem(0, 0, newItem)
+                self.integratePopup.show()
+                return
+            else :
+                self.formatResultsIntegrate(resultsCombined)
+                #for copy to clipboard
+                self.sidTableIntegrateCopy = self.integratePopup.resultsText.itemSelectionChanged.connect(self.copySelectionIntegrateTable)
+                self.integratePopup.show()
+
+
+    def okIntegrate(self):
+        self.disconnectGateSignals()
+        self.integratePopup.close()
+
+
+    def copySelectionIntegrateTable(self):
+        resultTable = self.integratePopup.resultsText
+        selectedItems = resultTable.selectedItems()
+        if not selectedItems:
+            return
+        allValues = []
+        for irow in range(resultTable.rowCount()):
+            rowValues = []
+            for icol in range(resultTable.columnCount()):
+                item = resultTable.item(irow, icol)
+                if item:
+                    rowValues.append(item.text())
+                else:
+                    rowValues.append("")
+            #separate rowValues with tab
+            if len(rowValues) > 0:
+                allValues.append("\t".join(rowValues))
+        #separate row with new line
+        formattedText = "\n".join(allValues)
+        # Set the clipboard text
+        QApplication.clipboard().setText(formattedText)
+
+
+    def formatResultsIntegrate(self, results):
+        # {'rawSet.0.other': [{'centroid': 0.0, 'fwhm': 0.0, 'counts': 37091.0, 'regionName': 'aaa'}, 
+        # [{'centroid': 0.0, 'fwhm': 0.0, 'counts': 37091.0, 'regionName': 'slice_002'}]]}
+        dum = []
+        irow = 0
+        for spectrumName, resultList in results.items():
+            #keep following commented lines- anticipate feature to show integration results of all spectrum in current tab
+            # foundName = False
+            # for row in range(self.integratePopup.resultsText.rowCount()):
+            #     item = self.integratePopup.resultsText.item(row, 0)
+            #     # print("Simon - in founName loop ", foundName, item, spectrumName, self.integratePopup.resultsText.item(row, 1), self.integratePopup.resultsText.item(row, 2), row )
+            #     if item == spectrumName:
+            #         foundName = True
+            #         break
+            # # print("Simon - after founName ", foundName, spectrumName )
+            # if foundName :
+            #     continue      
+
+            #result is a dict in resultList
+            for result in resultList:
+                if len(result) == 0:
+                    continue
+                elif "centroid" in result.keys():
+                    #a centroid list should mean it is dim == 2
+                    if type(dum) == type(result["centroid"]):
+                        row = [spectrumName, result["regionName"], str(result["counts"]), str(result["centroid"][0]), str(result["centroid"][1]), str(result["fwhm"][0]), str(result["fwhm"][1])]
+                    else:
+                        row = [spectrumName, result["regionName"], str(result["counts"]), str(result["centroid"]), '',  str(result["fwhm"]), '']
+                
+                #have now a row to insert
+                self.integratePopup.resultsText.insertRow(irow)
+                #set data of the new row
+                for icol, cell in enumerate(row):
+                    #spectrumName is inserted only the first time
+                    if icol == 0 and self.integratePopup.resultsText.findItems(cell, QtCore.Qt.MatchFixedString):
+                        continue
+                    newItem = QTableWidgetItem(cell)
+                    self.integratePopup.resultsText.setItem(irow, icol, newItem)
+                irow += 1
+
+        self.integratePopup.show()
+
+
+    def integrateGateLocal(self, index, gateLines):
+        resultsList = []
+        resultsDict = {}
+        index = self.currentPlot.selected_plot_index
+
+        #find lineList of summing regions 
+        lineList = gateLines
+        if lineList is None or len(lineList) == 0 :
+            return
+
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        spectrumName = self.nameFromIndex(index) 
+
+        step = 1
+        if dim == 1:
+            #assuming there are two consecutive lines per summing region for 1d
+            step = 2
+
+        #just need the gateName for gates, since there are already in REST
+        for iLine in range(0, len(lineList), step):
+            if dim == 1:
+                gateName = lineList[iLine].get_label().split("_-_")[1]
+            elif dim == 2:
+                firstPoint = lineList[iLine].get_xydata()[0]
+                lastPoint = lineList[iLine].get_xydata()[-1]
+                #dont want band type (not closed contour)
+                if firstPoint[0] == lastPoint[0] and firstPoint[1] == lastPoint[1]:
+                    gateName = lineList[iLine].get_label().split("_-_")[1]
+                else :
+                    continue
+            results = self.rest.integrateGate(spectrumName, gateName)
+            # print('Simon - integrateGateLocal - ', results)
+            #if error during integration results can be a status string, not a dict
+            # if results is not None or type(results) != type("dum"):
+            try:
+                #Add gateName to result dict
+                results['regionName'] = gateName
+                resultsList.append(results)
+            except TypeError :
+                continue
+        resultsDict[spectrumName] = resultsList
+        return resultsDict
+
+
+    #dirty trick to integrate summing region, push to REST a temporary gate as the summing region and delete it in REST once integrated
+    def integrateSummingRegion(self, index):
+        resultsList = []
+        resultsDict = {}
+        index = self.currentPlot.selected_plot_index
+
+        #find lineList of summing regions 
+        lineList = self.getSumRegion(index)
+        if lineList is None or len(lineList) == 0 :
+            return
+
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        parameters = self.getSpectrumInfoREST("parameters", index=index)
+        spectrumType = self.getSpectrumInfoREST("type", index=index)
+        spectrumName = self.nameFromIndex(index) 
+        # gateTypesDict = {"b": ["NotDefinedYet"], "1": ["s"], "g1": ["s"], "2": ["c"], "g2": ["c"], "gd": ["c"], "m2": ["c"], "s": ["NotDefinedYet"]}
+        # gateTypesDict = {"b": ["NotDefinedYet"], "1": ["s"], "g1": ["gs"], "2": ["c"], "g2": ["gc"], "gd": ["gc"], "m2": ["c"], "s": ["NotDefinedYet"]}
+        gateTypesDict = {"b": ["NotDefinedYet"], "1": ["s"], "g1": ["NotDefinedYet"], "2": ["c"], "g2": ["NotDefinedYet"], "gd": ["NotDefinedYet"], "m2": ["NotDefinedYet"], "s": ["NotDefinedYet"]}
+
+        if spectrumType in gateTypesDict.keys():
+            #only one gate/summing region type
+            gateType = gateTypesDict[spectrumType][0]
+            if gateType == "NotDefinedYet":
+                msgBox = QMessageBox(self)
+                msgBox.setIcon(QMessageBox.Warning)
+                msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+                msgBox.setText('Integration not available for "' + spectrumType + '" spectrum')
+                #msgBox.setInformativeText('Check latest SpecTcl version')
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setDefaultButton(QMessageBox.Ok)
+                ret = msgBox.exec()
+                return
+        else :
+            return
+
+        # print("Simon - integrateSummingRegion - ", index, dim, spectrumName, gateType, lineList)
+        
+        step = 1
+        if dim == 1:
+            #assuming there are two consecutive lines per summing region for 1d
+            step = 2
+
+        for iLine in range(0, len(lineList), step):
+            boundaries = []
+            if dim == 1:
+                gateName = lineList[iLine].get_label().split("_-_")[1]
+                # gate 1Dgate_xamine s {aris.db1.ppac0.uc {1392.232056 1665.277466}}
+                boundaries = [lineList[iLine].get_xdata()[0], lineList[iLine+1].get_xdata()[0]]
+                # sort such that lowest first
+                if boundaries[0] > boundaries[1]:
+                    boundaries.sort()
+            elif dim == 2:
+                #{'2Dgate_xamine': {'name': '2Dgate_xamine', 'type': 'c',
+                # 'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
+                # 'points': [{'x': 126.876877, 'y': 29.429428}, {'x': 125.625626, 'y': 25.825825},
+                #            {'x': 126.626625, 'y': 22.522522}, {'x': 129.879883, 'y': 22.522522}, {'x': 130.63063, 'y': 26.126125}, {'x': 129.629623, 'y': 29.129128}]
+                #}}
+                gateName = lineList[iLine].get_label().split("_-_")[1]
+                points = lineList[iLine].get_xydata()
+                for ipoint in range(len(points)):
+                    boundaries.append({"x": points[ipoint][0], "y": points[ipoint][1]})
+                
+            self.rest.createGate(gateName, gateType, parameters, boundaries)
+
+            #now that the summing region gate exist, integrate
+            results = self.rest.integrateGate(spectrumName, gateName)
+
+            # print("Simon - integrateSummingRegion after integrate - ", results)
+
+            #if error during integration results can be a status string, not a dict
+            if results is None or type(results) == type("dum"):
+                return
+
+            #Add gateName to result dict
+            results['regionName'] = gateName
+            resultsList.append(results)
+
+            #results are obtained, can delete the temporary gate
+            self.rest.deleteGate(gateName)
+
+        resultsDict[spectrumName] = resultsList
+        return resultsDict
+
 
 
     ############################
@@ -4470,16 +5000,37 @@ class MainWindow(QMainWindow):
 
     #for debug
     def axesChilds(self):
-        try:                       
+        try:      
             for ax in self.currentPlot.figure.axes:
+                print("Simon - axes ---------------------------- ",ax)
                 for child in ax.get_children():
-                    # print("Simon - axesChilds - ",type(child))
+                    print("Simon - axesChilds - ",child)
                     if type(child) == matplotlib.lines.Line2D :
                         print("Simon - axesChild get_c", child.get_c())
                         print("Simon - axesChild get_lw", child.get_lw())
                         print("Simon - axesChild get_ls", child.get_ls())
                         print("Simon - axesChild get_xdata:",child.get_xdata())
                         print("Simon - axesChild get_ydata:",child.get_ydata())
+        except NameError:
+            raise
+
+
+    #for debug
+    def axesChildsTest(self, axis=None):
+        try:    
+            dumTypeList = []
+
+            if type(axis) == type(dumTypeList):
+                return
+            print("Simon - axes ---------------------------- ",axis)
+            for child in axis.get_children():
+                print("Simon - axesChilds - ",child)
+                if type(child) == matplotlib.lines.Line2D :
+                    print("Simon - axesChild get_c", child.get_c())
+                    print("Simon - axesChild get_lw", child.get_lw())
+                    print("Simon - axesChild get_ls", child.get_ls())
+                    print("Simon - axesChild get_xdata:",child.get_xdata())
+                    print("Simon - axesChild get_ydata:",child.get_ydata())
         except NameError:
             raise
 
@@ -4544,3 +5095,27 @@ class centeredNorm(colors.Normalize):
         if halfrange is None:
             halfrange = np.max(np.abs(data - vcenter))
         super().__init__(vmin=vcenter - halfrange, vmax=vcenter + halfrange, clip=clip)
+
+
+# class summingRegionPopup(QDialog):
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+
+#         self.labelName = QLabel(self)
+#         self.labelName.setText("Name")
+#         self.lineEditName = QLineEdit(self)
+#         self.okButton = QPushButton("Ok", self)
+#         self.cancelButton = QPushButton("Cancel", self)
+
+#         mainLayout = QGridLayout()
+#         buttonsLayout = QHBoxLayout()
+#         fieldsLayout = QHBoxLayout()
+#         fieldsLayout.addWidget(self.labelName)
+#         fieldsLayout.addWidget(self.lineEditName)
+#         buttonsLayout.addWidget(self.okButton)
+#         buttonsLayout.addWidget(self.cancelButton)
+
+#         mainLayout.addLayout(fieldsLayout, 1, 0, 1, 0)
+#         mainLayout.addLayout(buttonsLayout, 2, 0, 1, 0)
+#         self.setLayout(mainLayout)
+        

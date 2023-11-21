@@ -67,12 +67,12 @@ class Plot(QWidget):
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.copyButton = QPushButton("Copy Properties", self)
         self.histoLabel = QLabel(self)
-        self.histoLabel.setText("Histogram: \nX: Y:")
+        self.histoLabel.setText("Spectrum: \nX: Y:")
         self.gateLabel = QLabel(self)
         self.gateLabel.setText("Gate applied: \n")
         self.pointerLabel = QLabel(self)
-        self.pointerLabel.setText("Pointer: \nX: Y: Z:")
-        self.createSRegion = QPushButton("Summing region", self)
+        self.pointerLabel.setText("Pointer: \nX: Y: Count:")
+        # self.createSumRegionButton = QPushButton("Summing region", self)
         self.histo_autoscale = QCheckBox("Autoscale",self)
         self.logButton = QPushButton("Log", self)
         self.logButton.setFixedWidth(50)
@@ -119,7 +119,6 @@ class Plot(QWidget):
         self.toolbar.addWidget(self.histoLabel)
         self.toolbar.addWidget(self.gateLabel)
         self.toolbar.addWidget(spacer2)
-        self.toolbar.addWidget(self.createSRegion)
         self.toolbar.addWidget(self.copyButton)
         self.toolbar.addAction(saveAction)
 
@@ -186,7 +185,7 @@ class Plot(QWidget):
         self.counter_sr = 0
         self.toCreateGate = False
         self.toEditGate = False
-        self.toCreateSRegion = False
+        self.toCreateSumRegion = False
         self.xs = []
         self.ys = []
         # #temporary holds gate lines - to control edition with on_singleclick and on_dblclick (reset once gate is pushed to ReST)

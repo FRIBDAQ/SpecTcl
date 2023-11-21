@@ -196,7 +196,6 @@ class PyREST:
     # delete gate. the name parameter provides the name of the gate to delete
     def deleteGate(self, name):
         url = "http://"+self.server+":"+self.rest+"/spectcl/gate/delete?name="+str(name)
-
         self.sendRequest(url)
 
     # edit/create gate. It creates or redefines an existing gate. The name parameter specifies the name of the gate.
