@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import *
 import CPyConverter as cpy
 from Functions1DGUI import Fncts1D # popup peak finder window
 from Functions2DGUI import Fncts2D # popup clustering and overlaying an image window
+from otherOptions import options # popup clustering and overlaying an image window
 
 class SpecialFunctions(QWidget):
     def __init__(self, *args, **kwargs):
@@ -18,7 +19,8 @@ class SpecialFunctions(QWidget):
             self.setWindowTitle("Special Functions")
             
             self.peak = Fncts1D()
-            self.imaging = Fncts2D()            
+            self.imaging = Fncts2D() 
+            self.options = options()       
             
             self.layout = QHBoxLayout()
             self.layout.addWidget(self.create_fitBox())
@@ -30,6 +32,7 @@ class SpecialFunctions(QWidget):
             
             self.layout.addLayout(self.v)
             self.layout.addWidget(self.imaging.create_liseBox())
+            self.layout.addWidget(self.options.create_options())
             # fillpoints has issues with speed
             clustering = self.imaging.create_clusterBox()
             #clustering.setEnabled(False)
