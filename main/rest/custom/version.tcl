@@ -67,6 +67,7 @@ proc SpecTcl_version {} {
                 [json::write object                                       \
                     major $major  minor $minor                            \
                     editlevel [json::write string $edit]                  \
+                    program_name [json:write string SpecTcl]              \
                  ]                                                        \
            ]
 }
