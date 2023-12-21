@@ -138,7 +138,6 @@ class Plot(QWidget):
         self.h_dict_geo = {}
         self.h_dict_geo_bak = {}
         self.axbkg = {}
-        self.h_limits = {} # dictionary with axis limits for the histogram
         self.h_log = {} # bool dict for linear/log axes
         self.h_log_bak = {} # bool dict for linear/log axes - backup
         self.h_setup = {} # bool dict for setting histograms
@@ -202,7 +201,6 @@ class Plot(QWidget):
         if flag:
             self.h_dict.clear()
             self.h_dict_geo.clear()
-            self.h_limits.clear()
 
             self.index = 0
             self.idx = 0
@@ -211,7 +209,6 @@ class Plot(QWidget):
             print("The following three should be empty!")
             print("self.h_dict",self.h_dict)
             print("self.h_dict_geo",self.h_dict_geo)
-            print("self.h_limits",self.h_limits)
 
         self.figure.clear()
         self.InitializeFigure(self.CreateFigure(row, col), row, col, flag)
@@ -222,7 +219,6 @@ class Plot(QWidget):
             print("The following three should NOT be empty!")
             print("self.h_dict",self.h_dict)
             print("self.h_dict_geo",self.h_dict_geo)
-            print("self.h_limits",self.h_limits)
 
     def CreateFigure(self, row, col):
         self.grid = gridspec.GridSpec(ncols=col, nrows=row, figure=self.figure)

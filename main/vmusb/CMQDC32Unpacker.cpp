@@ -185,7 +185,6 @@ CMQDC32Unpacker::operator()(CEvent&                       rEvent,
     // then save the count field ans parameter 32.
     
     if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
-      std::cout << "inside trailer.." << std::endl;
       uint32_t value = datum & TRAILER_COUNTMASK;
       int      id    = pMap->map[32];
       if (id != -1) {
