@@ -21,12 +21,15 @@ class options(QDialog):
         self.gateAnnotation = QCheckBox("Gate annotation",self)
         self.gateEditDisable = QCheckBox("Disable gate edition",self)
         self.gateHide = QCheckBox("Hide gate",self)
+        self.debugMode = QCheckBox("Debug mode",self)
+        self.debugMode.setToolTip("When checked, print debug info into ./debugCutiePie.log")  
 
 
         layout = QGridLayout()
         layout.addWidget(self.gateAnnotation, 1, 1, 1, 1)
         layout.addWidget(self.gateEditDisable, 2, 1, 1, 1)
         layout.addWidget(self.gateHide, 3, 1, 1, 1)
+        layout.addWidget(self.debugMode, 4, 1, 1, 1)
         layout.setAlignment(Qt.AlignTop)
         pCheck.setLayout(layout)
 

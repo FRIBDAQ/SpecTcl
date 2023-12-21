@@ -9,6 +9,7 @@ from copy import copy, deepcopy
 from itertools import chain, compress, zip_longest
 import pandas as pd
 import numpy as np
+import logging, logging.handlers
 
 sys.path.append(os.getcwd())
 
@@ -151,6 +152,34 @@ class MainWindow(QMainWindow):
         # self.lineEdit.textEdited.connect(self.updateStatusBar)
         # self.updateStatusBar()
 
+
+        # initialize debug logging 
+        logging.basicConfig(datefmt='%d-%b-%y %H:%M:%S')        
+        
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+
+        # define streamHandler for logging
+        formatterStreamHandler = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        self.streamHandler = logging.StreamHandler()
+        self.streamHandler.setLevel(logging.WARNING)
+        self.streamHandler.setFormatter(formatterStreamHandler)
+
+        # define fileHandler for logging
+        formatterFileHandler   = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        #when='h', interval=1, backupCount=0 means overwrite log file every 1h
+        # 1 backup log file created, 0 gives infinite backup
+        self.fileHandler = logging.handlers.TimedRotatingFileHandler(
+            filename="debugCutiePie.log", when='m', interval=10, backupCount=1)
+        self.fileHandler.setLevel(logging.DEBUG)
+        self.fileHandler.setFormatter(formatterFileHandler)
+
+        #add only stream handler here, the fileHandler is added/removed by user action
+        self.logger.addHandler(self.streamHandler)
+        #following line to avoid main logger printing log in addition to its handlers
+        self.logger.propagate = False
+
+
         self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
 
@@ -160,13 +189,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("CutiePie(QtPy) - It's not a bug, it's a feature (cit.)")
         self.setMouseTracking(True)
 
-        #check if there are arguments or not
-        try:
-            self.args = dict(args)
-            if (DEBUG):
-                print("self.args",self.args)
-        except:
-            pass
 
         #######################
         # 1) Main layout GUI
@@ -348,7 +370,7 @@ class MainWindow(QMainWindow):
         # copy properties
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
         # autoscale
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.autoScaleAxisBox)
+        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(lambda: self.autoScaleAxisBox(None))
         # plus button
         self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomInOut("in"))
         # minus button
@@ -385,6 +407,7 @@ class MainWindow(QMainWindow):
 
         self.extraPopup.options.gateAnnotation.clicked.connect(self.gateAnnotationCallBack)
         self.extraPopup.options.gateHide.clicked.connect(self.updatePlot)
+        self.extraPopup.options.debugMode.clicked.connect(self.debugModeCallBack)
 
         self.extraPopup.imaging.loadButton.clicked.connect(self.loadFigure)
         self.extraPopup.imaging.addButton.clicked.connect(self.addFigure)
@@ -427,6 +450,7 @@ class MainWindow(QMainWindow):
 
     #So that signals work for each tab, called in clickedTab()
     def bindDynamicSignal(self):
+        self.logger.info('bindDynamicSignal')
         for index, val in self.wTab.countClickTab.items():
             if val:
                 self.wTab.wPlot[index].logButton.disconnect()
@@ -439,7 +463,7 @@ class MainWindow(QMainWindow):
                 self.wTab.countClickTab[index] = False
 
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[1].triggered.connect(self.zoomCallback)
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.autoScaleAxisBox)
+        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(lambda: self.autoScaleAxisBox(None))
         self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomInOut("in"))
         self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomInOut("out"))
         self.wTab.wPlot[self.wTab.currentIndex()].cutoffButton.clicked.connect(self.cutoffButtonCallback)
@@ -516,6 +540,7 @@ class MainWindow(QMainWindow):
             else :
                 self.currentPlot.gateLabel.setText("Gate applied: \n") 
         except:
+            # self.logger.debug('histoHover - exception', exc_info=True)
             self.currentPlot.histoLabel.setText("Spectrum: \nX: Y:")
             self.currentPlot.pointerLabel.setText(f"Pointer:\nX: Y: Count: ")
             self.currentPlot.gateLabel.setText("Gate applied: \n")
@@ -558,17 +583,20 @@ class MainWindow(QMainWindow):
                 elif "bins" == info:
                     result = [binminx, binminy,'']
         except NameError:
+            self.logger.error('getPointerInfo - NameError exception', exc_info=True)
             raise
         return result
      
 
     def on_resize(self, event):
+        self.logger.info('on_resize')
         self.currentPlot.figure.tight_layout()
         self.currentPlot.canvas.draw()
 
 
     #Hotkey triggering toolbar zoom action 
     def zoomKeyCallback(self):
+        self.logger.info('zoomKeyCallback')
         self.currentPlot.canvas.toolbar.actions()[1].triggered.emit()
         self.currentPlot.canvas.toolbar.actions()[1].setChecked(True)
 
@@ -577,6 +605,7 @@ class MainWindow(QMainWindow):
     # For this purpose dont need to check if release outside of axis (it can happen)
     # small delay introduced such that updatePlotLimits is executed after on_release.
     def on_release(self, event):
+        self.logger.info('on_release - self.currentPlot.zoomPress: %s',self.currentPlot.zoomPress)
         # print("Simon - on_release - self.currentPlot.zoomPress",self.currentPlot.zoomPress,self.currentPlot.canvas.toolbar.actions()[1].isChecked())
         if self.currentPlot.zoomPress:
             self.currentPlot.canvas.toolbar.actions()[1].triggered.emit()
@@ -589,6 +618,7 @@ class MainWindow(QMainWindow):
     # when mouse pressed in main window
     # Introduced for endding zoom action (toolbar) see on_release and on_press too
     def mousePressEvent(self, event: QMouseEvent) -> None:
+        self.logger.info('mousePressEvent - self.currentPlot.zoomPress: %s',self.currentPlot.zoomPress)
         # print("Simon - mousePressEvent - ",self.currentPlot.zoomPress,self.currentPlot.canvas.toolbar.actions()[1].isChecked())
         if not self.currentPlot.zoomPress : return 
         #height and width determined empirically... better if overestimated because event handled by on_press in that case
@@ -612,6 +642,7 @@ class MainWindow(QMainWindow):
 
     #callback for button_press_event
     def on_press(self, event):
+        self.logger.info('on_press')
         # print("Simon - on_press - ",self.currentPlot.zoomPress,self.currentPlot.canvas.toolbar.actions()[1].isChecked())
         #if initate zoom (magnifying glass) but dont press in axes, reset the action
         if self.currentPlot.zoomPress and not event.inaxes: 
@@ -668,9 +699,8 @@ class MainWindow(QMainWindow):
 
 
     #called by on_press when not in create/edit Gate mode
-    def on_singleclick(self, index):
-        if (DEBUG):
-            print("Inside on_singleclick in tab",self.wTab.currentIndex())
+    def on_singleclick(self, index):            
+        self.logger.info('on_singleclick - index: %s', index)
         # change the log button status manually only here according to spectrum info
         # so that when one clicks on a spectrum the button shows if log or not
         axisIsLog = self.getSpectrumInfo("log", index=index)
@@ -691,8 +721,7 @@ class MainWindow(QMainWindow):
         # If we are not zooming on one histogram we can select one histogram
         # and a red rectangle will contour the plot
         if self.currentPlot.isEnlarged == False:
-            if (DEBUG):
-                print("Inside on_singleclick - Enlarge false")
+            self.logger.debug('on_singleclick - isEnlarged FALSE')
             self.removeRectangle()
             self.currentPlot.isSelected = True
             self.currentPlot.next_plot_index = self.currentPlot.selected_plot_index
@@ -705,6 +734,7 @@ class MainWindow(QMainWindow):
     def closestBinPos(self, index=None, x=None, y=None):
         result = None 
         if index is None :
+            self.logger.debug('closestBinPos - index is None')
             return result
 
         dim = self.getSpectrumInfoREST("dim", index=index)
@@ -739,6 +769,7 @@ class MainWindow(QMainWindow):
     #called by on_press when create gate mode
     #add new 2DLines in ax and set text points of gatePopup
     def on_singleclick_gate(self, event, index):
+        self.logger.info('on_singleclick_gate - index: %s', index)
         if self.currentPlot.isEnlarged == True:
             dim = self.getSpectrumInfoREST("dim", index=index)
             gateType = self.gatePopup.listGateType.currentText()
@@ -808,6 +839,7 @@ class MainWindow(QMainWindow):
 
     # called by on_press, right click when creating a gate is removing the last point and so change contour lines and update point text in gatePopup
     def on_singleclick_gate_right(self, index):
+        self.logger.info('on_singleclick_gate_right - index: %s',index)
         if self.currentPlot.isEnlarged == True:
             
             dim = self.getSpectrumInfoREST("dim", index=index)
@@ -822,6 +854,7 @@ class MainWindow(QMainWindow):
                     try:
                         self.gatePopup.prevPoint = [self.gatePopup.listRegionLine[-2].get_xdata()[0], self.gatePopup.listRegionLine[-2].get_ydata()[0]]
                     except IndexError:
+                        self.logger.debug('on_sinon_singleclick_gate_rightgleclick_sumRegion_right - IndexError', exc_info=True)
                         return
                     # if contour has only 3 lines, remove the two last lines 
                     if lineNb == 3 :
@@ -867,6 +900,7 @@ class MainWindow(QMainWindow):
     #add new 2DLines in ax and set text points of sumRegionPopup
     #similar to on_singleclick_gate, should merge both (difference in isEnlarged, popup object and need type check for gate)
     def on_singleclick_sumRegion(self, event, index):
+        self.logger.info('on_singleclick_sumRegion - index: %s',index)
         dim = self.getSpectrumInfoREST("dim", index=index)
         if dim == 1:
             # second arg = 0 not used for 1d
@@ -934,7 +968,7 @@ class MainWindow(QMainWindow):
     # called by on_press, right click when creating a summing region is removing the last point and so change contour lines and update point text
     # Similar to on_singleclick_gate_right, should merge both (difference in isEnlarged, gateType,  )
     def on_singleclick_sumRegion_right(self, index):
-        
+        self.logger.info('on_singleclick_sumRegion_right - index: %s',index)
         dim = self.getSpectrumInfoREST("dim", index=index)
         
         if dim == 2:
@@ -943,6 +977,7 @@ class MainWindow(QMainWindow):
             try:
                 self.sumRegionPopup.prevPoint = [self.sumRegionPopup.listRegionLine[-2].get_xdata()[0], self.sumRegionPopup.listRegionLine[-2].get_ydata()[0]]
             except IndexError:
+                self.logger.debug('on_singleclick_sumRegion_right - IndexError', exc_info=True)
                 return
             # if contour has only 3 lines, remove the two last lines 
             if lineNb == 3 :
@@ -975,17 +1010,13 @@ class MainWindow(QMainWindow):
 
     #called by on_press when not in ceate/edit gate mode
     def on_dblclick(self, idx):
-        if (DEBUG):
-            print("Inside on_dblclick in tab", self.wTab.currentIndex())
+        self.logger.info('on_dblclick - idx, self.wTab.currentIndex(): %s, %s' ,idx, self.wTab.currentIndex())
         name = self.nameFromIndex(idx)
         index = self.wConf.histo_list.findText(name)
         self.wConf.histo_list.setCurrentIndex(index)
-        if (DEBUG):
-            print("UPDATE plot the histogram at index", idx, "with name", self.wConf.histo_list.currentText())
 
         if self.currentPlot.isEnlarged == False: # entering enlarged mode
-            if (DEBUG):
-                print("###### Entering enlarged mode...")
+            self.logger.debug('on_dblclick - isEnlarged TRUE')
             self.removeRectangle()
             #important that zoomPlotInfo is set only while in zoom mode (not None only here)
             self.setEnlargedSpectrum(idx, name)
@@ -1015,14 +1046,13 @@ class MainWindow(QMainWindow):
             self.currentPlot.h_setup[idx] = False
             self.updatePlot()
         else:
+            self.logger.debug('on_dblclick - isEnlarged FALSE')
             # enabling adding histograms
             self.wConf.histo_geo_add.setEnabled(True)
             # enabling changing canvas layout
             self.wConf.histo_geo_row.setEnabled(True)
             self.wConf.histo_geo_col.setEnabled(True)
 
-            if (DEBUG):
-                print("##### Exiting zooming mode...")
             # disabling gate creation
             # self.currentPlot.createSRegion.setEnabled(False)
             self.wConf.createGate.setEnabled(False)
@@ -1034,10 +1064,7 @@ class MainWindow(QMainWindow):
             self.currentPlot.isEnlarged = False
 
             canvasLayout = self.wTab.layout[self.wTab.currentIndex()]
-            if (DEBUG):
-                #following self.h_setup deos not work, prevent retruning to unzoomed view
-                #print("Reinitialization self.h_setup", self.h_setup)
-                print("original geometry", canvasLayout[0], canvasLayout[1])
+            self.logger.debug('on_dblclick - canvasLayout: %s',canvasLayout)
 
             #draw back the original canvas
             self.currentPlot.InitializeCanvas(canvasLayout[0], canvasLayout[1], False)
@@ -1049,7 +1076,7 @@ class MainWindow(QMainWindow):
                     self.add(index)
                     self.currentPlot.h_setup[index] = False
                     ax = self.getSpectrumInfo("axis", index=index)
-                    self.plotPlot(ax, index)
+                    self.plotPlot(index)
                     #reset the axis limits as it was before enlarge
                     #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
                     dim = self.getSpectrumInfoREST("dim", index=index)
@@ -1057,7 +1084,7 @@ class MainWindow(QMainWindow):
                         self.setAxisScale(ax, index, "x", "y")
                     elif dim == 2:
                         self.setAxisScale(ax, index, "x", "y", "z")
-                    self.drawGateTest(index)
+                    self.drawGate(index)
             #drawing back the dashed red rectangle on the unenlarged spectrum
             self.removeRectangle()
             self.currentPlot.recDashed = self.createDashedRectangle(self.currentPlot.figure.axes[tempIdxEnlargedSpectrum])
@@ -1074,11 +1101,13 @@ class MainWindow(QMainWindow):
 
     #callback for exitButton
     def closeAll(self):
+        self.logger.info('closeAll')
         self.restThreadFlag = False
         self.close()
 
 
     def doubleclickedTab(self, index):
+        self.logger.info('doubleclickedTab')
         #For now, if change tab while working on gate, close any ongoing gate action
         if self.currentPlot.toCreateGate or self.currentPlot.toEditGate or self.gatePopup.isVisible():
             self.cancelGate()
@@ -1106,8 +1135,7 @@ class MainWindow(QMainWindow):
 
     
     def clickedTab(self, index):
-        if (DEBUG):
-            print("Clicked tab", index, "with name", self.wTab.tabText(index))
+        self.logger.info('clickedTab - index: %s',index)
 
         #For now, if change tab while working on gate, close any ongoing gate action
         if self.currentPlot.toCreateGate or self.currentPlot.toEditGate or self.gatePopup.isVisible():
@@ -1116,19 +1144,12 @@ class MainWindow(QMainWindow):
 
         self.wTab.setCurrentIndex(index)
 
-        if (DEBUG):
-            print("verification tab index", index)
         try:
             self.currentPlot = self.wTab.wPlot[index]
             nRow = self.wTab.layout[index][0]
             nCol = self.wTab.layout[index][1]
-            if (DEBUG):
-                print("self.currentPlot.h_dict_geo", self.getGeo())
-                print("self.currentPlot.h_limits",self.currentPlot.h_limits)
-                print("self.currentPlot.h_log",self.currentPlot.h_log)
-                print("self.currentPlot.h_setup",self.currentPlot.h_setup)
-                print("self.currentPlot.isLoaded", self.currentPlot.isLoaded)
-                print("Canvas layout: nRow, nCol",nRow, nCol)
+            self.logger.debug('clickedTab - canvas layout: %s, %s',nRow, nCol)
+
             #nRow-1 because nRow (nCol) is the number of row and the following sets an index starting at 0
             self.wConf.histo_geo_row.setCurrentIndex(nRow-1)
             self.wConf.histo_geo_col.setCurrentIndex(nCol-1)
@@ -1142,11 +1163,13 @@ class MainWindow(QMainWindow):
             self.removeRectangle()
             self.bindDynamicSignal()
         except:
+            self.logger.debug('clickedTab - exception occured', exc_info=True)
             pass
 
 
     #set geometry of the canvas
     def setCanvasLayout(self):
+        self.logger.info('setCanvasLayout')
         indexTab = self.wTab.currentIndex()
         nRow = int(self.wConf.histo_geo_row.currentText())
         nCol = int(self.wConf.histo_geo_col.currentText())
@@ -1166,24 +1189,28 @@ class MainWindow(QMainWindow):
 
     #callback for the configuration popup of REST/MIRROR ports
     def connectPopup(self):
+        self.logger.info('callback connectPopup')
         self.connectConfig.show()
 
 
     #callback to close configuration popup
     def closeConnect(self):
+        self.logger.info('closeConnect callback')
         self.connectConfig.close()
 
 
     #callback to attempt a connection to REST/MIRROR
     def okConnect(self):
+        self.logger.info('okConnect')
         self.connectShMem()
         self.closeConnect()
 
     #called in okGate, if was adding a new gate the pushed gate is gatePopup.listRegionLine
     #if was editing a gate, the pushed gate is based on the gatePopup.regionPoint text
     def pushGateToREST(self, gateName, gateType):
+        self.logger.info('pushGateToREST')
         if gateName is None or gateName == "None" :
-            print("Warning - pushGateToREST - gateName is None, no push to ReST, please choose a gate name")
+            self.logger.debug('pushGateToREST - gateName is None or gateName == "None"')
             return
 
         dim = self.getSpectrumInfo("dim", index=self.gatePopup.gateSpectrumIndex)
@@ -1240,7 +1267,7 @@ class MainWindow(QMainWindow):
                     # sort such that lowest first
                     if boundaries[0] > boundaries[1]:
                         boundaries.sort()
-                        print("Warning - pushGateToREST 1d - found boundaries[0] > boundaries[1] so sorted boundaries")
+                        self.logger.warning('pushGateToREST - 1d - found boundaries[0] > boundaries[1] so sorted the boundaries')
             else:
                 #{'2Dgate_xamine': {'name': '2Dgate_xamine', 'type': 'c',
                 # 'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
@@ -1273,6 +1300,7 @@ class MainWindow(QMainWindow):
 
     # format gatePopup.regionPoint into (1d) [x0, x1, ...] or (2d) [[x0, y0], [x1, y1], ...]
     def formatGatePopupPointText(self, dim):
+        self.logger.info('formatGatePopupPointText - dim: %s',dim)
         points = []
         pointDict = {}
         #first split when new lines
@@ -1285,24 +1313,24 @@ class MainWindow(QMainWindow):
             #get first number from left in the lines 
             pointId = re.search(r'\d+', line)
             if not pointId:
-                print("Warning -formatGatePopupPointText - Expect a point number before X (and Y) at beginning of a line")
+                self.logger.warning('formatGatePopupPointText - formatGatePopupPointText - Expect a point number before X (and Y) at beginning of a line')
                 return None
             #pointId must be unique
             if int(pointId.group()) in pointDict.keys():
-                print("Warning -formatGatePopupPointText - Expect unique point number : ",int(pointId.group()))
+                self.logger.warning('formatGatePopupPointText - formatGatePopupPointText - Expect unique point number: %s', int(pointId.group()))
                 return None 
             pointId = int(pointId.group())
             #get first number between X and Y (X position) and first number from Y (Y position)
             posX = re.search(r'X(\s*[=]\s*)([-+]?(?:\d*\.*\d+))', line)
             if dim == 1 and not posX:
-                print("Warning -formatGatePopupPointText - 1d spectrum - Line format is: i: X=f1 where i is integer and f1, f2 floats (no sci notation)")
+                self.logger.warning('formatGatePopupPointText - formatGatePopupPointText - 1d spectrum - Line format is: i: X=f1 where i is integer and f1, f2 floats (no sci notation)')
                 return None 
             posX = float(posX.group(2))
             pointDict[pointId] = posX
 
             posY = re.search(r'Y(\s*[=]\s*)([-+]?(?:\d*\.*\d+))', line)
             if dim == 2 and not posY:
-                print("Warning -formatGatePopupPointText - 2d spectrum - Line format is: i: X=f1 Y=f2 where i is integer and f1, f2 floats (no sci notation)")
+                self.logger.warning('formatGatePopupPointText - formatGatePopupPointText - 2d spectrum - Line format is: i: X=f1 Y=f2 where i is integer and f1, f2 floats (no sci notation)')
                 return None 
             elif dim == 2 and posY:
                 posY = float(posY.group(2))
@@ -1326,6 +1354,8 @@ class MainWindow(QMainWindow):
     #Check for traces updates (poll) periodically, with period time < retention time.
     def restThread(self, retention):
         self.token = self.rest.startTraces(retention)
+        if self.token is None:
+            return
         self.restThreadFlag = True
         # self.updateStatusBar()
         # self.topMenu.setConnectSatus(self.restThreadFlag)
@@ -1337,6 +1367,8 @@ class MainWindow(QMainWindow):
             # time.sleep(3)
             time.sleep(retention/2)
             tracesDetails = self.rest.pollTraces(self.token)
+            if tracesDetails is None :
+                break
             self.updateFromTraces(tracesDetails)
         self.wConf.connectButton.setStyleSheet("background-color:rgb(252, 48, 3);")
         self.wConf.connectButton.setText("Disconnected")
@@ -1345,6 +1377,7 @@ class MainWindow(QMainWindow):
     #Excecuted periodially (period defined in restThread)
     #Update various list and dict according to the trace.
     def updateFromTraces(self, tracesDetails):
+        self.logger.info('updateFromTraces - tracesDetails: %s',tracesDetails)
         t_para = tracesDetails.get("parameter")
         t_spec = tracesDetails.get("spectrum")
         t_gate = tracesDetails.get("gate")
@@ -1380,7 +1413,9 @@ class MainWindow(QMainWindow):
                             data = s[9][nameIndex][0:-1]
                             data[0] = 0
                         except:
-                            print("updateFromTraces - nameIndex not in shmem np array for : ", name)
+                            debugstring = "updateFromTraces - nameIndex not in shmem np array for :" + name
+                            self.logger.debug(debugstring, exc_info=True)
+                            # print("updateFromTraces - nameIndex not in shmem np array for : ", name)
                         self.setSpectrumInfoREST(name, dim=dim, binx=binx, minx=minx, maxx=maxx, biny=biny, miny=miny, maxy=maxy, parameters=info[0]["parameters"], type=info[0]["type"], data=data)
                     else :
                         dim = 2
@@ -1391,7 +1426,9 @@ class MainWindow(QMainWindow):
                         try :
                             data = s[9][nameIndex][1:-1, 1:-1]
                         except:
-                            print("updateFromTraces - nameIndex not in shmem np array for : ", name)
+                            debugstring = "updateFromTraces - nameIndex not in shmem np array for :" + name
+                            self.logger.debug(debugstring, exc_info=True)
+                            # print("updateFromTraces - nameIndex not in shmem np array for : ", name)
                         self.setSpectrumInfoREST(name, dim=dim, binx=binx, minx=minx, maxx=maxx, biny=biny, miny=miny, maxy=maxy, parameters=info[0]["parameters"], type=info[0]["type"], data=data)
                     self.updateSpectrumList()
                 else:
@@ -1401,6 +1438,7 @@ class MainWindow(QMainWindow):
     #Set spectrum info from ReST in spectrum_dict_rest (identified by histo name and can update multiple info at once)
     #self.spectrum_dict_rest is used to keep track of the treegui definition (fixed) 
     def setSpectrumInfoREST(self, name, **info):
+        self.logger.info('setSpectrumInfoREST - name, info: %s, %s',info, name)
         for key, value in info.items():
             if key in ("dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type"):
                 if name not in self.spectrum_dict_rest:
@@ -1413,6 +1451,7 @@ class MainWindow(QMainWindow):
     #template of expected arguments e.g.: ("dim", index=5) takes only the first info parameter (here "dim") (one per call)
     #Important that it gets only the info from self.spectrum_dict_rest here.
     def getSpectrumInfoREST(self, *info, **identifier):
+        # self.logger.info('getSpectrumInfoREST - info, identifier: %s, %s',info, identifier)
         name = None
         if not identifier and self.getEnlargedSpectrum():
             name = self.getEnlargedSpectrum()[1]
@@ -1421,7 +1460,8 @@ class MainWindow(QMainWindow):
         elif "name" in identifier:
             name = identifier["name"]
         else:
-            print("getSpectrumInfo - wrong identifier - expects name=histo_name or index=histo_index or shoud be in zoomed mode")
+            self.logger.debug('getSpectrumInfoREST - wrong identifier - expects name=histo_name or index=histo_index or shoud be in zoomed mode')
+            # print("getSpectrumInfo - wrong identifier - expects name=histo_name or index=histo_index or shoud be in zoomed mode")
             return
         if name is not None and name in self.spectrum_dict_rest and info[0] in ("dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type"):
             # print("Simon - getSpectrumInfoREST - ",name,info[0],self.spectrum_dict_rest[name][info[0]])
@@ -1434,6 +1474,7 @@ class MainWindow(QMainWindow):
     #Important that only self.wTab.spectrum_dict is changed here
     #work in normal and enlarged mode
     def setSpectrumInfo(self, **info):
+        self.logger.info('setSpectrumInfo - info: %s',info)
         name = None
         index = None
         if self.getEnlargedSpectrum():
@@ -1446,13 +1487,15 @@ class MainWindow(QMainWindow):
         # elif "name" in info:
         #     name = info["name"]
         else:
-            print("setSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode")
+            self.logger.debug('setSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode')
+            # print("setSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode")
             return
         # print("Simon - setSpectrumInfo - ", index,name,info["index"])
         for key, value in info.items():
             if key in ("name", "dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type", "log", "minz", "maxz", "spectrum", "axis", "cutoff") and index is not None:
                 if index not in self.wTab.spectrum_dict[self.wTab.currentIndex()]:
-                    print("setSpectrumInfo -",name,"not in spectrum_dict")
+                    # print("setSpectrumInfo -",name,"not in spectrum_dict")
+                    self.logger.debug('setSpectrumInfo - %s not in spectrum_dict', name)
                     return
                     # self.wTab.spectrum_dict[self.wTab.currentIndex()][name] = {"dim":[],"binx":[],"minx":[],"maxx":[],"biny":[],"miny":[],"maxy":[],"data":[],"parameters":[],"type":[],"log":[],"minz":[],"maxz":[]}
                 self.wTab.spectrum_dict[self.wTab.currentIndex()][index][key] = value
@@ -1467,6 +1510,7 @@ class MainWindow(QMainWindow):
     #Important that it gets only the info from self.wTab.spectrum_dict[self.wTab.currentIndex()] here.
     #work in normal and enlarged mode
     def getSpectrumInfo(self, *info, **identifier):
+        self.logger.info('getSpectrumInfo - info, identifier: %s, %s', info, identifier)
         name = None
         index = None
         if self.getEnlargedSpectrum():
@@ -1479,7 +1523,8 @@ class MainWindow(QMainWindow):
         # elif "name" in identifier:
         #     name = identifier["name"]
         else:
-            print("getSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode")
+            self.logger.debug('getSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode')
+            # print("getSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode")
             return
         if index is not None and index in self.wTab.spectrum_dict[self.wTab.currentIndex()] and info[0] in ("name", "dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type", "log", "minz", "maxz", "spectrum", "axis", "cutoff"):
         # if index is not None and info[0] in ("name", "dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type", "log", "minz", "maxz"):
@@ -1491,13 +1536,15 @@ class MainWindow(QMainWindow):
     #important: only functions that delete item in spectrum_dict and spectrum_dict_rest
     #important: should not be triggered by user, for now used only in updateFromTraces, because of the way it deletes local spectrumInfo entries.
     def removeSpectrum(self, **identifier):
+        self.logger.info('removeSpectrum - identifier: %s', identifier)
         name = None
         if "index" in identifier:
             name = self.nameFromIndex(identifier["index"])
         elif "name" in identifier:
             name = identifier["name"]
         else:
-            print("removeSpectrum - wrong identifier - expects name=histo_name or index=histo_index")
+            self.logger.debug('removeSpectrum - wrong identifier - expects name=histo_name or index=histo_index')
+            # print("removeSpectrum - wrong identifier - expects name=histo_name or index=histo_index")
             return
         # in spectrumInfoReST dict can only have unique spectrum
         del self.spectrum_dict_rest[name]
@@ -1521,6 +1568,7 @@ class MainWindow(QMainWindow):
 
     #Find name with geo index:
     def nameFromIndex(self, index):
+        # self.logger.info('nameFromIndex - index: %s', index)
         #Can call getSpectrumInfo and setSpectrumInfo with an identifier but still check if in zoom mode,
         #which is important for autoScaleAxis/setAxisScale
         if self.getEnlargedSpectrum():
@@ -1531,6 +1579,7 @@ class MainWindow(QMainWindow):
 
     #Find index(es) in geo for spectrum name (returns a list)
     def indexFromName(self, name):
+        self.logger.info('indexFromName - name: %s', name)
         result = []
         #Have to be careful that zoomPlotInfo is well sets all the time.
         #Should have a value _only_while_ in enlarged mode
@@ -1544,6 +1593,7 @@ class MainWindow(QMainWindow):
     #sets h_dict_geo {key=index, value=histoName}
     #Use only this function to set the geometry dict when add plot (against using it elsewhere because it initializes spectrum_dict)
     def setGeo(self, index, name):
+        self.logger.info('setGeo - index, name: %s, %s', index, name)
         self.currentPlot.h_dict_geo[index] = name
         #Set also here the spectrum_dict with only the spectra defined in the geo
         if index not in self.wTab.spectrum_dict[self.wTab.currentIndex()]:
@@ -1575,12 +1625,14 @@ class MainWindow(QMainWindow):
 
         
     def setEnlargedSpectrum(self, index, name):
+        self.logger.info('setEnlargedSpectrum')
         self.wTab.zoomPlotInfo[self.wTab.currentIndex()] = None 
         if index is not None and name is not None: 
             self.wTab.zoomPlotInfo[self.wTab.currentIndex()] = [index, name]
 
 
     def getEnlargedSpectrum(self):
+        # self.logger.info('getEnlargedSpectrum')
         result = None
         if self.wTab.zoomPlotInfo[self.wTab.currentIndex()] :
             result = self.wTab.zoomPlotInfo[self.wTab.currentIndex()]
@@ -1589,8 +1641,7 @@ class MainWindow(QMainWindow):
 
     #get histo name, type and parameters from REST
     def getSpectrumInfoFromReST(self):
-        if (DEBUG):
-            print("Inside getSpectrumInfoFromReST")
+        self.logger.info('getSpectrumInfoFromReST')
         outDict = {}
         inpDict = self.rest.listSpectrum()
         bindList = self.rest.listsbind("*")
@@ -1607,13 +1658,13 @@ class MainWindow(QMainWindow):
                 }
             else:
                 pass
+        self.logger.info('getSpectrumInfoFromReST - return: %s', outDict)
         return outDict
 
 
     # update spectrum list for GUI, the widget histo_list is set only here
     def updateSpectrumList(self, init=False):
-        if (DEBUG):
-            print("Inside create_spectrum_list")
+        self.logger.info('updateSpectrumList')
         self.wConf.histo_list.clear()
         #Sort because otherwise when ReST update the modified spectrum is append at the end of the list
         for name in sorted(self.getSpectrumInfoRESTDict()):
@@ -1627,24 +1678,26 @@ class MainWindow(QMainWindow):
             self.wConf.histo_list.completer().setFilterMode(QtCore.Qt.MatchContains)
 
 
+
     #About the gates: unlike spectrum, there is no internal gate dictionnary 
     #which means everytime one gets/sets gate info, one uses the ReST interface, like for the name here:
     #return the gate name applied to a spectrum (identified by index or name)
     def getAppliedGateName(self, **identifier):
+        # self.logger.info('getAppliedGateName')
         spectrumName = None
         if "index" in identifier:
             spectrumName = self.nameFromIndex(identifier["index"])
         elif "name" in identifier:
             spectrumName = identifier["name"]
         else:
-            print("getAppliedGateName - wrong identifier - expects name=histo_name or index=histo_index")
+            self.logger.debug('getAppliedGateName - wrong identifier - expects name=histo_name or index=histo_index')
             return
         gate = self.rest.applylistgate(spectrumName)
-        if gate is None:
+        if gate is None or len(gate) == 0:
+            self.logger.debug('getAppliedGateName - gate is None')
             return 
         #gate is a list with one dictionary [{'spectrum': 'spectrumName', 'gate': 'gateName'}]
         gateName = gate[0]["gate"]
-        # print("Simon - getAppliedGateName -",spectrumName,gateName)
         if gateName == "-TRUE-" or gateName == "-Ungated-":
             return None 
         else :
@@ -1653,7 +1706,9 @@ class MainWindow(QMainWindow):
 
     #give spectrum index and line2D of summing region to fill sumRegionDict
     def setSumRegion(self, index, line):
+        self.logger.info('setSumRegion')
         if index is None : 
+            self.logger.debug('setSumRegion - index: %s', index)
             return
         labelSplit = line.get_label().split("_-_")
         if len(labelSplit) == 3 and labelSplit[0] == "sumReg":
@@ -1666,6 +1721,7 @@ class MainWindow(QMainWindow):
 
     #return list with summing regions drawn on the spectrum at index
     def getSumRegion(self, index):
+        self.logger.info('getSumRegion - index: %s',index)
         result = None
         if index is None : 
             return
@@ -1674,11 +1730,13 @@ class MainWindow(QMainWindow):
             pass
         else :
             result = self.sumRegionDict[spectrumName]
+        self.logger.info('getSumRegion - spectrumName, result: %s, %s', spectrumName, result)
         return result
 
 
     #delete summing region line2D in sumRegionDict, identified with label
     def deleteSumRegionDict(self, labelSumRegion):
+        self.logger.info('deleteSumRegionDict - labelSumRegion: %s', labelSumRegion)
         labelSplit = labelSumRegion.split("_-_")
         if len(labelSplit) == 3 and labelSplit[0] == "sumReg":
             for spectrumName, regionList in self.sumRegionDict.items():
@@ -1695,6 +1753,7 @@ class MainWindow(QMainWindow):
 
     #check if needs to delete a spectrumName key in sumRegionDict and all sumRegion associated
     def refreshSpectrumSumRegionDict(self):
+        self.logger.info('refreshSpectrumSumRegionDict')
         histoList = [self.wConf.histo_list.itemText(i) for i in range(self.wConf.histo_list.count())]
         keyToDelete = []
         for spectrumNameSumReg in self.sumRegionDict.keys():
@@ -1713,6 +1772,7 @@ class MainWindow(QMainWindow):
 
 
     def connectShMem(self):
+        self.logger.info('connectShMem')
         # trying to access the shared memory through SpecTcl Mirror Client
         try:
             # update host name and port, mirror port, and user name from GUI
@@ -1720,26 +1780,27 @@ class MainWindow(QMainWindow):
             port = str(self.connectConfig.rest.text())
             user = str(self.connectConfig.user.text())
             mirror = str(self.connectConfig.mirror.text())
+            self.logger.debug('connectShMem - host: %s -- user: %s -- RESTPort: %s -- MirrorPort: %s', hostname, user, port, mirror)
 
             # configuration of the REST plugin
-            self.rest = PyREST(hostname,port)
+            self.rest = PyREST(self.logger,hostname,port)
+            self.restThreadFlag = False
+            self.wConf.connectButton.setStyleSheet("background-color:rgb(252, 48, 3);")
+            self.wConf.connectButton.setText("Disconnected")
             # set traces
-            if (DEBUG):
-                print("trace token", self.token)
-                print(self.rest.pollTraces(self.token))
             threadRest = threading.Thread(target=self.restThread, args=(6,))
             threadRest.start()
 
-            if (hostname == "hostname" or port == "port" or mirror == "mirror"):
-                raise ValueError("hostname/port/mirror are not configured!")
+            # way to stop connectShMem, url checks are done on trace thread but if find issue it wont be communicated here
+            if self.rest.checkSpecTclREST() == False:
+                self.logger.debug('connectShMem - invalid URL for SpecTclREST')
+                return
+
             timer1 = QElapsedTimer()
             timer1.start()
-            if (DEBUG):
-                print(hostname.encode('utf-8'), port.encode('utf-8'), user.encode('utf-8'), mirror.encode('utf-8'))
-                print("before cpy.CPyConverter().Update")
+
             s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'), bytes(mirror, encoding='utf-8'), bytes(user, encoding='utf-8'))
 
-            
             # creates a dataframe for spectrum info
             # use the spectrum name to merge both sources (REST and shared memory) of spectrum info
             # info = {"id":[],"names":[],"dim":[],"binx":[],"minx":[],"maxx":[],"biny":[],"miny":[],"maxy":[],"data":[],"parameters":[],"type":[]}
@@ -1767,7 +1828,8 @@ class MainWindow(QMainWindow):
                 self.wConf.submenuD.addAction(gate, lambda:self.wConf.drag(gate))
                 self.wConf.submenuE.addAction(gate, lambda:self.wConf.edit(gate))
             '''
-        except NameError:
+        except Exception as e:
+            self.logger.exception('connectShMem - Exception')
             raise
         # except:
         #     QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started or hostname/port/mirror are not configured!")
@@ -1789,6 +1851,7 @@ class MainWindow(QMainWindow):
 
     # definition for both legacy and not window defs
     def openGeo(self, filename):
+        self.logger.info('openGeo')
         cntr = 0
         coords = []
         spec_dict = {}
@@ -1797,9 +1860,6 @@ class MainWindow(QMainWindow):
         x_range = {}
         y_range = {}
         properties = {}
-
-        if (DEBUG):
-            print("Inside openGeo")
 
         if (len(open(filename).readlines()) == 1):
             return eval(open(filename,"r").read())
@@ -1812,17 +1872,11 @@ class MainWindow(QMainWindow):
                     elif (self.findWholeWord("Window")(line)):
                         spectrum = self.findHistoName(line)
                         spec_dict[cntr] = spectrum[0]
-                        if (DEBUG):
-                            print(cntr, spec_dict[cntr])
                         cntr+=1
                     elif (self.findWholeWord("COUNTSAXIS")(line)):
-                        if (DEBUG):
-                            print(cntr-1, True)
                         info_scale[cntr-1] = True
                     elif (self.findWholeWord("Expanded")(line)):
                         tmp = self.findNumbers(line)
-                        if (DEBUG):
-                            print(cntr-1, tmp)
                         info_range[cntr-1] = tmp
 
             for index, value in spec_dict.items():
@@ -1844,12 +1898,14 @@ class MainWindow(QMainWindow):
                     y_range = info_range[index][2:4]
 
                 properties[index] = {"name": h_name, "x": x_range, "y": y_range, "scale": scale}
+                self.logger.debug('openGeo - index, properties: %s, %s', index, properties[index])
 
             return {'row': coords[0], 'col': coords[1], 'geo': properties}
 
 
     def saveGeo(self):
         fileName = self.saveFileDialog()
+        self.logger.info('saveGeo - fileName: %s',fileName)
         try:
             f = open(fileName,"w")
             properties = {}
@@ -1865,17 +1921,14 @@ class MainWindow(QMainWindow):
             f.write(str(tmp))
             f.close()
         except TypeError:
+            self.logger.debug('saveGeo - TypeError exception', exc_info=True)
             pass
 
 
     def loadGeo(self):
         fileName = self.openFileNameDialog()
-        if (DEBUG):
-            print("Inside loadGeo")
+        self.logger.info('loadGeo - fileName: %s', fileName)
         try:
-            if (DEBUG):
-                print("fileName:",fileName)
-                print("openGeo output", self.openGeo(fileName))
             infoGeo = self.openGeo(fileName)
             row = infoGeo["row"]
             col = infoGeo["col"]
@@ -1900,7 +1953,7 @@ class MainWindow(QMainWindow):
                     self.setSpectrumInfo(maxy=val_dict["y"][1], index=index)
 
                 if len(notFound) > 0:
-                    print("Warning - LoadGeo - definition not found for: ",notFound)
+                    self.logger.warning('loadGeo - definition not found for: %s', notFound)
 
                 self.currentPlot.isLoaded = True
                 self.wTab.selected_plot_index_bak[self.wTab.currentIndex()] = None
@@ -1911,10 +1964,12 @@ class MainWindow(QMainWindow):
             self.updatePlot()
             self.currentPlot.isLoaded = False
         except TypeError:
+            self.logger.debug('loadGeo - TypeError exception', exc_info=True)
             pass
 
 
     def openFileNameDialog(self):
+        self.logger.info('openFileNameDialog')
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Window Files (*.win);;All Files (*)", options=options)
@@ -1923,6 +1978,7 @@ class MainWindow(QMainWindow):
 
 
     def saveFileDialog(self):
+        self.logger.info('saveFileDialog')
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self,"Save file...","","Window Files (*.win);;All Files (*)", options=options)
@@ -1937,8 +1993,7 @@ class MainWindow(QMainWindow):
     # can sets x, y scales for 1d and x, y, z scales for 2d depending on the scale identifier and if axisIsLog
     # basically do all the scaling operations
     def setAxisScale(self, ax, index, *scale):
-        if not scale:
-            print("setAxisScale - scale name not specified - should call setAxisScale with scale='x' or/and 'y' or/and 'z'")
+        self.logger.info('setAxisScale - index: %s', index)
 
         wPlot = self.currentPlot
         axisIsLog = self.getSpectrumInfo("log", index=index)
@@ -1975,8 +2030,6 @@ class MainWindow(QMainWindow):
                     ax.set_yscale("linear")
                 self.setSpectrumInfo(miny=ymin, index=index)
                 self.setSpectrumInfo(maxy=ymax, index=index)
-                ax_chk = self.getSpectrumInfo("axis", index=index)
-
         else:
             #x and y limits need to be known for z autoscale in x,y ranges
             xmin = self.getSpectrumInfo("minx", index=index)
@@ -2018,19 +2071,28 @@ class MainWindow(QMainWindow):
 
     # Where is defined the color bar
     def setCmapNorm(self, scale, index):
+        self.logger.info('setCmapNorm')
         validScales = ["linear", "log", "linearCentered"]
         if scale not in validScales or index is None:
+            self.logger.debug('setCmapNorm - scale not in validScales or index is None')
             return
         spectrum = self.getSpectrumInfo("spectrum", index=index)
         zmin, zmax = spectrum.get_clim()
-
+        
         if scale is validScales[0]:
-            spectrum.set_norm(colors.Normalize(vmin=zmin, vmax=zmax))
+            if zmin > zmax: 
+                self.logger.warning('setCmapNorm - zmin > zmax')
+                spectrum.set_norm(colors.Normalize(vmin=self.minZ, vmax=self.maxZ))
+            else :
+                spectrum.set_norm(colors.Normalize(vmin=zmin, vmax=zmax))
         elif scale is validScales[1]:
             if zmin and zmin <= 0 :
                 zmin = 0.001
-                print("setCmapNorm - warning - LogNorm with zmin<=0, may want to use CenteredNorm")
+                self.logger.warning('setCmapNorm - LogNorm with zmin<=0, may want to use CenteredNorm')
             spectrum.set_norm(colors.LogNorm(vmin=zmin, vmax=zmax))
+            if zmin > zmax: 
+                self.logger.warning('setCmapNorm - zmin > zmax')
+                spectrum.set_norm(colors.LogNorm(vmin=self.minZ, vmax=self.maxZ))
         elif scale is validScales[2]:
             palette = copy(plt.cm.jet)
             palette.set_bad(color='white')
@@ -2048,8 +2110,7 @@ class MainWindow(QMainWindow):
 
     #Callback for plusButton/minusButton
     def zoomInOut(self, arg):
-        if (DEBUG):
-            print("Inside zoomInOut",arg)
+        self.logger.info('zoomInOut - arg: %s', arg)
         # Simon - added following lines to avoid None plot index
         index = self.autoIndex()
         ax = None
@@ -2078,22 +2139,20 @@ class MainWindow(QMainWindow):
             self.setSpectrumInfo(minz=zmin, index=index)
             self.setSpectrumInfo(maxz=zmax, index=index)
             self.setSpectrumInfo(spectrum=spectrum, index=index)
-        self.drawGateTest(index)
+        self.drawGate(index)
         self.currentPlot.canvas.draw()
 
 
     # Callback for histo_autoscale, calls setAxisScale
-    def autoScaleAxisBox(self):
-        if (DEBUG):
-            print("autoScaleAxisBox in tab:", self.wTab.currentIndex(), "with name", self.wTab.tabText(self.wTab.currentIndex()))
+    def autoScaleAxisBox(self, forIndex):
+        self.logger.info('autoScaleAxisBox - forIndex: %s', forIndex)
         try:
             ax = None
             if self.currentPlot.isEnlarged:
-                if (DEBUG):
-                    print("inside isEnlarged")
                 ax = self.getSpectrumInfo("axis", index=0)
                 dim = self.getSpectrumInfoREST("dim", index=0)
                 if ax is None :
+                    self.logger.debug('autoScaleAxisBox - isEnlarged TRUE - ax is None ')
                     return
                 #Set y for 1D and z for 2D.
                 #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
@@ -2102,13 +2161,27 @@ class MainWindow(QMainWindow):
                 elif dim == 2:
                     self.setAxisScale(ax, 0, "z")
                 #draw gate if there is one
-                self.drawGateTest(0)
+                self.drawGate(0)
+            # implemented this condition to do autoscale in addPlot
+            elif forIndex is not None:
+                ax = self.getSpectrumInfo("axis", index=forIndex)
+                dim = self.getSpectrumInfoREST("dim", index=forIndex)
+                if ax is None :
+                    self.logger.debug('autoScaleAxisBox - forIndex - ax is None ')
+                    return
+                #Set y for 1D and z for 2D.
+                #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
+                if dim == 1:
+                    self.setAxisScale(ax, forIndex, "y")
+                elif dim == 2:
+                    self.setAxisScale(ax, forIndex, "z")
             else:
                 for index, name in self.getGeo().items():
                     if name:
                         ax = self.getSpectrumInfo("axis", index=index)
                         dim = self.getSpectrumInfoREST("dim", index=index)
                         if ax is None :
+                            self.logger.debug('autoScaleAxisBox - isEnlarged FALSE - ax is None ')
                             return
                         #Set y for 1D and z for 2D.
                         #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
@@ -2117,7 +2190,7 @@ class MainWindow(QMainWindow):
                         elif dim == 2:
                             self.setAxisScale(ax, index, "z")
                         #draw gate if there is one
-                        self.drawGateTest(index)
+                        self.drawGate(index)
             self.currentPlot.canvas.draw()
         except:
             pass
@@ -2126,9 +2199,10 @@ class MainWindow(QMainWindow):
     # get data max within user defined range
     # For 2D have to give two ranges (x,y), for 1D range x.
     def getMinMaxInRange(self, index, **limits):
+        self.logger.info('getMinMaxInRange - limits: %s', limits)
         result = None
         if not limits :
-            print("getMinMaxInRange - limits identifier not valid - expect xmin=val, xmax=val etc. for y with 2D")
+            self.logger.warning('getMinMaxInRange - limits identifier not valid - expect xmin=val, xmax=val etc. for y with 2D')
             return
         if "xmin" and "xmax" in limits:
             xmin = limits["xmin"]
@@ -2172,12 +2246,14 @@ class MainWindow(QMainWindow):
     # Have seen malloc error if data array too large
     # Divide data array in sub-arrays with sub-(min, max) and then find the global-(min, max)
     def customMinMax(self, data):
+        self.logger.info('customMinMax')
         minimum = None
         maximum = None
         nbCol = data.shape[1] 
         nbRow = data.shape[0] 
 
-        if len(data) <= 0 :
+        #len(data) <= 0
+        if not data.any():
             return minimum, maximum
         #Arbitrarily choose number max of col and row of 200...
         if nbCol < 200 and nbRow < 200:
@@ -2216,24 +2292,24 @@ class MainWindow(QMainWindow):
 
     #return the axis limits in a certain format [[xmin, xmax], [ymin, ymax]]
     def getAxisProperties(self, index):
-        if (DEBUG):
-            print("Inside getAxisProperties")
+        self.logger.info('getAxisProperties')
         try:
             ax = None
             ax = self.getSpectrumInfo("axis", index=index)
             return list(ax.get_xlim()), list(ax.get_ylim())
         except:
+            self.logger.debug('getAxisProperties - exception occured', exc_info=True)
             pass
             
 
     def zoomCallback(self, event):
+        self.logger.info('zoomCallback')
         self.currentPlot.zoomPress = True
 
 
     #Used by customHome button, reset the axis limits to ReST definitions, for the specified plot at index or for all plots if index not provided
     def customHomeButtonCallback(self, index=None):
-        if (DEBUG):
-            print("Inside customHomeButtonCallback", index)
+        self.logger.info('customHomeButtonCallback - index: %s', index)
 
         index_list = [idx for idx, name in self.getGeo().items() if index is None]
         if index is not None:
@@ -2266,7 +2342,7 @@ class MainWindow(QMainWindow):
                 self.setCmapNorm("linear", idx)
                 self.setSpectrumInfo(maxz=zmax, index=idx)
                 self.setSpectrumInfo(minz=zmin, index=idx)
-            self.drawGateTest(idx)
+            self.drawGate(idx)
                 
             self.setSpectrumInfo(log=None, index=idx)
             self.setSpectrumInfo(minx=xmin, index=idx)
@@ -2279,8 +2355,7 @@ class MainWindow(QMainWindow):
 
     #Used by logButton, defines the log scale, for the specified plot at index or for all plots if logAll/unlogAll, calls setAxisScale
     def logButtonCallback(self, *arg):
-        if (DEBUG):
-            print("Inside logButtonCallback - arg -", arg)
+        self.logger.info('logButtonCallback - arg: %s', arg)
 
         index = None
         logAllPlot = False
@@ -2321,6 +2396,7 @@ class MainWindow(QMainWindow):
 
     #callback when right click on customHomeButton
     def handle_right_click(self):
+        self.logger.info('handle_right_click')
         menu = QMenu()
         item1 = menu.addAction("Reset all") 
         #Empty agrument for customHomeButtonCallback means it will reset all spectra
@@ -2336,6 +2412,7 @@ class MainWindow(QMainWindow):
 
     #callback when right click on logButton
     def log_handle_right_click(self):
+        self.logger.info('log_handle_right_click')
         menu = QMenu()
         item1 = menu.addAction("Log all")
         item2 = menu.addAction("unLog all")
@@ -2357,8 +2434,11 @@ class MainWindow(QMainWindow):
 
     #button of the cutoff window, sets the cutoff values in the spectrum dict
     def okCutoff(self):
+        self.logger.info('okCutoff')
         index = self.currentPlot.selected_plot_index
-        if index is None : return 
+        if index is None : 
+            self.logger.debug('okCutoff - index is None')
+            return 
 
         cutoffVal = [None, None]
         cutoffMin = self.cutoffp.lineeditMin.text()
@@ -2374,7 +2454,7 @@ class MainWindow(QMainWindow):
         if cutoffVal[0] is not None and cutoffVal[1] is not None and cutoffVal[1] < cutoffVal[0]:
             cutoffVal = [cutoffVal[1], cutoffVal[0]]
             self.setSpectrumInfo(cutoff=cutoffVal, index=index)
-            print("okCutoff - Warning - cutoff values swapped because min > max")
+            self.logger.warning('okCutoff - cutoff values swapped because min > max')
         self.updatePlot()
         self.cutoffp.close()
 
@@ -2384,6 +2464,7 @@ class MainWindow(QMainWindow):
 
 
     def resetCutoff(self, doUpdate):
+        self.logger.info('resetCutoff - doUpdate: %s', doUpdate)
         index = self.currentPlot.selected_plot_index
         if index is None : return 
         cutoffVal = [None, None]
@@ -2396,6 +2477,7 @@ class MainWindow(QMainWindow):
 
     #called by cutoffButton, sets the information in the cutoff window
     def cutoffButtonCallback(self, *arg):
+        self.logger.info('cutoffButtonCallback')
         index = self.currentPlot.selected_plot_index
         name = self.nameFromIndex(index)
         if name is not None : 
@@ -2428,24 +2510,26 @@ class MainWindow(QMainWindow):
             self.cutoffp.lineeditMin.setText(f"{cutoffMin}")
             self.cutoffp.lineeditMax.setText(f"{cutoffMax}")
         else :
-            print("cutoffButtonCallback - warning - only one cutoff value in spectrum dict: ", self.getSpectrumInfo("cutoff", index=index))
+            self.logger.warning('cutoffButtonCallback - only one cutoff value in spectrum dict: %s', self.getSpectrumInfo("cutoff", index=index))
+            # print("cutoffButtonCallback - warning - only one cutoff value in spectrum dict: ", self.getSpectrumInfo("cutoff", index=index))
 
 
     #Used in zoomCallBack to save the new axis limits
     #sleepTime is a small delay to ensure this function is executed after on_release
     #seems necessary to get the updated axis limits (zoom toolbar action ends on_release)
     def updatePlotLimits(self, sleepTime=0):
+        self.logger.info('updatePlotLimits - sleepTime: %s', sleepTime)
         # update currentPlot limits with what's on the actual plot
         ax = None
         index = self.currentPlot.selected_plot_index
         ax = self.getSpectrumInfo("axis", index=index)
-        if ax is None : return
-        im = ax.images
+        if ax is None : 
+            self.logger.debug('updatePlotLimits - ax is None')
+            return
+        # im = ax.images
 
         time.sleep(sleepTime)
 
-        if (DEBUG):
-            print(ax.get_xlim(), ax.get_ylim())
         try:
             #Simon - modified the following lines
             x_range, y_range = self.getAxisProperties(index)
@@ -2460,9 +2544,10 @@ class MainWindow(QMainWindow):
             spectrum.axes.set_xlim(x_range[0], x_range[1])
             spectrum.axes.set_ylim(y_range[0], y_range[1])
             self.setSpectrumInfo(spectrum=spectrum, index=index)
-            self.drawGateTest(index)
+            self.drawGate(index)
         except NameError as err:
-            print(err)
+            self.logger.debug('updatePlotLimits - NameError', exc_info=True)
+            # print(err)
             pass
 
 
@@ -2473,16 +2558,18 @@ class MainWindow(QMainWindow):
     # remove colorbar
     def removeCb(self, axis):
         im = axis.images
-        if im is not None:
+        if im is not None and len(im) > 0:
             try:
                 cb = im[-1].colorbar
                 cb.remove()
-            except IndexError:
+            except :
+                self.logger.debug('removeCb - IndexError exception', exc_info=True)
                 pass
 
 
     # select axes based on indexing, used only in add()
     def select_plot(self, index):
+        self.logger.info('select_plot - index: %s', index)
         for i, axis in enumerate(self.currentPlot.figure.axes):
             # retrieve the subplot from the click
             if (i == index and axis is not None):
@@ -2491,6 +2578,7 @@ class MainWindow(QMainWindow):
 
     # returns position in grid based on indexing
     def plotPosition(self, index):
+        self.logger.info('plotPosition - index: %s', index)
         cntr = 0
         # convert index to position in geometry
         canvasLayout = self.wTab.layout[self.wTab.currentIndex()]
@@ -2505,10 +2593,7 @@ class MainWindow(QMainWindow):
     # setup histogram limits according to the ReST info
     # called in add(), when the plot is first added
     def setupPlot(self, axis, index):
-        if (DEBUG):
-            print("Inside setupPlot")
-            print("Geo",self.getGeo())
-
+        self.logger.info('setupPlot - index: %s', index)
         if self.nameFromIndex(index):
             if len(self.currentPlot.hist_list) > index :
                 self.currentPlot.hist_list.pop(index)
@@ -2540,8 +2625,6 @@ class MainWindow(QMainWindow):
 
             # update axis
             if dim == 1:
-                if (DEBUG):
-                    print("1d case...")
                 axis.set_xlim(minx,maxx)
                 axis.set_ylim(self.minY,self.maxY)
                 # create histogram
@@ -2561,8 +2644,6 @@ class MainWindow(QMainWindow):
                 # self.axesChilds()
                 # print("Simon - in setupPlot after spectrum=line- ")
             else:
-                if (DEBUG):
-                    print("2d case...")
                 miny = self.getSpectrumInfoREST("miny", index=index)
                 maxy = self.getSpectrumInfoREST("maxy", index=index)
                 biny = self.getSpectrumInfoREST("biny", index=index)
@@ -2598,6 +2679,7 @@ class MainWindow(QMainWindow):
     # geometrically add plots to the right place and calls plotting
     # should be called only by addPlot and on_dblclick when entering/exiting enlarged mode
     def add(self, index):
+        self.logger.info('add - index: %s',index)
         a = None
         if self.currentPlot.isEnlarged:
             #following line to work with multiple tabs, otherwise the default current axes are in the latest tab
@@ -2623,9 +2705,7 @@ class MainWindow(QMainWindow):
     # geometrically add plots to the right place
     # plot axis as defined in the ReST interface.
     def addPlot(self):
-        if (DEBUG):
-            print("Inside addPlot")
-            print("check tab ",self.wTab.currentIndex(),len(self.wTab)-1,len(self.wTab.selected_plot_index_bak))
+        self.logger.info('addPlot')
 
         if self.wConf.histo_list.count() == 0 : 
             QMessageBox.about(self, "Warning", 'Please click on "Connection" and fill in the information')
@@ -2633,44 +2713,49 @@ class MainWindow(QMainWindow):
         try:
             # if we load the geometry from file
             if self.currentPlot.isLoaded:
-                if (DEBUG):
-                    print("Inside addPlot - loaded")
-                    print(self.getGeo())
-                counter = 0
+                self.logger.debug('addPlot - isLoaded TRUE - getGeo: %s',self.getGeo())
+                self.getGeo()
                 for key, value in self.getGeo().items():
-                    if (DEBUG):
-                        print("counter -->", counter)
                     index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
-                    if self.getSpectrumInfoREST("dim", name=value) is None: return
+                    if self.getSpectrumInfoREST("dim", name=value) is None: 
+                        self.logger.debug('addPlot - isLoaded TRUE - getGeo: %s',self.getGeo())
+                        return
                     # changing the index to the correct histogram to load
                     self.wConf.histo_list.setCurrentIndex(index)
-                    counter += 1
+                #it turns out the autoscale is wanted in addPlot
+                self.currentPlot.histo_autoscale.setChecked(True)
                 for key, value in self.getGeo().items():
                     self.add(key)
+                    self.autoScaleAxisBox(key)
+            # self adding
             else:
-                if (DEBUG):
-                    print("Inside addPlot - not loaded")
-                # self adding
                 index = self.nextIndex()
                 #Set the plot according to the selected name in the spectrum list widget
                 name = str(self.wConf.histo_list.currentText())
+                self.logger.debug('addPlot - isLoaded FALSE - index, name: %s, %s',index,name)
 
-                if self.getSpectrumInfoREST("dim", name=name) is None: return
+                if self.getSpectrumInfoREST("dim", name=name) is None: 
+                    self.logger.debug('addPlot - isLoaded FALSE - dim is None')
+                    return
 
                 #Reset cutoff
                 self.setSpectrumInfo(cutoff=None, index=index)
 
                 self.setGeo(index, name)
-                self.currentPlot.h_limits[index] = {}
                 self.currentPlot.h_setup[index] = True
                 self.add(index)
+
+                #it turns out the autoscale is wanted in addPlot
+                self.currentPlot.histo_autoscale.setChecked(True)
+                self.autoScaleAxisBox(index)
+
                 #When add with button "add" the default state is unlog
                 self.currentPlot.logButton.setDown(False)
                 #Reset log
                 self.setSpectrumInfo(log=False, index=index)
 
                 #draw gates
-                self.drawGateTest(index)
+                self.drawGate(index)
 
                 #draw dashed red rectangle to indicate where the next plot would be added, based on next_plot_index, selected_plot_index is unchanged.
                 #recDashed added only here
@@ -2696,6 +2781,7 @@ class MainWindow(QMainWindow):
 
     #why not using np.linspace(vmin, vmax, bins)
     def createRange(self, bins, vmin, vmax):
+        self.logger.info('createRange')
         x = []
         step = (float(vmax)-float(vmin))/float(bins)
         for i in np.arange(float(vmin), float(vmax), step):
@@ -2707,11 +2793,9 @@ class MainWindow(QMainWindow):
     # fill spectrum with new data
     # called in addPlot and updatePlot
     # dont actually draw the plot in this function
-    def plotPlot(self, axis, index):
+    def plotPlot(self, index):
+        self.logger.info('plotPlot - index: %s', index)
         currentPlot = self.currentPlot
-        if (DEBUG):
-            print("Inside plotPlot")
-            print("verification tab index", self.wTab.currentIndex())
 
         # Use spectrumInfoREST dont want to change the resolution etc.
         dim = self.getSpectrumInfoREST("dim", index=index)
@@ -2736,19 +2820,16 @@ class MainWindow(QMainWindow):
                         w = np.ma.masked_where(w > maxCutoff, w)
                     if dim == 2:
                         w = np.ma.masked_where(w > maxCutoff, w)
-        if w is None or len(w) <= 0:
+        if w is None is None or len(w) <= 0:
+            self.logger.debug('plotPlot - w is None or len(w) <= 0')
             return
         #used in getMinMaxInRange to take into account also the cutoff if there is one
         self.setSpectrumInfo(data=w, index=index)
 
         if dim == 1:
-            if (DEBUG):
-                print("1d case..")
             X = np.array(self.createRange(binx, minx, maxx))
             spectrum.set_data(X, w)
         else:
-            if (DEBUG):
-                print("2d case..")
             # color modes for later...
             # if (self.wConf.button2D_option.currentText() == 'Light'):
             w = np.ma.masked_where(w == 0, w)
@@ -2761,16 +2842,14 @@ class MainWindow(QMainWindow):
     #also used in various functions
     #redraw plot spectrum, update axis scales, redraw gates
     def updatePlot(self):
-        if (DEBUG):
-            print("Inside updatePlot")
-            print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-            print("self.currentPlot.h_dict_geo", self.getGeo())
-            print("self.currentPlot.h_setup", self.currentPlot.h_setup)
-            print("verification tab index", self.wTab.currentIndex())
+        self.logger.info('updatePlot')
 
-        name = str(self.wConf.histo_list.currentText())
+        # name = str(self.wConf.histo_list.currentText())
         index = self.autoIndex()
-        if index is None or self.getSpectrumInfoREST("dim", name=name) is None: return
+        name = self.nameFromIndex(index)
+        if index is None or self.getSpectrumInfoREST("dim", name=name) is None: 
+            self.logger.debug('updatePlot - index is None or self.getSpectrumInfoREST("dim", name=name) is None')
+            return
 
         # if gatePopup exit with [X]
         if (self.currentPlot.toCreateGate or self.currentPlot.toEditGate) and not self.gatePopup.isVisible():
@@ -2782,8 +2861,14 @@ class MainWindow(QMainWindow):
         try:
             #x_range, y_range = self.getAxisProperties(index)
             if self.currentPlot.isEnlarged:
+                self.logger.debug('updatePlot - self.currentPlot.isEnlarged TRUE')
                 ax = self.getSpectrumInfo("axis", index=0)
-                self.plotPlot(ax, index)
+                if ax is None :
+                    self.logger.debug('updatePlot - ax is None')
+                    if len(self.getSpectrumInfoDict()) == 0:
+                        return QMessageBox.about(self,"Warning!", "Configuration file has probably changed, please reset the window geometry (add plots or load geo file)")
+                    return
+                self.plotPlot(index)
                 #reset the axis limits as it was before enlarge
                 #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
                 dim = self.getSpectrumInfoREST("dim", index=0)
@@ -2796,15 +2881,17 @@ class MainWindow(QMainWindow):
                 except:
                     pass
                 #draw gate if there is one
-                self.drawGateTest(0)
+                self.drawGate(0)
             else:
-                if (DEBUG):
-                    print("Inside updatePlot - multipanel mode")
-                    debug_info = [(index, value) for index, value in self.currentPlot.h_dict.items()]
-                    print("index, value ", debug_info)
+                self.logger.debug('updatePlot - self.currentPlot.isEnlarged FALSE')
                 for index, value in self.getGeo().items():
                     ax = self.getSpectrumInfo("axis", index=index)
-                    self.plotPlot(ax, index)
+                    if ax is None :
+                        self.logger.debug('updatePlot - ax is None')
+                        if len(self.getSpectrumInfoDict()) == 0:
+                            return QMessageBox.about(self,"Warning!", "Configuration file has probably changed, please reset the window geometry (add plots or load geo file)")
+                        return
+                    self.plotPlot(index)
                     #reset the axis limits as it was before enlarge
                     #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
                     dim = self.getSpectrumInfoREST("dim", index=index)
@@ -2815,31 +2902,30 @@ class MainWindow(QMainWindow):
                     if (self.currentPlot.h_setup[index]):
                         self.currentPlot.h_setup[index] = False
                     #draw gate if there is one
-                    self.drawGateTest(index)
+                    self.drawGate(index)
 
             self.currentPlot.figure.tight_layout()
             self.currentPlot.canvas.draw()
         except NameError:
+            self.logger.debug('updatePlot - NameError exception', exc_info=True)
             pass
             #raise
 
 
     # looking for first available index to add an histogram
     def check_index(self):
-        if (DEBUG):
-            print("inside check index")
+        self.logger.info('check_index')
         keys=list(self.currentPlot.h_dict.keys())
         values = []
         try:
             values = [value["name"] for value in self.currentPlot.h_dict.values()]
         except TypeError as err:
-            print(err)
+            self.logger.warning('check_index - TypeError exception')
+            # print(err)
             return
         if "empty" in values:
             self.currentPlot.index = keys[values.index("empty")]
         else:
-            if (DEBUG):
-                print("list is full, set index to full")
             self.currentPlot.index = keys[-1]
             self.currentPlot.isFull = True
         return self.currentPlot.index
@@ -2847,9 +2933,7 @@ class MainWindow(QMainWindow):
 
     #To avoid None plot index
     def autoIndex(self):
-        if (DEBUG):
-            print("Inside autoIndex")
-
+        self.logger.info('autoIndex')
         if self.currentPlot.isSelected == False or self.currentPlot.selected_plot_index is None:
             if self.wTab.selected_plot_index_bak[self.wTab.currentIndex()] is not None:
                 self.currentPlot.index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
@@ -2864,8 +2948,7 @@ class MainWindow(QMainWindow):
 
     #go to next index, used in addPlot, so that one can add spectrum without selecting everytime the pad where to draw
     def nextIndex(self):
-        if (DEBUG):
-            print("Inside nextIndex")
+        self.logger.info('nextIndex')
         tabIndex = self.wTab.currentIndex()
 
         #Try to deal with all cases... not elegant
@@ -2891,6 +2974,7 @@ class MainWindow(QMainWindow):
 
     #called in nextIndex
     def forNextIndex(self, tabIndex, index):
+        self.logger.info('forNextIndex')
         self.currentPlot.index = index
         self.currentPlot.selected_plot_index = index
         self.wTab.selected_plot_index_bak[tabIndex]= self.currentPlot.selected_plot_index
@@ -2898,6 +2982,7 @@ class MainWindow(QMainWindow):
 
     #called in nextIndex and forNextIndex
     def setIndex(self, indexToChange):
+        self.logger.info('setIndex')
         row = int(self.wConf.histo_geo_row.currentText())
         col = int(self.wConf.histo_geo_col.currentText())
         try:
@@ -2910,21 +2995,20 @@ class MainWindow(QMainWindow):
                 else:
                     indexToChange += 1
         except IndexError as e:
-            print(f"An IndexError occured: {e}")
+            self.logger.warning('setIndex - IndexError occured', exc_info=True)
+            # print(f"An IndexError occured: {e}")
         return indexToChange
 
 
     #callback for copyAttr.okAttr
     def okCopy(self):
-        if (DEBUG):
-            print("Inside okCopy")
+        self.logger.info('okCopy')
         self.applyCopy()
         self.closeCopy()
 
     #callback for copyAttr.applyAttr
     def applyCopy(self):
-        if (DEBUG):
-            print("Inside applyCopy")
+        self.logger.info('applyCopy')
         try:
             flags = []
             discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
@@ -2935,8 +3019,7 @@ class MainWindow(QMainWindow):
                 else:
                     flags.append(False)
 
-            if (DEBUG):
-                print(flags)
+            self.logger.debug('applyCopy - flags: %s', flags)
 
             dim = self.getSpectrumInfoREST("dim", index=self.currentPlot.selected_plot_index)
             indexes = []
@@ -2954,9 +3037,8 @@ class MainWindow(QMainWindow):
                     indexSpectrum = int(self.wConf.histo_geo_col.currentText())*geoPositionSpectrum[0]+geoPositionSpectrum[1]
                     indexes.append(indexSpectrum)
 
-            if (DEBUG):
-                print(self.currentPlot.selected_plot_index)
-                print(indexes)
+            self.logger.debug('applyCopy - indexes : %s', indexes)
+
 
             # src values to copy to destination
             xlim_src = ast.literal_eval(self.copyAttr.axisLimLabelX.text())
@@ -2965,9 +3047,7 @@ class MainWindow(QMainWindow):
             scale_src_bool = True if scale_src == "Log" else False
             zlim_src = [float(self.copyAttr.histoScaleValueminZ.text()), float(self.copyAttr.histoScaleValuemaxZ.text())]
 
-            if (DEBUG):
-                print(xlim_src, ylim_src, scale_src, zlim_src)
-                print(flags)
+            self.logger.debug('applyCopy - xlim_src, ylim_src, scale_src, zlim_src : %s, %s, %s, %s', xlim_src, ylim_src, scale_src, zlim_src)
 
             # copy to destination
             for index in indexes:
@@ -2987,11 +3067,13 @@ class MainWindow(QMainWindow):
                     self.setSpectrumInfo(maxz=zlim_src[1], index=index)
             self.updatePlot()
         except:
+            self.logger.debug('applyCopy - exception occured', exc_info=True)
             pass
 
 
     #callback for copyAttr.cancelAttr
     def closeCopy(self):
+        self.logger.info('closeCopy')
         discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
         for instance in self.copyAttr.findChildren(QPushButton):
             if instance.text() not in discard:
@@ -3002,16 +3084,17 @@ class MainWindow(QMainWindow):
 
     #open copy properties popup
     def copyPopup(self):
+        self.logger.info('copyPopup - self.currentPlot.selected_plot_index: %s', self.currentPlot.selected_plot_index)
         if self.copyAttr.isVisible():
             self.copyAttr.close()
         index = self.currentPlot.selected_plot_index
         name = self.nameFromIndex(index)
         dim = self.getSpectrumInfoREST("dim", index=index)
 
-        if dim is None : return
+        if dim is None : 
+            self.logger.debug('copyPopup - dim is None', exc_info=True)
+            return
 
-        if (DEBUG):
-            print("Clicked copyPopup in tab", self.wTab.currentIndex())
         # setting up info for source histogram
         self.copyAttr.histoLabel.setText(name)
         # hdim = 2 if self.wConf.button2D.isChecked() else 1
@@ -3043,21 +3126,22 @@ class MainWindow(QMainWindow):
                     self.copyAttr.copy_log.addRow("row: "+str(row)+" col: "+str(col), instance)
                     instance.clicked.connect(lambda state, instance=instance: self.connectCopy(instance))
         except KeyError as e:
-            print(f"KeyError occured: {e}")
+            self.logger.warning('copyPopup - KeyError occured', exc_info=True)
+            # print(f"KeyError occured: {e}")
         self.copyAttr.show()
 
 
     #callback to change color when press spectrum button name, 
     def connectCopy(self, instance):
+        self.logger.info('connectCopy')
         if (instance.palette().color(QPalette.Text).name() == "#008000"):
             instance.setStyleSheet('QPushButton {color: red;}')
         else:
             instance.setStyleSheet('QPushButton {color: green;}')
-        if (DEBUG):
-            print(instance.isChecked())
 
 
     def selectAll(self):
+        self.logger.info('selectAll')
         flag = False
         basic = ["Ok", "Cancel", "Apply"]
         discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
@@ -3082,6 +3166,7 @@ class MainWindow(QMainWindow):
 
 
     def histAllAttr(self, b):
+        self.logger.info('histAllAttr - b.text(): %s',  b.text())
         if b.text() == "Select all properties":
             if b.isChecked() == True:
                 self.copyAttr.axisLimitX.setChecked(True)
@@ -3116,7 +3201,8 @@ class MainWindow(QMainWindow):
 
 
     #add to axes the gate/summing region applied to a spectrum (identified by index)
-    def drawGateTest(self, index):
+    def drawGate(self, index):
+        self.logger.info('drawGate - index: %s',index)
         spectrumName = self.nameFromIndex(index)
         spectrumType = self.getSpectrumInfoREST("type", name=spectrumName)
         dim = self.getSpectrumInfoREST("dim", name=spectrumName)
@@ -3130,8 +3216,10 @@ class MainWindow(QMainWindow):
                     parametersFormat.append(pars[0])
                     parametersFormat.append(pars[1])
             parameters = parametersFormat
+        self.logger.debug('drawGate - spectrumName, spectrumType, dim, paramters: %s, %s, %s, %s', spectrumName, spectrumType, dim, parameters)
         ax = self.getSpectrumInfo("axis", index=index)
         if ax is None:
+            self.logger.debug('drawGate - ax is None')
             return
 
         drawableTypes = {"b": ["s"], "1": ["s"], "g1": ["gs"], "2": ["c", "b"], "g2": ["gc", "gb"], "gd": ["gc", "gb"], "m2": ["NotDefinedYet"], "s": ["NotDefinedYet"]}
@@ -3219,6 +3307,7 @@ class MainWindow(QMainWindow):
 
     #callback for gate annotation, calls setGateAnnotation
     def gateAnnotationCallBack(self):
+        self.logger.info('gateAnnotationCallBack - isChecked: %s', self.extraPopup.options.gateAnnotation.isChecked())
         if self.extraPopup.options.gateAnnotation.isChecked():
             doAnnotate = True 
         else :
@@ -3235,8 +3324,10 @@ class MainWindow(QMainWindow):
 
     # set and unset gate annotation of a spectrum according to doAnnotate flag
     def setGateAnnotation(self, index, doAnnotate):
+        self.logger.info('setGateAnnotation - index, doAnnotate: %s, %s', index, doAnnotate)
         ax = self.getSpectrumInfo("axis", index=index)
         if ax is None:
+            self.logger.debug('setGateAnnotation - ax is None')
             return
         # spectrum = self.getSpectrumInfo("spectrum", index=index)
         # if spectrum is None :
@@ -3335,6 +3426,7 @@ class MainWindow(QMainWindow):
 
     #goes with the annotation feature, associate a color to a gateName  
     def getGateColor(self, gateName):
+        self.logger.info('getGateColor - gateName : %s', gateName)
         # 8 colors maybe enough (?) (blue and red ignored)
         colorList = ['tab:orange', 'tab:green', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan']
         # if more gates than colors then restart defining color from colorList[0] etc.
@@ -3348,6 +3440,7 @@ class MainWindow(QMainWindow):
 
     # Need better way to assign position
     def getXYAnnotation(self, spectrumName, gateName, xy):
+        self.logger.info('getXYAnnotation - spectrumName, gateName, xy : %s, %s, %s', spectrumName, gateName, xy)
         if spectrumName not in self.gateAnnotation:
             self.gateAnnotation[spectrumName] = {gateName: xy}
             return xy
@@ -3364,13 +3457,16 @@ class MainWindow(QMainWindow):
     # add copy of listRegionLine to axis before deleting the later one (considered a temporary line)
     # Identify this region line with label
     def saveSumRegion(self, index):
+        self.logger.info('saveSumRegion - index: %s', index)
         spectrumName = self.nameFromIndex(index)
         spectrum = self.getSpectrumInfo("spectrum", index=index)
         ax = spectrum.axes
         dim = self.getSpectrumInfoREST("dim", name=spectrumName)
         if ax is None :
+            self.logger.debug('saveSumRegion - ax is None')
             return
         regionName = self.sumRegionPopup.sumRegionNameList.currentText()
+        self.logger.debug('saveSumRegion - spectrumName, dim, regionName: %s, %s, %s', spectrumName, dim, regionName)
 
         # self.axesChilds()
         if dim == 1:
@@ -3410,6 +3506,7 @@ class MainWindow(QMainWindow):
 
     #callback for createSumRegionButton, show popup to define name
     def createSumRegion(self):
+        self.logger.info('createSumRegion CallBack')
         self.sumRegionPopup.sumRegionNameList.setEditable(True)
         self.sumRegionPopup.sumRegionNameList.setInsertPolicy(QComboBox.NoInsert)
 
@@ -3422,6 +3519,7 @@ class MainWindow(QMainWindow):
             dim = self.getSpectrumInfoREST("dim", name=spectrumName)
             ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
             if ax is None:
+                self.logger.debug('createSumRegion - ax is None')
                 return
 
             #refresh sumRegionDict (remove key if spectrum has been deleted in treegui)
@@ -3451,10 +3549,12 @@ class MainWindow(QMainWindow):
 
     #button of the cutoff window, sets the cutoff values in the spectrum dict
     def okSumRegion(self):
+        self.logger.info('okSumRegion')
         # if sumRegionName already exists issue warning
         sumRegionName = self.sumRegionPopup.sumRegionNameList.currentText()
         
         if sumRegionName in self.sumRegionPopup.sumRegionNameListSaved:
+            self.logger.debug('okSumRegion - sumRegionName: %s already exist', sumRegionName)
             msgBox = QMessageBox(self)
             msgBox.setIcon(QMessageBox.Warning)
             msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
@@ -3469,6 +3569,7 @@ class MainWindow(QMainWindow):
                 return
         #maybe better solution, the separator in region line labels are _-_ so dont want to find that in the region name
         elif "_-_" in sumRegionName :
+            self.logger.debug('okSumRegion - sumRegionName has _-_ in its name')
             msgBox = QMessageBox(self)
             msgBox.setIcon(QMessageBox.Warning)
             msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
@@ -3485,6 +3586,7 @@ class MainWindow(QMainWindow):
 
     #close sumRegionPopup
     def cancelSumRegion(self):
+        self.logger.info('cancelSumRegion')
         self.currentPlot.toCreateSumRegion = False
         self.sumRegionPopup.close()
         self.updatePlot()
@@ -3492,6 +3594,7 @@ class MainWindow(QMainWindow):
 
     #delete summing region according to self.sumRegionPopup.sumRegionNameList.currentText()
     def deleteSumRegion(self):
+        self.logger.info('deleteSumRegion')
         spectrumName = self.nameFromIndex(self.currentPlot.selected_plot_index)
         dim = self.getSpectrumInfoREST("dim", name=spectrumName)
         ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
@@ -3501,6 +3604,7 @@ class MainWindow(QMainWindow):
         
         #if sumRegionName not saved nothing to delete yet
         if sumRegionName not in self.sumRegionPopup.sumRegionNameListSaved:
+            self.logger.debug('deleteSumRegion - sumRegionName: %s doesnt exists', sumRegionName)
             msgBox = QMessageBox(self)
             msgBox.setIcon(QMessageBox.Warning)
             msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
@@ -3527,12 +3631,14 @@ class MainWindow(QMainWindow):
 
     # callback for gatePopup.ok button, do some checks and push gate to REST
     def okGate(self):
+        self.logger.info('okGate')
         # check if gateName already exists if yes issue warning
         gateName = self.gatePopup.gateNameList.currentText()
         gateNameList = [gate["name"] for gate in self.rest.listGate()]
         # print("Simon - in okGate ", gateNameList, gateName, self.currentPlot.toEditGate)
         if not self.currentPlot.toEditGate:
             if gateName in gateNameList:
+                self.logger.debug('okGate - gateName: %s already exists', gateName)
                 msgBox = QMessageBox(self)
                 msgBox.setIcon(QMessageBox.Warning)
                 msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
@@ -3547,6 +3653,7 @@ class MainWindow(QMainWindow):
                     return
             #maybe better solution, the separator in gate line labels are _-_ so dont want to find that in the gate name
             elif "_-_" in gateName :
+                self.logger.debug('okGate - gateName has _-_ in its name')
                 msgBox = QMessageBox(self)
                 msgBox.setIcon(QMessageBox.Warning)
                 msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
@@ -3568,6 +3675,7 @@ class MainWindow(QMainWindow):
 
     #callback for gatePopup.cancel button
     def cancelGate(self):
+        self.logger.info('cancelGate')
         self.currentPlot.toCreateGate = False
         self.currentPlot.toEditGate = False
         # self.gatePopup.clearInfo()
@@ -3577,6 +3685,7 @@ class MainWindow(QMainWindow):
 
     
     def disconnectGateSignals(self):
+        self.logger.info('disconnectGateSignals')
         try:
             if hasattr(self, 'gateReleaser') :
                 self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.gateReleaser)
@@ -3634,9 +3743,7 @@ class MainWindow(QMainWindow):
     #Open dialog window to specify name/type and draw gate while this window is openned
     #The flag self.currentPlot.toCreateGate determines if by clicking one sets the gate points (in on_singleclick)
     def createGate(self):
-        if (DEBUG):
-            print("Inside createGate")
-
+        self.logger.info('createGate')
         #Default gate actions is gate creation
         self.gatePopup.gateActionCreate.setChecked(True)
         self.gatePopup.preview.setEnabled(False)
@@ -3650,6 +3757,7 @@ class MainWindow(QMainWindow):
         try:
             if hasattr(self, 'sidGateNameListChanged') :
                 self.gatePopup.gateNameList.currentTextChanged.disconnect(self.sidGateNameListChanged)
+                self.logger.debug('createGate - disconnected sidGateNameListChanged')
         except TypeError:
             pass
 
@@ -3672,6 +3780,7 @@ class MainWindow(QMainWindow):
             gateTypesList = gateTypesDict[spectrumType]
             for type in gateTypesList:
                 if type == "NotDefinedYet":
+                    self.logger.debug('createGate - gate type NotDefinedYet')
                     msgBox = QMessageBox(self)
                     msgBox.setIcon(QMessageBox.Warning)
                     msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
@@ -3694,14 +3803,17 @@ class MainWindow(QMainWindow):
 
     #Draw a preview of the gate in case modified by editing the text gatePopup.regionPoint
     def onGatePopupPreview(self):
+        self.logger.info('onGatePopupPreview')
         ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
         if ax is None :
+            self.logger.debug('onGatePopupPreview - ax is None')
             return 
         dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
         #points for 1d: [x0, x1] and for 2d:  [[x0, y0], [x1, y1], ...]
         points = self.formatGatePopupPointText(dim)
         #point is not None when all lines have the good format, see formatGatePopupPointText
         if points is None :
+            self.logger.debug('onGatePopupPreview - points is None')
             return
         #For 1d there is multiple lines (2), find those with label
         if dim == 1:
@@ -3735,7 +3847,6 @@ class MainWindow(QMainWindow):
                 print(f"Event: {event_name}, Callbacks: {callbacks_dict}")
 
 
-
     def find_callbacks(self):
         callbacks_for_main_window = []
 
@@ -3744,23 +3855,20 @@ class MainWindow(QMainWindow):
                 # Check if the callback function is associated with the MainWindow instance
                 if hasattr(callback_func, '__self__') and callback_func.__self__ is self:
                     callbacks_for_main_window.append((event_name, callback_func))
-
         return callbacks_for_main_window
 
 
     #Open dialog window to edit an existing gate while this window is openned (can check and change points coordinates)
     def editGate(self):
-        if (DEBUG):
-            pass
-        print("Inside editGate")
+        self.logger.info('editGate')
 
         self.gatePopup.gateActionCreate.setChecked(False)
         self.gatePopup.preview.setEnabled(True)
 
-
         try:
             if hasattr(self, 'sidGateTypeListChanged') :
                 self.gatePopup.listGateType.currentIndexChanged.disconnect(self.sidGateTypeListChanged)
+                self.logger.debug('editGate - disconnected sidGateTypeListChanged')
         except TypeError:
             pass
 
@@ -3777,12 +3885,14 @@ class MainWindow(QMainWindow):
 
 
         if self.gatePopup.gateSpectrumIndex is None:
+            self.logger.debug('editGate - gateSpectrumIndex is None')
             return QMessageBox.about(self,"Warning!", "Please add at least one spectrum")
         else:
             spectrumName = self.nameFromIndex(self.gatePopup.gateSpectrumIndex)
             dim = self.getSpectrumInfoREST("dim", name=spectrumName)
             ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
             if ax is None:
+                self.logger.debug('editGate - ax is None')
                 return
             
             self.gatePopup.clearInfo()
@@ -3812,6 +3922,7 @@ class MainWindow(QMainWindow):
 
     #if change gate type while creating gate, reset the new gate info (name and point)
     def gateTypeListChanged(self):
+        self.logger.info('gateTypeListChanged')
         self.gatePopup.gateNameList.clear()
         self.gatePopup.gateNameList.setCurrentText("None")
         for line in self.gatePopup.listRegionLine:
@@ -3825,8 +3936,10 @@ class MainWindow(QMainWindow):
 
     #change the gate points text and gate type (and line color when edit) according to gate name in the completable combo box
     def gateNameListChanged(self):
+        self.logger.info('gateNameListChanged')
         ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
         if ax is None:
+            self.logger.debug('gateNameListChanged - ax is None')
             return
 
         #Check that the text corresponds to an actual gate name
@@ -3835,6 +3948,7 @@ class MainWindow(QMainWindow):
         if gateFoundAtIdx == -1 :
             self.gatePopup.regionPoint.clear()
             self.gatePopup.listGateType.clear()
+            self.logger.debug('gateNameListChanged - gateFoundAtIdx == -1')
             return
         
         #update points text
@@ -3863,11 +3977,11 @@ class MainWindow(QMainWindow):
 
     # called in on_singleclick_gate to add a gate line to the axis
     def addLine(self, posx, posy, index, label=None):
-        if (DEBUG):
-            print("Inside addLine", posx)
+        self.logger.info('addLine - posx, posy, index, label: %s, %s, %s, %s', posx, posy, index, label)
         spectrum = self.getSpectrumInfo("spectrum", index=index)
         dim = self.getSpectrumInfo("dim", index=index)
         if spectrum is None :
+            self.logger.debug('addLine - spectrum is None')
             return
         ax = spectrum.axes
 
@@ -3894,6 +4008,7 @@ class MainWindow(QMainWindow):
                 l = mlines.Line2D([xyPrev[0],posx], [xyPrev[1],posy], picker=5, label=label)
                 ax.add_line(l)
         if l is None :
+            self.logger.debug('addLine - l is None')
             return 
         elif self.currentPlot.toCreateSumRegion :
             l.set_color('b')
@@ -3904,6 +4019,7 @@ class MainWindow(QMainWindow):
 
     #called in on_singleclick_gate to remove previous point by right click while making a new gate
     def removePrevLine(self):
+        self.logger.info('removePrevLine')
         popup = None
         if self.currentPlot.toCreateGate :
             popup = self.gatePopup
@@ -3917,6 +4033,7 @@ class MainWindow(QMainWindow):
 
     #reset signals to continue adding/modifying gate point
     def releaseonclick(self, event):
+        self.logger.info('releaseonclick')
         try:
             if hasattr(self, 'gateReleaser') :
                 self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.gateReleaser)
@@ -3949,6 +4066,7 @@ class MainWindow(QMainWindow):
 
     # Callback for shortcut to edit a gate
     def onKeyActivateEditGate(self):
+        self.logger.info('onKeyActivateEditGate - self.currentPlot.toEditGate: %s',self.currentPlot.toEditGate)
         if not self.currentPlot.toEditGate:
             return
         #Used in on_singleclick_gate_edit
@@ -3957,9 +4075,11 @@ class MainWindow(QMainWindow):
 
     #insert a point to the edited (selected) contour (only for 2d gate), at the mouse location close to the contour
     def insertPointGate(self, event):
+        self.logger.info('insertPointGate')
         dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
         ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
         if ax is None or dim !=2 :
+            self.logger.debug('insertPointGate - ax is None or dim!=2: %s',dim)
             return 
         
         lineX = self.editThisGateLine.get_xdata()
@@ -3986,9 +4106,11 @@ class MainWindow(QMainWindow):
 
     #delete a point to the edited (selected) contour (only for 2d gate), at the mouse location close to the contour
     def deletePointGate(self, event):
+        self.logger.info('deletePointGate')
         dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
         ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
         if ax is None or dim !=2 :
+            self.logger.debug('deletePointGate - ax is None or dim!=2: %s',dim)
             return 
 
         lineX = self.editThisGateLine.get_xdata()
@@ -4096,9 +4218,11 @@ class MainWindow(QMainWindow):
 
     #goes with hotkey to edit gate, depending if left or right click, add or delete gate point (2d)
     def on_singleclick_gate_edit(self, event):
+        self.logger.info('on_singleclick_gate_edit')
         dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
         ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
         if ax is None:
+            self.logger.debug('on_singleclick_gate_edit - ax is None')
             return
         if dim == 2:
             self.xyRef = np.array([event.xdata,event.ydata])
@@ -4118,6 +4242,7 @@ class MainWindow(QMainWindow):
 
     #move a gate line if double click on it 
     def on_dblclick_gate_edit(self, event, index):
+        self.logger.info('on_dblclick_gate_edit')
         dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
         if dim == 2:
             self.gatePopup.gateEditOption = "2d_move_all"
@@ -4159,6 +4284,7 @@ class MainWindow(QMainWindow):
 
     # For gate editing when pick_event signal
     def clickOnGateLine(self, event):
+        self.logger.info('clickOnGateLine')
         #left click
         if event.mouseevent.button != 1 :
             return 
@@ -4167,6 +4293,7 @@ class MainWindow(QMainWindow):
         dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
         ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
         if ax is None :
+            self.logger.debug('clickOnGateLine - ax is None')
             return
         
         #Get the line(s) from axis child
@@ -4177,11 +4304,12 @@ class MainWindow(QMainWindow):
                 #lineCandidate only one artist from drawGate even for 2d gates, need to decompose into segments and points
                 self.editThisGateLine = lineCandidate[0]
         else :
+            self.logger.debug('clickOnGateLine - len(lineCandidate) <= 0')
             return
         #Following block sets the name and type in gatePopup and get the segment number to update self.gatePopup.listRegionLine
         labelSplit = lineCandidate[0].get_label().split("_-_")
         if len(labelSplit) != 3 or labelSplit[0] != "gate":
-            print("Warning - clickOnGateLine - lineLabel not in the expected format")
+            self.logger.debug('clickOnGateLine - lineLabel has not the expected format')
             return
         gateName = labelSplit[1]
         gate = [dict for dict in self.rest.listGate() if dict["name"] == gateName]
@@ -4238,8 +4366,10 @@ class MainWindow(QMainWindow):
     ##############################
 
     def integrate(self):
+        self.logger.info('integrate')
         ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
         if ax is None or self.currentPlot.selected_plot_index is None:
+            self.logger.debug('integrate - ax is None or self.currentPlot.selected_plot_index is None')
             return QMessageBox.about(self,"Warning!", "Please add/select one spectrum")
         else:
             index = self.currentPlot.selected_plot_index
@@ -4257,8 +4387,8 @@ class MainWindow(QMainWindow):
                 headerItem.setFont(font)
                 self.integratePopup.resultsText.setHorizontalHeaderItem(col, headerItem)
 
-            #get a results dict for summing region
             resultsCombined = {}
+            #get a results dict for summing region
             results = self.integrateSummingRegion(index)
 
             #now get a results dict for gates
@@ -4295,11 +4425,13 @@ class MainWindow(QMainWindow):
 
 
     def okIntegrate(self):
+        self.logger.info('okIntegrate')
         self.disconnectGateSignals()
         self.integratePopup.close()
 
 
     def copySelectionIntegrateTable(self):
+        self.logger.info('copySelectionIntegrateTable')
         resultTable = self.integratePopup.resultsText
         selectedItems = resultTable.selectedItems()
         if not selectedItems:
@@ -4323,6 +4455,7 @@ class MainWindow(QMainWindow):
 
 
     def formatResultsIntegrate(self, results):
+        self.logger.info('formatResultsIntegrate')
         # {'rawSet.0.other': [{'centroid': 0.0, 'fwhm': 0.0, 'counts': 37091.0, 'regionName': 'aaa'}, 
         # [{'centroid': 0.0, 'fwhm': 0.0, 'counts': 37091.0, 'regionName': 'slice_002'}]]}
         dum = []
@@ -4345,6 +4478,7 @@ class MainWindow(QMainWindow):
                 if len(result) == 0:
                     continue
                 elif "centroid" in result.keys():
+                    result = self.setPrecisionIntegrationResult(result)
                     #a centroid list should mean it is dim == 2
                     if type(dum) == type(result["centroid"]):
                         row = [spectrumName, result["regionName"], str(result["counts"]), str(result["centroid"][0]), str(result["centroid"][1]), str(result["fwhm"][0]), str(result["fwhm"][1])]
@@ -4365,7 +4499,43 @@ class MainWindow(QMainWindow):
         self.integratePopup.show()
 
 
+    # round numbers in dict toRound at a proper order according to fwhm
+    def setPrecisionIntegrationResult(self, toRound):
+        self.logger.info('setPrecisionIntegrationResult - toRound: %s', toRound)
+
+        #round sci format to 3 decimals
+        order = 3
+        sciFormat = "{:." + str(order) + "E}"
+        #dim == 2
+        if type(['dumList']) == type(toRound["fwhm"]):
+            for i, val in enumerate(toRound["fwhm"]):
+                toRound["centroid"][i] = sciFormat.format(toRound["centroid"][i])
+                toRound["fwhm"][i] = sciFormat.format(toRound["fwhm"][i])
+        #dim == 1
+        else :
+            toRound["centroid"] = sciFormat.format(toRound["centroid"])
+            toRound["fwhm"] = sciFormat.format(toRound["fwhm"])
+
+        # #wanted to get the order for rounding from fwhm
+        # if "fwhm" in toRound:
+        #     if type(['dumList']) == type(toRound["fwhm"]):
+        #         for i, val in enumerate(toRound["fwhm"]):
+        #             fwhm = val
+        #             #format in sci and get the exponent 
+        #             # order = int('{:.0E}'.format(fwhm).split('E')[1])
+        #             sciFormat = "{:." + str(order) + "E}"
+        #             toRound["centroid"][i] = sciFormat.format(toRound["centroid"][i])
+        #             toRound["fwhm"][i] = sciFormat.format(toRound["fwhm"][i])
+
+        #make sure counts does not have decimal
+        toRound["counts"] = int(toRound["counts"])
+        return toRound
+
+
+
+
     def integrateGateLocal(self, index, gateLines):
+        self.logger.info('integrateGateLocal - index: %s', index)
         resultsList = []
         resultsDict = {}
         index = self.currentPlot.selected_plot_index
@@ -4373,6 +4543,7 @@ class MainWindow(QMainWindow):
         #find lineList of summing regions 
         lineList = gateLines
         if lineList is None or len(lineList) == 0 :
+            self.logger.debug('integrateGateLocal - lineList is None or len(lineList) == 0')
             return
 
         dim = self.getSpectrumInfoREST("dim", index=index)
@@ -4380,7 +4551,7 @@ class MainWindow(QMainWindow):
 
         step = 1
         if dim == 1:
-            #assuming there are two consecutive lines per summing region for 1d
+            #assuming there are two consecutive lines per gate for 1d
             step = 2
 
         #just need the gateName for gates, since there are already in REST
@@ -4396,14 +4567,20 @@ class MainWindow(QMainWindow):
                 else :
                     continue
             results = self.rest.integrateGate(spectrumName, gateName)
-            # print('Simon - integrateGateLocal - ', results)
-            #if error during integration results can be a status string, not a dict
-            # if results is not None or type(results) != type("dum"):
             try:
+                #if no count in region, rest.integrateGate returns the following
+                zeroCountOutput = "Integration area is 0"
+                if dim == 1:
+                    zeroCountResult = {'centroid': None, 'fwhm': None, 'counts': 0}
+                if dim == 2:
+                    zeroCountResult = {'centroid': [None, None], 'fwhm': [None, None], 'counts': 0}
+                if results == zeroCountOutput:
+                    results = zeroCountResult
                 #Add gateName to result dict
                 results['regionName'] = gateName
                 resultsList.append(results)
-            except TypeError :
+            except :
+                self.logger.debug('integrateGateLocal - exception ', exc_info=True)
                 continue
         resultsDict[spectrumName] = resultsList
         return resultsDict
@@ -4411,6 +4588,7 @@ class MainWindow(QMainWindow):
 
     #dirty trick to integrate summing region, push to REST a temporary gate as the summing region and delete it in REST once integrated
     def integrateSummingRegion(self, index):
+        self.logger.info('integrateSummingRegion - index: %s', index)
         resultsList = []
         resultsDict = {}
         index = self.currentPlot.selected_plot_index
@@ -4418,6 +4596,7 @@ class MainWindow(QMainWindow):
         #find lineList of summing regions 
         lineList = self.getSumRegion(index)
         if lineList is None or len(lineList) == 0 :
+            self.logger.debug('integrateSummingRegion - lineList is None or len(lineList) == 0')
             return
 
         dim = self.getSpectrumInfoREST("dim", index=index)
@@ -4432,6 +4611,7 @@ class MainWindow(QMainWindow):
             #only one gate/summing region type
             gateType = gateTypesDict[spectrumType][0]
             if gateType == "NotDefinedYet":
+                self.logger.debug('integrateSummingRegion - gateType NotDefinedYet')
                 msgBox = QMessageBox(self)
                 msgBox.setIcon(QMessageBox.Warning)
                 msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
@@ -4476,15 +4656,21 @@ class MainWindow(QMainWindow):
             #now that the summing region gate exist, integrate
             results = self.rest.integrateGate(spectrumName, gateName)
 
-            # print("Simon - integrateSummingRegion after integrate - ", results)
-
-            #if error during integration results can be a status string, not a dict
-            if results is None or type(results) == type("dum"):
-                return
-
-            #Add gateName to result dict
-            results['regionName'] = gateName
-            resultsList.append(results)
+            try:
+                #if no count in region, rest.integrateGate returns the following
+                zeroCountOutput = "Integration area is 0"
+                if dim == 1:
+                    zeroCountResult = {'centroid': None, 'fwhm': None, 'counts': 0}
+                if dim == 2:
+                    zeroCountResult = {'centroid': [None, None], 'fwhm': [None, None], 'counts': 0}
+                if results == zeroCountOutput:
+                    results = zeroCountResult
+                #Add gateName to result dict
+                results['regionName'] = gateName
+                resultsList.append(results)
+            except :
+                self.logger.debug('integrateSummingRegion - exception ', exc_info=True)
+                continue
 
             #results are obtained, can delete the temporary gate
             self.rest.deleteGate(gateName)
@@ -4500,6 +4686,7 @@ class MainWindow(QMainWindow):
 
     #callback to open extra function popup
     def spfunPopup(self):
+        self.logger.info('spfunPopup callBack')
         if self.extraPopup.isVisible():
             self.extraPopup.close()
 
@@ -4508,6 +4695,7 @@ class MainWindow(QMainWindow):
     #set axis limit text of the fit in extraPopup and returns these limits
     def axisLimitsForFit(self, ax):
         left, right = ax.get_xlim()
+        self.logger.info('axisLimitsForFit - left, right: %s, %s', left, right)
         if self.extraPopup.fit_range_min.text():
             left = float(self.extraPopup.fit_range_min.text())
         else:
@@ -4525,10 +4713,13 @@ class MainWindow(QMainWindow):
 
     #Main fit function, reads user defined intial parameters and calls appropriate fit model
     def fit(self):
+        self.logger.info('fit')
         histo_name = str(self.wConf.histo_list.currentText())
         fit_funct = self.extraPopup.fit_list.currentText()
         index = self.autoIndex()
         ax = self.getSpectrumInfo("axis", index=index)
+        self.logger.debug('fit - histo_name, fit_funct, index: %s, %s, %s', histo_name, fit_funct, index)
+
 
         dim = self.getSpectrumInfoREST("dim", index=index)
         binx = self.getSpectrumInfoREST("binx", index=index)
@@ -4536,8 +4727,8 @@ class MainWindow(QMainWindow):
         maxxREST = self.getSpectrumInfoREST("maxx", index=index)
 
         config = self.fit_factory._configs.get(fit_funct)
-        if (DEBUG):
-            print("Fit function", config)
+        self.logger.debug('fit - config: %s',config)
+
         fit = self.fit_factory.create(fit_funct, **config)
 
         try:
@@ -4570,13 +4761,13 @@ class MainWindow(QMainWindow):
                               float(self.extraPopup.fit_p6.text()), float(self.extraPopup.fit_p7.text())]
                     
                     ytmp = (self.getSpectrumInfoREST("data", index=index)).tolist()
-                    if (DEBUG):
-                        print("xtmp", type(xtmp), "with len", len(xtmp), "ytmp", type(ytmp), "with len", len(ytmp))
+                    # if (DEBUG):
+                    #     print("xtmp", type(xtmp), "with len", len(xtmp), "ytmp", type(ytmp), "with len", len(ytmp))
                     xmin, xmax = self.axisLimitsForFit(ax)
 
-                    if (DEBUG):
-                        print("fitting axis limits", xmin, xmax)
-                        print(type(xtmp), type(x), type(xtmp[0]), type(xmin))
+                    # if (DEBUG):
+                    #     print("fitting axis limits", xmin, xmax)
+                        # print(type(xtmp), type(x), type(xtmp[0]), type(xmin))
                     # create new tmp list with subrange for fitting
                     for i in range(len(xtmp)):
                         if (xtmp[i]>=xmin and xtmp[i]<xmax):
@@ -4607,6 +4798,7 @@ class MainWindow(QMainWindow):
     ############################
 
     def peakState(self, state):
+        self.logger.info('peakState')
         for i, btn in enumerate(self.extraPopup.peak.peak_cbox):
             if btn.isChecked() == False:
                 try:
@@ -4622,6 +4814,7 @@ class MainWindow(QMainWindow):
         self.currentPlot.canvas.draw()
 
     def create_peak_signals(self, peaks):
+        self.logger.info('create_peak_signals')
         try:
             for i in range(len(peaks)):
                 self.isChecked[i] = False
@@ -4631,11 +4824,13 @@ class MainWindow(QMainWindow):
             pass
 
     def peakAnalClear(self):
+        self.logger.info('peakAnalClear')
         self.extraPopup.peak.peak_results.clear()
         self.removeAllPeaks()
         self.resetPeakDict()
 
     def removePeak(self, i):
+        self.logger.info('removePeak')
         self.peak_pos[i][0].remove()
         del self.peak_pos[i]
         self.peak_vl[i].remove()
@@ -4646,12 +4841,14 @@ class MainWindow(QMainWindow):
         del self.peak_txt[i]
 
     def resetPeakDict(self):
+        self.logger.info('resetPeakDict')
         self.peak_pos = {}
         self.peak_vl = {}
         self.peak_hl = {}
         self.peak_txt = {}
 
     def removeAllPeaks(self):
+        self.logger.info('removeAllPeaks')
         try:
             for i in range(len(self.peaks)):
                 self.extraPopup.peak.peak_cbox[i].setChecked(False)
@@ -4663,12 +4860,9 @@ class MainWindow(QMainWindow):
 
 
     def drawSinglePeaks(self, peaks, properties, data, index):
-        if (DEBUG):
-            print("inside drawSinglePeaks")
+        self.logger.info('drawSinglePeaks - index, properties: %s, %s', index, properties)
         ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
         x = self.datax.tolist()
-        if (DEBUG):
-            print("self.peak_pos[index]", peaks[index], int(x[peaks[index]]))
         self.peak_pos[index] = ax.plot(x[peaks[index]], int(data[peaks[index]]), "v", color="red")
         self.peak_vl[index] = ax.vlines(x=x[peaks[index]], ymin=data[peaks[index]] - properties["prominences"][index], ymax = data[peaks[index]], color = "red")
         self.peak_hl[index] = ax.hlines(y=properties["width_heights"][index], xmin=properties["left_ips"][index], xmax=properties["right_ips"][index], color = "red")
@@ -4676,19 +4870,14 @@ class MainWindow(QMainWindow):
 
 
     def update_peak_output(self, peaks, properties):
-        if (DEBUG):
-            print("Inside update_peak_output")
-            print(type(peaks), peaks)
+        self.logger.info('update_peak_output - len(peaks), properties: %s, %s', len(peaks), properties)
         x = self.datax.tolist()
-        if (DEBUG):
-            print(type(x), len(x), x)
         for i in range(len(peaks)):
-            if (DEBUG):
-                print("peak at index", peaks[i], "corresponds to x value of", x[peaks[i]])
             s = "Peak"+str(i+1)+"\n\tpeak @ " + str(int(x[peaks[i]]))+", FWHM="+str(int(properties['widths'][i]))
             self.extraPopup.peak.peak_results.append(s)
 
     def analyzePeak(self):
+        self.logger.info('analyzePeak')
         try:
             index = self.currentPlot.selected_plot_index
             ax = self.getSpectrumInfo("axis", index=index)
@@ -4701,16 +4890,12 @@ class MainWindow(QMainWindow):
             minxREST = self.getSpectrumInfoREST("minx", index=index)
             maxxREST = self.getSpectrumInfoREST("maxx", index=index)
 
-            if (DEBUG):
-                print(minx, maxx, binx)
             xtmp = self.createRange(binx, minxREST, maxxREST)
             ytmp = (self.getSpectrumInfoREST("data", index=index)).tolist()
-            if (DEBUG):
-                print("xtmp", type(xtmp), "with len", len(xtmp), "ytmp", type(ytmp), "with len", len(ytmp))
-            xmin, xmax = ax.get_xlim()
 
-            if (DEBUG):
-                print("fitting axis limits", xmin, xmax)
+            xmin, xmax = ax.get_xlim()
+            self.logger.debug('analyzePeak - xmin, xmax: %s, %s', xmin, xmax)
+
             # create new tmp list with subrange for fitting
             for i in range(len(xtmp)):
                 if (xtmp[i]>=xmin and xtmp[i]<xmax):
@@ -4718,15 +4903,15 @@ class MainWindow(QMainWindow):
                     y.append(ytmp[i])
             self.datax = np.array(x)
             self.datay = np.array(y)
-            if (DEBUG):
-                print(self.datax)
-                print(self.datay)
-                print("xtmp", type(self.datax), "with len", len(self.datax.tolist()), "ytmp", type(self.datay), "with len", len(self.datay.tolist()))
+            # if (DEBUG):
+            #     print(self.datax)
+            #     print(self.datay)
+            #     print("xtmp", type(self.datax), "with len", len(self.datax.tolist()), "ytmp", type(self.datay), "with len", len(self.datay.tolist()))
             self.peaks, self.properties = find_peaks(self.datay, prominence=1, width=width)
 
-            if (DEBUG):
-                print("peak list with indices", self.peaks)
-                print("peak properties list", self.properties)
+            # if (DEBUG):
+            #     print("peak list with indices", self.peaks)
+            #     print("peak properties list", self.properties)
             self.update_peak_output(self.peaks, self.properties)
             self.create_peak_signals(self.peaks)
 
@@ -4740,6 +4925,7 @@ class MainWindow(QMainWindow):
 
 
     def openFigureDialog(self):
+        self.logger.info('openFigureDialog')
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Image Files (*.png *.jpg);;All Files (*)", options=options)
@@ -4747,6 +4933,7 @@ class MainWindow(QMainWindow):
             return fileName
 
     def loadFigure(self):
+        self.logger.info('loadFigure')
         fileName = self.openFigureDialog()
         self.extraPopup.imaging.loadLISE_name.setText(fileName)
         if (DEBUG):
@@ -4779,8 +4966,9 @@ class MainWindow(QMainWindow):
         self.drawFigure()
 
     def moveFigure(self):
-        if (DEBUG):
-            print(self.extraPopup.imaging.joystick.direction, self.extraPopup.imaging.joystick.distance)
+        self.logger.info('moveFigure')
+        # if (DEBUG):
+        #     print(self.extraPopup.imaging.joystick.direction, self.extraPopup.imaging.joystick.distance)
         try:
             self.imgplot.remove()
             if self.extraPopup.imaging.joystick.direction == "up":
@@ -4796,26 +4984,26 @@ class MainWindow(QMainWindow):
             pass
 
     def indexToStartPosition(self, index):
-        if (DEBUG):
-            print("inside indexToStartPosition")
+        self.logger.info('indexToStartPosition')
         row = int(self.wConf.histo_geo_row.currentText())
         col = int(self.wConf.histo_geo_col.currentText())
-        if (DEBUG):
-            print("row, col",row, col)
+        # if (DEBUG):
+        #     print("row, col",row, col)
         xoffs = float(1/(2*col))
         yoffs = float(1/(2*row))
         i, j = self.plotPosition(index)
-        if (DEBUG):
-            print("plot position in geometry", i, j)
+        # if (DEBUG):
+        #     print("plot position in geometry", i, j)
         xstart = xoffs*(2*j+1)-0.1
         ystart = yoffs*(2*i+1)+0.1
 
         self.xstart = xstart
         self.ystart = 1-ystart
-        if (DEBUG):
-            print("self.xstart", self.xstart, "self.ystart", self.ystart)
+        # if (DEBUG):
+        #     print("self.xstart", self.xstart, "self.ystart", self.ystart)
 
     def drawFigure(self):
+        self.logger.info('drawFigure')
         self.alpha = self.extraPopup.imaging.alpha_slider.value()/10
         self.zoomX = self.extraPopup.imaging.zoomX_slider.value()/10
         self.zoomY = self.extraPopup.imaging.zoomY_slider.value()/10
@@ -4829,11 +5017,13 @@ class MainWindow(QMainWindow):
         self.currentPlot.canvas.draw()
 
     def deleteFigure(self):
+        self.logger.info('deleteFigure')
         self.imgplot.remove()
         self.onFigure = False
         self.currentPlot.canvas.draw()
 
     def transFigure(self):
+        self.logger.info('transFigure')
         self.extraPopup.imaging.alpha_label.setText("Transparency Level ({} %)".format(self.extraPopup.imaging.alpha_slider.value()*10))
         try:
             self.deleteFigure()
@@ -4842,6 +5032,7 @@ class MainWindow(QMainWindow):
             pass
 
     def zoomFigureX(self):
+        self.logger.info('zoomFigureX')
         self.extraPopup.imaging.zoomX_label.setText("Zoom X Level ({} %)".format(self.extraPopup.imaging.zoomX_slider.value()*10))
         try:
             self.deleteFigure()
@@ -4850,6 +5041,7 @@ class MainWindow(QMainWindow):
             pass
 
     def zoomFigureY(self):
+        self.logger.info('zoomFigureY')
         self.extraPopup.imaging.zoomY_label.setText("Zoom Y Level ({} %)".format(self.extraPopup.imaging.zoomY_slider.value()*10))
         try:
             self.deleteFigure()
@@ -4858,6 +5050,7 @@ class MainWindow(QMainWindow):
             pass
 
     def addFigure(self):
+        self.logger.info('addFigure')
         try:
             self.indexToStartPosition(self.currentPlot.selected_plot_index)
             if self.onFigure == False:
@@ -4872,18 +5065,19 @@ class MainWindow(QMainWindow):
     ############################
 
     def createDf(self):
+        self.logger.info('createDf')
         try:
-            if (DEBUG):
-                print("Create dataframe for Jupyter and web")
+            # if (DEBUG):
+            #     print("Create dataframe for Jupyter and web")
             data_to_list = []
             for index, row in self.spectrum_list.iterrows():
                 tmp = row['data'].tolist()
                 data_to_list.append(tmp)
-                if (DEBUG):
-                    print("len(data_to_list) --> ", row['names'], " ", len(tmp))
+                # if (DEBUG):
+                #     print("len(data_to_list) --> ", row['names'], " ", len(tmp))
 
-            if (DEBUG):
-                print([list((i, len(data_to_list[i]))) for i in range(len(data_to_list))])
+            # if (DEBUG):
+            #     print([list((i, len(data_to_list[i]))) for i in range(len(data_to_list))])
             self.spectrum_list = self.spectrum_list.drop('data', 1)
             self.spectrum_list['data'] = np.array(data_to_list)
 
@@ -4892,6 +5086,7 @@ class MainWindow(QMainWindow):
             pass
 
     def jupyterStop(self):
+        self.logger.info('jupyterStop')
         # stop the notebook process
         log("Sending interrupt signal to jupyter-notebook")
         self.extraPopup.peak.jup_start.setEnabled(True)
@@ -4901,6 +5096,7 @@ class MainWindow(QMainWindow):
         stopnotebook()
 
     def jupyterStart(self):
+        self.logger.info('jupyterStart')
         # dump df to gzip
         self.createDf()
         #starting jupyter server
@@ -4969,6 +5165,7 @@ class MainWindow(QMainWindow):
     ##############################
 
     def createRectangle(self, plot):
+        self.logger.info('createRectangle')
         rec = matplotlib.patches.Rectangle((0, 0), 1, 1, ls="-", lw=2, ec="red", fc="none", transform=plot.transAxes)
         rec = plot.add_patch(rec)
         rec.set_clip_on(False)
@@ -4976,6 +5173,7 @@ class MainWindow(QMainWindow):
 
 
     def createDashedRectangle(self, plot):
+        self.logger.info('createDashedRectangle')
         rec = matplotlib.patches.Rectangle((0, 0), 1, 1, ls=":", lw=2, ec="red", fc="none", transform=plot.transAxes)
         rec = plot.add_patch(rec)
         rec.set_clip_on(False)
@@ -4983,6 +5181,7 @@ class MainWindow(QMainWindow):
 
 
     def removeRectangle(self):
+        self.logger.info('removeRectangle')
         try:                       
             for ax in self.currentPlot.figure.axes:
                 for child in ax.get_children():
@@ -5033,6 +5232,40 @@ class MainWindow(QMainWindow):
                     print("Simon - axesChild get_ydata:",child.get_ydata())
         except NameError:
             raise
+
+
+    def debugModeCallBack(self):
+        if self.extraPopup.options.debugMode.isChecked():
+            # allows to add only one instance of file handler
+            if len(self.logger.handlers) > 0:
+                for handler in self.logger.handlers:
+                    # print("Simon - filehandlers for loop add", handler)
+                    # add the handlers to the logger
+                    # makes sure no duplicate handlers are added
+                    if not isinstance(handler, logging.handlers.TimedRotatingFileHandler):
+                        self.logger.addHandler(self.fileHandler)
+            else:
+                self.logger.addHandler(self.fileHandler)
+        else :
+            # close the file handler
+            if len(self.logger.handlers) > 0:
+                for handler in self.logger.handlers:
+                    # print("Simon - filehandlers for loop delete ", handler)
+                    # makes sure fileHandler exists
+                    if isinstance(handler, logging.handlers.TimedRotatingFileHandler):
+                        self.logger.removeHandler(self.fileHandler)
+
+
+    def rgbString(self, r, g, b):
+        return f"\033[38;2;{r};{g};{b}m"
+
+    def colorString(self, string, rgbList):
+        if len(rgbList) == 3:
+            color = self.rgbString(rgbList[0], rgbList[1], rgbList[2])
+            reset = "\033[0m" # Important!
+            return str(f"{color}" + string + f"{reset}")
+        else :
+            return string
 
 
 # redirect logging

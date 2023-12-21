@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 import io
-import sys, os, json, httplib2
+import sys, os, json, httplib2, urllib
 sys.path.append(os.getcwd())
 
 # Python class to interface SpecTcl REST plugin
 
 class PyREST:
-    def __init__(self, server, rest):
+    def __init__(self, loggerMain, server, rest):
         self.server = server
         self.rest = rest
+        self.logger = loggerMain
 
     ########################################
     ## Parameter requests
@@ -25,9 +26,12 @@ class PyREST:
     #  units
     def listParameter(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/list?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        param_dict = json.loads(tmpl.decode())
-        return param_dict["detail"]    
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        param_dict = json.loads(response.decode())
+        return param_dict["detail"]   
+
 
     # edit parameter. Modifies the properties of a parameter. It takes as arguments:
     # name (mandatory - must be the name of a currently defined tree parameter)
@@ -40,9 +44,9 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/edit?name="+str(name)+"&"
         for key, value in kwargs.items():
             url += key+"="+value+"&"
-
         self.sendRequest(url)
         
+
     # promote parameter. Promotes a simple parameter to a tree parameter. The difference between a parameter
     # and a tree parameter from the point of view of the rest interface is that tree parameters have additional
     # properties that can assist in choosing good axis limits and binning when create spectra
@@ -54,8 +58,8 @@ class PyREST:
     # units (optional)
     def promoteParameter(self, name, bins, low, high, units=""):
         url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/promote?name="+str(name)+"&bins="+str(bins)+"&low="+str(low)+"&high="+str(high)+"&units="+str(units)
-
         self.sendRequest(url)
+
 
     # create parameters. Provides direct access to the SpecTcl treeparameter -create command. This command can create
     # a new parameter if there is no existing parameter. It accepts the arguments:
@@ -66,41 +70,50 @@ class PyREST:
     # units (optional)
     def createParameter(self, name, bins, low, high, units=""):
         url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/create?name="+str(name)+"&bins="+str(bins)+"&low="+str(low)+"&high="+str(high)+"&units="+str(units)
-
         self.sendRequest(url)    
         
+
     # lists only the tree parameters that have been created by treeparameter -create command
     def listnewParameter(self):
         url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/listnew"
-        tmpl = httplib2.Http().request(url)[1]
-        param_dict = json.loads(tmpl.decode())
-        return param_dict["detail"]    
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        param_dict = json.loads(response.decode())
+        return param_dict["detail"] 
+       
 
     # returns the state of a tree parameter check flag. The required query parameter name is the name of the tree
     # parameter to operate on. The check flag indicates if a tree parameter has been created or modified since SpecTcl
     # started or since the flag was cleared.
-
     def checkParameter(self, name):
-        url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/check?name="+str(name)
-        tmpl = httplib2.Http().request(url)[1]
-        param_dict = json.loads(tmpl.decode())
-        return param_dict["detail"]    
+        url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/check?name="+str(name) 
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        param_dict = json.loads(response.decode())
+        return param_dict["detail"] 
+
 
     # clears the check flag 
-
     def uncheckParameter(self, name):
         url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/uncheck?name="+str(name)
-        tmpl = httplib2.Http().request(url)[1]
-        param_dict = json.loads(tmpl.decode())
-        return param_dict["detail"]    
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        param_dict = json.loads(response.decode())
+        return param_dict["detail"] 
+
 
     # Tree parameter implementation version. Returns a string
-
     def versionParameter(self, name):
-        url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/version?name="+str(name)
-        tmpl = httplib2.Http().request(url)[1]
-        param_dict = json.loads(tmpl.decode())
-        return param_dict["detail"]    
+        url = "http://"+self.server+":"+self.rest+"/spectcl/parameter/version?name="+str(name)  
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        param_dict = json.loads(response.decode())
+        return param_dict["detail"]   
+
 
     ########################################
     ## Spectrum requests
@@ -116,15 +129,18 @@ class PyREST:
     #  gate - gate applied to the spectrum
     def listSpectrum(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/list?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        spectrum_dict = json.loads(tmpl.decode())
-        return spectrum_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        spectrum_dict = json.loads(response.decode())
+        return spectrum_dict["detail"]   
+
 
     # delete spectrum. the name parameter provides the name of the spectrum to delete
     def deleteSpectrum(self, name):
         url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/delete?name="+str(name)
-
         self.sendRequest(url)
+
 
     # create new spectrum. params and axes (list of lists) are lists. It is defined by the parameters:
     #  name (mandatory)
@@ -140,10 +156,12 @@ class PyREST:
             url += "{"+params[0]+"}&axes={"+(axes[0])[0]+" "+(axes[0])[1]+" "+(axes[0])[2]+"}"
         self.sendRequest(url)
 
+
     # clear spectrum. Clears the counts in a set of spectra
     def clearSpectrum(self, pattern=""):
         url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/clear?filter="+str(pattern)
         self.sendRequest(url)
+
 
     # contents spectrum. Returns the content of a spectrum. This is sufficient to reconstruct the spectrum channels and overflow statistics.
     # The only parameter is the mandatory name parameter which is the name of the spectrum to return. There are differences depending on the
@@ -157,12 +175,14 @@ class PyREST:
     #     x - the X channel number
     #     y - (2-d spectra only) the Y channel number
     #     v - the number of counts for that channel
-    
     def contentSpectrum(self, name):
         url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/contents?name="+str(name)
-        tmpl = httplib2.Http().request(url)[1]
-        spectrum_dict = json.loads(tmpl.decode())
-        return spectrum_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        spectrum_dict = json.loads(response.decode())
+        return spectrum_dict["detail"]   
+
 
     ########################################
     ## Gate requests
@@ -189,21 +209,24 @@ class PyREST:
     #          ...
     def listGate(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/gate/list?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        gate_dict = json.loads(tmpl.decode())
-        return gate_dict["detail"]        
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        gate_dict = json.loads(response.decode())
+        return gate_dict["detail"]     
+
 
     # delete gate. the name parameter provides the name of the gate to delete
     def deleteGate(self, name):
         url = "http://"+self.server+":"+self.rest+"/spectcl/gate/delete?name="+str(name)
         self.sendRequest(url)
 
+
     # edit/create gate. It creates or redefines an existing gate. The name parameter specifies the name of the gate.
     # parameters can be a value of a list, boundaries can be a list or a list of lists.
     # If the gate doesn't exist it will be created. Gate can not only be edited to change their points, any aspect of a gate
     # can be modified (except for the name)
     # A band must have a minimum of two points, while a contour requires at least three points
-    
     def createGate(self, name, types, parameters, boundaries, maskval="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/gate/edit?name="+str(name)+"&type="+str(types)
         if str(types) == "s": # slice
@@ -230,6 +253,7 @@ class PyREST:
                 url +="&gate="+str(i)
         self.sendRequest(url)
 
+
     # Creates a simple 1d gate. This must be of type s or gs. It can have one or more parameters. The query parameters are:
     # name - gate name; if the gate already exists this gate definition will replace it
     # gatetype - type of gate; it must be s or gs or an error will be raised
@@ -247,6 +271,7 @@ class PyREST:
             raise Exception("Only s and gs types are allowed")
             
         self.sendRequest(url)
+
 
     # Creates a simple 2d gate. This must be of type c/b or gc/gb. The query parameters are:
     # name - gate name; if the gate already exists this gate definition will replace it
@@ -266,9 +291,9 @@ class PyREST:
                 url += "&xcoord="+str(point[0])+"&ycoord="+str(point[1])                
         else:
             raise Exception("Only c/b and gc/gb types are allowed")
-
         self.sendRequest(url)
         
+
     # Create mask gate. The query parameters are:
     # name - gate name; if the gate already exists this gate definition will replace it
     # gatetype - type of gate; it must be s or gs or an error will be raised
@@ -279,26 +304,27 @@ class PyREST:
             url += "&parameter="+str(parameters)+"&value="+str(maskval)
         else:
             raise Exception("Only em, am, nm types are allowed")
-            
         self.sendRequest(url)
+
 
     # list the gates applied to a spectrum. The result is an object with attributes status and detail.
     # Each element describes a single gate application for a matching spectrum. The attributes of these objects are:
     # spectrum - name of the spectrum
     # gate - name of the gate applied. If the value is -TRUE-, the spectrum has not gate applied
-    
     def applylistgate(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/apply/list?pattern="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        gate_dict = json.loads(tmpl.decode())
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        gate_dict = json.loads(response.decode())
         return gate_dict["detail"]
 
         
     # gate application. Applies the gate to a spectrum. It takes as argument the gate name and the spectrum name
     def applyGate(self, gate, spectrum):
         url = "http://"+self.server+":"+self.rest+"/spectcl/apply/apply?gate="+str(gate)+"&spectrum="+str(spectrum)
-
         self.sendRequest(url)
+        
 
     ############################################################
     # Attaching data sources
@@ -313,21 +339,21 @@ class PyREST:
     #                     jumbo (fixed length buffers longer than 128K bytes from NSCLDAQ before v10), filter (XDR filter data)
     def attachSource(self, types, source, size="8192", formats="ring"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/attach/attach?type="+str(types)+"&source="+str(source)+"&size="+str(size)+"&format="+str(formats)
-                
         self.sendRequest(url)
+
 
     # starts the data analysis
     def startSource(self):
         url = "http://"+self.server+":"+self.rest+"/spectcl/attach/start"
-
         self.sendRequest(url)
+
 
     # information on attached sources
     def listSource(url):
         url = "http://"+self.server+":"+self.rest+"/spectcl/attach/list"
-
         self.sendRequest(url)        
         
+
     ############################################################
     # Binding spectra to display memory
     ############################################################    
@@ -335,8 +361,8 @@ class PyREST:
     # bind all spectra to display memory
     def sbindall(self):
         url = "http://"+self.server+":"+self.rest+"/spectcl/sbind/all"
-
         self.sendRequest(url)
+
 
     # bind all spectra named in all instances of the spectrum query parameter to display memory.
     # spectra is a list
@@ -344,8 +370,8 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/sbind/sbind?"
         for spectrum in spectra:
             url += "spectrum="+str(spectrum)+"&"
-            
         self.sendRequest(url)    
+
 
     # return information about the bindings of spectra that match the pattern query parameter interpreted as a glob spectrum name match string.
     # Each of the objects has the following fields:
@@ -354,9 +380,12 @@ class PyREST:
     #  binding
     def listsbind(self, pattern=""):
         url = "http://"+self.server+":"+self.rest+"/spectcl/sbind/list?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        sbind_dict = json.loads(tmpl.decode())
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        sbind_dict = json.loads(response.decode())
         return sbind_dict["detail"]
+
 
     ############################################################
     # Fit command
@@ -373,22 +402,25 @@ class PyREST:
     # type - type of fit to perform. The built in fit types are linear and gaussian
     def createFit(self, fitname, spectrum, low, high, fittype):
         url = "http://"+self.server+":"+self.rest+"/spectcl/fit/create?name="+str(fitname)+"&spectrum="+str(spectrum)+"&low="+str(low)+"&high="+str(high)+"&type="+str(fittype)
-
         self.sendRequest(url)                          
+
 
     # As spectra accumulate, fit data will be outdated. This allows the fit information to be recomputed to match current data.
     # It updates the set of fits whose names match the glob pattern in the query parameter pattern.
     def updateFit(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/fit/update?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        fit_dict = json.loads(tmpl.decode())
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        fit_dict = json.loads(response.decode())
         return fit_dict["detail"]
+
 
     # deletes a fit
     def deleteFit(self, name):
         url = "http://"+self.server+":"+self.rest+"/spectcl/fit/delete?name="+str(name)
-                  
         self.sendRequest(url)
+
 
     # list of all created fits. The result is a detail attribute that is an array. Each element of the array is an object that describes
     # a matching fit. The attributes of these objects are:
@@ -398,10 +430,12 @@ class PyREST:
     # low, high - fit limits in spectrum channel coordinates
     # parameters - an object that contains the fit parameters. Likely there will be a chi square attribute that describes the goodness of the fit
     def listFit(self, pattern=""):
-        url = "http://"+self.server+":"+self.rest+"/spectcl/fit/list?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        fit_dict = json.loads(tmpl.decode())
-        return fit_dict["detail"]                  
+        url = "http://"+self.server+":"+self.rest+"/spectcl/fit/list?filter="+str(pattern)  
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        fit_dict = json.loads(response.decode())
+        return fit_dict["detail"]              
 
                   
     ############################################################
@@ -417,23 +451,26 @@ class PyREST:
     # gate - name of the gate used to fold the spectrum 
     def listFold(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/fold/list?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        fold_dict = json.loads(tmpl.decode())
-        return fold_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        fold_dict = json.loads(response.decode())
+        return fold_dict["detail"] 
+
 
     # apply gamma gate to a list of spectra
     def applyFold(self, gate, spectra):
         url = "http://"+self.server+":"+self.rest+"/spectcl/fold/apply?gate="+str(gate)
         for spectrum in spectra:
             url += "&spectrum="+str(spectrum)+"&"
-
         self.sendRequest(url)
+
 
     # unfolds a spectrum
     def removeFold(self, spectrum):
         url = "http://"+self.server+":"+self.rest+"/spectcl/fold/remove?spectrum="+str(spectrum)
-        
         self.sendRequest(url)
+
 
     ############################################################
     # Access channel command
@@ -448,9 +485,11 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/channel/get?spectrum="+str(name)+"&"
         for key, value in kwargs.items():
             url += key+"="+str(value)+"&"
-        tmpl = httplib2.Http().request(url)[1]
-        get_dict = json.loads(tmpl.decode())
-        return get_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        get_dict = json.loads(response.decode())
+        return get_dict["detail"] 
 
 
     # Spectrum channel values to be set. The arguments are:
@@ -466,8 +505,8 @@ class PyREST:
             if (key == "xvalue" or key == "yvalue"):
                 key = "value"
             url += key+"="+value+"&"            
-
         self.sendRequest(url)
+
 
     ############################################################
     # Clear spectra
@@ -475,12 +514,13 @@ class PyREST:
     
     def spectrumClear(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/spectrum/zero?filter="+str(pattern)
-
         self.sendRequest(url)
         
+
     def spectrumAllClear(self):
         self.spectrumClear("*")
         
+
     ############################################################
     # Projecting spectra
     ############################################################        
@@ -494,10 +534,8 @@ class PyREST:
     #                      The projected spectrum is initially populated only with counts that are within that contour. Furthermore, if the
     #                      projected spectrum is not a snapshot spectrum, it is gated on that contour so that the projection remains faithful
     #                      as new data arrive.
-    
     def createProjection(self, snapshot, source, newname, direction, contour=""):
         url = "http://"+self.server+":"+self.rest+"/spectcl/project?snapshot="+str(snapshot)+"&source="+str(source)+"&newname="+str(newname)+"&direction="+str(direction)+"&contour="+str(contour)
-
         self.sendRequest(url)
 
     ############################################################
@@ -511,9 +549,12 @@ class PyREST:
     # overflows
     def getSpectrumStats(self, name, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/specstats?name="+str(name)+"&filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        stats_dict = json.loads(tmpl.decode())
-        return stats_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        stats_dict = json.loads(response.decode())
+        return stats_dict["detail"] 
+
 
     ############################################################
     # Accessing tree variable command
@@ -526,38 +567,44 @@ class PyREST:
     # units - units of measure of the tree variable
     def listVariable(self):
         url = "http://"+self.server+":"+self.rest+"/spectcl/treevariable/list"
-        tmpl = httplib2.Http().request(url)[1]
-        var_dict = json.loads(tmpl.decode())
-        return var_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        var_dict = json.loads(response.decode())
+        return var_dict["detail"] 
+
 
     # Tree variable values can be changed. Note that the units are NOT optional
     def setVariable(self, name, value, units):
         url = "http://"+self.server+":"+self.rest+"/spectcl/treevariable/set?name="+str(name)+"&value="+str(value)+"&units="+str(units)
-    
         self.sendRequest(url)
+
 
     # tree variables have a flag that indicates if they have been modified in the life of the SpecTcl run. This flag is normally
     # used to limit the amount of information that must be saved in files that capture the SpecTcl analysis state. The detail attribute of
     # the return object is 0 if the variable has not been changed and 1 if it has
     def checkVariable(self):
         url = "http://"+self.server+":"+self.rest+"/spectcl/treevariable/list"
-        tmpl = httplib2.Http().request(url)[1]
-        var_dict = json.loads(tmpl.decode())
-        return var_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        var_dict = json.loads(response.decode())
+        return var_dict["detail"] 
+
 
     # it is possible to change the flag above 
     def setFlagVariable(self, name):
         url = "http://"+self.server+":"+self.rest+"/spectcl/treevariable/setchanged?name="+str(name)
-    
         self.sendRequest(url)    
+
 
     # There are cases where it's important to fire Tcl traces associated with tree variables. If not supplied
     # any pattern it defaults to all variable names
     def traceVariable(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/treevariable/firetraces?filter="+str(pattern)
-
         self.sendRequest(url)
         
+
     ############################################################
     # Accessing filter command
     ############################################################            
@@ -567,30 +614,29 @@ class PyREST:
     # gate - specifies the name of a gate that will determine which events are output by the filter
     # parameter - each occurrance of this query parameter specifies the name of a parameter that will be written to
     #             the file output
-    
     def createFilter(self, name, gate, parameters):
         url = "http://"+self.server+":"+self.rest+"/spectcl/filter/new?name="+str(name)+"&gate="+str(gate)
         for i in parameters:
             url += "&parameter="+str(i)+"&"
-
         self.sendRequest(url)
+
 
     # Delete a filter. The only parameter is the name of the filter we want to remove
     def deleteFilter(self, name):
          url = "http://"+self.server+":"+self.rest+"/spectcl/filter/delete?name="+str(name)
-    
          self.sendRequest(url)
+
 
     # Enable/disable filter
     def enableFilter(self, name):
          url = "http://"+self.server+":"+self.rest+"/spectcl/filter/enable?name="+str(name)
-    
          self.sendRequest(url)
+
 
     def disableFilter(self, name):
          url = "http://"+self.server+":"+self.rest+"/spectcl/filter/disable?name="+str(name)
-
          self.sendRequest(url)            
+
 
     # List of filter. Each object will describe a single filter and contains the following attributes:
     # name - name of the filter
@@ -601,9 +647,12 @@ class PyREST:
     # format - contains the format string i.e. xdr
     def listFilter(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/filter/list?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        filt_dict = json.loads(tmpl.decode())
-        return filt_dict["detail"]    
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        filt_dict = json.loads(response.decode())
+        return filt_dict["detail"]   
+
 
     ############################################################
     # Integrate command
@@ -623,24 +672,33 @@ class PyREST:
 
     def integrateGate(self, name, gate):
         url = "http://"+self.server+":"+self.rest+"/spectcl/integrate?spectrum="+str(name)+"&gate="+str(gate)
-        tmpl = httplib2.Http().request(url)[1]
-        int_dict = json.loads(tmpl.decode())
-        return int_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        int_dict = json.loads(response.decode())
+        return int_dict["detail"]  
+     
 
     def integrate1D(self, name, low, high):
         url = "http://"+self.server+":"+self.rest+"/spectcl/integrate?spectrum="+str(name)+"&low="+str(low)+"&high="+str(high)
-        tmpl = httplib2.Http().request(url)[1]
-        int_dict = json.loads(tmpl.decode())
-        return int_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        int_dict = json.loads(response.decode())
+        return int_dict["detail"] 
+
 
     # points are a list of lists
     def integrate2D(self, name, points):
         url = "http://"+self.server+":"+self.rest+"/spectcl/integrate?spectrum="+str(name)
         for point in points:
             url += "&xcoord="+point[0]+"&ycoord="+point[1]
-        tmpl = httplib2.Http().request(url)[1]
-        int_dict = json.loads(tmpl.decode())
-        return int_dict["detail"]    
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        int_dict = json.loads(response.decode())
+        return int_dict["detail"] 
+        
     
     ############################################################
     # Create parameter command
@@ -659,8 +717,8 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/rawparameter/new?name="+str(name)+"&number="+str(number)
         for key, value in kwargs.items():
             url += key+"="+value+"&"
-
         self.sendRequest(url)                        
+
 
     # delete a parameter by name or id
     def deleteRawParameter(self, par):
@@ -669,8 +727,8 @@ class PyREST:
             url += "name="+str(par)
         else:
             url += "id="+str(par)
-
         self.sendRequest(url)
+
 
     # list parameter by name or id. The detail attribute of the returned JSON contains an array of objects. Each objects describes one parameter.
     # Some attributes of these objects are present in all elements but the presence or absence of others depends on how the parameter was defined.
@@ -687,9 +745,12 @@ class PyREST:
             url += "pattern="+str(par)
         else:
             url += "id="+str(par)
-        tmpl = httplib2.Http().request(url)[1]
-        int_dict = json.loads(tmpl.decode())
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        int_dict = json.loads(response.decode())
         return int_dict["detail"]    
+
 
     ############################################################
     # Pseudo command
@@ -704,8 +765,8 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/pseudo/create?name="+str(name)+"&body="+str(body)
         for i in parameters:
             url += "&parameter="+str(i)+"&"        
-
         self.sendRequest(url)
+
 
     # list pseudo parameters. The return value detail is array where each object describes one pseudo parameter. Each object has some or all the following
     # attributes:
@@ -713,10 +774,13 @@ class PyREST:
     # parameters - array of strings that are the names of the parameters the pseudo depends on
     # computation - the script that defines the computation that takes the parameters and from it creates the pseudo parameter.
     def listPseudo(self, par="*"):
-        url = "http://"+self.server+":"+self.rest+"/spectcl/pseudo/list?pattern="+str(par)
-        tmpl = httplib2.Http().request(url)[1]
-        ps_dict = json.loads(tmpl.decode())
-        return ps_dict["detail"]    
+        url = "http://"+self.server+":"+self.rest+"/spectcl/pseudo/list?pattern="+str(par)  
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        ps_dict = json.loads(response.decode())
+        return ps_dict["detail"] 
+
 
     ############################################################
     # sread command
@@ -733,8 +797,8 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/sread?filename="+str(name)+"&"
         for key, value in kwargs.items():
             url += key+"="+value+"&"
-
         self.sendRequest(url)
+
 
     ############################################################
     # ringformat command
@@ -743,8 +807,8 @@ class PyREST:
     # set the major and minor version of the ringformat command
     def ringFormat(self, major, minor="0"):
         url = "http://"+self.server+":"+self.rest+"/spectcl/ringformat?major="+str(major)+"&minor="+str(minor)
-
         self.sendRequest(url)
+
 
     ############################################################
     # unbind command
@@ -755,20 +819,20 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/unbind/byname?"
         for name in names:
             url += "name="+str(name)+"&"
-
         self.sendRequest(url)
+
 
     def unbindById(self, sids):
         url = "http://"+self.server+":"+self.rest+"/spectcl/unbind/byid?"
         for sid  in sids:
             url += "name="+str(name)+"&"
-
         self.sendRequest(url)
+
 
     def unbindAll(self):
         url = "http://"+self.server+":"+self.rest+"/spectcl/unbind/all"
-
         self.sendRequest(url)        
+
 
     ############################################################
     # ungate command
@@ -779,8 +843,8 @@ class PyREST:
         url = "http://"+self.server+":"+self.rest+"/spectcl/ungate?"
         for name in names:
             url += "name="+str(name)+"&"
-
         self.sendRequest(url)    
+
 
     ############################################################
     # swrite command
@@ -795,24 +859,23 @@ class PyREST:
         for spectrum in spectra:
             url += "spectrum="+spectrum+"&"
         url += "format="+str(formats)
-            
         self.sendRequest(url)
+
 
     ############################################################
     # start/stop analysis command
     ############################################################        
 
     # data analysis from the source can be started or stopped using the following queries:
-
     def startAnalysis(self):
         url = "http://"+self.server+":"+self.rest+"/analyze/start"
-
         self.sendRequest(url)
+
 
     def stopAnalysis(self):
         url = "http://"+self.server+":"+self.rest+"/analyze/stop"
-
         self.sendRequest(url)        
+
 
     ############################################################
     # root tree command
@@ -833,14 +896,14 @@ class PyREST:
         for i in parameters:
             url += "&parameter="+str(i)+"&"
         url += "gate="+str(gate)
-        
         self.sendRequest(url)
+
 
     # delete a previously created tree
     def deleteROOTtree(self, name):
         url = "http://"+self.server+":"+self.rest+"/roottree/delete?tree="+str(name)
-        
         self.sendRequest(url)
+
 
     # list all created trees. Provides a return value with the list of the root tree objects with names that match the optional pattern query.
     # The detail attribute will be an array of objects. Each objects describes one root tree and will have the following attributes:
@@ -849,9 +912,12 @@ class PyREST:
     # gate - name of the gate that must be satisfied to add an event to the tree
     def listROOTtree(self, pattern="*"):
         url = "http://"+self.server+":"+self.rest+"/roottree/list?filter="+str(pattern)
-        tmpl = httplib2.Http().request(url)[1]
-        root_dict = json.loads(tmpl.decode())
-        return root_dict["detail"]
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        root_dict = json.loads(response.decode())
+        return root_dict["detail"] 
+
 
     ############################################################
     # traces command
@@ -873,15 +939,18 @@ class PyREST:
     # is an integer token that should be used in future calls involving the trace subsystem.
     def startTraces(self, seconds):
         url = "http://"+self.server+":"+self.rest+"/spectcl/trace/establish?retention="+str(seconds)
-        tmpl = httplib2.Http().request(url)[1]
-        trace_dict = json.loads(tmpl.decode())
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        trace_dict = json.loads(response.decode())
         return trace_dict["detail"]
+
 
     # stop the trace service. Once the application no longer requires trace information, or as it is cleaning up for exit, a request is made
     def stopTraces(self, token):
         url = "http://"+self.server+":"+self.rest+"/spectcl/trace/done?token="+str(token)
-
         self.sendRequest(url)
+
 
     # poll traces. The detail attribute of the returned JSON will be an object. Each attribute represents a trace type and each of those attributes will, in turn,
     # have a value that is an array:
@@ -897,9 +966,12 @@ class PyREST:
 
     def pollTraces(self, token):
         url = "http://"+self.server+":"+self.rest+"/spectcl/trace/fetch?token="+str(token)
-        tmpl = httplib2.Http().request(url)[1]
-        trace_dict = json.loads(tmpl.decode())
-        return trace_dict["detail"]    
+        response = self.sendRequest(url)
+        if response is None :
+            return None 
+        trace_dict = json.loads(response.decode())
+        return trace_dict["detail"]
+
     
     ############################################################
     # general functions for communication and error handling
@@ -907,12 +979,26 @@ class PyREST:
     
     def sendRequest(self, url):
         try:
-            response = httplib2.Http().request(url, method="GET")[1] # SpecTclREST only takes GET methods.
+            status, content = httplib2.Http().request(url, method="GET") # SpecTclREST only takes GET methods.
             #May have other bad keywords
             badKeyWords = ["bad parameter", "Invalid gate"]
             for kw in badKeyWords :
-                if kw in str(response) :
-                    print("Error - PyREST - sendRequest - suspicious REST request status ", response)
-        except Exception as e:
-            print(e.message, e.args)
+                if kw in str(content) :
+                    self.logger.warning('sendRequest -- suspicious REST request status: %s', content)
+                    return None
+            return content
+        except Exception :
+            #Cannot pass the exception, full text dont convert to str so log custom error
+            self.logger.error('sendRequest -- check Server/User/REST Port/Mirror Port')
+            return None
+    
+
+    #check if url is valid
+    def checkSpecTclREST(self):
+        url = "http://"+self.server+":"+self.rest+"/spectcl"
+        try:
+            response = httplib2.Http().request(url, method="GET") # SpecTclREST only takes GET methods.
+            return True
+        except Exception :
+            return False
             
