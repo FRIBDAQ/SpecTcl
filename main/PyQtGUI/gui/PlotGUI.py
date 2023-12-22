@@ -144,7 +144,6 @@ class Plot(QWidget):
         self.h_dim = []
         self.h_lst = []
         self.axis_lst = []
-        self.hist_list = [] #list with names of the plotted histogram (created for drawAllGates)
         self.cbar = {}
         self.next_plot_index = -1
 

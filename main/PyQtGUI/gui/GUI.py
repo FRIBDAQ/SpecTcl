@@ -1252,6 +1252,8 @@ class MainWindow(QMainWindow):
         if self.currentPlot.toEditGate:
             #points for 1d: [x0, x1] and for 2d:  [[x0, y0], [x1, y1], ...]
             points = self.formatGatePopupPointText(dim)
+            if points is None :
+                return
             if dim == 1:
                 boundaries = points 
             elif dim == 2:
@@ -1313,24 +1315,28 @@ class MainWindow(QMainWindow):
             #get first number from left in the lines 
             pointId = re.search(r'\d+', line)
             if not pointId:
-                self.logger.warning('formatGatePopupPointText - formatGatePopupPointText - Expect a point number before X (and Y) at beginning of a line')
+                self.logger.warning('formatGatePopupPointText - Expect a point number before X (and Y) at beginning of a line')
                 return None
             #pointId must be unique
             if int(pointId.group()) in pointDict.keys():
-                self.logger.warning('formatGatePopupPointText - formatGatePopupPointText - Expect unique point number: %s', int(pointId.group()))
+                self.logger.warning('formatGatePopupPointText - Expect unique point number: %s', int(pointId.group()))
                 return None 
             pointId = int(pointId.group())
             #get first number between X and Y (X position) and first number from Y (Y position)
             posX = re.search(r'X(\s*[=]\s*)([-+]?(?:\d*\.*\d+))', line)
             if dim == 1 and not posX:
-                self.logger.warning('formatGatePopupPointText - formatGatePopupPointText - 1d spectrum - Line format is: i: X=f1 where i is integer and f1, f2 floats (no sci notation)')
+                self.logger.warning('formatGatePopupPointText - 1d spectrum - Line format is: i: X=f1 where i is integer and f1, f2 floats (no sci notation)')
                 return None 
-            posX = float(posX.group(2))
+            try:
+                posX = float(posX.group(2))
+            except:
+                self.logger.debug('formatGatePopupPointText - exception ', exc_info=True)
+                return None
             pointDict[pointId] = posX
 
             posY = re.search(r'Y(\s*[=]\s*)([-+]?(?:\d*\.*\d+))', line)
             if dim == 2 and not posY:
-                self.logger.warning('formatGatePopupPointText - formatGatePopupPointText - 2d spectrum - Line format is: i: X=f1 Y=f2 where i is integer and f1, f2 floats (no sci notation)')
+                self.logger.warning('formatGatePopupPointText - 2d spectrum - Line format is: i: X=f1 Y=f2 where i is integer and f1, f2 floats (no sci notation)')
                 return None 
             elif dim == 2 and posY:
                 posY = float(posY.group(2))
@@ -2595,8 +2601,6 @@ class MainWindow(QMainWindow):
     def setupPlot(self, axis, index):
         self.logger.info('setupPlot - index: %s', index)
         if self.nameFromIndex(index):
-            if len(self.currentPlot.hist_list) > index :
-                self.currentPlot.hist_list.pop(index)
 
             dim = self.getSpectrumInfoREST("dim", index=index)
             minx = self.getSpectrumInfoREST("minx", index=index)
@@ -3818,6 +3822,14 @@ class MainWindow(QMainWindow):
         if points is None :
             self.logger.debug('onGatePopupPreview - points is None')
             return
+        # if no line selected, set editThisGateLine using gatePopup.gateNameList 
+        if not hasattr(self, 'editThisGateLine') or self.editThisGateLine is None:
+            try:
+                gateIdentifier = "gate_-_" + self.gatePopup.gateNameList.currentText() + "_-_"
+                self.editThisGateLine = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier in child.get_label()][0]
+            except :
+                self.logger.debug('onGatePopupPreview - exception ', exc_info=True) 
+                return
         #For 1d there is multiple lines (2), find those with label
         if dim == 1:
             label = self.editThisGateLine.get_label()
