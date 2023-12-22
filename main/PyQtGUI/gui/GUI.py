@@ -3466,6 +3466,9 @@ class MainWindow(QMainWindow):
             self.logger.debug('saveSumRegion - ax is None')
             return
         regionName = self.sumRegionPopup.sumRegionNameList.currentText()
+        if regionName is None or regionName == "None" :
+            self.logger.debug('saveSumRegion - regionName is None or regionName == "None"')
+            return
         self.logger.debug('saveSumRegion - spectrumName, dim, regionName: %s, %s, %s', spectrumName, dim, regionName)
 
         # self.axesChilds()
@@ -4388,8 +4391,16 @@ class MainWindow(QMainWindow):
                 self.integratePopup.resultsText.setHorizontalHeaderItem(col, headerItem)
 
             resultsCombined = {}
-            #get a results dict for summing region
-            results = self.integrateSummingRegion(index)
+            results = {}
+
+            #find lineList of summing regions 
+            sumRegionLines = self.getSumRegion(index)
+            if sumRegionLines is None or len(sumRegionLines) == 0 :
+                self.logger.debug('integrate - sumRegionLines is None or len(sumRegionLines) == 0')
+                pass
+            else:
+                #get a results dict for summing region
+                results = self.integrateGateLocal(index, sumRegionLines)
 
             #now get a results dict for gates
             gateIdentifier = "gate_-_" 
@@ -4400,8 +4411,10 @@ class MainWindow(QMainWindow):
             if results is not None and len(results) > 0 and resultsGate is not None and len(resultsGate) > 0:
                 resultsCombined = results
                 for specName, listGateResults in resultsGate.items():
+                    #if there is already specName in resultsCombined then append the existing list.
                     if specName in resultsCombined.keys():
-                        resultsCombined[specName].append(listGateResults[0])
+                        for listItem in listGateResults:
+                            resultsCombined[specName].append(listItem)
                     else :
                         resultsCombined[specName] = listGateResults
             elif results is not None and len(results) > 0:
@@ -4509,12 +4522,16 @@ class MainWindow(QMainWindow):
         #dim == 2
         if type(['dumList']) == type(toRound["fwhm"]):
             for i, val in enumerate(toRound["fwhm"]):
+                if val is None:
+                    continue
                 toRound["centroid"][i] = sciFormat.format(toRound["centroid"][i])
                 toRound["fwhm"][i] = sciFormat.format(toRound["fwhm"][i])
         #dim == 1
         else :
-            toRound["centroid"] = sciFormat.format(toRound["centroid"])
-            toRound["fwhm"] = sciFormat.format(toRound["fwhm"])
+            if toRound["centroid"] is not None:
+                toRound["centroid"] = sciFormat.format(toRound["centroid"])
+            if toRound["fwhm"] is not None:
+                toRound["fwhm"] = sciFormat.format(toRound["fwhm"])
 
         # #wanted to get the order for rounding from fwhm
         # if "fwhm" in toRound:
@@ -4532,15 +4549,13 @@ class MainWindow(QMainWindow):
         return toRound
 
 
-
-
+    #perform gate/summing region integration with REST functions integrate1D and integrate2D
     def integrateGateLocal(self, index, gateLines):
         self.logger.info('integrateGateLocal - index: %s', index)
         resultsList = []
         resultsDict = {}
         index = self.currentPlot.selected_plot_index
 
-        #find lineList of summing regions 
         lineList = gateLines
         if lineList is None or len(lineList) == 0 :
             self.logger.debug('integrateGateLocal - lineList is None or len(lineList) == 0')
@@ -4554,83 +4569,6 @@ class MainWindow(QMainWindow):
             #assuming there are two consecutive lines per gate for 1d
             step = 2
 
-        #just need the gateName for gates, since there are already in REST
-        for iLine in range(0, len(lineList), step):
-            if dim == 1:
-                gateName = lineList[iLine].get_label().split("_-_")[1]
-            elif dim == 2:
-                firstPoint = lineList[iLine].get_xydata()[0]
-                lastPoint = lineList[iLine].get_xydata()[-1]
-                #dont want band type (not closed contour)
-                if firstPoint[0] == lastPoint[0] and firstPoint[1] == lastPoint[1]:
-                    gateName = lineList[iLine].get_label().split("_-_")[1]
-                else :
-                    continue
-            results = self.rest.integrateGate(spectrumName, gateName)
-            try:
-                #if no count in region, rest.integrateGate returns the following
-                zeroCountOutput = "Integration area is 0"
-                if dim == 1:
-                    zeroCountResult = {'centroid': None, 'fwhm': None, 'counts': 0}
-                if dim == 2:
-                    zeroCountResult = {'centroid': [None, None], 'fwhm': [None, None], 'counts': 0}
-                if results == zeroCountOutput:
-                    results = zeroCountResult
-                #Add gateName to result dict
-                results['regionName'] = gateName
-                resultsList.append(results)
-            except :
-                self.logger.debug('integrateGateLocal - exception ', exc_info=True)
-                continue
-        resultsDict[spectrumName] = resultsList
-        return resultsDict
-
-
-    #dirty trick to integrate summing region, push to REST a temporary gate as the summing region and delete it in REST once integrated
-    def integrateSummingRegion(self, index):
-        self.logger.info('integrateSummingRegion - index: %s', index)
-        resultsList = []
-        resultsDict = {}
-        index = self.currentPlot.selected_plot_index
-
-        #find lineList of summing regions 
-        lineList = self.getSumRegion(index)
-        if lineList is None or len(lineList) == 0 :
-            self.logger.debug('integrateSummingRegion - lineList is None or len(lineList) == 0')
-            return
-
-        dim = self.getSpectrumInfoREST("dim", index=index)
-        parameters = self.getSpectrumInfoREST("parameters", index=index)
-        spectrumType = self.getSpectrumInfoREST("type", index=index)
-        spectrumName = self.nameFromIndex(index) 
-        # gateTypesDict = {"b": ["NotDefinedYet"], "1": ["s"], "g1": ["s"], "2": ["c"], "g2": ["c"], "gd": ["c"], "m2": ["c"], "s": ["NotDefinedYet"]}
-        # gateTypesDict = {"b": ["NotDefinedYet"], "1": ["s"], "g1": ["gs"], "2": ["c"], "g2": ["gc"], "gd": ["gc"], "m2": ["c"], "s": ["NotDefinedYet"]}
-        gateTypesDict = {"b": ["NotDefinedYet"], "1": ["s"], "g1": ["NotDefinedYet"], "2": ["c"], "g2": ["NotDefinedYet"], "gd": ["NotDefinedYet"], "m2": ["NotDefinedYet"], "s": ["NotDefinedYet"]}
-
-        if spectrumType in gateTypesDict.keys():
-            #only one gate/summing region type
-            gateType = gateTypesDict[spectrumType][0]
-            if gateType == "NotDefinedYet":
-                self.logger.debug('integrateSummingRegion - gateType NotDefinedYet')
-                msgBox = QMessageBox(self)
-                msgBox.setIcon(QMessageBox.Warning)
-                msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
-                msgBox.setText('Integration not available for "' + spectrumType + '" spectrum')
-                #msgBox.setInformativeText('Check latest SpecTcl version')
-                msgBox.setStandardButtons(QMessageBox.Ok)
-                msgBox.setDefaultButton(QMessageBox.Ok)
-                ret = msgBox.exec()
-                return
-        else :
-            return
-
-        # print("Simon - integrateSummingRegion - ", index, dim, spectrumName, gateType, lineList)
-        
-        step = 1
-        if dim == 1:
-            #assuming there are two consecutive lines per summing region for 1d
-            step = 2
-
         for iLine in range(0, len(lineList), step):
             boundaries = []
             if dim == 1:
@@ -4640,6 +4578,7 @@ class MainWindow(QMainWindow):
                 # sort such that lowest first
                 if boundaries[0] > boundaries[1]:
                     boundaries.sort()
+                results = self.rest.integrate1D(spectrumName, boundaries[0], boundaries[1])
             elif dim == 2:
                 #{'2Dgate_xamine': {'name': '2Dgate_xamine', 'type': 'c',
                 # 'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
@@ -4648,36 +4587,26 @@ class MainWindow(QMainWindow):
                 #}}
                 gateName = lineList[iLine].get_label().split("_-_")[1]
                 points = lineList[iLine].get_xydata()
-                for ipoint in range(len(points)):
-                    boundaries.append({"x": points[ipoint][0], "y": points[ipoint][1]})
-                
-            self.rest.createGate(gateName, gateType, parameters, boundaries)
-
-            #now that the summing region gate exist, integrate
-            results = self.rest.integrateGate(spectrumName, gateName)
+                # dont want band type (not closed contour)
+                if points[0][0] != points[-1][0] or points[0][1] != points[-1][1]:
+                    continue
+                results = self.rest.integrate2D(spectrumName, points)
 
             try:
-                #if no count in region, rest.integrateGate returns the following
-                zeroCountOutput = "Integration area is 0"
-                if dim == 1:
-                    zeroCountResult = {'centroid': None, 'fwhm': None, 'counts': 0}
+                defaultResult = {'centroid': None, 'fwhm': None, 'counts': 0}
                 if dim == 2:
-                    zeroCountResult = {'centroid': [None, None], 'fwhm': [None, None], 'counts': 0}
-                if results == zeroCountOutput:
-                    results = zeroCountResult
+                    defaultResult = {'centroid': [None, None], 'fwhm': [None, None], 'counts': 0}
+                #if problem with integration rest.integrateGate returns status string
+                if type(results) == type('dumString'):
+                    results = defaultResult
                 #Add gateName to result dict
                 results['regionName'] = gateName
                 resultsList.append(results)
             except :
-                self.logger.debug('integrateSummingRegion - exception ', exc_info=True)
+                self.logger.debug('integrateGateLocal - exception ', exc_info=True)
                 continue
-
-            #results are obtained, can delete the temporary gate
-            self.rest.deleteGate(gateName)
-
         resultsDict[spectrumName] = resultsList
         return resultsDict
-
 
 
     ############################
