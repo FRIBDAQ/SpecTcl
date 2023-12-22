@@ -692,7 +692,7 @@ class PyREST:
     def integrate2D(self, name, points):
         url = "http://"+self.server+":"+self.rest+"/spectcl/integrate?spectrum="+str(name)
         for point in points:
-            url += "&xcoord="+point[0]+"&ycoord="+point[1]
+            url += "&xcoord="+str(point[0])+"&ycoord="+str(point[1])
         response = self.sendRequest(url)
         if response is None :
             return None 
