@@ -1,15 +1,24 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3os
 # import modules and packages
-import importlib
-import io, pickle, traceback, sys, os, subprocess, ast
-import signal, logging, ctypes, copy, json, httplib2, cv2
-import threading, itertools, time, multiprocessing, math, re
+import sys, os, ast
+import logging, copy, cv2
+import threading, time, math, re
 from ctypes import *
 from copy import copy, deepcopy
-from itertools import chain, compress, zip_longest
 import pandas as pd
 import numpy as np
 import logging, logging.handlers
+
+# import importlib
+# import io, pickle, traceback, sys, os, subprocess, ast, csv, gzip
+# import signal, logging, ctypes, copy, json, httplib2, cv2
+# import threading, itertools, time, multiprocessing, math, re
+# from ctypes import *
+# from copy import copy, deepcopy
+# from itertools import chain, compress, zip_longest
+# import pandas as pd
+# import numpy as np
+# import logging, logging.handlers
 
 sys.path.append(os.getcwd())
 
@@ -260,13 +269,6 @@ class MainWindow(QMainWindow):
         self.fit_factory.initialize(self.extraPopup.fit_list)
 
         # global variables
-        self.timer = QtCore.QTimer()
-        self.originalPalette = QApplication.palette()
-        # dictionaries for parameters
-        self.param_list = {}
-        self.nparams = 0
-        # dataframe for spectra
-        self.spectrum_list = pd.DataFrame()
         #spectrum_dict_rest {key:name_spectrum, value:{info_spectrum}}, created when connect and updated continuously with traces (if any), hidden to user.
         self.spectrum_dict_rest = {}
 
@@ -298,11 +300,7 @@ class MainWindow(QMainWindow):
         self.onFigure = False
 
         # editing gates
-        self.showverts = True
         self.epsilon = 5  # max pixel distance to count as a vertex hit
-        self._ind = None # the active vert
-
-        self.bPressed = False
 
         #dictionary used in case user wants to have one color per gate {gateName: color}
         self.gateColor = {}
@@ -659,7 +657,12 @@ class MainWindow(QMainWindow):
         if self.currentPlot.toCreateSumRegion and not self.sumRegionPopup.isVisible():
             self.cancelSumRegion()
 
+        # selected a colorbar, dont want to interact with it
+        if "colorbar_" in event.inaxes.get_label():
+            return
+
         index = list(self.currentPlot.figure.axes).index(event.inaxes)
+
         if self.currentPlot.isEnlarged:
             index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
         self.currentPlot.selected_plot_index = index
@@ -1017,6 +1020,9 @@ class MainWindow(QMainWindow):
 
         if self.currentPlot.isEnlarged == False: # entering enlarged mode
             self.logger.debug('on_dblclick - isEnlarged TRUE')
+            if name is "empty" or index == -1:
+                self.logger.warning('on_dblclick - empty axes cannot enlarge')
+                return
             self.removeRectangle()
             #important that zoomPlotInfo is set only while in zoom mode (not None only here)
             self.setEnlargedSpectrum(idx, name)
@@ -1028,7 +1034,6 @@ class MainWindow(QMainWindow):
             self.wConf.histo_geo_row.setEnabled(False)
             self.wConf.histo_geo_col.setEnabled(False)
             # enabling gate creation
-            # self.currentPlot.createSRegion.setEnabled(True)
             self.wConf.createGate.setEnabled(True)
             # plot corresponding histogram
             self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]= deepcopy(idx)
@@ -1043,7 +1048,6 @@ class MainWindow(QMainWindow):
 
 
             self.add(idx)
-            self.currentPlot.h_setup[idx] = False
             self.updatePlot()
         else:
             self.logger.debug('on_dblclick - isEnlarged FALSE')
@@ -1054,7 +1058,6 @@ class MainWindow(QMainWindow):
             self.wConf.histo_geo_col.setEnabled(True)
 
             # disabling gate creation
-            # self.currentPlot.createSRegion.setEnabled(False)
             self.wConf.createGate.setEnabled(False)
 
             #important that zoomPlotInfo is set only while in zoom mode (None only here)
@@ -1068,13 +1071,10 @@ class MainWindow(QMainWindow):
 
             #draw back the original canvas
             self.currentPlot.InitializeCanvas(canvasLayout[0], canvasLayout[1], False)
-            n = canvasLayout[0]*canvasLayout[1]
-            self.currentPlot.h_setup = {k: True for k in range(n)}
-            self.currentPlot.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
+            # self.currentPlot.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
             for index, name in self.getGeo().items():
                 if name is not None and name != "" and name != "empty":
                     self.add(index)
-                    self.currentPlot.h_setup[index] = False
                     ax = self.getSpectrumInfo("axis", index=index)
                     self.plotPlot(index)
                     #reset the axis limits as it was before enlarge
@@ -1158,7 +1158,6 @@ class MainWindow(QMainWindow):
             self.wConf.histo_geo_add.setEnabled(not self.currentPlot.isEnlarged)
             self.wConf.histo_geo_row.setEnabled(not self.currentPlot.isEnlarged)
             self.wConf.histo_geo_col.setEnabled(not self.currentPlot.isEnlarged)
-            # self.currentPlot.createSRegion.setEnabled(self.currentPlot.isEnlarged)
             self.wConf.createGate.setEnabled(self.currentPlot.isEnlarged)
             self.removeRectangle()
             self.bindDynamicSignal()
@@ -1392,8 +1391,19 @@ class MainWindow(QMainWindow):
             for str in t_bind:
                 action, name, bindingIdx = str.split(" ") #list with 3 items: add/remove histoName bindingIndex
                 if action == "remove" and name in self.getSpectrumInfoRESTDict():
-                    self.removeSpectrum(name=name)
+                    #if only "remove" action, want to clear axis, update the spectrum and summing region dictionnaries
+                    # if len(t_bind) == 1:
+                    #     self.removeSpectrum(name=name, mode="definitive")
+                    #     self.updateSpectrumList()
+                    #     self.refreshSpectrumSumRegionDict()
+                    # else:
+                    #     self.removeSpectrum(name=name, mode="update")
+                    #     self.updateSpectrumList()
+                    #For now dont ditinguish if it is just an update or definitive removal
+                    #had trouble redrawing efficiently the updated spectrum, see comments at end of action=="add"
+                    self.removeSpectrum(name=name, mode="definitive")
                     self.updateSpectrumList()
+                    self.refreshSpectrumSumRegionDict()
                 elif action == "add" and name not in self.getSpectrumInfoRESTDict():
                     #get spectrum info from ReST but not the data, need to query shmem for that (connect button).
                     #dont need to check the binding, given the definition of this trace...
@@ -1437,6 +1447,17 @@ class MainWindow(QMainWindow):
                             # print("updateFromTraces - nameIndex not in shmem np array for : ", name)
                         self.setSpectrumInfoREST(name, dim=dim, binx=binx, minx=minx, maxx=maxx, biny=biny, miny=miny, maxy=maxy, parameters=info[0]["parameters"], type=info[0]["type"], data=data)
                     self.updateSpectrumList()
+                    #update an existing spectrum definition (binning, parameters...)
+                    #this part is not working properly, need to correct if this is really needed
+                    # if len(t_bind) == 2:
+                    #     for plotVal in self.wTab.wPlot.values():
+                    #         idx_to_update = [key for key, value in plotVal.h_dict_geo.items() if name in value]
+                    #         print("Simon - removeSpectrum idx_to_update-",  idx_to_update)
+                    #         # trick, set temporarily currentPlot to plotVal, because currentPlot is used in add 
+                    #         self.currentPlot = plotVal
+                    #         for plotIdx in idx_to_update:
+                    #             self.add(plotIdx)
+                    #     self.currentPlot = self.wTab.wPlot[self.wTab.currentIndex()]
                 else:
                     return 
 
@@ -1544,22 +1565,35 @@ class MainWindow(QMainWindow):
     def removeSpectrum(self, **identifier):
         self.logger.info('removeSpectrum - identifier: %s', identifier)
         name = None
+        mode = None
         if "index" in identifier:
             name = self.nameFromIndex(identifier["index"])
         elif "name" in identifier:
             name = identifier["name"]
-        else:
+        if "mode" in identifier:
+            mode = identifier["mode"]
+        if name is None :
             self.logger.debug('removeSpectrum - wrong identifier - expects name=histo_name or index=histo_index')
             # print("removeSpectrum - wrong identifier - expects name=histo_name or index=histo_index")
             return
         # in spectrumInfoReST dict can only have unique spectrum
         del self.spectrum_dict_rest[name]
-        # to_delete = [key for key, value in self.spectrum_dict.items() if name in value]
+    
         # in local spectrumInfo dict can have multiple spectra with the same name
-        to_delete = self.indexFromName(name)
-        for key in to_delete:
-            if key in self.wTab.spectrum_dict[self.wTab.currentIndex()]:
-                del self.wTab.spectrum_dict[self.wTab.currentIndex()][key]
+        # dont use indexFromName because wont work properly when delete while in enlarged mode
+        # also want to clear the corresponding axes in all tabs
+        for tabIdx, plotVal in self.wTab.wPlot.items():
+            to_delete = [key for key, value in plotVal.h_dict_geo.items() if name in value]
+            for key in to_delete:
+                if key in self.wTab.spectrum_dict[tabIdx]:
+                    spectrum = self.wTab.spectrum_dict[tabIdx][key]["spectrum"]
+                    #clear axis, remove colorbar and update in the geometry if mode="definitive"
+                    if mode == "definitive":
+                        ax = spectrum.axes
+                        self.removeCb(ax)
+                        ax.clear()
+                        plotVal.h_dict_geo[key] = "empty"
+                    del spectrum
 
 
     #get full spectrum dict self.wTab.spectrum_dict:
@@ -1672,6 +1706,7 @@ class MainWindow(QMainWindow):
     def updateSpectrumList(self, init=False):
         self.logger.info('updateSpectrumList')
         self.wConf.histo_list.clear()
+        self.wConf.histo_list.setEditText("")
         #Sort because otherwise when ReST update the modified spectrum is append at the end of the list
         for name in sorted(self.getSpectrumInfoRESTDict()):
             if self.wConf.histo_list.findText(name) == -1:
@@ -1867,46 +1902,57 @@ class MainWindow(QMainWindow):
         y_range = {}
         properties = {}
 
-        if (len(open(filename).readlines()) == 1):
+
+        if (os.stat(filename).st_size == 0):
+            self.logger.warning('openGeo - empty geometry file: %s', filename)
+            return None
+        #new (qtpy) geometry file format
+        elif (len(open(filename).readlines()) == 1):
             return eval(open(filename,"r").read())
+        #old format
         else:
-            with open(filename) as f:
-                for line in f:
-                    if (self.findWholeWord("Geometry")(line)):
-                        # find geo x,y in line
-                        coords = self.findNumbers(line)
-                    elif (self.findWholeWord("Window")(line)):
-                        spectrum = self.findHistoName(line)
-                        spec_dict[cntr] = spectrum[0]
-                        cntr+=1
-                    elif (self.findWholeWord("COUNTSAXIS")(line)):
-                        info_scale[cntr-1] = True
-                    elif (self.findWholeWord("Expanded")(line)):
-                        tmp = self.findNumbers(line)
-                        info_range[cntr-1] = tmp
+            # not supported, see comment below about spectrum name 
+            return None
+            # with open(filename) as f:
+            #     for line in f:
+            #         if (self.findWholeWord("Geometry")(line)):
+            #             # find geo x,y in line
+            #             coords = self.findNumbers(line)
+            #         elif (self.findWholeWord("Window")(line)):
+            #             spectrum = self.findHistoName(line)
+            #             spec_dict[cntr] = spectrum[0]
+            #             cntr+=1
+            #         elif (self.findWholeWord("COUNTSAXIS")(line)):
+            #             info_scale[cntr-1] = True
+            #         elif (self.findWholeWord("Expanded")(line)):
+            #             tmp = self.findNumbers(line)
+            #             info_range[cntr-1] = tmp
 
-            for index, value in spec_dict.items():
-                h_name = value
-                select = self.spectrum_list['names'] == h_name
-                df = self.spectrum_list.loc[select]
-                scale = False
-                x_range = [int(df.iloc[0]['minx']), int(df.iloc[0]['maxx'])]
-                y_range = [self.minY, self.maxY]
-                if df.iloc[0]['dim'] == 2:
-                    y_range = [int(df.iloc[0]['miny']), int(df.iloc[0]['maxy'])]
+            # for index, name in spec_dict.items():
+            #     scale = False
+            #     #pb here because with the old format the spectrum name is in capital letters
+            #     #while the REST info are case sensitive.
+            #     dim = self.getSpectrumInfoREST("dim", name=name)
+            #     x_range = [self.minX, self.maxX]
+            #     if dim == 2:
+            #         y_range = [self.minY, self.maxY]
 
-                if index in info_scale:
-                    scale = info_scale[index]
-                    if y_range[0] == 0:
-                        y_range[0] = 0.001
-                if index in info_range:
-                    x_range = info_range[index][0:2]
-                    y_range = info_range[index][2:4]
+            #     print("Simon - openGeo - index, name, dim: ",index, name, dim)
 
-                properties[index] = {"name": h_name, "x": x_range, "y": y_range, "scale": scale}
-                self.logger.debug('openGeo - index, properties: %s, %s', index, properties[index])
+            #     if index in info_scale:
+            #         scale = info_scale[index]
+            #         if y_range[0] == 0:
+            #             y_range[0] = 0.001
+            #     if index in info_range:
+            #         x_range = info_range[index][0:2]
+            #         y_range = info_range[index][2:4]
 
-            return {'row': coords[0], 'col': coords[1], 'geo': properties}
+            #     print("Simon - openGeo - x_range, y_range: ",x_range, y_range)
+
+            #     properties[index] = {"name": name, "x": x_range, "y": y_range, "scale": scale}
+            #     self.logger.debug('openGeo - index, properties: %s, %s', index, properties[index])
+
+            # return {'row': coords[0], 'col': coords[1], 'geo': properties}
 
 
     def saveGeo(self):
@@ -1917,17 +1963,20 @@ class MainWindow(QMainWindow):
             properties = {}
             geo = self.getGeo()
             for index in range(len(geo)):
-                h_name = geo[index]
-                x_range, y_range = self.getAxisProperties(index)
-                scale = True if self.getSpectrumInfo("log", index=index) else False
-                properties[index] = {"name": h_name, "x": x_range, "y": y_range, "scale": scale}
-
+                try :
+                    h_name = geo[index]
+                    x_range, y_range = self.getAxisProperties(index)
+                    scale = True if self.getSpectrumInfo("log", index=index) else False
+                    properties[index] = {"name": h_name, "x": x_range, "y": y_range, "scale": scale}
+                except:
+                    properties[index] = {"name": '', "x": None, "y": None, "scale": None}
+                    pass
             tmp = {"row": int(self.wConf.histo_geo_row.currentText()), "col": int(self.wConf.histo_geo_col.currentText()), "geo": properties}
             QMessageBox.about(self, "Saving...", "Window configuration saved!")
             f.write(str(tmp))
             f.close()
-        except TypeError:
-            self.logger.debug('saveGeo - TypeError exception', exc_info=True)
+        except :
+            self.logger.debug('saveGeo - exception', exc_info=True)
             pass
 
 
@@ -1936,6 +1985,8 @@ class MainWindow(QMainWindow):
         self.logger.info('loadGeo - fileName: %s', fileName)
         try:
             infoGeo = self.openGeo(fileName)
+            if infoGeo is None:
+                return
             row = infoGeo["row"]
             col = infoGeo["col"]
             # change index in combobox to the actual loaded values
@@ -2029,8 +2080,11 @@ class MainWindow(QMainWindow):
                 if axisIsLog:
                     if ymin <= 0:
                         ymin = 0.001
-                    ax.set_ylim(ymin,ymax)
-                    ax.set_yscale("log")
+                    if ymax <= 0:
+                        self.logger.warning('setAxisScale - all value <0 for : %s - cannot log scale', self.nameFromIndex(index))
+                    else:
+                        ax.set_ylim(ymin,ymax)
+                        ax.set_yscale("log")
                 else:
                     ax.set_ylim(ymin,ymax)
                     ax.set_yscale("linear")
@@ -2084,7 +2138,7 @@ class MainWindow(QMainWindow):
             return
         spectrum = self.getSpectrumInfo("spectrum", index=index)
         zmin, zmax = spectrum.get_clim()
-        
+
         if scale is validScales[0]:
             if zmin > zmax: 
                 self.logger.warning('setCmapNorm - zmin > zmax')
@@ -2111,6 +2165,9 @@ class MainWindow(QMainWindow):
             self.removeCb(ax)
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
+            # label used in on_press to avoid interaction with it
+            label = "colorbar_"+str(index)
+            cax.set_label(label)
             self.currentPlot.figure.colorbar(spectrum, cax=cax, orientation='vertical')
 
 
@@ -2227,25 +2284,33 @@ class MainWindow(QMainWindow):
         binminx = int((xmin-minx)/stepx)
         binmaxx = int((xmax-minx)/stepx)
         if dim == 1:
-            # get max in x range
-            #increase by 10% to get axis view a little bigger than max
-            result = data[binminx+1:binmaxx+2].max()*1.1
+            try:
+                # get max in x range
+                #increase by 10% to get axis view a little bigger than max
+                result = data[binminx+1:binmaxx+2].max()*1.1
+            except :
+                self.logger.debug('getMinMaxInRange - dim == 1 - exception occured', exc_info=True)
+                return self.maxY
         elif dim == 2:
-            #get max in x,y ranges
-            miny = self.getSpectrumInfoREST("miny", index=index)
-            maxy = self.getSpectrumInfoREST("maxy", index=index)
-            biny = self.getSpectrumInfoREST("biny", index=index)
-            stepy = (float(maxy)-float(miny))/float(biny)
-            binminy = int((ymin-miny)/stepy)
-            binmaxy = int((ymax-miny)/stepy)
-            #Dont increase max by 10% here...
-            #truncData = data[binminy:binmaxy+1, binminx:binmaxx+1]
-            #Following two lines work for "small" array, replaced by custom function
-            #maximum = truncData.max()
-            #minimum = np.min(truncData[np.nonzero(truncData)])
-            # minimum, maximum = self.customMinMax(data, binminy, binmaxy, binminx, binmaxx)
-            minimum, maximum = self.customMinMax(data[binminy:binmaxy+1, binminx:binmaxx+1])
-            result = minimum, maximum
+            try:
+                #get max in x,y ranges
+                miny = self.getSpectrumInfoREST("miny", index=index)
+                maxy = self.getSpectrumInfoREST("maxy", index=index)
+                biny = self.getSpectrumInfoREST("biny", index=index)
+                stepy = (float(maxy)-float(miny))/float(biny)
+                binminy = int((ymin-miny)/stepy)
+                binmaxy = int((ymax-miny)/stepy)
+                #Dont increase max by 10% here...
+                #truncData = data[binminy:binmaxy+1, binminx:binmaxx+1]
+                #Following two lines work for "small" array, replaced by custom function
+                #maximum = truncData.max()
+                #minimum = np.min(truncData[np.nonzero(truncData)])
+                # minimum, maximum = self.customMinMax(data, binminy, binmaxy, binminx, binmaxx)
+                minimum, maximum = self.customMinMax(data[binminy:binmaxy+1, binminx:binmaxx+1])
+                result = minimum, maximum
+            except :
+                self.logger.debug('getMinMaxInRange - dim == 2 - exception occured', exc_info=True)
+                return self.minZ, self.maxZ
         return result
 
 
@@ -2300,9 +2365,11 @@ class MainWindow(QMainWindow):
     def getAxisProperties(self, index):
         self.logger.info('getAxisProperties')
         try:
-            ax = None
             ax = self.getSpectrumInfo("axis", index=index)
-            return list(ax.get_xlim()), list(ax.get_ylim())
+            if ax is None :
+                return None
+            else :
+                return list(ax.get_xlim()), list(ax.get_ylim())
         except:
             self.logger.debug('getAxisProperties - exception occured', exc_info=True)
             pass
@@ -2677,6 +2744,9 @@ class MainWindow(QMainWindow):
                 if self.getEnlargedSpectrum() is None:
                     divider = make_axes_locatable(axis)
                     cax = divider.append_axes('right', size='5%', pad=0.05)
+                    # label used in on_press to avoid interaction with it
+                    label = "colorbar_"+str(index)
+                    cax.set_label(label)
                     self.currentPlot.figure.colorbar(spectrum, cax=cax, orientation='vertical')
 
 
@@ -2700,9 +2770,6 @@ class MainWindow(QMainWindow):
         #set lines 1D or 2D properties and plot limits with spectrum limits
         self.setupPlot(a, index)
 
-        if (self.currentPlot.h_setup[index]):
-            self.currentPlot.h_setup[index] = False
-
 
     # Callback for histo_geo_add button
     # also called in loadGeo
@@ -2718,17 +2785,19 @@ class MainWindow(QMainWindow):
             # if we load the geometry from file
             if self.currentPlot.isLoaded:
                 self.logger.debug('addPlot - isLoaded TRUE - getGeo: %s',self.getGeo())
-                self.getGeo()
-                for key, value in self.getGeo().items():
-                    index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
-                    if self.getSpectrumInfoREST("dim", name=value) is None: 
-                        self.logger.debug('addPlot - isLoaded TRUE - getGeo: %s',self.getGeo())
-                        return
-                    # changing the index to the correct histogram to load
-                    self.wConf.histo_list.setCurrentIndex(index)
+                # self.getGeo()
+                # for key, value in self.getGeo().items():
+                #     index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
+                #     if self.getSpectrumInfoREST("dim", name=value) is None: 
+                #         self.logger.debug('addPlot - isLoaded TRUE - self.getSpectrumInfoREST("dim", name=value) is None - key, value, getGeo: %s, %s, %s', key, value, self.getGeo())
+                #         return
+                #     # changing the index to the correct histogram to load
+                #     self.wConf.histo_list.setCurrentIndex(index)
                 #it turns out the autoscale is wanted in addPlot
                 self.currentPlot.histo_autoscale.setChecked(True)
                 for key, value in self.getGeo().items():
+                    if self.getSpectrumInfoREST("dim", name=value) is None: 
+                        continue
                     self.add(key)
                     self.autoScaleAxisBox(key)
             # self adding
@@ -2746,7 +2815,6 @@ class MainWindow(QMainWindow):
                 self.setSpectrumInfo(cutoff=None, index=index)
 
                 self.setGeo(index, name)
-                self.currentPlot.h_setup[index] = True
                 self.add(index)
 
                 #it turns out the autoscale is wanted in addPlot
@@ -2824,7 +2892,7 @@ class MainWindow(QMainWindow):
                         w = np.ma.masked_where(w > maxCutoff, w)
                     if dim == 2:
                         w = np.ma.masked_where(w > maxCutoff, w)
-        if w is None is None or len(w) <= 0:
+        if w is None or len(w) <= 0 :
             self.logger.debug('plotPlot - w is None or len(w) <= 0')
             return
         #used in getMinMaxInRange to take into account also the cutoff if there is one
@@ -2848,12 +2916,15 @@ class MainWindow(QMainWindow):
     def updatePlot(self):
         self.logger.info('updatePlot')
 
+
         # name = str(self.wConf.histo_list.currentText())
-        index = self.autoIndex()
-        name = self.nameFromIndex(index)
-        if index is None or self.getSpectrumInfoREST("dim", name=name) is None: 
-            self.logger.debug('updatePlot - index is None or self.getSpectrumInfoREST("dim", name=name) is None')
-            return
+        # index = self.autoIndex()
+        # name = self.nameFromIndex(index)
+        # print("Simon - updatePlot - index, name:", index,name)
+        # if index is None or self.getSpectrumInfoREST("dim", name=name) is None: 
+        #     self.logger.debug('updatePlot - index is None or self.getSpectrumInfoREST("dim", name=name) is None')
+        #     return
+            
 
         # if gatePopup exit with [X]
         if (self.currentPlot.toCreateGate or self.currentPlot.toEditGate) and not self.gatePopup.isVisible():
@@ -2865,6 +2936,11 @@ class MainWindow(QMainWindow):
         try:
             #x_range, y_range = self.getAxisProperties(index)
             if self.currentPlot.isEnlarged:
+                index = self.autoIndex()
+                name = self.nameFromIndex(index)
+                if index is None or self.getSpectrumInfoREST("dim", name=name) is None: 
+                    self.logger.debug('updatePlot - index is None or self.getSpectrumInfoREST("dim", name=name) is None')
+                    return
                 self.logger.debug('updatePlot - self.currentPlot.isEnlarged TRUE')
                 ax = self.getSpectrumInfo("axis", index=0)
                 if ax is None :
@@ -2894,7 +2970,7 @@ class MainWindow(QMainWindow):
                         self.logger.debug('updatePlot - ax is None')
                         if len(self.getSpectrumInfoDict()) == 0:
                             return QMessageBox.about(self,"Warning!", "Configuration file has probably changed, please reset the window geometry (add plots or load geo file)")
-                        return
+                        continue
                     self.plotPlot(index)
                     #reset the axis limits as it was before enlarge
                     #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
@@ -2903,8 +2979,8 @@ class MainWindow(QMainWindow):
                         self.setAxisScale(ax, index, "x", "y")
                     elif dim == 2:
                         self.setAxisScale(ax, index, "x", "y", "z")
-                    if (self.currentPlot.h_setup[index]):
-                        self.currentPlot.h_setup[index] = False
+                    else :
+                        continue
                     #draw gate if there is one
                     self.drawGate(index)
 
@@ -3232,8 +3308,8 @@ class MainWindow(QMainWindow):
         #gateList is a list of gate which is a dictionary e.g.
         #For 1D -> [{'name': 'gateName', 'type': 's', 'parameters': ['parameterName'], 'low': 0.0, 'high': 1.0}, {'name': 'gateName2'...}]
         #For 2D -> [{'name': 'gateName', 'type': 'c', 'parameters': ['parameterNameA', 'parameterNameB'], 'points': [{'x': 1, 'y': 2}, {'x': 3, 'y': 4}, {'x': 5, 'y': 6}] }, {'name': 'gateName2'...}]
-        gateList = [dict for dict in self.rest.listGate() if dict["type"] in drawableTypes[spectrumType] and dict["parameters"] == parameters]
-        gateListSpecial = [dict for dict in self.rest.listGate() if dict["type"] in drawableTypes[spectrumType]]
+        gateList = [dict for dict in self.rest.listGate() if "type" in dict and "parameters" in dict and dict["type"] in drawableTypes[spectrumType] and dict["parameters"] == parameters]
+
 
         # self.axesChilds()
         for gate in gateList:
@@ -5005,26 +5081,31 @@ class MainWindow(QMainWindow):
     # 16) Jupyter Notebook
     ############################
 
+    #Create dataframe for Jupyter and web
     def createDf(self):
         self.logger.info('createDf')
         try:
-            # if (DEBUG):
-            #     print("Create dataframe for Jupyter and web")
-            data_to_list = []
-            for index, row in self.spectrum_list.iterrows():
-                tmp = row['data'].tolist()
-                data_to_list.append(tmp)
-                # if (DEBUG):
-                #     print("len(data_to_list) --> ", row['names'], " ", len(tmp))
-
-            # if (DEBUG):
-            #     print([list((i, len(data_to_list[i]))) for i in range(len(data_to_list))])
-            self.spectrum_list = self.spectrum_list.drop('data', 1)
-            self.spectrum_list['data'] = np.array(data_to_list)
-
-            self.spectrum_list.to_csv(self.extraPopup.peak.jup_df_filename.text(), index=False, compression='gzip')
+            spectrumDict = self.getSpectrumInfoRESTDict()
+            #reformat spectrumDict which is {spectrumName: {info1: , info2: ,...}} to {spectrumName: [],info1: [], info2: [],...}
+            formatedDict = {'name': [], 'dim': [], 'binx': [], 'minx': [], 'maxx': [], 'biny': [], 'miny': [], 'maxy': [], 'data': [], 'parameters': [], 'type': []}
+            for spectrumName, infoDict in spectrumDict.items():
+                formatedDict["name"].append(spectrumName)
+                for keyInfo, valInfo in infoDict.items():
+                    #ndarray with data will be parsed to list (1d) or list of list (2d)
+                    #this makes the data parsing easier from csv file.
+                    #might want the same for the other valInfo...
+                    if isinstance(valInfo, np.ndarray):
+                        toList = []
+                        if len(valInfo.shape) == 1:
+                            toList = valInfo.tolist()
+                        if len(valInfo.shape) == 2:
+                            toList = [[item for item in row] for row in valInfo]
+                        valInfo = toList 
+                    formatedDict[keyInfo].append(valInfo)
+            df = pd.DataFrame.from_dict(formatedDict)
+            df.to_csv(self.extraPopup.peak.jup_df_filename.text(), index=False, compression='gzip')
         except:
-            pass
+            raise
 
     def jupyterStop(self):
         self.logger.info('jupyterStop')
