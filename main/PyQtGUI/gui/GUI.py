@@ -5105,7 +5105,7 @@ class MainWindow(QMainWindow):
             df = pd.DataFrame.from_dict(formatedDict)
             df.to_csv(self.extraPopup.peak.jup_df_filename.text(), index=False, compression='gzip')
         except:
-            raise
+            pass
 
     def jupyterStop(self):
         self.logger.info('jupyterStop')
