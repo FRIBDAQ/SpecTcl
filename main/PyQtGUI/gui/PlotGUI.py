@@ -140,7 +140,6 @@ class Plot(QWidget):
         self.axbkg = {}
         self.h_log = {} # bool dict for linear/log axes
         self.h_log_bak = {} # bool dict for linear/log axes - backup
-        self.h_setup = {} # bool dict for setting histograms
         self.h_dim = []
         self.h_lst = []
         self.axis_lst = []
@@ -261,7 +260,6 @@ class Plot(QWidget):
                 self.h_dict[z] = self.InitializeHistogram()
                 self.h_dict_geo[z] = "empty"
                 self.h_log[z] = False
-                self.h_setup[z] = False
                 self.h_lst.append(None)
                 self.axis_lst.append(None)
             self.h_dim = self.get_histo_key_list(self.h_dict, "dim")
