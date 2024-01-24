@@ -606,7 +606,7 @@ proc stack args {
     if {$trigIndex != -1} {
 	incr trigIndex
 	set trigger [lindex $args $trigIndex]
-	if {$trigger eq "nim1"} {
+	if {$trigger eq "nim1" || $trigger eq "interrupt"} {
 	    set ::stackNumber($stackname) 0
 	} elseif {$trigger eq "scaler"} {
 	    set ::stackNumber($stackname) 1
