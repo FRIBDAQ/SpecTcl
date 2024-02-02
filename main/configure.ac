@@ -1,4 +1,5 @@
 # Process this file with autoconf to produce a configure script.
+
 AC_INIT(SpecTcl,5.13-012, daqhelp@frib.msu.edu)
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)

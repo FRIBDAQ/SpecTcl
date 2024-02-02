@@ -7,7 +7,7 @@ libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 
 
 
-COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@
+COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
@@ -233,7 +233,9 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp \
 	CAENHit.cpp CAENModuleHits.cpp CAENParser.cpp CAENParameterMap.cpp \
 	CAENEventProcessor.cpp CRemoteCommand.cpp CRemoteCommand.h \
-	BindTraceSingleton.cpp BindTraceSingleton.h
+	BindTraceSingleton.cpp BindTraceSingleton.h \
+	VX2750EventBuiltEventProcessor.cpp VX2750ModuleUnpacker.cpp \
+	VX2750EventProcessor.cpp
 
 # TapeCommand.h removed
 
@@ -254,7 +256,10 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	CPipelineCommand.h CPipelineManager.h fragment.h FragmentIndex.h \
 	CEventBuilderEventProcessor.h CPipelineEventProcessor.h \
 	CUnpackEvbCommand.h CAENHit.h CAENModuleHits.h CAENParser.h \
-	CAENParameterMap.h CAENEventProcessor.h
+	CAENParameterMap.h CAENEventProcessor.h \
+	VX2750EventBuiltEventProcessor.h VX2750EventProcessor.h \
+	VX2750ModuleUnpacker.h
+
 
 
 # TapeCommand.h removed
@@ -283,11 +288,13 @@ SpectrumIO_SRC =  SpectrumFormatter.cpp \
 	NSCLBinarySpectrumFormatter.cpp \
 	NSCLAsciiSpectrumFormatter.cpp  \
 	SpectrumFormatError.cpp \
-	nsclbin.cpp nsclbinerror.cpp nscldata.cpp tclstreams.cpp
+	nsclbin.cpp nsclbinerror.cpp nscldata.cpp tclstreams.cpp \
+	SpectrumFormatterJson.cpp
 
 SpectrumIO_INCLUDES = NSCLAsciiSpectrumFormatter.h NSCLBinarySpectrumFormatter.h \
 	SpectrumFormatError.h SpectrumFormatter.h SpectrumFormatterFactory.h \
-	nsclbin.h nsclbinerror.h nscldata.h nscltime.h tclstreams.h
+	nsclbin.h nsclbinerror.h nscldata.h nscltime.h tclstreams.h \
+	SpectrumFormatterJson.h
 
 TreeParam_SRC = CMatchingVisitor.cpp \
 	CTreeException.cpp \
@@ -383,6 +390,7 @@ libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			@builddir@/libSpecTclTcp.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
+			@JSONCPP_LIBS@ \
 			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@
 
 libTclGrammerApp_la_DEPENDENCIES=@builddir@/libSpecTclTcp.la
