@@ -58,7 +58,7 @@ class GPol1Fit:
         else:
             self.f = 0.9
         p_init = [self.amplitude, self.mean, self.standard_deviation, self.p0, self.p1, self.f]
-        popt, pcov = curve_fit(self.gpol1, x, y, p0=p_init, maxfev=5000)
+        popt, pcov = curve_fit(self.gpol1, x, y, p0=p_init, maxfev=1000000)
 
         # plotting fit curve and printing results
         try:

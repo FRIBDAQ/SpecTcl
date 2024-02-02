@@ -80,7 +80,7 @@
 
 #define NAME_FORMAT "XA%02x"
 #define SHARENV_FORMAT "XAMINE_SHMEM=%s" /* Environment names/logical names. */
-#define SIZEENV_FORMAT "XAMINE_SHMEM_SIZE=%d"
+#define SIZEENV_FORMAT "XAMINE_SHMEM_SIZE=%uld"
 
 #define XAMINEENV_FILENAME "XAMINE_IMAGE"
 
@@ -99,7 +99,7 @@
 */
 
 volatile Xamine_shared *Xamine_memory;
-int            Xamine_memsize;
+size_t            Xamine_memsize;
 arenaid        Xamine_memory_arena;
 /*
 ** Local storage:
@@ -281,7 +281,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
 **    False   - Failure
 */
 
-static int genenv(const char *name, int specbytes)
+static int genenv(const char *name, size_t specbytes)
 {
   /* Allocate persistent storage for the strings */
 
@@ -363,7 +363,7 @@ PrintOffsets()
 
 }
 
-int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
+int Xamine_CreateSharedMemory(size_t specbytes,volatile Xamine_shared **ptr)
 {
 
   char name[33];
@@ -637,7 +637,7 @@ int f77xamine_mapmemory_(char *name, int *specbytes,
 **  Xamine_MapMemory which is described by the comment header way up there
 ** It's completely system dependent.
 */
-int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
+int Xamine_MapMemory(char *name, size_t specbytes,volatile Xamine_shared **ptr)
 #ifdef HAVE_WINDOWS_H
 {
   HANDLE hMapFile;
@@ -672,7 +672,7 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
 }
 #else
 {
-  int memsize;
+  size_t memsize;
   key_t key;
   int shmid;
 
@@ -797,13 +797,15 @@ void f77xamine_freememory_(int *loc)
 void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, const char *title,
 			     caddr_t loc, spec_type type)
 {
-  int channels;
-  int bpc;
-  int bytes;
+  unsigned int channels;
+  unsigned int bpc;
+  unsigned int bytes;
   unsigned long spec;
   unsigned long  base = (unsigned long)Xamine_memory->dsp_spectra.XAMINE_b;
-  int offset;
+  unsigned int offset;
 
+
+  
   /*
   ** Adjust the spectrum number and range check it:
   */

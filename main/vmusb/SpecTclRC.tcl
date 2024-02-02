@@ -4,6 +4,7 @@
 #
 package require Tk
 tk appname SpecTcl
+package require splash
 
 puts -nonewline "Loading SpecTcl gui..."
 source $SpecTclHome/Script/gui.tcl
@@ -44,7 +45,7 @@ tk appname SpecTcl-[exec hostname]-[pid]
 # load the configuration file of your choice.
 #
 
-set daqconfig [file join ~ config daqconfig.tcl]; # default config file.
+set daqconfig [file join daqconfig.tcl]; # default config file.
 
 lappend auto_path [file join $SpecTclHome TclLibs]
 package require vmusbsetup
@@ -59,3 +60,5 @@ puts -nonewline "Starting treeparamgui..."
 source $SpecTclHome/Script/SpecTclGui.tcl
 puts " Done"
 
+# load $SpecTclHome/lib/libRootInterface.so
+# package require rootinterface

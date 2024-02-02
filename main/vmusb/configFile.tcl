@@ -509,9 +509,31 @@ proc tdc1x90 args {
 }
 
 #---------------------------------------------------------------
+# The mdpp16qdc command processes the creation and configuration of
+# Mesytec MDPP-16 module with QDC firmware.
+# Note: Overflow bit is not processed.
+proc mdpp16qdc args {
+    set subcommand [lindex $args 0]
+    set name       [lindex $args 1]
+
+    set ::readoutDeviceType($name) $::typeMDPP32QDC
+
+    # The config or create subcommand with
+    # -id config which sets the 'vsn' for this module.
+
+    if {($subcommand eq "create") || ($subcommand eq "config")} {
+      set ididx [lsearch -exact $args "-id"]
+      if {$ididx != -1} {
+        incr ididx
+        set ::adcConfiguration($name) [lindex $args $ididx]
+      }
+    }
+}
+
+#---------------------------------------------------------------
 # The mdpp32qdc command processes the creation and configuration of
 # Mesytec MDPP-32 module with QDC firmware.
-#
+# Note: Overflow bit is not processed.
 proc mdpp32qdc args {
     set subcommand [lindex $args 0]
     set name       [lindex $args 1]
@@ -530,6 +552,28 @@ proc mdpp32qdc args {
     }
 }
 
+#---------------------------------------------------------------
+# The mdpp32scp command processes the creation and configuration of
+# Mesytec MDPP-32 module with SCP firmware.
+# Note: Overflow/underflow/pileup bits are not processed.
+# Note2: QDC and SCP share the same data structure. Safe to reuse QDC unpacker
+proc mdpp32scp args {
+    set subcommand [lindex $args 0]
+    set name       [lindex $args 1]
+
+    set ::readoutDeviceType($name) $::typeMDPP32QDC
+
+    # The config or create subcommand with
+    # -id config which sets the 'vsn' for this module.
+
+    if {($subcommand eq "create") || ($subcommand eq "config")} {
+      set ididx [lsearch -exact $args "-id"]
+      if {$ididx != -1} {
+        incr ididx
+        set ::adcConfiguration($name) [lindex $args $ididx]
+      }
+    }
+}
 
 #---------------------------------------------------------------
 #  We need to use this command to fill in the chainOrder array of 
@@ -584,7 +628,7 @@ proc stack args {
     if {$trigIndex != -1} {
 	incr trigIndex
 	set trigger [lindex $args $trigIndex]
-	if {$trigger eq "nim1"} {
+	if {$trigger eq "nim1" || $trigger eq "interrupt"} {
 	    set ::stackNumber($stackname) 0
 	} elseif {$trigger eq "scaler"} {
 	    set ::stackNumber($stackname) 1
@@ -615,6 +659,8 @@ proc v1495sc args {
 proc marker args {
 }
 proc sis3804 args {
+}
+proc delay args {
 }
 
 proc addtcldriver name {

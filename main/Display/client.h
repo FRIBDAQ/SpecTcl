@@ -43,7 +43,7 @@ extern "C" {
 
 /* Create Shared Memory -- Creates the shared memory region for Xamine */
 
-int Xamine_CreateSharedMemory(int specbytes, volatile Xamine_shared **ptr);
+int Xamine_CreateSharedMemory(size_t specbytes, volatile Xamine_shared **ptr);
 int f77xamine_createsharedmemory_(int *specbytes,volatile Xamine_shared **ptr);
 int Xamine_DetachSharedMemory();
 void Xamine_KillSharedMemory();
@@ -64,7 +64,7 @@ int f77xamine_alive_();
 void Xamine_GetMemoryName(char *namebuffer);
 void f77xamine_getmemoryname_(char *namebuffer, int maxlen);
 
-int Xamine_MapMemory(char *name, int specbytes, volatile Xamine_shared **ptr);
+int Xamine_MapMemory(char *name, size_t specbytes, volatile Xamine_shared **ptr);
 int f77xamine_mapmemory_(char *name, int *specbytes,
 			 volatile Xamine_shared **ptr, int namesize);
 

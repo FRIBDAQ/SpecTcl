@@ -1,15 +1,24 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3os
 # import modules and packages
-import importlib
-import io, pickle, traceback, sys, os, subprocess, ast
-import signal, logging, ctypes, copy, json, httplib2, cv2
-import threading, itertools, time, multiprocessing, math, re
+import sys, os, ast
+import logging, copy, cv2
+import threading, time, math, re
 from ctypes import *
 from copy import copy, deepcopy
-from itertools import chain, compress, zip_longest
 import pandas as pd
 import numpy as np
-import multiprocessing
+import logging, logging.handlers
+
+# import importlib
+# import io, pickle, traceback, sys, os, subprocess, ast, csv, gzip
+# import signal, logging, ctypes, copy, json, httplib2, cv2
+# import threading, itertools, time, multiprocessing, math, re
+# from ctypes import *
+# from copy import copy, deepcopy
+# from itertools import chain, compress, zip_longest
+# import pandas as pd
+# import numpy as np
+# import logging, logging.handlers
 
 sys.path.append(os.getcwd())
 
@@ -35,6 +44,8 @@ from PyQt5 import QtCore, QtNetwork
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from PyQt5.QtTest import *
+
 
 from sklearn import metrics
 from sklearn.cluster import KMeans
@@ -50,6 +61,7 @@ import matplotlib.mlab as mlab
 import matplotlib.image as mpimg
 import matplotlib.gridspec as gridspec
 import matplotlib.colorbar as mcolorbar
+import matplotlib.colors as colors
 from matplotlib.backend_bases import *
 from matplotlib.artist import Artist
 
@@ -61,6 +73,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+import matplotlib.text as mtext
 
 import CPyConverter as cpy
 
@@ -85,18 +99,24 @@ import CPyConverter as cpy
 # 17) Misc Tools
 
 # import widgets
-from MenuGUI import Menu #include server and mirror config, refresh, geometry, extra
-from ConfigGUI import Configuration # include spectrum/gate info and output popup buttons
+from MenuAndConfigGUI import * #All widgets of the top menu section
 from SpecialFunctionsGUI import SpecialFunctions # all the extra functions we defined
-from OutputGUI import OutputPopup # popup output window
+# from OutputGUI import OutputPopup # popup output window
 from PlotGUI import Plot # area defined for the histograms
 from PlotGUI import Tabs # area defined for the Tabs
 from PyREST import PyREST # class interface for SpecTcl REST plugin
 from CopyPropertiesGUI import CopyProperties
+from connectConfigGUI import ConnectConfiguration #class for the connection configuration popup
+from MenuGate import MenuGate #class for the gate creation/edition popup
+from MenuSumRegion import MenuSumRegion #class for the gate creation/edition popup
+from OutputIntegrate import OutputIntegratePopup #popup for gate/summing region integrate outputs
+# from OutputIntegrate import TableModel #table model for popup for gate/summing region
 
 from logger import log, setup_logging, set_logger
 from notebook_process import testnotebook, startnotebook, stopnotebook
 from WebWindow import WebWindow
+
+#from collapseMenu import Spoiler
 
 SETTING_BASEDIR = "workdir"
 SETTING_EXECUTABLE = "exec"
@@ -109,8 +129,65 @@ class MainWindow(QMainWindow):
 
     stop_signal = pyqtSignal()
 
+    #Simon - flag that gives the status of the ReST thred
+    restThreadFlag = False
+
+    #Simon - initialize a status bar with ReST thread status
+    # def initStatusBar(self):
+    #     self.statBar = self.statusBar()
+    #     self.statBar.showMessage('Thread for trace : OFF')
+    #     self.lineEdit = QLineEdit()
+    #     self.setCentralWidget(self.lineEdit)
+    #     self.lineEdit.textEdited.connect(self.updateStatusBar)
+
+    #Simon - update status bar with ReST thread status
+    # def updateStatusBar(self):
+        # status = "Thread for trace : ON" if self.restThreadFlag else "Thread for trace : OFF"
+        # self.topMenu.setConnectSatus(self.restThreadFlag)
+        # self.statBar.showMessage(status)
+
     def __init__(self, factory, fit_factory, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
+
+        #Simon - status bar for ReST thread
+        # self.initStatusBar()
+
+        # status = "Thread for trace : ON" if self.restThreadFlag else "Thread for trace : OFF"
+        # self.statusBarLabel = QLabel("Thread for trace : OFF")
+        # self.statusbar.addPermanentWidget(self.statusBarLabel)
+        # self.statBar.showMessage('Thread for trace : OFF')
+        # self.lineEdit = QLineEdit()
+        # self.setCentralWidget(self.lineEdit)
+        # self.lineEdit.textEdited.connect(self.updateStatusBar)
+        # self.updateStatusBar()
+
+
+        # initialize debug logging 
+        logging.basicConfig(datefmt='%d-%b-%y %H:%M:%S')        
+        
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+
+        # define streamHandler for logging
+        formatterStreamHandler = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        self.streamHandler = logging.StreamHandler()
+        self.streamHandler.setLevel(logging.WARNING)
+        self.streamHandler.setFormatter(formatterStreamHandler)
+
+        # define fileHandler for logging
+        formatterFileHandler   = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        #when='h', interval=1, backupCount=0 means overwrite log file every 1h
+        # 1 backup log file created, 0 gives infinite backup
+        self.fileHandler = logging.handlers.TimedRotatingFileHandler(
+            filename="debugCutiePie.log", when='m', interval=10, backupCount=1)
+        self.fileHandler.setLevel(logging.DEBUG)
+        self.fileHandler.setFormatter(formatterFileHandler)
+
+        #add only stream handler here, the fileHandler is added/removed by user action
+        self.logger.addHandler(self.streamHandler)
+        #following line to avoid main logger printing log in addition to its handlers
+        self.logger.propagate = False
+
 
         self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
@@ -121,29 +198,24 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("CutiePie(QtPy) - It's not a bug, it's a feature (cit.)")
         self.setMouseTracking(True)
 
-        #check if there are arguments or not
-        try:
-            self.args = dict(args)
-            if (DEBUG):
-                print("self.args",self.args)
-        except:
-            pass
 
         #######################
         # 1) Main layout GUI
         #######################
 
-        mainLayout = QVBoxLayout()
-        mainLayout.setContentsMargins(0,0,0,0)
-        mainLayout.setSpacing(0)
+        mainLayout = QGridLayout()
+        fullLayout = QGridLayout()
+        mainLayout.setContentsMargins(10, 10, 10, 0)
+        fullLayout.setContentsMargins(0, 0, 0, 0)
 
         # top menu
-        self.wTop = Menu()
-        self.wTop.setFixedHeight(50)
+        #self.wTop = Menu()
+        #comment the following if use collapsable
+        # self.wTop.setFixedHeight(40)
 
         # config menu
         self.wConf = Configuration()
-        self.wConf.setFixedHeight(70)
+        # self.wConf.setFixedHeight(40)
 
         # plot widget
         self.wTab = Tabs()
@@ -151,24 +223,42 @@ class MainWindow(QMainWindow):
         self.currentPlot = None
 
         # gui composition
-        mainLayout.addWidget(self.wTop)
-        mainLayout.addWidget(self.wConf)
-        mainLayout.addWidget(self.wTab)
+        self.wConf.setContentsMargins(10, 10, 10, 0)
+
+        fullLayout.addLayout(self.wConf, 1, 0, 1, 0)
+        fullLayout.addWidget(self.wTab, 2, 0, 1, 0)
+
 
         widget = QWidget()
-        widget.setLayout(mainLayout)
+        widget.setLayout(fullLayout)
+        # widget.setLayout(mainLayout)
         self.setCentralWidget(widget)
 
         # output popup window
-        self.resPopup = OutputPopup()
-        self.table_row = []
-        self.ctr = 0
+        # self.resPopup = OutputPopup()
+        # self.table_row = []
+        # self.ctr = 0
 
         # extra popup window
         self.extraPopup = SpecialFunctions()
 
         # Tab editing popup
         self.tabp = TabPopup()
+
+        # cutoff editing popup
+        self.cutoffp = cutoffPopup()
+
+        # summing region popup
+        self.sumRegionPopup = MenuSumRegion()
+
+        # integrate gate and summing region popup
+        self.integratePopup = OutputIntegratePopup()
+
+        # connection configuration windows
+        self.connectConfig = ConnectConfiguration()
+
+        # gate window
+        self.gatePopup = MenuGate()
 
         # copy attributes windows
         self.copyAttr = CopyProperties()
@@ -179,19 +269,20 @@ class MainWindow(QMainWindow):
         self.fit_factory.initialize(self.extraPopup.fit_list)
 
         # global variables
-        self.timer = QtCore.QTimer()
-        self.originalPalette = QApplication.palette()
-        # dictionaries for parameters
-        self.param_list = {}
-        self.nparams = 0
-        # dataframe for spectra
-        self.spectrum_list = pd.DataFrame()
+        #spectrum_dict_rest {key:name_spectrum, value:{info_spectrum}}, created when connect and updated continuously with traces (if any), hidden to user.
+        self.spectrum_dict_rest = {}
 
-        # max for y
-        self.minY = 0
+        #list of summing region line labels of the displayed spectrum {spectrumName : [sumRegionLabel, ...]}
+        self.sumRegionDict = {} 
+
+
+        # default min/max for x,y
+        self.minX = 0
+        self.maxX = 1024
+        self.minY = 0.001
         self.maxY = 1024
-        # gradient for 2d plots
-        self.minZ = 0
+        # default gradient for 2d plots
+        self.minZ = 0.001
         self.maxZ = 256
 
         # for peak finding
@@ -209,23 +300,28 @@ class MainWindow(QMainWindow):
         self.onFigure = False
 
         # editing gates
-        self.showverts = True
         self.epsilon = 5  # max pixel distance to count as a vertex hit
-        self._ind = None # the active vert
 
-        self.bPressed = False
+        #dictionary used in case user wants to have one color per gate {gateName: color}
+        self.gateColor = {}
+        #dictionary used to know the annotation positions to prevent overlay {spectrumName: lowestPosition}
+        self.gateAnnotation = {}
+
+        # Bool set by extra options -> differentiate gates 
+        # self.annotateGate = False
 
         #################
         # 2) Signals
         #################
 
         # top menu signals
-        self.wTop.updateButton.clicked.connect(self.update)
+        self.wConf.connectButton.clicked.connect(self.connectPopup)
+        self.connectConfig.ok.clicked.connect(self.okConnect)
+        self.connectConfig.cancel.clicked.connect(self.closeConnect)
 
-        self.wTop.extraButton.clicked.connect(self.spfunPopup)
-        self.wTop.saveButton.clicked.connect(self.saveGeo)
-        self.wTop.loadButton.clicked.connect(self.loadGeo)
-        self.wTop.exitButton.clicked.connect(self.closeAll)
+        self.wConf.saveButton.clicked.connect(self.saveGeo)
+        self.wConf.loadButton.clicked.connect(self.loadGeo)
+        self.wConf.exitButton.clicked.connect(self.closeAll)
 
         # new tab creation
         self.wTab.tabBarClicked.connect(self.clickedTab)
@@ -234,55 +330,69 @@ class MainWindow(QMainWindow):
         # config menu signals
         self.wConf.histo_geo_add.clicked.connect(self.addPlot)
         self.wConf.histo_geo_update.clicked.connect(self.updatePlot)
-        self.wConf.histo_geo_delete.clicked.connect(self.clearPlot)
+        self.wConf.extraButton.clicked.connect(self.spfunPopup)
 
-        self.wConf.histo_geo_row.activated.connect(lambda: self.wTab.wPlot[self.wTab.currentIndex()].InitializeCanvas(
-            int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
-        self.wConf.histo_geo_col.activated.connect(lambda: self.wTab.wPlot[self.wTab.currentIndex()].InitializeCanvas(
-            int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
+        self.wConf.histo_geo_row.activated.connect( self.setCanvasLayout )
+        self.wConf.histo_geo_col.activated.connect( self.setCanvasLayout )
 
         self.wConf.createGate.clicked.connect(self.createGate)
         self.wConf.createGate.setEnabled(False)
-        self.wConf.editGate.setEnabled(False)
-        self.wConf.menu.triggered.connect(self.editGate)
-        self.wConf.editGate.setToolTip("Key bindings for Modify->Edit:\n"
-                                      "'i' insert vertex\n"
-                                      "'d' delete vertex\n")
-        self.wConf.cleanGate.clicked.connect(self.clearGate)
-        self.wConf.drawGate.clicked.connect(self.addGate)
-        self.wConf.deleteGate.clicked.connect(self.deleteGate)
+        self.gatePopup.ok.clicked.connect(self.okGate)
+        self.gatePopup.cancel.clicked.connect(self.cancelGate)
+        self.gatePopup.gateActionCreate.clicked.connect(self.createGate)
+        self.gatePopup.gateActionEdit.clicked.connect(self.editGate)
 
-        self.wConf.integrateGate.clicked.connect(self.integrate)
-        self.wConf.outputGate.clicked.connect(self.resultPopup)
+        # summing region
+        self.wConf.createSumRegionButton.clicked.connect(self.createSumRegion)
+        self.sumRegionPopup.ok.clicked.connect(self.okSumRegion)
+        self.sumRegionPopup.cancel.clicked.connect(self.cancelSumRegion)
+        self.sumRegionPopup.delete.clicked.connect(self.deleteSumRegion)
 
-        self.wConf.button2D_option.activated.connect(self.changeBkg)
+        # self.wConf.editGate.setToolTip("Key bindings for Modify->Edit:\n"
+        #                               "'i' insert vertex\n"
+        #                               "'d' delete vertex\n")
+
+        #integrate gate and summing region
+        self.wConf.integrateGateAndRegion.clicked.connect(self.integrate)
+        self.integratePopup.ok.clicked.connect(self.okIntegrate)
 
         self.tabp.okButton.clicked.connect(self.okTab)
         self.tabp.cancelButton.clicked.connect(self.cancelTab)
 
-        # home callback
-        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)
+        self.cutoffp.okButton.clicked.connect(self.okCutoff)
+        self.cutoffp.cancelButton.clicked.connect(self.cancelCutoff)
+        self.cutoffp.resetButton.clicked.connect(lambda: self.resetCutoff(True))
+
         # zoom callback
-        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[2].triggered.connect(self.zoomCallback)
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[1].triggered.connect(self.zoomCallback)
         # copy properties
         self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
-        # summing region
-        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
-        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
         # autoscale
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxisBox)
-        # log button
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogBox)
+        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(lambda: self.autoScaleAxisBox(None))
         # plus button
-        self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
+        self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomInOut("in"))
         # minus button
-        self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
+        self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomInOut("out"))
+        # cutoff button
+        self.wTab.wPlot[self.wTab.currentIndex()].cutoffButton.clicked.connect(self.cutoffButtonCallback)
+        self.wTab.wPlot[self.wTab.currentIndex()].cutoffButton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.wTab.wPlot[self.wTab.currentIndex()].cutoffButton.customContextMenuRequested.connect(self.cutoff_handle_right_click)
         # copy attributes
-        self.copyAttr.histoAll.clicked.connect(lambda:self.histAllAttr(self.copyAttr.histoAll))
+        self.copyAttr.histoAll.clicked.connect(lambda: self.histAllAttr(self.copyAttr.histoAll))
         self.copyAttr.okAttr.clicked.connect(self.okCopy)
         self.copyAttr.applyAttr.clicked.connect(self.applyCopy)
         self.copyAttr.cancelAttr.clicked.connect(self.closeCopy)
         self.copyAttr.selectAll.clicked.connect(self.selectAll)
+        # Custom Home button
+        self.wTab.wPlot[self.wTab.currentIndex()].customHomeButton.clicked.connect(lambda: self.customHomeButtonCallback(self.currentPlot.selected_plot_index))
+        self.wTab.wPlot[self.wTab.currentIndex()].customHomeButton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.wTab.wPlot[self.wTab.currentIndex()].customHomeButton.customContextMenuRequested.connect(self.handle_right_click)
+        #log button
+        self.wTab.wPlot[self.wTab.currentIndex()].logButton.clicked.connect(lambda: self.logButtonCallback(self.currentPlot.selected_plot_index))
+        self.wTab.wPlot[self.wTab.currentIndex()].logButton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.wTab.wPlot[self.wTab.currentIndex()].logButton.customContextMenuRequested.connect(self.log_handle_right_click)
+
+        self.wTab.countClickTab[self.wTab.currentIndex()] = True
 
         # extra popup
         self.extraPopup.fit_button.clicked.connect(self.fit)
@@ -292,6 +402,10 @@ class MainWindow(QMainWindow):
 
         self.extraPopup.peak.jup_start.clicked.connect(self.jupyterStart)
         self.extraPopup.peak.jup_stop.clicked.connect(self.jupyterStop)
+
+        self.extraPopup.options.gateAnnotation.clicked.connect(self.gateAnnotationCallBack)
+        self.extraPopup.options.gateHide.clicked.connect(self.updatePlot)
+        self.extraPopup.options.debugMode.clicked.connect(self.debugModeCallBack)
 
         self.extraPopup.imaging.loadButton.clicked.connect(self.loadFigure)
         self.extraPopup.imaging.addButton.clicked.connect(self.addFigure)
@@ -312,15 +426,19 @@ class MainWindow(QMainWindow):
         # other signals
         self.resizeID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("resize_event", self.on_resize)
         self.pressID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.on_press)
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_release_event", self.on_release)
 
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("motion_notify_event", self.histoHover)
 
         # create helpers
         self.wConf.histo_list.installEventFilter(self)
-        for i in range(2):
-                self.wConf.listParams[i].installEventFilter(self)
-        self.wConf.listGate.installEventFilter(self)
-        self.wConf.listGate.installEventFilter(self)
+        # self.wConf.listGate.installEventFilter(self)
+
+        # Hotkeys
+        # zoom (click-drag)
+        self.shortcutZoomDrag = QShortcut(QKeySequence("Alt+Z"), self)
+        self.shortcutZoomDrag.activated.connect(self.zoomKeyCallback)
+
 
         self.currentPlot = self.wTab.wPlot[self.wTab.currentIndex()] # definition of current plot
 
@@ -328,378 +446,679 @@ class MainWindow(QMainWindow):
     # 3) Implementation of Signals
     ################################
 
+    #So that signals work for each tab, called in clickedTab()
     def bindDynamicSignal(self):
-        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[0].triggered.connect(self.homeCallback)
-        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[2].triggered.connect(self.zoomCallback)
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(self.setAutoscaleAxisBox)
-        self.wTab.wPlot[self.wTab.currentIndex()].histo_log.clicked.connect(self.setLogBox)
-        self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomIn(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
-        self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomOut(self.wTab.wPlot[self.wTab.currentIndex()].canvas))
-        self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
+        self.logger.info('bindDynamicSignal')
+        for index, val in self.wTab.countClickTab.items():
+            if val:
+                self.wTab.wPlot[index].logButton.disconnect()
+                self.wTab.wPlot[index].cutoffButton.disconnect()
+                self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.disconnect()
+                self.wTab.wPlot[self.wTab.currentIndex()].plusButton.disconnect()
+                self.wTab.wPlot[self.wTab.currentIndex()].minusButton.disconnect()
+                self.wTab.wPlot[self.wTab.currentIndex()].copyButton.disconnect()
+                self.wTab.wPlot[self.wTab.currentIndex()].customHomeButton.disconnect()
+                self.wTab.countClickTab[index] = False
 
-        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.clicked.connect(self.createSRegion)
-        self.wTab.wPlot[self.wTab.currentIndex()].createSRegion.setEnabled(False)
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.toolbar.actions()[1].triggered.connect(self.zoomCallback)
+        self.wTab.wPlot[self.wTab.currentIndex()].histo_autoscale.clicked.connect(lambda: self.autoScaleAxisBox(None))
+        self.wTab.wPlot[self.wTab.currentIndex()].plusButton.clicked.connect(lambda: self.zoomInOut("in"))
+        self.wTab.wPlot[self.wTab.currentIndex()].minusButton.clicked.connect(lambda: self.zoomInOut("out"))
+        self.wTab.wPlot[self.wTab.currentIndex()].cutoffButton.clicked.connect(self.cutoffButtonCallback)
+        self.wTab.wPlot[self.wTab.currentIndex()].cutoffButton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.wTab.wPlot[self.wTab.currentIndex()].cutoffButton.customContextMenuRequested.connect(self.cutoff_handle_right_click)
+        self.wTab.wPlot[self.wTab.currentIndex()].copyButton.clicked.connect(self.copyPopup)
+        self.wTab.wPlot[self.wTab.currentIndex()].customHomeButton.clicked.connect(lambda: self.customHomeButtonCallback(self.currentPlot.selected_plot_index))
+        self.wTab.wPlot[self.wTab.currentIndex()].customHomeButton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.wTab.wPlot[self.wTab.currentIndex()].customHomeButton.customContextMenuRequested.connect(self.handle_right_click)
+        self.wTab.wPlot[self.wTab.currentIndex()].logButton.clicked.connect(lambda: self.logButtonCallback(self.currentPlot.selected_plot_index))
+        self.wTab.wPlot[self.wTab.currentIndex()].logButton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.wTab.wPlot[self.wTab.currentIndex()].logButton.customContextMenuRequested.connect(self.log_handle_right_click)
 
         self.resizeID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("resize_event", self.on_resize)
         self.pressID = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.on_press)
+        self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_release_event", self.on_release)
 
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("motion_notify_event", self.histoHover)
+
+        self.wTab.countClickTab[self.wTab.currentIndex()] = True
+
 
     def connect(self):
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.on_press)
 
+
     def disconnect(self):
         self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.pressID)
 
+
+    #Event filter for search in histo_list widget
     def eventFilter(self, obj, event):
-        if (obj == self.wConf.histo_list or self.wConf.listParams[0] or self.wConf.listParams[1] or self.wConf.listGate) and event.type() == QtCore.QEvent.HoverEnter:
+        if (obj == self.wConf.histo_list or self.gatePopup.gateNameList) and event.type() == QtCore.QEvent.HoverEnter:
             self.onHovered(obj)
         return super(MainWindow, self).eventFilter(obj, event)
+
 
     def onHovered(self, obj):
         if (obj == self.wConf.histo_list):
             self.wConf.histo_list.setToolTip(self.wConf.histo_list.currentText())
-        elif (obj == self.wConf.listParams[0]):
-            self.wConf.listParams[0].setToolTip(self.wConf.listParams[0].currentText())
-        elif (obj == self.wConf.listParams[1]):
-            self.wConf.listParams[1].setToolTip(self.wConf.listParams[1].currentText())
-        elif (obj == self.wConf.listGate):
-            self.wConf.listGate.setToolTip(self.wConf.listGate.currentText())
+        elif (obj == self.gatePopup.gateNameList):
+            self.gatePopup.gateNameList.setToolTip(self.gatePopup.gateNameList.currentText())
 
+
+    #Display information when hover spectrum
     def histoHover(self, event):
         try:
             index = 0
             if not event.inaxes: return
-            if self.currentPlot.isZoomed:
-                #if (DEBUG):
-                    #Simon - commented following because sometimes it is annoying while debugging
-                    #print("Inside histoHover isZoomed")
-                index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
-            else:
-                index = list(self.currentPlot.figure.axes).index(event.inaxes)
-            self.currentPlot.histoLabel.setText("Histogram:"+self.currentPlot.h_dict_geo[index])
+
+            index = list(self.currentPlot.figure.axes).index(event.inaxes)
+            xTitle = self.getSpectrumInfoREST("parameters", index=index)[0]
+            coordinates = self.getPointerInfo(event, "coordinates", index)
+            type = self.getSpectrumInfoREST("type", index=index)
+            if self.getSpectrumInfoREST("dim", index=index) == 1:
+                if type == "g1" :
+                    xTitle = self.getSpectrumInfoREST("parameters", index=index)[0] + ", ..."
+                self.currentPlot.histoLabel.setText("Spectrum: "+self.nameFromIndex(index)+"\nX: "+xTitle)
+                self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.0f} Count: {coordinates[2]:.0f}")
+            elif self.getSpectrumInfoREST("dim", index=index) == 2:
+                yTitle = self.getSpectrumInfoREST("parameters", index=index)[1]
+                if type == "g2" or type == "m2" or type == "gd":
+                    xTitle = self.getSpectrumInfoREST("parameters", index=index)[0] + ", ..."
+                    yTitle = self.getSpectrumInfoREST("parameters", index=index)[1] + ", ..."
+                self.currentPlot.histoLabel.setText("Spectrum: "+self.nameFromIndex(index)+"\nX: "+xTitle+" Y: "+yTitle) 
+                self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.2f}  Count: {coordinates[2]:.0f}")        
+                if type == "s" :
+                    xTitle = self.getSpectrumInfoREST("parameters", index=index)[0] + ", ..."
+                    self.currentPlot.histoLabel.setText("Spectrum: "+self.nameFromIndex(index)+"\nX: "+xTitle) 
+                    self.currentPlot.pointerLabel.setText(f"Pointer:\nX: {coordinates[0]:.2f} Y: {coordinates[1]:.2f}  Count: {coordinates[2]:.0f}") 
+            gateName = self.getAppliedGateName(index=index)
+            if gateName is not None:
+                self.currentPlot.gateLabel.setText("Gate applied: "+gateName+"\n") 
+            else :
+                self.currentPlot.gateLabel.setText("Gate applied: \n") 
         except:
-            pass
+            # self.logger.debug('histoHover - exception', exc_info=True)
+            self.currentPlot.histoLabel.setText("Spectrum: \nX: Y:")
+            self.currentPlot.pointerLabel.setText(f"Pointer:\nX: Y: Count: ")
+            self.currentPlot.gateLabel.setText("Gate applied: \n")
+
+
+    #called in histoHover, return the bin position under mouse pointer
+    def getPointerInfo(self, event, info, index):
+        result = ['','','']
+        if self.getEnlargedSpectrum():
+            index = self.getEnlargedSpectrum()[0]
+        try:
+            ax = self.getSpectrumInfo("axis", index=index)
+            dim = self.getSpectrumInfoREST("dim", index=index)
+            minx = self.getSpectrumInfoREST("minx", index=index)
+            maxx = self.getSpectrumInfoREST("maxx", index=index)
+            binx = self.getSpectrumInfoREST("binx", index=index)
+            data = self.getSpectrumInfoREST("data", index=index)
+            if ax is None or len(data) <= 0:
+                return result
+            x, y = ax.transData.inverted().transform([event.x, event.y])
+            stepx = (float(maxx)-float(minx))/float(binx)
+            binminx = int((x-minx)/stepx)
+            if dim == 1:
+                if "coordinates" == info:
+                    count = data[binminx+1:binminx+2]
+                    # y = data[binminx:binminx+1]
+                    result = [x,y,count[0]]
+                elif "bins" == info:
+                    result = [binminx,'','']
+            elif dim == 2:
+                if "coordinates" == info:
+                    miny = self.getSpectrumInfoREST("miny", index=index)
+                    maxy = self.getSpectrumInfoREST("maxy", index=index)
+                    biny = self.getSpectrumInfoREST("biny", index=index)
+                    stepy = (float(maxy)-float(miny))/float(biny)
+                    binminy = int((y-miny)/stepy)
+                    #ndarray [row][column]
+                    z = data[binminy:binminy+1, binminx:binminx+1]
+                    result = [x,y,z[0][0]]
+                elif "bins" == info:
+                    result = [binminx, binminy,'']
+        except NameError:
+            self.logger.error('getPointerInfo - NameError exception', exc_info=True)
+            raise
+        return result
+     
 
     def on_resize(self, event):
+        self.logger.info('on_resize')
         self.currentPlot.figure.tight_layout()
         self.currentPlot.canvas.draw()
 
+
+    #Hotkey triggering toolbar zoom action 
+    def zoomKeyCallback(self):
+        self.logger.info('zoomKeyCallback')
+        self.currentPlot.canvas.toolbar.actions()[1].triggered.emit()
+        self.currentPlot.canvas.toolbar.actions()[1].setChecked(True)
+
+
+    # Introduced for endding zoom action (toolbar) on release
+    # For this purpose dont need to check if release outside of axis (it can happen)
+    # small delay introduced such that updatePlotLimits is executed after on_release.
+    def on_release(self, event):
+        self.logger.info('on_release - self.currentPlot.zoomPress: %s',self.currentPlot.zoomPress)
+        # print("Simon - on_release - self.currentPlot.zoomPress",self.currentPlot.zoomPress,self.currentPlot.canvas.toolbar.actions()[1].isChecked())
+        if self.currentPlot.zoomPress:
+            self.currentPlot.canvas.toolbar.actions()[1].triggered.emit()
+            self.currentPlot.canvas.toolbar.actions()[1].setChecked(False)
+            threadLimits = threading.Thread(target=self.updatePlotLimits, args=(0.05,))
+            threadLimits.start()
+            self.currentPlot.zoomPress = False
+
+
+    # when mouse pressed in main window
+    # Introduced for endding zoom action (toolbar) see on_release and on_press too
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        self.logger.info('mousePressEvent - self.currentPlot.zoomPress: %s',self.currentPlot.zoomPress)
+        # print("Simon - mousePressEvent - ",self.currentPlot.zoomPress,self.currentPlot.canvas.toolbar.actions()[1].isChecked())
+        if not self.currentPlot.zoomPress : return 
+        #height and width determined empirically... better if overestimated because event handled by on_press in that case
+        #these values doesnt change with window resizing but could change if decide to change the layout.
+        footH = 15 
+        headerH = 130 
+        sidesW = 10 
+
+        leftLimit = sidesW
+        rightLimit = self.geometry().width() - sidesW
+        topLimit = headerH
+        bottomLimit = self.geometry().height() - footH
+
+        withinLimits = True if (event.x() in range(leftLimit,rightLimit)) and (event.y() in range(topLimit,bottomLimit)) else False
+
+        if not withinLimits:
+            self.currentPlot.canvas.toolbar.actions()[1].triggered.emit()
+            self.currentPlot.canvas.toolbar.actions()[1].setChecked(False)
+            self.currentPlot.zoomPress = False
+
+
+    #callback for button_press_event
     def on_press(self, event):
+        self.logger.info('on_press')
+        # print("Simon - on_press - ",self.currentPlot.zoomPress,self.currentPlot.canvas.toolbar.actions()[1].isChecked())
+        #if initate zoom (magnifying glass) but dont press in axes, reset the action
+        if self.currentPlot.zoomPress and not event.inaxes: 
+            self.currentPlot.canvas.toolbar.actions()[1].triggered.emit()
+            self.currentPlot.canvas.toolbar.actions()[1].setChecked(False)
+            self.currentPlot.zoomPress = False
+
         if not event.inaxes: return
+
+        # if gatePopup exit with [X], want to reset everything as if gateEditor hasn't been openned
+        if (self.currentPlot.toCreateGate or self.currentPlot.toEditGate) and not self.gatePopup.isVisible():
+            self.cancelGate()
+        # if sumRegionPopup exit with [X]
+        if self.currentPlot.toCreateSumRegion and not self.sumRegionPopup.isVisible():
+            self.cancelSumRegion()
+
+        # selected a colorbar, dont want to interact with it
+        if "colorbar_" in event.inaxes.get_label():
+            return
+
         index = list(self.currentPlot.figure.axes).index(event.inaxes)
-        if self.currentPlot.isZoomed:
+
+        if self.currentPlot.isEnlarged:
             index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
         self.currentPlot.selected_plot_index = index
-        if (DEBUG):
-            print('Inside on_press self.currentPlot.selected_plot_index ',index)
-        global t
-        if t is None:
-            t = threading.Timer(DEBOUNCE_DUR, self.on_singleclick, [event,index])
-            t.start()
+        #removed the timer on thread, cause problem for populating regionPoint in the gate popup
+        #Dont know (Simon) why a small delay was needed
         if event.dblclick:
-            t.cancel()
-            try:
-                self.on_dblclick(event, index)
-            except:
+            if self.currentPlot.toCreateGate or self.currentPlot.toCreateSumRegion :
+                #dont need to do anything special here, the 2d line is closed when click okGate
+                # self.on_dblclick_gate(event, index)
                 pass
+            elif self.currentPlot.toEditGate:
+                self.on_dblclick_gate_edit(event, index)
+            else :
+                self.on_dblclick(index)
+        else :
+            if self.currentPlot.toCreateGate :
+                #1: left mouse button, 3: right mouse button
+                if event.button == 1:
+                    self.on_singleclick_gate(event, index)
+                if event.button == 3:
+                    self.on_singleclick_gate_right(index)
+            elif self.currentPlot.toEditGate:
+                self.on_singleclick_gate_edit(event)
+            elif self.currentPlot.toCreateSumRegion :
+                #1: left mouse button, 3: right mouse button
+                if event.button == 1:
+                    self.on_singleclick_sumRegion(event, index)
+                if event.button == 3:
+                    self.on_singleclick_sumRegion_right(index)
+            else :
+                self.on_singleclick(index)
 
-    def on_singleclick(self, event, index):
-        global t
-        if (DEBUG):
-            print("Inside on_singleclick in tab",self.wTab.currentIndex())
+
+    #not used for now
+    # def on_dblclick_gate(self, event, index):
+    #     pass
+
+
+    #called by on_press when not in create/edit Gate mode
+    def on_singleclick(self, index):            
+        self.logger.info('on_singleclick - index: %s', index)
+        # change the log button status manually only here according to spectrum info
+        # so that when one clicks on a spectrum the button shows if log or not
+        axisIsLog = self.getSpectrumInfo("log", index=index)
+        wPlot = self.currentPlot
+        logBut = wPlot.logButton
+        if axisIsLog :
+            logBut.setDown(True)
+        else :
+            logBut.setDown(False) 
+        # similar to log button, cutoff button change status according to spectrum info
+        cutoffVal = self.getSpectrumInfo("cutoff", index=index)
+        if cutoffVal is not None and len(cutoffVal)>1 and (cutoffVal[0] is not None or cutoffVal[1] is not None):
+            wPlot.cutoffButton.setDown(True)
+        else :
+            wPlot.cutoffButton.setDown(False)
+            self.resetCutoff(False)
+
         # If we are not zooming on one histogram we can select one histogram
         # and a red rectangle will contour the plot
-        if self.currentPlot.isZoomed == False:
-            if (DEBUG):
-                print("Inside on_singleclick - ZOOM false")
-            try:
-                if self.currentPlot.rec is not None:
-                    self.currentPlot.rec.remove()
-            except:
-                pass
-
+        if self.currentPlot.isEnlarged == False:
+            self.logger.debug('on_singleclick - isEnlarged FALSE')
+            self.removeRectangle()
             self.currentPlot.isSelected = True
+            self.currentPlot.next_plot_index = self.currentPlot.selected_plot_index
             self.currentPlot.rec = self.createRectangle(self.currentPlot.figure.axes[index])
-
-            if index in self.currentPlot.h_log:
-                if self.currentPlot.h_log[index] :
-                    self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(True)
-                else:
-                    self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(False)
-            self.clickToName(index)
-
             #tried to blit here but not successful (?) important delay for canvas with many plots
             self.currentPlot.canvas.draw()
+
+
+    # find the closest bin edge position to the input position
+    def closestBinPos(self, index=None, x=None, y=None):
+        result = None 
+        if index is None :
+            self.logger.debug('closestBinPos - index is None')
+            return result
+
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        minx = self.getSpectrumInfoREST("minx", index=index)
+        maxx = self.getSpectrumInfoREST("maxx", index=index)
+        binx = self.getSpectrumInfoREST("binx", index=index)
+        stepx = (float(maxx)-float(minx))/float(binx)
+
+        if dim == 1 and x is not None:
+            # to round int essential, will give the closest bin edge
+            nXbin = round((x-minx)/stepx, 0)
+            xbinPos = minx + nXbin*stepx
+            result = xbinPos
+            # print("Simon - closestBinPos - dim1 - ", minx, maxx, stepx, nXbin, xbinPos )
+        if dim == 2 and x is not None and y is not None:
+            miny = self.getSpectrumInfoREST("miny", index=index)
+            maxy = self.getSpectrumInfoREST("maxy", index=index)
+            biny = self.getSpectrumInfoREST("biny", index=index)
+            stepy = (float(maxy)-float(miny))/float(biny)
+            # to round int essential, will give the closest bin edge
+            nXbin = round((x-minx)/stepx, 0)
+            xbinPos = minx + nXbin*stepx
+            nYbin = round((y-miny)/stepy, 0)
+            ybinPos = miny + nYbin*stepy
+            result = xbinPos, ybinPos
         else:
-            if (DEBUG):
-                print("Inside on_singleclick - ZOOM true")
-                print("self.currentPlot.toCreateGate",self.currentPlot.toCreateGate)
-                print("self.currentPlot.toCreateSRegion", self.currentPlot.toCreateSRegion)
-            # we can create the gate now..
-            if self.currentPlot.toCreateGate == True or self.currentPlot.toCreateSRegion == True: # inside gate creation mode
-                if (DEBUG):
-                    print("create the gate...")
-                click = [int(float(event.xdata)), int(float(event.ydata))]
-                # create interval (1D)
-                if self.wConf.button1D.isChecked():
-                    if (DEBUG):
-                        print("inside create gate 1d")
-                    l = self.addLine(click[0])
-                    self.currentPlot.listLine.append(l)
-                    # removes the lines from the plot
-                    if len(self.currentPlot.listLine) > 2:
-                        self.removeLine()
-                    if (DEBUG):
-                        print(self.currentPlot.listLine)
-                else:
-                    if (DEBUG):
-                        print("inside create gate 2d")
-                    self.addPolygon(click[0], click[1])
+            pass
+
+        return result 
+
+
+    #called by on_press when create gate mode
+    #add new 2DLines in ax and set text points of gatePopup
+    def on_singleclick_gate(self, event, index):
+        self.logger.info('on_singleclick_gate - index: %s', index)
+        if self.currentPlot.isEnlarged == True:
+            dim = self.getSpectrumInfoREST("dim", index=index)
+            gateType = self.gatePopup.listGateType.currentText()
+            if dim == 1:
+                #second arg = 0 not used for 1d
+                #l = self.addLine(self.closestBinPos(index, float(event.xdata)), 0, index)
+                l = self.addLine(float(event.xdata), 0, index)
+                self.gatePopup.listRegionLine.append(l)
+                # removes the lines n-1 (n is the latest) from the plot
+                if len(self.gatePopup.listRegionLine) > 2:
+                    self.removePrevLine()
+                
+                lineText = ""
+                for nbLine in range(len(self.gatePopup.listRegionLine)):
+                    if nbLine == 0:
+                        lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}") 
+                    else :
+                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}") 
+                self.gatePopup.regionPoint.clear()
+                self.gatePopup.regionPoint.insertPlainText(lineText)
+
+            elif dim == 2:
+                #If exist, remove line between the last and first points of the contour (closing_segment), except for band gate type
+                tempLine = [line for line in self.gatePopup.listRegionLine if line.get_label() is "closing_segment"]
+                if gateType not in ["b", "gb"] and len(tempLine) == 1 :
+                    tempLine[0].remove()
+                    self.gatePopup.listRegionLine.pop()
+
+                # Add a new line based on clicked location
+                #xBinned, yBinned= self.closestBinPos(index, float(event.xdata), float(event.ydata))
+                #l = self.addLine(xBinned, yBinned, index)
+                #xBinned, yBinned= self.closestBinPos(index, float(event.xdata), float(event.ydata))
+                l = self.addLine(float(event.xdata), float(event.ydata), index)
+                if l is not None :
+                    self.gatePopup.listRegionLine.append(l)
+
+                # Add text in gatePopup
+                lineNb = len(self.gatePopup.listRegionLine)
+                lineText = ""
+                for nbLine in range(lineNb):
+                    if nbLine == 0:
+                            lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+                    else :
+                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+                if lineNb == 0 :
+                    lineText = lineText + (f"{lineNb}: X= {float(event.xdata):.5f}   Y= {float(event.ydata):.5f}") 
+                else :
+                    lineText = lineText + (f"\n{lineNb}: X= {float(event.xdata):.5f}   Y= {float(event.ydata):.5f}") 
+                self.gatePopup.regionPoint.clear()
+                self.gatePopup.regionPoint.insertPlainText(lineText)
+
+                # Close contour, draw a line between the last and first points, except for band gate type
+                if gateType not in ["b", "gb"] and lineNb > 1 :
+                    # Special label to identify this segment elsewhere in the code
+                    label = "closing_segment"
+                    #xBinned, yBinned= self.closestBinPos(index, self.gatePopup.listRegionLine[0].get_xdata()[0], self.gatePopup.listRegionLine[0].get_ydata()[0])
+                    #l = self.addLine(xBinned, yBinned, index, label)
+                    l = self.addLine(self.gatePopup.listRegionLine[0].get_xdata()[0], self.gatePopup.listRegionLine[0].get_ydata()[0], index, label)
+                    if l is not None :
+                        self.gatePopup.listRegionLine.append(l)
+
+                # for line in self.gatePopup.listRegionLine:
+                #     print("Simon on_singleclick_gate - line -", line, line.get_label())
 
             self.currentPlot.canvas.draw()
-        t = None
 
-    def on_dblclick(self, event, idx):
-        global t
 
-        if (DEBUG):
-            print("Inside on_dblclick in tab", self.wTab.currentIndex())
-        if self.currentPlot.h_dict_geo[0] == "empty":
-            self.currentPlot.h_dict_geo = deepcopy(self.wTab.h_dict_geo_bak[self.wTab.currentIndex()])
+    # called by on_press, right click when creating a gate is removing the last point and so change contour lines and update point text in gatePopup
+    def on_singleclick_gate_right(self, index):
+        self.logger.info('on_singleclick_gate_right - index: %s',index)
+        if self.currentPlot.isEnlarged == True:
+            
+            dim = self.getSpectrumInfoREST("dim", index=index)
+            gateType = self.gatePopup.listGateType.currentText()
+            gateTypeList1 = ["c", "gc"]
+            gateTypeList2 = ["b"]
+            
+            if dim == 2:
+                if gateType in gateTypeList1:
+                    lineNb = len(self.gatePopup.listRegionLine) 
+                    # Reset prevPoint for next new line to first point of line n-1 
+                    try:
+                        self.gatePopup.prevPoint = [self.gatePopup.listRegionLine[-2].get_xdata()[0], self.gatePopup.listRegionLine[-2].get_ydata()[0]]
+                    except IndexError:
+                        self.logger.debug('on_sinon_singleclick_gate_rightgleclick_sumRegion_right - IndexError', exc_info=True)
+                        return
+                    # if contour has only 3 lines, remove the two last lines 
+                    if lineNb == 3 :
+                        for i in range(2):
+                            self.gatePopup.listRegionLine[-1].remove()
+                            self.gatePopup.listRegionLine.pop(-1)
+                    # save n-2 line, remove line n-1 and change first point of the closing_segment to last point of saved n-2 line
+                    elif lineNb > 3:
+                        tempLine = self.gatePopup.listRegionLine[-3]
+                        self.gatePopup.listRegionLine[-2].remove()
+                        self.gatePopup.listRegionLine.pop(-2)
+                        self.gatePopup.listRegionLine[-1].set_xdata([tempLine.get_xdata()[1], self.gatePopup.listRegionLine[0].get_xdata()[0]]) 
+                        self.gatePopup.listRegionLine[-1].set_ydata([tempLine.get_ydata()[1], self.gatePopup.listRegionLine[0].get_ydata()[0]]) 
+                
+                # For band type we dont want to reconnect the extremities
+                if gateType in gateTypeList2:
+                    lineNb = len(self.gatePopup.listRegionLine) 
+                    # remove the last line
+                    if lineNb >= 2 :                   
+                        # Reset prevPoint for next new line to last point of line n-2
+                        self.gatePopup.prevPoint = [self.gatePopup.listRegionLine[-2].get_xdata()[1], self.gatePopup.listRegionLine[-2].get_ydata()[1]]
+                        self.gatePopup.listRegionLine[-1].remove()
+                        self.gatePopup.listRegionLine.pop(-1)
 
-        name = self.currentPlot.h_dict_geo[idx]
+                # Add text in gatePopup
+                lineNb = len(self.gatePopup.listRegionLine)
+                lineText = ""
+                for nbLine in range(lineNb):
+                    if nbLine == 0:
+                            lineText = lineText + (f"{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+                    else :
+                        lineText = lineText + (f"\n{nbLine}: X= {self.gatePopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.gatePopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+                if lineNb == 1 :
+                    lineText = lineText + (f"\n{lineNb}: X= {self.gatePopup.listRegionLine[0].get_xdata()[1]:.5f}   Y= {self.gatePopup.listRegionLine[0].get_ydata()[1]:.5f}") 
+                self.gatePopup.regionPoint.clear()
+                self.gatePopup.regionPoint.insertPlainText(lineText)
+
+            self.currentPlot.canvas.draw()
+
+
+
+    #called by on_press when create summing region mode
+    #add new 2DLines in ax and set text points of sumRegionPopup
+    #similar to on_singleclick_gate, should merge both (difference in isEnlarged, popup object and need type check for gate)
+    def on_singleclick_sumRegion(self, event, index):
+        self.logger.info('on_singleclick_sumRegion - index: %s',index)
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        if dim == 1:
+            # second arg = 0 not used for 1d
+            #l = self.addLine(self.closestBinPos(index, float(event.xdata)), 0, index)
+            l = self.addLine(float(event.xdata), 0, index)
+            self.sumRegionPopup.listRegionLine.append(l)
+            # removes the lines n-1 (n is the latest) from the plot
+            if len(self.sumRegionPopup.listRegionLine) > 2:
+                self.removePrevLine()
+            
+            lineText = ""
+            for nbLine in range(len(self.sumRegionPopup.listRegionLine)):
+                if nbLine == 0:
+                    lineText = lineText + (f"{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}") 
+                else :
+                    lineText = lineText + (f"\n{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}") 
+            self.sumRegionPopup.regionPoint.clear()
+            self.sumRegionPopup.regionPoint.insertPlainText(lineText)
+        elif dim == 2:
+            #If exist, remove line between the last and first points of the contour (closing_segment)
+            tempLine = [line for line in self.sumRegionPopup.listRegionLine if line.get_label() is "closing_segment"]
+            if len(tempLine) == 1 :
+                tempLine[0].remove()
+                self.sumRegionPopup.listRegionLine.pop()
+
+            # Add a new line based on clicked location
+            #xBinned, yBinned= self.closestBinPos(index, float(event.xdata), float(event.ydata))
+            #l = self.addLine(xBinned, yBinned, index)
+            #xBinned, yBinned= self.closestBinPos(index, float(event.xdata), float(event.ydata))
+            l = self.addLine(float(event.xdata), float(event.ydata), index)
+            if l is not None :
+                self.sumRegionPopup.listRegionLine.append(l)
+
+            # Add text in sumRegionPopup
+            lineNb = len(self.sumRegionPopup.listRegionLine)
+            lineText = ""
+            for nbLine in range(lineNb):
+                if nbLine == 0:
+                        lineText = lineText + (f"{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.sumRegionPopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+                else :
+                    lineText = lineText + (f"\n{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.sumRegionPopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+            if lineNb == 0 :
+                lineText = lineText + (f"{lineNb}: X= {float(event.xdata):.5f}   Y= {float(event.ydata):.5f}") 
+            else :
+                lineText = lineText + (f"\n{lineNb}: X= {float(event.xdata):.5f}   Y= {float(event.ydata):.5f}") 
+            self.sumRegionPopup.regionPoint.clear()
+            self.sumRegionPopup.regionPoint.insertPlainText(lineText)
+
+            # Close contour, draw a line between the last and first points, except for band gate type
+            if lineNb > 1 :
+                # Special label to identify this segment elsewhere in the code
+                label = "closing_segment"
+                #xBinned, yBinned= self.closestBinPos(index, self.sumRegionPopup.listRegionLine[0].get_xdata()[0], self.sumRegionPopup.listRegionLine[0].get_ydata()[0])
+                #l = self.addLine(xBinned, yBinned, index, label)
+                l = self.addLine(self.sumRegionPopup.listRegionLine[0].get_xdata()[0], self.sumRegionPopup.listRegionLine[0].get_ydata()[0], index, label)
+                if l is not None :
+                    self.sumRegionPopup.listRegionLine.append(l)
+
+            # for line in self.sumRegionPopup.listRegionLine:
+            #     print("Simon on_singleclick_gate - line -", line, line.get_label())
+
+        self.currentPlot.canvas.draw()
+
+
+    # called by on_press, right click when creating a summing region is removing the last point and so change contour lines and update point text
+    # Similar to on_singleclick_gate_right, should merge both (difference in isEnlarged, gateType,  )
+    def on_singleclick_sumRegion_right(self, index):
+        self.logger.info('on_singleclick_sumRegion_right - index: %s',index)
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        
+        if dim == 2:
+            lineNb = len(self.sumRegionPopup.listRegionLine) 
+            # Reset prevPoint for next new line to first point of line n-1 
+            try:
+                self.sumRegionPopup.prevPoint = [self.sumRegionPopup.listRegionLine[-2].get_xdata()[0], self.sumRegionPopup.listRegionLine[-2].get_ydata()[0]]
+            except IndexError:
+                self.logger.debug('on_singleclick_sumRegion_right - IndexError', exc_info=True)
+                return
+            # if contour has only 3 lines, remove the two last lines 
+            if lineNb == 3 :
+                for i in range(2):
+                    self.sumRegionPopup.listRegionLine[-1].remove()
+                    self.sumRegionPopup.listRegionLine.pop(-1)
+            # save n-2 line, remove line n-1 and change first point of the closing_segment to last point of saved n-2 line
+            elif lineNb > 3:
+                tempLine = self.sumRegionPopup.listRegionLine[-3]
+                self.sumRegionPopup.listRegionLine[-2].remove()
+                self.sumRegionPopup.listRegionLine.pop(-2)
+                self.sumRegionPopup.listRegionLine[-1].set_xdata([tempLine.get_xdata()[1], self.sumRegionPopup.listRegionLine[0].get_xdata()[0]]) 
+                self.sumRegionPopup.listRegionLine[-1].set_ydata([tempLine.get_ydata()[1], self.sumRegionPopup.listRegionLine[0].get_ydata()[0]]) 
+        
+            # Add text in sumRegionPopup
+            lineNb = len(self.sumRegionPopup.listRegionLine)
+            lineText = ""
+            for nbLine in range(lineNb):
+                if nbLine == 0:
+                        lineText = lineText + (f"{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.sumRegionPopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+                else :
+                    lineText = lineText + (f"\n{nbLine}: X= {self.sumRegionPopup.listRegionLine[nbLine].get_xdata()[0]:.5f}   Y= {self.sumRegionPopup.listRegionLine[nbLine].get_ydata()[0]:.5f}") 
+            if lineNb == 1 :
+                lineText = lineText + (f"\n{lineNb}: X= {self.sumRegionPopup.listRegionLine[0].get_xdata()[1]:.5f}   Y= {self.sumRegionPopup.listRegionLine[0].get_ydata()[1]:.5f}") 
+            self.sumRegionPopup.regionPoint.clear()
+            self.sumRegionPopup.regionPoint.insertPlainText(lineText)
+
+        self.currentPlot.canvas.draw()
+
+
+    #called by on_press when not in ceate/edit gate mode
+    def on_dblclick(self, idx):
+        self.logger.info('on_dblclick - idx, self.wTab.currentIndex(): %s, %s' ,idx, self.wTab.currentIndex())
+        name = self.nameFromIndex(idx)
         index = self.wConf.histo_list.findText(name)
         self.wConf.histo_list.setCurrentIndex(index)
-        self.updateHistoInfo(name)
-        if (DEBUG):
-            print("UPDATE plot the histogram at index", idx, "with name", self.wConf.histo_list.currentText())
 
-        if self.currentPlot.isZoomed == False: # entering zooming mode
-            if (DEBUG):
-                print("###### Entering zooming mode...")
-            self.currentPlot.isZoomed = True
-            # make sure log is correct
-            if self.currentPlot.h_log[idx] == False:
-                self.currentPlot.histo_log.setChecked(False)
-                self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(False)
-            else:
-                self.currentPlot.histo_log.setChecked(True)
-                self.wTab.wPlot[self.wTab.currentIndex()].histo_log.setChecked(True)
+        if self.currentPlot.isEnlarged == False: # entering enlarged mode
+            self.logger.debug('on_dblclick - isEnlarged TRUE')
+            if name is "empty" or index == -1:
+                self.logger.warning('on_dblclick - empty axes cannot enlarge')
+                return
+            self.removeRectangle()
+            #important that zoomPlotInfo is set only while in zoom mode (not None only here)
+            self.setEnlargedSpectrum(idx, name)
+            self.currentPlot.next_plot_index = self.currentPlot.selected_plot_index
+            self.currentPlot.isEnlarged = True
             # disabling adding histograms
             self.wConf.histo_geo_add.setEnabled(False)
+            # disabling changing canvas layout
+            self.wConf.histo_geo_row.setEnabled(False)
+            self.wConf.histo_geo_col.setEnabled(False)
             # enabling gate creation
-            self.currentPlot.createSRegion.setEnabled(True)
             self.wConf.createGate.setEnabled(True)
-            self.wConf.editGate.setEnabled(True)
-            if (DEBUG):
-                print("inside dblclick: self.selected_plot_index",idx )
-            # backing up list of histogram
-            self.currentPlot.h_dict_bak = self.currentPlot.h_dict.copy()
             # plot corresponding histogram
-            if (DEBUG):
-                print("plot the histogram at index", idx, "with name", (self.currentPlot.h_dict[idx])["name"])
             self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]= deepcopy(idx)
+
+            # print("Simon - in dbl_click before reseet canvas - ", self.getSpectrumInfo("spectrum", index=idx).axes.get_xlim())
+            # self.axesChilds()
+
+            #setup single pad canvas
+            self.currentPlot.InitializeCanvas(1,1,False)
+
+            # print("Simon - in dbl_click before reseet canvas - ", self.getSpectrumInfo("spectrum", index=idx).axes.get_xlim())
+
+
+            self.add(idx)
             self.updatePlot()
-
-            #Reset colorbar dictionary for replot when back from zoom mode
-            self.currentPlot.cbar = {key: False for key, value in self.currentPlot.cbar.items()}
-
         else:
+            self.logger.debug('on_dblclick - isEnlarged FALSE')
             # enabling adding histograms
             self.wConf.histo_geo_add.setEnabled(True)
-            if self.currentPlot.toCreateGate == True or self.currentPlot.toCreateSRegion == True:
-                if (DEBUG):
-                    print("Fixing index before closing the gate")
-                    print(idx,"has to be",self.wTab.selected_plot_index_bak[self.wTab.currentIndex()])
-                    print("Before histo name", self.wConf.histo_list.currentText())
-                # fixing the correct index
-                if self.currentPlot.h_dict_geo[0] == "empty":
-                    self.currentPlot.h_dict_geo = deepcopy(self.wTab.h_dict_geo_bak[self.wTab.currentIndex()])
-                if (DEBUG):
-                    print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-                name = self.currentPlot.h_dict_geo[self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]]
-                index = self.wConf.histo_list.findText(name)
-                if (DEBUG):
-                    print("histogram",name,"has index", index)
-                self.wConf.histo_list.setCurrentIndex(index)
-                self.updateHistoInfo(name)
-                if (DEBUG):
-                    print("Now histo name", self.wConf.histo_list.currentText())
-                ax = plt.gca()
-                histo_name = self.wConf.histo_list.currentText()
-                gate_name = ""
-                if self.currentPlot.toCreateGate == True:
-                    gate_name = self.wConf.listGate.currentText()
-                else:
-                    gate_name = self.currentPlot.region_name
-                #Simon - added try to be able to exit the if statment if dble click right after created a gate
+            # enabling changing canvas layout
+            self.wConf.histo_geo_row.setEnabled(True)
+            self.wConf.histo_geo_col.setEnabled(True)
 
-                try :
-                    if self.wConf.button1D.isChecked():
-                        if (DEBUG):
-                            print("Closing 1D gating")
+            # disabling gate creation
+            self.wConf.createGate.setEnabled(False)
 
-                        #Simon - added following because xs size can be 1 if double click before drawing a second line (single click)
-                        if len(self.currentPlot.xs)==1:
-                            click = [int(float(event.xdata)), int(float(event.ydata))]
-                            l = self.addLine(click[0])
-                            self.currentPlot.listLine.append(l)
-                            self.currentPlot.canvas.draw()
-                        elif len(self.currentPlot.xs)==0:
-                            QMessageBox.about(self, "Warning", "Please do only one click to start creating the gate.")
-                            self.deleteGate()
-                            raise
+            #important that zoomPlotInfo is set only while in zoom mode (None only here)
+            #tempIdxEnlargedSpectrum is used to draw back the dashed red rectangle, which pad was enlarged
+            tempIdxEnlargedSpectrum = self.getEnlargedSpectrum()[0]
+            self.setEnlargedSpectrum(None, None)
+            self.currentPlot.isEnlarged = False
 
-                        self.currentPlot.xs.sort()
-                        artist1D = {}
-                        #adding to list of gates for redrawing
-                        artist1D[gate_name] = [deepcopy(self.currentPlot.xs[0]), deepcopy(self.currentPlot.xs[1])]
-                        if (DEBUG):
-                            print("artist1D for ", gate_name, "in", histo_name)
-                        if self.currentPlot.toCreateGate == True:
-                            if histo_name in self.currentPlot.artist_dict:
-                                self.currentPlot.artist_dict[histo_name][gate_name] = artist1D[gate_name]
-                            else:
-                                self.currentPlot.artist_dict[histo_name] = {gate_name : artist1D[gate_name]}
-                            # push gate to spectcl via PyREST
-                            self.formatLinetoREST(deepcopy(self.currentPlot.xs))
-                        else:
-                            if (DEBUG):
-                                print("Time to save the 1D summing region into a dictionary...")
+            canvasLayout = self.wTab.layout[self.wTab.currentIndex()]
+            self.logger.debug('on_dblclick - canvasLayout: %s',canvasLayout)
 
-                            if histo_name in self.currentPlot.region_dict:
-                                self.currentPlot.region_dict[histo_name][gate_name] = artist1D[gate_name]
-                            else:
-                                self.currentPlot.region_dict[histo_name] = {gate_name : artist1D[gate_name]}
-                            if (DEBUG):
-                                print(self.currentPlot.region_dict)
-                            self.formatLinetoREST(deepcopy(self.currentPlot.xs))
-                            results = self.rest.integrateGate(histo_name, gate_name)
-                            self.addRegion(histo_name, gate_name, results)
-                            self.resPopup.show()
-
-                    else:
-                        if (DEBUG):
-                            print("Closing 2D gating")
-                            print(self.currentPlot.artist_dict)
-                            # print(self.currentPlot.histo_name)
-                            # print(self.currentPlot.artist_dict[histo_name])
-                        artist2D = {}
-                        self.currentPlot.xs.append(self.currentPlot.xs[-1])
-                        self.currentPlot.xs.append(self.currentPlot.xs[0])
-                        self.currentPlot.ys.append(self.currentPlot.ys[-1])
-                        self.currentPlot.ys.append(self.currentPlot.ys[0])
-                        # remove second-last point due to double click
-                        self.currentPlot.xs.pop(len(self.currentPlot.xs)-2)
-                        self.currentPlot.ys.pop(len(self.currentPlot.ys)-2)
-                        self.currentPlot.polygon.set_data(self.currentPlot.xs, self.currentPlot.ys)
-                        self.currentPlot.polygon.figure.canvas.draw()
-                        #adding to list of gates for redrawing
-                        artist2D[gate_name] = [deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys)]
-                        # Simon - comment this debug print because hnameErroristo does not exist
-                        if self.currentPlot.toCreateGate == True:
-                            if histo_name in self.currentPlot.artist_dict:
-                                self.currentPlot.artist_dict[histo_name][gate_name] = artist2D[gate_name]
-                            else:
-                                self.currentPlot.artist_dict[histo_name] = {gate_name : artist2D[gate_name]}
-                            if (DEBUG):
-                                print(self.currentPlot.artist_dict)
-                                # push gate to spectcl via PyREST
-                            self.formatLinetoREST(deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys))
-                        else:
-                            if (DEBUG):
-                                print("Time to save the 2D summing region into a dictionary...")
-                            if histo_name in self.currentPlot.region_dict:
-                                self.currentPlot.region_dict[histo_name][gate_name] = artist2D[gate_name]
-                            else:
-                                self.currentPlot.region_dict[histo_name] = {gate_name : artist2D[gate_name]}
-                            if (DEBUG):
-                                print(self.currentPlot.region_dict)
-                            # push gate to spectcl via PyREST
-                            self.formatLinetoREST(deepcopy(self.currentPlot.xs), deepcopy(self.currentPlot.ys))
-                            results = self.rest.integrateGate(histo_name, gate_name)
-                            self.addRegion(histo_name, gate_name, results)
-                            self.resPopup.show()
-                except:
-                    pass
-                if (DEBUG):
-                    print("Exiting gating mode...")
-                    print(self.currentPlot.artist_dict)
-                    print(self.currentPlot.region_dict)
-                # exiting gating mode
-                self.currentPlot.toCreateSRegion = False
-                self.currentPlot.toCreateGate = False
-            else:
-                if (DEBUG):
-                    print("##### Exiting zooming mode...")
-                self.currentPlot.isZoomed = False
-                # disabling gate creation
-                self.currentPlot.createSRegion.setEnabled(False)
-                self.wConf.createGate.setEnabled(False)
-                self.wConf.editGate.setEnabled(False)
-                if (DEBUG):
-                    #following self.h_setup deos not work, prevent retruning to unzoomed view
-                    #print("Reinitialization self.h_setup", self.h_setup)
-                    print("original geometry", self.currentPlot.old_row, self.currentPlot.old_col)
-
-                #draw the back the original canvas
-                self.currentPlot.InitializeCanvas(self.currentPlot.old_row, self.currentPlot.old_col, False)
-                if (DEBUG):
-                    print("Ready to reload the multipanel", self.currentPlot.h_dict)
-                n = self.currentPlot.old_row*self.currentPlot.old_col
-                self.currentPlot.h_setup = {k: True for k in range(n)}
-                self.currentPlot.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
-                self.updatePlot()
-        t=None
-
-
-    def get_key(self, val):
-        return next((key for key, value in self.currentPlot.h_dict.items() if any(val == value2 for value2 in value.values())), None)
-
-    #Simon - to show gates on all clones of a plot
-    def get_keylst(self, val):
-        keys = list(self.currentPlot.h_dict.keys())
-        keylst = []
-        for key in keys:
-            if val in self.currentPlot.h_dict[key].values():
-                keylst.append(key)
-        return keylst
-
-    def zoomCallback(self, event):
-        if (DEBUG):
-            print("Clicked zoomCallback in tab", self.wTab.currentIndex())
-        try:
-            self.updatePlotLimits()
-
-        except:
-            pass
-
-    def homeCallback(self, event):
-        if (DEBUG):
-            print("Clicked homeCallback in tab", self.wTab.currentIndex())
-        try:
-            print(self.wConf.histo_list)
-            name = str(self.wConf.histo_list.currentText())
-            index = self.get_key(name)
-            self.resetAxisLimits(index)
+            #draw back the original canvas
+            self.currentPlot.InitializeCanvas(canvasLayout[0], canvasLayout[1], False)
+            # self.currentPlot.selected_plot_index = None # this will allow to call drawGate and loop over all the gates
+            for index, name in self.getGeo().items():
+                if name is not None and name != "" and name != "empty":
+                    self.add(index)
+                    ax = self.getSpectrumInfo("axis", index=index)
+                    self.plotPlot(index)
+                    #reset the axis limits as it was before enlarge
+                    #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
+                    dim = self.getSpectrumInfoREST("dim", index=index)
+                    if dim == 1:
+                        self.setAxisScale(ax, index, "x", "y")
+                    elif dim == 2:
+                        self.setAxisScale(ax, index, "x", "y", "z")
+                    self.drawGate(index)
+            #drawing back the dashed red rectangle on the unenlarged spectrum
+            self.removeRectangle()
+            self.currentPlot.recDashed = self.createDashedRectangle(self.currentPlot.figure.axes[tempIdxEnlargedSpectrum])
+            #self.updatePlot() #replaced by the content of updatePlot in the above for loop (avoid looping twice)
+            self.currentPlot.figure.tight_layout()
+            # self.drawAllGates()
             self.currentPlot.canvas.draw()
-            #Simon - added
-            self.currentPlot.isZoomCallback = False
-            self.currentPlot.isZoomInOut = False
-        except:
-            pass
 
+
+    #obselete
+    # def get_key(self, val):
+    #     return next((key for key, value in self.currentPlot.h_dict.items() if any(val == value2 for value2 in value.values())), None)
+
+
+    #callback for exitButton
     def closeAll(self):
+        self.logger.info('closeAll')
+        self.restThreadFlag = False
         self.close()
 
+
     def doubleclickedTab(self, index):
+        self.logger.info('doubleclickedTab')
+        #For now, if change tab while working on gate, close any ongoing gate action
+        if self.currentPlot.toCreateGate or self.currentPlot.toEditGate or self.gatePopup.isVisible():
+            self.cancelGate()
+
         self.tabp.setWindowTitle("Rename tab...")
         self.tabp.setGeometry(200,350,100,50)
         if self.tabp.isVisible():
             self.tabp.close()
 
         self.tabp.show()
+
 
     def okTab(self):
         txt = self.wTab.tabText(self.wTab.currentIndex())
@@ -710,38 +1129,2099 @@ class MainWindow(QMainWindow):
         self.tabp.lineedit.setText("")
         self.tabp.close()
 
+
     def cancelTab(self):
         self.tabp.close()
 
+    
     def clickedTab(self, index):
-        if (DEBUG):
-            print("Clicked tab", index, "with name", self.wTab.tabText(index))
+        self.logger.info('clickedTab - index: %s',index)
+
+        #For now, if change tab while working on gate, close any ongoing gate action
+        if self.currentPlot.toCreateGate or self.currentPlot.toEditGate or self.gatePopup.isVisible():
+            self.cancelGate()
+            return
+
         self.wTab.setCurrentIndex(index)
 
-        if (DEBUG):
-            print("verification tab index", self.wTab.currentIndex())
         try:
-            if self.wTab.tabText(index) != "+":
-                self.currentPlot = self.wTab.wPlot[self.wTab.currentIndex()]
-                if (DEBUG):
-                    print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-                    print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-                    print("self.currentPlot.h_limits",self.currentPlot.h_limits)
-                    print("self.currentPlot.h_log",self.currentPlot.h_log)
-                    print("self.currentPlot.h_setup",self.currentPlot.h_setup)
-                    print("self.currentPlot.isLoaded", self.currentPlot.isLoaded)
-                    print("Histo dimensions", self.currentPlot.old_row, self.currentPlot.old_col)
-                    print("Histo dimensions index", self.currentPlot.old_row_idx, self.currentPlot.old_col_idx)
-                    print("Inside clickedTab: row.currentText(), col.currentText()",
-                          int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText()))
-                self.wConf.histo_geo_row.setCurrentIndex(self.currentPlot.old_row_idx)
-                self.wConf.histo_geo_col.setCurrentIndex(self.currentPlot.old_col_idx)
+            self.currentPlot = self.wTab.wPlot[index]
+            nRow = self.wTab.layout[index][0]
+            nCol = self.wTab.layout[index][1]
+            self.logger.debug('clickedTab - canvas layout: %s, %s',nRow, nCol)
+
+            #nRow-1 because nRow (nCol) is the number of row and the following sets an index starting at 0
+            self.wConf.histo_geo_row.setCurrentIndex(nRow-1)
+            self.wConf.histo_geo_col.setCurrentIndex(nCol-1)
+
+            #enable/disable some widgets depending if enlarge mode of not, flags set also in on_dblclick 
+            self.wConf.histo_geo_add.setEnabled(not self.currentPlot.isEnlarged)
+            self.wConf.histo_geo_row.setEnabled(not self.currentPlot.isEnlarged)
+            self.wConf.histo_geo_col.setEnabled(not self.currentPlot.isEnlarged)
+            self.wConf.createGate.setEnabled(self.currentPlot.isEnlarged)
+            self.removeRectangle()
             self.bindDynamicSignal()
-            self.create_gate_list()
+        except:
+            self.logger.debug('clickedTab - exception occured', exc_info=True)
+            pass
+
+
+    #set geometry of the canvas
+    def setCanvasLayout(self):
+        self.logger.info('setCanvasLayout')
+        indexTab = self.wTab.currentIndex()
+        nRow = int(self.wConf.histo_geo_row.currentText())
+        nCol = int(self.wConf.histo_geo_col.currentText())
+        self.wTab.layout[indexTab] = [nRow, nCol]
+        self.wTab.wPlot[indexTab].InitializeCanvas(nRow, nCol)
+        self.wTab.selected_plot_index_bak[indexTab] = None
+        self.currentPlot.selected_plot_index = None
+        self.currentPlot.next_plot_index = -1
+
+
+
+    ###############################################
+    # 5) Connection to REST for gates
+    ##
+    #############################################
+
+
+    #callback for the configuration popup of REST/MIRROR ports
+    def connectPopup(self):
+        self.logger.info('callback connectPopup')
+        self.connectConfig.show()
+
+
+    #callback to close configuration popup
+    def closeConnect(self):
+        self.logger.info('closeConnect callback')
+        self.connectConfig.close()
+
+
+    #callback to attempt a connection to REST/MIRROR
+    def okConnect(self):
+        self.logger.info('okConnect')
+        self.connectShMem()
+        self.closeConnect()
+
+    #called in okGate, if was adding a new gate the pushed gate is gatePopup.listRegionLine
+    #if was editing a gate, the pushed gate is based on the gatePopup.regionPoint text
+    def pushGateToREST(self, gateName, gateType):
+        self.logger.info('pushGateToREST')
+        if gateName is None or gateName == "None" :
+            self.logger.debug('pushGateToREST - gateName is None or gateName == "None"')
+            return
+
+        dim = self.getSpectrumInfo("dim", index=self.gatePopup.gateSpectrumIndex)
+        parameters = self.getSpectrumInfoREST("parameters", index=self.gatePopup.gateSpectrumIndex)
+        spectrumType = self.getSpectrumInfoREST("type", index=self.gatePopup.gateSpectrumIndex)
+
+        # special case for gd the spectrum parameters do not match with the gate definition
+        if spectrumType == "gd" :
+            parametersFormat = []
+            for item in parameters:
+                pars = item.split(' ')
+                if len(pars) == 2:
+                    parametersFormat.append(pars[0])
+                    parametersFormat.append(pars[1])
+            parameters = parametersFormat
+
+        # special case for m2 (passed as a + gate of sub gates), parameters are sub gates name made on pairs of spectrum parameters
+        if spectrumType == "m2" :
+            parametersFormat = {}
+            if len(parameters) % 2 == 0:
+                pass
+            else:
+                #discard last parameter if not even count (possible case?)
+                parameters = parameters[:-1]
+            countPar = 0
+            for ipar in range(0, len(parameters), 2):
+                par1 = parameters[ipar]
+                par2 = parameters[ipar + 1]
+                dumNum1 = str(10 + countPar + 1)
+                dumNum2 = str(10 + countPar + 2)
+                countPar += 2
+                nameSubGate = "_" + gateName + "." + dumNum1 + "." + dumNum2 + ".000"
+                parametersFormat[nameSubGate] = [par1, par2]
+        if len(parameters) == 0:
+            return
+
+        boundaries = []
+        # set boundaries from the point text in gatePopup 
+        if self.currentPlot.toEditGate:
+            #points for 1d: [x0, x1] and for 2d:  [[x0, y0], [x1, y1], ...]
+            points = self.formatGatePopupPointText(dim)
+            if points is None :
+                return
+            if dim == 1:
+                boundaries = points 
+            elif dim == 2:
+                for point in points:
+                    boundaries.append({"x": point[0], "y": point[1]})
+        else:
+            if len(self.gatePopup.listRegionLine) == 0:
+                return
+            if dim == 1:
+                if gateType in ["s", "gs"] :
+                    # gate 1Dgate_xamine s {aris.db1.ppac0.uc {1392.232056 1665.277466}}
+                    boundaries = [self.gatePopup.listRegionLine[0].get_xdata()[0],self.gatePopup.listRegionLine[1].get_xdata()[0]]
+                    # sort such that lowest first
+                    if boundaries[0] > boundaries[1]:
+                        boundaries.sort()
+                        self.logger.warning('pushGateToREST - 1d - found boundaries[0] > boundaries[1] so sorted the boundaries')
+            else:
+                #{'2Dgate_xamine': {'name': '2Dgate_xamine', 'type': 'c',
+                # 'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
+                # 'points': [{'x': 126.876877, 'y': 29.429428}, {'x': 125.625626, 'y': 25.825825},
+                #            {'x': 126.626625, 'y': 22.522522}, {'x': 129.879883, 'y': 22.522522}, {'x': 130.63063, 'y': 26.126125}, {'x': 129.629623, 'y': 29.129128}]
+                #}}
+                for iline, line in enumerate(self.gatePopup.listRegionLine):
+                    if line.get_label() is not "closing_segment":
+                        #Add both points of the first line to boundaries
+                        if iline == 0 :
+                            for ipoint in range(2):
+                                boundaries.append({"x": line.get_xdata()[ipoint], "y": line.get_ydata()[ipoint]})
+                        #Add only the last point to boundaries
+                        else :
+                            boundaries.append({"x": line.get_xdata()[1], "y": line.get_ydata()[1]})
+
+         # special case for m2 (passed as a + gate of sub gates), parameters are sub gates name made on pairs of spectrum parameters
+        if spectrumType == "m2" :
+            #push individual gates
+            for name, par in parametersFormat.items():
+                self.rest.createGate(name, gateType, par, boundaries)
+            #push the combined gate 
+            subGateNameList = []
+            for subGateName in parametersFormat.keys() :
+                subGateNameList.append(subGateName)
+            self.rest.createGate(gateName, "+", subGateNameList, None)
+        else :
+            self.rest.createGate(gateName, gateType, parameters, boundaries)
+
+
+    # format gatePopup.regionPoint into (1d) [x0, x1, ...] or (2d) [[x0, y0], [x1, y1], ...]
+    def formatGatePopupPointText(self, dim):
+        self.logger.info('formatGatePopupPointText - dim: %s',dim)
+        points = []
+        pointDict = {}
+        #first split when new lines
+        textBlockLines = self.gatePopup.regionPoint.toPlainText().split("\n")
+        #loop on each line
+        for line in textBlockLines:
+            #pass on blank line
+            if not line :
+                continue
+            #get first number from left in the lines 
+            pointId = re.search(r'\d+', line)
+            if not pointId:
+                self.logger.warning('formatGatePopupPointText - Expect a point number before X (and Y) at beginning of a line')
+                return None
+            #pointId must be unique
+            if int(pointId.group()) in pointDict.keys():
+                self.logger.warning('formatGatePopupPointText - Expect unique point number: %s', int(pointId.group()))
+                return None 
+            pointId = int(pointId.group())
+            #get first number between X and Y (X position) and first number from Y (Y position)
+            posX = re.search(r'X(\s*[=]\s*)([-+]?(?:\d*\.*\d+))', line)
+            if dim == 1 and not posX:
+                self.logger.warning('formatGatePopupPointText - 1d spectrum - Line format is: i: X=f1 where i is integer and f1, f2 floats (no sci notation)')
+                return None 
+            try:
+                posX = float(posX.group(2))
+            except:
+                self.logger.debug('formatGatePopupPointText - exception ', exc_info=True)
+                return None
+            pointDict[pointId] = posX
+
+            posY = re.search(r'Y(\s*[=]\s*)([-+]?(?:\d*\.*\d+))', line)
+            if dim == 2 and not posY:
+                self.logger.warning('formatGatePopupPointText - 2d spectrum - Line format is: i: X=f1 Y=f2 where i is integer and f1, f2 floats (no sci notation)')
+                return None 
+            elif dim == 2 and posY:
+                posY = float(posY.group(2))
+                pointDict[pointId] = [posX, posY]
+
+        #Order dict with pointId, so that pointId doesn't have to follow line index
+        pointDict = {key:pointDict[key] for key in sorted(pointDict)}
+        #Fill points with the format used in pushGateToRest
+        if dim == 1:
+            #Take only the two last values
+            points = [val for key, val in pointDict.items()]
+            points = points[-2:]
+        elif dim == 2:
+            for point in pointDict.values():
+                points.append([point[0], point[1]])
+
+        return points
+
+
+    #Start ReST traces on a separated thread
+    #Check for traces updates (poll) periodically, with period time < retention time.
+    def restThread(self, retention):
+        self.token = self.rest.startTraces(retention)
+        if self.token is None:
+            return
+        self.restThreadFlag = True
+        # self.updateStatusBar()
+        # self.topMenu.setConnectSatus(self.restThreadFlag)
+        self.wConf.connectButton.setStyleSheet("background-color:#bcee68;")
+        self.wConf.connectButton.setText("Connected")
+
+        while self.restThreadFlag:
+            #Sleep time < retention to avoid loosing information
+            # time.sleep(3)
+            time.sleep(retention/2)
+            tracesDetails = self.rest.pollTraces(self.token)
+            if tracesDetails is None :
+                break
+            self.updateFromTraces(tracesDetails)
+        self.wConf.connectButton.setStyleSheet("background-color:rgb(252, 48, 3);")
+        self.wConf.connectButton.setText("Disconnected")
+
+
+    #Excecuted periodially (period defined in restThread)
+    #Update various list and dict according to the trace.
+    def updateFromTraces(self, tracesDetails):
+        self.logger.info('updateFromTraces - tracesDetails: %s',tracesDetails)
+        t_para = tracesDetails.get("parameter")
+        t_spec = tracesDetails.get("spectrum")
+        t_gate = tracesDetails.get("gate")
+        t_bind = tracesDetails.get("binding")
+        if len(t_bind) > 0:
+            for str in t_bind:
+                action, name, bindingIdx = str.split(" ") #list with 3 items: add/remove histoName bindingIndex
+                if action == "remove" and name in self.getSpectrumInfoRESTDict():
+                    #if only "remove" action, want to clear axis, update the spectrum and summing region dictionnaries
+                    # if len(t_bind) == 1:
+                    #     self.removeSpectrum(name=name, mode="definitive")
+                    #     self.updateSpectrumList()
+                    #     self.refreshSpectrumSumRegionDict()
+                    # else:
+                    #     self.removeSpectrum(name=name, mode="update")
+                    #     self.updateSpectrumList()
+                    #For now dont ditinguish if it is just an update or definitive removal
+                    #had trouble redrawing efficiently the updated spectrum, see comments at end of action=="add"
+                    self.removeSpectrum(name=name, mode="definitive")
+                    self.updateSpectrumList()
+                    self.refreshSpectrumSumRegionDict()
+                elif action == "add" and name not in self.getSpectrumInfoRESTDict():
+                    #get spectrum info from ReST but not the data, need to query shmem for that (connect button).
+                    #dont need to check the binding, given the definition of this trace...
+                    info = self.rest.listSpectrum(name)
+                    #info[0] because expect only one element in the list with the name filter
+
+                    #get the data in shmem ... maybe not the best to do it here
+                    #server info are already checked at this point
+                    hostname = self.connectConfig.server.text()
+                    port = self.connectConfig.rest.text()
+                    user = self.connectConfig.user.text()
+                    mirror = self.connectConfig.mirror.text()
+                    s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'), bytes(mirror, encoding='utf-8'), bytes(user, encoding='utf-8'))
+                    data = []
+                    binx = info[0]["axes"][0]["bins"]
+                    minx = info[0]["axes"][0]["low"]
+                    maxx = info[0]["axes"][0]["high"]
+                    if "1" in info[0]["type"] or "b" in info[0]["type"] or "g1" in info[0]["type"] or "s" in info[0]["type"] :
+                        dim = 1
+                        biny = miny = maxy = None
+                        nameIndex = s[1].index(name)
+                        try :
+                            data = s[9][nameIndex][0:-1]
+                            data[0] = 0
+                        except:
+                            debugstring = "updateFromTraces - nameIndex not in shmem np array for :" + name
+                            self.logger.debug(debugstring, exc_info=True)
+                            # print("updateFromTraces - nameIndex not in shmem np array for : ", name)
+                        self.setSpectrumInfoREST(name, dim=dim, binx=binx, minx=minx, maxx=maxx, biny=biny, miny=miny, maxy=maxy, parameters=info[0]["parameters"], type=info[0]["type"], data=data)
+                    else :
+                        dim = 2
+                        biny = info[0]["axes"][1]["bins"]
+                        miny = info[0]["axes"][1]["low"]
+                        maxy = info[0]["axes"][1]["high"]
+                        nameIndex = s[1].index(name)
+                        try :
+                            data = s[9][nameIndex][1:-1, 1:-1]
+                        except:
+                            debugstring = "updateFromTraces - nameIndex not in shmem np array for :" + name
+                            self.logger.debug(debugstring, exc_info=True)
+                            # print("updateFromTraces - nameIndex not in shmem np array for : ", name)
+                        self.setSpectrumInfoREST(name, dim=dim, binx=binx, minx=minx, maxx=maxx, biny=biny, miny=miny, maxy=maxy, parameters=info[0]["parameters"], type=info[0]["type"], data=data)
+                    self.updateSpectrumList()
+                    #update an existing spectrum definition (binning, parameters...)
+                    #this part is not working properly, need to correct if this is really needed
+                    # if len(t_bind) == 2:
+                    #     for plotVal in self.wTab.wPlot.values():
+                    #         idx_to_update = [key for key, value in plotVal.h_dict_geo.items() if name in value]
+                    #         print("Simon - removeSpectrum idx_to_update-",  idx_to_update)
+                    #         # trick, set temporarily currentPlot to plotVal, because currentPlot is used in add 
+                    #         self.currentPlot = plotVal
+                    #         for plotIdx in idx_to_update:
+                    #             self.add(plotIdx)
+                    #     self.currentPlot = self.wTab.wPlot[self.wTab.currentIndex()]
+                else:
+                    return 
+
+
+    #Set spectrum info from ReST in spectrum_dict_rest (identified by histo name and can update multiple info at once)
+    #self.spectrum_dict_rest is used to keep track of the treegui definition (fixed) 
+    def setSpectrumInfoREST(self, name, **info):
+        self.logger.info('setSpectrumInfoREST - name, info: %s, %s',info, name)
+        for key, value in info.items():
+            if key in ("dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type"):
+                if name not in self.spectrum_dict_rest:
+                    self.spectrum_dict_rest[name] = {"dim":[],"binx":[],"minx":[],"maxx":[],"biny":[],"miny":[],"maxy":[],"data":[],"parameters":[],"type":[]}
+                # print("Simon - setSpectrumInfoREST - name key value",name,key,value)
+                self.spectrum_dict_rest[name][key] = value
+
+
+    #Get spectrum info from spectrum_dict_rest (identified by histo name or index and info name)
+    #template of expected arguments e.g.: ("dim", index=5) takes only the first info parameter (here "dim") (one per call)
+    #Important that it gets only the info from self.spectrum_dict_rest here.
+    def getSpectrumInfoREST(self, *info, **identifier):
+        # self.logger.info('getSpectrumInfoREST - info, identifier: %s, %s',info, identifier)
+        name = None
+        if not identifier and self.getEnlargedSpectrum():
+            name = self.getEnlargedSpectrum()[1]
+        elif "index" in identifier:
+            name = self.nameFromIndex(identifier["index"])
+        elif "name" in identifier:
+            name = identifier["name"]
+        else:
+            self.logger.debug('getSpectrumInfoREST - wrong identifier - expects name=histo_name or index=histo_index or shoud be in zoomed mode')
+            # print("getSpectrumInfo - wrong identifier - expects name=histo_name or index=histo_index or shoud be in zoomed mode")
+            return
+        if name is not None and name in self.spectrum_dict_rest and info[0] in ("dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type"):
+            # print("Simon - getSpectrumInfoREST - ",name,info[0],self.spectrum_dict_rest[name][info[0]])
+            return self.spectrum_dict_rest[name][info[0]]
+        else:
+            return
+
+
+    #Update spectrum info in spectrum_dict (identified by index and can update multiple info at once)
+    #Important that only self.wTab.spectrum_dict is changed here
+    #work in normal and enlarged mode
+    def setSpectrumInfo(self, **info):
+        self.logger.info('setSpectrumInfo - info: %s',info)
+        name = None
+        index = None
+        if self.getEnlargedSpectrum():
+            index = self.getEnlargedSpectrum()[0]
+            name = self.getEnlargedSpectrum()[1]
+        elif "index" in info:
+            index = info["index"]
+            name = self.nameFromIndex(info["index"])
+        # commented the following option because can have several versions of the same plot in a window (name not a unique id)
+        # elif "name" in info:
+        #     name = info["name"]
+        else:
+            self.logger.debug('setSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode')
+            # print("setSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode")
+            return
+        # print("Simon - setSpectrumInfo - ", index,name,info["index"])
+        for key, value in info.items():
+            if key in ("name", "dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type", "log", "minz", "maxz", "spectrum", "axis", "cutoff") and index is not None:
+                if index not in self.wTab.spectrum_dict[self.wTab.currentIndex()]:
+                    # print("setSpectrumInfo -",name,"not in spectrum_dict")
+                    self.logger.debug('setSpectrumInfo - %s not in spectrum_dict', name)
+                    return
+                    # self.wTab.spectrum_dict[self.wTab.currentIndex()][name] = {"dim":[],"binx":[],"minx":[],"maxx":[],"biny":[],"miny":[],"maxy":[],"data":[],"parameters":[],"type":[],"log":[],"minz":[],"maxz":[]}
+                self.wTab.spectrum_dict[self.wTab.currentIndex()][index][key] = value
+                # print("Simon - setSpectrumInfo -",index, self.wTab.spectrum_dict[self.wTab.currentIndex()], self.wTab.spectrum_dict[self.wTab.currentIndex()][index])
+                #set axes info at the same time than spectrum
+                if key == "spectrum":
+                    self.wTab.spectrum_dict[self.wTab.currentIndex()][index]["axis"] = value.axes
+
+
+    #Get spectrum info from spectrum_dict (identified by index and info name)
+    #template of expected arguments e.g.: ("dim", index=5) takes only the first info parameter (here "dim") (one per call)
+    #Important that it gets only the info from self.wTab.spectrum_dict[self.wTab.currentIndex()] here.
+    #work in normal and enlarged mode
+    def getSpectrumInfo(self, *info, **identifier):
+        self.logger.info('getSpectrumInfo - info, identifier: %s, %s', info, identifier)
+        name = None
+        index = None
+        if self.getEnlargedSpectrum():
+            index = self.getEnlargedSpectrum()[0]
+            # name = self.getEnlargedSpectrum()[1]
+        elif "index" in identifier:
+            index = identifier["index"]
+            # name = self.nameFromIndex(identifier["index"])
+        # commented the following option because can have several versions of the same plot in a window (name not a unique id)
+        # elif "name" in identifier:
+        #     name = identifier["name"]
+        else:
+            self.logger.debug('getSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode')
+            # print("getSpectrumInfo - wrong identifier - expects index=histo_index or shoud be in zoomed mode")
+            return
+        if index is not None and index in self.wTab.spectrum_dict[self.wTab.currentIndex()] and info[0] in ("name", "dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type", "log", "minz", "maxz", "spectrum", "axis", "cutoff"):
+        # if index is not None and info[0] in ("name", "dim", "binx", "minx", "maxx", "biny", "miny", "maxy", "data", "parameters", "type", "log", "minz", "maxz"):
+            # print("Simon - in getSpectrumInfo - ",self.wTab.currentIndex(), index, info[0])
+            return self.wTab.spectrum_dict[self.wTab.currentIndex()][index][info[0]]
+
+
+    #Remove spectrum from self.wTab.spectrum_dict:
+    #important: only functions that delete item in spectrum_dict and spectrum_dict_rest
+    #important: should not be triggered by user, for now used only in updateFromTraces, because of the way it deletes local spectrumInfo entries.
+    def removeSpectrum(self, **identifier):
+        self.logger.info('removeSpectrum - identifier: %s', identifier)
+        name = None
+        mode = None
+        if "index" in identifier:
+            name = self.nameFromIndex(identifier["index"])
+        elif "name" in identifier:
+            name = identifier["name"]
+        if "mode" in identifier:
+            mode = identifier["mode"]
+        if name is None :
+            self.logger.debug('removeSpectrum - wrong identifier - expects name=histo_name or index=histo_index')
+            # print("removeSpectrum - wrong identifier - expects name=histo_name or index=histo_index")
+            return
+        # in spectrumInfoReST dict can only have unique spectrum
+        del self.spectrum_dict_rest[name]
+    
+        # in local spectrumInfo dict can have multiple spectra with the same name
+        # dont use indexFromName because wont work properly when delete while in enlarged mode
+        # also want to clear the corresponding axes in all tabs
+        for tabIdx, plotVal in self.wTab.wPlot.items():
+            to_delete = [key for key, value in plotVal.h_dict_geo.items() if name in value]
+            for key in to_delete:
+                if key in self.wTab.spectrum_dict[tabIdx]:
+                    spectrum = self.wTab.spectrum_dict[tabIdx][key]["spectrum"]
+                    #clear axis, remove colorbar and update in the geometry if mode="definitive"
+                    if mode == "definitive":
+                        ax = spectrum.axes
+                        self.removeCb(ax)
+                        ax.clear()
+                        plotVal.h_dict_geo[key] = "empty"
+                    del spectrum
+
+
+    #get full spectrum dict self.wTab.spectrum_dict:
+    def getSpectrumInfoDict(self):
+        return self.wTab.spectrum_dict[self.wTab.currentIndex()]
+
+
+    #get full spectrum dict self.spectrum_dict_rest:
+    def getSpectrumInfoRESTDict(self):
+        return self.spectrum_dict_rest
+ 
+
+    #Find name with geo index:
+    def nameFromIndex(self, index):
+        # self.logger.info('nameFromIndex - index: %s', index)
+        #Can call getSpectrumInfo and setSpectrumInfo with an identifier but still check if in zoom mode,
+        #which is important for autoScaleAxis/setAxisScale
+        if self.getEnlargedSpectrum():
+            return self.getEnlargedSpectrum()[1]
+        elif index in self.currentPlot.h_dict_geo:
+            return self.currentPlot.h_dict_geo[index]
+
+
+    #Find index(es) in geo for spectrum name (returns a list)
+    def indexFromName(self, name):
+        self.logger.info('indexFromName - name: %s', name)
+        result = []
+        #Have to be careful that zoomPlotInfo is well sets all the time.
+        #Should have a value _only_while_ in enlarged mode
+        if self.getEnlargedSpectrum():
+            result = [0]
+        else:
+            result = [key for key, value in self.currentPlot.h_dict_geo.items() if name in value]
+        return result
+
+
+    #sets h_dict_geo {key=index, value=histoName}
+    #Use only this function to set the geometry dict when add plot (against using it elsewhere because it initializes spectrum_dict)
+    def setGeo(self, index, name):
+        self.logger.info('setGeo - index, name: %s, %s', index, name)
+        self.currentPlot.h_dict_geo[index] = name
+        #Set also here the spectrum_dict with only the spectra defined in the geo
+        if index not in self.wTab.spectrum_dict[self.wTab.currentIndex()]:
+            self.wTab.spectrum_dict[self.wTab.currentIndex()][index] = {"name":[], "dim":[],"binx":[],"minx":[],"maxx":[],"biny":[],"miny":[],"maxy":[],"data":[],"parameters":[],"type":[],"log":[],"minz":[],"maxz":[], "spectrum":[], "axis":[], "cutoff":[]}
+        self.wTab.spectrum_dict[self.wTab.currentIndex()][index]["name"] = name
+        #Initialize with the same info than in spectrum_dict_rest.
+        for key, value in self.spectrum_dict_rest[name].items():
+            self.wTab.spectrum_dict[self.wTab.currentIndex()][index][key] = value
+
+
+    #returns h_dict_geo {key=index, value=histoName}
+    #Use only this function to get the geometry dict, to know the name at index there is nameFromIndex
+    def getGeo(self):
+        return self.currentPlot.h_dict_geo
+
+
+    #attempt to use blit more generically (maybe for future)
+    # def saveCanvasBkg(self, axis, spectrum, index):
+    #     self.currentPlot.axbkg[index] = self.currentPlot.figure.canvas.copy_from_bbox(axis.bbox)
+    #     # axis.draw_artist(spectrum)
+    #     # self.currentPlot.figure.canvas.blit(axis.bbox)
+
+    # def restoreCanvasBkg(self, axis, spectrum, index):
+    #     axis.clear()
+    #     self.currentPlot.figure.canvas.restore_region(self.currentPlot.axbkg[index])
+    #     axis.draw_artist(spectrum)
+    #     self.currentPlot.figure.canvas.blit(axis.bbox)
+    #     self.currentPlot.figure.canvas.flush_events()
+
+        
+    def setEnlargedSpectrum(self, index, name):
+        self.logger.info('setEnlargedSpectrum')
+        self.wTab.zoomPlotInfo[self.wTab.currentIndex()] = None 
+        if index is not None and name is not None: 
+            self.wTab.zoomPlotInfo[self.wTab.currentIndex()] = [index, name]
+
+
+    def getEnlargedSpectrum(self):
+        # self.logger.info('getEnlargedSpectrum')
+        result = None
+        if self.wTab.zoomPlotInfo[self.wTab.currentIndex()] :
+            result = self.wTab.zoomPlotInfo[self.wTab.currentIndex()]
+        return result
+
+
+    #get histo name, type and parameters from REST
+    def getSpectrumInfoFromReST(self):
+        self.logger.info('getSpectrumInfoFromReST')
+        outDict = {}
+        inpDict = self.rest.listSpectrum()
+        bindList = self.rest.listsbind("*")
+        # Dictionary of bindings, keyed by spectrum name
+        bindings = {}
+        for d in bindList:
+            bindings[d["name"]] = d["binding"]
+        for el in inpDict:
+            if el["name"] in bindings:
+                outDict[el["name"]] = {
+                    "parameters": el["parameters"],
+                    "type": el["type"],
+                    "binding": bindings[el["name"]],
+                }
+            else:
+                pass
+        self.logger.info('getSpectrumInfoFromReST - return: %s', outDict)
+        return outDict
+
+
+    # update spectrum list for GUI, the widget histo_list is set only here
+    def updateSpectrumList(self, init=False):
+        self.logger.info('updateSpectrumList')
+        self.wConf.histo_list.clear()
+        self.wConf.histo_list.setEditText("")
+        #Sort because otherwise when ReST update the modified spectrum is append at the end of the list
+        for name in sorted(self.getSpectrumInfoRESTDict()):
+            if self.wConf.histo_list.findText(name) == -1:
+                self.wConf.histo_list.addItem(name)
+
+        if init:
+            self.wConf.histo_list.setEditable(True)
+            self.wConf.histo_list.setInsertPolicy(QComboBox.NoInsert)
+            self.wConf.histo_list.completer().setCompletionMode(QCompleter.PopupCompletion)
+            self.wConf.histo_list.completer().setFilterMode(QtCore.Qt.MatchContains)
+
+
+
+    #About the gates: unlike spectrum, there is no internal gate dictionnary 
+    #which means everytime one gets/sets gate info, one uses the ReST interface, like for the name here:
+    #return the gate name applied to a spectrum (identified by index or name)
+    def getAppliedGateName(self, **identifier):
+        # self.logger.info('getAppliedGateName')
+        spectrumName = None
+        if "index" in identifier:
+            spectrumName = self.nameFromIndex(identifier["index"])
+        elif "name" in identifier:
+            spectrumName = identifier["name"]
+        else:
+            self.logger.debug('getAppliedGateName - wrong identifier - expects name=histo_name or index=histo_index')
+            return
+        gate = self.rest.applylistgate(spectrumName)
+        if gate is None or len(gate) == 0:
+            self.logger.debug('getAppliedGateName - gate is None')
+            return 
+        #gate is a list with one dictionary [{'spectrum': 'spectrumName', 'gate': 'gateName'}]
+        gateName = gate[0]["gate"]
+        if gateName == "-TRUE-" or gateName == "-Ungated-":
+            return None 
+        else :
+            return gateName
+
+
+    #give spectrum index and line2D of summing region to fill sumRegionDict
+    def setSumRegion(self, index, line):
+        self.logger.info('setSumRegion')
+        if index is None : 
+            self.logger.debug('setSumRegion - index: %s', index)
+            return
+        labelSplit = line.get_label().split("_-_")
+        if len(labelSplit) == 3 and labelSplit[0] == "sumReg":
+            spectrumName = self.nameFromIndex(index)
+            if spectrumName not in self.sumRegionDict:
+                self.sumRegionDict[spectrumName] = [line]
+            else :
+                self.sumRegionDict[spectrumName].append(line)
+
+
+    #return list with summing regions drawn on the spectrum at index
+    def getSumRegion(self, index):
+        self.logger.info('getSumRegion - index: %s',index)
+        result = None
+        if index is None : 
+            return
+        spectrumName = self.nameFromIndex(index)
+        if spectrumName not in self.sumRegionDict:
+            pass
+        else :
+            result = self.sumRegionDict[spectrumName]
+        self.logger.info('getSumRegion - spectrumName, result: %s, %s', spectrumName, result)
+        return result
+
+
+    #delete summing region line2D in sumRegionDict, identified with label
+    def deleteSumRegionDict(self, labelSumRegion):
+        self.logger.info('deleteSumRegionDict - labelSumRegion: %s', labelSumRegion)
+        labelSplit = labelSumRegion.split("_-_")
+        if len(labelSplit) == 3 and labelSplit[0] == "sumReg":
+            for spectrumName, regionList in self.sumRegionDict.items():
+                for line in regionList:
+                    if line.get_label() == labelSumRegion:
+                        #remove all line2D with labelSumRegion in the entire currentPlot 
+                        for ax in self.currentPlot.figure.axes:
+                            toRemove = [child for child in ax.get_children() if isinstance(child, matplotlib.lines.Line2D) and child.get_label() == labelSumRegion]
+                            for linetoRemove in toRemove:
+                                linetoRemove.remove()
+                        #remove line from dict
+                        regionList.remove(line)
+    
+
+    #check if needs to delete a spectrumName key in sumRegionDict and all sumRegion associated
+    def refreshSpectrumSumRegionDict(self):
+        self.logger.info('refreshSpectrumSumRegionDict')
+        histoList = [self.wConf.histo_list.itemText(i) for i in range(self.wConf.histo_list.count())]
+        keyToDelete = []
+        for spectrumNameSumReg in self.sumRegionDict.keys():
+            if spectrumNameSumReg not in histoList:
+                #in principle there should not be line2D drawn so no need to delete those
+                keyToDelete.append(spectrumNameSumReg)
+        if len(keyToDelete) > 0:
+            for key in keyToDelete:
+                del self.sumRegionDict[key]
+
+
+
+    ##########################################
+    # 6) Accessing the ShMem
+    ##########################################
+
+
+    def connectShMem(self):
+        self.logger.info('connectShMem')
+        # trying to access the shared memory through SpecTcl Mirror Client
+        try:
+            # update host name and port, mirror port, and user name from GUI
+            hostname = str(self.connectConfig.server.text())
+            port = str(self.connectConfig.rest.text())
+            user = str(self.connectConfig.user.text())
+            mirror = str(self.connectConfig.mirror.text())
+            self.logger.debug('connectShMem - host: %s -- user: %s -- RESTPort: %s -- MirrorPort: %s', hostname, user, port, mirror)
+
+            # configuration of the REST plugin
+            self.rest = PyREST(self.logger,hostname,port)
+            self.restThreadFlag = False
+            self.wConf.connectButton.setStyleSheet("background-color:rgb(252, 48, 3);")
+            self.wConf.connectButton.setText("Disconnected")
+            # set traces
+            threadRest = threading.Thread(target=self.restThread, args=(6,))
+            threadRest.start()
+
+            # way to stop connectShMem, url checks are done on trace thread but if find issue it wont be communicated here
+            if self.rest.checkSpecTclREST() == False:
+                self.logger.debug('connectShMem - invalid URL for SpecTclREST')
+                return
+
+            timer1 = QElapsedTimer()
+            timer1.start()
+
+            s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'), bytes(mirror, encoding='utf-8'), bytes(user, encoding='utf-8'))
+
+            # creates a dataframe for spectrum info
+            # use the spectrum name to merge both sources (REST and shared memory) of spectrum info
+            # info = {"id":[],"names":[],"dim":[],"binx":[],"minx":[],"maxx":[],"biny":[],"miny":[],"maxy":[],"data":[],"parameters":[],"type":[]}
+
+            otherInfo = self.getSpectrumInfoFromReST()
+            for i, name in enumerate(s[1]):
+                if name in otherInfo:
+                    if s[2][i] == 2:
+                        data = s[9][i][ 1:-1, 1:-1]
+                    else:
+                        data = s[9][i][0:-1]
+                        data[0] = 0
+                    # print("Simon connectShMem ", s[3][i], s[4][i], s[5][i], s[6][i], s[7][i], s[8][i],otherInfo[name]["type"])
+                    self.setSpectrumInfoREST(name, dim=s[2][i], binx=s[3][i]-2, minx=s[4][i], maxx=s[5][i], biny=s[6][i]-2, miny=s[7][i], maxy=s[8][i], data=data, parameters=otherInfo[name]["parameters"], type=otherInfo[name]["type"])
+
+            # update and create parameter, spectrum, and gate lists
+            # updateSpectrumList has True flag/arg only here, to define searchable list
+            self.updateSpectrumList(True)
+
+            '''
+            # update Modify menu
+            gate_list = [self.wConf.listGate.itemText(i) for i in range(self.wConf.listGate.count())]
+            print("gate_list", gate_list)
+            for gate in gate_list:
+                self.wConf.submenuD.addAction(gate, lambda:self.wConf.drag(gate))
+                self.wConf.submenuE.addAction(gate, lambda:self.wConf.edit(gate))
+            '''
+        except Exception as e:
+            self.logger.exception('connectShMem - Exception')
+            raise
+        # except:
+        #     QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started or hostname/port/mirror are not configured!")
+
+
+    ##########################################
+    # 7) Load/save geometry window
+    ##########################################
+
+
+    def findWholeWord(self, w):
+        return re.compile(r'\b({0})\b'.format(w), flags=re.IGNORECASE).search
+
+    def findNumbers(self, w):
+        return [int(s) for s in re.findall(r'\b\d+\b', w)]
+
+    def findHistoName(self, w):
+        return re.findall('"([^"]*)"', w)
+
+    # definition for both legacy and not window defs
+    def openGeo(self, filename):
+        self.logger.info('openGeo')
+        cntr = 0
+        coords = []
+        spec_dict = {}
+        info_scale = {}
+        info_range = {}
+        x_range = {}
+        y_range = {}
+        properties = {}
+
+
+        if (os.stat(filename).st_size == 0):
+            self.logger.warning('openGeo - empty geometry file: %s', filename)
+            return None
+        #new (qtpy) geometry file format
+        elif (len(open(filename).readlines()) == 1):
+            return eval(open(filename,"r").read())
+        #old format
+        else:
+            # not supported, see comment below about spectrum name 
+            return None
+            # with open(filename) as f:
+            #     for line in f:
+            #         if (self.findWholeWord("Geometry")(line)):
+            #             # find geo x,y in line
+            #             coords = self.findNumbers(line)
+            #         elif (self.findWholeWord("Window")(line)):
+            #             spectrum = self.findHistoName(line)
+            #             spec_dict[cntr] = spectrum[0]
+            #             cntr+=1
+            #         elif (self.findWholeWord("COUNTSAXIS")(line)):
+            #             info_scale[cntr-1] = True
+            #         elif (self.findWholeWord("Expanded")(line)):
+            #             tmp = self.findNumbers(line)
+            #             info_range[cntr-1] = tmp
+
+            # for index, name in spec_dict.items():
+            #     scale = False
+            #     #pb here because with the old format the spectrum name is in capital letters
+            #     #while the REST info are case sensitive.
+            #     dim = self.getSpectrumInfoREST("dim", name=name)
+            #     x_range = [self.minX, self.maxX]
+            #     if dim == 2:
+            #         y_range = [self.minY, self.maxY]
+
+            #     print("Simon - openGeo - index, name, dim: ",index, name, dim)
+
+            #     if index in info_scale:
+            #         scale = info_scale[index]
+            #         if y_range[0] == 0:
+            #             y_range[0] = 0.001
+            #     if index in info_range:
+            #         x_range = info_range[index][0:2]
+            #         y_range = info_range[index][2:4]
+
+            #     print("Simon - openGeo - x_range, y_range: ",x_range, y_range)
+
+            #     properties[index] = {"name": name, "x": x_range, "y": y_range, "scale": scale}
+            #     self.logger.debug('openGeo - index, properties: %s, %s', index, properties[index])
+
+            # return {'row': coords[0], 'col': coords[1], 'geo': properties}
+
+
+    def saveGeo(self):
+        fileName = self.saveFileDialog()
+        self.logger.info('saveGeo - fileName: %s',fileName)
+        try:
+            f = open(fileName,"w")
+            properties = {}
+            geo = self.getGeo()
+            for index in range(len(geo)):
+                try :
+                    h_name = geo[index]
+                    x_range, y_range = self.getAxisProperties(index)
+                    scale = True if self.getSpectrumInfo("log", index=index) else False
+                    properties[index] = {"name": h_name, "x": x_range, "y": y_range, "scale": scale}
+                except:
+                    properties[index] = {"name": '', "x": None, "y": None, "scale": None}
+                    pass
+            tmp = {"row": int(self.wConf.histo_geo_row.currentText()), "col": int(self.wConf.histo_geo_col.currentText()), "geo": properties}
+            QMessageBox.about(self, "Saving...", "Window configuration saved!")
+            f.write(str(tmp))
+            f.close()
+        except :
+            self.logger.debug('saveGeo - exception', exc_info=True)
+            pass
+
+
+    def loadGeo(self):
+        fileName = self.openFileNameDialog()
+        self.logger.info('loadGeo - fileName: %s', fileName)
+        try:
+            infoGeo = self.openGeo(fileName)
+            if infoGeo is None:
+                return
+            row = infoGeo["row"]
+            col = infoGeo["col"]
+            # change index in combobox to the actual loaded values
+            index_row = self.wConf.histo_geo_row.findText(str(row), QtCore.Qt.MatchFixedString)
+            index_col = self.wConf.histo_geo_col.findText(str(col), QtCore.Qt.MatchFixedString)
+            notFound = []
+            if index_row >= 0 and index_col >= 0:
+                self.wConf.histo_geo_row.setCurrentIndex(index_row)
+                self.wConf.histo_geo_col.setCurrentIndex(index_col)
+                self.setCanvasLayout()
+                for index, val_dict in infoGeo["geo"].items():
+                    if self.getSpectrumInfoREST("dim", name=val_dict["name"]) is None:
+                        notFound.append(val_dict["name"])
+                        continue 
+
+                    self.setGeo(index, val_dict["name"])
+                    self.setSpectrumInfo(log=val_dict["scale"], index=index)
+                    self.setSpectrumInfo(minx=val_dict["x"][0], index=index)
+                    self.setSpectrumInfo(maxx=val_dict["x"][1], index=index)
+                    self.setSpectrumInfo(miny=val_dict["y"][0], index=index)
+                    self.setSpectrumInfo(maxy=val_dict["y"][1], index=index)
+
+                if len(notFound) > 0:
+                    self.logger.warning('loadGeo - definition not found for: %s', notFound)
+
+                self.currentPlot.isLoaded = True
+                self.wTab.selected_plot_index_bak[self.wTab.currentIndex()] = None
+                self.currentPlot.selected_plot_index = None
+                self.currentPlot.next_plot_index = -1
+
+            self.addPlot()
+            self.updatePlot()
+            self.currentPlot.isLoaded = False
+        except TypeError:
+            self.logger.debug('loadGeo - TypeError exception', exc_info=True)
+            pass
+
+
+    def openFileNameDialog(self):
+        self.logger.info('openFileNameDialog')
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Window Files (*.win);;All Files (*)", options=options)
+        if fileName:
+            return fileName
+
+
+    def saveFileDialog(self):
+        self.logger.info('saveFileDialog')
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(self,"Save file...","","Window Files (*.win);;All Files (*)", options=options)
+        if fileName:
+            return fileName
+
+
+    #############################
+    # 8) Zoom/Scaling operations
+    #############################
+
+    # can sets x, y scales for 1d and x, y, z scales for 2d depending on the scale identifier and if axisIsLog
+    # basically do all the scaling operations
+    def setAxisScale(self, ax, index, *scale):
+        self.logger.info('setAxisScale - index: %s', index)
+
+        wPlot = self.currentPlot
+        axisIsLog = self.getSpectrumInfo("log", index=index)
+        axisIsAutoScale = wPlot.histo_autoscale.isChecked()
+
+        # priority to autoscale value, then if not to user defined value (ex: by zoom), and finally to default value
+        # log is set last
+        # update spectrumInfo if autoscale and/or log if value <=0
+
+        if (self.getSpectrumInfoREST("dim", index=index) == 1) :
+            #x limits need to be known for y autoscale in x range
+            xmin = self.getSpectrumInfo("minx", index=index)
+            xmax = self.getSpectrumInfo("maxx", index=index)
+            if "x" in scale and xmin and xmax:
+                ax.set_xlim(xmin,xmax) 
+            if "y" or "log" in scale:
+                ymin = self.getSpectrumInfo("miny", index=index)
+                ymax = self.getSpectrumInfo("maxy", index=index)
+                if (not ymin or ymin is None or ymin == 0) and (not ymax or ymax is None or ymax == 0):
+                    ymin = self.minY
+                    ymax = self.maxY
+                if axisIsAutoScale:
+                    #search in the current view
+                    xmin, xmax = ax.get_xlim()
+                    #getMinMaxInRange returns only max for 1d 
+                    ymax = self.getMinMaxInRange(index, xmin=xmin, xmax=xmax)
+                if axisIsLog:
+                    if ymin <= 0:
+                        ymin = 0.001
+                    if ymax <= 0:
+                        self.logger.warning('setAxisScale - all value <0 for : %s - cannot log scale', self.nameFromIndex(index))
+                    else:
+                        ax.set_ylim(ymin,ymax)
+                        ax.set_yscale("log")
+                else:
+                    ax.set_ylim(ymin,ymax)
+                    ax.set_yscale("linear")
+                self.setSpectrumInfo(miny=ymin, index=index)
+                self.setSpectrumInfo(maxy=ymax, index=index)
+        else:
+            #x and y limits need to be known for z autoscale in x,y ranges
+            xmin = self.getSpectrumInfo("minx", index=index)
+            xmax = self.getSpectrumInfo("maxx", index=index)
+            ymin = self.getSpectrumInfo("miny", index=index)
+            ymax = self.getSpectrumInfo("maxy", index=index)
+
+            if "x" in scale and xmin and xmax:
+                ax.set_xlim(xmin,xmax) 
+            if "y" in scale and ymin and ymax:
+                ax.set_ylim(ymin,ymax)
+            if "z" or "log" in scale:
+                zmin = self.getSpectrumInfo("minz", index=index)
+                zmax = self.getSpectrumInfo("maxz", index=index)
+                spectrum = self.getSpectrumInfo("spectrum", index=index)
+                if spectrum is None :
+                    return
+                if (not zmin or zmin is None or zmin==0) and (not zmax or zmax is None or zmax==0):
+                    zmin = self.minZ
+                    zmax = self.maxZ
+                if axisIsAutoScale:
+                    #search in the current view
+                    xmin, xmax = ax.get_xlim()
+                    ymin, ymax = ax.get_ylim()
+                    #getMinMaxInRange returns min and max for 2d 
+                    zmin, zmax = self.getMinMaxInRange(index, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)
+                    self.setSpectrumInfo(maxz=zmax, index=index)
+                    self.setSpectrumInfo(minz=zmin, index=index)
+                spectrum.set_clim(vmin=zmin, vmax=zmax)
+                if axisIsLog:
+                    self.setCmapNorm("log", index)
+                else :
+                    #linearCentered not used so far but could be user choice 
+                    #while testing linearCentered noticed that it is not very compatible with cutoff
+                    #self.setCmapNorm("linearCentered", index)
+                    self.setCmapNorm("linear", index)
+                self.setSpectrumInfo(spectrum=spectrum, index=index)
+
+
+    # Where is defined the color bar
+    def setCmapNorm(self, scale, index):
+        self.logger.info('setCmapNorm')
+        validScales = ["linear", "log", "linearCentered"]
+        if scale not in validScales or index is None:
+            self.logger.debug('setCmapNorm - scale not in validScales or index is None')
+            return
+        spectrum = self.getSpectrumInfo("spectrum", index=index)
+        zmin, zmax = spectrum.get_clim()
+
+        if scale is validScales[0]:
+            if zmin > zmax: 
+                self.logger.warning('setCmapNorm - zmin > zmax')
+                spectrum.set_norm(colors.Normalize(vmin=self.minZ, vmax=self.maxZ))
+            else :
+                spectrum.set_norm(colors.Normalize(vmin=zmin, vmax=zmax))
+        elif scale is validScales[1]:
+            if zmin and zmin <= 0 :
+                zmin = 0.001
+                self.logger.warning('setCmapNorm - LogNorm with zmin<=0, may want to use CenteredNorm')
+            spectrum.set_norm(colors.LogNorm(vmin=zmin, vmax=zmax))
+            if zmin > zmax: 
+                self.logger.warning('setCmapNorm - zmin > zmax')
+                spectrum.set_norm(colors.LogNorm(vmin=self.minZ, vmax=self.maxZ))
+        elif scale is validScales[2]:
+            palette = copy(plt.cm.jet)
+            palette.set_bad(color='white')
+            data = self.getSpectrumInfo("data", index=index)
+            spectrum.set_cmap(palette)
+            # set vcenter to variable set by user
+            spectrum.set_norm(centeredNorm(data,50000))
+        if self.getEnlargedSpectrum() is None:
+            ax = spectrum.axes
+            self.removeCb(ax)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            # label used in on_press to avoid interaction with it
+            label = "colorbar_"+str(index)
+            cax.set_label(label)
+            self.currentPlot.figure.colorbar(spectrum, cax=cax, orientation='vertical')
+
+
+    #Callback for plusButton/minusButton
+    def zoomInOut(self, arg):
+        self.logger.info('zoomInOut - arg: %s', arg)
+        # Simon - added following lines to avoid None plot index
+        index = self.autoIndex()
+        ax = None
+        spectrum = self.getSpectrumInfo("spectrum", index=index)
+        if spectrum is None : return
+        ax = spectrum.axes
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        if dim == 1 :
+            #step if 0.5
+            ymin, ymax = ax.get_ylim()
+            if arg is "in" :
+                ymax = ymax*0.5
+            elif arg is "out" :
+                ymax = ymax*2
+            ax.set_ylim(ymin, ymax)
+            self.setSpectrumInfo(miny=ymin, index=index)
+            self.setSpectrumInfo(maxy=ymax, index=index)
+            self.setSpectrumInfo(spectrum=spectrum, index=index)
+        elif dim == 2 :
+            zmin, zmax = spectrum.get_clim()
+            if arg is "in" :
+                zmax = zmax*0.5
+            elif arg is "out" :
+                zmax = zmax*2
+            spectrum.set_clim(zmin, zmax)
+            self.setSpectrumInfo(minz=zmin, index=index)
+            self.setSpectrumInfo(maxz=zmax, index=index)
+            self.setSpectrumInfo(spectrum=spectrum, index=index)
+        self.drawGate(index)
+        self.currentPlot.canvas.draw()
+
+
+    # Callback for histo_autoscale, calls setAxisScale
+    def autoScaleAxisBox(self, forIndex):
+        self.logger.info('autoScaleAxisBox - forIndex: %s', forIndex)
+        try:
+            ax = None
+            if self.currentPlot.isEnlarged:
+                ax = self.getSpectrumInfo("axis", index=0)
+                dim = self.getSpectrumInfoREST("dim", index=0)
+                if ax is None :
+                    self.logger.debug('autoScaleAxisBox - isEnlarged TRUE - ax is None ')
+                    return
+                #Set y for 1D and z for 2D.
+                #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
+                if dim == 1:
+                    self.setAxisScale(ax, 0, "y")
+                elif dim == 2:
+                    self.setAxisScale(ax, 0, "z")
+                #draw gate if there is one
+                self.drawGate(0)
+            # implemented this condition to do autoscale in addPlot
+            elif forIndex is not None:
+                ax = self.getSpectrumInfo("axis", index=forIndex)
+                dim = self.getSpectrumInfoREST("dim", index=forIndex)
+                if ax is None :
+                    self.logger.debug('autoScaleAxisBox - forIndex - ax is None ')
+                    return
+                #Set y for 1D and z for 2D.
+                #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
+                if dim == 1:
+                    self.setAxisScale(ax, forIndex, "y")
+                elif dim == 2:
+                    self.setAxisScale(ax, forIndex, "z")
+            else:
+                for index, name in self.getGeo().items():
+                    if name:
+                        ax = self.getSpectrumInfo("axis", index=index)
+                        dim = self.getSpectrumInfoREST("dim", index=index)
+                        if ax is None :
+                            self.logger.debug('autoScaleAxisBox - isEnlarged FALSE - ax is None ')
+                            return
+                        #Set y for 1D and z for 2D.
+                        #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
+                        if dim == 1:
+                            self.setAxisScale(ax, index, "y")
+                        elif dim == 2:
+                            self.setAxisScale(ax, index, "z")
+                        #draw gate if there is one
+                        self.drawGate(index)
+            self.currentPlot.canvas.draw()
         except:
             pass
 
+
+    # get data max within user defined range
+    # For 2D have to give two ranges (x,y), for 1D range x.
+    def getMinMaxInRange(self, index, **limits):
+        self.logger.info('getMinMaxInRange - limits: %s', limits)
+        result = None
+        if not limits :
+            self.logger.warning('getMinMaxInRange - limits identifier not valid - expect xmin=val, xmax=val etc. for y with 2D')
+            return
+        if "xmin" and "xmax" in limits:
+            xmin = limits["xmin"]
+            xmax = limits["xmax"]
+        if "ymin" and "ymax" in limits:
+            ymin = limits["ymin"]
+            ymax = limits["ymax"]
+
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        minx = self.getSpectrumInfoREST("minx", index=index)
+        maxx = self.getSpectrumInfoREST("maxx", index=index)
+        binx = self.getSpectrumInfoREST("binx", index=index)
+        # data = self.getSpectrumInfoREST("data", index=index)
+        data = self.getSpectrumInfo("data", index=index)
+        stepx = (float(maxx)-float(minx))/float(binx)
+        binminx = int((xmin-minx)/stepx)
+        binmaxx = int((xmax-minx)/stepx)
+        if dim == 1:
+            try:
+                # get max in x range
+                #increase by 10% to get axis view a little bigger than max
+                result = data[binminx+1:binmaxx+2].max()*1.1
+            except :
+                self.logger.debug('getMinMaxInRange - dim == 1 - exception occured', exc_info=True)
+                return self.maxY
+        elif dim == 2:
+            try:
+                #get max in x,y ranges
+                miny = self.getSpectrumInfoREST("miny", index=index)
+                maxy = self.getSpectrumInfoREST("maxy", index=index)
+                biny = self.getSpectrumInfoREST("biny", index=index)
+                stepy = (float(maxy)-float(miny))/float(biny)
+                binminy = int((ymin-miny)/stepy)
+                binmaxy = int((ymax-miny)/stepy)
+                #Dont increase max by 10% here...
+                #truncData = data[binminy:binmaxy+1, binminx:binmaxx+1]
+                #Following two lines work for "small" array, replaced by custom function
+                #maximum = truncData.max()
+                #minimum = np.min(truncData[np.nonzero(truncData)])
+                # minimum, maximum = self.customMinMax(data, binminy, binmaxy, binminx, binmaxx)
+                minimum, maximum = self.customMinMax(data[binminy:binmaxy+1, binminx:binmaxx+1])
+                result = minimum, maximum
+            except :
+                self.logger.debug('getMinMaxInRange - dim == 2 - exception occured', exc_info=True)
+                return self.minZ, self.maxZ
+        return result
+
+
+    # Have seen malloc error if data array too large
+    # Divide data array in sub-arrays with sub-(min, max) and then find the global-(min, max)
+    def customMinMax(self, data):
+        self.logger.info('customMinMax')
+        minimum = None
+        maximum = None
+        nbCol = data.shape[1] 
+        nbRow = data.shape[0] 
+
+        #len(data) <= 0
+        if not data.any():
+            return minimum, maximum
+        #Arbitrarily choose number max of col and row of 200...
+        if nbCol < 200 and nbRow < 200:
+            maximum = data.max()
+            minimum = np.min(data[np.nonzero(data)])
+            return minimum, maximum
+        else :
+            stepX = nbCol if nbCol < 200 else 200
+            stepY = nbRow if nbRow < 200 else 200
+            rangeX = list(range(0, data.shape[1], stepX))
+            rangeY = list(range(0, data.shape[0], stepY))
+            subMax = []
+            subMin = []
+            yprev = data.shape[0]+1
+            xprev = data.shape[1]+1
+            for x in rangeX[::-1]:
+                for y in rangeY[::-1]:
+                    subData = data[y:yprev,x:xprev]
+                    nonZeroIndices = np.where(subData > 0)
+                    filteredSubData = subData[nonZeroIndices]
+                    if filteredSubData is not None and filteredSubData.size > 0:
+                        subMax.append(filteredSubData.max())
+                        subMin.append(filteredSubData.min())
+                    yprev = y
+                xprev = x
+            if len(subMin) == 0:
+                minimum = self.minZ
+            if len(subMax) == 0:
+                minimum = self.maxZ
+            elif len(subMin)>0 and len(subMax)>0 :
+                minimum = min(subMin)
+                maximum = max(subMax)
+
+            return minimum, maximum
+
+
+    #return the axis limits in a certain format [[xmin, xmax], [ymin, ymax]]
+    def getAxisProperties(self, index):
+        self.logger.info('getAxisProperties')
+        try:
+            ax = self.getSpectrumInfo("axis", index=index)
+            if ax is None :
+                return None
+            else :
+                return list(ax.get_xlim()), list(ax.get_ylim())
+        except:
+            self.logger.debug('getAxisProperties - exception occured', exc_info=True)
+            pass
+            
+
+    def zoomCallback(self, event):
+        self.logger.info('zoomCallback')
+        self.currentPlot.zoomPress = True
+
+
+    #Used by customHome button, reset the axis limits to ReST definitions, for the specified plot at index or for all plots if index not provided
+    def customHomeButtonCallback(self, index=None):
+        self.logger.info('customHomeButtonCallback - index: %s', index)
+
+        index_list = [idx for idx, name in self.getGeo().items() if index is None]
+        if index is not None:
+            index_list = [index]
+        for idx in index_list:
+            ax = None
+            spectrum = self.getSpectrumInfo("spectrum", index=idx)
+            if spectrum is None : return
+            ax = spectrum.axes
+            dim = self.getSpectrumInfoREST("dim", index=idx)
+            xmin = self.getSpectrumInfoREST("minx", index=idx)
+            xmax = self.getSpectrumInfoREST("maxx", index=idx)
+            ymin = self.getSpectrumInfoREST("miny", index=idx)
+            ymax = self.getSpectrumInfoREST("maxy", index=idx)
+
+            ax.set_xlim(xmin, xmax)
+            if dim == 1:
+                #Similar to autoscale, in principle ymin and ymax are not defined in ReST for 1D so set to ymin=0 and autoscale for ymax
+                #getMinMaxInRange gives only min for 1d
+                ymax = self.getMinMaxInRange(idx, xmin=xmin, xmax=xmax)
+                ax.set_ylim(ymin, ymax)
+                if self.getSpectrumInfo("log", index=idx) :
+                    ax.set_yscale("linear")
+            # y limits should be known at this point for both cases 1D/2D
+            if dim == 2:
+                ax.set_ylim(ymin, ymax)  
+                #getMinMaxInRange gives min and max for 2d
+                zmin, zmax = self.getMinMaxInRange(idx, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)
+                spectrum.set_clim(vmin=zmin, vmax=zmax)
+                self.setCmapNorm("linear", idx)
+                self.setSpectrumInfo(maxz=zmax, index=idx)
+                self.setSpectrumInfo(minz=zmin, index=idx)
+            self.drawGate(idx)
+                
+            self.setSpectrumInfo(log=None, index=idx)
+            self.setSpectrumInfo(minx=xmin, index=idx)
+            self.setSpectrumInfo(maxx=xmax, index=idx)
+            self.setSpectrumInfo(miny=ymin, index=idx)
+            self.setSpectrumInfo(maxy=ymax, index=idx)
+            self.setSpectrumInfo(spectrum=spectrum, index=idx)
+        self.currentPlot.canvas.draw()
+
+
+    #Used by logButton, defines the log scale, for the specified plot at index or for all plots if logAll/unlogAll, calls setAxisScale
+    def logButtonCallback(self, *arg):
+        self.logger.info('logButtonCallback - arg: %s', arg)
+
+        index = None
+        logAllPlot = False
+        unlogAllPlot = False
+        if "logAll" in arg:
+            logAllPlot = True
+        elif "unlogAll" in arg:
+            unlogAllPlot = True
+        else :
+            index = arg[0]
+
+        wPlot = self.currentPlot
+        index_list = [idx for idx, name in self.getGeo().items() if logAllPlot or unlogAllPlot]
+
+        if index is not None:
+            index_list = [index]
+        for idx in index_list:
+            ax = None
+            # spectrum = self.getSpectrum(idx)
+            spectrum = self.getSpectrumInfo("spectrum", index=idx)
+            if spectrum is None : continue 
+            ax = spectrum.axes
+            # only place where the log spectrum info is set 
+            # so if log now it needs to switch to linear, and vice et versa
+            if logAllPlot :
+                self.setSpectrumInfo(index=idx, log=True)
+            elif unlogAllPlot :
+                self.setSpectrumInfo(index=idx, log=False)
+            elif self.getSpectrumInfo("log", index=idx) and not logAllPlot and not unlogAllPlot:
+                self.setSpectrumInfo(index=idx, log=False)
+            elif not self.getSpectrumInfo("log", index=idx) and not logAllPlot and not unlogAllPlot:
+                self.setSpectrumInfo(index=idx, log=True)
+
+            self.setAxisScale(ax, idx, "log")
+        wPlot.canvas.draw()
+
+
+
+    #callback when right click on customHomeButton
+    def handle_right_click(self):
+        self.logger.info('handle_right_click')
+        menu = QMenu()
+        item1 = menu.addAction("Reset all") 
+        #Empty agrument for customHomeButtonCallback means it will reset all spectra
+        item1.triggered.connect(lambda: self.customHomeButtonCallback())
+        # mouse_pos = QCursor.pos()
+        plotgui = self.currentPlot
+        menuPosX = plotgui.mapToGlobal(QtCore.QPoint(0,0)).x() + plotgui.customHomeButton.geometry().topLeft().x()
+        menuPosY = plotgui.mapToGlobal(QtCore.QPoint(0,0)).y() + plotgui.customHomeButton.geometry().topLeft().y()
+        menuPos = QtCore.QPoint(menuPosX, menuPosY)
+        # Shows menu at button position, need to calibrate with 0,0 position
+        menu.exec_(menuPos)     
+
+
+    #callback when right click on logButton
+    def log_handle_right_click(self):
+        self.logger.info('log_handle_right_click')
+        menu = QMenu()
+        item1 = menu.addAction("Log all")
+        item2 = menu.addAction("unLog all")
+        #Empty agrument for logButtonCallback means it will set log for all spectra
+        item1.triggered.connect(lambda: self.logButtonCallback("logAll"))
+        item2.triggered.connect(lambda: self.logButtonCallback("unlogAll"))
+        # mouse_pos = QCursor.pos()
+        plotgui = self.currentPlot
+        menuPosX = plotgui.mapToGlobal(QtCore.QPoint(0,0)).x() + plotgui.logButton.geometry().topLeft().x()
+        menuPosY = plotgui.mapToGlobal(QtCore.QPoint(0,0)).y() + plotgui.logButton.geometry().topLeft().y()
+        menuPos = QtCore.QPoint(menuPosX, menuPosY)
+        # Shows menu at button position, need to calibrate with 0,0 position
+        menu.exec_(menuPos)
+
+
+    def cutoff_handle_right_click(self):
+        pass 
+
+
+    #button of the cutoff window, sets the cutoff values in the spectrum dict
+    def okCutoff(self):
+        self.logger.info('okCutoff')
+        index = self.currentPlot.selected_plot_index
+        if index is None : 
+            self.logger.debug('okCutoff - index is None')
+            return 
+
+        cutoffVal = [None, None]
+        cutoffMin = self.cutoffp.lineeditMin.text()
+        cutoffMax = self.cutoffp.lineeditMax.text()
+        #check expected format and save cutoff in spectrum dict 
+        if self.cutoffp.lineeditMin.text() != "" and self.cutoffp.lineeditMin.text().isdigit():
+            cutoffVal[0] = float(cutoffMin)
+            self.setSpectrumInfo(cutoff=cutoffVal, index=index)
+        if self.cutoffp.lineeditMax.text() != "" and self.cutoffp.lineeditMax.text().isdigit():
+            cutoffVal[1] = float(cutoffMax)
+            self.setSpectrumInfo(cutoff=cutoffVal, index=index)
+        #Order may be inverted
+        if cutoffVal[0] is not None and cutoffVal[1] is not None and cutoffVal[1] < cutoffVal[0]:
+            cutoffVal = [cutoffVal[1], cutoffVal[0]]
+            self.setSpectrumInfo(cutoff=cutoffVal, index=index)
+            self.logger.warning('okCutoff - cutoff values swapped because min > max')
+        self.updatePlot()
+        self.cutoffp.close()
+
+
+    def cancelCutoff(self):
+        self.cutoffp.close()
+
+
+    def resetCutoff(self, doUpdate):
+        self.logger.info('resetCutoff - doUpdate: %s', doUpdate)
+        index = self.currentPlot.selected_plot_index
+        if index is None : return 
+        cutoffVal = [None, None]
+        self.setSpectrumInfo(cutoff=cutoffVal, index=index)
+        if doUpdate:
+            self.updatePlot()
+        self.cutoffp.close()
+
+
+
+    #called by cutoffButton, sets the information in the cutoff window
+    def cutoffButtonCallback(self, *arg):
+        self.logger.info('cutoffButtonCallback')
+        index = self.currentPlot.selected_plot_index
+        name = self.nameFromIndex(index)
+        if name is not None : 
+            self.cutoffp.setWindowTitle("Set cutoff for: " + name)
+        else :
+            self.cutoffp.setWindowTitle("Set cutoff for: ???" )
+        self.cutoffp.setGeometry(300,100,300,100)
+        if self.cutoffp.isVisible():
+            self.cutoffp.close()
+        self.cutoffp.show()
+
+        if self.getSpectrumInfo("cutoff", index=index) is not None and len(self.getSpectrumInfo("cutoff", index=index)) > 0:
+            cutoffMin, cutoffMax = self.getSpectrumInfo("cutoff", index=index)
+            self.cutoffp.lineeditMin.setText(f"{cutoffMin}")
+            self.cutoffp.lineeditMax.setText(f"{cutoffMax}")
+
+        #try to deal with all cases to inform user
+        if index is None:
+            self.cutoffp.lineeditMin.setText("Select spectrum")
+            self.cutoffp.lineeditMax.setText("Select spectrum") 
+            return
+        if self.getSpectrumInfo("cutoff", index=index) is None:
+            self.cutoffp.lineeditMin.setText("None")
+            self.cutoffp.lineeditMax.setText("None")
+        elif self.getSpectrumInfo("cutoff", index=index) is not None and len(self.getSpectrumInfo("cutoff", index=index)) == 0:
+            self.cutoffp.lineeditMin.setText("None")
+            self.cutoffp.lineeditMax.setText("None")
+        elif self.getSpectrumInfo("cutoff", index=index) is not None and len(self.getSpectrumInfo("cutoff", index=index)) > 0:
+            cutoffMin, cutoffMax = self.getSpectrumInfo("cutoff", index=index)
+            self.cutoffp.lineeditMin.setText(f"{cutoffMin}")
+            self.cutoffp.lineeditMax.setText(f"{cutoffMax}")
+        else :
+            self.logger.warning('cutoffButtonCallback - only one cutoff value in spectrum dict: %s', self.getSpectrumInfo("cutoff", index=index))
+            # print("cutoffButtonCallback - warning - only one cutoff value in spectrum dict: ", self.getSpectrumInfo("cutoff", index=index))
+
+
+    #Used in zoomCallBack to save the new axis limits
+    #sleepTime is a small delay to ensure this function is executed after on_release
+    #seems necessary to get the updated axis limits (zoom toolbar action ends on_release)
+    def updatePlotLimits(self, sleepTime=0):
+        self.logger.info('updatePlotLimits - sleepTime: %s', sleepTime)
+        # update currentPlot limits with what's on the actual plot
+        ax = None
+        index = self.currentPlot.selected_plot_index
+        ax = self.getSpectrumInfo("axis", index=index)
+        if ax is None : 
+            self.logger.debug('updatePlotLimits - ax is None')
+            return
+        # im = ax.images
+
+        time.sleep(sleepTime)
+
+        try:
+            #Simon - modified the following lines
+            x_range, y_range = self.getAxisProperties(index)
+            self.setSpectrumInfo(minx=x_range[0], index=index)
+            self.setSpectrumInfo(maxx=x_range[1], index=index)
+            self.setSpectrumInfo(miny=y_range[0], index=index)
+            self.setSpectrumInfo(maxy=y_range[1], index=index)
+            #Set axis limits try with spectrum 
+            ax.set_xlim(x_range[0], x_range[1])
+            ax.set_ylim(y_range[0], y_range[1])
+            spectrum = self.getSpectrumInfo("spectrum", index=index)
+            spectrum.axes.set_xlim(x_range[0], x_range[1])
+            spectrum.axes.set_ylim(y_range[0], y_range[1])
+            self.setSpectrumInfo(spectrum=spectrum, index=index)
+            self.drawGate(index)
+        except NameError as err:
+            self.logger.debug('updatePlotLimits - NameError', exc_info=True)
+            # print(err)
+            pass
+
+
+    ##################################
+    ## 9) Histogram operations
+    ##################################
+
+    # remove colorbar
+    def removeCb(self, axis):
+        im = axis.images
+        if im is not None and len(im) > 0:
+            try:
+                cb = im[-1].colorbar
+                cb.remove()
+            except :
+                self.logger.debug('removeCb - IndexError exception', exc_info=True)
+                pass
+
+
+    # select axes based on indexing, used only in add()
+    def select_plot(self, index):
+        self.logger.info('select_plot - index: %s', index)
+        for i, axis in enumerate(self.currentPlot.figure.axes):
+            # retrieve the subplot from the click
+            if (i == index and axis is not None):
+                return axis
+
+
+    # returns position in grid based on indexing
+    def plotPosition(self, index):
+        self.logger.info('plotPosition - index: %s', index)
+        cntr = 0
+        # convert index to position in geometry
+        canvasLayout = self.wTab.layout[self.wTab.currentIndex()]
+        for i in range(canvasLayout[0]):
+            for j in range(canvasLayout[1]):
+                if index == cntr:
+                    return i, j
+                else:
+                    cntr += 1
+
+
+    # setup histogram limits according to the ReST info
+    # called in add(), when the plot is first added
+    def setupPlot(self, axis, index):
+        self.logger.info('setupPlot - index: %s', index)
+        if self.nameFromIndex(index):
+
+            dim = self.getSpectrumInfoREST("dim", index=index)
+            minx = self.getSpectrumInfoREST("minx", index=index)
+            maxx = self.getSpectrumInfoREST("maxx", index=index)
+            binx = self.getSpectrumInfoREST("binx", index=index)
+
+            w = self.getSpectrumInfoREST("data", index=index)
+
+            if self.getSpectrumInfo("cutoff", index=index) is not None:
+                if len(self.getSpectrumInfo("cutoff", index=index))>0:
+                    #if min/maxCutoff mask data bellow/above the cutoff values
+                    minCutoff = self.getSpectrumInfo("cutoff", index=index)[0]
+                    maxCutoff = self.getSpectrumInfo("cutoff", index=index)[1]
+                    if minCutoff is not None:
+                        if dim == 1:
+                            w = np.ma.masked_where(w < minCutoff, w)
+                        if dim == 2:
+                            w = np.ma.masked_where(w < minCutoff, w)
+                    if maxCutoff is not None:
+                        if dim == 1:
+                            w = np.ma.masked_where(w < maxCutoff, w)
+                        if dim == 2:
+                            w = np.ma.masked_where(w < maxCutoff, w)
+            #used in getMinMaxInRange to take into account also the cutoff if there is one
+            self.setSpectrumInfo(data=w, index=index)
+
+            # update axis
+            if dim == 1:
+                axis.set_xlim(minx,maxx)
+                axis.set_ylim(self.minY,self.maxY)
+                # create histogram
+                line, = axis.plot([], [], drawstyle='steps')
+
+
+                # axisTest = self.getSpectrumInfo("axis", index=index)
+                # self.axesChildsTest(axisTest)
+                # print("Simon - in setupPlot before spectrum=line- ")
+
+                self.setSpectrumInfo(spectrum=line, index=index)
+                if len(w) > 0:
+                    X = np.array(self.createRange(binx, minx, maxx))
+                    line.set_data(X, w)
+                    self.setSpectrumInfo(spectrum=line, index=index)
+                
+                # self.axesChilds()
+                # print("Simon - in setupPlot after spectrum=line- ")
+            else:
+                miny = self.getSpectrumInfoREST("miny", index=index)
+                maxy = self.getSpectrumInfoREST("maxy", index=index)
+                biny = self.getSpectrumInfoREST("biny", index=index)
+                # empty data for initialization
+                if w is None:
+                    w = np.zeros((int(binx), int(biny))) 
+
+                self.palette = copy(plt.cm.plasma)
+                w = np.ma.masked_where(w == 0, w)
+                self.palette.set_bad(color='white')
+
+                #check if enlarged mode, dont want to modify spectrum dict in enlarged mode
+                self.setSpectrumInfo(spectrum=axis.imshow(w,
+                                                            interpolation='none',
+                                                            extent=[float(minx),float(maxx),float(miny),float(maxy)],
+                                                            aspect='auto',
+                                                            origin='lower',
+                                                            vmin=float(self.minZ), vmax=float(self.maxZ),
+                                                            cmap=self.palette), index=index)
+
+                if w is not None :
+                    spectrum = self.getSpectrumInfo("spectrum", index=index)
+                    spectrum.set_data(w)
+                    self.setSpectrumInfo(spectrum=spectrum, index=index)
+
+                # setup colorbar only for 2D
+                if self.getEnlargedSpectrum() is None:
+                    divider = make_axes_locatable(axis)
+                    cax = divider.append_axes('right', size='5%', pad=0.05)
+                    # label used in on_press to avoid interaction with it
+                    label = "colorbar_"+str(index)
+                    cax.set_label(label)
+                    self.currentPlot.figure.colorbar(spectrum, cax=cax, orientation='vertical')
+
+
+    # geometrically add plots to the right place and calls plotting
+    # should be called only by addPlot and on_dblclick when entering/exiting enlarged mode
+    def add(self, index):
+        self.logger.info('add - index: %s',index)
+        a = None
+        if self.currentPlot.isEnlarged:
+            #following line to work with multiple tabs, otherwise the default current axes are in the latest tab
+            plt.sca(self.currentPlot.figure.axes[0])
+            a = plt.gca()
+        else:
+            a = self.select_plot(index)
+        #clear plot and if 2D remove color bar
+        try:
+            self.removeCb(a)
+        except:
+            pass
+        a.clear()
+        #set lines 1D or 2D properties and plot limits with spectrum limits
+        self.setupPlot(a, index)
+
+
+    # Callback for histo_geo_add button
+    # also called in loadGeo
+    # geometrically add plots to the right place
+    # plot axis as defined in the ReST interface.
+    def addPlot(self):
+        self.logger.info('addPlot')
+
+        if self.wConf.histo_list.count() == 0 : 
+            QMessageBox.about(self, "Warning", 'Please click on "Connection" and fill in the information')
+
+        try:
+            # if we load the geometry from file
+            if self.currentPlot.isLoaded:
+                self.logger.debug('addPlot - isLoaded TRUE - getGeo: %s',self.getGeo())
+                # self.getGeo()
+                # for key, value in self.getGeo().items():
+                #     index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
+                #     if self.getSpectrumInfoREST("dim", name=value) is None: 
+                #         self.logger.debug('addPlot - isLoaded TRUE - self.getSpectrumInfoREST("dim", name=value) is None - key, value, getGeo: %s, %s, %s', key, value, self.getGeo())
+                #         return
+                #     # changing the index to the correct histogram to load
+                #     self.wConf.histo_list.setCurrentIndex(index)
+                #it turns out the autoscale is wanted in addPlot
+                self.currentPlot.histo_autoscale.setChecked(True)
+                for key, value in self.getGeo().items():
+                    if self.getSpectrumInfoREST("dim", name=value) is None: 
+                        continue
+                    self.add(key)
+                    self.autoScaleAxisBox(key)
+            # self adding
+            else:
+                index = self.nextIndex()
+                #Set the plot according to the selected name in the spectrum list widget
+                name = str(self.wConf.histo_list.currentText())
+                self.logger.debug('addPlot - isLoaded FALSE - index, name: %s, %s',index,name)
+
+                if self.getSpectrumInfoREST("dim", name=name) is None: 
+                    self.logger.debug('addPlot - isLoaded FALSE - dim is None')
+                    return
+
+                #Reset cutoff
+                self.setSpectrumInfo(cutoff=None, index=index)
+
+                self.setGeo(index, name)
+                self.add(index)
+
+                #it turns out the autoscale is wanted in addPlot
+                self.currentPlot.histo_autoscale.setChecked(True)
+                self.autoScaleAxisBox(index)
+
+                #When add with button "add" the default state is unlog
+                self.currentPlot.logButton.setDown(False)
+                #Reset log
+                self.setSpectrumInfo(log=False, index=index)
+
+                #draw gates
+                self.drawGate(index)
+
+                #draw dashed red rectangle to indicate where the next plot would be added, based on next_plot_index, selected_plot_index is unchanged.
+                #recDashed added only here
+                self.removeRectangle()
+                self.currentPlot.recDashed = self.createDashedRectangle(self.currentPlot.figure.axes[self.currentPlot.next_plot_index])
+
+                self.currentPlot.figure.tight_layout()
+
+                # print("Simon - in drawPlot - before canvas draw")
+                # for testAx in self.currentPlot.figure.axes:
+                #     axisLines = testAx.get_lines()
+                #     sumRegionLines = [line for line in axisLines if "sumReg_-_" in line.get_label()]
+                #     print("Simon - testAx sumRegionLines ", sumRegionLines)
+                #     for line in sumRegionLines:
+                #         line.draw_artist()
+                # self.axesChilds()
+
+                self.currentPlot.canvas.draw()
+                self.currentPlot.isSelected = False
+        except NameError:
+            raise
+
+
+    #why not using np.linspace(vmin, vmax, bins)
+    def createRange(self, bins, vmin, vmax):
+        self.logger.info('createRange')
+        x = []
+        step = (float(vmax)-float(vmin))/float(bins)
+        for i in np.arange(float(vmin), float(vmax), step):
+            x.append(i + step)
+        x.insert(0, float(vmin))
+        return x
+
+
+    # fill spectrum with new data
+    # called in addPlot and updatePlot
+    # dont actually draw the plot in this function
+    def plotPlot(self, index):
+        self.logger.info('plotPlot - index: %s', index)
+        currentPlot = self.currentPlot
+
+        # Use spectrumInfoREST dont want to change the resolution etc.
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        minx = self.getSpectrumInfoREST("minx", index=index)
+        maxx = self.getSpectrumInfoREST("maxx", index=index)
+        binx = self.getSpectrumInfoREST("binx", index=index)
+        spectrum = self.getSpectrumInfo("spectrum", index=index)
+        w = self.getSpectrumInfoREST("data", index=index)
+
+        if self.getSpectrumInfo("cutoff", index=index) is not None:
+            if len(self.getSpectrumInfo("cutoff", index=index))>0:
+                #if min/maxCutoff mask data bellow/above the cutoff values
+                minCutoff = self.getSpectrumInfo("cutoff", index=index)[0]
+                maxCutoff = self.getSpectrumInfo("cutoff", index=index)[1]
+                if minCutoff is not None:
+                    if dim == 1:
+                        w = np.ma.masked_where(w < minCutoff, w)
+                    if dim == 2:
+                        w = np.ma.masked_where(w < minCutoff, w)
+                if maxCutoff is not None:
+                    if dim == 1:
+                        w = np.ma.masked_where(w > maxCutoff, w)
+                    if dim == 2:
+                        w = np.ma.masked_where(w > maxCutoff, w)
+        if w is None or len(w) <= 0 :
+            self.logger.debug('plotPlot - w is None or len(w) <= 0')
+            return
+        #used in getMinMaxInRange to take into account also the cutoff if there is one
+        self.setSpectrumInfo(data=w, index=index)
+
+        if dim == 1:
+            X = np.array(self.createRange(binx, minx, maxx))
+            spectrum.set_data(X, w)
+        else:
+            # color modes for later...
+            # if (self.wConf.button2D_option.currentText() == 'Light'):
+            w = np.ma.masked_where(w == 0, w)
+            spectrum.set_data(w)
+        self.setSpectrumInfo(spectrum=spectrum, index=index)
+        self.currentPlot = currentPlot
+
+
+    #Callback for histo_geo_update button
+    #also used in various functions
+    #redraw plot spectrum, update axis scales, redraw gates
+    def updatePlot(self):
+        self.logger.info('updatePlot')
+
+
+        # name = str(self.wConf.histo_list.currentText())
+        # index = self.autoIndex()
+        # name = self.nameFromIndex(index)
+        # print("Simon - updatePlot - index, name:", index,name)
+        # if index is None or self.getSpectrumInfoREST("dim", name=name) is None: 
+        #     self.logger.debug('updatePlot - index is None or self.getSpectrumInfoREST("dim", name=name) is None')
+        #     return
+            
+
+        # if gatePopup exit with [X]
+        if (self.currentPlot.toCreateGate or self.currentPlot.toEditGate) and not self.gatePopup.isVisible():
+            self.cancelGate()
+        # if sumRegionPopup exit with [X]
+        if self.currentPlot.toCreateSumRegion and not self.sumRegionPopup.isVisible():
+            self.cancelSumRegion()
+
+        try:
+            #x_range, y_range = self.getAxisProperties(index)
+            if self.currentPlot.isEnlarged:
+                index = self.autoIndex()
+                name = self.nameFromIndex(index)
+                if index is None or self.getSpectrumInfoREST("dim", name=name) is None: 
+                    self.logger.debug('updatePlot - index is None or self.getSpectrumInfoREST("dim", name=name) is None')
+                    return
+                self.logger.debug('updatePlot - self.currentPlot.isEnlarged TRUE')
+                ax = self.getSpectrumInfo("axis", index=0)
+                if ax is None :
+                    self.logger.debug('updatePlot - ax is None')
+                    if len(self.getSpectrumInfoDict()) == 0:
+                        return QMessageBox.about(self,"Warning!", "Configuration file has probably changed, please reset the window geometry (add plots or load geo file)")
+                    return
+                self.plotPlot(index)
+                #reset the axis limits as it was before enlarge
+                #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
+                dim = self.getSpectrumInfoREST("dim", index=0)
+                if dim == 1:
+                    self.setAxisScale(ax, 0, "x", "y")
+                elif dim == 2:
+                    self.setAxisScale(ax, 0, "x", "y", "z")
+                try:
+                    self.removeCb(ax)
+                except:
+                    pass
+                #draw gate if there is one
+                self.drawGate(0)
+            else:
+                self.logger.debug('updatePlot - self.currentPlot.isEnlarged FALSE')
+                for index, value in self.getGeo().items():
+                    ax = self.getSpectrumInfo("axis", index=index)
+                    if ax is None :
+                        self.logger.debug('updatePlot - ax is None')
+                        if len(self.getSpectrumInfoDict()) == 0:
+                            return QMessageBox.about(self,"Warning!", "Configuration file has probably changed, please reset the window geometry (add plots or load geo file)")
+                        continue
+                    self.plotPlot(index)
+                    #reset the axis limits as it was before enlarge
+                    #dont need to specify if log scale, it is checked inside setAxisScale, if 2D histo in log its z axis is set too.
+                    dim = self.getSpectrumInfoREST("dim", index=index)
+                    if dim == 1:
+                        self.setAxisScale(ax, index, "x", "y")
+                    elif dim == 2:
+                        self.setAxisScale(ax, index, "x", "y", "z")
+                    else :
+                        continue
+                    #draw gate if there is one
+                    self.drawGate(index)
+
+            self.currentPlot.figure.tight_layout()
+            self.currentPlot.canvas.draw()
+        except NameError:
+            self.logger.debug('updatePlot - NameError exception', exc_info=True)
+            pass
+            #raise
+
+
+    # looking for first available index to add an histogram
+    def check_index(self):
+        self.logger.info('check_index')
+        keys=list(self.currentPlot.h_dict.keys())
+        values = []
+        try:
+            values = [value["name"] for value in self.currentPlot.h_dict.values()]
+        except TypeError as err:
+            self.logger.warning('check_index - TypeError exception')
+            # print(err)
+            return
+        if "empty" in values:
+            self.currentPlot.index = keys[values.index("empty")]
+        else:
+            self.currentPlot.index = keys[-1]
+            self.currentPlot.isFull = True
+        return self.currentPlot.index
+
+
+    #To avoid None plot index
+    def autoIndex(self):
+        self.logger.info('autoIndex')
+        if self.currentPlot.isSelected == False or self.currentPlot.selected_plot_index is None:
+            if self.wTab.selected_plot_index_bak[self.wTab.currentIndex()] is not None:
+                self.currentPlot.index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
+            else :
+                self.currentPlot.index = self.check_index()
+        else:
+            self.currentPlot.index = self.currentPlot.selected_plot_index
+            self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]= self.currentPlot.selected_plot_index
+
+        return self.currentPlot.index
+
+
+    #go to next index, used in addPlot, so that one can add spectrum without selecting everytime the pad where to draw
+    def nextIndex(self):
+        self.logger.info('nextIndex')
+        tabIndex = self.wTab.currentIndex()
+
+        #Try to deal with all cases... not elegant
+        #first case when ex: coming back from zoom mode or if no plot selected
+        if self.currentPlot.selected_plot_index is None:
+            if self.wTab.selected_plot_index_bak[tabIndex] is not None:
+                self.forNextIndex(tabIndex,self.currentPlot.next_plot_index)
+            else :
+                self.currentPlot.index = self.check_index()
+                self.wTab.selected_plot_index_bak[tabIndex]= self.currentPlot.index
+                self.currentPlot.next_plot_index = self.setIndex(self.currentPlot.next_plot_index)
+        #second case when select a plot before clicking "Add"
+        elif self.currentPlot.selected_plot_index == self.currentPlot.next_plot_index:
+            self.currentPlot.index = self.currentPlot.selected_plot_index
+            self.wTab.selected_plot_index_bak[tabIndex]= self.currentPlot.selected_plot_index
+            self.currentPlot.next_plot_index = self.setIndex(self.currentPlot.next_plot_index)
+        #third case when click "Add" without selecting a plot, will draw in the next frame
+        elif self.currentPlot.selected_plot_index != self.currentPlot.next_plot_index and self.currentPlot.next_plot_index>=0:
+            self.forNextIndex(tabIndex,self.currentPlot.next_plot_index)
+
+        return self.currentPlot.index
+
+
+    #called in nextIndex
+    def forNextIndex(self, tabIndex, index):
+        self.logger.info('forNextIndex')
+        self.currentPlot.index = index
+        self.currentPlot.selected_plot_index = index
+        self.wTab.selected_plot_index_bak[tabIndex]= self.currentPlot.selected_plot_index
+        self.currentPlot.next_plot_index = self.setIndex(index)
+
+    #called in nextIndex and forNextIndex
+    def setIndex(self, indexToChange):
+        self.logger.info('setIndex')
+        row = int(self.wConf.histo_geo_row.currentText())
+        col = int(self.wConf.histo_geo_col.currentText())
+        try:
+            #Once in the nextIndex first case change to next_plot_index to 0 (then +1)
+            if indexToChange == -1:
+                indexToChange = 0
+            if indexToChange <= row*col-1:
+                if indexToChange == row*col-1:
+                    indexToChange = 0
+                else:
+                    indexToChange += 1
+        except IndexError as e:
+            self.logger.warning('setIndex - IndexError occured', exc_info=True)
+            # print(f"An IndexError occured: {e}")
+        return indexToChange
+
+
+    #callback for copyAttr.okAttr
+    def okCopy(self):
+        self.logger.info('okCopy')
+        self.applyCopy()
+        self.closeCopy()
+
+    #callback for copyAttr.applyAttr
+    def applyCopy(self):
+        self.logger.info('applyCopy')
+        try:
+            flags = []
+            discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
+
+            for instance in self.copyAttr.findChildren(QCheckBox):
+                if instance.isChecked():
+                    flags.append(True)
+                else:
+                    flags.append(False)
+
+            self.logger.debug('applyCopy - flags: %s', flags)
+
+            dim = self.getSpectrumInfoREST("dim", index=self.currentPlot.selected_plot_index)
+            indexes = []
+            xlim_src = []
+            ylim_src = []
+            zlim_src = []
+            scale_src = None
+
+            # creating list of target histograms
+            for instance in self.copyAttr.findChildren(QPushButton):
+                if instance.text() not in discard and instance.isChecked():
+                    labelPos = self.copyAttr.copy_log.labelForField(instance)
+                    #following gives [row, col]
+                    geoPositionSpectrum = [int(i) for i in labelPos.text().split() if i.isdigit()]
+                    indexSpectrum = int(self.wConf.histo_geo_col.currentText())*geoPositionSpectrum[0]+geoPositionSpectrum[1]
+                    indexes.append(indexSpectrum)
+
+            self.logger.debug('applyCopy - indexes : %s', indexes)
+
+
+            # src values to copy to destination
+            xlim_src = ast.literal_eval(self.copyAttr.axisLimLabelX.text())
+            ylim_src = ast.literal_eval(self.copyAttr.axisLimLabelY.text())
+            scale_src = self.copyAttr.axisSLabel.text()
+            scale_src_bool = True if scale_src == "Log" else False
+            zlim_src = [float(self.copyAttr.histoScaleValueminZ.text()), float(self.copyAttr.histoScaleValuemaxZ.text())]
+
+            self.logger.debug('applyCopy - xlim_src, ylim_src, scale_src, zlim_src : %s, %s, %s, %s', xlim_src, ylim_src, scale_src, zlim_src)
+
+            # copy to destination
+            for index in indexes:
+                # set the limits for x,y
+                if flags[0]:
+                    self.setSpectrumInfo(minx=xlim_src[0], index=index)
+                    self.setSpectrumInfo(maxx=xlim_src[1], index=index)
+                if flags[1]:
+                    self.setSpectrumInfo(miny=ylim_src[0], index=index)
+                    self.setSpectrumInfo(maxy=ylim_src[1], index=index)
+                # set log/lin scale
+                if flags[2]:
+                    self.setSpectrumInfo(log=scale_src_bool, index=index)
+                # set minZ/maxZ
+                if dim == 2 and (flags[3] or flags[4]):
+                    self.setSpectrumInfo(minz=zlim_src[0], index=index)
+                    self.setSpectrumInfo(maxz=zlim_src[1], index=index)
+            self.updatePlot()
+        except:
+            self.logger.debug('applyCopy - exception occured', exc_info=True)
+            pass
+
+
+    #callback for copyAttr.cancelAttr
+    def closeCopy(self):
+        self.logger.info('closeCopy')
+        discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
+        for instance in self.copyAttr.findChildren(QPushButton):
+            if instance.text() not in discard:
+                instance.deleteLater()
+
+        self.copyAttr.close()
+
+
+    #open copy properties popup
+    def copyPopup(self):
+        self.logger.info('copyPopup - self.currentPlot.selected_plot_index: %s', self.currentPlot.selected_plot_index)
+        if self.copyAttr.isVisible():
+            self.copyAttr.close()
+        index = self.currentPlot.selected_plot_index
+        name = self.nameFromIndex(index)
+        dim = self.getSpectrumInfoREST("dim", index=index)
+
+        if dim is None : 
+            self.logger.debug('copyPopup - dim is None', exc_info=True)
+            return
+
+        # setting up info for source histogram
+        self.copyAttr.histoLabel.setText(name)
+        # hdim = 2 if self.wConf.button2D.isChecked() else 1
+        if dim == 2 :
+            spectrum = self.getSpectrumInfo("spectrum", index=index)
+            zmin, zmax = spectrum.get_clim()
+            self.copyAttr.histoScaleValueminZ.setText(f"{zmin}")
+            self.copyAttr.histoScaleValuemaxZ.setText(f"{zmax}")
+        self.copyAttr.axisSLabel.setText("Log" if self.getSpectrumInfo("log", index=index) else "Linear")
+        xmin = self.getSpectrumInfo("minx", index=index)
+        xmax = self.getSpectrumInfo("maxx", index=index)
+        ymin = self.getSpectrumInfo("miny", index=index)
+        ymax = self.getSpectrumInfo("maxy", index=index)
+        self.copyAttr.axisLimLabelX.setText(f"[{xmin:.1f},{xmax:.1f}]")
+        self.copyAttr.axisLimLabelY.setText(f"[{ymin:.1f},{ymax:.1f}]")
+
+        #reset QFormLayout
+        rowCount = self.copyAttr.copy_log.rowCount()
+        for i in range(rowCount) :
+            self.copyAttr.copy_log.removeRow(0)
+
+        try:
+            for idx, nameTarget in self.getGeo().items():
+                if dim == self.getSpectrumInfoREST("dim", index=idx) and idx is not index:
+                    instance = QPushButton(nameTarget, self)
+                    instance.setCheckable(True)
+                    instance.setStyleSheet('QPushButton {color: red;}')
+                    row, col = self.plotPosition(idx)
+                    self.copyAttr.copy_log.addRow("row: "+str(row)+" col: "+str(col), instance)
+                    instance.clicked.connect(lambda state, instance=instance: self.connectCopy(instance))
+        except KeyError as e:
+            self.logger.warning('copyPopup - KeyError occured', exc_info=True)
+            # print(f"KeyError occured: {e}")
+        self.copyAttr.show()
+
+
+    #callback to change color when press spectrum button name, 
+    def connectCopy(self, instance):
+        self.logger.info('connectCopy')
+        if (instance.palette().color(QPalette.Text).name() == "#008000"):
+            instance.setStyleSheet('QPushButton {color: red;}')
+        else:
+            instance.setStyleSheet('QPushButton {color: green;}')
+
+
     def selectAll(self):
+        self.logger.info('selectAll')
         flag = False
         basic = ["Ok", "Cancel", "Apply"]
         discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
@@ -764,7 +3244,9 @@ class MainWindow(QMainWindow):
                     instance.setStyleSheet('QPushButton {color: red;}')
                     flag = False
 
+
     def histAllAttr(self, b):
+        self.logger.info('histAllAttr - b.text(): %s',  b.text())
         if b.text() == "Select all properties":
             if b.isChecked() == True:
                 self.copyAttr.axisLimitX.setChecked(True)
@@ -779,7 +3261,9 @@ class MainWindow(QMainWindow):
                 self.copyAttr.histoScaleminZ.setChecked(False)
                 self.copyAttr.histoScalemaxZ.setChecked(False)
 
-        if self.wConf.button1D.isChecked():
+        dim = self.getSpectrumInfoREST("dim", index=self.currentPlot.selected_plot_index)
+
+        if dim == 1:
             self.copyAttr.histoScaleminZ.setEnabled(False)
             self.copyAttr.histoScaleValueminZ.setEnabled(False)
             self.copyAttr.histoScalemaxZ.setEnabled(False)
@@ -790,2151 +3274,1160 @@ class MainWindow(QMainWindow):
             self.copyAttr.histoScalemaxZ.setEnabled(True)
             self.copyAttr.histoScaleValuemaxZ.setEnabled(True)
 
-    ###############################################
-    # 5) Connection to REST for gates
-    ##
-    #############################################
-
-    def incrementNumbers(self, parameter, new_number):
-        number = (re.findall(r'\d+',parameter))[0]
-        out = parameter.replace(number,str(new_number).zfill(int(math.log10(self.nparams))+1))
-        return out
-
-    def formatLinetoREST(self, x = [], y = []):
-        if (DEBUG):
-            print("inside formatLinetoREST")
-            print("self.currentPlot.toEditGate", self.currentPlot.toEditGate)
-        name = ""
-        Type = ""
-        if self.currentPlot.toCreateGate or self.currentPlot.toEditGate:
-            name = self.wConf.listGate.currentText()
-            Type =  self.currentPlot.gateTypeDict[name]
-        else:
-            name = self.currentPlot.region_name
-            Type =  self.currentPlot.regionTypeDict[name]
-
-        boundaries = []
-        parameters = []
-        if self.wConf.button1D.isChecked():
-            # gate 1Dgate_xamine s {aris.db1.ppac0.uc {1392.232056 1665.277466}}
-            low = min(x)
-            high = max(x)
-            boundaries = [low,high]
-            if (DEBUG):
-                print(low, high, boundaries)
-            # access list of parameters
-            for index, value in self.currentPlot.h_dict.items():
-                if (value["name"] ==  self.wConf.histo_list.currentText()):
-                    if (Type == "s"):
-                        parameters = value["parameters"][0]
-                    else:
-                        for i in value["parameters"]:
-                            parameters.append(i)
-        else:
-            #{'2Dgate_xamine': {'name': '2Dgate_xamine', 'type': 'c',
-            # 'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
-            # 'points': [{'x': 126.876877, 'y': 29.429428}, {'x': 125.625626, 'y': 25.825825},
-            #            {'x': 126.626625, 'y': 22.522522}, {'x': 129.879883, 'y': 22.522522}, {'x': 130.63063, 'y': 26.126125}, {'x': 129.629623, 'y': 29.129128}]
-            #}}
-            if (DEBUG):
-                print(x,y)
-            for index, value in self.currentPlot.h_dict.items():
-                if (value["name"] ==  self.wConf.histo_list.currentText()):
-                    parameters = value["parameters"]
-            points = {}
-            boundaries = []
-            for xx, yy in zip(x,y):
-                points["x"] = xx
-                points["y"] = yy
-                boundaries.append(deepcopy(points))
-            boundaries.pop()
-
-        if (DEBUG):
-            print(self.wConf.listGate.currentText())
-            print(Type)
-            print(boundaries)
-            print(parameters)
-
-        self.rest.createGate(name, Type, parameters, boundaries)
-
-    # this has to be modified to allow to load gate previously created and being able to apply them correctly
-    def formatRESTToLine(self, name):
-        if (DEBUG):
-            print("inside formatRESTToLine for", name)
-            print(self.currentPlot.gate_dict[name])
-
-        # {'name': '2Dgate_xamine', 'type': 'c',
-        #  'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
-        #'points': [{'x': 126.876877, 'y': 29.429428}, {'x': 125.625626, 'y': 25.825825}, {'x': 126.626625, 'y': 22.522522}, {'x': 129.879883, 'y': 22.522522},
-        #{'x': 130.63063, 'y': 26.126125}, {'x': 129.629623, 'y': 29.129128}],
-        # 'spectrum': 'pid::db5.pin.dE_vs_tof.db3ntodb5n'}
-        gdict = self.currentPlot.gate_dict[name]
-        gate_name = gdict["name"]
-        gate_type = gdict["type"]
-        histo_name = gdict["spectrum"]
-        x = []
-        y = []
-        # 1D {'name': '1Dgate_xamine', 'type': 's', 'parameters': ['aris.db1.ppac0.uc'], 'low': 1392.232056, 'high': 1665.277466}
-        if gate_type == "s" or gate_type == "gs":
-            gate_parameters = gdict["parameters"]
-            xmin = gdict["low"]
-            xmax = gdict["high"]
-            self.currentPlot.artist1D[name] = [xmin, xmax]
-            if (DEBUG):
-                print("min/max", xmin, xmax)
-                print("self.artist1D", self.currentPlot.artist1D)
-            if histo_name in self.currentPlot.artist_dict:
-                self.currentPlot.artist_dict[histo_name][name] = self.currentPlot.artist1D[name]
-            else:
-                self.currentPlot.artist_dict[histo_name] = {name: self.currentPlot.artist1D[name]}
-        elif gate_type == "*":
-            pass
-        else:
-            #{'2Dgate_xamine': {'name': '2Dgate_xamine', 'type': 'c',
-            # 'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
-            # 'points': [{'x': 126.876877, 'y': 29.429428}, {'x': 125.625626, 'y': 25.825825},
-            #            {'x': 126.626625, 'y': 22.522522}, {'x': 129.879883, 'y': 22.522522}, {'x': 130.63063, 'y': 26.126125}, {'x': 129.629623, 'y': 29.129128}]
-            #}}
-
-            gate_parameters = gdict["parameters"]
-            points = gdict["points"]
-            if (DEBUG):
-                print("points", points)
-            for dic in points:
-                x.append(dic["x"])
-                y.append(dic["y"])
-            x.append(x[0])
-            y.append(y[0])
-            if (DEBUG):
-                print(x,y)
-                for key, value in zip(x, y):
-                    print(key, value)
-
-            self.currentPlot.artist2D[name] = [x, y]
-            if (DEBUG):
-                print(self.currentPlot.artist2D)
-            if histo_name in self.currentPlot.artist_dict:
-                self.currentPlot.artist_dict[histo_name][name] = self.currentPlot.artist2D[name]
-            else:
-                self.currentPlot.artist_dict[histo_name] = {name: self.currentPlot.artist2D[name]}
-
-        if (DEBUG):
-            # print(self.currentPlot.artist_dict)
-            # hname = self.wConf.histo_list.currentText()
-            # select = self.spectrum_list['names'] == hname
-            # df = self.spectrum_list.loc[select]
-            # hdim = df.iloc[0]['dim']
-            for hname in self.spectrum_list['names']:
-                select = self.spectrum_list['names'] == hname
-                df = self.spectrum_list.loc[select]
-                hpar = df.iloc[0]['parameters']
-                if hpar == gate_parameters:
-                    # if name in self.currentPlot.artist_dict:
-                    if gate_type == "s" or gate_type == "gs":
-                        self.currentPlot.artist_dict[hname] = [self.currentPlot.artist1D]
-                    else:
-                        self.currentPlot.artist_dict[hname] = [self.currentPlot.artist2D]
-
-        # adding gate to dictionary of regions
-        self.currentPlot.gateTypeDict[name] = gate_type
-
-    ##########################################
-    # 6) Accessing the ShMem
-    ##########################################
-
-    def update(self):
-        # trying to access the shared memory through SpecTcl Mirror Client
-        try:
-            # update host name and port, mirror port, and user name from GUI
-            hostname = str(self.wTop.server.text())
-            port = str(self.wTop.rest.text())
-            user = str(self.wTop.user.text())
-            mirror = str(self.wTop.mirror.text())
-
-            # configuration of the REST plugin
-            self.rest = PyREST(hostname,port)
-            # set traces
-            self.token =self.rest.startTraces(30)
-            if (DEBUG):
-                print("trace token", self.token)
-                print(self.rest.pollTraces(self.token))
-
-            if (hostname == "hostname" or port == "port" or mirror == "mirror"):
-                raise ValueError("hostname/port/mirror are not configured!")
-
-            if (DEBUG):
-                print(hostname.encode('utf-8'), port.encode('utf-8'), user.encode('utf-8'), mirror.encode('utf-8'))
-                print("before cpy.CPyConverter().Update")
-            s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'), bytes(mirror, encoding='utf-8'), bytes(user, encoding='utf-8'))
-
-            # creates a dataframe for spectrum info
-            nlst = []
-            nlstPara = []
-            nlstType = []
-            dictInfo = self.getSpectrumInfo()
-            for name in s[1]:
-                if name in dictInfo:
-                    nlst.append(name)
-                    nlstPara.append(dictInfo[name]["parameters"])
-                    nlstType.append(dictInfo[name]["type"])
-            self.spectrum_list = pd.DataFrame(
-                {'id': s[0],
-                 'names': nlst,
-                 'dim' : s[2],
-                 'binx': s[3],
-                 'minx': s[4],
-                 'maxx': s[5],
-                 'biny': s[6],
-                 'miny': s[7],
-                 'maxy': s[8],
-                 'data': s[9],
-                 'parameters': nlstPara,
-                 'type': nlstType}
-            )
-
-            # order the dataframe by id to avoid mismatch later on with id of new spectra
-            # self.spectrum_list = self.spectrum_list.sort_values(by=['id'], ascending=True)
-
-            if (DEBUG):
-                print(self.spectrum_list)
-
-            # update and create parameter, spectrum, and gate lists
-            self.create_spectrum_list()
-            self.create_parameter_list()
-            self.update_spectrum_info()
-            self.create_gate_list()
-            self.updateGateType()
-
-            '''
-            # update Modify menu
-            gate_list = [self.wConf.listGate.itemText(i) for i in range(self.wConf.listGate.count())]
-            print("gate_list", gate_list)
-            for gate in gate_list:
-                self.wConf.submenuD.addAction(gate, lambda:self.wConf.drag(gate))
-                self.wConf.submenuE.addAction(gate, lambda:self.wConf.edit(gate))
-            '''
-            #except NameError:
-            #raise
-        except:
-            QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started or hostname/port/mirror are not configured!")
-
-
-    #get histo name, type and parameters from REST
-    def getSpectrumInfo(self):
-        if (DEBUG):
-            print("Inside getSpectrumInfo")
-        outDict = {}
-        inpDict = self.rest.listSpectrum()
-        bindList = self.rest.listsbind("*")
-
-        # Dictionary of bindings, keyed by spectrum name
-        bindings = {}
-        for d in bindList:
-            bindings[d["name"]] = d["binding"]
-
-        for el in inpDict:
-            if el["name"] in bindings:
-                outDict[el["name"]] = {
-                    "parameters": el["parameters"],
-                    "type": el["type"],
-                    "binding": bindings[el["name"]],
-                }
-            else:
-                pass
-        return outDict
-
-
-    # create spectrum list for GUI
-    def create_spectrum_list(self):
-        if (DEBUG):
-            print("Inside create_spectrum_list")
-        # resetting ComboBox
-        self.wConf.histo_list.clear()
-
-        for name in self.spectrum_list['names']:
-            if self.wConf.histo_list.findText(name) == -1:
-                self.wConf.histo_list.addItem(name)
-
-        self.wConf.histo_list.setEditable(True)
-        self.wConf.histo_list.setInsertPolicy(QComboBox.NoInsert)
-        self.wConf.histo_list.completer().setCompletionMode(QCompleter.PopupCompletion)
-        self.wConf.histo_list.completer().setFilterMode(QtCore.Qt.MatchContains)
-
-    # update parameter list for GUI
-    def update_parameter_list(self):
-        if (DEBUG):
-            print("Inside update_parameter_list")
-        try:
-            par_dict = self.rest.listParameter()
-            tmpid = [dic['id'] for dic in par_dict if 'id' in dic]
-            tmpname = [dic['name'] for dic in par_dict if 'name' in dic]
-            ziplst = zip(tmpid, tmpname)
-            self.param_list = dict(ziplst)
-            # resetting ComboBox
-            for i in range(2):
-                self.wConf.listParams[i].clear()
-        except:
-            QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started...")
-
-    # create parameter list for GUI
-    def create_parameter_list(self):
-        if (DEBUG):
-            print("Inside create_parameter_list")
-        self.update_parameter_list()
-        for key, value in self.param_list.items():
-            if self.wConf.listParams[0].findText(value) == -1:
-                self.wConf.listParams[0].addItem(value)
-            if self.wConf.listParams[1].findText(value) == -1:
-                self.wConf.listParams[1].addItem(value)
-
-    # update spectrum information
-    def update_spectrum_info(self):
-        if (DEBUG):
-            print("Inside update_spectrum_info")
-        hist_dim = 0
-        hist_type = ""
-        hist_params = []
-        hist_tmp = {}
-        hist_name = str(self.wConf.histo_list.currentText())
-        hist_minx = 0
-        hist_maxx = 0
-        hist_binx = 0
-        hist_miny = 0
-        hist_maxy = 0
-        hist_biny = 0
-        try:
-            # update info on gui for spectrum name
-            # self.wConf.spectrum_name.setText(hist_name)
-            # extra data from data frame to fill up the gui
-            select = self.spectrum_list['names'] == hist_name
-            df = self.spectrum_list.loc[select]
-            hist_dim = df.iloc[0]['dim']
-            hist_type = df.iloc[0]['type']
-            hist_params = df.iloc[0]['parameters']
-            if hist_dim == 1:
-                self.wConf.button1D.setChecked(True)
-            else:
-                self.wConf.button2D.setChecked(True)
-            self.check_histogram();
-            for i in range(hist_dim):
-                index = self.wConf.listParams[i].findText(df.iloc[0]['parameters'][i], QtCore.Qt.MatchFixedString)
-                if index >= 0:
-                    self.wConf.listParams[i].setCurrentIndex(index)
-                if i == 0:
-                    hist_minx = str(df.iloc[0]['minx'])
-                    hist_maxx = str(df.iloc[0]['maxx'])
-                    hist_binx = str(df.iloc[0]['binx'])
-                else :
-                    hist_miny = str(df.iloc[0]['miny'])
-                    hist_maxy = str(df.iloc[0]['maxy'])
-                    hist_biny = str(df.iloc[0]['biny'])
-            hist_tmp = {"name": hist_name, "dim": hist_dim, "xmin": hist_minx, "xmax": hist_maxx, "xbin": hist_binx,
-                        "ymin": hist_miny, "ymax": hist_maxy, "ybin": hist_biny, "parameters": hist_params, "type": hist_type}
-            return hist_tmp
-        except:
-            QMessageBox.about(self, "Warning", "update_spectrum_info - Please click 'Get Data' to access the data...")
-
-    # aux function for histo size
-    def create_disable2D(self, value):
-        if value==True:
-            self.wConf.listParams[1].setEnabled(False)
-        else:
-            self.wConf.listParams[1].setEnabled(True)
-
-    # check histogram dimension from GUI
-    def check_histogram(self):
-        if self.wConf.button1D.isChecked():
-            self.create_disable2D(True)
-        else:
-            self.create_disable2D(False)
-
-    # update spectrum information
-    def updateHistoInfo(self, hist_name):
-        if (DEBUG):
-            print("Inside updateHistoInfo")
-            print("hist_name",hist_name)
-        try:
-            select = self.spectrum_list['names'] == hist_name
-            df = self.spectrum_list.loc[select]
-            hist_dim = df.iloc[0]['dim']
-            if hist_dim == 1:
-                self.wConf.button1D.setChecked(True)
-            else:
-                self.wConf.button2D.setChecked(True)
-            self.check_histogram();
-            for i in range(hist_dim):
-                #Simon - moved the print in the for loop because df.iloc[0]['parameters'] size depends on hist_dim
-                if (DEBUG):
-                    print(hist_name, hist_dim, df.iloc[0]['parameters'][i])
-                index = self.wConf.listParams[i].findText(df.iloc[0]['parameters'][i], QtCore.Qt.MatchFixedString)
-                if index >= 0:
-                    self.wConf.listParams[i].setCurrentIndex(index)
-        except:
-            pass
-
-    # update and create gate list
-    def create_gate_list(self):
-        if (DEBUG):
-            print("Inside create_gate_list")
-        try:
-            gate_list = self.rest.listGate()
-            # resetting ComboBox
-            self.wConf.listGate.clear()
-            if (DEBUG):
-                print("gate list", gate_list)
-            self.currentPlot.gate_dict = {d["name"]: d for d in gate_list}
-            if (DEBUG):
-                print("self.currentPlot.gate_dict", self.currentPlot.gate_dict)
-            # extract keys from gate_dict
-            gates = list(self.currentPlot.gate_dict.keys())
-            if (DEBUG):
-                print("gates",gates)
-            apply_gatelist = self.rest.applylistgate()
-            if (DEBUG):
-                print("apply_gatelist",apply_gatelist)
-            for i in apply_gatelist:
-                if i["gate"] in gates:
-                    (self.currentPlot.gate_dict[i["gate"]])["spectrum"] = i["spectrum"]
-                    if self.wConf.listGate.findText(i["gate"]) == -1:
-                        self.wConf.listGate.addItem(i["gate"])
-                    self.formatRESTToLine(i["gate"])
-        except NameError:
-            raise
-
-    def findGateType(self, gate_name):
-        # if gate is loaded and doesn't exist then add it beforehand
-        gate_type = self.currentPlot.gateTypeDict[gate_name]
-        gate_index = self.wConf.listGate_type.findText(gate_type, QtCore.Qt.MatchFixedString)
-        if gate_index < 0:
-            gate_index = 0
-        return gate_index
-
-
-    def updateGateType(self):
-        try:
-            gate_name = self.wConf.listGate.currentText()
-            gindex = self.findGateType(gate_name)
-            self.wConf.listGate_type.setCurrentIndex(gindex)
-        except:
-            pass
-
-
-    ##########################################
-    # 7) Load/save geometry window
-    ##########################################
-
-    def findWholeWord(self, w):
-        return re.compile(r'\b({0})\b'.format(w), flags=re.IGNORECASE).search
-
-    def findNumbers(self, w):
-        return [int(s) for s in re.findall(r'\b\d+\b', w)]
-
-    def findHistoName(self, w):
-        return re.findall('"([^"]*)"', w)
-
-    # definition for both legacy and not window defs
-    def openGeo(self, filename):
-        cntr = 0
-        coords = []
-        spec_dict = {}
-        info_scale = {}
-        info_range = {}
-
-        x_range = {}
-        y_range = {}
-        ax_scale = {}
-        properties = {}
-        if (DEBUG):
-            print("Inside openGeo")
-        if (len(open(filename).readlines()) == 1):
-            return eval(open(filename,"r").read())
-        else:
-            with open(filename) as f:
-                for line in f:
-                    if (self.findWholeWord("Geometry")(line)):
-                        # find geo x,y in line
-                        coords = self.findNumbers(line)
-                    elif (self.findWholeWord("Window")(line)):
-                        spectrum = self.findHistoName(line)
-                        spec_dict[cntr] = spectrum[0]
-                        if (DEBUG):
-                            print(cntr, spec_dict[cntr])
-                        cntr+=1
-                    elif (self.findWholeWord("COUNTSAXIS")(line)):
-                        if (DEBUG):
-                            print(cntr-1, True)
-                        info_scale[cntr-1] = True
-                    elif (self.findWholeWord("Expanded")(line)):
-                        tmp = self.findNumbers(line)
-                        if (DEBUG):
-                            print(cntr-1, tmp)
-                        info_range[cntr-1] = tmp
-
-            for index, value in spec_dict.items():
-                h_name = value
-                select = self.spectrum_list['names'] == h_name
-                df = self.spectrum_list.loc[select]
-                scale = False
-                x_range = [int(df.iloc[0]['minx']), int(df.iloc[0]['maxx'])]
-                y_range = [self.minY, self.maxY]
-                if df.iloc[0]['dim'] == 2:
-                    y_range = [int(df.iloc[0]['miny']), int(df.iloc[0]['maxy'])]
-
-                if index in info_scale:
-                    scale = info_scale[index]
-                    if y_range[0] == 0:
-                        y_range[0] = 0.001
-                if index in info_range:
-                    x_range = info_range[index][0:2]
-                    y_range = info_range[index][2:4]
-                if (DEBUG):
-                    print("after correction", x_range, y_range)
-
-                properties[index] = {"name": h_name, "x": x_range, "y": y_range, "scale": scale}
-
-            return {'row': coords[0], 'col': coords[1], 'geo': properties}
-
-    def saveGeo(self):
-        fileName = self.saveFileDialog()
-        try:
-            f = open(fileName,"w")
-            properties = {}
-            for index in range(len(self.currentPlot.h_dict_geo)):
-                h_name = self.currentPlot.h_dict_geo[index]
-                x_range, y_range = self.getAxisProperties(index)
-                scale = False
-                #scale = self.h_log[index]
-                properties[index] = {"name": h_name, "x": x_range, "y": y_range, "scale": scale}
-
-            tmp = {"row": int(self.wConf.histo_geo_row.currentText()), "col": int(self.wConf.histo_geo_col.currentText()), "geo": properties}
-            QMessageBox.about(self, "Saving...", "Window configuration saved!")
-            f.write(str(tmp))
-            f.close()
-        except TypeError:
-            pass
-
-    def loadGeo(self):
-
-        fileName = self.openFileNameDialog()
-        if (DEBUG):
-            print("Inside loadGeo")
-        try:
-            if (DEBUG):
-                print("fileName:",fileName)
-                print("openGeo output", self.openGeo(fileName))
-            infoGeo = self.openGeo(fileName)
-            self.wConf.row = infoGeo["row"]
-            self.wConf.col = infoGeo["col"]
-            # change index in combobox to the actual loaded values
-            index_row = self.wConf.histo_geo_row.findText(str(self.wConf.row), QtCore.Qt.MatchFixedString)
-            index_col = self.wConf.histo_geo_col.findText(str(self.wConf.col), QtCore.Qt.MatchFixedString)
-            if index_row >= 0 and index_col >= 0:
-                self.wConf.histo_geo_row.setCurrentIndex(index_row)
-                self.wConf.histo_geo_col.setCurrentIndex(index_col)
-                self.currentPlot.InitializeCanvas(infoGeo["row"],infoGeo["col"])
-                for index, val_dict in infoGeo["geo"].items():
-                    if (DEBUG):
-                        print("---->",index, val_dict)
-                        print(self.currentPlot.h_dict)
-
-                    self.currentPlot.h_dict_geo[index] = val_dict["name"]
-                    self.currentPlot.h_log[index] = val_dict["scale"]
-                    self.currentPlot.h_limits[index] = {}
-                    self.currentPlot.h_limits[index]["x"] = val_dict["x"]
-                    self.currentPlot.h_limits[index]["y"] = val_dict["y"]
-                self.currentPlot.isLoaded = True
-
-                if len(self.currentPlot.h_dict_geo) == 0:
-                    QMessageBox.about(self, "Warning", "You saved an empty pane geometry...")
-
-            if (DEBUG):
-                print("After loading geo win")
-                print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-                print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-                print("self.currentPlot.h_limits",self.currentPlot.h_limits)
-                print("self.currentPlot.h_log",self.currentPlot.h_log)
-                print("self.currentPlot.h_setup",self.currentPlot.h_setup)
-                print("self.currentPlot.isLoaded", self.currentPlot.isLoaded)
-
-            self.wTab.h_dict_geo_bak[self.wTab.currentIndex()] = deepcopy(self.currentPlot.h_dict_geo)
-            self.wTab.h_log_bak[self.wTab.currentIndex()] = deepcopy(self.currentPlot.h_log)
-
-            self.currentPlot.old_row = self.wConf.row
-            self.currentPlot.old_col = self.wConf.col
-            self.currentPlot.old_row_idx = index_row
-            self.currentPlot.old_col_idx = index_col
-
-            if (DEBUG):
-                print("self.currentPlot.old_row",self.currentPlot.old_row)
-                print("self.currentPlot.old_col",self.currentPlot.old_col)
-                print("self.currentPlot.old_row_idx",self.currentPlot.old_row_idx)
-                print("self.currentPlot.old_col_idx",self.currentPlot.old_col_idx)
-
-            self.addPlot()
-            self.updatePlot()
-            self.currentPlot.isLoaded = False
-            #Simon - commented following line because drawAllGates is called in updatePlot
-            #self.drawAllGates()
-            self.updateGateType()
-
-        except TypeError:
-            pass
-
-    def openFileNameDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Window Files (*.win);;All Files (*)", options=options)
-        if fileName:
-            return fileName
-
-    def saveFileDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self,"Save file...","","Window Files (*.win);;All Files (*)", options=options)
-        if fileName:
-            return fileName
-
-    ############################
-    # 8) Zoom operations
-    ############################
-
-    # modify axes
-    def loadAxis(self, ax, index):
-        if (DEBUG):
-            print("Inside loadAxis")
-        if (self.currentPlot.h_dict[index]["dim"] == 1) :
-            if self.currentPlot.h_log[index]:
-                if (DEBUG):
-                    print("time to become log")
-                ymin, ymax = ax.get_ylim()
-                if ymin == 0:
-                    ymin = 0.001
-                ax.set_ylim(ymin,ymax)
-                ax.set_yscale("log")
-                if (DEBUG):
-                    print("at this point should be log")
-            else:
-                ax.set_yscale("linear")
-                if (self.currentPlot.h_limits[index]):
-                    ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])
-                else:
-                    ax.set_ylim(self.minY,self.maxY)
-        else:
-            if self.currentPlot.h_log[index]:
-                zmin = 0
-                if self.minZ == 0:
-                    zmin = 0.001
-                else:
-                    zmin = self.minZ
-                zmin = math.log10(zmin)
-                zmax = math.log10(self.maxZ)
-                self.currentPlot.h_lst[index].set_clim(vmin=zmin, vmax=zmax)
-            else:
-                self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
-
-    # sets y scale for 1d and z scale for 2d depending on h_log flag
-    def axisScale(self, ax, index):
-        if (DEBUG):
-            print("Inside axisScale")
-            print("self.currentPlot.isLoaded", self.currentPlot.isLoaded)
-        if self.currentPlot.isLoaded:
-            self.loadAxis(ax, index)
-        #Simon - changed the following line, self.wTab.wPlot has the size of the number of tabs not number of figures
-        if self.currentPlot.h_log[index]:
-            if (DEBUG):
-                print("needs to become log...")
-            if (self.currentPlot.h_dict[index]["dim"] == 1) :
-                if ax.get_yscale() == "linear":
-                    ymin, ymax = ax.get_ylim()
-                    if ymin == 0:
-                        ymin = 0.001
-                    ax.set_ylim(ymin,ymax)
-                    ax.set_yscale("log")
-            else:
-                zmin = 0
-                if self.minZ <= 0:
-                    zmin = 0.001
-                else:
-                    zmin = self.minZ
-                zmin = math.log10(zmin)
-                zmax = math.log10(self.maxZ)
-                self.currentPlot.h_lst[index].set_clim(vmin=zmin, vmax=zmax)
-        else:
-            if (DEBUG):
-                print("needs to become linear...")
-                print(self.currentPlot.h_limits)
-            if (self.currentPlot.h_dict[index]["dim"] == 1) :
-                if ax.get_yscale() == "log":
-                    ax.set_yscale("linear")
-                    if len(self.currentPlot.h_limits) > index:
-                        if self.currentPlot.h_limits[index]:
-                            ax.set_ylim(self.currentPlot.h_limits[index]["y"][0], self.currentPlot.h_limits[index]["y"][1])
-                    else:
-                        ax.set_ylim(self.minY,self.maxY)
-            else:
-                self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
-
-
-    # setting log/linear axes
-    def setLogBox(self):
-        #in zoom mode use selected_plot_index_bak because on_press sets selected_plot_index to 0
-        # if self.currentPlot.isZoomed:
-        #     selected_plot_index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
-        # else:
-        #     selected_plot_index = self.currentPlot.selected_plot_index
-        selected_plot_idx = self.currentPlot.selected_plot_index
-        wPlot = self.wTab.wPlot[self.wTab.currentIndex()]
-
-        if DEBUG:
-            print("Clicked setLogBox in tab", self.wTab.currentIndex())
-            print("self.currentPlot.h_log", h_log)
-            print("self.currentPlot.selected_plot_index", selected_plot_idx)
-
-        try:
-            if selected_plot_idx is not None:
-                if DEBUG:
-                    print("histogram selected with index", selected_plot_idx)
-                self.currentPlot.h_log[selected_plot_idx] = wPlot.histo_log.isChecked()
-                if DEBUG:
-                    scale_type = "log" if self.currentPlot.h_log[selected_plot_idx] else "linear"
-                    print("histogram needs to become", scale_type)
-                if self.currentPlot.isZoomed:
-                    ax = plt.gca()
-                else:
-                    ax = self.select_plot(selected_plot_idx)
-
-                self.axisScale(ax, selected_plot_idx)
-                # self.currentPlot.canvas.draw()
-                wPlot.canvas.draw()
-
-        except NameError:
-            raise
-
-
-    def zoom(self, ax, index, flag):
-        if (DEBUG):
-            print("Inside zoom")
-        if self.wConf.button1D.isChecked():
-            ymax = (ax.get_ylim())[1]
-            if (DEBUG):
-                print("ymax", ymax)
-            if flag == "in":
-                ymax /= 2
-            elif flag == "out":
-                ymax *= 2
-            if (DEBUG):
-                print("new ymax", ymax)
-            ax.set_ylim((ax.get_ylim())[0],ymax)
-        elif self.currentPlot.h_lst[index] is not None:
-            zmax = self.currentPlot.h_lst[index].get_clim()[1]
-            if (DEBUG):
-                print("zmax",zmax)
-            if flag == "in":
-                zmax /= 2
-            elif flag == "out":
-                zmax *= 2
-            if (DEBUG):
-                print("new zmax", zmax)
-            self.currentPlot.h_lst[index].set_clim(vmax=zmax)
-
-    def zoomIn(self, canvas):
-        if (DEBUG):
-            print("Inside zoomIn")
-
-        # Simon - added following lines to avoid None plot index
-        index = self.autoIndex()
-
-        if self.currentPlot.isZoomed == False:
-            for i, ax in enumerate(self.currentPlot.figure.axes):
-                if (i == index):
-                    self.zoom(ax, i, "in")
-                    try:
-                        self.currentPlot.rec.remove()
-                        self.currentPlot.rec = self.createRectangle(ax)
-                    except:
-                        pass
-        else:
-            ax = plt.gca()
-            self.zoom(ax, index, "in")
-
-        #Simon - added lines - save axis limits for updates
-        if index in self.currentPlot.h_limits:
-            x_range, y_range = self.getAxisProperties(index)
-            self.currentPlot.h_limits[index]["x"] = x_range
-            self.currentPlot.h_limits[index]["y"] = y_range
-            self.currentPlot.isZoomInOut = True
-
-        canvas.draw()
-
-    def zoomOut(self, canvas):
-        if (DEBUG):
-            print("Inside zoomOut")
-
-        # Simon - added following lines to avoid None plot index
-        index = self.autoIndex()
-
-        if self.currentPlot.isZoomed == False:
-            for i, ax in enumerate(self.currentPlot.figure.axes):
-                if (i == index):
-                    self.zoom(ax, i, "out")
-                    try:
-                        self.currentPlot.rec.remove()
-                        self.currentPlot.rec = self.createRectangle(ax)
-                    except:
-                        pass
-        else:
-            ax = plt.gca()
-            self.zoom(ax, index, "out")
-
-        #Simon - added lines - save axis limits for updates
-        if index in self.currentPlot.h_limits:
-            x_range, y_range = self.getAxisProperties(index)
-            self.currentPlot.h_limits[index]["x"] = x_range
-            self.currentPlot.h_limits[index]["y"] = y_range
-            self.currentPlot.isZoomInOut = True
-
-        canvas.draw()
-
-
-    def setAutoscaleAxisBox(self):
-        if (DEBUG):
-            print("setAutoscaleAxisBox in tab:", self.wTab.currentIndex(), "with name", self.wTab.tabText(self.wTab.currentIndex()))
-        wPlot = self.wTab.wPlot[self.wTab.currentIndex()]
-        try:
-            self.currentPlot.autoScale = wPlot.histo_autoscale.isChecked()
-            self.setAutoscaleAxis()
-            self.currentPlot.canvas.draw()
-        except:
-            pass
-
-
-    # setting autoscale+axis properties with h_limits
-    def setAutoscaleAxis(self):
-        if (DEBUG):
-            print("Clicked tab", self.wTab.currentIndex(), "with name", self.wTab.tabText(self.wTab.currentIndex()))
-            print("Autoscale is:", self.currentPlot.autoScale)
-
-        try:
-            ax = None
-            if self.currentPlot.isZoomed:
-                if (DEBUG):
-                    print("inside isZoomed")
-                ax = plt.gca()
-
-                selected_plot_idx = self.currentPlot.selected_plot_index
-                self.currentPlot.h_log[selected_plot_idx] = self.wTab.wPlot[self.wTab.currentIndex()].histo_log.isChecked()
-                self.axisScale(ax, selected_plot_idx)
-                hist_dict_idx = self.currentPlot.h_dict[selected_plot_idx]
-                hist_limits_idx = self.currentPlot.h_limits[selected_plot_idx]
-
-                # set limits if they exist
-                if hist_limits_idx:
-                    ax.set_xlim(hist_limits_idx["x"][0], hist_limits_idx["x"][1])
-                    ax.set_ylim(hist_limits_idx["y"][0], hist_limits_idx["y"][1])
-                    if hist_dict_idx["dim"] == 2:
-                        zmin, zmax = self.currentPlot.h_lst[selected_plot_idx].get_clim()
-                        # ax.set_clim(vmin=self.minZ, vmax=self.maxZ)
-                        self.currentPlot.h_lst[selected_plot_idx].set_clim(vmin=zmin, vmax=zmax)
-                else:
-                    if hist_dict_idx["dim"] == 1:
-                        ax.set_xlim(float(hist_dict_idx["xmin"]), float(hist_dict_idx["xmax"]))
-                    else:
-                        ax.set_xlim(float(hist_dict_idx["xmin"]), float(hist_dict_idx["xmax"]))
-                        ax.set_ylim(float(hist_dict_idx["ymin"]), float(hist_dict_idx["ymax"]))
-                        #do not self.currentPlot.h_lst[index].set_clim because already done in axisScale
-
-                # (re)sets y or z limits according to the maximum
-                if self.currentPlot.autoScale:
-                    if (DEBUG):
-                        print("Inside self.autoScale for tab with index", self.wTab.currentIndex())
-                    if (hist_dict_idx["name"]) != "empty":
-                        if (DEBUG):
-                            print("histogram exists with index", selected_plot_idx)
-                        data = self.get_data(selected_plot_idx)
-                        if (hist_dict_idx["dim"] == 1) :
-                            ymax_new = max(data)*1.1
-                            ax.set_ylim((ax.get_ylim())[0], ymax_new)
-                        else:
-                            maxZ = np.max(data)*1.1
-                            self.currentPlot.h_lst[selected_plot_idx].set_clim(vmin=self.minZ, vmax=maxZ)
-            else:
-                if (DEBUG):
-                    print("Inside multipanel option")
-                    print("self.currentPlot.autoScale", self.currentPlot.autoScale)
-
-                hist_list = self.wTab.wPlot[self.wTab.currentIndex()].hist_list
-                hist_dict = self.currentPlot.h_dict
-                hist_limits = self.currentPlot.h_limits
-
-                if (DEBUG):
-                    print("Inside not self.autoScale for tab with index", self.wTab.currentIndex())
-                    print(self.currentPlot.h_limits)
-
-                #read hist_list because faster to get index than from h_dict
-                for index, name in enumerate(hist_list):
-                    hist_dict_idx = hist_dict[index]
-                    if (hist_dict_idx["name"]) != "empty":
-                        ax = self.select_plot(index)
-                        self.axisScale(ax, index)
-                        # set limits if they exist
-                        if hist_limits[index]:
-                            hist_limits_idx = hist_limits[index]
-                            ax.set_xlim(hist_limits_idx["x"][0], hist_limits_idx["x"][1])
-                            ax.set_ylim(hist_limits_idx["y"][0], hist_limits_idx["y"][1])
-                            if hist_dict_idx["dim"] == 2:
-                                zmin, zmax = self.currentPlot.h_lst[index].get_clim()
-                                self.currentPlot.h_lst[index].set_clim(vmin=zmin, vmax=zmax)
-                        else:
-                            if hist_dict_idx["dim"] == 1:
-                                ax.set_xlim(float(hist_dict_idx["xmin"]), float(hist_dict_idx["xmax"]))
-                                # ax.set_ylim(self.minY, self.maxY)
-                            else:
-                                ax.set_xlim(float(hist_dict_idx["xmin"]), float(hist_dict_idx["xmax"]))
-                                ax.set_ylim(float(hist_dict_idx["ymin"]), float(hist_dict_idx["ymax"]))
-                                #do not self.currentPlot.h_lst[index].set_clim because already done in axisScale
-
-                        # (re)sets y or z limits according to the maximum
-                        if self.currentPlot.autoScale:
-                            data = self.get_data(index)
-                            if hist_dict_idx["dim"] == 1:
-                                ymax_new = max(data)*1.1
-                                ax.set_ylim((ax.get_ylim())[0], ymax_new)
-                            else:
-                                maxZ = np.max(data)*1.1
-                                self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=maxZ)
-        except:
-            pass
-
-
-    def getAxisProperties(self, index):
-        if (DEBUG):
-            print("Inside getAxisProperties")
-        try:
-            ax = None
-            if self.currentPlot.isZoomed:
-                ax = plt.gca()
-            else:
-                ax = self.select_plot(index)
-
-            if (DEBUG):
-                print(type(ax.get_xlim()))
-                print(ax.get_xlim(), ax.get_xaxis().get_scale())
-                print(ax.get_ylim(), ax.get_yaxis().get_scale())
-
-            return list(ax.get_xlim()), list(ax.get_ylim())
-
-
-        except:
-            pass
-
-    def resetAxisLimits(self, index):
-        if (DEBUG):
-            print("Inside resetAxisLimits", self.currentPlot.h_limits[index])
-            print("original axes", self.currentPlot.h_dict[index])
-            print("original limits", self.currentPlot.h_limits[index])
-        ax = None
-        if self.currentPlot.isZoomed:
-            ax = plt.gca()
-        else:
-            ax = self.select_plot(index)
-
-        if self.currentPlot.h_dim[index] == 1:
-            ax.set_xlim(float(self.currentPlot.h_dict[index]["xmin"]), float(self.currentPlot.h_dict[index]["xmax"]))
-            ax.set_ylim(self.minY, self.maxY)
-        else:
-            ax.set_xlim(float(self.currentPlot.h_dict[index]["xmin"]), float(self.currentPlot.h_dict[index]["xmax"]))
-            ax.set_ylim(float(self.currentPlot.h_dict[index]["ymin"]), float(self.currentPlot.h_dict[index]["ymax"]))
-            self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
-
-        # reset limits
-        self.currentPlot.h_limits[index]["x"] = []
-        self.currentPlot.h_limits[index]["y"] = []
-
-
-    #Simon - used to keep modified axis ranges after zoomCallback unless homeCallback is pressed
-    def setAxisLimits(self, index):
-        if (DEBUG):
-            print("Inside setAxisLimits")
-            print("axes", self.currentPlot.h_dict[index])
-            print("log ", self.currentPlot.h_log[index])
-        ax = None
-        if self.currentPlot.isZoomed:
-            ax = plt.gca()
-        else:
-            ax = self.select_plot(index)
-
-        if "x" in self.currentPlot.h_limits[index] and "y" in self.currentPlot.h_limits[index]:
-            x_limits = self.currentPlot.h_limits[index]["x"]
-            y_limits = self.currentPlot.h_limits[index]["y"]
-            if x_limits and y_limits:
-                ax.set_xlim(float(x_limits[0]), float(x_limits[1]))
-                ax.set_ylim(float(y_limits[0]), float(y_limits[1]))
-
-        if self.currentPlot.h_log[index] and self.currentPlot.h_dim[index] == 1:
-            self.axisScale(ax, index)
-
-        if self.currentPlot.h_dim[index] == 2:
-            self.currentPlot.h_lst[index].set_clim(vmin=self.minZ, vmax=self.maxZ)
-            if self.currentPlot.h_log[index]:
-                self.axisScale(ax, index)
-
-
-    ##################################
-    ## 9) Histogram operations
-    ##################################
-
-    # remove colorbar
-    def removeCb(self, axis):
-        im = axis.images
-        if im is not None:
-            try:
-                cb = im[-1].colorbar
-                cb.remove()
-            except IndexError:
-                pass
-
-    # looking for first available index to add an histogram
-    def check_index(self):
-        if (DEBUG):
-            print("inside check index")
-        keys=list(self.currentPlot.h_dict.keys())
-        values = []
-        # for index, value in self.currentPlot.h_dict.items():
-        #     values.append(value["name"])
-
-        try:
-            values = [value["name"] for value in self.currentPlot.h_dict.values()]
-        except TypeError as err:
-            print(err)
-            return
-
-        if (DEBUG):
-            print(keys, values)
-        if "empty" in values:
-            self.currentPlot.index = keys[values.index("empty")]
-        else:
-            if (DEBUG):
-                print("list is full, set index to full")
-            self.currentPlot.index = keys[-1]
-            self.currentPlot.isFull = True
-
-        # Simon modified following lines
-        if self.currentPlot.isFull:
-            try:
-                if self.currentPlot.index <= self.wConf.row*self.wConf.col-1:
-                    if self.currentPlot.index == self.wConf.row*self.wConf.col-1:
-                        self.currentPlot.index = 0
-                    else:
-                        self.currentPlot.index += 1
-            except IndexError as e:
-                print(f"An IndexError occured: {e}")
-
-        if (DEBUG):
-            print("index to fill", self.currentPlot.index)
-        return self.currentPlot.index
-
-    # select axes based on indexing
-    def select_plot(self, index):
-        for i, plot in enumerate(self.currentPlot.figure.axes):
-            # retrieve the subplot from the click
-            if (i == index):
-                return plot
-
-    # returns position in grid based on indexing
-    def plot_position(self, index):
-        cntr = 0
-        # convert index to position in geometry
-        for i in range(self.currentPlot.old_row):
-            for j in range(self.currentPlot.old_col):
-                if index == cntr:
-                    return i, j
-                else:
-                    cntr += 1
-
-    # erase plot
-    def erasePlot(self, index):
-        if (DEBUG):
-            print("Inside erasePlot")
-        a = None
-        if self.currentPlot.isZoomed:
-            a = plt.gca()
-        else:
-            a = self.select_plot(index)
-        # if 2d histo I need a bit more efforts for the colorbar
-        try:
-            self.removeCb(a)
-            self.currentPlot.cbar[index] = False
-        except:
-            pass
-
-        a.clear()
-        return a
-
-    # setup histogram
-    def setupPlot(self, axis, index):
-        currentPlot = self.currentPlot
-        if (DEBUG):
-            print("Inside setupPlot")
-            print("histoname -->", currentPlot.h_dict[index]["name"])
-        if (DEBUG):
-            print("self.currentPlot.h_dict", currentPlot.h_dict)
-            print("self.currentPlot.h_dict_geo", currentPlot.h_dict_geo)
-            print("self.currentPlot.h_limits",currentPlot.h_limits)
-            print("self.currentPlot.h_log",currentPlot.h_log)
-            print("self.currentPlot.h_setup",currentPlot.h_setup)
-            print("self.currentPlot.h_dim",currentPlot.h_dim)
-            print("----------------------")
-
-        if currentPlot.h_dict_geo[index] != "empty":
-            #Simon - add a line - already a plot at index (not empty) so remove it (use pop here) and then add a new one.
-            #Simon - if use insert only it adds new content to the list but does not replace elements.
-            currentPlot.h_lst.pop(index)
-            #Simon - opti
-            if len(self.wTab.wPlot[self.wTab.currentIndex()].hist_list) > index :
-                self.wTab.wPlot[self.wTab.currentIndex()].hist_list.pop(index)
-
-            if (DEBUG):
-                print("not empty --> ",currentPlot.h_dict_geo)
-
-            dim = int(currentPlot.h_dim[index])
-            minx = float(currentPlot.h_dict[index]["xmin"])
-            maxx = float(currentPlot.h_dict[index]["xmax"])
-            binx = int(currentPlot.h_dict[index]["xbin"])
-
-            if (DEBUG):
-                print("Histo", currentPlot.h_dict_geo[index], "dim", dim, minx, maxx, binx)
-
-            # update axis
-            if dim == 1:
-                if (DEBUG):
-                    print("1d case...")
-                axis.set_xlim(minx,maxx)
-                axis.set_ylim(self.minY,self.maxY)
-                # create histogram
-                line, = axis.plot([], [], drawstyle='steps')
-                # line.set_animated(True)
-                currentPlot.h_lst.insert(index, line)
-            else:
-                currentPlot = self.currentPlot
-                if (DEBUG):
-                    print("2d case...")
-
-                miny = currentPlot.h_dict[index]["ymin"]
-                maxy = currentPlot.h_dict[index]["ymax"]
-                biny = currentPlot.h_dict[index]["ybin"]
-
-                # empty data for initialization
-                # w = 0*np.random.random_sample((int(binx),int(biny)))
-                w = np.zeros((int(binx), int(biny)))
-
-                # setup up palette
-                if (self.wConf.button2D_option.currentText() == 'Dark'):
-                    #self.palette = 'plasma'
-                    self.palette = 'plasma_r'
-                else:
-                    self.palette = copy(plt.cm.plasma)
-                    w = np.ma.masked_where(w < 0.1, w)
-                    self.palette.set_bad(color='white')
-
-                # create histogram
-                currentPlot.h_lst.insert(index, axis.imshow(w,
-                                                                 interpolation='none',
-                                                                 extent=[float(minx),float(maxx),float(miny),float(maxy)],
-                                                                 aspect='auto',
-                                                                 origin='lower',
-                                                                 vmin=self.minZ, vmax=self.maxZ,
-                                                                 cmap=self.palette))
-
-            currentPlot.axbkg[index] = currentPlot.figure.canvas.copy_from_bbox(axis.bbox)
-            if (DEBUG):
-                print("self.currentPlot.h_lst",currentPlot.h_lst)
-
-            self.currentPlot = currentPlot
-            #Simon - here fill tab dict with gates
-            self.updateHistList(index)
-
-
-        if (DEBUG):
-            print("done setting up the histos")
-
-    # geometrically add plots to the right place and calls plotting
-    def add(self, index):
-        if (DEBUG):
-            print("Ready to add and initialize histograms...")
-        self.currentPlot.h_setup[index] = True # ready to be setup
-        a = None
-        if (DEBUG):
-            print(self.currentPlot.h_setup)
-        if self.currentPlot.isZoomed:
-            a = plt.gca()
-            self.erasePlot(index)
-        else:
-            a = self.select_plot(index)
-            x,y = self.plot_position(index)
-            if (DEBUG):
-                print("Plot", self.currentPlot.h_dict[index],"with index", index, "is in position",x,y)
-            self.erasePlot(index)
-        if (DEBUG):
-            print("Before setting up plots...")
-        self.setupPlot(a, index)
-
-    def updateSinglePlot(self, index):
-        if (DEBUG):
-            print("Inside updateSinglePlot")
-            print("self.currentPlot.h_dict[index]", self.currentPlot.h_dict[index])
-            print("self.currentPlot.h_setup", self.currentPlot.h_setup)
-
-        if (self.currentPlot.h_dict[index]["name"] != "empty"):
-            if (DEBUG):
-                print("histoname", self.currentPlot.h_dict[index]["name"])
-            #Simon - following if else added to avoid a=NoneType in the else "not loaded"
-            a = None
-            if self.currentPlot.isZoomed:
-                a = plt.gca()
-            else:
-                a = self.select_plot(index)
-            if self.currentPlot.isLoaded:
-                if (DEBUG):
-                    print("loaded")
-                time.sleep(0.01)
-                self.plotPlot(a, index)
-
-            else:
-                if (DEBUG):
-                    print("not loaded")
-                self.setupPlot(a, index)
-                self.add(index)
-                self.plotPlot(a, index)
-            if (self.currentPlot.h_setup[index]):
-                self.currentPlot.h_setup[index] = False
-
-        if (DEBUG):
-            print("self.currentPlot.h_setup", self.currentPlot.h_setup)
-            print(self.currentPlot.selected_plot_index)
-
-
-    def updateHistList(self, index):
-         #Simon - work optimization
-        if (DEBUG):
-            print("Inside updateHistList")
-        hist_name = self.currentPlot.h_dict[index]['name']
-
-        if hist_name not in self.wTab.wPlot[self.wTab.currentIndex()].hist_list:
-        # if hist_name not in self.wTab.wPlot[self.wTab.currentIndex()].hist_list:
-            self.wTab.wPlot[self.wTab.currentIndex()].hist_list.insert(index, hist_name)
-
-
-    # geometrically add plots to the right place
-    def addPlot(self):
-        if (DEBUG):
-            print("Inside addPlot")
-            print("Simon - tab -",self.wTab.currentIndex(),len(self.wTab)-1,len(self.wTab.selected_plot_index_bak))
-
-        try:
-            currentPlot = self.currentPlot
-            # if we load the geometry from file
-            if currentPlot.isLoaded:
-                if (DEBUG):
-                    print("Inside addPlot - loaded")
-                    print(currentPlot.h_dict_geo)
-                    print(currentPlot.h_dict)
-                counter = 0
-                for key, value in currentPlot.h_dict_geo.items():
-                    if (DEBUG):
-                        print("counter -->", counter)
-                    index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
-                    # changing the index to the correct histogram to load
-                    self.wConf.histo_list.setCurrentIndex(index)
-                    self.updateHistoInfo(index)
-                    if (DEBUG):
-                        print(key, value, index)
-                    # updating histogram dictionary with the last info needed (dim, xbinx, ybin, parameters, and type)
-                    if (index != -1) :
-                        currentPlot.h_dict[counter] = self.update_spectrum_info()
-
-                    if (DEBUG):
-                        print(self.update_spectrum_info())
-                    counter += 1
-                if (DEBUG):
-                    print("updated self.currentPlot.h_dict")
-                    print(currentPlot.h_dict)
-
-                # updating support list for histogram dimension
-                if len(currentPlot.h_dict) != 0:
-                    currentPlot.h_dim = currentPlot.get_histo_key_list(currentPlot.h_dict, "dim")
-                    if (DEBUG):
-                        print("self.currentPlot.h_dim",currentPlot.h_dim)
-
-                self.currentPlot = currentPlot
-                for key, value in currentPlot.h_dict_geo.items():
-                    if (DEBUG):
-                        print(key, value)
-                    self.add(key)
-            else:
-                if (DEBUG):
-                    print("Inside addPlot - not loaded")
-                # self adding
-
-                #reminder - following was using self.currentPlot.index instead of index
-                index = self.autoIndex()
-
-                if (DEBUG):
-                    print("Adding plot at index ", index)
-                    print("self.currentPlot.h_dict", currentPlot.h_dict)
-                    print("self.currentPlot.h_dict_geo", currentPlot.h_dict_geo)
-                    print("self.currentPlot.h_dim", currentPlot.h_dim)
-
-                # updating histogram dictionary for fast access to information via get_histo_xxx
-                currentPlot.h_dict[index] = self.update_spectrum_info()
-                if currentPlot.h_dict[index] is None:
-                    return
-                currentPlot.h_dict_geo[index] = (currentPlot.h_dict[index])["name"]
-                currentPlot.h_dim[index] = (currentPlot.h_dict[index])["dim"]
-                currentPlot.h_limits[index] = {}
-
-                if (DEBUG):
-                    print("self.currentPlot.h_dict", currentPlot.h_dict)
-                    print("self.currentPlot.h_dict_geo", currentPlot.h_dict_geo)
-                    print("self.currentPlot.h_dim", currentPlot.h_dim)
-
-                currentPlot.h_setup[index] = True
-                self.currentPlot = currentPlot
-                self.erasePlot(index)
-                #self.add(index)
-                self.updateSinglePlot(index)
-                # if gate in gateList:
-                self.drawAllGates()
-                #Simon - the following line was commented, I think it is better if one not overlay with the previous plot (?)
-                self.currentPlot.canvas.draw()
-                self.currentPlot.isSelected = False
-        except NameError:
-            raise
-
-    # getting data for plotting
-    def get_data(self, index):
-        if (DEBUG):
-            print("Inside get_data")
-        name = self.currentPlot.h_dict[index]["name"]
-        dim = self.currentPlot.h_dict[index]["dim"]
-        empty = 0
-        w = []
-        if name == "":
-            return
-        else :
-            select = self.spectrum_list['names'] == name
-            df = self.spectrum_list.loc[select]
-
-            try:
-                data = df.iloc[0]
-            except:
-                return
-
-            if "data" in df.iloc[0] :
-                w = df.iloc[0]['data']
-            else :
-                return
-
-        if (DEBUG):
-            print("dim:", dim)
-            print("data for ", name)
-            print(type(w))
-            print(w)
-            print("sum ", sum(w), "len", len(w))
-
-        if dim == 1:
-            empty = sum(w)
-        else:
-            if (DEBUG):
-                print(len(w[0]))
-            empty = len(w[0])
-
-        if (empty == 0):
-            self.isEmpty = True
-        else:
-            self.isEmpty = False
-        return w
-
-    def create_range(self, bins, vmin, vmax):
-        x = []
-        step = (float(vmax)-float(vmin))/float(bins)
-        for i in np.arange(float(vmin), float(vmax), step):
-            x.append(i)
-        return x
-
-    # histo plotting
-    def plotPlot(self, axis, index, threshold=0.1):
-        currentPlot = self.currentPlot
-        if (DEBUG):
-            print("Inside plotPlot")
-            print("verification tab index", self.wTab.currentIndex())
-
-        dim = int(currentPlot.h_dim[index])
-        minx = float(currentPlot.h_dict[index]["xmin"])
-        maxx = float(currentPlot.h_dict[index]["xmax"])
-        binx = int(currentPlot.h_dict[index]["xbin"])
-        if (DEBUG):
-            print(dim, minx, maxx, binx)
-
-        if (DEBUG):
-            print("self.currentPlot.h_dict", currentPlot.h_dict)
-            print("self.currentPlot.h_lst", currentPlot.h_lst)
-
-        w = self.get_data(index)
-        if (DEBUG):
-            print("data",sum(w))
-            print(currentPlot.h_lst[index])
-
-        if dim == 1:
-            if (DEBUG):
-                print("1d case..")
-            X = np.array(self.create_range(binx, minx, maxx))
-            if (DEBUG):
-                print(len(w),len(X))
-                print(type(w),type(X))
-            currentPlot.h_lst[index].set_data(X, w)
-        else:
-            if (DEBUG):
-                print("2d case..")
-            if (self.wConf.button2D_option.currentText() == 'Light'):
-                self.palette = copy(plt.cm.plasma)
-                w = np.ma.masked_where(w < threshold, w)
-                self.palette.set_bad(color='white')
-                currentPlot.h_lst[index].set_cmap(self.palette)
-            currentPlot.h_lst[index].set_data(w)
-
-        currentPlot.figure.canvas.restore_region(currentPlot.axbkg[index])
-        axis.draw_artist(currentPlot.h_lst[index])
-        currentPlot.figure.canvas.blit(axis.bbox)
-
-        # setup colorbar only for 2D
-        if dim == 2 and not currentPlot.cbar[index]:
-            divider = make_axes_locatable(axis)
-            cax = divider.append_axes('right', size='5%', pad=0.05)
-            # add colorbar
-            currentPlot.figure.colorbar(currentPlot.h_lst[index], cax=cax, orientation='vertical')
-            #set a dictionary to avoid overlaying error bars
-            currentPlot.cbar[index] = True
-        self.currentPlot = currentPlot
-
-
-    def clearPlot(self):
-        if (DEBUG):
-            print("Inside clearPlot")
-            print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-        # Simon - added following lines to avoid None plot index
-        index = self.autoIndex()
-        if index is None:
-            return
-
-        if self.currentPlot.h_dict[index]["name"] != "empty" :
-            a = self.select_plot(index)
-            if self.currentPlot.isZoomed:
-                a = plt.gca()
-            else:
-                a = self.select_plot(index)
-            a.clear()
-
-        self.currentPlot.canvas.draw()
-
-
-    def updatePlot(self):
-        if (DEBUG):
-            print("Inside updatePlot")
-            print("self.currentPlot.h_dict", self.currentPlot.h_dict)
-            print("self.currentPlot.h_dict_geo", self.currentPlot.h_dict_geo)
-            print("self.currentPlot.h_setup", self.currentPlot.h_setup)
-            print("verification tab index", self.wTab.currentIndex())
-
-        # try:
-        a = None
-        #Simon - self.currentPlot.selected_plot_index replaced index from by following lines
-        #Simon - because selected_plot_index comes from on_press which in zoom mode is always 0
-        name = str(self.wConf.histo_list.currentText())
-        index = self.autoIndex()
-        if index is None:
-            return
-        try:
-            #x_range, y_range = self.getAxisProperties(index)
-            if self.currentPlot.isZoomed:
-                #Simon - sca for zoom feature when multiple tabs
-                plt.sca(self.currentPlot.figure.axes[0])
-                if (DEBUG):
-                    print("Inside updatePlot - zoomed")
-                self.currentPlot.InitializeCanvas(1,1,False)
-                a= plt.gca()
-
-                if (DEBUG):
-                    print("self.currentPlot.h_setup", self.currentPlot.h_setup)
-                if int(self.currentPlot.h_dim[index]) == 1:
-                    self.add(index)
-                else:
-                    self.setupPlot(a, index)
-
-                self.currentPlot.h_setup[index] = False
-                self.plotPlot(a, index)
-                # self.setLogAxis()
-                # This needs to be removed for gating - may we can fix it
-                try:
-                    self.removeCb(a)
-                except:
-                    pass
-            else:
-                # plt.sca(self.select_plot(index))
-                if (DEBUG):
-                    print("Inside updatePlot - multipanel mode")
-                    debug_info = [(index, value) for index, value in self.currentPlot.h_dict.items()]
-                    print("index, value ", debug_info)
-
-                update_single_plot = self.updateSinglePlot
-
-                for index, value in self.currentPlot.h_dict.items():
-                    update_single_plot(index)
-
-            self.currentPlot.figure.tight_layout()
-            self.setAutoscaleAxis()
-            self.drawAllGates()
-            self.currentPlot.canvas.draw()
-            #Simon - used to keep modified axis ranges after zoomCallback unless homeCallback is pressed
-            if (self.currentPlot.isZoomCallback or self.currentPlot.isZoomInOut):
-                self.setAxisLimits(index)
-
-            return a
-        except NameError:
-            raise
-
-    #Simon - added following def
-    def updatePlotLimits(self):
-        # update currentPlot limits with what's on the actual plot
-        ax = None
-        index = self.currentPlot.selected_plot_index
-        name = self.currentPlot.h_dict_geo[index]
-
-        # name = str(self.wConf.histo_list.currentText())
-        # index = self.get_key(name)
-        if self.currentPlot.isZoomed:
-            ax = plt.gca()
-        else:
-            ax = self.select_plot(index)
-        if (DEBUG):
-            print(ax.get_xlim(), ax.get_ylim())
-            print(self.currentPlot.h_limits)
-        #Simon - modified the following lines
-        x_range, y_range = self.getAxisProperties(index)
-        self.currentPlot.h_limits[index]["x"] = x_range
-        self.currentPlot.h_limits[index]["y"] = y_range
-        self.currentPlot.isZoomCallback = True
-        #x_range, y_range = self.getAxisProperties(index)
-
-    #Simon - added following def to avoid None plot index
-    def autoIndex(self):
-        if (DEBUG):
-            print("Inside autoIndex")
-
-        if self.currentPlot.isSelected == False or self.currentPlot.selected_plot_index is None:
-            if self.wTab.selected_plot_index_bak[self.wTab.currentIndex()] is not None:
-                self.currentPlot.index = self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]
-            else :
-                self.currentPlot.index = self.check_index()
-        else:
-            self.currentPlot.index = self.currentPlot.selected_plot_index
-            self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]= self.currentPlot.selected_plot_index
-
-        return self.currentPlot.index
-
 
     ##############
     # 10) Gates
     ##############
 
-    # helper function that converts index of geometry into name of histo list and updates info
-    def clickToName(self, idx):
-        if (DEBUG):
-            print("Inside clickToName")
-            print("histo index", idx)
-            print("self.currentPlot.h_dict[idx]['name']", self.currentPlot.h_dict[idx]['name'])
 
+    #add to axes the gate/summing region applied to a spectrum (identified by index)
+    def drawGate(self, index):
+        self.logger.info('drawGate - index: %s',index)
+        spectrumName = self.nameFromIndex(index)
+        spectrumType = self.getSpectrumInfoREST("type", name=spectrumName)
+        dim = self.getSpectrumInfoREST("dim", name=spectrumName)
+        parameters = self.getSpectrumInfoREST("parameters", name=spectrumName)
+        # parameters are used to identify the gates drawable for each spectrum, for gd the parameters list in gate and spectrum definitions are not directly comparable
+        if spectrumType == "gd" :
+            parametersFormat = []
+            for item in parameters:
+                pars = item.split(' ')
+                if len(pars) == 2:
+                    parametersFormat.append(pars[0])
+                    parametersFormat.append(pars[1])
+            parameters = parametersFormat
+        self.logger.debug('drawGate - spectrumName, spectrumType, dim, paramters: %s, %s, %s, %s', spectrumName, spectrumType, dim, parameters)
+        ax = self.getSpectrumInfo("axis", index=index)
+        if ax is None:
+            self.logger.debug('drawGate - ax is None')
+            return
+
+        drawableTypes = {"b": ["s"], "1": ["s"], "g1": ["gs"], "2": ["c", "b"], "g2": ["gc", "gb"], "gd": ["gc", "gb"], "m2": ["NotDefinedYet"], "s": ["NotDefinedYet"]}
+
+        #get all gates that share the same parameters than spectrum 
+        #gateList is a list of gate which is a dictionary e.g.
+        #For 1D -> [{'name': 'gateName', 'type': 's', 'parameters': ['parameterName'], 'low': 0.0, 'high': 1.0}, {'name': 'gateName2'...}]
+        #For 2D -> [{'name': 'gateName', 'type': 'c', 'parameters': ['parameterNameA', 'parameterNameB'], 'points': [{'x': 1, 'y': 2}, {'x': 3, 'y': 4}, {'x': 5, 'y': 6}] }, {'name': 'gateName2'...}]
+        gateList = [dict for dict in self.rest.listGate() if "type" in dict and "parameters" in dict and dict["type"] in drawableTypes[spectrumType] and dict["parameters"] == parameters]
+
+
+        # self.axesChilds()
+        for gate in gateList:
+            if dim == 1:
+                xlim = [gate["low"], gate["high"]]
+                ylim = ax.get_ybound()
+                for iLine in range(2):
+                    #define a label to find the line among axes childs and update its properties (limits, visiblility, annotate...)
+                    lineLabel = "gate_-_" + gate["name"] + "_-_" + str(iLine)
+
+                    #Remove gate if exists then redraw it
+                    toRemove = [gateLine for gateLine in ax.get_children() if type(gateLine) == matplotlib.lines.Line2D and gateLine.get_label() == lineLabel]
+                    for lineToRemove in toRemove :
+                        lineToRemove.remove()
+
+                    if self.extraPopup.options.gateHide.isChecked():
+                        continue
+
+                    line = mlines.Line2D([xlim[iLine],xlim[iLine]],[ylim[0],ylim[1]], picker=5, color='red', label=lineLabel)
+                    ax.add_artist(line)
+
+            elif dim ==2:
+                #define a label to find the line among axes childs and update its properties (limits, visiblility, annotate...)
+                lineLabel = "gate_-_" + gate["name"] + "_-_"
+
+                #Remove gate if exists then redraw it
+                toRemove = [gateLine for gateLine in ax.get_children() if type(gateLine) == matplotlib.lines.Line2D and lineLabel in gateLine.get_label()]
+                for lineToRemove in toRemove :
+                    lineToRemove.remove()
+
+                if self.extraPopup.options.gateHide.isChecked():
+                    continue
+
+                if spectrumType not in ["s"]:
+                    xPoints = [pointDict["x"] for pointDict in gate["points"]]
+                    yPoints = [pointDict["y"] for pointDict in gate["points"]]
+                    # lineLabelList = [ lineLabel + "_-_" + str(iline)  for iline in range(len(xPoints)) ]
+                    # append the first point to close the line2D, exept for b gate type
+                    if gate["type"] not in ["b", "gb"]:
+                        xPoints.append(gate["points"][0]["x"])
+                        yPoints.append(gate["points"][0]["y"])
+
+                    line = mlines.Line2D(xPoints,yPoints, picker=5, color='red', label=lineLabel)
+                    ax.add_artist(line)
+
+            if self.extraPopup.options.gateAnnotation.isChecked() and not self.extraPopup.options.gateHide.isChecked():
+                self.setGateAnnotation(index,True)
+            else :
+                self.setGateAnnotation(index,False)
+
+        #draw summing region 
+        lineListSumReg = self.getSumRegion(index)
+        if lineListSumReg is None :
+            return
+        for sumRegionLine in lineListSumReg:
+            if dim == 1 or dim == 2 :
+                lineLabel = sumRegionLine.get_label()
+
+                #Remove sumRegion if exists then redraw it
+                toRemove = [line for line in ax.get_children() if type(line) == matplotlib.lines.Line2D and line.get_label() == lineLabel]
+                for lineToRemove in toRemove :
+                    lineToRemove.remove()
+
+                # if self.extraPopup.options.sumRegionHide.isChecked():
+                #     continue
+
+                xlim = sumRegionLine.get_xdata()
+                ylim = sumRegionLine.get_ydata()
+                if dim == 1:
+                    ylim = ax.get_ylim()
+
+                line = mlines.Line2D(xlim, ylim, picker=5, color='blue', label=lineLabel)
+                ax.add_artist(line)
+
+
+    #callback for gate annotation, calls setGateAnnotation
+    def gateAnnotationCallBack(self):
+        self.logger.info('gateAnnotationCallBack - isChecked: %s', self.extraPopup.options.gateAnnotation.isChecked())
+        if self.extraPopup.options.gateAnnotation.isChecked():
+            doAnnotate = True 
+        else :
+            doAnnotate = False
+            
+        if self.currentPlot.isEnlarged:
+            self.setGateAnnotation(0,doAnnotate)
+        else:
+            for index, name in self.getGeo().items():
+                if name:
+                    self.setGateAnnotation(index,doAnnotate)
+        self.currentPlot.canvas.draw()
+
+
+    # set and unset gate annotation of a spectrum according to doAnnotate flag
+    def setGateAnnotation(self, index, doAnnotate):
+        self.logger.info('setGateAnnotation - index, doAnnotate: %s, %s', index, doAnnotate)
+        ax = self.getSpectrumInfo("axis", index=index)
+        if ax is None:
+            self.logger.debug('setGateAnnotation - ax is None')
+            return
+        # spectrum = self.getSpectrumInfo("spectrum", index=index)
+        # if spectrum is None :
+        #     return 
+        # ax = spectrum.axes
+        dim = self.getSpectrumInfoREST("dim", index=index)
+
+        for child in ax.get_children():
+            if type(child) == matplotlib.lines.Line2D :
+                label = child.get_label()
+                labelSplit = label.split("_-_")
+                if len(labelSplit) == 3 and labelSplit[0] == "gate":
+                    gateName = labelSplit[1]
+                    gateSegmentNum = labelSplit[2]
+                    labelBuff = None
+
+                    # set more explicit labels for user
+                    # and a color is chosen for the gate lines
+                    if dim == 1:
+                        if gateSegmentNum == "0":
+                            color = self.getGateColor(gateName)
+                            labelBuff = gateName + "_low"
+                        elif gateSegmentNum == "1":
+                            labelBuff = gateName + "_high"
+
+                        #Remove annotation if exists then will redraw it at updated coordinate if want annotation
+                        toRemove = [an for an in ax.get_children() if type(an) == matplotlib.text.Annotation and an.get_text() == labelBuff]
+                        if len(toRemove) == 1:
+                            toRemove[0].remove()
+                        
+                        positionX = child.get_xdata()[0]
+                        positionY = 0.95
+                        offsetX = (ax.get_xlim()[1] - ax.get_xlim()[0])*0.002
+
+                        if doAnnotate:
+                            xy = self.getXYAnnotation(self.getSpectrumInfo("name", index=index), gateName, (positionX + offsetX, positionY))
+                            # fist xy coordinate in data scale and second coordinate in axes fraction
+                            #Need to improve the allocation of annotation position to avoid overlay of annotations
+                            annotation = ax.annotate(labelBuff, xy=xy, xycoords=("data", "axes fraction"), color=color, fontsize=8, clip_on=True)
+                            # renderer = self.currentPlot.canvas.get_renderer()
+                            # bbox = ax.get_tightbbox(renderer)
+                            # print("Simon ANNOTATION ", annotation, xy)
+                            # renderer = self.currentPlot.canvas.get_renderer()
+                            # annotationBbox = annotation.get_tightbbox(renderer)
+                            # # ax.annotate(labelBuff, xy=(positionX + 0.05, 0.95), xycoords=("data", "axes fraction"), color=color, fontsize=8)
+                            child.set_color(color)
+                            # # check if overlay with other annotations, if does then shift bellow the lowest overlaying annotation (intersec in matplotlib > 3.6 would be better than contains)
+                            # overlayAnnotationBboxes = [an.get_tightbbox(renderer) for an in ax.get_children() if type(an) == matplotlib.text.Annotation and annotationBbox.contains(an.get_tightbbox(renderer).get_center())]
+                            # if len(overlayAnnotationBboxes) > 0:
+                            #     yLowestBbox = annotationBbox.get_y()
+                            #     for bbox in overlayAnnotationBboxes:
+                            #         if bbox.get_y() < yLowestBbox:
+                            #             yLowestBbox = bbox.get_y()
+                            #     annotation.remove()
+                            #     annotation = ax.annotate(labelBuff, xy=(positionX + offsetX, yLowestBbox - annotationBbox.get_height()), xycoords=("data", "data"), color=color, fontsize=8)
+                        else :
+                            child.set_color('red')
+                        # spectrum.axes = ax
+                        # self.setSpectrumInfo(spectrum=spectrum, index=index)
+                    elif dim == 2:
+                        #Skip annotation if exists
+                        toRemove = [an for an in ax.get_children() if type(an) == matplotlib.text.Annotation and an.get_text() == gateName]
+                        if len(toRemove) == 1:
+                            toRemove[0].remove()
+                            
+                        if doAnnotate:
+                            color = self.getGateColor(gateName)
+                            positionX = child.get_xdata()[0]
+                            positionY = child.get_ydata()[0]
+                            offsetX = (ax.get_xlim()[1] - ax.get_xlim()[0])*0.003
+                            offsetY = (ax.get_ylim()[1] - ax.get_ylim()[0])*0.003
+                            # fist xy coordinate in data scale and second coordinate in axes fraction
+                            #Need to improve the allocation of annotation position to avoid overlay of annotations
+                            annotation = ax.annotate(gateName, xy=(positionX+offsetX, positionY+offsetY), xycoords="data", color=color, fontsize=8, clip_on=True)
+                            # renderer = self.currentPlot.canvas.get_renderer()
+                            # bbox = ax.get_tightbbox(renderer)
+                            # print("Simon 2D ANNOTATION ", annotation, positionX,positionY)
+                            # renderer = self.currentPlot.canvas.get_renderer()
+                            # annotationBbox = annotation.get_tightbbox(renderer)
+                            # # ax.annotate(labelBuff, xy=(positionX + 0.05, 0.95), xycoords=("data", "axes fraction"), color=color, fontsize=8)
+                            child.set_color(color)
+                            # # check if overlay with other annotations, if does then shift bellow the lowest overlaying annotation (intersec in matplotlib > 3.6 would be better than contains)
+                            # overlayAnnotationBboxes = [an.get_tightbbox(renderer) for an in ax.get_children() if type(an) == matplotlib.text.Annotation and annotationBbox.contains(an.get_tightbbox(renderer).get_center())]
+                            # if len(overlayAnnotationBboxes) > 0:
+                            #     yLowestBbox = annotationBbox.get_y()
+                            #     for bbox in overlayAnnotationBboxes:
+                            #         if bbox.get_y() < yLowestBbox:
+                            #             yLowestBbox = bbox.get_y()
+                            #     annotation.remove()
+                            #     annotation = ax.annotate(labelBuff, xy=(positionX + offsetX, yLowestBbox - annotationBbox.get_height()), xycoords=("data", "data"), color=color, fontsize=8)
+                        else :
+                            child.set_color('red')
+                        # spectrum.axes = ax
+                        # self.setSpectrumInfo(spectrum=spectrum, index=index)
+
+
+    #goes with the annotation feature, associate a color to a gateName  
+    def getGateColor(self, gateName):
+        self.logger.info('getGateColor - gateName : %s', gateName)
+        # 8 colors maybe enough (?) (blue and red ignored)
+        colorList = ['tab:orange', 'tab:green', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan']
+        # if more gates than colors then restart defining color from colorList[0] etc.
+        nextColor = colorList[len(self.gateColor) % len(colorList)]
+        if gateName not in self.gateColor:
+            self.gateColor[gateName] = nextColor
+            return nextColor
+        else :
+            return self.gateColor[gateName]
+
+
+    # Need better way to assign position
+    def getXYAnnotation(self, spectrumName, gateName, xy):
+        self.logger.info('getXYAnnotation - spectrumName, gateName, xy : %s, %s, %s', spectrumName, gateName, xy)
+        if spectrumName not in self.gateAnnotation:
+            self.gateAnnotation[spectrumName] = {gateName: xy}
+            return xy
+        else :
+            for gateDict in self.gateAnnotation[spectrumName] :
+                if gateName in gateDict:
+                    return xy 
+                else :
+                    return (xy[0], xy[1]-0.05)
+
+
+
+
+    # add copy of listRegionLine to axis before deleting the later one (considered a temporary line)
+    # Identify this region line with label
+    def saveSumRegion(self, index):
+        self.logger.info('saveSumRegion - index: %s', index)
+        spectrumName = self.nameFromIndex(index)
+        spectrum = self.getSpectrumInfo("spectrum", index=index)
+        ax = spectrum.axes
+        dim = self.getSpectrumInfoREST("dim", name=spectrumName)
+        if ax is None :
+            self.logger.debug('saveSumRegion - ax is None')
+            return
+        regionName = self.sumRegionPopup.sumRegionNameList.currentText()
+        if regionName is None or regionName == "None" :
+            self.logger.debug('saveSumRegion - regionName is None or regionName == "None"')
+            return
+        self.logger.debug('saveSumRegion - spectrumName, dim, regionName: %s, %s, %s', spectrumName, dim, regionName)
+
+        # self.axesChilds()
+        if dim == 1:
+            ylim = ax.get_ybound()
+            #two lines for 1d 
+            if len(self.sumRegionPopup.listRegionLine) != 2:
+                return
+            for iLine in range(2):
+                xlim = self.sumRegionPopup.listRegionLine[iLine].get_xdata()
+                #define a label to find the line among axes childs and update its properties (limits, visiblility, annotate...)
+                lineLabel = "sumReg_-_" + regionName + "_-_" + str(iLine)
+
+                line = mlines.Line2D([xlim[0],xlim[0]], [ylim[0],ylim[1]], picker=5, color='blue', label=lineLabel)
+                self.setSumRegion(index, line)
+                ax.add_artist(line)
+
+        elif dim ==2:
+            #define a label to find the line among axes childs and update its properties (limits, visiblility, annotate...)
+            lineLabel = "sumReg_-_" + regionName + "_-_"
+
+            xPoints = []
+            yPoints = []
+            for iLine, line in enumerate(self.sumRegionPopup.listRegionLine):
+                if iLine == 0:
+                    for iPoint in range(2):
+                        xPoints.append(self.sumRegionPopup.listRegionLine[iLine].get_xdata()[iPoint])
+                        yPoints.append(self.sumRegionPopup.listRegionLine[iLine].get_ydata()[iPoint])
+                else :
+                    xPoints.append(self.sumRegionPopup.listRegionLine[iLine].get_xdata()[1])
+                    yPoints.append(self.sumRegionPopup.listRegionLine[iLine].get_ydata()[1])
+
+            line = mlines.Line2D(xPoints,yPoints, picker=5, color='blue', label=lineLabel)
+            self.setSumRegion(index, line)
+            ax.add_artist(line)
+
+
+
+    #callback for createSumRegionButton, show popup to define name
+    def createSumRegion(self):
+        self.logger.info('createSumRegion CallBack')
+        self.sumRegionPopup.sumRegionNameList.setEditable(True)
+        self.sumRegionPopup.sumRegionNameList.setInsertPolicy(QComboBox.NoInsert)
+
+        if self.currentPlot.selected_plot_index is None:
+            return QMessageBox.about(self,"Warning!", "Please add/select a spectrum")
+        else:
+            self.sumRegionPopup.clearInfo()
+
+            spectrumName = self.nameFromIndex(self.currentPlot.selected_plot_index)
+            dim = self.getSpectrumInfoREST("dim", name=spectrumName)
+            ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
+            if ax is None:
+                self.logger.debug('createSumRegion - ax is None')
+                return
+
+            #refresh sumRegionDict (remove key if spectrum has been deleted in treegui)
+            self.refreshSpectrumSumRegionDict()
+
+            #set summing region name list 
+            sumRegionLabels = [child.get_label() for child in ax.get_children() if isinstance(child, matplotlib.lines.Line2D) and "_-_" in child.get_label()]
+            for label in sumRegionLabels :
+                if dim == 1:
+                    label = label.split("_-_")
+                    #two lines per region for 1d so just take one label
+                    if label[0] == "sumReg" and label[2] == '0':
+                        self.sumRegionPopup.sumRegionNameList.addItem(label[1])
+                elif dim == 2:
+                    label = label.split("_-_")
+                    if label[0] == "sumReg":
+                        self.sumRegionPopup.sumRegionNameList.addItem(label[1])
+            self.sumRegionPopup.sumRegionNameList.setCurrentText("None")
+            self.sumRegionPopup.sumRegionNameList.completer().setCompletionMode(QCompleter.PopupCompletion)
+            self.sumRegionPopup.sumRegionNameList.completer().setFilterMode(QtCore.Qt.MatchContains)
+            self.sumRegionPopup.sumRegionNameListSaved = [self.sumRegionPopup.sumRegionNameList.itemText(i) for i in range(self.sumRegionPopup.sumRegionNameList.count()) if self.sumRegionPopup.sumRegionNameList.itemText(i) != "None"]
+
+            self.currentPlot.toCreateSumRegion = True
+            self.sumRegionPopup.sumRegionSpectrumIndex = self.currentPlot.selected_plot_index
+        self.sumRegionPopup.show()
+
+
+    #button of the cutoff window, sets the cutoff values in the spectrum dict
+    def okSumRegion(self):
+        self.logger.info('okSumRegion')
+        # if sumRegionName already exists issue warning
+        sumRegionName = self.sumRegionPopup.sumRegionNameList.currentText()
+        
+        if sumRegionName in self.sumRegionPopup.sumRegionNameListSaved:
+            self.logger.debug('okSumRegion - sumRegionName: %s already exist', sumRegionName)
+            msgBox = QMessageBox(self)
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+            msgBox.setText("Summing region name already exists.")
+            msgBox.setInformativeText('Do you want to overwrite "' + sumRegionName + '" summing region definition?')
+            msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+            msgBox.setDefaultButton(QMessageBox.Cancel)
+            ret = msgBox.exec()
+            if ret == QMessageBox.Yes:
+                pass
+            elif ret == QMessageBox.Cancel:
+                return
+        #maybe better solution, the separator in region line labels are _-_ so dont want to find that in the region name
+        elif "_-_" in sumRegionName :
+            self.logger.debug('okSumRegion - sumRegionName has _-_ in its name')
+            msgBox = QMessageBox(self)
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+            msgBox.setText('Region name must not include "_-_"')
+            msgBox.setStandardButtons(QMessageBox.Ok)
+            msgBox.setDefaultButton(QMessageBox.Ok)
+            ret = msgBox.exec()
+            if ret == QMessageBox.Ok:
+                pass
+        #"save"/draw a new version of the region line in ax before deleting listRegionLine in closeEvent of the popup
+        self.saveSumRegion(self.sumRegionPopup.sumRegionSpectrumIndex)
+        self.cancelSumRegion()
+
+
+    #close sumRegionPopup
+    def cancelSumRegion(self):
+        self.logger.info('cancelSumRegion')
+        self.currentPlot.toCreateSumRegion = False
+        self.sumRegionPopup.close()
+        self.updatePlot()
+
+
+    #delete summing region according to self.sumRegionPopup.sumRegionNameList.currentText()
+    def deleteSumRegion(self):
+        self.logger.info('deleteSumRegion')
+        spectrumName = self.nameFromIndex(self.currentPlot.selected_plot_index)
+        dim = self.getSpectrumInfoREST("dim", name=spectrumName)
+        ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
+        if ax is None:
+            return
+        sumRegionName = self.sumRegionPopup.sumRegionNameList.currentText()
+        
+        #if sumRegionName not saved nothing to delete yet
+        if sumRegionName not in self.sumRegionPopup.sumRegionNameListSaved:
+            self.logger.debug('deleteSumRegion - sumRegionName: %s doesnt exists', sumRegionName)
+            msgBox = QMessageBox(self)
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+            msgBox.setText("Cannot delete summing region " + sumRegionName + " not found")
+            msgBox.setStandardButtons(QMessageBox.Ok)
+            ret = msgBox.exec()
+            if ret == QMessageBox.Ok:
+                return
+        #delete summing region from sumRegionDict and line2D drawn in currentPlot
+        else:
+            if dim == 1 :
+                for iLine in range(2):
+                    label = "sumReg_-_" + sumRegionName + "_-_" + str(iLine)
+                    self.deleteSumRegionDict(label)
+            elif dim == 2:
+                label = "sumReg_-_" + sumRegionName + "_-_"
+                self.deleteSumRegionDict(label)
+
+        # reset the current list region name to None
+        self.sumRegionPopup.sumRegionNameList.setCurrentText("None")
+        self.currentPlot.figure.tight_layout()
+        self.currentPlot.canvas.draw()
+
+
+    # callback for gatePopup.ok button, do some checks and push gate to REST
+    def okGate(self):
+        self.logger.info('okGate')
+        # check if gateName already exists if yes issue warning
+        gateName = self.gatePopup.gateNameList.currentText()
+        gateNameList = [gate["name"] for gate in self.rest.listGate()]
+        # print("Simon - in okGate ", gateNameList, gateName, self.currentPlot.toEditGate)
+        if not self.currentPlot.toEditGate:
+            if gateName in gateNameList:
+                self.logger.debug('okGate - gateName: %s already exists', gateName)
+                msgBox = QMessageBox(self)
+                msgBox.setIcon(QMessageBox.Warning)
+                msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+                msgBox.setText("Gate name already exists.")
+                msgBox.setInformativeText('Do you want to overwrite "' + gateName + '" gate definition?')
+                msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+                msgBox.setDefaultButton(QMessageBox.Cancel)
+                ret = msgBox.exec()
+                if ret == QMessageBox.Yes:
+                    pass
+                elif ret == QMessageBox.Cancel:
+                    return
+            #maybe better solution, the separator in gate line labels are _-_ so dont want to find that in the gate name
+            elif "_-_" in gateName :
+                self.logger.debug('okGate - gateName has _-_ in its name')
+                msgBox = QMessageBox(self)
+                msgBox.setIcon(QMessageBox.Warning)
+                msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+                msgBox.setText('Gate name must not include "_-_"')
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setDefaultButton(QMessageBox.Ok)
+                ret = msgBox.exec()
+                if ret == QMessageBox.Ok:
+                    pass
+        self.pushGateToREST(gateName,self.gatePopup.listGateType.currentText())
+        #in the following lines removed in listRegionLine to avoid double drawing, since the gate has been pushed to ReST it will be drawn from ReST info
+        self.gatePopup.clearInfo()
+        self.cancelGate()
+        # self.currentPlot.toCreateGate = False
+        # self.currentPlot.toEditGate = False
+        # self.gatePopup.close()
+        # self.updatePlot()
+
+
+    #callback for gatePopup.cancel button
+    def cancelGate(self):
+        self.logger.info('cancelGate')
+        self.currentPlot.toCreateGate = False
+        self.currentPlot.toEditGate = False
+        # self.gatePopup.clearInfo()
+        self.disconnectGateSignals()
+        self.gatePopup.close()
+        self.updatePlot()
+
+    
+    def disconnectGateSignals(self):
+        self.logger.info('disconnectGateSignals')
         try:
-            name = str(self.currentPlot.h_dict[idx]['name'])
-            index = self.wConf.histo_list.findText(name, QtCore.Qt.MatchFixedString)
-            if (DEBUG):
-                print("index and name", index, name)
-            self.updateHistoInfo(name)
-            self.check_histogram()
-        except:
+            if hasattr(self, 'gateReleaser') :
+                self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.gateReleaser)
+        except TypeError:
             pass
-
-    # helper function that converts index of geometry into index of histo list and updates info
-    def clickToIndex(self, idx):
-        if (DEBUG):
-            print("Inside clickToIndex")
-            print("histo index", idx)
-            print("self.currentPlot.h_dict[idx]['name']", self.currentPlot.h_dict[idx]['name'])
         try:
-            index = self.wConf.histo_list.findText(str(self.currentPlot.h_dict[idx]['name']), QtCore.Qt.MatchFixedString)
-            if (DEBUG):
-                print("index", index)
-            # this is to avoid the histogram combobox to not show the first histogram at first
-            if index < 0:
-                index = 0
-                if (DEBUG):
-                    print("Index of combobox", index)
-            self.wConf.histo_list.setCurrentIndex(index)
-            self.updateHistoInfo()
-            self.check_histogram();
-        except:
+            if hasattr(self, 'gateFollower') :
+                self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.gateFollower)
+        except TypeError:
             pass
-
-    def plot1DGate(self, axis, histo_name, gate_name, gate_line):
-        if (DEBUG):
-            print("inside plot1dgate for", histo_name, "with gate", gate_name)
-        new_line = [mlines.Line2D([],[], picker=5), mlines.Line2D([],[], picker=5)]
-        ymin, ymax = axis.get_ybound()
-        new_line[0].set_data([gate_line[0],gate_line[0]], [ymin, ymax])
-        if "summing_region" in gate_name:
-            new_line[0].set_color('blue')
-        else:
-            new_line[0].set_color('red')
-        axis.add_artist(new_line[0])
-        new_line[1].set_data([gate_line[1],gate_line[1]], [ymin, ymax])
-        if "summing_region" in gate_name:
-            new_line[1].set_color('blue')
-        else:
-            new_line[1].set_color('red')
-        axis.add_artist(new_line[1])
-
-        axis.draw_artist(new_line[0])
-        axis.draw_artist(new_line[1])
-
-
-    def plot2DGate(self, axis, histo_name, gate_name, gate_line):
-        if (DEBUG):
-            print("inside plot2dgate for", histo_name, "with gate", gate_name)
-        new_line = mlines.Line2D([],[], picker=5)
-        if (DEBUG):
-            print(gate_line)
-        new_line.set_data(gate_line[0], gate_line[1])
-        if "summing_region" in gate_name:
-            new_line.set_color('blue')
-        else:
-            new_line.set_color('red')
-        axis.add_artist(new_line)
-        # axis.canvas.blit(new_line.get_bbox())
-        # new_line.figure.canvas.draw()
-        axis.draw_artist(new_line)
-
-    def drawRegion(self, histo_name, region_name, region_line):
-        if (DEBUG):
-            print("Inside drawRegion")
-            print(histo_name, region_name, region_line)
-        ax = None
-        rtype = self.currentPlot.regionTypeDict[region_name]
-        if (DEBUG):
-            print(self.currentPlot.regionTypeDict)
-            print("region type to be drawn", rtype)
-        # index = self.get_key(histo_name)
-        if self.currentPlot.isZoomed:
-            ax = plt.gca()
-            if (self.wConf.histo_list.currentText() == histo_name):
-                if (DEBUG):
-                    print("I need to draw ", region_name,"to", self.wConf.histo_list.currentText())
-                if (self.wConf.button1D.isChecked() and (rtype == "s" or rtype == "gs")):
-                    self.plot1DGate(ax, histo_name, region_name, region_line)
-                else:
-                    self.plot2DGate(ax, histo_name, region_name, region_line)
-        else:
-            index = self.get_key(histo_name)
-            ax = self.select_plot(index)
-            if (rtype == "s" or rtype == "gs"):
-                self.plot1DGate(ax, histo_name, region_name, region_line)
-            else:
-                self.plot2DGate(ax, histo_name, region_name, region_line)
-
-        # ax.canvas.blit(region_line.get_bbox())
-        # self.currentPlot.canvas.draw()
-
-    def drawGate(self, histo_name, gate_name, gate_line):
-        if (DEBUG):
-            print("Inside drawGate")
-        gtype = self.currentPlot.gateTypeDict[gate_name]
-        if (DEBUG):
-            print("gate type to be drawn", gtype)
-        ax = None
-        if self.currentPlot.isZoomed:
-            ax = plt.gca()
-            if (self.currentPlot.h_dict_geo[self.wTab.selected_plot_index_bak[self.wTab.currentIndex()]] == histo_name):
-                if (DEBUG):
-                    print("I need to add the gate name", gate_name,"to", histo_name)
-                if (gtype == "s" or gtype == "gs"):
-                    self.plot1DGate(ax, histo_name, gate_name, gate_line)
-                else:
-                    self.plot2DGate(ax, histo_name, gate_name, gate_line)
-        else:
-            indexlst = self.get_keylst(histo_name)
-            for index in indexlst:
-                ax = self.select_plot(index)
-                if (gtype == "s" or gtype == "gs"):
-                    self.plot1DGate(ax, histo_name, gate_name, gate_line)
-                else:
-                    self.plot2DGate(ax, histo_name, gate_name, gate_line)
-
-        # self.currentPlot.canvas.draw()
-        # ax.canvas.blit(gate_line.get_bbox())
-
-    def drawAllGates(self):
-        artist_dict = self.currentPlot.artist_dict
-        region_dict = self.currentPlot.region_dict
-        hist_list = self.wTab.wPlot[self.wTab.currentIndex()].hist_list
-
-        if (DEBUG):
-            print("Inside drawAllGate")
-            print(artist_dict)
-            print(region_dict)
-
-
-        artist_dict_keys = set(artist_dict.keys())
-        gates_to_draw = []
-        for hist in hist_list:
-            if hist in artist_dict_keys:
-                for gate_name, gate_line in artist_dict[hist].items():
-                    self.drawGate(hist, gate_name, gate_line)
-
-        region_dict_keys = set(region_dict.keys())
-        regions_to_draw = []
-        for hist in hist_list:
-            if hist in region_dict_keys:
-                for region_name, region_line in region_dict[hist].items():
-                    self.drawRegion(hist, region_name, region_line)
-
-
-    def createSRegion(self):
-        if (DEBUG):
-            print("Clicked createSRegion in tab", self.wTab.currentIndex())
-        self.currentPlot.region_name = "summing_region_tab_"+str(self.wTab.currentIndex())+"_"+str(self.currentPlot.counter_sr)
-        self.currentPlot.region_type = ""
-        if (DEBUG):
-            print("creating", self.currentPlot.region_name,"in",self.wConf.histo_list.currentText())
-        self.currentPlot.counter_sr+=1
-
-        if self.wConf.button1D.isChecked():
-            self.currentPlot.region_type = "s"
-        else:
-            self.currentPlot.region_type = "c"
-        # adding gate
-        self.currentPlot.regionTypeDict[self.currentPlot.region_name] = self.currentPlot.region_type
-
-        self.currentPlot.toCreateSRegion = True;
-        self.createRegion()
-
-    def addGate(self):
-        if (DEBUG):
-            print("inside addGate")
         try:
-            hname = self.wConf.histo_list.currentText()
-            gname = self.wConf.listGate.currentText()
-            gate_dict = self.currentPlot.artist_dict[hname]
-            if gname in gate_dict:
-                self.drawGate(hname, gname, value)
-        except:
+            if hasattr(self, 'sid') :
+                self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.sid)
+        except TypeError:
             pass
-
-
-    def deleteGate(self):
         try:
-            hname = self.wConf.histo_list.currentText()
-            gname = self.wConf.listGate.currentText()
-            # delete from plot
-            self.clearGate()
-            # delete from combobox and change index
-            index = self.wConf.listGate.findText(gname, QtCore.Qt.MatchFixedString)
-            if index >= 0:
-                self.wConf.listGate.removeItem(index)
-            # delete from artist dict
-            gatedict_in_histo = self.currentPlot.artist_dict[hname]
-            if gname in gatedict_in_histo:
-                del self.currentPlot.artist_dict[hname][gname]
-            # delete from spectcl
-            self.rest.deleteGate(gname)
-            self.currentPlot.canvas.draw()
-
-        except:
+            if hasattr(self, 'sidGateNameListChanged') :
+                self.gatePopup.gateNameList.currentTextChanged.disconnect(self.sidGateNameListChanged)
+        except TypeError:
             pass
-
-    def clearGate(self):
         try:
-            ax = None
-            hname = self.wConf.histo_list.currentText()
-            gname = self.wConf.listGate.currentText()
-
-            if (DEBUG):
-                print("gate",gname,"in",hname)
-
-            if self.currentPlot.isZoomed:
-                ax = plt.gca()
-            else:
-                ax = self.select_plot(self.currentPlot.selected_plot_index)
-
-            if (DEBUG):
-                print("List of the child Artists of this Artist \n",
-                      *list(ax.get_children()), sep ="\n")
-            lst = list(ax.get_children())
-	    #Simon - changed following lines
-            gatedict_in_histo = self.currentPlot.artist_dict[hname]
-            if gname in gatelist_in_histo:
-                for line in lst:
-                    if isinstance(line, matplotlib.lines.Line2D):
-                        if self.wConf.button2D.isChecked():
-                            if round(line.get_xdata()[0],2) == round(gate[gname][0][0],2) and len(line.get_xdata()) == len(gate[gname][0]):
-                                #ax.lines.pop(i)
-                                line.remove()
-                        if self.wConf.button1D.isChecked():
-                            if line.get_xdata()[0] == gate[gname][0] or line.get_xdata()[0] == gate[gname][1]:
-                                line.remove()
-
-            self.currentPlot.canvas.draw()
-
-        except:
+            if hasattr(self, 'sidGateTypeListChanged') :
+                self.gatePopup.listGateType.currentIndexChanged.disconnect(self.sidGateTypeListChanged)
+        except TypeError:
             pass
+        try:
+            if hasattr(self, 'gatePopupPreview') :
+                self.gatePopup.preview.clicked.disconnect(self.gatePopupPreview)
+        except TypeError:
+            pass
+        #Had issue with these two signals when multiple tab(?), use shortcutInsertRegionPoint now
+        # try:
+        #     if hasattr(self, 'sidOnKeyPressEditGate') :
+        #         self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.sidOnKeyPressEditGate)
+        # except TypeError:
+        #     pass
+        # try:
+        #     if hasattr(self, 'sidOnKeyReleaseEditGate') :
+        #         self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.sidOnKeyReleaseEditGate)
+        # except TypeError:
+        #     pass
+        try:
+            if hasattr(self, 'shortcutInsertRegionPoint') :
+                self.shortcutInsertRegionPoint.setEnabled(False)
+        except TypeError:
+            pass
+        try:
+            if hasattr(self, 'sidTableIntegrateCopy') :
+                self.integratePopup.resultsText.itemSelectionChanged.disconnect(self.sidTableIntegrateCopy)
+        except TypeError:
+            pass
+            
 
+
+    #Open dialog window to specify name/type and draw gate while this window is openned
+    #The flag self.currentPlot.toCreateGate determines if by clicking one sets the gate points (in on_singleclick)
     def createGate(self):
-        if (DEBUG):
-            print("Inside createGate")
-        # check for histogram existance
-        name = self.wConf.histo_list.currentText()
-        gate_name = self.wConf.listGate.currentText()
-        gate_parameter = self.wConf.listParams[0].currentText()
-        gateType = None
-
-        if (name==""):
-            return QMessageBox.about(self,"Warning!", "Please create at least one spectrum")
+        self.logger.info('createGate')
+        #Default gate actions is gate creation
+        self.gatePopup.gateActionCreate.setChecked(True)
+        self.gatePopup.preview.setEnabled(False)
+        #in otherOptions.py define a checkbox to have the possibility to disable gate edition
+        if self.extraPopup.options.gateEditDisable.isChecked():
+            self.gatePopup.gateActionEdit.setChecked(False)
+            self.gatePopup.gateActionEdit.setEnabled(False)
         else:
-            # creating entry in combobox if it doesn't exist
-            allItems = [self.wConf.listGate.itemText(i) for i in range(self.wConf.listGate.count())]
-            result = gate_name in allItems
-            while result:
-                self.currentPlot.counter += 1
-                gate_name = "default_gate_"+str(self.currentPlot.counter)
-                result = gate_name in allItems
+            self.gatePopup.gateActionEdit.setEnabled(True)
 
-            # gate name
-            text, okPressed = QInputDialog.getText(self, "Gate name", "Please choose a name for the gate:", QLineEdit.Normal, gate_name)
-            if okPressed:
-                if text:
-                    gate_name = text
-                else:
-                    gate_name = "default_gate_"+str(self.currentPlot.counter)
-            else:
-                gate_name = "default_gate_"+str(self.currentPlot.counter)
-                if (DEBUG):
-                    print("You clicked cancel but I saved you man...gate_name is", gate_name)
-            self.wConf.listGate.addItem(gate_name)
-            # update boxes
-            self.wConf.listGate.setCurrentText(gate_name)
+        try:
+            if hasattr(self, 'sidGateNameListChanged') :
+                self.gatePopup.gateNameList.currentTextChanged.disconnect(self.sidGateNameListChanged)
+                self.logger.debug('createGate - disconnected sidGateNameListChanged')
+        except TypeError:
+            pass
 
-            # gate type
-            items = None
-            if self.wConf.button1D.isChecked():
-                items = ("s", "gs")
-            else:
-                items = ("c", "b", "gc", "gb")
+        self.gatePopup.gateNameList.setEditable(True)
+        self.gatePopup.gateNameList.setInsertPolicy(QComboBox.NoInsert)
+        self.gatePopup.gateNameList.setCurrentText("None")
 
-            item, okPressed = QInputDialog.getItem(self, "Gate type", "Please choose a type for the gate:", items, 0, False)
-            if okPressed:
-                gateType = item
-            else:
-                return QMessageBox.about(self,"Warning!", "Please select a gate type")
 
-        # adding gate
-        self.currentPlot.gateTypeDict[gate_name] = gateType
-        if (DEBUG):
-            print(self.currentPlot.gateTypeDict)
-        gindex = self.findGateType(gate_name)
-        if (DEBUG):
-            print("index of the gate in combobox", gindex)
-        self.wConf.listGate_type.setCurrentIndex(gindex)
-        self.currentPlot.toCreateGate = True;
-        self.createRegion()
+        if self.currentPlot.selected_plot_index is None:
+            return QMessageBox.about(self,"Warning!", "Please add at least one spectrum")
+        else:
+            gateTypesDict = {"b": ["NotDefinedYet"], "1": ["s"], "g1": ["gs"], "2": ["c", "b"], "g2": ["gc", "gb"], "gd": ["gc", "gb"], "m2": ["c", "b"], "s": ["NotDefinedYet"]}
+            spectrumType = self.getSpectrumInfoREST("type", index=self.currentPlot.selected_plot_index)
+            if spectrumType is None :
+                return
 
-    def createRegion(self):
-        ax = plt.gca()
-        self.cleanRegion()
+            self.gatePopup.clearInfo()
+            self.disconnectGateSignals()
 
-    def cleanRegion(self):
-        self.currentPlot.xs.clear()
-        self.currentPlot.ys.clear()
-        self.currentPlot.listLine = []
+            gateTypesList = gateTypesDict[spectrumType]
+            for type in gateTypesList:
+                if type == "NotDefinedYet":
+                    self.logger.debug('createGate - gate type NotDefinedYet')
+                    msgBox = QMessageBox(self)
+                    msgBox.setIcon(QMessageBox.Warning)
+                    msgBox.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+                    msgBox.setText('No gate type available for "' + spectrumType + '" spectrum')
+                    #msgBox.setInformativeText('Check latest SpecTcl version')
+                    msgBox.setStandardButtons(QMessageBox.Ok)
+                    msgBox.setDefaultButton(QMessageBox.Ok)
+                    ret = msgBox.exec()
+                    return
+                self.gatePopup.listGateType.addItem(type)
 
-    def addLine(self, posx):
-        if (DEBUG):
-            print("Inside addLine", posx)
-        ax = plt.gca()
-        ymin, ymax = ax.get_ybound()
-        l = mlines.Line2D([posx,posx], [ymin,ymax], picker=5)
-        ax.add_line(l)
-        if self.currentPlot.toCreateSRegion == True:
+            self.currentPlot.toCreateGate = True
+            self.currentPlot.toEditGate = False
+
+            self.sidGateTypeListChanged = self.gatePopup.listGateType.currentIndexChanged.connect(self.gateTypeListChanged)
+
+            self.gatePopup.gateSpectrumIndex = self.currentPlot.selected_plot_index
+            self.gatePopup.show()
+
+
+    #Draw a preview of the gate in case modified by editing the text gatePopup.regionPoint
+    def onGatePopupPreview(self):
+        self.logger.info('onGatePopupPreview')
+        ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
+        if ax is None :
+            self.logger.debug('onGatePopupPreview - ax is None')
+            return 
+        dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
+        #points for 1d: [x0, x1] and for 2d:  [[x0, y0], [x1, y1], ...]
+        points = self.formatGatePopupPointText(dim)
+        #point is not None when all lines have the good format, see formatGatePopupPointText
+        if points is None :
+            self.logger.debug('onGatePopupPreview - points is None')
+            return
+        # if no line selected, set editThisGateLine using gatePopup.gateNameList 
+        if not hasattr(self, 'editThisGateLine') or self.editThisGateLine is None:
+            try:
+                gateIdentifier = "gate_-_" + self.gatePopup.gateNameList.currentText() + "_-_"
+                self.editThisGateLine = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier in child.get_label()][0]
+            except :
+                self.logger.debug('onGatePopupPreview - exception ', exc_info=True) 
+                return
+        #For 1d there is multiple lines (2), find those with label
+        if dim == 1:
+            label = self.editThisGateLine.get_label()
+            labelSplit = label.split("_-_")
+            gateIdentifier = "gate_-_" + labelSplit[1] + "_-_"
+            lines = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier in child.get_label()]
+            if len(lines) == len(points):
+                for iline, line in enumerate(lines):
+                    line.set_xdata([points[iline], points[iline]])
+        elif dim == 2:
+            lineX = []
+            lineY = []
+            for point in points:
+                lineX.append(point[0])
+                lineY.append(point[1])
+            specialTypes = ["c", "gc"]
+            if self.gatePopup.listGateType.currentText() in specialTypes: 
+                #For c and gc the last point need to match the first one to close the contour
+                lineX.append(points[0][0])
+                lineY.append(points[0][1])
+            self.editThisGateLine.set_data(lineX, lineY)
+        self.currentPlot.canvas.draw()
+
+
+    def checkConnections(self):
+        # Check if there are any connections to the canvas
+        # if self.wTab.wPlot[self.wTab.currentIndex()].canvas.figure.callbacks.callbacks:
+        if self.wTab.wPlot[self.wTab.currentIndex()].canvas.callbacks.callbacks:
+            for event_name, callbacks_dict in self.wTab.wPlot[self.wTab.currentIndex()].canvas.callbacks.callbacks.items():
+                print(f"Event: {event_name}, Callbacks: {callbacks_dict}")
+
+
+    def find_callbacks(self):
+        callbacks_for_main_window = []
+
+        for event_name, callbacks_dict in self.wTab.wPlot[self.wTab.currentIndex()].canvas.callbacks.callbacks.items():
+            for callback_id, callback_func in callbacks_dict.items():
+                # Check if the callback function is associated with the MainWindow instance
+                if hasattr(callback_func, '__self__') and callback_func.__self__ is self:
+                    callbacks_for_main_window.append((event_name, callback_func))
+        return callbacks_for_main_window
+
+
+    #Open dialog window to edit an existing gate while this window is openned (can check and change points coordinates)
+    def editGate(self):
+        self.logger.info('editGate')
+
+        self.gatePopup.gateActionCreate.setChecked(False)
+        self.gatePopup.preview.setEnabled(True)
+
+        try:
+            if hasattr(self, 'sidGateTypeListChanged') :
+                self.gatePopup.listGateType.currentIndexChanged.disconnect(self.sidGateTypeListChanged)
+                self.logger.debug('editGate - disconnected sidGateTypeListChanged')
+        except TypeError:
+            pass
+
+        self.sid = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('pick_event', self.clickOnGateLine)
+        self.gatePopupPreview = self.gatePopup.preview.clicked.connect(self.onGatePopupPreview)
+
+        # Hotkeys, insert and delete gate point (2d)
+        # self.sidOnKeyPressEditGate = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('key_press_event', self.onKeyPressEditGate)
+        # self.sidOnKeyReleaseEditGate = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('key_release_event', self.onKeyReleaseEditGate)
+        #two previous lines dont work with multitab, dont understand why because do the same with pick_event and no problem with this one.
+        #So use qt shortcut, no release action so reset altPressed flag in on_singleclick_gate_edit
+        self.shortcutInsertRegionPoint = QShortcut(QKeySequence("Alt+E"), self)
+        self.shortcutInsertRegionPoint.activated.connect(self.onKeyActivateEditGate)
+
+
+        if self.gatePopup.gateSpectrumIndex is None:
+            self.logger.debug('editGate - gateSpectrumIndex is None')
+            return QMessageBox.about(self,"Warning!", "Please add at least one spectrum")
+        else:
+            spectrumName = self.nameFromIndex(self.gatePopup.gateSpectrumIndex)
+            dim = self.getSpectrumInfoREST("dim", name=spectrumName)
+            ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
+            if ax is None:
+                self.logger.debug('editGate - ax is None')
+                return
+            
+            self.gatePopup.clearInfo()
+
+            #set gate name list 
+            gateLabels = [child.get_label() for child in ax.get_children() if isinstance(child, matplotlib.lines.Line2D) and "_-_" in child.get_label()]
+            for label in gateLabels :
+                if dim == 1:
+                    label = label.split("_-_")
+                    #two lines per gate for 1d so just take one label
+                    if label[0] == 'gate' and label[2] == '0':
+                        self.gatePopup.gateNameList.addItem(label[1])
+                elif dim == 2:
+                    label = label.split("_-_")
+                    if label[0] == 'gate' :
+                        self.gatePopup.gateNameList.addItem(label[1])
+            self.gatePopup.gateNameList.setCurrentText("-- select a gate --")
+            self.gatePopup.gateNameList.completer().setCompletionMode(QCompleter.PopupCompletion)
+            self.gatePopup.gateNameList.completer().setFilterMode(QtCore.Qt.MatchContains)
+            self.sidGateNameListChanged = self.gatePopup.gateNameList.currentTextChanged.connect(self.gateNameListChanged)
+
+            self.currentPlot.toEditGate = True
+            self.altPressed = False
+            self.currentPlot.toCreateGate = False
+            self.gatePopup.regionPoint.setReadOnly(False)
+
+
+    #if change gate type while creating gate, reset the new gate info (name and point)
+    def gateTypeListChanged(self):
+        self.logger.info('gateTypeListChanged')
+        self.gatePopup.gateNameList.clear()
+        self.gatePopup.gateNameList.setCurrentText("None")
+        for line in self.gatePopup.listRegionLine:
+            line.remove()
+        self.gatePopup.listRegionLine.clear()
+        self.gatePopup.prevPoint.clear()
+        self.gatePopup.regionPoint.clear()
+        self.gatePopup.gateSpectrumIndex = 0
+        self.gatePopup.gateEditOption = None
+        
+
+    #change the gate points text and gate type (and line color when edit) according to gate name in the completable combo box
+    def gateNameListChanged(self):
+        self.logger.info('gateNameListChanged')
+        ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
+        if ax is None:
+            self.logger.debug('gateNameListChanged - ax is None')
+            return
+
+        #Check that the text corresponds to an actual gate name
+        gateName = self.gatePopup.gateNameList.currentText()
+        gateFoundAtIdx = self.gatePopup.gateNameList.findText(gateName)
+        if gateFoundAtIdx == -1 :
+            self.gatePopup.regionPoint.clear()
+            self.gatePopup.listGateType.clear()
+            self.logger.debug('gateNameListChanged - gateFoundAtIdx == -1')
+            return
+        
+        #update points text
+        gateIdentifier = "gate_-_" + gateName + "_-_"
+        lines = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier in child.get_label()]
+        otherLines = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier not in child.get_label()]
+
+        #set listGateType
+        gate = [dict for dict in self.rest.listGate() if dict["name"] == gateName]
+        self.gatePopup.gateNameList.setCurrentText(gateName)
+        self.gatePopup.listGateType.addItem(gate[0]["type"])
+
+        #update text points corresponding to selected gate
+        self.updateTextGatePopup(lines)
+
+        #set lines style of the selected gate and rest of the lines
+        for line in lines :
+            line.set_marker(marker='o')
+            line.set_color("green")
+        for line in otherLines :
+            line.set_marker(marker=None)
+            line.set_color("red")
+
+        self.currentPlot.canvas.draw()
+
+
+    # called in on_singleclick_gate to add a gate line to the axis
+    def addLine(self, posx, posy, index, label=None):
+        self.logger.info('addLine - posx, posy, index, label: %s, %s, %s, %s', posx, posy, index, label)
+        spectrum = self.getSpectrumInfo("spectrum", index=index)
+        dim = self.getSpectrumInfo("dim", index=index)
+        if spectrum is None :
+            self.logger.debug('addLine - spectrum is None')
+            return
+        ax = spectrum.axes
+
+        if dim == 1:
+            ymin, ymax = ax.get_ybound()
+            l = mlines.Line2D([posx,posx], [ymin,ymax], picker=5, label=label)
+            ax.add_line(l)
+        elif dim == 2:
+            if self.currentPlot.toCreateGate :
+                xyPrev = self.gatePopup.prevPoint
+                self.gatePopup.prevPoint = [posx, posy]
+                # If we are adding the closing segment we want to save the n-1 last point (prev prev) 
+                # because closing segment will be removed before drawing from click
+                if label == "closing_segment":
+                    self.gatePopup.prevPoint = xyPrev
+            elif self.currentPlot.toCreateSumRegion :
+                xyPrev = self.sumRegionPopup.prevPoint
+                self.sumRegionPopup.prevPoint = [posx, posy]
+                if label == "closing_segment":
+                    self.sumRegionPopup.prevPoint = xyPrev
+            if xyPrev is None or len(xyPrev) == 0 :
+               return
+            else :
+                l = mlines.Line2D([xyPrev[0],posx], [xyPrev[1],posy], picker=5, label=label)
+                ax.add_line(l)
+        if l is None :
+            self.logger.debug('addLine - l is None')
+            return 
+        elif self.currentPlot.toCreateSumRegion :
             l.set_color('b')
         else:
             l.set_color('r')
-        self.currentPlot.xs.append(posx)
-        if (DEBUG):
-            print(posx,ymin,ymax)
         return l
 
-    def addPolygon(self, posx, posy):
-        if (DEBUG):
-            print("Inside addPolygon", posx, posy)
-        ax = plt.gca()
-        self.currentPlot.polygon = mlines.Line2D([],[], picker=5)
-        self.currentPlot.xs.append(posx)
-        self.currentPlot.ys.append(posy)
-        self.currentPlot.polygon.set_data(self.currentPlot.xs, self.currentPlot.ys)
-        ax.add_line(self.currentPlot.polygon)
-        if self.currentPlot.toCreateSRegion == True:
-            self.currentPlot.polygon.set_color('b')
-        else:
-            self.currentPlot.polygon.set_color('r')
 
-    def removeLine(self):
-        l = self.currentPlot.listLine[0]
-        self.currentPlot.listLine.pop(0)
-        self.currentPlot.xs.pop(0)
-        if (DEBUG):
-            print("after removing lines...", self.currentPlot.xs)
-        l.remove()
+    #called in on_singleclick_gate to remove previous point by right click while making a new gate
+    def removePrevLine(self):
+        self.logger.info('removePrevLine')
+        popup = None
+        if self.currentPlot.toCreateGate :
+            popup = self.gatePopup
+        elif self.currentPlot.toCreateSumRegion :
+            popup = self.sumRegionPopup
+        if popup is not None:
+            l = popup.listRegionLine[0]
+            l.remove()
+            popup.listRegionLine.pop(0)
+        
 
+    #reset signals to continue adding/modifying gate point
     def releaseonclick(self, event):
-        self.currentPlot.canvas.mpl_disconnect(self.releaser)
-        self.currentPlot.canvas.mpl_disconnect(self.follower)
-        self.currentPlot.canvas.mpl_disconnect(self.sid)
+        self.logger.info('releaseonclick')
+        try:
+            if hasattr(self, 'gateReleaser') :
+                self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.gateReleaser)
+        except TypeError:
+            pass
+        try:
+            if hasattr(self, 'gateFollower') :
+                self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.gateFollower)
+        except TypeError:
+            pass
+        self.gatePopup.gateEditOption = None
+        self.xyRef = None
+        self.movingMarker = []
 
-        xs = []
-        lst = list(self.edit_ax.get_children())
-        for obj in lst[1:]:
-            if isinstance(obj, matplotlib.lines.Line2D):
-                xs.append(obj.get_xdata()[0])
-                obj.set_color("red")
 
-        xs.sort()
-        # update gate
-        gname = self.wConf.listGate.currentText()
-        hname = self.wConf.histo_list.currentText()
-        self.currentPlot.artist1D[gname] = []
-        self.currentPlot.artist1D[gname] = xs
-        if hname in self.currentPlot.artist_dict:
-            self.currentPlot.artist_dict[hname][gname] = self.currentPlot.artist1D[gname]
+    # #Disable hotkey to edit a gate
+    # def onKeyReleaseEditGate(self, event):
+    #     #set to false as soon as the key is released
+    #     self.altPressed = False
+
+
+    # # Callback for hotkey to edit a gate
+    # def onKeyPressEditGate(self, event):
+    #     if not event.inaxes or not self.currentPlot.toEditGate:
+    #         return
+    #     #Used in on_singleclick_gate_edit
+    #     self.altPressed = True
+    #     if event.key == 'alt':
+    #         self.altPressed = True
+
+    # Callback for shortcut to edit a gate
+    def onKeyActivateEditGate(self):
+        self.logger.info('onKeyActivateEditGate - self.currentPlot.toEditGate: %s',self.currentPlot.toEditGate)
+        if not self.currentPlot.toEditGate:
+            return
+        #Used in on_singleclick_gate_edit
+        self.altPressed = True
+
+
+    #insert a point to the edited (selected) contour (only for 2d gate), at the mouse location close to the contour
+    def insertPointGate(self, event):
+        self.logger.info('insertPointGate')
+        dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
+        ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
+        if ax is None or dim !=2 :
+            self.logger.debug('insertPointGate - ax is None or dim!=2: %s',dim)
+            return 
+        
+        lineX = self.editThisGateLine.get_xdata()
+        lineY = self.editThisGateLine.get_ydata()
+        # coordinates in pixels for comparison with event position
+        lineXY = self.editThisGateLine.get_transform().transform(self.editThisGateLine.get_xydata())
+
+        p = event.x, event.y
+        insertAt = None
+        for i in range(len(lineXY) - 1 ):
+            s0 = lineXY[i]
+            s1 = lineXY[i+1]
+            d = self.dist_point_to_segment(p, s0, s1)
+            if d <= self.epsilon:
+                insertAt = i
+                break
+
+        if insertAt is not None:
+            lineX.insert(insertAt+1, ax.transData.inverted().transform((event.x, event.y))[0])
+            lineY.insert(insertAt+1, ax.transData.inverted().transform((event.x, event.y))[1])
+            self.editThisGateLine.set_data(lineX, lineY)
+            self.currentPlot.canvas.draw_idle()
+
+
+    #delete a point to the edited (selected) contour (only for 2d gate), at the mouse location close to the contour
+    def deletePointGate(self, event):
+        self.logger.info('deletePointGate')
+        dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
+        ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
+        if ax is None or dim !=2 :
+            self.logger.debug('deletePointGate - ax is None or dim!=2: %s',dim)
+            return 
+
+        lineX = self.editThisGateLine.get_xdata()
+        lineY = self.editThisGateLine.get_ydata()
+        markerPos = np.array([lineX, lineY])
+
+        p = ax.transData.inverted().transform((event.x, event.y))
+
+        # calculate the distance between each marker and the event.
+        distances = np.linalg.norm(markerPos - p.reshape(2, -1), axis=0)
+        dataRadius = abs(ax.transData.inverted().transform((self.epsilon, 0))[0])
+        # print("Simon - deletePointGate ", markerPos, dataRadius, p, distances)
+
+        specialGateTypes = ["c", "gc"]
+
+        # get the marker index if marker is close to the click position.
+        markerIdx = np.where(distances <= dataRadius)[0]
+        if markerIdx.size == 0:
+            pass
         else:
-            self.currentPlot.artist_dict[hname] = {gname : self.currentPlot.artist1D[gname]}
+            # for contour, if remove first point, set last point to second point to keep contour closed
+            if markerIdx[0] == 0 and self.gatePopup.listGateType.currentText() in specialGateTypes:
+                lineX[-1] = lineX[1]
+                lineY[-1] = lineY[1]
+            lineX.pop(markerIdx[0])
+            lineY.pop(markerIdx[0])
+            self.editThisGateLine.set_data(lineX, lineY)
+            dumList = [self.editThisGateLine]
+            self.updateTextGatePopup(dumList)
+            self.currentPlot.canvas.draw_idle()
 
-        self.formatLinetoREST(deepcopy(xs))
 
-        self.connect()
-        self.currentPlot.toEditGate = False
 
+    #change "in live" the point/line/gate position according to the mouse position
     def followmouse(self, event):
-        self.thisline.set_xdata([event.xdata, event.xdata])
+        if self.gatePopup.gateEditOption == "1d_move_line" :
+            self.editThisGateLine.set_color("green")
+            self.editThisGateLine.set_xdata([event.xdata, event.xdata])
+        elif self.gatePopup.gateEditOption == "2d_move_all" :
+            lineX = self.editThisGateLine.get_xdata()
+            lineY = self.editThisGateLine.get_ydata()
+            shiftX = event.xdata - lineX[0] 
+            shiftY = event.ydata - lineY[0]
+            #not sure why the += changes the type of lineX lineY from list to ndarray? Want to keep it a list
+            # lineX += shiftX
+            # lineY += shiftY
+            lineX = [item + shiftX for item in lineX]
+            lineY = [item + shiftY for item in lineY]
+            self.editThisGateLine.set_data(lineX, lineY )
+        elif self.gatePopup.gateEditOption == "2d_move_point" :
+            lineX = self.editThisGateLine.get_xdata()
+            lineY = self.editThisGateLine.get_ydata()
+            if hasattr(self, 'movingMarker') and len(self.movingMarker) > 0:
+                for mIdx in self.movingMarker:
+                    lineX[mIdx] = event.xdata
+                    lineY[mIdx] = event.ydata
+                self.editThisGateLine.set_data(lineX, lineY )
+            else :
+                markerPos = np.array([lineX, lineY])
+                try :
+                    ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
+                    if ax is None :
+                        return
+                    # calculate the distance between each marker and the event.
+                    distances = np.linalg.norm(markerPos - self.xyRef.reshape(2, -1), axis=0)
+                    # dataRadius = abs(ax.transData.inverted().transform([[self.epsilon, 0]])[0, 0])
+                    # dataRadius = self.epsilon
+
+                    #not fan of plt.gcf()...
+                    xlims = ax.get_xlim()
+                    ylims = ax.get_ylim()
+                    figTest = plt.gcf()
+                    plottingAreaWidth, plottingAreaHeight = figTest.get_size_inches() * figTest.dpi
+                    radX = self.pixel_to_data_distance(self.epsilon, xlims, plottingAreaWidth)
+                    radY = self.pixel_to_data_distance(self.epsilon, ylims, plottingAreaHeight)
+                    dataRadius = math.sqrt(radX*radX + radY*radY)
+
+                    # get the marker index if marker is close to the click position.
+                    markerIdx = np.where(distances <= dataRadius)[0]
+                    # print("Simon - followmouse -", markerIdx, markerPos, distances, dataRadius, self.xyRef, radX, radY)
+                    if markerIdx.size == 0:
+                        pass
+                    else:
+                        #If select the first point then one should move the last point too, 2 Idx 
+                        self.movingMarker = []
+                        for mIdx in markerIdx:
+                            lineX[mIdx] = event.xdata
+                            lineY[mIdx] = event.ydata
+                            self.movingMarker.append(mIdx)
+                        self.editThisGateLine.set_data(lineX, lineY )
+                        self.gateReleaser = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.releaseonclick)
+                except NameError:
+                    raise
+        else :
+            pass
         self.currentPlot.canvas.draw_idle()
 
-    def clickonline(self, event):
-        self.currentPlot.toEditGate = True
-        if (DEBUG):
-            print("Inside clickonline, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
-        self.thisline = None
-        lst = list(self.edit_ax.get_children())
-        for obj in lst:
-            if isinstance(obj, matplotlib.lines.Line2D):
-                if obj == event.artist:
-                    if (DEBUG):
-                        print("id", id(obj))
-                        print("obj", obj)
-                        print("obj x data", obj.get_xdata())
-                        print("obj y data", obj.get_ydata())
-                    self.thisline = obj
 
-        if self.wConf.button1D.isChecked():
-            self.thisline.set_color("green")
-            self.follower = self.currentPlot.canvas.mpl_connect("motion_notify_event", self.followmouse)
-            self.releaser = self.currentPlot.canvas.mpl_connect("button_press_event", self.releaseonclick)
-        else:
-            self.thisline.set_visible(False)
-            self.polyXY = self.convertToArray(self.thisline)
-            if self.wConf.isDrag:
-                self.polygon = Polygon(self.polyXY, facecolor = 'green', alpha=0.5)
-                self.edit_ax.add_patch(self.polygon)
+    # Function to transform pixel distance to data coordinate distance
+    def pixel_to_data_distance(self, pixel_distance, axis_limits, plotting_area_size):
+        axis_range = axis_limits[1] - axis_limits[0]
+        pixel_to_data_ratio = axis_range / plotting_area_size
+        return pixel_distance * pixel_to_data_ratio
 
-                Artist.remove(self.thisline)
 
-                self.e_press = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('button_press_event', self.button_press_callback)
-                self.e_motion = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
-                self.e_release = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('button_release_event', self.button_release_callback)
-
-            elif self.wConf.isEdit:
-
-                self.polygon = Polygon(self.polyXY, facecolor = 'green', alpha=0.5, animated=True)
-                self.edit_ax.add_patch(self.polygon)
-
-                Artist.remove(self.thisline)
-
-                # new stuff
-                if self.polygon is None:
-                    raise RuntimeError("You must first add the polygon to a figure or canvas before defining the interactor")
-
-                canvas = self.polygon.figure.canvas
-                x, y = zip(*self.polygon.xy)
-                self.line = mlines.Line2D(x, y, marker='o', color="green", markerfacecolor="green", animated=True)
-                self.edit_ax.add_line(self.line)
-
-                self.cid = self.polygon.add_callback(self.poly_changed)
-
-                canvas.mpl_connect('draw_event', self.on_draw)
-                canvas.mpl_connect('button_press_event', self.on_button_press)
-                canvas.mpl_connect('key_press_event', self.on_key_press)
-                canvas.mpl_connect('button_release_event', self.on_button_release)
-                canvas.mpl_connect('motion_notify_event', self.on_mouse_move)
-                canvas.mpl_connect('button_press_event', self.gate_release)
-
-                self.canvas = canvas
-
+    #goes with hotkey to edit gate, depending if left or right click, add or delete gate point (2d)
+    def on_singleclick_gate_edit(self, event):
+        self.logger.info('on_singleclick_gate_edit')
+        dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
+        ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
+        if ax is None:
+            self.logger.debug('on_singleclick_gate_edit - ax is None')
+            return
+        if dim == 2:
+            self.xyRef = np.array([event.xdata,event.ydata])
+        #left click
+        if event.button == 1 :
+            if  hasattr(self, 'altPressed') and self.altPressed :
+                self.insertPointGate(event)
+        #right click
+        if event.button == 3 :
+            if hasattr(self, 'altPressed') and self.altPressed :
+                self.deletePointGate(event)
+            else :
+                pass
             self.currentPlot.canvas.draw()
-
-    def gate_release(self, event):
-        if event.button == 3 and self.wConf.isEdit:
-            if (DEBUG):
-                print("Inside gate_release, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
-            self.canvas.mpl_disconnect(self.on_button_press)
-
-            self.showverts = not self.showverts
-            self.line.set_visible(self.showverts)
-            if not self.showverts:
-                self._ind = None
-
-                        # update line position
-            pol2line = self.convertToList(self.polygon)
-            pol2line.append(pol2line[0])
-            x, y = map(list, zip(*pol2line))
-            # push gate to shared memory 2D
-            self.formatLinetoREST(x,y)
-            # update gate
-            gname = self.wConf.listGate.currentText()
-            hname = self.wConf.histo_list.currentText()
-            self.currentPlot.artist2D[gname] = []
-            self.currentPlot.artist2D[gname] = [deepcopy(x), deepcopy(y)]
-            if hname in self.currentPlot.artist_dict:
-                self.currentPlot.artist_dict[hname][gname] = self.currentPlot.artist2D[gname]
-            else:
-                self.currentPlot.artist_dict[hname] = {gname : self.currentPlot.artist2D[gname]}
+        self.altPressed = False
 
 
-            self.thisline = mlines.Line2D([],[], color= "red", picker=5)
-            self.thisline.set_data(x, y)
-            self.edit_ax.add_line(self.thisline)
+    #move a gate line if double click on it 
+    def on_dblclick_gate_edit(self, event, index):
+        self.logger.info('on_dblclick_gate_edit')
+        dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
+        if dim == 2:
+            self.gatePopup.gateEditOption = "2d_move_all"
+            # self.xyRef = [event.xdata,event.ydata]
+            # self.gateFollower = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("motion_notify_event", self.followmouse)
+            self.gateReleaser = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.releaseonclick)
 
-            self.polygon.set_visible(False)
-            self.line.set_visible(False)
 
-            self.canvas.mpl_disconnect(self.on_mouse_move)
-            self.canvas.mpl_disconnect(self.on_button_release)
-            self.canvas.mpl_disconnect(self.on_key_press)
-            self.canvas.mpl_disconnect(self.on_draw)
-            self.canvas.mpl_disconnect(self.gate_release)
 
-            self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.sid)
-            self.connect()
+    #udpate the gatePopup.regionPoint text according to the gateList [line2D]
+    def updateTextGatePopup(self, gateList):
+        # Add text in gatePopup
+        dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
+        if dim ==1 :
+            lines = gateList
+            lineText = ""
+            for nbLine in range(len(lines)):
+                if nbLine == 0:
+                    lineText = lineText + (f"{nbLine}: X= {gateList[nbLine].get_xdata()[0]:.5f}") 
+                else :
+                    lineText = lineText + (f"\n{nbLine}: X= {gateList[nbLine].get_xdata()[0]:.5f}") 
+        elif dim ==2 :
+            lines = gateList[0].get_xydata()
+            lineText = ""
+            specialTypes = ["c", "gc"]
+            nbPoints = len(lines)
+            if self.gatePopup.listGateType.currentText() in specialTypes:
+                #for c or gc range(lineNb-1) because point0 = pointLast
+                nbPoints = len(lines)-1
+            for nbLine in range(nbPoints):
+                if nbLine == 0:
+                    lineText = lineText + (f"{nbLine}: X= {lines[nbLine][0]:.5f}   Y= {lines[nbLine][1]:.5f}") 
+                else :
+                    lineText = lineText + (f"\n{nbLine}: X= {lines[nbLine][0]:.5f}   Y= {lines[nbLine][1]:.5f}") 
 
-            self.currentPlot.toEditGate = False
-            self.canvas.draw()
+        self.gatePopup.regionPoint.clear()
+        self.gatePopup.regionPoint.insertPlainText(lineText)
+
+
+    # For gate editing when pick_event signal
+    def clickOnGateLine(self, event):
+        self.logger.info('clickOnGateLine')
+        #left click
+        if event.mouseevent.button != 1 :
+            return 
+        self.editThisGateLine = None
+        # self.xyRef = [event.mouseevent.x,event.mouseevent.y]
+        dim = self.getSpectrumInfoREST("dim", index=self.gatePopup.gateSpectrumIndex)
+        ax = self.getSpectrumInfo("axis", index=self.gatePopup.gateSpectrumIndex)
+        if ax is None :
+            self.logger.debug('clickOnGateLine - ax is None')
+            return
+        
+        #Get the line(s) from axis child
+        lineCandidate = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and child == event.artist] 
+        if len(lineCandidate) > 0:
+            self.editThisGateLine = lineCandidate[0]
+            if dim == 2 :
+                #lineCandidate only one artist from drawGate even for 2d gates, need to decompose into segments and points
+                self.editThisGateLine = lineCandidate[0]
+        else :
+            self.logger.debug('clickOnGateLine - len(lineCandidate) <= 0')
+            return
+        #Following block sets the name and type in gatePopup and get the segment number to update self.gatePopup.listRegionLine
+        labelSplit = lineCandidate[0].get_label().split("_-_")
+        if len(labelSplit) != 3 or labelSplit[0] != "gate":
+            self.logger.debug('clickOnGateLine - lineLabel has not the expected format')
+            return
+        gateName = labelSplit[1]
+        gate = [dict for dict in self.rest.listGate() if dict["name"] == gateName]
+
+        self.gatePopup.gateNameList.setCurrentText(gateName)
+        self.gatePopup.listGateType.clear()
+        self.gatePopup.listGateType.addItem(gate[0]["type"])
+
+        #Fill listRegionLine with the axis child, in order to use pushGateToRest later in okGate
+        gateIdentifier = "gate_-_" + gateName + "_-_"
+        gateLines = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier in child.get_label()]
+
+        self.updateTextGatePopup(gateLines)
+        
+        #Start mouse follow signal but only effective once self.gatePopup.gateEditOption is set
+        self.gateFollower = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("motion_notify_event", self.followmouse)
+        if dim == 1:
+            self.gatePopup.gateEditOption = "1d_move_line"
+            self.gateReleaser = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect("button_press_event", self.releaseonclick)
+        elif dim ==2:
+            #Note that to drag the entire gate the self.gatePopup.gateEditOption is set on_dblclick_gate_edit
+            #But still it is necessary to use clickOnGateLine such that one nows which gate to drag
+            self.editThisGateLine.set_marker(marker='o')
+            self.editThisGateLine.set_color("green")
             self.currentPlot.canvas.draw()
+            self.gatePopup.gateEditOption = "2d_move_point"
 
-    def get_ind_under_point(self, event):
-        # Return the index of the point closest to the event position or *None*
-        # if no point is within ``self.epsilon`` to the event position.
-        # display coords
-        xy = np.asarray(self.polygon.xy)
-        xyt = self.polygon.get_transform().transform(xy)
-        xt, yt = xyt[:, 0], xyt[:, 1]
-        d = np.hypot(xt - event.x, yt - event.y)
-        indseq, = np.nonzero(d == d.min())
-        ind = indseq[0]
-
-        if d[ind] >= self.epsilon:
-            ind = None
-
-        return ind
-
-    def on_button_press(self, event):
-        # Callback for mouse button presses
-        if not self.showverts:
-            return
-        if event.inaxes is None:
-            return
-        if event.button != 1:
-            return
-        self._ind = self.get_ind_under_point(event)
-
-    def on_button_release(self, event):
-        # Callback for mouse button releases
-        if not self.showverts:
-            return
-        if event.button != 1:
-            return
-        self._ind = None
-
-    def on_key_press(self, event):
-        # Callback for key presses
-        if not event.inaxes:
-            return
-        '''
-        if event.key == 't':
-            self.showverts = not self.showverts
-            self.line.set_visible(self.showverts)
-            if not self.showverts:
-                self._ind = None
-        '''
-        if event.key == 'd':
-            ind = self.get_ind_under_point(event)
-            if ind is not None:
-                self.polygon.xy = np.delete(self.polygon.xy,
-                                         ind, axis=0)
-                self.line.set_data(zip(*self.polygon.xy))
-        elif event.key == 'i':
-            xys = self.polygon.get_transform().transform(self.polygon.xy)
-            p = event.x, event.y  # display coords
-            for i in range(len(xys) - 1):
-                s0 = xys[i]
-                s1 = xys[i + 1]
-                d = self.dist_point_to_segment(p, s0, s1)
-                if d <= self.epsilon:
-                    self.polygon.xy = np.insert(
-                        self.polygon.xy, i+1,
-                        [event.xdata, event.ydata],
-                        axis=0)
-                    self.line.set_data(zip(*self.polygon.xy))
-                    break
-        if self.line.stale:
-            self.canvas.draw_idle()
-
-    def on_mouse_move(self, event):
-        # Callback for mouse movements
-        if not self.showverts:
-            return
-        if self._ind is None:
-            return
-        if event.inaxes is None:
-            return
-        if event.button != 1:
-            return
-        x, y = event.xdata, event.ydata
-
-        self.polygon.xy[self._ind] = x, y
-        if self._ind == 0:
-            self.polygon.xy[-1] = x, y
-        elif self._ind == len(self.polygon.xy) - 1:
-            self.polygon.xy[0] = x, y
-        self.line.set_data(zip(*self.polygon.xy))
-
-        self.canvas.restore_region(self.background)
-        self.edit_ax.draw_artist(self.polygon)
-        self.edit_ax.draw_artist(self.line)
-        self.canvas.blit(self.edit_ax.bbox)
-        self.canvas.draw_idle()
 
     def dist(self, x, y):
         # Return the distance between two points.
@@ -2958,423 +4451,310 @@ class MainWindow(QMainWindow):
         pb = s0 + b * v
         return self.dist(p, pb)
 
-    def on_draw(self, event):
-        self.background = self.canvas.copy_from_bbox(self.edit_ax.bbox)
-        self.edit_ax.draw_artist(self.polygon)
-        self.edit_ax.draw_artist(self.line)
-        # do not need to blit here, this will fire before the screen is
-        # updated
-
-    def poly_changed(self, poly):
-        # This method is called whenever the pathpatch object is called.
-        # only copy the artist props to the line (except visibility)
-        vis = self.line.get_visible()
-        Artist.update_from(self.line, poly)
-        self.line.set_visible(vis)  # don't use the poly visibility state
-
-    def button_press_callback(self, event):
-        if (DEBUG):
-            print("Inside button_press_callback, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
-        if (event.inaxes != self.polygon.axes):
-            return
-        contains, attrd = self.polygon.contains(event)
-        if not contains:
-            return
-        x0, y0 = self.polygon.xy[0]
-        if self.bPressed == False:
-            self.press = x0, y0, event.xdata, event.ydata
-            self.bPressed = True
-
-    def button_release_callback(self, event):
-        # right click
-        if event.button == 3 and self.wConf.isDrag:
-            if (DEBUG):
-                print("Inside button_release_callback, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
-            self.currentPlot.canvas.mpl_disconnect(self.e_press)
-            self.currentPlot.canvas.mpl_disconnect(self.e_motion)
-            self.currentPlot.canvas.mpl_disconnect(self.e_release)
-            self.polygon.set_visible(False)
-            # update line position
-            pol2line = self.convertToList(self.polygon)
-            pol2line.append(pol2line[0])
-            x, y = map(list, zip(*pol2line))
-            # push gate to shared memory 2D
-            self.formatLinetoREST(x,y)
-            # update gate
-            gname = self.wConf.listGate.currentText()
-            hname = self.wConf.histo_list.currentText()
-            self.currentPlot.artist2D[gname] = []
-            self.currentPlot.artist2D[gname] = [deepcopy(x), deepcopy(y)]
-            if hname in self.currentPlot.artist_dict:
-                self.currentPlot.artist_dict[hname][gname] = self.currentPlot.artist2D[gname]
-            else:
-                self.currentPlot.artist_dict[hname] = {gname : self.currentPlot.artist2D[gname]}
-
-            self.thisline = mlines.Line2D([],[], color= "red", picker=5)
-            self.thisline.set_data(x, y)
-            self.edit_ax.add_line(self.thisline)
-
-            self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_disconnect(self.sid)
-            self.connect()
-
-            self.bPressed = False
-            self.currentPlot.toEditGate = False
-            self.currentPlot.canvas.draw()
-
-    def motion_notify_callback(self, event):
-        try:
-            if (DEBUG):
-                print("Inside motion_notify_callback, self.currentPlot.toEditGate", self.currentPlot.toEditGate)
-            if (event.inaxes != self.polygon.axes):
-                return
-
-            if self.bPressed == True:
-                x0, y0, xpress, ypress = self.press
-            dx = event.xdata - xpress
-            dy = event.ydata - ypress
-            # this shift from the original position not from the modified one
-            xdx = [i+dx for i,_ in self.polyXY]
-            ydy = [i+dy for _,i in self.polyXY]
-            poly_xy = [[a, b] for a, b in zip(xdx, ydy)]
-            self.polygon.set_xy(poly_xy)
-            self.polygon.figure.canvas.draw_idle()
-
-        except:
-            pass
-
-    def editGate(self):
-        try:
-            self.edit_ax = plt.gca()
-            self.disconnect()
-
-            '''
-            print("======= list of lines =======")
-            lst = list(self.edit_ax.get_children())
-            for obj in lst:
-                if isinstance(obj, matplotlib.lines.Line2D):
-                    print("id", id(obj), self.wConf.listGate.currentText())
-                    print("obj", obj)
-                    print("obj x data", obj.get_xdata())
-                    print("obj y data", obj.get_ydata())
-            '''
-
-            self.sid = self.wTab.wPlot[self.wTab.currentIndex()].canvas.mpl_connect('pick_event', self.clickonline)
-
-        except NameError:
-            raise
-
 
     ##############################
     # 11) 1D/2D region integration
     ##############################
 
     def integrate(self):
-        if (DEBUG):
-            print("Inside integrate")
-            print(self.currentPlot.artist_dict)
-        try:
-            for histo_name, gates in self.currentPlot.artist_dict.items():
-                if (DEBUG):
-                    print(histo_name, gates)
-                if (self.wConf.histo_list.currentText() == histo_name):
-                    # if histo_name and "summing_region" not in histo_name:
-                    if "summing_region" not in histo_name:
-                        for gate_name, gate_line in gates.items():
-                            if (DEBUG):
-                                print(gate_name, gate_line)
-                            results = self.rest.integrateGate(histo_name, gate_name)
-                            self.addRegion(histo_name, gate_name, results)
-                self.resultPopup()
-
-            for histo_name, regions in self.currentPlot.region_dict.items():
-                if (DEBUG):
-                    print(histo_name, regions)
-                if (self.wConf.histo_list.currentText() == histo_name):
-                    # if histo_name and "summing_region" not in histo_name:
-                    if "summing_region" not in histo_name:
-                        for region_name, region_line in regions.items():
-                            if (DEBUG):
-                                print(region_name, region_line)
-                            results = self.rest.integrateGate(histo_name, region_name)
-                            self.addRegion(histo_name, region_name, results)
-                self.resultPopup()
-        except NameError:
-            pass
-
-
-    def resultPopup(self):
-        self.resPopup.setGeometry(100,100,724,500)
-        if self.resPopup.isVisible():
-            self.resPopup.close()
-
-        self.resPopup.show()
-
-    def addRegion(self, histo, gate, results):
-        if (DEBUG):
-            print("Inside addRegion")
-        # Schema for output window
-        #["ID", "Spectrum", "Name", "centroid X", "centroid Y", "FWHM X", "FWHM Y", "Area"]
-        self.resPopup.tableWidget.setRowCount(0);
-
-        if (DEBUG):
-            print(results)
-        hname = histo
-        gname = gate
-        cx = 0
-        cy = 0
-        fwhmx = 0
-        fwhmy = 0
-        if isinstance(results["centroid"], list):
-            cx = str(results["centroid"][0])
-            cy = str(results["centroid"][1])
-            fwhmx = str(results["fwhm"][0])
-            fwhmy = str(results["fwhm"][1])
+        self.logger.info('integrate')
+        ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
+        if ax is None or self.currentPlot.selected_plot_index is None:
+            self.logger.debug('integrate - ax is None or self.currentPlot.selected_plot_index is None')
+            return QMessageBox.about(self,"Warning!", "Please add/select one spectrum")
         else:
-            cx = str(results["centroid"])
-            fwhmx = str(results["fwhm"])
-        counts = str(results["counts"])
+            index = self.currentPlot.selected_plot_index
 
-        self.table_row.append([self.ctr, hname, gname, cx, cy, fwhmx, fwhmy, counts])
-        self.ctr += 1
+            #reset info 
+            self.integratePopup.clearInfo()
+            self.disconnectGateSignals()
 
-        for row in self.table_row:
-            inx = self.table_row.index(row)
-            self.resPopup.tableWidget.insertRow(inx)
-            for i in range(len(row)):
-                self.resPopup.tableWidget.setItem(inx,i,QTableWidgetItem(str(row[i])))
-        header = self.resPopup.tableWidget.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.Stretch)
-        self.resPopup.tableWidget.resizeColumnsToContents()
+            #Set column headers of the results table
+            colHeader = ['Spectrum', 'Region', 'Counts', 'Centroid X', 'Centroid Y', 'FWHM X', 'FWHM Y']
+            for col, header in enumerate(colHeader):
+                headerItem = QTableWidgetItem(header)
+                font = self.integratePopup.resultsText.font()
+                font.setBold(True)
+                headerItem.setFont(font)
+                self.integratePopup.resultsText.setHorizontalHeaderItem(col, headerItem)
+
+            resultsCombined = {}
+            results = {}
+
+            #find lineList of summing regions 
+            sumRegionLines = self.getSumRegion(index)
+            if sumRegionLines is None or len(sumRegionLines) == 0 :
+                self.logger.debug('integrate - sumRegionLines is None or len(sumRegionLines) == 0')
+                pass
+            else:
+                #get a results dict for summing region
+                results = self.integrateGateLocal(index, sumRegionLines)
+
+            #now get a results dict for gates
+            gateIdentifier = "gate_-_" 
+            gateLines = [child for child in ax.get_children() if type(child) == matplotlib.lines.Line2D and gateIdentifier in child.get_label()]
+            resultsGate = self.integrateGateLocal(index, gateLines)
+
+            #combining integration results 
+            if results is not None and len(results) > 0 and resultsGate is not None and len(resultsGate) > 0:
+                resultsCombined = results
+                for specName, listGateResults in resultsGate.items():
+                    #if there is already specName in resultsCombined then append the existing list.
+                    if specName in resultsCombined.keys():
+                        for listItem in listGateResults:
+                            resultsCombined[specName].append(listItem)
+                    else :
+                        resultsCombined[specName] = listGateResults
+            elif results is not None and len(results) > 0:
+                resultsCombined = results                
+            else :
+                resultsCombined = resultsGate
+
+            #if no result set default message
+            if resultsCombined is None or len(resultsCombined) == 0:
+                self.integratePopup.resultsText.insertRow(0)
+                default = "Nothing to integrate"
+                newItem = QTableWidgetItem(default)
+                self.integratePopup.resultsText.setItem(0, 0, newItem)
+                self.integratePopup.show()
+                return
+            else :
+                self.formatResultsIntegrate(resultsCombined)
+                #for copy to clipboard
+                self.sidTableIntegrateCopy = self.integratePopup.resultsText.itemSelectionChanged.connect(self.copySelectionIntegrateTable)
+                self.integratePopup.show()
 
 
-    def spfunPopup(self):
-        if self.extraPopup.isVisible():
-            self.extraPopup.close()
+    def okIntegrate(self):
+        self.logger.info('okIntegrate')
+        self.disconnectGateSignals()
+        self.integratePopup.close()
 
-        self.extraPopup.show()
 
-    def okCopy(self):
-        if (DEBUG):
-            print("Inside okCopy")
-        self.applyCopy()
-        self.closeCopy()
-
-    def applyCopy(self):
-        if (DEBUG):
-            print("Inside applyCopy")
-        try:
-            flags = []
-            for instance in self.copyAttr.findChildren(QCheckBox):
-                if instance.isChecked():
-                    if (DEBUG):
-                        print(instance.text(), instance.isChecked())
-                    flags.append(True)
-                else:
-                    flags.append(False)
-
-            if (DEBUG):
-                print(flags)
-
-            dim = self.currentPlot.h_dim[self.currentPlot.selected_plot_index]
-            keys = []
-            values = []
-            xlim_src = []
-            ylim_src = []
-            zlim_src = []
-            keys = []
-            values = []
-            scale_src = None
-            discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
-            # creating list of target histograms
-            for instance in self.copyAttr.findChildren(QPushButton):
-                for key, value in self.currentPlot.h_dict.items():
-                    for key2, value2, in value.items():
-                        if (instance.text() not in discard) and instance.isChecked() and instance.text() == value2 and key != self.currentPlot.selected_plot_index :
-                            if (DEBUG):
-                                print("histo destination",instance.text())
-                            keys.append(key)
-                            values.append(value2)
-                    # keys=list(self.currentPlot.h_dict_geo.keys())
-                    # values=list(self.currentPlot.h_dict_geo.values())
-
-            # index_og = keys[values.index(self.wConf.histo_list.currentText())]
-            if (DEBUG):
-                # print(self.currentPlot.selected_plot_index, index_og)
-                print(self.currentPlot.selected_plot_index)
-                print(keys)
-                print(values)
-            # remove source element
-            # keys.pop(self.currentPlot.selected_plot_index)
-            # values.pop(self.currentPlot.selected_plot_index)
-            # src values to copy to destination
-            xlim_src = ast.literal_eval(self.copyAttr.axisLimLabelX.text())
-            ylim_src = ast.literal_eval(self.copyAttr.axisLimLabelY.text())
-            scale_src = self.copyAttr.axisSLabel.text()
-            zlim_src = [float(self.copyAttr.histoScaleValueminZ.text()), float(self.copyAttr.histoScaleValuemaxZ.text())]
-            if (DEBUG):
-                print(xlim_src, ylim_src, scale_src, zlim_src)
-                print(flags)
-                print(self.currentPlot.h_limits)
-                print(self.currentPlot.h_setup)
-                print(self.currentPlot.h_log)
-                print(self.minZ,self.maxZ)
-            # copy to destination
-            for index in keys:
-                # set the limits for x,y
-                if flags[0] == True:
-                    self.currentPlot.h_limits[index]["x"] = xlim_src
-                    self.currentPlot.h_setup[index] = True
-                if flags[1] == True:
-                    self.currentPlot.h_limits[index]["y"] = ylim_src
-                    self.currentPlot.h_setup[index] = True
-                # set log/lin scale
-                if flags[2] == True:
-                    self.currentPlot.h_log[index] = scale_src
-                    self.currentPlot.h_setup[index] = True
-                # set minZ/maxZ
-                if (flags[3] == True or flags[4] == True) and self.wConf.button2D.isChecked():
-                    self.minZ = zlim_src[0]
-                    self.maxZ = zlim_src[1]
-                    self.currentPlot.h_setup[index] = True
-
-            if (DEBUG):
-                print("before applying to destination...")
-                print(self.currentPlot.h_limits)
-                print(self.currentPlot.h_setup)
-                print(self.currentPlot.h_log)
-                print(self.minZ,self.maxZ)
-
-            # ax = None
-            if not self.currentPlot.isZoomed:
-                for index in range(len(self.currentPlot.h_setup)):
-                    # match dimension of the selected histogram (1d/2d)
-                    if self.currentPlot.h_dim[index] == dim and self.currentPlot.h_setup[index]:
-                        self.setAxisLimits(index)
-
-                        # # select axes
-                        # ax = self.select_plot(index)
-                        # # modifying axis limits
-                        # ax.set_xlim(xlim_src[0], xlim_src[1])
-                        # ax.set_ylim(ylim_src[0], ylim_src[1])
-                        # # modifying log/linear
-                        # if self.currentPlot.h_log[index]:
-                        #     self.axisScale(ax, index)
-                        # # for 2D plot sets limits
-                        # if dim == 2:
-                        #     self.currentPlot.h_lst[index].set_clim(vmin=zlim_src[0], vmax=zlim_src[1])
-                        # self.currentPlot.canvas.draw()
-
-        except:
-            pass
-
-    def closeCopy(self):
-        discard = ["Ok", "Cancel", "Apply", "Select all", "Deselect all"]
-        for instance in self.copyAttr.findChildren(QPushButton):
-            if instance.text() not in discard:
-                instance.deleteLater()
-
-        self.copyAttr.close()
-
-    def copyPopup(self):
-        if self.copyAttr.isVisible():
-            self.copyAttr.close()
-        try:
-            self.updatePlotLimits()
-        except:
+    def copySelectionIntegrateTable(self):
+        self.logger.info('copySelectionIntegrateTable')
+        resultTable = self.integratePopup.resultsText
+        selectedItems = resultTable.selectedItems()
+        if not selectedItems:
             return
-        index = self.currentPlot.selected_plot_index
-        name = self.currentPlot.h_dict_geo[index]
-
-        if (DEBUG):
-            print("Clicked copyPopup in tab", self.wTab.currentIndex())
-
-        self.copyAttr.histoLabel.setText(name)
-        hdim = 2 if self.wConf.button2D.isChecked() else 1
-        # setting up info for source histogram
-        try:
-            for idx, values in self.currentPlot.h_dict.items():
-                if values.get("name") == name and idx == index:
-                    if hdim == 2:
-                        vmin, vmax = self.currentPlot.h_lst[idx].get_clim()
-                        self.copyAttr.histoScaleValueminZ.setText('{:.1f}'.format(vmin))
-                        self.copyAttr.histoScaleValuemaxZ.setText('{:.1f}'.format(vmax))
-
-                    self.copyAttr.axisSLabel.setText("Log" if self.currentPlot.h_log[idx] else "Linear")
-
-                    x_limits = self.currentPlot.h_limits[idx].get("x", [])
-                    y_limits = self.currentPlot.h_limits[idx].get("y", [])
-                    self.copyAttr.axisLimLabelX.setText(f"[{x_limits[0]:.1f},{x_limits[1]:.1f}]")
-                    self.copyAttr.axisLimLabelY.setText(f"[{y_limits[0]:.1f},{y_limits[1]:.1f}]")
+        allValues = []
+        for irow in range(resultTable.rowCount()):
+            rowValues = []
+            for icol in range(resultTable.columnCount()):
+                item = resultTable.item(irow, icol)
+                if item:
+                    rowValues.append(item.text())
                 else:
-                    dim = values.get("dim", 1)
-                    if hdim == dim:
-                        instance = QPushButton(values.get("name", ""), self)
-                        instance.setCheckable(True)
-                        instance.setStyleSheet('QPushButton {color: red;}')
-                        self.copyAttr.copy_log.addRow(instance)
-                        instance.clicked.connect(lambda state, instance=instance: self.connectCopy(instance))
-        except KeyError as e:
-            print(f"KeyError occured: {e}")
-        self.copyAttr.show()
+                    rowValues.append("")
+            #separate rowValues with tab
+            if len(rowValues) > 0:
+                allValues.append("\t".join(rowValues))
+        #separate row with new line
+        formattedText = "\n".join(allValues)
+        # Set the clipboard text
+        QApplication.clipboard().setText(formattedText)
 
-    def connectCopy(self, instance):
-        if (instance.palette().color(QPalette.Text).name() == "#008000"):
-            instance.setStyleSheet('QPushButton {color: red;}')
-        else:
-            instance.setStyleSheet('QPushButton {color: green;}')
-        if (DEBUG):
-            print(instance.isChecked())
+
+    def formatResultsIntegrate(self, results):
+        self.logger.info('formatResultsIntegrate')
+        # {'rawSet.0.other': [{'centroid': 0.0, 'fwhm': 0.0, 'counts': 37091.0, 'regionName': 'aaa'}, 
+        # [{'centroid': 0.0, 'fwhm': 0.0, 'counts': 37091.0, 'regionName': 'slice_002'}]]}
+        dum = []
+        irow = 0
+        for spectrumName, resultList in results.items():
+            #keep following commented lines- anticipate feature to show integration results of all spectrum in current tab
+            # foundName = False
+            # for row in range(self.integratePopup.resultsText.rowCount()):
+            #     item = self.integratePopup.resultsText.item(row, 0)
+            #     # print("Simon - in founName loop ", foundName, item, spectrumName, self.integratePopup.resultsText.item(row, 1), self.integratePopup.resultsText.item(row, 2), row )
+            #     if item == spectrumName:
+            #         foundName = True
+            #         break
+            # # print("Simon - after founName ", foundName, spectrumName )
+            # if foundName :
+            #     continue      
+
+            #result is a dict in resultList
+            for result in resultList:
+                if len(result) == 0:
+                    continue
+                elif "centroid" in result.keys():
+                    result = self.setPrecisionIntegrationResult(result)
+                    #a centroid list should mean it is dim == 2
+                    if type(dum) == type(result["centroid"]):
+                        row = [spectrumName, result["regionName"], str(result["counts"]), str(result["centroid"][0]), str(result["centroid"][1]), str(result["fwhm"][0]), str(result["fwhm"][1])]
+                    else:
+                        row = [spectrumName, result["regionName"], str(result["counts"]), str(result["centroid"]), '',  str(result["fwhm"]), '']
+                
+                #have now a row to insert
+                self.integratePopup.resultsText.insertRow(irow)
+                #set data of the new row
+                for icol, cell in enumerate(row):
+                    #spectrumName is inserted only the first time
+                    if icol == 0 and self.integratePopup.resultsText.findItems(cell, QtCore.Qt.MatchFixedString):
+                        continue
+                    newItem = QTableWidgetItem(cell)
+                    self.integratePopup.resultsText.setItem(irow, icol, newItem)
+                irow += 1
+
+        self.integratePopup.show()
+
+
+    # round numbers in dict toRound at a proper order according to fwhm
+    def setPrecisionIntegrationResult(self, toRound):
+        self.logger.info('setPrecisionIntegrationResult - toRound: %s', toRound)
+
+        #round sci format to 3 decimals
+        order = 3
+        sciFormat = "{:." + str(order) + "E}"
+        #dim == 2
+        if type(['dumList']) == type(toRound["fwhm"]):
+            for i, val in enumerate(toRound["fwhm"]):
+                if val is None:
+                    continue
+                toRound["centroid"][i] = sciFormat.format(toRound["centroid"][i])
+                toRound["fwhm"][i] = sciFormat.format(toRound["fwhm"][i])
+        #dim == 1
+        else :
+            if toRound["centroid"] is not None:
+                toRound["centroid"] = sciFormat.format(toRound["centroid"])
+            if toRound["fwhm"] is not None:
+                toRound["fwhm"] = sciFormat.format(toRound["fwhm"])
+
+        # #wanted to get the order for rounding from fwhm
+        # if "fwhm" in toRound:
+        #     if type(['dumList']) == type(toRound["fwhm"]):
+        #         for i, val in enumerate(toRound["fwhm"]):
+        #             fwhm = val
+        #             #format in sci and get the exponent 
+        #             # order = int('{:.0E}'.format(fwhm).split('E')[1])
+        #             sciFormat = "{:." + str(order) + "E}"
+        #             toRound["centroid"][i] = sciFormat.format(toRound["centroid"][i])
+        #             toRound["fwhm"][i] = sciFormat.format(toRound["fwhm"][i])
+
+        #make sure counts does not have decimal
+        toRound["counts"] = int(toRound["counts"])
+        return toRound
+
+
+    #perform gate/summing region integration with REST functions integrate1D and integrate2D
+    def integrateGateLocal(self, index, gateLines):
+        self.logger.info('integrateGateLocal - index: %s', index)
+        resultsList = []
+        resultsDict = {}
+        index = self.currentPlot.selected_plot_index
+
+        lineList = gateLines
+        if lineList is None or len(lineList) == 0 :
+            self.logger.debug('integrateGateLocal - lineList is None or len(lineList) == 0')
+            return
+
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        spectrumName = self.nameFromIndex(index) 
+
+        step = 1
+        if dim == 1:
+            #assuming there are two consecutive lines per gate for 1d
+            step = 2
+
+        for iLine in range(0, len(lineList), step):
+            boundaries = []
+            if dim == 1:
+                gateName = lineList[iLine].get_label().split("_-_")[1]
+                # gate 1Dgate_xamine s {aris.db1.ppac0.uc {1392.232056 1665.277466}}
+                boundaries = [lineList[iLine].get_xdata()[0], lineList[iLine+1].get_xdata()[0]]
+                # sort such that lowest first
+                if boundaries[0] > boundaries[1]:
+                    boundaries.sort()
+                results = self.rest.integrate1D(spectrumName, boundaries[0], boundaries[1])
+            elif dim == 2:
+                #{'2Dgate_xamine': {'name': '2Dgate_xamine', 'type': 'c',
+                # 'parameters': ['aris.tof.tdc.db3scin_to_db5scin', 'aris.db5.pin.dE'],
+                # 'points': [{'x': 126.876877, 'y': 29.429428}, {'x': 125.625626, 'y': 25.825825},
+                #            {'x': 126.626625, 'y': 22.522522}, {'x': 129.879883, 'y': 22.522522}, {'x': 130.63063, 'y': 26.126125}, {'x': 129.629623, 'y': 29.129128}]
+                #}}
+                gateName = lineList[iLine].get_label().split("_-_")[1]
+                points = lineList[iLine].get_xydata()
+                # dont want band type (not closed contour)
+                if points[0][0] != points[-1][0] or points[0][1] != points[-1][1]:
+                    continue
+                results = self.rest.integrate2D(spectrumName, points)
+
+            try:
+                defaultResult = {'centroid': None, 'fwhm': None, 'counts': 0}
+                if dim == 2:
+                    defaultResult = {'centroid': [None, None], 'fwhm': [None, None], 'counts': 0}
+                #if problem with integration rest.integrateGate returns status string
+                if type(results) == type('dumString'):
+                    results = defaultResult
+                #Add gateName to result dict
+                results['regionName'] = gateName
+                resultsList.append(results)
+            except :
+                self.logger.debug('integrateGateLocal - exception ', exc_info=True)
+                continue
+        resultsDict[spectrumName] = resultsList
+        return resultsDict
+
 
     ############################
     # 12)  Fitting
     ############################
 
-    def axislimits(self, ax):
+    #callback to open extra function popup
+    def spfunPopup(self):
+        self.logger.info('spfunPopup callBack')
+        if self.extraPopup.isVisible():
+            self.extraPopup.close()
+
+        self.extraPopup.show()
+
+    #set axis limit text of the fit in extraPopup and returns these limits
+    def axisLimitsForFit(self, ax):
         left, right = ax.get_xlim()
+        self.logger.info('axisLimitsForFit - left, right: %s, %s', left, right)
         if self.extraPopup.fit_range_min.text():
-            left = int(self.extraPopup.fit_range_min.text())
+            left = float(self.extraPopup.fit_range_min.text())
         else:
             left = ax.get_xlim()[0]
         if self.extraPopup.fit_range_max.text():
-            right = int(self.extraPopup.fit_range_max.text())
+            right = float(self.extraPopup.fit_range_max.text())
         else:
             right = ax.get_xlim()[1]
+        # Make sure xmin is always smaller than xmax.
+        if left > right:
+            left, right = right, left
+            QMessageBox.about(self, "Warning", "xmin > xmax, the provided limits will be swapped for the fit")
         return left, right
 
+
+    #Main fit function, reads user defined intial parameters and calls appropriate fit model
     def fit(self):
-        ax = None
+        self.logger.info('fit')
         histo_name = str(self.wConf.histo_list.currentText())
         fit_funct = self.extraPopup.fit_list.currentText()
-        # Simon - added following lines to avoid None plot index
         index = self.autoIndex()
+        ax = self.getSpectrumInfo("axis", index=index)
+        self.logger.debug('fit - histo_name, fit_funct, index: %s, %s, %s', histo_name, fit_funct, index)
 
-        if self.currentPlot.isZoomed:
-            ax = plt.gca()
-        else:
-            ax = self.select_plot(index)
+
+        dim = self.getSpectrumInfoREST("dim", index=index)
+        binx = self.getSpectrumInfoREST("binx", index=index)
+        minxREST = self.getSpectrumInfoREST("minx", index=index)
+        maxxREST = self.getSpectrumInfoREST("maxx", index=index)
 
         config = self.fit_factory._configs.get(fit_funct)
-        if (DEBUG):
-            print("Fit function", config)
+        self.logger.debug('fit - config: %s',config)
+
         fit = self.fit_factory.create(fit_funct, **config)
 
         try:
             if histo_name != "":
-                if self.wConf.button1D.isChecked():
-                    if (DEBUG):
-                        print("Ready to 1D fit...")
+                if dim == 1:
                     x = []
                     y = []
-                    # input points for fitting function
+                    xtmp = self.createRange(binx, minxREST, maxxREST)
 
-                    minx = self.currentPlot.h_dict[index]["xmin"]
-                    maxx = self.currentPlot.h_dict[index]["xmax"]
-                    binx = self.currentPlot.h_dict[index]["xbin"]
-                    if (DEBUG):
-                        print(minx, maxx, binx)
-                    xtmp = self.create_range(binx, minx, maxx)
-
-                    #Simon - added following check
                     if not self.extraPopup.fit_p0.text():
                         self.extraPopup.fit_p0.setText("0")
                     if not self.extraPopup.fit_p1.text():
@@ -3396,16 +4776,15 @@ class MainWindow(QMainWindow):
                               float(self.extraPopup.fit_p2.text()), float(self.extraPopup.fit_p3.text()),
                               float(self.extraPopup.fit_p4.text()), float(self.extraPopup.fit_p5.text()),
                               float(self.extraPopup.fit_p6.text()), float(self.extraPopup.fit_p7.text())]
+                    
+                    ytmp = (self.getSpectrumInfoREST("data", index=index)).tolist()
+                    # if (DEBUG):
+                    #     print("xtmp", type(xtmp), "with len", len(xtmp), "ytmp", type(ytmp), "with len", len(ytmp))
+                    xmin, xmax = self.axisLimitsForFit(ax)
 
-                    if (DEBUG):
-                        print(fitpar)
-                    ytmp = (self.get_data(index)).tolist()
-                    if (DEBUG):
-                        print("xtmp", type(xtmp), "with len", len(xtmp), "ytmp", type(ytmp), "with len", len(ytmp))
-                    xmin, xmax = self.axislimits(ax)
-                    if (DEBUG):
-                        print("fitting axis limits", xmin, xmax)
-                        print(type(xtmp), type(x), type(xtmp[0]), type(xmin))
+                    # if (DEBUG):
+                    #     print("fitting axis limits", xmin, xmax)
+                        # print(type(xtmp), type(x), type(xtmp[0]), type(xmin))
                     # create new tmp list with subrange for fitting
                     for i in range(len(xtmp)):
                         if (xtmp[i]>=xmin and xtmp[i]<xmax):
@@ -3414,11 +4793,11 @@ class MainWindow(QMainWindow):
                     x = np.array(x)
                     y = np.array(y)
 
-                    #The default start method in SkelFit doesn't set fit_results, then it causes error if in the args
                     if fit_funct == "Skeleton":
                         fitln = fit.start(x, y, xmin, xmax, fitpar, ax)
                     else:
                         fitln = fit.start(x, y, xmin, xmax, fitpar, ax, self.extraPopup.fit_results)
+
                 else:
                     QMessageBox.about(self, "Warning", "Sorry 2D fitting is not implemented yet")
             else:
@@ -3426,14 +4805,17 @@ class MainWindow(QMainWindow):
 
             self.currentPlot.canvas.draw()
 
-        except NameError:
-            raise
+        except NameError as err:
+            print(err)
+            pass
+
 
     ############################
     # 13) Peak Finding
     ############################
 
     def peakState(self, state):
+        self.logger.info('peakState')
         for i, btn in enumerate(self.extraPopup.peak.peak_cbox):
             if btn.isChecked() == False:
                 try:
@@ -3449,6 +4831,7 @@ class MainWindow(QMainWindow):
         self.currentPlot.canvas.draw()
 
     def create_peak_signals(self, peaks):
+        self.logger.info('create_peak_signals')
         try:
             for i in range(len(peaks)):
                 self.isChecked[i] = False
@@ -3458,11 +4841,13 @@ class MainWindow(QMainWindow):
             pass
 
     def peakAnalClear(self):
+        self.logger.info('peakAnalClear')
         self.extraPopup.peak.peak_results.clear()
         self.removeAllPeaks()
         self.resetPeakDict()
 
     def removePeak(self, i):
+        self.logger.info('removePeak')
         self.peak_pos[i][0].remove()
         del self.peak_pos[i]
         self.peak_vl[i].remove()
@@ -3473,12 +4858,14 @@ class MainWindow(QMainWindow):
         del self.peak_txt[i]
 
     def resetPeakDict(self):
+        self.logger.info('resetPeakDict')
         self.peak_pos = {}
         self.peak_vl = {}
         self.peak_hl = {}
         self.peak_txt = {}
 
     def removeAllPeaks(self):
+        self.logger.info('removeAllPeaks')
         try:
             for i in range(len(self.peaks)):
                 self.extraPopup.peak.peak_cbox[i].setChecked(False)
@@ -3488,60 +4875,44 @@ class MainWindow(QMainWindow):
 
         self.currentPlot.canvas.draw()
 
-    def drawSinglePeaks(self, peaks, properties, data, index):
-        if (DEBUG):
-            print("inside drawSinglePeaks")
-        ax = None
-        if self.currentPlot.isZoomed:
-            ax = plt.gca()
-        else:
-            ax = self.select_plot(self.currentPlot.selected_plot_index)
 
+    def drawSinglePeaks(self, peaks, properties, data, index):
+        self.logger.info('drawSinglePeaks - index, properties: %s, %s', index, properties)
+        ax = self.getSpectrumInfo("axis", index=self.currentPlot.selected_plot_index)
         x = self.datax.tolist()
-        if (DEBUG):
-            print("self.peak_pos[index]", peaks[index], int(x[peaks[index]]))
         self.peak_pos[index] = ax.plot(x[peaks[index]], int(data[peaks[index]]), "v", color="red")
         self.peak_vl[index] = ax.vlines(x=x[peaks[index]], ymin=data[peaks[index]] - properties["prominences"][index], ymax = data[peaks[index]], color = "red")
         self.peak_hl[index] = ax.hlines(y=properties["width_heights"][index], xmin=properties["left_ips"][index], xmax=properties["right_ips"][index], color = "red")
         self.peak_txt[index] = ax.text(x[peaks[index]], int(data[peaks[index]]*1.1), str(int(x[peaks[index]])))
 
+
     def update_peak_output(self, peaks, properties):
-        if (DEBUG):
-            print("Inside update_peak_output")
-            print(type(peaks), peaks)
+        self.logger.info('update_peak_output - len(peaks), properties: %s, %s', len(peaks), properties)
         x = self.datax.tolist()
-        if (DEBUG):
-            print(type(x), len(x), x)
         for i in range(len(peaks)):
-            if (DEBUG):
-                print("peak at index", peaks[i], "corresponds to x value of", x[peaks[i]])
             s = "Peak"+str(i+1)+"\n\tpeak @ " + str(int(x[peaks[i]]))+", FWHM="+str(int(properties['widths'][i]))
             self.extraPopup.peak.peak_results.append(s)
 
     def analyzePeak(self):
+        self.logger.info('analyzePeak')
         try:
-            ax = None
-            if self.currentPlot.isZoomed:
-                ax = plt.gca()
-            else:
-                ax = self.select_plot(self.currentPlot.selected_plot_index)
-
+            index = self.currentPlot.selected_plot_index
+            ax = self.getSpectrumInfo("axis", index=index)
             x = []
             y = []
             # input points for peak finding
             width = int(self.extraPopup.peak.peak_width.text())
-            minx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmin"]
-            maxx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xmax"]
-            binx = self.currentPlot.h_dict[self.currentPlot.selected_plot_index]["xbin"]
-            if (DEBUG):
-                print(minx, maxx, binx)
-            xtmp = self.create_range(binx, minx, maxx)
-            ytmp = (self.get_data(self.currentPlot.selected_plot_index)).tolist()
-            if (DEBUG):
-                print("xtmp", type(xtmp), "with len", len(xtmp), "ytmp", type(ytmp), "with len", len(ytmp))
+            dim = self.getSpectrumInfoREST("dim", index=index)
+            binx = self.getSpectrumInfoREST("binx", index=index)
+            minxREST = self.getSpectrumInfoREST("minx", index=index)
+            maxxREST = self.getSpectrumInfoREST("maxx", index=index)
+
+            xtmp = self.createRange(binx, minxREST, maxxREST)
+            ytmp = (self.getSpectrumInfoREST("data", index=index)).tolist()
+
             xmin, xmax = ax.get_xlim()
-            if (DEBUG):
-                print("fitting axis limits", xmin, xmax)
+            self.logger.debug('analyzePeak - xmin, xmax: %s, %s', xmin, xmax)
+
             # create new tmp list with subrange for fitting
             for i in range(len(xtmp)):
                 if (xtmp[i]>=xmin and xtmp[i]<xmax):
@@ -3549,26 +4920,29 @@ class MainWindow(QMainWindow):
                     y.append(ytmp[i])
             self.datax = np.array(x)
             self.datay = np.array(y)
-            if (DEBUG):
-                print(self.datax)
-                print(self.datay)
-                print("xtmp", type(self.datax), "with len", len(self.datax.tolist()), "ytmp", type(self.datay), "with len", len(self.datay.tolist()))
+            # if (DEBUG):
+            #     print(self.datax)
+            #     print(self.datay)
+            #     print("xtmp", type(self.datax), "with len", len(self.datax.tolist()), "ytmp", type(self.datay), "with len", len(self.datay.tolist()))
             self.peaks, self.properties = find_peaks(self.datay, prominence=1, width=width)
 
-            if (DEBUG):
-                print("peak list with indices", self.peaks)
-                print("peak properties list", self.properties)
+            # if (DEBUG):
+            #     print("peak list with indices", self.peaks)
+            #     print("peak properties list", self.properties)
             self.update_peak_output(self.peaks, self.properties)
             self.create_peak_signals(self.peaks)
 
         except:
             pass
 
+
     ############################
     # 15) Overlaying pic
     ############################
 
+
     def openFigureDialog(self):
+        self.logger.info('openFigureDialog')
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Image Files (*.png *.jpg);;All Files (*)", options=options)
@@ -3576,6 +4950,7 @@ class MainWindow(QMainWindow):
             return fileName
 
     def loadFigure(self):
+        self.logger.info('loadFigure')
         fileName = self.openFigureDialog()
         self.extraPopup.imaging.loadLISE_name.setText(fileName)
         if (DEBUG):
@@ -3608,8 +4983,9 @@ class MainWindow(QMainWindow):
         self.drawFigure()
 
     def moveFigure(self):
-        if (DEBUG):
-            print(self.extraPopup.imaging.joystick.direction, self.extraPopup.imaging.joystick.distance)
+        self.logger.info('moveFigure')
+        # if (DEBUG):
+        #     print(self.extraPopup.imaging.joystick.direction, self.extraPopup.imaging.joystick.distance)
         try:
             self.imgplot.remove()
             if self.extraPopup.imaging.joystick.direction == "up":
@@ -3625,26 +5001,26 @@ class MainWindow(QMainWindow):
             pass
 
     def indexToStartPosition(self, index):
-        if (DEBUG):
-            print("inside indexToStartPosition")
+        self.logger.info('indexToStartPosition')
         row = int(self.wConf.histo_geo_row.currentText())
         col = int(self.wConf.histo_geo_col.currentText())
-        if (DEBUG):
-            print("row, col",row, col)
+        # if (DEBUG):
+        #     print("row, col",row, col)
         xoffs = float(1/(2*col))
         yoffs = float(1/(2*row))
-        i, j = self.plot_position(index)
-        if (DEBUG):
-            print("plot position in geometry", i, j)
+        i, j = self.plotPosition(index)
+        # if (DEBUG):
+        #     print("plot position in geometry", i, j)
         xstart = xoffs*(2*j+1)-0.1
         ystart = yoffs*(2*i+1)+0.1
 
         self.xstart = xstart
         self.ystart = 1-ystart
-        if (DEBUG):
-            print("self.xstart", self.xstart, "self.ystart", self.ystart)
+        # if (DEBUG):
+        #     print("self.xstart", self.xstart, "self.ystart", self.ystart)
 
     def drawFigure(self):
+        self.logger.info('drawFigure')
         self.alpha = self.extraPopup.imaging.alpha_slider.value()/10
         self.zoomX = self.extraPopup.imaging.zoomX_slider.value()/10
         self.zoomY = self.extraPopup.imaging.zoomY_slider.value()/10
@@ -3658,11 +5034,13 @@ class MainWindow(QMainWindow):
         self.currentPlot.canvas.draw()
 
     def deleteFigure(self):
+        self.logger.info('deleteFigure')
         self.imgplot.remove()
         self.onFigure = False
         self.currentPlot.canvas.draw()
 
     def transFigure(self):
+        self.logger.info('transFigure')
         self.extraPopup.imaging.alpha_label.setText("Transparency Level ({} %)".format(self.extraPopup.imaging.alpha_slider.value()*10))
         try:
             self.deleteFigure()
@@ -3671,6 +5049,7 @@ class MainWindow(QMainWindow):
             pass
 
     def zoomFigureX(self):
+        self.logger.info('zoomFigureX')
         self.extraPopup.imaging.zoomX_label.setText("Zoom X Level ({} %)".format(self.extraPopup.imaging.zoomX_slider.value()*10))
         try:
             self.deleteFigure()
@@ -3679,6 +5058,7 @@ class MainWindow(QMainWindow):
             pass
 
     def zoomFigureY(self):
+        self.logger.info('zoomFigureY')
         self.extraPopup.imaging.zoomY_label.setText("Zoom Y Level ({} %)".format(self.extraPopup.imaging.zoomY_slider.value()*10))
         try:
             self.deleteFigure()
@@ -3687,6 +5067,7 @@ class MainWindow(QMainWindow):
             pass
 
     def addFigure(self):
+        self.logger.info('addFigure')
         try:
             self.indexToStartPosition(self.currentPlot.selected_plot_index)
             if self.onFigure == False:
@@ -3700,27 +5081,34 @@ class MainWindow(QMainWindow):
     # 16) Jupyter Notebook
     ############################
 
+    #Create dataframe for Jupyter and web
     def createDf(self):
+        self.logger.info('createDf')
         try:
-            if (DEBUG):
-                print("Create dataframe for Jupyter and web")
-            data_to_list = []
-            for index, row in self.spectrum_list.iterrows():
-                tmp = row['data'].tolist()
-                data_to_list.append(tmp)
-                if (DEBUG):
-                    print("len(data_to_list) --> ", row['names'], " ", len(tmp))
-
-            if (DEBUG):
-                print([list((i, len(data_to_list[i]))) for i in range(len(data_to_list))])
-            self.spectrum_list = self.spectrum_list.drop('data', 1)
-            self.spectrum_list['data'] = np.array(data_to_list)
-
-            self.spectrum_list.to_csv(self.extraPopup.peak.jup_df_filename.text(), index=False, compression='gzip')
+            spectrumDict = self.getSpectrumInfoRESTDict()
+            #reformat spectrumDict which is {spectrumName: {info1: , info2: ,...}} to {spectrumName: [],info1: [], info2: [],...}
+            formatedDict = {'name': [], 'dim': [], 'binx': [], 'minx': [], 'maxx': [], 'biny': [], 'miny': [], 'maxy': [], 'data': [], 'parameters': [], 'type': []}
+            for spectrumName, infoDict in spectrumDict.items():
+                formatedDict["name"].append(spectrumName)
+                for keyInfo, valInfo in infoDict.items():
+                    #ndarray with data will be parsed to list (1d) or list of list (2d)
+                    #this makes the data parsing easier from csv file.
+                    #might want the same for the other valInfo...
+                    if isinstance(valInfo, np.ndarray):
+                        toList = []
+                        if len(valInfo.shape) == 1:
+                            toList = valInfo.tolist()
+                        if len(valInfo.shape) == 2:
+                            toList = [[item for item in row] for row in valInfo]
+                        valInfo = toList 
+                    formatedDict[keyInfo].append(valInfo)
+            df = pd.DataFrame.from_dict(formatedDict)
+            df.to_csv(self.extraPopup.peak.jup_df_filename.text(), index=False, compression='gzip')
         except:
             pass
 
     def jupyterStop(self):
+        self.logger.info('jupyterStop')
         # stop the notebook process
         log("Sending interrupt signal to jupyter-notebook")
         self.extraPopup.peak.jup_start.setEnabled(True)
@@ -3730,6 +5118,7 @@ class MainWindow(QMainWindow):
         stopnotebook()
 
     def jupyterStart(self):
+        self.logger.info('jupyterStart')
         # dump df to gzip
         self.createDf()
         #starting jupyter server
@@ -3797,35 +5186,109 @@ class MainWindow(QMainWindow):
     # 17) Misc tools
     ##############################
 
-    def convertToList(self, poly):
-        polyg = []
-        for i,tup in enumerate(poly.xy):
-            if i<len(poly.xy)-1:
-                polyg.append(list(itertools.chain(tup)))
-        return polyg
-
-    def convertToArray(self, line):
-        poly = []
-        for x,y in line.get_xydata():
-            poly.append([x,y])
-        poly.pop()  # removing the last element because I need just a list of vertices
-        return np.array(poly)
-
     def createRectangle(self, plot):
-        rec = matplotlib.patches.Rectangle((0, 0), 1, 1, ls="-", lw="2", ec="red", fc="none", transform=plot.transAxes)
+        self.logger.info('createRectangle')
+        rec = matplotlib.patches.Rectangle((0, 0), 1, 1, ls="-", lw=2, ec="red", fc="none", transform=plot.transAxes)
         rec = plot.add_patch(rec)
         rec.set_clip_on(False)
         return rec
 
-    def changeBkg(self):
-        if any(x == 2 for x in self.currentPlot.h_dim) == True:
-            indices = [i for i, x in enumerate(self.currentPlot.h_dim) if x == 2]
-            for index in indices:
-                self.currentPlot.isSelected = False # this line is important for automatic conversion from dark to light and viceversa
-        self.updatePlot()
-        #Simon - commented following line because drawAllGates is called in updatePlot
-        #self.drawAllGates()
-        self.currentPlot.canvas.draw()
+
+    def createDashedRectangle(self, plot):
+        self.logger.info('createDashedRectangle')
+        rec = matplotlib.patches.Rectangle((0, 0), 1, 1, ls=":", lw=2, ec="red", fc="none", transform=plot.transAxes)
+        rec = plot.add_patch(rec)
+        rec.set_clip_on(False)
+        return rec
+
+
+    def removeRectangle(self):
+        self.logger.info('removeRectangle')
+        try:                       
+            for ax in self.currentPlot.figure.axes:
+                for child in ax.get_children():
+                    if type(child) == matplotlib.patches.Rectangle :
+                        if child.get_ls() == ":" and child.get_lw() == 2:
+                            if self.currentPlot.recDashed is not None :
+                                self.currentPlot.recDashed.remove()
+                                self.currentPlot.recDashed = None
+                        elif child.get_ls() == "-" and child.get_lw() == 2:
+                            if self.currentPlot.rec is not None :
+                                self.currentPlot.rec.remove()
+                                self.currentPlot.rec = None
+        except NameError:
+            raise
+
+    #for debug
+    def axesChilds(self):
+        try:      
+            for ax in self.currentPlot.figure.axes:
+                print("Simon - axes ---------------------------- ",ax)
+                for child in ax.get_children():
+                    print("Simon - axesChilds - ",child)
+                    if type(child) == matplotlib.lines.Line2D :
+                        print("Simon - axesChild get_c", child.get_c())
+                        print("Simon - axesChild get_lw", child.get_lw())
+                        print("Simon - axesChild get_ls", child.get_ls())
+                        print("Simon - axesChild get_xdata:",child.get_xdata())
+                        print("Simon - axesChild get_ydata:",child.get_ydata())
+        except NameError:
+            raise
+
+
+    #for debug
+    def axesChildsTest(self, axis=None):
+        try:    
+            dumTypeList = []
+
+            if type(axis) == type(dumTypeList):
+                return
+            print("Simon - axes ---------------------------- ",axis)
+            for child in axis.get_children():
+                print("Simon - axesChilds - ",child)
+                if type(child) == matplotlib.lines.Line2D :
+                    print("Simon - axesChild get_c", child.get_c())
+                    print("Simon - axesChild get_lw", child.get_lw())
+                    print("Simon - axesChild get_ls", child.get_ls())
+                    print("Simon - axesChild get_xdata:",child.get_xdata())
+                    print("Simon - axesChild get_ydata:",child.get_ydata())
+        except NameError:
+            raise
+
+
+    def debugModeCallBack(self):
+        if self.extraPopup.options.debugMode.isChecked():
+            # allows to add only one instance of file handler
+            if len(self.logger.handlers) > 0:
+                for handler in self.logger.handlers:
+                    # print("Simon - filehandlers for loop add", handler)
+                    # add the handlers to the logger
+                    # makes sure no duplicate handlers are added
+                    if not isinstance(handler, logging.handlers.TimedRotatingFileHandler):
+                        self.logger.addHandler(self.fileHandler)
+            else:
+                self.logger.addHandler(self.fileHandler)
+        else :
+            # close the file handler
+            if len(self.logger.handlers) > 0:
+                for handler in self.logger.handlers:
+                    # print("Simon - filehandlers for loop delete ", handler)
+                    # makes sure fileHandler exists
+                    if isinstance(handler, logging.handlers.TimedRotatingFileHandler):
+                        self.logger.removeHandler(self.fileHandler)
+
+
+    def rgbString(self, r, g, b):
+        return f"\033[38;2;{r};{g};{b}m"
+
+    def colorString(self, string, rgbList):
+        if len(rgbList) == 3:
+            color = self.rgbString(rgbList[0], rgbList[1], rgbList[2])
+            reset = "\033[0m" # Important!
+            return str(f"{color}" + string + f"{reset}")
+        else :
+            return string
+
 
 # redirect logging
 class QtLogger(QObject):
@@ -3836,7 +5299,6 @@ class QtLogger(QObject):
 
 
 class TabPopup(QDialog):
-
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -3853,3 +5315,62 @@ class TabPopup(QDialog):
         layout.addLayout(layButt)
         self.setLayout(layout)
 
+
+class cutoffPopup(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.lineeditMin = QLineEdit(self)
+        self.lineeditMax = QLineEdit(self)
+        self.labelMin = QLabel(self)
+        self.labelMin.setText("Min")
+        self.labelMax = QLabel(self)
+        self.labelMax.setText("Max")
+        self.okButton = QPushButton("Ok", self)
+        self.cancelButton = QPushButton("Cancel", self)
+        self.resetButton = QPushButton("Reset", self)
+
+        mainLayout = QGridLayout()
+        buttonsLayout = QHBoxLayout()
+        fieldsLayout = QHBoxLayout()
+        fieldsLayout.addWidget(self.labelMin)
+        fieldsLayout.addWidget(self.lineeditMin)
+        fieldsLayout.addWidget(self.labelMax)
+        fieldsLayout.addWidget(self.lineeditMax)
+        buttonsLayout.addWidget(self.okButton)
+        buttonsLayout.addWidget(self.resetButton)
+        buttonsLayout.addWidget(self.cancelButton)
+
+        mainLayout.addLayout(fieldsLayout, 1, 0, 1, 0)
+        mainLayout.addLayout(buttonsLayout, 2, 0, 1, 0)
+        self.setLayout(mainLayout)
+
+class centeredNorm(colors.Normalize):
+    def __init__(self, data, vcenter=0, halfrange=None, clip=False):
+        if halfrange is None:
+            halfrange = np.max(np.abs(data - vcenter))
+        super().__init__(vmin=vcenter - halfrange, vmax=vcenter + halfrange, clip=clip)
+
+
+# class summingRegionPopup(QDialog):
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+
+#         self.labelName = QLabel(self)
+#         self.labelName.setText("Name")
+#         self.lineEditName = QLineEdit(self)
+#         self.okButton = QPushButton("Ok", self)
+#         self.cancelButton = QPushButton("Cancel", self)
+
+#         mainLayout = QGridLayout()
+#         buttonsLayout = QHBoxLayout()
+#         fieldsLayout = QHBoxLayout()
+#         fieldsLayout.addWidget(self.labelName)
+#         fieldsLayout.addWidget(self.lineEditName)
+#         buttonsLayout.addWidget(self.okButton)
+#         buttonsLayout.addWidget(self.cancelButton)
+
+#         mainLayout.addLayout(fieldsLayout, 1, 0, 1, 0)
+#         mainLayout.addLayout(buttonsLayout, 2, 0, 1, 0)
+#         self.setLayout(mainLayout)
+        
