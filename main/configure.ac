@@ -842,6 +842,22 @@ AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
 AC_SUBST(LIBEXCEPTION_LDFLAGS)
 
+# If PyQtGui/main/configure.ac is not present the user must first run.
+# qtpi-incorp.sh to pull in a version:
+
+AC_MSG_CHECKING([Ensuring a version of CutiePie has been included])
+QTPIDIR="${srcdir}/PyQtGUI"
+QTPIBUILDDIR="${QTPIDIR}/main"
+AC_CHECK_FILE([${QTPIBUILDDIR}/configure.ac],[qtpi=1],[qtpi=0])
+if test ${qtpi}  = 0
+then
+	AC_MSG_ERROR([PyQtGUI missing, run qtpi-incorp.sh to pull in a CutiePie release])
+else
+	AC_MSG_RESULT([incorporated])
+	(cd ${QTPIBUILDDIR}; ./configure --prefix=${prefix}; make all install)
+fi
+
+
 ######################################## Checks for ZMQ
 AX_ZMQ
 
@@ -1025,12 +1041,6 @@ AC_OUTPUT(Makefile
 	  packaged/Makefile
 	  packaged/Makefile_skel
 	  db/Makefile
-	  PyQtGUI/Makefile
-	  PyQtGUI/src/Makefile
-	  PyQtGUI/sip/Makefile
-	  PyQtGUI/gui/Makefile
-	  PyQtGUI/test/Makefile
-	  PyQtGUI/standalone/Makefile
 	  restclient/Makefile
 	  xaminerunner/Makefile
 	  mirrorclient/Makefile
