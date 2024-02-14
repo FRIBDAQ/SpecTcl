@@ -218,7 +218,7 @@ CGamma2DD<T,R>::getSpectrumType()
 */
 template<typename T, typename R>
 ULong_t
-CGamma2DD<T,R>:: operator[](const UInt_t* pIndices) const
+CGamma2DD<T,R>::operator[](const UInt_t* pIndices) const
 {
   Double_t  x = pIndices[0];
   Double_t  y = pIndices[1];
@@ -238,7 +238,7 @@ CGamma2DD<T,R>::set(const UInt_t* pIndices, ULong_t value)
   Double_t  x = pIndices[0];
   Double_t  y = pIndices[1];
   TH1* pRootSpectrum = getRootSpectrum();
-  Int_t   bin = pRootSpectrum->GetBin(x, y);
+  Int_t   bin = pRootSpectrum->GetBin(x+1, y+1);
   pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(value));
 }
 
