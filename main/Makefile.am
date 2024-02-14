@@ -27,7 +27,7 @@ SUBDIRS = Replace \
 					packaged \
 					restclient \
 					mirrorclient \
-					Python db PyQtGUI\
+					Python db \
 					xaminerunner \
 					rootxamine
 
