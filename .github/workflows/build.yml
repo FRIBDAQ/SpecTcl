@@ -58,7 +58,7 @@ jobs:
         shell: bash
         run: |
           git config --global --add safe.directory '*'
-          if test -e qtpi-incorp.sh ; then /qtpi-incorp.sh  v1.0; fi
+          if test -e qtpi-incorp.sh ; then ./qtpi-incorp.sh  v1.0; fi
       - name: Creating build directory
         run: mkdir main/oot
       - name: Configuring
