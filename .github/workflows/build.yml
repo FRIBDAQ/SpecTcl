@@ -55,7 +55,7 @@ jobs:
           eval `ssh-agent -k`
       - name: Incorporate CutiePie
         env:
-	   GIT_SSH_COMMAND "ssh -o StrictHostKeyCheckint=no"
+	   GIT_SSH_COMMAND: "ssh -o StrictHostKeyCheckint=no"
 	shell: bash
 	run: |
 	     git config --global --add safe.directory '*'
