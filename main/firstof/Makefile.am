@@ -11,7 +11,8 @@ noinst_HEADERS	=	CFirstofCommand.h 	\
 
 
 libfirstof_la_LDFLAGS = @ROOT_LDFLAGS@ @TCL_LIBS@ @LIBTCLPLUS_LDFLAGS@
-libfirstof_la_CPPFLAGS=@ROOT_CFLAGS@ @TCL_CPPFLAGS@ @LIBTCLPLUS_CFLAGS@ 
+libfirstof_la_CPPFLAGS=@ROOT_CFLAGS@ @TCL_CPPFLAGS@ @LIBTCLPLUS_CFLAGS@ \
+	-I@top_srcdir@/Core -I@top_srcdir@/Utility -I@top_srcdir@/factories
 
 install-exec-local: firstof.pdf
 	$(mkinstalldirs) $(prefix)/TclLibs

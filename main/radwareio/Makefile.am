@@ -17,7 +17,8 @@ noinst_HEADERS			= 	util.h CRWWrite.h CRWRead.h
 
 
 libradwareio_la_CPPFLAGS= -I. $(SPECTCLCCSW) \
-				@TCL_CPPFLAGS@  @ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@
+				@TCL_CPPFLAGS@  @ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@ \
+	-I@top_srcdir@/Core -I@top_srcdir@/Utility -I@top_srcdir@/factories
 
 libradwareio_la_LDFLAGS=@ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 

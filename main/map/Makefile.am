@@ -7,7 +7,8 @@ lib_LTLIBRARIES=libMapValues.la
 
 libMapValues_la_CPPFLAGS=$(ROOT_CFLAGS) -I. 		\
 	@LIBTCLPLUS_CFLAGS@					\
-	@TCL_CPPFLAGS@ @ROOT_CFLAGS@
+	@TCL_CPPFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Core \
+	-I@top_srcdir@/Utility -I@top_srcdir@/factories
 
 libMapValues_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 

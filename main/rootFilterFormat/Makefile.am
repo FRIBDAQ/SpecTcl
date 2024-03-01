@@ -2,7 +2,7 @@ lib_LTLIBRARIES=librootfilterformat.la
 librootfilterformat_la_LIBADD=@ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
 librootfilterformat_la_CPPFLAGS=$(SPECTCLCCSW) @ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ \
-	-I@top_srcdir@/Core -I@top_srcdir@/Utility
+	-I@top_srcdir@/Core -I@top_srcdir@/Utility -I@top_srcdir@/factories
 
 librootfilterformat_la_SOURCES	=	CRootFilterOutputStage.cpp	\
 					CRootNtupleAccumulator.cpp	\
