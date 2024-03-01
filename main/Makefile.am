@@ -32,7 +32,8 @@ SUBDIRS = Replace \
 					rootxamine \
 					const	\
 					firstof \
-					map
+					map	\
+					radwareio
 
 ACLOCAL_AMFLAGS=-I m4
 

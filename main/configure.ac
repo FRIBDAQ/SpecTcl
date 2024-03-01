@@ -1056,5 +1056,6 @@ AC_OUTPUT(Makefile
     const/Makefile
     firstof/Makefile
     map/Makefile
+    radwareio/Makefile
 	  )
           
