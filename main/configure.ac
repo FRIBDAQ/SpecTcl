@@ -1055,5 +1055,6 @@ AC_OUTPUT(Makefile
 	  rootxamine/Makefile
     const/Makefile
     firstof/Makefile
+    map/Makefile
 	  )
           

@@ -31,7 +31,8 @@ SUBDIRS = Replace \
 					xaminerunner \
 					rootxamine \
 					const	\
-					firstof
+					firstof \
+					map
 
 ACLOCAL_AMFLAGS=-I m4
 
