@@ -29,7 +29,8 @@ SUBDIRS = Replace \
 					mirrorclient \
 					Python db \
 					xaminerunner \
-					rootxamine
+					rootxamine \
+					const
 
 ACLOCAL_AMFLAGS=-I m4
 
