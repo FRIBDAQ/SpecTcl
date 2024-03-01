@@ -41,6 +41,13 @@ AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
 
+# Is GIT installed?
+
+AC_CHECK_PROG(GIT, git, git, :)
+AC_SUBST(GIT)
+
+#
+
 # PYthon C/C++ extension environment build flags:
 
 PKG_CHECK_MODULES(PYTHON, [python3-embed], [PYTHON_CXXFLAGS=`pkg-config --cflags python3-embed`; PYTHON_LDFLAGS=`pkg-config --libs python3-embed`],
