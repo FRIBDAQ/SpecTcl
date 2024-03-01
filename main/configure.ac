@@ -69,6 +69,7 @@ AC_PATH_PROG(HCDOCBOOK,   docbook2dvi,  echo)
 AC_PATH_PROG(HTMLDOCBOOK, docbook2html, echo)
 AC_PATH_PROG(DVIPDF,      dvipdf,       echo)
 AC_PATH_PROG(MANDOCBOOK,  xmlto,        echo)
+AC_PATH_PROG(PDFDOCBOOK,  docbook2pdf, echo)
 
 #   Starting with SpecTcl 5.0 we have a new style startup.
 #   Let's let the compiler know so that people can
@@ -1052,5 +1053,10 @@ AC_OUTPUT(Makefile
 	  xaminerunner/Makefile
 	  mirrorclient/Makefile
 	  rootxamine/Makefile
+    const/Makefile
+    firstof/Makefile
+    map/Makefile
+    radwareio/Makefile
+    rootFilterFormat/Makefile
 	  )
           

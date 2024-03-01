@@ -1,18 +1,16 @@
 initLDFLAGS=@TCL_LDFLAGS@
 
 
-ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
-ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
-
 
 lib_LTLIBRARIES=libMapValues.la
 
 
 libMapValues_la_CPPFLAGS=$(ROOT_CFLAGS) -I. 		\
-	@SPECTCLCCSW@					\
-	@TCL_CPPFLAGS@ $(ROOT_CFLAGS)
+	@LIBTCLPLUS_CFLAGS@					\
+	@TCL_CPPFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Core \
+	-I@top_srcdir@/Utility -I@top_srcdir@/factories
 
-libMapValues_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" $(ROOT_LDFLAGS) @TCL_LIBS@
+libMapValues_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
 libMapValues_la_SOURCES =	CMapValueCommand.cpp	\
 				CMapValueProcessor.cpp	\
@@ -21,23 +19,20 @@ libMapValues_la_SOURCES =	CMapValueCommand.cpp	\
 noinst_HEADERS	=		CMapValueCommand.h	\
 				CMapValueProcessor.h
 
-#  Install myself in $(prefix)/TclLibs/mapvalues
-
-install-exec-local:
+install-exec-local: mapvalues.pdf
 	$(mkinstalldirs) $(prefix)/TclLibs
 	$(mkinstalldirs) $(prefix)/TclLibs/mapvalues
+	$(mkinstalldirs) @datarootdir@/mapvalues-plugin
 	$(INSTALL_PROGRAM) .libs/libMapValues.* $(prefix)/TclLibs/mapvalues
 	echo "package ifneeded MapValues 1.0 [list load [file join \$$dir libMapValues.so]]" >> 				\
 	$(prefix)/TclLibs/mapvalues/pkgIndex.tcl
-
+	$(INSTALL_DATA) @builddir@/mapvalues.pdf @datarootdir@/mapvalues-plugin
 
 EXTRA_DIST=mapvalues.xml
 
-mapvalues.dvi: mapvalues.xml
-	$(DOCBOOK) $<
 
-mapvalues.pdf: mapvalues.dvi
-	$(DVIPDF) $<
+mapvalues.pdf: mapvalues.xml
+	$(PDFDOCBOOK) @srcdir@/mapvalues.xml
 
 
-docs: mapvalues.pdf
+

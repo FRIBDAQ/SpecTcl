@@ -13,19 +13,23 @@ noinst_HEADERS = 	CConstCommand.h  \
 			CConstProcessor.h
 
 AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
-				@TCL_CPPFLAGS@ $(ROOT_CFLAGS)
+				@TCL_CPPFLAGS@ @ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@ \
+			-I@top_srcdir@/Core -I@top_srcdir@/Utility \
+	-I@top_srcdir@/factories
 
-libconstparam_la_LDFLAGS=$(ROOT_LDFLAGS) @TCL_LIBS@
+libconstparam_la_LDFLAGS=@ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
-install-exec-local:
+install-exec-local: const.pdf
+	$(mkinstalldirs) @prefix@/share/const-plugin
 	$(mkinstalldirs) $(prefix)/TclLibs $(prefix)/TclLibs/constparam
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs/constparam; done
 	echo package ifneeded constparam 1.0 [list load [file join '$$dir' libconstparam.so]] > $(prefix)/TclLibs/constparam/pkgIndex.tcl
+	$(INSTALL_DATA) @builddir@/const.pdf @prefix@/share/const-plugin
 
 EXTRA_DIST	= const.xml
 
 const.pdf:	const.xml
-	@DOCBOOK@ const.xml
+	@PDFDOCBOOK@ @srcdir@/const.xml
 
 
 docs:   const.pdf

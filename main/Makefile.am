@@ -29,7 +29,12 @@ SUBDIRS = Replace \
 					mirrorclient \
 					Python db \
 					xaminerunner \
-					rootxamine
+					rootxamine \
+					const	\
+					firstof \
+					map	\
+					radwareio \
+					rootFilterFormat
 
 ACLOCAL_AMFLAGS=-I m4
 
