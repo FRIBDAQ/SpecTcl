@@ -27,7 +27,7 @@ install-exec-local: const.pdf
 EXTRA_DIST	= const.xml
 
 const.pdf:	const.xml
-	@PDFDOCBOOK@ const.xml
+	@PDFDOCBOOK@ @srcdir@/const.xml
 
 
 docs:   const.pdf
