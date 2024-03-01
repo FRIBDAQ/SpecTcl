@@ -94,6 +94,11 @@ install-exec-local:
 	$(INSTALL_DATA) @builddir@/CompilationRules.temp $(sysconfdir)/CompilationRules.include
 	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` by `whoami` >VERSION
 	echo The CERN Root installation used  was: `@ROOTCONFIG@ --prefix` >> VERSION
+	echo configured as shown below: >> VERSION
+	head @top_builddir@@/config.log >>VERSION
+	echo libtcl `(cd @top_srcdir@/libtcl; @GIT@ status -uno) ` >> VERSION
+	echo unifiedformat `(cd @top_srcdir@/libtcl; @GIT@ status -uno) ` >> VERSION
+	echo CutiePie `(cd @top_srcdir@/PyQtGUI; @GIT@ status -uno) ` >> VERSION 
 	$(INSTALL_DATA) @builddir@/VERSION $(prefix)/VERSION
 	$(INSTALL_DATA) @srcdir@/CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/docs/man
