@@ -17,12 +17,16 @@ noinst_HEADERS=	CRootFilterOutputStage.h	\
 #  The library will get installed in $prefix/lib, nothing we can do
 #  about that, but we want it installed in $prefix/TclLibs:
 
-install-exec-local: rootFilterFormat.pdf
+install-exec-local: 
 	$(mkinstalldirs) $(prefix)/TclLibs
-	$(mkinstalldirs) @datarootdir@/rootFilterFormat-plugin
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
-	$(INSTALL_DATA) @builddir@/rootFilterFormat.pdf @datarootdir@/rootFilterFormat-plugin
 
+
+docs: rootFilterFormat.pdf
+
+# This build sometimes fails so let'snot do it  by default....
+# And not install it either... until we work that out
+# (maybe buliding html is better?)
 
 rootFilterFormat.pdf: rootFilterFormat.xml
 	@PDFDOCBOOK@      @srcdir@/rootFilterFormat.xml
