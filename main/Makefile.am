@@ -33,7 +33,8 @@ SUBDIRS = Replace \
 					const	\
 					firstof \
 					map	\
-					radwareio
+					radwareio \
+					rootFilterFormat
 
 ACLOCAL_AMFLAGS=-I m4
 

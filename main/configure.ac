@@ -1057,5 +1057,6 @@ AC_OUTPUT(Makefile
     firstof/Makefile
     map/Makefile
     radwareio/Makefile
+    rootFilterFormat/Makefile
 	  )
           
