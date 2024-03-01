@@ -1054,5 +1054,6 @@ AC_OUTPUT(Makefile
 	  mirrorclient/Makefile
 	  rootxamine/Makefile
     const/Makefile
+    firstof/Makefile
 	  )
           

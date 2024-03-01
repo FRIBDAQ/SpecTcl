@@ -30,7 +30,8 @@ SUBDIRS = Replace \
 					Python db \
 					xaminerunner \
 					rootxamine \
-					const
+					const	\
+					firstof
 
 ACLOCAL_AMFLAGS=-I m4
 

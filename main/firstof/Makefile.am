@@ -1,7 +1,5 @@
 lib_LTLIBRARIES=libfirstof.la
 
-ROOTCFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
-ROOTLDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
 
 libfirstof_la_SOURCES 	=	CFirstofCommand.cpp		\
 				CFirstofEventProcessor.cpp	\
@@ -12,22 +10,22 @@ noinst_HEADERS	=	CFirstofCommand.h 	\
 			CBiggestOfEventProcessor.h
 
 
-libfirstof_la_LDFLAGS = $(ROOTLDFLAGS) @TCL_LIBS@
-libfirstof_la_CPPFLAGS=$(ROOTCFLAGS) @TCL_CPPFLAGS@ $(SPECTCLCCSW) $(ROOT_CFLAGS)
+libfirstof_la_LDFLAGS = @ROOT_LDFLAGS@ @TCL_LIBS@ @LIBTCLPLUS_LDFLAGS@
+libfirstof_la_CPPFLAGS=@ROOT_CFLAGS@ @TCL_CPPFLAGS@ @LIBTCLPLUS_CFLAGS@ 
 
-install-exec-local:
+install-exec-local: firstof.pdf
 	$(mkinstalldirs) $(prefix)/TclLibs
+	$(mkinstalldirs) @prefix@/share/firstof-plugin
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
+	$(INSTALL_DATA) @builddir@/firstof.pdf @prefix@/share/firstof-plugin
 
 
 
 EXTRA_DIST	=	firstof.xml
 
-firstof.dvi: firstof.xml
-	@DOCBOOK@ firstof.xml
 
-firstof.pdf: firstof.dvi
-	@DVIPDF@ firstof.dvi
+firstof.pdf: firstof.xml
+	@PDFDOCBOOK@ @srcdir@/firstof.xml
 
 docs: firstof.pdf
 
