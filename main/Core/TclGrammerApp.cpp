@@ -32,7 +32,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLVariable.h"
 #include "TCLProcessor.h"
 #include "TKRunControl.h"
-#include "NSCLBufferDecoder.h"
+#include "CRingBufferDecoder.h"
+#include "RingFormatHelperFactory.h"
 
 #include "Globals.h"
 #include "RunControlPackage.h"
@@ -107,6 +108,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <errno.h>
 #include <stdexcept>
 #include <memory>
+#include <stdint.h>
 
 
 
@@ -135,7 +137,7 @@ static const char* printVersionScript =
 
 static const char* tclLibScript = "lappend auto_path [file join $SpecTclHome TclLibs]\n";
 
-
+static const uint32_t DEFAULT_RING_VERSION(11);
 
 
 // File scoped unbound variables:
@@ -738,7 +740,15 @@ void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink) {
 */
 void CTclGrammerApp::SelectDecoder(CAnalyzer& rAnalyzer) {
   // An NSCL Buffer decoder is produced, saved and hooked to the analyzer:
-  m_pDecoder      = new CNSCLBufferDecoder;
+  // As of Resolving Issue # 95 we default to Ring buffer decoders
+  // configured with a default helper for NSCLDAQ-11:
+
+  auto pDecoder =  new CRingBufferDecoder;
+  m_pDecoder = pDecoder;
+  auto factory = pDecoder->getFormatFactory();
+  pDecoder->setDefaultFormatHelper(factory->create(DEFAULT_RING_VERSION,0));
+  pDecoder->setFormatHelper(factory->create(DEFAULT_RING_VERSION, 0));
+  
   gpBufferDecoder = m_pDecoder;
   rAnalyzer.AttachDecoder(*m_pDecoder);
 }

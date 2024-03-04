@@ -615,7 +615,7 @@ CAttachCommand::ParseSwitch(char* pSwitch) {
 //    known decoder type.
 // 
 //   Note that the special type "unchanged" will return the
-//   value of gpBuferDecoder.
+//   value of CRingBufferDecoder configured for v11.
 //
 CBufferDecoder*
 CAttachCommand::createDecoder(string type)
