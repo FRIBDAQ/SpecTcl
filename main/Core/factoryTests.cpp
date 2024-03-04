@@ -157,9 +157,8 @@ FactoryTests::constructok()
     // Be sure the spectrum is right.
     
     std::vector<UInt_t> paramIds;  pSpec->GetParameterIds(paramIds);
-    EQ(size_t(2), paramIds.size());
-    EQ(UInt_t(1), paramIds[0]);
-    EQ(UInt_t(2), paramIds[1]);
+    EQ(size_t(1), paramIds.size());
+    EQ(py.getNumber(), paramIds[0]);
     
     EQ(UInt_t(1),     pSpec->Dimensionality());
     EQ(Size_t(128+2), pSpec->Dimension(0));
