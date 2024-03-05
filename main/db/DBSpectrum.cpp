@@ -92,6 +92,72 @@ DBSpectrum::getParameterNames()
     return result;
 }
 /**
+ * getXParameterNames
+ *    @return std::vector<std::string>
+ *    @retval the names of the X parameters for the spectrum... for
+ *          Old  databases this will be an empty list           
+*/
+std::vector<std::string>
+DBSpectrum::getXParameterNames() {
+    std::vector<std::string> result;
+         
+    try {
+        std::string query =
+            "SELECT name FROM parameter_defs AS pd \
+            INNER JOIN spectrum_x_params As sp ON sp.parameter_id = pd.id \
+            WHERE spectrum_id = ? AND ";
+        CInFilter ids("parameter_id", m_Info.s_xParameters);
+        query += ids.toString();
+        query += " ORDER BY sp.id";              // definition order.
+        
+        CSqliteStatement f(
+            m_conn,
+            query.c_str()
+        );
+        f.bind(1, m_Info.s_base.s_id);
+        while (!(++f).atEnd()) {
+            result.push_back(reinterpret_cast<const char*>(f.getText(0)));
+        }
+    }
+    catch(...) {
+        // Fails on old databases.
+    }
+
+    return result;
+}
+/** 
+ *   getYParmaeterNames
+ *     See above but for the Y parametes.
+ */
+std::vector<std::string>
+DBSpectrum::getYParameterNames() {
+    std::vector<std::string> result;
+    try {
+        std::string query =
+            "SELECT name FROM parameter_defs AS pd \
+            INNER JOIN spectrum_y_params As sp ON sp.parameter_id = pd.id \
+            WHERE spectrum_id = ? AND ";
+        CInFilter ids("parameter_id", m_Info.s_yParameters);
+        query += ids.toString();
+        query += " ORDER BY sp.id";              // definition order.
+        
+        CSqliteStatement f(
+            m_conn,
+            query.c_str()
+        );
+        f.bind(1, m_Info.s_base.s_id);
+        while (!(++f).atEnd()) {
+            result.push_back(reinterpret_cast<const char*>(f.getText(0)));
+        }
+    }
+    catch(...) {
+        // Fails on old databases.
+    }
+
+    return result;
+}
+
+/**
  * storeValues
  *    Store the values of a spectrum in the the spectrum_contents
  *    table.
@@ -379,7 +445,7 @@ DBSpectrum::fetchXParameters(
     // All depends on the parameter types:
 
     if (specType == "1" || specType == "g1" || specType == "g2" || 
-        specType == "s" || specType == "b" || specType == "gs") {
+        specType == "s" || specType == "b" ) {
         result = ids;                                        // They're all X parameters.
     } else if (specType == "m2" ) {
         // Even parameters.
@@ -387,7 +453,7 @@ DBSpectrum::fetchXParameters(
         for (auto i = 0; i < ids.size(); i += 2) {
             result.push_back(ids[i]);
         }
-    } else if (specType == "gd") {
+    } else if (specType == "gd" || specType == "gs") {
         // Don't know how to do in general.
 
     } else if (specType == "2" || specType == "S") {
@@ -475,7 +541,7 @@ DBSpectrum::validateParameterCount(const char* type, size_t n)
         // For gd, 2dmproj and m2, there must be an even number of params:
         
         if (stype == "m2" || stype == "2dmproj") {
-            ok == ((n % 2) == 0);
+            ok = ((n % 2) == 0);
         } else {
             ok = true;
         }
