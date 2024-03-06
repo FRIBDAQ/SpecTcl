@@ -395,9 +395,53 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
             spectrum -delete $name
         }
         # Construct the spectrum definition command:
+        set cmd [_makeSpectrumCreateCommand $def]
+        eval $cmd
         
-        set cmd [list spectrum -new $name]
-        lappend cmd [dict get $def type] [dict get $def parameters]
+    }
+}
+##
+#  _makeSpectrumCreateCommand
+#   Given a spectrum definition dict, produce
+#   the command to recreate that spectrum.
+#   caller cna then eval the return value from
+#   this proc.
+proc _makeSpectrumCreateCommand {def} {
+    set name [dict get $def name]
+    set type [dict get $def type]
+    set cmd [list spectrum -new $name]
+        lappend cmd $type
+        # How we create the parameters part of the definition
+        # depends on if the x/y parameters keys exist
+        # and at least one of them has non-zero length
+        # and the spectrum type.
+        set params [dict get $def parameters]
+        if {[dict exists $def xparameters ] && [dict exists $def yparameters]} {
+            set xpars [dict get $def xparameters]
+            set ypars [dict get $def yparameters]
+            if {[llength $xpars] > 0 && [llength $ypars] > 0} {
+                #  Now it depends on the spectrum type:
+                
+                if {$type in [list 1 g1 g2 s b]} {
+                    set params $xpars 
+                } elseif {$type in [list 2 S]} {
+                    set params [list \
+                        $xpars $ypars
+                    ]
+                } elseif {$type eq "g1" || $} {
+                    set params $xpars
+                } elseif {$type eq "m2"} {
+                    # Interleave x/y parameters
+                    set params [list]
+                    foreach x $xparams y $yarams {
+                        lappend params $x $y
+                    }
+                }
+            }
+            # For spectra we don't know what to do with, leave params alone!
+
+        }
+        lappend cmd $params
         set axisDefs [dict get $def axes]
         set axiscmd [list]
         foreach adef $axisDefs {
@@ -407,9 +451,8 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
             lappend axiscmd [list $low $high $bins]
         }
         lappend cmd $axiscmd [dict get $def datatype]
+        return $cmd
 
-        eval $cmd
-    }
 }
 ##
 # _is2d
