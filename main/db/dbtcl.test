@@ -1030,8 +1030,9 @@ tcltest::test  dbtcl_findspec_1 {Find a 1d spectrum} \
     if {[info exists result]} { unset result}
     $svcmd findSpectrum raw.1
 } -result [dict create \
-id 1 name raw.1 type 1 parameters [list param.0] \
-         axes [list [dict create low 0.0 high 4095.0 bins 4096]] datatype long \
+    id 1 name raw.1 type 1 parameters [list param.0] \
+    xparameters [list param.0] yparameters [list]\
+    axes [list [dict create low 0.0 high 4095.0 bins 4096]] datatype long \
 ]
 
 tcltest::test dbtcl_findspec_2 {find 2-d spectrum} \
@@ -1059,6 +1060,7 @@ tcltest::test dbtcl_findspec_2 {find 2-d spectrum} \
     $svcmd findSpectrum raw.2
 } -result [dict create \
     id 2 name raw.2 type 2 parameters [list param.1 param.2] \
+    xparameters [list param.1] yparameters [list param.2] \
     axes [list [dict create low 0.0 high 1024.0 bins 512] \
           [dict create low -10.0 high 10.0 bins 100]]  datatype long     \
 ]
@@ -1187,10 +1189,12 @@ tcltest::test dbtcl_listspec_2 {list a couple spectra} \
 } -result [list                                    \
  [dict create \
 id 1 name raw.1 type 1 parameters [list param.0] \
+    xparameters [list param.0] yparameters [list] \
          axes [list [dict create low 0.0 high 4095.0 bins 4096]] datatype long \
 ] \
  [dict create \
     id 2 name raw.2 type 2 parameters [list param.1 param.2] \
+    xparameters [list param.1] yparameters [list param.2] \
     axes [list [dict create low 0.0 high 1024.0 bins 512] \
           [dict create low -10.0 high 10.0 bins 100]]  datatype long]     \
 ]
