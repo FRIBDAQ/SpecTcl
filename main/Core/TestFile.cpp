@@ -43,7 +43,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <buffer.h>
 #include <buftypes.h>
 #include <MultiTestSource.h>
-
+#include <DataFormat.h>
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -122,30 +122,20 @@ Int_t CTestFile::Read(Address_t pBuffer, UInt_t nSize) {
     throw re;
   }
   // The buffer is formatted as follows;
-  // first the header is put in, then as many events as will fit.
-  // finally, the buffersize, and event count are set back into the header.
+  // we put in one nscldaq-11 ring item with no body header per
+  // read:
   //
   UChar_t* p = (UChar_t*)pBuffer;
-  UInt_t  nEvents = 0;
-  UInt_t  nBytes  = 0;
-  UInt_t  n;
-
-  // Put the header in:
+  size_t   n;
+  
   n       = FormatNSCLHeader(p);
-  p      += n; 
-  nBytes += n;  
+  
+  p += n;
+  n       = FormatEvent(p);
+  p += n;
 
-  // Fill the buffer with events (generic).
-  while((nBytes + EventSize()) < nSize) { // Another event fits:
-    n       = FormatEvent(p);
-    p      += n;
-    nBytes += n;  
-    nEvents++;
-  }
-
-  SetEventCount(pBuffer, nEvents);
-  SetBufferSize(pBuffer, nBytes);
-  return nBytes;
+  pRingItemHeader pItem = reinterpret_cast<pRingItemHeader>(pBuffer);
+  return pItem->s_size;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -358,27 +348,17 @@ void CTestFile::DoAssign(const CTestFile& arhs) {
 //  Operation Type:
 //    Utility.
 UInt_t CTestFile::FormatNSCLHeader(Address_t pBuffer) {
-  // Formats an NSCL buffer header into the buffer passed in.
-  //  the buffer must be big enough to handle the header.
+  // Formats an NSCL ring item header with no body headr
   // 
-  // returns the number of bytes put in the buffer.
 
-  BHEADER* pHeader = (BHEADER*)pBuffer;
+
+  pRingItem pHeader = reinterpret_cast<pRingItem>(pBuffer);
+  pHeader->s_header.s_size = sizeof(RingItemHeader) + sizeof(uint32_t) + EventSize();
+  pHeader->s_header.s_type = PHYSICS_EVENT;
+  pHeader->s_body.u_noBodyHeader.s_mbz = sizeof(uint32_t);  // Also works for nscldaq12
   
-  pHeader->nwds = 0;		// Filled in later.
-  pHeader->type = DATABF;	// Data buffer.
-  pHeader->cks  = 0;		// Don't emulate checksum.
-  pHeader->run  = 1;		// Always run # 1.
-  pHeader->seq  = 0;		// Always buffer number 0.
-  pHeader->nevt = 0;		// Filled in later.
-  pHeader->nlam = 0;		// No lam masks.
-  pHeader->cpu  = 1;		// CPU # 1.
-  pHeader->nbit = 0;		// No bit registers.
-  pHeader->buffmt=4;		// Buffer revision level.
-  pHeader->ssignature = 0x0102; // Word byte order signature.
-  pHeader->lsignature = 0x01020304l; // Longword order signature.
 
-  return sizeof(BHEADER);
+  return sizeof(RingItemHeader) + sizeof(uint32_t);
 }
 
 ////////////////////////////////////////////////////////////////////////

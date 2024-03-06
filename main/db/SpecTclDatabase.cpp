@@ -129,6 +129,29 @@ CDatabase::create(const char* database)
         "CREATE INDEX IF NOT EXISTS sparams_spectrum_id \
                 ON spectrum_params (spectrum_id)"
     );
+    // Two tables below added in Issue #91 - distinguish
+    // between X and Y parameters:
+
+    CSqliteStatement::execute(
+        connection,
+        "CREATE TABLE IF NOT EXISTS spectrum_x_params                   \
+            (   id          INTEGER PRIMARY KEY,          \
+                spectrum_id INTEGER NOT NULL,             \
+                parameter_id INTEGER NOT NULL             \
+            )"
+    );
+    CSqliteStatement::execute(
+        connection,
+        "CREATE TABLE IF NOT EXISTS spectrum_y_params             \
+            (   id          INTEGER PRIMARY KEY,    \
+                spectrum_id INTEGER NOT NULL,       \
+                parameter_id INTEGER NOT NULL       \
+            )"
+    );
+
+    // End of Issue #91 additions
+    
+    
     
     // Spectrum contents.
     

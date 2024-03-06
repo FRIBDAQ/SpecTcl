@@ -1629,6 +1629,8 @@ TclSaveSet::makeSpectrumDict(CTCLObject& obj, DBSpectrum* spec)
     
     auto info   = spec->getInfo();
     auto pNames = spec->getParameterNames();
+    auto xpNames = spec->getXParameterNames();
+    auto ypNames = spec->getYParameterNames();
     
     AddKey(obj, "id", info.s_base.s_id);
     AddKey(obj, "name", info.s_base.s_name.c_str());
@@ -1638,6 +1640,17 @@ TclSaveSet::makeSpectrumDict(CTCLObject& obj, DBSpectrum* spec)
     parameterNames.Bind(*obj.getInterpreter());
     stringVectorToList(*obj.getInterpreter(), parameterNames, pNames);
     AddKey(obj, "parameters", parameterNames);
+
+    CTCLObject xpnames;
+    xpnames.Bind(*obj.getInterpreter());
+    stringVectorToList(*obj.getInterpreter(), xpnames, xpNames);
+    AddKey(obj, "xparameters", xpnames);
+
+    CTCLObject ypnames;
+    ypnames.Bind(*obj.getInterpreter());
+    stringVectorToList(*obj.getInterpreter(), ypnames, ypNames);
+    AddKey(obj, "yparameters", ypnames);
+
     
     CTCLObject axes;
     axes.Bind(*obj.getInterpreter());

@@ -345,8 +345,12 @@ proc _restoreParamDefs {saveset} {
         set name [dict get $def name]
         set number [dict get $def number]
         if {[llength [parameter -list $name]] > 0} {
+            # Safest to re-use the old parameter number:
+            
+            set number [lindex [lindex [parameter -list $name] 0] 1]
             parameter -delete $name
         }
+        
         parameter -new $name $number
         
         # Is it a tree param?
@@ -395,10 +399,58 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
             spectrum -delete $name
         }
         # Construct the spectrum definition command:
+        set cmd [_makeSpectrumCreateCommand $def]
+        eval $cmd
         
-        set cmd [list spectrum -new $name]
-        lappend cmd [dict get $def type] [dict get $def parameters]
-        set axisDefs [dict get $def axes]
+    }
+}
+##
+#  _makeSpectrumCreateCommand
+#   Given a spectrum definition dict, produce
+#   the command to recreate that spectrum.
+#   caller cna then eval the return value from
+#   this proc.
+proc _makeSpectrumCreateCommand {def} {
+    set name [dict get $def name]
+    set type [dict get $def type]
+    set cmd [list spectrum -new $name]
+    set axisDefs [dict get $def axes]
+        lappend cmd $type
+        # How we create the parameters part of the definition
+        # depends on if the x/y parameters keys exist
+        # and at least one of them has non-zero length
+        # and the spectrum type.
+        set params [dict get $def parameters]
+        if {[dict exists $def xparameters ] && [dict exists $def yparameters]} {
+            set xpars [dict get $def xparameters]
+            set ypars [dict get $def yparameters]
+            if {[llength $xpars] > 0 || [llength $ypars] > 0} {
+                #  Now it depends on the spectrum type:
+                
+                if {$type in [list 1 g1 g2 s b]} {
+                    set params $xpars 
+                    if {$type in [list 1 g1 s b]} {
+                        set axisDefs [list [lindex $axisDefs 0]];   # rustogramer can give extra exes.
+                    }
+                } elseif {$type in [list 2 S]} {
+                    set params [list \
+                        $xpars $ypars
+                    ]
+                } elseif {$type eq "g1" || $} {
+                    set params $xpars
+                } elseif {$type eq "m2"} {
+                    # Interleave x/y parameters
+                    set params [list]
+                    foreach x $xparams y $yarams {
+                        lappend params $x $y
+                    }
+                }
+            }
+            # For spectra we don't know what to do with, leave params alone!
+
+        } 
+        lappend cmd $params
+        
         set axiscmd [list]
         foreach adef $axisDefs {
             set low [dict get $adef low]
@@ -406,10 +458,14 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
             set bins [dict get $adef bins]
             lappend axiscmd [list $low $high $bins]
         }
-        lappend cmd $axiscmd [dict get $def datatype]
+        set dtype [dict get $def datatype]
+        if {$dtype eq "f64"} {
+            set dtype long;      # Came from Rustogramer.
+        }
+    
+        lappend cmd $axiscmd $dtype
+        return $cmd
 
-        eval $cmd
-    }
 }
 ##
 # _is2d
@@ -737,6 +793,12 @@ proc saveConfig {dbconnection name {spectra 0}} {
       
     return $saveset
 }
+##
+# save a configuration using the rustogramer saveset name:
+#
+proc saveForRustogramer {dbconnection} {
+    return [saveConfig $dbconnection rustogramer_gui 0]
+}
 
 
 ##
@@ -780,13 +842,12 @@ proc listConfigs cmd {
 #  configuration database.
 #
 proc restoreConfig {cmd savename {restoreSpectra 0}} {
-    
     set saveset [$cmd getSaveset $savename]
-    
     
     #  Now restore the bits and pieces:
     
     # Restore parameters:
+    
     
     _restoreParamDefs        $saveset
     _restoreSpectrumDefs     $saveset
@@ -799,6 +860,17 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     }
     
     $saveset destroy
+}
+##
+# restoreRustogramer 
+#   Restore the rustogramer_gui saveset.. convenience 
+#   proc for SpecTcl/Rustogramer definition interchanges
+# 
+#  Throws an error if there's no such saveset.
+#
+proc restoreRustogramer {cmd} {
+
+    return [restoreConfig $cmd rustogramer_gui 0]
 }
 ##
 # saveSpectrum
