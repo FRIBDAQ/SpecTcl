@@ -850,6 +850,16 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     $saveset destroy
 }
 ##
+# restoreRustogramer 
+#   Restore the rustogramer_gui saveset.. convenience 
+#   proc for SpecTcl/Rustogramer definition interchanges
+# 
+#  Throws an error if there's no such saveset.
+#
+proc restoreRustogramer {cmd} {
+    return [restoreConfig $cmd rustogramer_gui 0]
+}
+##
 # saveSpectrum
 #   Saves a single spectrum's contents into the specified save set.
 #
