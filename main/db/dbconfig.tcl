@@ -780,6 +780,12 @@ proc saveConfig {dbconnection name {spectra 0}} {
       
     return $saveset
 }
+##
+# save a configuration using the rustogramer saveset name:
+#
+proc saveForRustogramer {dbconnection} {
+    return [saveConfig $dbconnection rustogramer_gui 0]
+}
 
 
 ##
