@@ -238,20 +238,50 @@ proc editPrefs {} {
 #     The error message
 #  
 proc sourceScriptReportingErrors {} {
+    
     set file [tk_getOpenFile -defaultextension .tcl             \
                              -filetypes [list                   \
                                     [list "Tcl Scripts"  .tcl]  \
                                     [list "Tk Scripts"   .tk]   \
+                                    [list "Sqlite3 database" .db] \
                                     [list "All files"    *]]    \
                              -title {Select File to Source}]
-    if {[file readable $file]} {
-	set errors [incrementalSource $file]
-	if {$errors ne ""} {
-	    displayScriptErrors $file $errors
-	}
-        $::FolderGui::folderGuiBrowser update;       # In case the script execution changes something.
-        failsafeWrite
+    
+    if {[file readable $file] && [file extension $file] ne ".db"} {
+	    set errors [incrementalSource $file]
+        if {$errors ne ""} {
+            displayScriptErrors $file $errors
+        }
+    } else {
+        # Restore from a database file:
+
+        if {[file readable $file]} {
+            
+            set db [dbconfig::connect $file]
+            
+            if {[catch {dbconfig::restoreRustogramer $db} msg]} {
+                tk_messageBox \
+                    -icon error \
+                    -parent $::FolderGui::folderGuiBrowser \
+                    -type Ok \
+                    -title "restore failed" \
+                    -message "Could not restore configure from database $file : $msg"
+            }
+            
+            $db destroy
+            sbind -all
+        } else {
+            tk_messageBox \
+                -icon error \
+                -parent $::FolderGui::folderGuiBrowser \
+                -type Ok \
+                -title "No such file" \
+                -message "$file does not exist"
+        }
     }
+    $::FolderGui::folderGuiBrowser update;       # In case the script execution changes something.
+    failsafeWrite
+
 }
 
 #sourceScript
