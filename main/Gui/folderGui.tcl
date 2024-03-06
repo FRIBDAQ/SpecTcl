@@ -151,14 +151,15 @@ proc getLine fd {
     set lines 0
 
     while {![eof $fd]} {
-	gets $fd fragment
-	incr lines
-	if {[regexp {\\$} $fragment]} {
-	    append line [regsub {\\$} $fragment " "]
-	} else {
-	    append line $fragment
-	    return [list $line $lines]
-	}
+        gets $fd fragment
+        incr lines
+        if {[regexp {\\$} $fragment]} {
+            set blank " "
+            append line [regsub {\\$} $fragment $blank]
+        } else {
+            append line $fragment
+            return [list $line $lines]
+        }
     }
     return [list $line $lines]
 }
