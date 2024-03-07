@@ -29,6 +29,21 @@ proc _matchSpectra {pattern} {
 }
 
 ##
+# _jsonAxis
+#   Return a JSON object that represents an axis:
+#
+# @param axis - 3 element axis list.
+# @return Json encoded vesion of that.
+#
+proc _jsonAxis axis {
+     return [json::write object \
+                       low [lindex $axis 0] \
+                       high [lindex $axis 1] \
+                       bins [lindex $axis 2]]
+
+}
+
+##
 # List the spectra that match the specified pattern
 # in Json format.  The return format is the usual object
 # - status  - OK 
@@ -57,17 +72,28 @@ proc SpecTcl_Spectrum/list {{filter *}} {
         set axes  [lindex $spectrum 4]
         set chantype [lindex $spectrum  5]
         set gate [lindex $spectrum 6]
-    
+
+        # X/y axis are slightly type dependent:
+        #   s,gs spectra, the y axis is the single, specified
+        #   axis but the X axis is unused in our case.
+
+        set yaxis [list 0 0 0] ;   # assume no y axis.
+        if {$type in [list s gs]} {
+            set yaxis [lindex $axes 0]
+            set xaxis [list 0 0 0]
+        } else {
+            set xaxis [lindex $axes 0]
+            if {[llength $axes] > 1 } {
+                set yaxis [lindex $axes 1]
+            }
+        }
     
         ## The axes are an array of 
         #   low, high, bins objects
         #
         set axisArray [list]
         foreach axis $axes {
-            lappend axisArray [json::write object \
-                       low [lindex $axis 0] \
-                       high [lindex $axis 1] \
-                       bins [lindex $axis 2]]
+            lappend axisArray [_jsonAxis $axis]
         }
         ##
         # Parameters are an array of strings:
@@ -79,6 +105,8 @@ proc SpecTcl_Spectrum/list {{filter *}} {
                 type [json::write string $type] \
                 parameters $parameterArray      \
                 axes [json::write array {*}$axisArray] \
+                xaxis [_jsonAxis $xaxis]           \
+                yaxis [_jsonAxis $yaxis]           \
                 chantype [json::write string $chantype] \
                 gate [json::write string $gate]] 
                 
@@ -94,6 +122,8 @@ proc SpecTcl_Spectrum/list {{filter *}} {
                 type [json::write string $type]                 \
                 parameters $parameterArray                       \
                 axes [json::write array {*}$axisArray]          \
+                xaxis [_jsonAxis $xaxis]                        \
+                yaxis [_jsonAxis $yaxis]                        \
                 chantype [json::write string $chantype]         \
                 projection [json::write string $direction]      \
                 roigates $gateArray                             \
