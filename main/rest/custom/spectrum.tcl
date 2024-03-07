@@ -29,6 +29,21 @@ proc _matchSpectra {pattern} {
 }
 
 ##
+# _jsonAxis
+#   Return a JSON object that represents an axis:
+#
+# @param axis - 3 element axis list.
+# @return Json encoded vesion of that.
+#
+proc _jsonAxis axis {
+     return [json::write object \
+                       low [lindex $axis 0] \
+                       high [lindex $axis 1] \
+                       bins [lindex $axis 2]]
+
+}
+
+##
 # List the spectra that match the specified pattern
 # in Json format.  The return format is the usual object
 # - status  - OK 
@@ -57,20 +72,63 @@ proc SpecTcl_Spectrum/list {{filter *}} {
         set axes  [lindex $spectrum 4]
         set chantype [lindex $spectrum  5]
         set gate [lindex $spectrum 6]
-    
+
+        # Issue #84:
+        # X/y axis are slightly type dependent:
+        #   s,gs spectra, the y axis is the single, specified
+        #   axis but the X axis is unused in our case.
+
+        set yaxis [list 0 0 0] ;   # assume no y axis.
+        if {$type in [list s gs]} {
+            set yaxis [lindex $axes 0]
+            set xaxis [list 0 0 0]
+        
+        } else {
+            set xaxis [lindex $axes 0]
+            if {[llength $axes] > 1 } {
+                set yaxis [lindex $axes 1]
+            }
+        }
     
         ## The axes are an array of 
         #   low, high, bins objects
         #
         set axisArray [list]
         foreach axis $axes {
-            lappend axisArray [json::write object \
-                       low [lindex $axis 0] \
-                       high [lindex $axis 1] \
-                       bins [lindex $axis 2]]
+            lappend axisArray [_jsonAxis $axis]
         }
+        ## 
+        #  Issue #84:
+        #  FIgure out the x/y parameter sets.
+        # These are highly spectrum type dependent.
+        #
+        set xparams [list]
+        set yparams [list]
+
+        if {$type in [list 1 b]} {
+            lappend xparams [lindex $params 0]
+
+        } elseif {$type in [list 2 S]} {
+            lappend xparams [lindex $params 0]
+            lappend yparams [lindex $params 1]
+        } elseif {$type in [list g1 g2 s m2proj]} {
+            set xparams $params
+        } elseif {$type in [list m2]} {
+            foreach {x y} $params {
+                lappend xparams $x
+                lappend yparams $y
+            }
+        } elseif  {$type in [list gd]} {
+            set xparams [lindex $params 0]
+            set yparams [lindex $params 1]
+        } elseif {$type in [list gs]} {
+            set xparams $params;       # Might allow recovery.
+        }
+        set xparams [::SpecTcl::_jsonStringArray $xparams]
+        set yparams [::SpecTcl::_jsonStringArray $yparams]
+
         ##
-        # Parameters are an array of strings:
+        # Parameters are an array of strings
         #
         if {$type ne "2dmproj"} {
             set parameterArray [::SpecTcl::_jsonStringArray $params]
@@ -78,7 +136,11 @@ proc SpecTcl_Spectrum/list {{filter *}} {
                 name [json::write string $name] \
                 type [json::write string $type] \
                 parameters $parameterArray      \
+                xparameters $xparams       \
+                yparameters $yparams      \
                 axes [json::write array {*}$axisArray] \
+                xaxis [_jsonAxis $xaxis]           \
+                yaxis [_jsonAxis $yaxis]           \
                 chantype [json::write string $chantype] \
                 gate [json::write string $gate]] 
                 
@@ -93,7 +155,11 @@ proc SpecTcl_Spectrum/list {{filter *}} {
                 name [json::write string $name]                 \
                 type [json::write string $type]                 \
                 parameters $parameterArray                       \
+                xparameters $xparams                             \
+                yparameters $yparams                             \
                 axes [json::write array {*}$axisArray]          \
+                xaxis [_jsonAxis $xaxis]                        \
+                yaxis [_jsonAxis $yaxis]                        \
                 chantype [json::write string $chantype]         \
                 projection [json::write string $direction]      \
                 roigates $gateArray                             \
