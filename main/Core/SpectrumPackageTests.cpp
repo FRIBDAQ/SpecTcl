@@ -9,6 +9,9 @@
 #include <Histogrammer.h>
 #include <SpecTcl.h>
 #include <TCLResult.h>
+#include <TCLInterpreter.h>
+#include <TCLObject.h>
+
 #include <TestDisplay.h>
 #include <Globals.h>
 #include <SpecTclDisplayManager.h>
@@ -18,6 +21,7 @@
 #include <vector>
 #include <string>
 #include <iterator>
+#include <sstream>
 
 using namespace std;
 
@@ -35,6 +39,7 @@ class SpectrumPackageTests : public CppUnit::TestFixture
     CPPUNIT_TEST(deleteList_0);
     CPPUNIT_TEST(getChannel_0);
     CPPUNIT_TEST(setChannel_0);
+    CPPUNIT_TEST(list_0);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -218,25 +223,7 @@ public:
               TCL_ERROR, status);
     }
 
-//    void unBindList_1 () {
-//        CTCLResult result(m_pInterp);
 
-//        m_pPkg->BindAll(result);
-
-//        CSpectrum* pSpec1 = m_pSorter->FindSpectrum("test1");
-//        std::vector<UInt_t> ids(1);
-//        ids[0] = pSpec1->getNumber();
-
-//        m_pPkg->UnbindList(result, ids);
-
-//        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
-
-//        EQMSG("unBindList(id) should unbind spectra listed",
-//              false, pDisplay->spectrumBound(*m_pSpec1));
-//        EQMSG("unBindList(id) should not unbind spectra that are not listed",
-//              true, pDisplay->spectrumBound(*m_pSpec2));
-
-//    }
 
     void deleteAll_0 () {
 
@@ -323,6 +310,56 @@ public:
         EQMSG("SetChannel must succeed for valid input", kfTRUE, success);
         EQMSG("SetChannel sets the correct value for specified bin",
               value, (*m_pSpec1)[indices.data()]);
+
+    }
+    void list_0() {
+        // Demonstrator for Issue #87 - Create a gamma spectrum and
+        // be sure the axis specifications are listed properly.
+
+        // Make some parameters:
+
+        auto api = SpecTcl::getInstance();
+        for (int i = 0; i < 10; i++) {
+            std::stringstream sname;
+            sname << "p." << i;
+            auto p = api->AddParameter(sname.str(), api->AssignParameterId(), std::string("mm"));
+        }
+        // Make the parameter array:
+
+        std::vector<std::vector<std::string>> params = {
+            {std::string("p.0")},
+            {std::string("p.1"), std::string("p.2")},
+            {std::string("p.3"), std::string("p.4"), std::string("p.5")},
+            {std::string("p.6"), std::string("p.7"), std::string("p.8"), std::string("p.9")}
+        };
+        std::vector<Float_t> l = {0.0};
+        std::vector<Float_t> h = {512.0};
+        auto pSpec = api->CreateGammaSummary(std::string("gs"), keLong, params, UInt_t(512), &l, &h);
+        ASSERT(pSpec);
+        CPPUNIT_ASSERT_NO_THROW(api->AddSpectrum(*pSpec));
+
+        std::vector<std::string> descriptions;
+        CPPUNIT_ASSERT_NO_THROW(m_pPkg->ListSpectra(descriptions, "gs", false));
+        EQ(size_t(1), descriptions.size());
+
+        // Now parse the list, we need the 4'th element of the description list and to pick that apart.
+
+        CTCLInterpreter interp;
+        CTCLObject      d; d.Bind(interp);
+        d = descriptions[0];
+        EQ(6, d.llength());
+        CTCLObject axes = d.lindex(4);  axes.Bind(interp);
+        EQ(1, axes.llength());
+        CTCLObject axis = axes.lindex(0); axis.Bind(interp);
+        EQ(3, axis.llength());
+        CTCLObject low = axis.lindex(0);  low.Bind(interp);
+        CTCLObject hi = axis.lindex(1);   hi.Bind(interp);
+        CTCLObject bins = axis.lindex(2);  bins.Bind(interp);
+
+
+        EQ(0.0, (double)(low));
+        EQ(512.0, (double(hi)));
+        EQ(512, (int)bins);
 
     }
 
