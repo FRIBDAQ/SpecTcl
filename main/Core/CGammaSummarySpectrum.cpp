@@ -23,40 +23,18 @@
 #define __CGAMMASUMMARYSPECTRUM_CXX
 #include <config.h>
 
-#ifndef __CGAMMASUMMARYSPECTRUM_H
 #include "CGammaSummarySpectrum.h"
-#endif
-
-#ifndef __PARAMETER_H
 #include "Parameter.h"
-#endif
-
-#ifndef __RANGEERROR_H
 #include <RangeError.h>
-#endif
-
-#ifndef __EVENT_H
 #include <Event.h>
-#endif
-
-#ifndef __STL_SET
 #include <set>
-#ifndef __STL_SET
-#define __STL_SET
-#endif
-#endif
-
-#ifndef __CRT_LIMITS_H
 #include <limits.h>
-#ifndef __CRT_LIMITS_H
-#define __CRT_LIMITS_H
-#endif
-#endif
 
 #include <TH2I.h>
 #include <TH2S.h>
 #include <TH2C.h>
 #include <TDirectory.h>
+#include <iostream>
 
 using namespace std;
 
@@ -89,14 +67,14 @@ CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(string              name,
   CreateAxes(*pParameters,
 	     nXChannels,
 	     nYChannels,
-	     0, nYChannels - 1);
+	     0, nYChannels -1);
 
   std::string olddir = gDirectory->GetPath();
   gDirectory->Cd("/");  
   R* pRootSpectrum = new R(
     name.c_str(), name.c_str(),
-    nXChannels, static_cast<Double_t>(0), static_cast<Double_t>(nXChannels),
-    nYChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nYChannels)
+    nXChannels, static_cast<Double_t>(0), static_cast<Double_t>(nXChannels-2),  // Remove over/unders.
+    nYChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nYChannels-2)
   );
   gDirectory->Cd(olddir.c_str());
   pRootSpectrum->Adopt(0, nullptr);
@@ -324,7 +302,7 @@ CGammaSummarySpectrum<T,R>::GetDefinition()
   def.fHighs.push_back(m_nXChannels-1);
   def.nChannels.push_back(m_nXChannels);
 
-  def.nChannels.push_back(m_nYChannels);
+  def.nChannels.push_back(m_nYChannels-2);
   def.fLows.push_back(m_Axes[0].getLow());
   def.fHighs.push_back(m_Axes[0].getHigh());
 
@@ -502,6 +480,7 @@ CGammaSummarySpectrum<T,R>::CreateAxes(vector<vector<CParameter> >& params,
 				    Float_t             low,
 				    Float_t             hi)
 {
+
   for (int i=0; i < nx; i++) {
     vector<CParameter>& p(params[i]);
     m_Axes.push_back(CAxis(low, hi, ny, p[0].getUnits()));
