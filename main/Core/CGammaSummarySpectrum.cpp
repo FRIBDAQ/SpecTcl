@@ -73,8 +73,8 @@ CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(string              name,
   gDirectory->Cd("/");  
   R* pRootSpectrum = new R(
     name.c_str(), name.c_str(),
-    nXChannels, static_cast<Double_t>(0), static_cast<Double_t>(nXChannels-2),  // Remove over/unders.
-    nYChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nYChannels-2)
+    nXChannels, static_cast<Double_t>(0), static_cast<Double_t>(nXChannels),  // Remove over/unders.
+    nYChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nYChannels)
   );
   gDirectory->Cd(olddir.c_str());
   pRootSpectrum->Adopt(0, nullptr);
@@ -121,6 +121,7 @@ CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(const std::string name,
     nXParameters, static_cast<Double_t>(0.0), static_cast<Double_t>(nXParameters),
     nYChannels, static_cast<Double_t>(fYLow), static_cast<Double_t>(fYHigh)
   );
+  
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
   CreateStorage();
@@ -151,7 +152,6 @@ CGammaSummarySpectrum<T,R>::Increment(const CEvent& e)
 {
   CEvent& event((CEvent&)e);
 
-
   for (UInt_t x = 0; x < m_nXChannels - 2; x++) {
     vector<UInt_t>&      params(m_Parameters[x]);
     // 
@@ -163,7 +163,7 @@ CGammaSummarySpectrum<T,R>::Increment(const CEvent& e)
         getRootSpectrum()->Fill(
           static_cast<Double_t>(x), static_cast<Double_t>(event[paramId])
         );
-      }
+      } 
     }
   }
 }
