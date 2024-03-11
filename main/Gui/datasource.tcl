@@ -44,6 +44,40 @@ namespace eval datasource {
 
 }
 
+#  Queries methods for REST interface:
+
+
+##
+#  Return true if cluster processing in progress:
+#
+proc datasource::processingCluster {} {
+    return [expr {[llength $::datasource::runlistFiles] > 0}]
+}
+## 
+#  Start processing on the file which is open on fd:
+#
+#  Note the file is closed on return:
+#
+proc datasource::startClusterFile {fd format size} {
+    set files   [read $fd]
+    close $fd
+    set datasource::runlistFiles [split $files "\n"]
+    set datasource::lastformat  $format
+    set datasource::clustersize $size
+
+    
+    trace add variable ::RunState write ::nextFileInRunlist
+    
+    .topmenu.source entryconfigure 8 -state normal
+    set ::RunState 0;             # Start the next file...
+    
+}
+##
+#  If cluster processing is in action, abort it:
+#
+proc datasource::stopCluster {} {
+    abortClusterProcessing
+}
 
 ##
 # defaultFormat
@@ -302,7 +336,7 @@ proc attachRunList {} {
     destroy .clusterchooser
     
     if {$runlist != ""} {
-        .topmenu.source entryconfigure 8 -state normal
+        
         if {$datasource::runlistFiles != ""} {
             set answer [tk_messageBox -icon question -title {stop current runlist}       \
                                       -type okcancel  \
@@ -318,14 +352,8 @@ proc attachRunList {} {
                 -message "Could not open $runlist because: $msg"
             return
         }
-        set files   [read $msg]
-        set datasource::runlistFiles [split $files "\n"]
-        set datasource::lastrunlist $runlist
-        set datasource::lastformat  $format
-        set datasource::clustersize $size
-        
-        trace add variable ::RunState write nextFileInRunlist
-        set ::RunState 0;             # Start the next file...
+        set datasource::lastrunlist $runlist   ;  # For next dialog.
+        ::datasource::startClusterFile $msg $format $size
         
     }
 
@@ -471,17 +499,17 @@ snit::widget formatChooser {
 
     constructor args {
 
-	set col 0
-	foreach format $formats {
-	    radiobutton $win.$format -variable [myvar options(-format)] \
-		-value $format -text $format -command [mymethod dispatch]
-	    grid $win.$format -sticky w -row 0 -column $col
-	    incr col
-	}
-	$self configurelist $args
+        set col 0
+        foreach format $formats {
+            radiobutton $win.$format -variable [myvar options(-format)] \
+            -value $format -text $format -command [mymethod dispatch]
+            grid $win.$format -sticky w -row 0 -column $col
+            incr col
+        }
+        $self configurelist $args
 
-	set initialFormat $options(-format)
-	after 1 [list $win.$initialFormat select]; # Not sure why this must be scheduled(?)
+        set initialFormat $options(-format)
+        after 1 [list $win.$initialFormat select]; # Not sure why this must be scheduled(?)
     }
     destructor {
 
