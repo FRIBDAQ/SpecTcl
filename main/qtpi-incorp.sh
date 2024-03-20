@@ -6,7 +6,7 @@
 # Where:
 #    tag is the tag to incorporate.
 #
-#  last tag was v1.4
+#  last tag was v1.5
 REPOSITORY=https://github.com/FRIBDAQ/CutiePie.git
 TARGET=PyQtGUI
 VERSION=$1
