@@ -109,7 +109,7 @@ proc SpecTcl_treevariable/setchanged {name} {
     } msg]
     if {$status} {
         return [SpecTcl::_returnObject                      \
-            OK [json::write string $msg]                    \
+            "'treevariable -setchanged' command failed" [json::write string $msg]                    \
         ]
     }
     SpecTcl::_returnObject OK
