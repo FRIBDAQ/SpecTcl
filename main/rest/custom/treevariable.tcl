@@ -90,7 +90,7 @@ proc SpecTcl_treevariable/check {name} {
     } msg]
     if {$status} {
         return [SpecTcl::_returnObject                        \
-            OK [json::write string $msg]                      \
+            "'treevariable -check failed" [json::write string $msg]                      \
         ]
     }
     SpecTcl::_returnObject OK $msg
