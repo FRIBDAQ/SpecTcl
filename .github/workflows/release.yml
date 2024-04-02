@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cloneing the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Extract release note
         run: |
           cat >> extract_release_note.sh << EOF
