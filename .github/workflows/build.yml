@@ -21,7 +21,7 @@ jobs:
       image: fribdaq/frib-${{ inputs.os-version }}-ci
       options: --cpus 2
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: autoreconf
         working-directory: ./main
         run: autoreconf -if
@@ -83,7 +83,7 @@ jobs:
           mv spectcl-${{ github.ref_name }}.tar.gz spectcl-${{ github.ref_name }}-dist.tar.gz
       - name: Upload complete source distribution package
         if: ${{ inputs.packaging == true && inputs.dist-packaging == true }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Complete source distribution
           path: ./main/oot/spectcl-${{ github.ref_name }}-dist.tar.gz
@@ -93,7 +93,7 @@ jobs:
         run: tar -czf spectcl-$GITHUB_REF_NAME-${{ inputs.os-version }}.tar.gz $GITHUB_REF_NAME
       - name: Upload binary distribution package
         if: ${{ inputs.packaging == true }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.os-version }} binary distribution
           path: /usr/opt/spectcl/spectcl-${{ github.ref_name }}-${{ inputs.os-version }}.tar.gz
