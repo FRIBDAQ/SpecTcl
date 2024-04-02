@@ -69,7 +69,7 @@ jobs:
           ../configure --prefix=/usr/opt/spectcl/$GITHUB_REF_NAME
       - name: Make
         working-directory: ./main/oot
-        run: make -j2 clean && make -j2 all && make -j2 install
+        run: make -j2 clean && make -j2 all && make -j2 install && VERBOSE=1 make -j2 check
       - name: Packaging for complete source distribution
         if: ${{ inputs.packaging == true && inputs.dist-packaging == true }}
         working-directory: ./main/oot
