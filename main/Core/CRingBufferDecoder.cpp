@@ -17,7 +17,7 @@
 #include <config.h>
 #include "CRingBufferDecoder.h"
 #include "RingFormatHelper.h"
-#include "RingFormatHelper10.h"       // Last chance helper.
+#include "RingFormatHelper11.h"       // Last chance helper.
 
 #include "RingFormatHelper10Creator.h"
 #include "RingFormatHelper11Creator.h"
@@ -121,7 +121,7 @@ CRingBufferDecoder::CRingBufferDecoder() :
   m_pAnalyzer(0),
   m_pCurrentHelper(0),
   m_pDefaultHelper(0),
-  m_pFallbackHelper(new CRingFormatHelper10),
+  m_pFallbackHelper(new CRingFormatHelper11),
   m_pCurrentRingItem(0),
   m_pFactory(new CRingFormatHelperFactory)
 {
