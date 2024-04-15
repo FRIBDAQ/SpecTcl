@@ -9,7 +9,7 @@ AC_INIT(SpecTcl,5.14-000, daqhelp@frib.msu.edu)
 
 
 UNIFIED_FMT_VERSION="1.2"
-TCLPLUS_VERSION="v4.3-001"
+TCLPLUS_VERSION="libtclplus-v4.3-002"
 CUTIEPIE_VERSION="v1.5"
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
@@ -791,7 +791,7 @@ AX_CHECK_ZLIB([AC_MSG_RESULT([Have zlib])], [AC_MSG_ERROR([zlib is a prerequisit
 # the source tree and configura/build it into $prefix/unifiedformat
 #
 AC_CHECK_PROG([havecmake], cmake, [1], [0])
-if `test ${havcmake} = 0`
+if test "${havcmake}" = "0"
 then
 	AC_MSG_ERROR([cmake must be in the path to build SpecTcl])
 fi
@@ -814,7 +814,7 @@ rm -rf unifiedformat/build
 mkdir -p unifiedformat/build
 sourcedir="`realpath ${srcdir}`"
 AC_MSG_NOTICE([Building unified format at ${sourcedir}])
-(cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
+(cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all install)
 UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
 UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
 AC_SUBST(UFMT_CPPFLAGS)
@@ -833,41 +833,24 @@ AC_SUBST(UFMT_LDFLAGS)
 #
 # 
 
-AC_MSG_CHECKING([libtcl++ installed as package (e.g. .deb)])
+# We no longer look for Ryan's deb to be installed as that ship sailed
+# a long time ago:
 
-AC_CHECK_FILE([/usr/include/TCLInterpreterObject.h], [systemtcl="yes"], [systemtcl="no"])
-
-if test $systemtcl = "yes"
+AC_CHECK_FILE([${srcdir}/tibtcl/configure.ac], [TCLPLUS_INCORP="1"], [TCLPLUS_INCORP="0"])
+if test "${TCLPLUS_INCORP}" = "0"
 then
-	LIBTCLPLUS_CFLAGS=""
-	LIBEXCEPTION_LDFLAGS="-lException"
-	LIBTCLPLUS_LDFLAGS="-ltclPlus ${LIBEXCEPTION_LDFLAGS}"
-	AC_MSG_RESULT([Found in  system libraries])
-else
-  AC_CHECK_FILE([${prefix}/lib/libException.so],[libtclinstalled="yes"],[libtclinstalled="no"])
-  AC_CHECK_FILE([${prefix}/lib/libtclPlus.so],[libexceptioninstalled="yes"],[libexceptioninstalled="no"])
-  AC_CHECK_FILE([${prefix}/include/TCLInterpreterObject.h],[tclinterpobjinstalled="yes"],[tclinterpobjinstalled="no"])
-  if [ [ $libtclinstalled = "no" ] || [ $libexceptioninstalled = "no" ] || [ $tclinterpobjinstalled = "no" ] ]
-  then
-    AC_CHECK_FILE([${srcdir}/libtcl], [havelibtcldir="yes"], [havelibtcldir="no"])
-	  if test $havelibtcldir = "no"
-  	then
-      AC_MSG_NOTICE([Incorporating libtcl++ verion ${TCLPLUS_VERSION} for you])  
-      ${srcdir}/tcl++incorp ${TCLPLUS_VERSION}
-	  fi
-    AC_MSG_RESULT([Need to build local tagged copy])
-    (cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
-  else
-    AC_MSG_RESULT([Previously built version found in ${prefix}])
-  fi
-  LIBTCLPLUS_CFLAGS="-I${prefix}/include"
-  LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefix}/lib\""
-	LIBTCLPLUS_LDFLAGS="-L${prefix}/lib -ltclPlus ${LIBEXCEPTION_LDFLAGS}"
-
+  AC_MSG_NOTICE([Incorporating tcl++ version ${TCLPLUS_VERSION} for you])
+  ${srcdir}/tcl++incorp ${TCLPLUS_VERSION}
 fi
+AC_MSG_NOTICE([Building/installing tcl++])
+(cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
+LIBTCLPLUS_CFLAGS="-I${prefix}/include"
+LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefix}/lib\""
+LIBTCLPLUS_LDFLAGS="-L${prefix}/lib -ltclPlus ${LIBEXCEPTION_LDFLAGS}"
 AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
 AC_SUBST(LIBEXCEPTION_LDFLAGS)
+
 
 # If PyQtGui/main/configure.ac is not present the user must first run.
 # qtpi-incorp.sh to pull in a version:
