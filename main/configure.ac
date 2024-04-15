@@ -2,6 +2,16 @@
 
 AC_INIT(SpecTcl,5.14-000, daqhelp@frib.msu.edu)
 
+# These are default version/tag for unifiedfmt, tcl++ and qtpi
+# If the bulder has not explicitly run the incorporation 
+# scripts, the versions below will be used to incorporate for you:
+# Update as the 'good' version updates:
+
+
+UNIFIED_FMT_VERSION="1.2"
+TCLPLUS_VERSION="v4.3-001"
+CUTIEPIE_VERSION="v1.5"
+
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 
@@ -786,19 +796,29 @@ then
 	AC_MSG_ERROR([cmake must be in the path to build SpecTcl])
 fi
 
-AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [
-   rm -rf unifiedformat/build
-   mkdir -p unifiedformat/build
-   sourcedir="`realpath ${srcdir}`"
-   (cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
-   UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
-   UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
-   AC_SUBST(UFMT_CPPFLAGS)
-   AC_SUBST(UFMT_LDFLAGS)
-   ],
-   [AC_MSG_ERROR([You need to incorporate the unified format library with unifiedfmt-incorp.sh])
-   ])
+#
+#  If the user has not yet incorporated at unified format
+#  version try incorporating it for them then building regardless.
+#  This won't work on an out of tree initial build without the 
+#  Source tree already having done one and a readonly source tree.
+#
+AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [UFMT_USER="1"], [UFMT_USER="0"])
 
+if test "${UFMT_USER}" = "0"
+then
+   AC_MSG_NOTICE([Incorporating version ${UNIFIED_FMT_VERSION} for you])
+   ${srcdir}/unifiedfmt-incorp.sh ${UNIFIED_FMT_VERSION}
+fi
+
+rm -rf unifiedformat/build
+mkdir -p unifiedformat/build
+sourcedir="`realpath ${srcdir}`"
+AC_MSG_NOTICE([Building unified format at ${sourcedir}])
+(cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
+UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
+UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
+AC_SUBST(UFMT_CPPFLAGS)
+AC_SUBST(UFMT_LDFLAGS)
 
 #
 #   libTclPlus and libException could have been installed from 
@@ -830,14 +850,13 @@ else
   if [ [ $libtclinstalled = "no" ] || [ $libexceptioninstalled = "no" ] || [ $tclinterpobjinstalled = "no" ] ]
   then
     AC_CHECK_FILE([${srcdir}/libtcl], [havelibtcldir="yes"], [havelibtcldir="no"])
-	  if test $havelibtcldir = "yes"
+	  if test $havelibtcldir = "no"
   	then
-      AC_MSG_RESULT([Need to build local tagged copy])
-      AC_CHECK_FILE([${srcdir}/libtcl/configure], [havelibtcldir="yes"], [havelibtcldir="no"])
-		  (cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
-	  else
-		  AC_MSG_ERROR([I seem to be missing libtcl, please use tcl++incorp.sh to fill it with a tagged release of libtclplus])
+      AC_MSG_NOTICE([Incorporating libtcl++ verion ${TCLPLUS_VERSION} for you])  
+      ${srcdir}/tcl++incorp ${TCLPLUS_VERSION}
 	  fi
+    AC_MSG_RESULT([Need to build local tagged copy])
+    (cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
   else
     AC_MSG_RESULT([Previously built version found in ${prefix}])
   fi
@@ -859,11 +878,12 @@ QTPIBUILDDIR="${QTPIDIR}/main"
 AC_CHECK_FILE([${QTPIBUILDDIR}/configure.ac],[qtpi=1],[qtpi=0])
 if test ${qtpi}  = 0
 then
-	AC_MSG_ERROR([PyQtGUI missing, run qtpi-incorp.sh to pull in a CutiePie release])
+  AC_MSG_NOTICE([Incorporating version ${CUTIEPIE_VERSION} for you])
+  ${srcdir}/qtpi-incorp.sh ${CUTIEPIE_VERSION}
 else
-	AC_MSG_RESULT([incorporated])
-	(cd ${QTPIBUILDDIR}; ./configure --prefix=${prefix}; make all install)
+  AC_MSG_RESULT([incorporated previously])
 fi
+(cd ${QTPIBUILDDIR}; ./configure --prefix=${prefix}; make all install)
 
 
 ######################################## Checks for ZMQ
