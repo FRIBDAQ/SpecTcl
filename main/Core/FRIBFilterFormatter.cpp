@@ -24,6 +24,7 @@
 #include "FRIBFilterFormatter.h"
 #include "CTreeVariable.h"
 #include "Event.h"
+#include "AnalysisRingItems.h"
 
 #include <v12/RingItemFactory.h>
 #include <v12/CRingItem.h>
@@ -40,83 +41,10 @@
 #include <sstream>
 #include <cstdint>
 #include <memory>
+using namespace frib::analysis;
+
 // For now these definitions have come from the FRIB pipeline AnalysisRingItems.h file:
 // TODO:  Figure out a clean way to avoid duplicating them here.
-
-#pragma pack(push, 1)        // We want structs packed tight.
-static const unsigned MAX_UNITS_LENGTH(32);
-static const unsigned MAX_IDENT(128);
-/**
- * Analysis ring items don't have body headers so:
- */
-
-
-/**
- * This item is a parameter definition:
- *  - sizeof is not useful.
- */
-typedef struct _ParameterDefintion {
-    std::uint32_t s_parameterNumber;
-    char          s_parameterName[0];   // Actually a cz string.
-} ParameterDefinition, *pParameterDefinition;
-
-/**
- *  parameter defintion ring item
- *  sizeof  is not useful.
- */
-typedef struct  _ParameterDefinitions {
-    RingItemHeader s_header;
-    std::uint32_t  s_numParameters;
-    ParameterDefinition s_parameters [0];
-} ParameterDefinitions, *pParameterDefinitions;
-
-/**
- *    This contains the value of one parameter.
- */
-typedef struct _ParameterValue {
-    std::uint32_t s_number;
-    double        s_value;
-} ParameterValue, *pParameterValue;
-
-/*
-    * Ring item of parameter unpacked data.
-    * sizeof is worthless.
-    */
-typedef struct _ParameterItem {
-    RingItemHeader s_header;
-    std::uint64_t  s_triggerCount;
-    std::uint32_t  s_parameterCount;
-    ParameterValue s_parameters[0];
-} ParameterItem, *pParameterItem;
-
-/** Variable data is used to document steering parameters:
- *
- */
-typedef struct _Variable {
-    double s_value;
-    char   s_variableUnits[MAX_UNITS_LENGTH];     // Fixed length
-    char   s_variableName[0];       // variable length
-} Variable, *pVariable;
-
-typedef struct _VariableItem {
-    RingItemHeader s_header;
-    std::uint32_t  s_numVars;
-    Variable       s_variables[0];
-    
-} VariableItem, *pVariableItem;
-
-/* Ring Item types - these begin at 32768 (0x8000). - the first user type
-    * documented in the NSCLDAQ ring item world:
-    *
-    *  LAST_PASSTHROUGH - ring items with types <=  are just passed through.
-    *  
-    */
-
-static const std::uint32_t PARAMETER_DEFINITIONS = 32768;
-static const std::uint32_t VARIABLE_VALUES       = 32769;
-static const std::uint32_t PARAMETER_DATA        = 32770;
-
-#pragma pack(pop)
 
 /**
  *  constructor
@@ -255,7 +183,7 @@ CFRIBFilterFormat::operator()(CEvent& event) {
  *  Document the type of the filter formatter:
 */
 std::string
-CFRIBFilterFormat::type() {
+CFRIBFilterFormat::type() const {
     return std::string("FRIBPIpe");
 }
 

@@ -27,19 +27,24 @@
 #include "CTreeVariable.h"
 #undef private
 
+#include <v12/RingItemFactory.h>
+#include <v12/CRingItem.h>
 
 #include <string>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #include <string.h>
+#include <vector>
 #include <stdexcept>
+#include <memory>
 
 const char* TempPlate = "fribvfilterXXXXXX";   // Temp file Template (get it?).
 
 class FribFilterTests : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(FribFilterTests);
-    CPPUNIT_TEST(dummy);
+    CPPUNIT_TEST(empty);
     CPPUNIT_TEST_SUITE_END();
 
     // Data:
@@ -59,7 +64,7 @@ public:
     }
 
 protected:
-    void dummy();
+    void empty();
 
 private:
     void makeTemp();
@@ -91,4 +96,42 @@ FribFilterTests::cleanTemp() {
 
 /// The tests
 
-void FribFilterTests::dummy() {}
+void FribFilterTests::empty() {
+    // If I make  filter open/describe_parameters/close it I shouild have 2 ring items
+    // First is a param def item, the second variable values but both will be empty.
+
+    // empty parameter arrays:
+
+    std::vector<std::string> names;
+    std::vector<UInt_t>      ids;
+
+    CFRIBFilterFormat filter;
+    filter.open(m_tempfile);
+    filter.DescribeEvent(names, ids);
+    filter.close();
+
+    // Rewind the file and verify the contents:
+
+    if (lseek(m_fd, 0, SEEK_SET) < 0) {
+        throw std::runtime_error("FribFilterTests::empty - failed to rewind filter file");
+    }
+
+
+    v12::RingItemFactory fact;
+    // Get and verify the parameter description item.
+    std::unique_ptr<CRingItem> pitem(fact.getRingItem(m_fd));
+    ASSERT(pitem.get() != 0);
+
+    // get and verify the variable description/value item:
+
+
+    std::unique_ptr<CRingItem> vitem(fact.getRingItem(m_fd));
+    ASSERT(vitem.get() != 0);
+
+    // Should be at end of file:
+
+    std::unique_ptr<CRingItem> none(fact.getRingItem(m_fd));
+    ASSERT(none.get() == 0);
+
+
+}

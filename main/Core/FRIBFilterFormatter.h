@@ -60,7 +60,7 @@ public:
     virtual void DescribeEvent(std::vector<std::string> parameterNames,
 			     std::vector<UInt_t>      parameterIds) ;
     virtual void operator()(CEvent& event) ;
-    virtual std::string  type();
+    virtual std::string  type() const;
 private:
     void writeParameterDescriptions(const std::vector<std::string>& names, const std::vector<UInt_t> ids);
     void writeVariableDefs();
