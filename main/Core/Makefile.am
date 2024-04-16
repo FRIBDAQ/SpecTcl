@@ -124,7 +124,8 @@ Filter_SRC =  EventFilter.cpp \
 	CXdrMemInputStream.cpp	\
 	CFilterOutputStage.cpp CXdrFilterOutputStage.cpp \
 	CFilterOutputStageFactory.cpp \
-	CXdrFilterOutputStageCreator.cpp
+	CXdrFilterOutputStageCreator.cpp \
+	FRIBFilterFormatter.cpp FRIBFilterFormatterCreator.cpp
 
 Filter_INCLUDES = EventFilter.h \
 		 FilterDictionary.h  \
@@ -136,7 +137,9 @@ Filter_INCLUDES = EventFilter.h \
 		 CFilterOutputStage.h CXdrFilterOutputStage.h \
 		 CFilterOutputStageFactory.h \
 		 CFilterOutputStageCreator.h \
-		 CXdrFilterOutputStageCreator.h
+		 CXdrFilterOutputStageCreator.h \
+		FRIBFilterFormatter.h \
+		FRIBFilterFormatterCreator.h
 
 Fits_SRC = CFit.cpp		\
 			CFitCreator.cpp		\
@@ -425,7 +428,7 @@ noinst_PROGRAMS =    spectrumPkgTests \
 			gateTests fragIndexTests caendpptests \
 			mirrortests \
 			helpertests newanalysistests  \
-			paramdecodetests
+			paramdecodetests fribfiltertests
 
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
@@ -543,10 +546,15 @@ paramdecodetests_LDADD=$(commonTestLdFlags)
 paramdecodetests_SOURCES=TestRunner.cpp paramdecodetests.cpp \
 	testStubs.cpp TreeTestSupport.h
 
+fribfiltertests_CXXFLAGS=$(commonTestCXXFLAGS) @UFMT_CPPFLAGS@
+fribfiltertests_LDADD=$(commonTestLdFlags) @UFMT_LDFLAGS@
+fribfiltertests_SOURCES=TestRunner.cpp fribfiltertests.cpp \
+	FRIBFilterFormatter.cpp FRIBFilterFormatter.h
+
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests fragIndexTests caendpptests \
-	mirrortests newanalysistests paramdecodetests
+	mirrortests newanalysistests paramdecodetests fribfiltertests
 
 
