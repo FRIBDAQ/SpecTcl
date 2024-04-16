@@ -210,7 +210,7 @@ void FribFilterTests::vars_1() {
 
     // These will come out of the dict in alpha order:
 
-    std::vector<std::string> names = {"forty-five", "inch", "pi", "pi-over_two"};
+    std::vector<std::string> names = {"forty-five", "inch", "pi", "pi_over_two"};
     std::vector<double> values= {45.0, 2.54, 3.1416, 3.1416/2.0};
     std::vector<std::string> units = {"degrees", "cm", "radians", "radians"};
 
