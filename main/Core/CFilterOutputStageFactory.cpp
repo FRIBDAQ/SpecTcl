@@ -18,6 +18,7 @@
 #include "CFilterOutputStageFactory.h"
 #include "CFilterOutputStageCreator.h"
 #include "CXdrFilterOutputStageCreator.h"
+#include "FRIBFilterFormatterCreator.h"
 
 
 using namespace std;
@@ -149,4 +150,7 @@ CFilterOutputStageFactory::registerStockCreators()
 {
   CXdrFilterOutputStageCreator xdr;
   Register(xdr);		// Can do this since there's a clone
+
+  CFRIBFilterFormatterCreator fribPipe;
+  Register(fribPipe);
 }
