@@ -48,6 +48,7 @@ class FribFilterTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(empty);
     CPPUNIT_TEST(params_1);
     CPPUNIT_TEST(vars_1);
+    CPPUNIT_TEST(event_1);
     CPPUNIT_TEST_SUITE_END();
 
     // Data:
@@ -70,6 +71,7 @@ protected:
     void empty();
     void params_1();
     void vars_1();
+    void event_1();
 
 private:
     void makeTemp();
@@ -243,4 +245,41 @@ void FribFilterTests::vars_1() {
         p += sizeof(double) + frib::analysis::MAX_UNITS_LENGTH + aname.size() + 1;
         pVar = reinterpret_cast<const frib::analysis::Variable*>(p);
     }
+}
+
+void FribFilterTests::event_1() {
+    // send an empty event to the filter.. the 3'd ring item is a PARAMETER_DATA item with a trigger of
+    // 0 and parameter count of 0.
+
+
+
+    std::vector<std::string> names = { "p1", "p2", "p3", "the_last"};
+    std::vector<UInt_t>     ids    = {   1,   3,    5,       2};
+
+    CFRIBFilterFormat filter;
+    filter.open(m_tempfile);
+    filter.DescribeEvent(names, ids);
+
+    CEvent e;
+    filter(e);
+    filter.close();
+
+    if (lseek(m_fd, 0, SEEK_SET) < 0) {
+        throw std::runtime_error("FribFilterTests::event_1 - failed to rewind test file");
+    }
+
+    v12::RingItemFactory fact;
+    std::unique_ptr<CRingItem> pdefs(fact.getRingItem(m_fd));
+    std::unique_ptr<CRingItem> pvars(fact.getRingItem(m_fd));
+
+    // Get the parameter value item:
+
+    std::unique_ptr<CRingItem> pdata(fact.getRingItem(m_fd));
+    ASSERT(pdata.get() != 0);
+    EQ(frib::analysis::PARAMETER_DATA, pdata->type());
+
+    const frib::analysis::ParameterItem* pItem = 
+        reinterpret_cast<const frib::analysis::ParameterItem*>(pdata->getItemPointer());
+    EQ(std::uint64_t(0), pItem->s_triggerCount);
+    EQ(std::uint32_t(0), pItem->s_parameterCount);
 }
