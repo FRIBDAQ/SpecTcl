@@ -23,12 +23,13 @@
 #include "Asserts.h"
 #include "FRIBFilterFormatter.h"
 #include "Event.h"
+#include "AnalysisRingItems.h"
 #define private public
 #include "CTreeVariable.h"
 #undef private
 
 #include <v12/RingItemFactory.h>
-#include <v12/CRingItem.h>
+#include <CRingItem.h>
 
 #include <string>
 #include <stdlib.h>
@@ -121,12 +122,21 @@ void FribFilterTests::empty() {
     // Get and verify the parameter description item.
     std::unique_ptr<CRingItem> pitem(fact.getRingItem(m_fd));
     ASSERT(pitem.get() != 0);
+    EQ(frib::analysis::PARAMETER_DEFINITIONS, pitem->type());
+    const frib::analysis::ParameterDefinitions* ppItem = 
+        reinterpret_cast<const frib::analysis::ParameterDefinitions*>(pitem->getItemPointer());
+    EQ(std::uint32_t(0), ppItem->s_numParameters);
+
 
     // get and verify the variable description/value item:
 
 
     std::unique_ptr<CRingItem> vitem(fact.getRingItem(m_fd));
     ASSERT(vitem.get() != 0);
+    EQ(frib::analysis::VARIABLE_VALUES, vitem->type());
+    const frib::analysis::VariableItem* pvItem = 
+        reinterpret_cast<const frib::analysis::VariableItem*>(vitem->getItemPointer());
+    EQ(std::uint32_t(0), pvItem->s_numVars);
 
     // Should be at end of file:
 
