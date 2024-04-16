@@ -866,7 +866,7 @@ then
 else
   AC_MSG_RESULT([incorporated previously])
 fi
-(cd ${QTPIBUILDDIR}; ./configure --prefix=${prefix}; make all install)
+(cd ${QTPIBUILDDIR}; ./configure --prefix=${prefix}; make clean all install)
 
 
 ######################################## Checks for ZMQ
