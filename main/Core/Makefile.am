@@ -547,7 +547,7 @@ paramdecodetests_SOURCES=TestRunner.cpp paramdecodetests.cpp \
 
 fribfiltertests_CXXFLAGS=$(commonTestCXXFLAGS) @UFMT_CPPFLAGS@
 fribfiltertests_LDADD=$(commonTestLdFlags) @UFMT_LDFLAGS@
-fribfiltertests_SOURCES=TestRunner.cpp \
+fribfiltertests_SOURCES=TestRunner.cpp fribfiltertests.cpp \
 	FRIBFilterFormatter.cpp FRIBFilterFormatter.h
 
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
