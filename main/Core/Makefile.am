@@ -427,7 +427,7 @@ noinst_PROGRAMS =    spectrumPkgTests \
 			gateTests fragIndexTests caendpptests \
 			mirrortests \
 			helpertests newanalysistests  \
-			paramdecodetests
+			paramdecodetests fribfiltertests
 
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
@@ -545,10 +545,15 @@ paramdecodetests_LDADD=$(commonTestLdFlags)
 paramdecodetests_SOURCES=TestRunner.cpp paramdecodetests.cpp \
 	testStubs.cpp TreeTestSupport.h
 
+fribfiltertests_CXXFLAGS=$(commonTestCXXFLAGS) @UFMT_CPPFLAGS@
+fribfiltertests_LDADD=$(commonTestLdFlags) @UFMT_LDFLAGS@
+fribfiltertests_SOURCES=TestRunner.cpp \
+	FRIBFilterFormatter.cpp FRIBFilterFormatter.h
+
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests fragIndexTests caendpptests \
-	mirrortests newanalysistests paramdecodetests
+	mirrortests newanalysistests paramdecodetests fribfiltertests
 
 
