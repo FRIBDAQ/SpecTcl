@@ -125,7 +125,7 @@ Filter_SRC =  EventFilter.cpp \
 	CFilterOutputStage.cpp CXdrFilterOutputStage.cpp \
 	CFilterOutputStageFactory.cpp \
 	CXdrFilterOutputStageCreator.cpp \
-	FRIBFilterFormatter.cpp
+	FRIBFilterFormatter.cpp FRIBFilterFormatterCreator.cpp
 
 Filter_INCLUDES = EventFilter.h \
 		 FilterDictionary.h  \
@@ -138,7 +138,8 @@ Filter_INCLUDES = EventFilter.h \
 		 CFilterOutputStageFactory.h \
 		 CFilterOutputStageCreator.h \
 		 CXdrFilterOutputStageCreator.h \
-		FRIBFilterFormatter.h
+		FRIBFilterFormatter.h \
+		FRIBFilterFormatterCreator.h
 
 Fits_SRC = CFit.cpp		\
 			CFitCreator.cpp		\

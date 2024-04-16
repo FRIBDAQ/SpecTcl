@@ -184,7 +184,7 @@ CFRIBFilterFormat::operator()(CEvent& event) {
 */
 std::string
 CFRIBFilterFormat::type() const {
-    return std::string("FRIBPIpe");
+    return std::string("FRIBPipe");
 }
 
 
