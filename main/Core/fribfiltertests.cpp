@@ -52,6 +52,7 @@ class FribFilterTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(event_2);
     CPPUNIT_TEST(event_3);
     CPPUNIT_TEST(event_4);
+    CPPUNIT_TEST(trigger_1);
     CPPUNIT_TEST_SUITE_END();
 
     // Data:
@@ -78,11 +79,14 @@ protected:
     void event_2();
     void event_3();
     void event_4();
+    void trigger_1();
 private:
     void makeTemp();
     void cleanTemp();
 
 };
+
+CPPUNIT_TEST_SUITE_REGISTRATION(FribFilterTests);
 /// Utilities:
 
 void
@@ -416,4 +420,55 @@ void FribFilterTests::event_4() {
         EQ(double(e[ids[i]]), pValue->s_value);
         pValue++;
     }
+}
+
+void FribFilterTests::trigger_1() {
+    // Ensure the trigger increments.
+
+    // All the parameters we care about are there:
+
+     std::vector<std::string> names = { "p1", "p2", "p3", "the_last"};
+    std::vector<UInt_t>     ids    = {   1,   3,    5,       2};
+
+    CFRIBFilterFormat filter;
+    filter.open(m_tempfile);
+    filter.DescribeEvent(names, ids);
+
+    CEvent e;
+    e[1] = 1.0;
+    e[3] = 2.0;
+    e[5] = 3.0;
+    e[2] = 4.0;
+
+    filter(e);
+    filter(e);
+    filter.close();
+
+    if (lseek(m_fd, 0, SEEK_SET) < 0) {
+        throw std::runtime_error("FribFilterTests::event_1 - failed to rewind test file");
+    }
+
+    v12::RingItemFactory fact;
+    std::unique_ptr<CRingItem> pdefs(fact.getRingItem(m_fd));
+    std::unique_ptr<CRingItem> pvars(fact.getRingItem(m_fd));
+
+    // Get the parameter value item:
+
+    std::unique_ptr<CRingItem> pdata(fact.getRingItem(m_fd));
+    ASSERT(pdata.get() != 0);
+    EQ(frib::analysis::PARAMETER_DATA, pdata->type());
+
+    const frib::analysis::ParameterItem* pItem = 
+        reinterpret_cast<const frib::analysis::ParameterItem*>(pdata->getItemPointer());
+    EQ(std::uint64_t(0), pItem->s_triggerCount);
+    EQ(std::uint32_t(4), pItem->s_parameterCount);
+
+    std::unique_ptr<CRingItem> psecond(fact.getRingItem(m_fd));
+    ASSERT(psecond.get() != 0);
+    EQ(frib::analysis::PARAMETER_DATA, psecond->type());
+    const frib::analysis::ParameterItem* p = 
+        reinterpret_cast<const frib::analysis::ParameterItem*>(psecond->getItemPointer());
+
+    EQ(std::uint64_t(1), p->s_triggerCount);
+
 }
