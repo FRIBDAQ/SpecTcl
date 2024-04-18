@@ -32,31 +32,51 @@ AC_OBJEXT
 #    --with-mpicxx - Defines a location out of path for the mpicxx compiler driver.
 #
 AC_ARG_ENABLE([mpi], 
-  [AS_HELP_STRING([--enable-mpi],[Enable MPI parallel SpecTcl, see the --with-mpicxx flag as well])],
+  [AS_HELP_STRING([--enable-mpi],[Enable MPI parallel SpecTcl, see the --with-mpicxx, --with-mpicc flags as well])],
   [mpi_enabled=1], [mpi_enabled=0])
 AC_ARG_WITH([mpicxx], 
   [AS_HELP_STRING([--with-mpicxx],[Provide the path to the MPI C++ driver (defaults to 'mpicxx')])], 
   [mpicxx=${withval}], [mpicxx="mpicxx"])
-
-AC_MSG_NOTICE([MPI: mpi_enabled = ${mpi_enabled}])
+AC_ARG_WITH([mpicc],
+  [AS_HELP_STRING([--with-mpicc], [Provide the path to the MPI C driver (defaults to 'mpicc')])],
+  [mpicc=${withval}], [mpicc="mpicc"])
 
 # Establish the C++ compiler dependingon MPI or not.
 
 if test "${mpi_enabled}" = "1" 
 then
-  AC_DEFINE([WITH_MPI],[],[Enable MPI Parallel build])   # Add WITH_MPI to config.h
-  AC_MSG_NOTICE([MPI parallel SpecTcl is enabled -- setting compiler])
-  AC_MSG_NOTICE([Trying to use ${mpicxx} for the MPI compiler driver])
-  AC_CHECK_FILE([${mpicxx}], [CXX=${mpicxx}], [AC_MSG_ERROR([${mpicxx} does not exist check your --with-mpicxx value])])
-  AC_PROG_CXX(${mpicxx})
-else
-  AC_MSG_NOTICE(["Building serial SpecTcl only])
-  AC_PROG_CXX
+  CC=${mpicc}
+  CXX=${mpicxx}
+  AC_MSG_NOTICE([Building MPI enabled SpecTcl using ${mpicc} and ${mpicxx} as compiler drivers])
+else 
+  AC_MSG_NOTICE([Building Serial SpecTcl])
+fi
+
+AC_PROG_CC([${CC} gcc cc])
+AC_PROG_CXX([${CXX} g++ c++])
+
+# Be sure we found the mpi compiler drivers if necessary:
+
+if test "${mpi_enabled}" = "1"
+then
+  mpi_ctail=`basename ${mpicc}`
+  actual_ctail=`basename ${CC}`
+  if test ${mpi_ctail} != ${actual_ctail}
+  then
+    AC_MSG_ERROR([Got C compiler ${CC} instead of ${mpicc} check your --with-mpicc value])
+  fi
+  mpi_cxxtail=`basenme ${mpicxx}`
+  actual_cxxtail=`basename ${CXX}`
+  if test ${mpi_cxxtail} != ${actual_cxxtail}
+  then
+    AC_MSG_ERROR([Got C++ compiler ${CXX} instead of ${mpicxx} check your --with-mpicxx value])
+  fi
 fi
 
 # Require C++11 support:
 
 AX_CXX_COMPILE_STDCXX_11([noext])
+
 
 # we use libtool, thus we need to include it
 LT_INIT
@@ -73,7 +93,6 @@ SOVERSION="4:0"
 
 
 AC_PROG_AWK
-AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
