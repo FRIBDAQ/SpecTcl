@@ -23,6 +23,39 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_EXEEXT
 AC_OBJEXT
 
+
+##
+#  SpecTcl 7  - the point of this version is to support 
+#               MPI parallelism.
+#  we add two new flags to configure for this:
+#    --enable-mpi  - Defines WITH_MPI in config.h
+#    --with-mpicxx - Defines a location out of path for the mpicxx compiler driver.
+#
+AC_ARG_ENABLE([mpi], 
+  [AS_HELP_STRING([--enable-mpi],[Enable MPI parallel SpecTcl, see the --with-mpicxx flag as well])],
+  [mpi_enabled=1], [mpi_enabled=0])
+AC_ARG_WITH([mpicxx], 
+  [AS_HELP_STRING([--with-mpicxx],[Provide the path to the MPI C++ driver (defaults to 'mpicxx')])], 
+  [mpicxx=${withval}], [mpicxx="mpicxx"])
+
+AC_MSG_NOTICE([MPI: mpi_enabled = ${mpi_enabled}])
+
+# Establish the C++ compiler dependingon MPI or not.
+
+if test "${mpi_enabled}" = "1" 
+then
+  AC_DEFINE([WITH_MPI],[],[Enable MPI Parallel build])   # Add WITH_MPI to config.h
+  AC_MSG_NOTICE([MPI parallel SpecTcl is enabled -- setting compiler])
+  AC_MSG_NOTICE([Trying to use ${mpicxx} for the MPI compiler driver])
+  AC_CHECK_FILE([${mpicxx}], [CXX=${mpicxx}], [AC_MSG_ERROR([${mpicxx} does not exist check your --with-mpicxx value])])
+  AC_PROG_CXX(${mpicxx})
+else
+  AC_MSG_NOTICE(["Building serial SpecTcl only])
+  AC_PROG_CXX
+fi
+
+# Require C++11 support:
+
 AX_CXX_COMPILE_STDCXX_11([noext])
 
 # we use libtool, thus we need to include it
@@ -40,7 +73,6 @@ SOVERSION="4:0"
 
 
 AC_PROG_AWK
-AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
@@ -781,6 +813,9 @@ fi
 #  There's a utility that uses gengetopt:
 
 AX_GENGETOPT
+
+
+
 
 ##
 # Check for zlib for the zip/unzip commands.
