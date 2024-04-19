@@ -39,6 +39,7 @@
 #include "Parameter.h"
 #include "Spectrum.h"
 #include "Dictionary.h"
+#include "CParameterDictionarySingleton.h"
 #include "EventSink.h"
 #include <GateContainer.h>
 #include <GatingObserver.h>
@@ -49,11 +50,6 @@ class CFlattenedGateList;
 class CSpectrumByParameter;
 class CDisplayGate;
 
-// Typedefs for some of instances of templated classes:
-// Dictionary types:
-typedef CDictionary<CParameter>                 ParameterDictionary;
-typedef ParameterDictionary::DictionaryIterator ParameterDictionaryIterator;
-typedef DictionaryObserver<CParameter>          ParameterDictionaryObserver;
 
 typedef CDictionary<CSpectrum*>                 SpectrumDictionary;
 typedef SpectrumDictionary::DictionaryIterator  SpectrumDictionaryIterator;
@@ -90,8 +86,7 @@ class CHistogrammer : public CEventSink {
   typedef std::list<CGatingObserver*> GatingObserverList;
 
 
-  ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
-  
+  ParameterDictionary& m_ParameterDictionary; // Dictionary of parameters.
   
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
