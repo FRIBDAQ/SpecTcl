@@ -30,6 +30,7 @@
 #include "Spectrum1DL.h"
 #include "Parameter.h"
 #include "Histogrammer.h"
+#include "CParameterDictionarySingleton.h"
 #include "Cut.h"
 #include "GateContainer.h"
 #include <memory>
@@ -78,7 +79,7 @@ public:
     }
 
     void tearDown() {
-
+        CParameterDictionarySingleton::getInstance()->clear();
     }
 
     shared_ptr<CSpectrum> setUpSpectrum(CHistogrammer& sorter) {

@@ -4,6 +4,7 @@
 
 #include <config.h>
 
+#include "CParameterDictionarySingleton.h"
 #include <SpectrumPackage.h>
 #include <DisplayInterface.h>
 #include <Histogrammer.h>
@@ -96,6 +97,10 @@ public:
         delete m_pDM;
         delete m_pSpec1;
         delete m_pSpec2;
+
+        // Clean the dictionaries:
+
+        CParameterDictionarySingleton::getInstance()->clear();
     }
 
 

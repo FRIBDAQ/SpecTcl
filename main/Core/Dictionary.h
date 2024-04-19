@@ -184,6 +184,9 @@ class CDictionary
   ConstDictionaryIterator end() const {
     return m_Map.end();
   }
+  void clear() {
+    m_Map.clear();
+  }
 
   UInt_t size() const {
     return m_Map.size();
