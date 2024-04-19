@@ -112,6 +112,7 @@ private:
   
   int m_nUpdateRate;
   Tcl_ThreadId              m_nMainThread;
+  int                       m_mpiRank;    ///!< The world rank when running under MPI:
  public:
   //Default constructor alternative to compiler provided default constructor
   //Ensure correct initial values
@@ -376,6 +377,10 @@ private:
    * \return TCL_OK
    */
   static int AppInit(Tcl_Interp* pInterp);
+
+  /** MPIAppInit - application initialization but for MPI parallel SpecTcl: */
+
+  static int MPIAppInit(Tcl_Interp* pInterp);
 };
 
 #endif
