@@ -41,6 +41,7 @@
 #include "Dictionary.h"
 #include "CParameterDictionarySingleton.h"
 #include "CSpectrumDictionarySingleton.h"
+#include "CGateDictionarySingleton.h"
 #include "EventSink.h"
 #include <GateContainer.h>
 #include <GatingObserver.h>
@@ -53,9 +54,7 @@ class CDisplayGate;
 
 
 
-typedef CDictionary<CGateContainer>             CGateDictionary;
-typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
-typedef DictionaryObserver<CGateContainer>      GateDictionaryObserver;
+
 
 /*!
    Abstract base class for gate observers:
@@ -86,7 +85,8 @@ class CHistogrammer : public CEventSink {
   ParameterDictionary& m_ParameterDictionary; // Dictionary of parameters.
   
   SpectrumDictionary&  m_SpectrumDictionary;  // Dictionary of Spectra.
-  CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
+  CGateDictionary&     m_GateDictionary;      // Dictionary of Gates.
+  
   GateObserverList    m_gateObservers;       // Observers of gate dict
   GatingObserverList  m_gatingObservers;     // Observers of applyGate/ungate
 
