@@ -5,6 +5,7 @@
 #include <config.h>
 
 #include "CParameterDictionarySingleton.h"
+#include "CSpectrumDictionarySingleton.h"
 #include <SpectrumPackage.h>
 #include <DisplayInterface.h>
 #include <Histogrammer.h>
@@ -101,6 +102,7 @@ public:
         // Clean the dictionaries:
 
         CParameterDictionarySingleton::getInstance()->clear();
+        CSpectrumDictionarySingleton::getInstance()->clear();
     }
 
 

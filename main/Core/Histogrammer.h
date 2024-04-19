@@ -40,6 +40,7 @@
 #include "Spectrum.h"
 #include "Dictionary.h"
 #include "CParameterDictionarySingleton.h"
+#include "CSpectrumDictionarySingleton.h"
 #include "EventSink.h"
 #include <GateContainer.h>
 #include <GatingObserver.h>
@@ -51,10 +52,6 @@ class CSpectrumByParameter;
 class CDisplayGate;
 
 
-typedef CDictionary<CSpectrum*>                 SpectrumDictionary;
-typedef SpectrumDictionary::DictionaryIterator  SpectrumDictionaryIterator;
-typedef SpectrumDictionary::ConstDictionaryIterator  ConstSpectrumDictIterator;
-typedef DictionaryObserver<CSpectrum*>          SpectrumDictionaryObserver;
 
 typedef CDictionary<CGateContainer>             CGateDictionary;
 typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
@@ -88,7 +85,7 @@ class CHistogrammer : public CEventSink {
 
   ParameterDictionary& m_ParameterDictionary; // Dictionary of parameters.
   
-  SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
+  SpectrumDictionary&  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
   GateObserverList    m_gateObservers;       // Observers of gate dict
   GatingObserverList  m_gatingObservers;     // Observers of applyGate/ungate

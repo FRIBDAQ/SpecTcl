@@ -121,7 +121,8 @@ public:
 //
 
 CHistogrammer::CHistogrammer() :
-  m_ParameterDictionary(*CParameterDictionarySingleton::getInstance())
+  m_ParameterDictionary(*CParameterDictionarySingleton::getInstance()),
+  m_SpectrumDictionary(*CSpectrumDictionarySingleton::getInstance())
 {
   srand(time(NULL)); 
   createListObservers();
@@ -147,9 +148,9 @@ CHistogrammer::~CHistogrammer() {
 //    Copy constructor
 //
 CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
-m_ParameterDictionary(*CParameterDictionarySingleton::getInstance())
+m_ParameterDictionary(*CParameterDictionarySingleton::getInstance()),
+m_SpectrumDictionary(*CSpectrumDictionarySingleton::getInstance())
 {
-  m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
 
   createListObservers();

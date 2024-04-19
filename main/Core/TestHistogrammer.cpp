@@ -6,6 +6,7 @@
 
 #include "Histogrammer.h"
 #include "CParameterDictionarySingleton.h"
+#include "CSpectrumDictionarySingleton.h"
 #include "GatingObserver.h"
 #include "Spectrum1DL.h"
 #include "FalseGate.h"
@@ -68,6 +69,7 @@ public:
         delete m_pParam;
         delete m_pGatingObserver;
         CParameterDictionarySingleton::getInstance()->clear();
+        CSpectrumDictionarySingleton::getInstance()->clear();
     }
 
     void testConstruct_0 () {
