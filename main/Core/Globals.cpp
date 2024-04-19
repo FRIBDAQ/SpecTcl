@@ -142,3 +142,7 @@ CDisplayInterface* gpDisplayInterface = (CDisplayInterface*)kpNULL;
 // Shared display memory pointer.
 
 volatile void* gpDisplayMemory = kpNULL;    // Gets filled in by TclGrammerApp.
+
+// This variable is true if SpecTcl was built for MPI and is run under MPI
+
+bool          gMPIParallel(false);

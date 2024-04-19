@@ -58,5 +58,6 @@ extern CAnalyzer*          gpAnalyzer;          // Points to event analyzer.
 extern const char*         gpVersion;           // SpecTcl version text.
 extern CDisplayInterface*  gpDisplayInterface;  // Display interface
 extern volatile void*               gpDisplayMemory;     // Display memory.
+extern bool                gMPIParallel;       // TRUE if built with MPI and run with MPIRUN.
 
 #endif

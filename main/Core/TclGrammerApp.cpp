@@ -21,7 +21,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 
 #include <config.h>
-
+#ifdef WITH_MPI  
+#include <mpi.h>                         // Compiled with MPI support...
+#endif
 #include "TclGrammerApp.h"    				
 #include <limits.h>
 #include <assert.h>
@@ -1340,12 +1342,103 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
     return TCL_OK;
 }
 
+/**
+ * mpiExitHandler calles MPI_Finalize on Tcl exit:
+ */
+static void
+MpiExitHandler(ClientData ignoreMe) {
+#ifdef WITH_MPI
+  MPI_Finalize();
+#endif
+}
+
+/** 
+ * mMPIAppInit 
+ *    Start up the application when run in MPI parallel.  
+ *    The entire method is a no-op without MPI suport as we should
+ *    never be called in that case:
+*/
+int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
+#ifdef WITH_MPI
+  std::cerr << "Starting parallel SpecTcl\n";
+  auto me = CTclGrammerApp::getInstance();
+
+  int stat = MPI_Init(&me->m_argc, &me->m_pArgV);
+  if (stat != MPI_SUCCESS) {
+    Tcl_Obj* result = Tcl_NewStringObj("BUG : MPI_InitFailed", -1);
+    Tcl_SetObjResult(pInterp, result);
+    return TCL_ERROR;
+  }
+  // Let's make sure that MPI_Finalize is called by setting a Tcl exit handler:
+
+   Tcl_CreateExitHandler(MpiExitHandler, nullptr);
+  // For now exit if my rank is not zero:
+
+  int rank;
+  stat = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  if (stat != MPI_SUCCESS) {
+    Tcl_Obj* result = Tcl_NewStringObj("BUG: Could not get my rank in the world", -1);
+    Tcl_SetObjResult(pInterp, result);
+  }
+  me->m_mpiRank = rank;
+  if (rank == 0) {
+    return CTclGrammerApp::AppInit(pInterp);   // For now start up as serial.
+  } else {
+    // Just exit for now:
+
+    MPI_Finalize();
+    Tcl_Exit(0);
+  }
+  
+#else
+  // Should not have been called so error out of Tcl:
+
+    Tcl_Obj* result = Tcl_NewStringObj("BUG - MPIAppInit should not have been called in this environmen", -1);
+    Tcl_SetObjResult(pInterp, result);
+    return TCL_ERROR;
+#endif
+  return TCL_OK;
+}
+
 /*!
  * \brief CTclGrammerApp::run - start the Tcl_Main with our AppInit
  */
 void CTclGrammerApp::run()
 {
-    Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::AppInit);
+    // Figure out how to set gMPIParallel
+#ifdef WITH_MPI
+  // Ok We are built with mpi support but were we run with it?
+  // mpirun from open mpi defines OMPI_COMM_WORLD_SIZE while
+  // mipch mipexec defines MPI_RANK as env vars. 
+
+  std::cerr << "Checking if run under MPIrun\n";
+  if (getenv("OMPI_COMM_WORLD_SIZE") || getenv("PMI_RANK")) {
+    std::cerr << "Yes\n";
+    gMPIParallel = true;
+  } else {
+    std::cerr << "Nope\n";
+    gMPIParallel = false;              // Not run by mpirun/mpiexec.
+  }
+#else
+    std::cerr << "Not built with parallel SpecTcl\n";
+    gMPIParallel = false;        // Not even compiled to support it.
+#endif
+
+    if (gMPIParallel) {
+      std::cerr << "MPIAppinit starting\n";
+      Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::MPIAppInit);
+      
+      // Teardown MPI:
+
+      MPI_Finalize();
+
+    } else {
+      // init start with the Serial
+      std::cerr << "Serial Appinit starting\n";
+      Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::AppInit);
+      
+
+    }
 }
 
 
