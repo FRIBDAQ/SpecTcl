@@ -47,6 +47,7 @@ if test "${mpi_enabled}" = "1"
 then
   CC=${mpicc}
   CXX=${mpicxx}
+  AC_DEFINE(WITH_MPI, 1, [MPI Parallel SpecTcl])
   AC_MSG_NOTICE([Building MPI enabled SpecTcl using ${mpicc} and ${mpicxx} as compiler drivers])
 else 
   AC_MSG_NOTICE([Building Serial SpecTcl])
