@@ -382,6 +382,7 @@ libTclGrammerApp_la_SOURCES = $(DecoderRing_SRC) \
 # Removed -I@top_srcdir@/Tape
 
 libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
+			-I@top_srcdir@/mpi \
 			-I/mnt/misc/sw/x86_64/Debian/8/root/gnu/6.08.00/include \
 				-I@top_srcdir@/Display \
 				 -I@top_srcdir@/factories \
@@ -394,6 +395,7 @@ libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
 
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
+			@top_builddir@/mpi/libMPIUtilities.la \
 			@builddir@/libSpecTclTcp.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
 			@JSONCPP_LIBS@ \

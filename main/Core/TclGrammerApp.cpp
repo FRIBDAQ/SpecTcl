@@ -113,6 +113,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdint.h>
 
 
+#include <TclPump.h>
+
+
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -1406,39 +1409,27 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
 void CTclGrammerApp::run()
 {
     // Figure out how to set gMPIParallel
-#ifdef WITH_MPI
-  // Ok We are built with mpi support but were we run with it?
-  // mpirun from open mpi defines OMPI_COMM_WORLD_SIZE while
-  // mipch mipexec defines MPI_RANK as env vars. 
-
+    
   std::cerr << "Checking if run under MPIrun\n";
-  if (getenv("OMPI_COMM_WORLD_SIZE") || getenv("PMI_RANK")) {
-    std::cerr << "Yes\n";
-    gMPIParallel = true;
+  gMPIParallel = isMpiApp();
+  
+
+
+  if (gMPIParallel) {
+    std::cerr << "MPIAppinit starting\n";
+    Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::MPIAppInit);
+    
+    // Teardown MPI:
+
+    MPI_Finalize();
+
   } else {
-    std::cerr << "Nope\n";
-    gMPIParallel = false;              // Not run by mpirun/mpiexec.
+    // init start with the Serial
+    std::cerr << "Serial Appinit starting\n";
+    Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::AppInit);
+    
+
   }
-#else
-    std::cerr << "Not built with parallel SpecTcl\n";
-    gMPIParallel = false;        // Not even compiled to support it.
-#endif
-
-    if (gMPIParallel) {
-      std::cerr << "MPIAppinit starting\n";
-      Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::MPIAppInit);
-      
-      // Teardown MPI:
-
-      MPI_Finalize();
-
-    } else {
-      // init start with the Serial
-      std::cerr << "Serial Appinit starting\n";
-      Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::AppInit);
-      
-
-    }
 }
 
 
