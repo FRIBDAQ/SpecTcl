@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include <string>
+#include <string.h>
 #include <stdexcept>
 
 
@@ -33,6 +34,10 @@
 typedef int MPI_Datatype;
 #endif
 
+
+// Tag that identifes a messages as being TCL related:
+
+static const int MPI_TCL_TAG  = 1;
 
 /**
  * MPI's fixed size data types can be a pain in the a$$.  The problem is that
@@ -144,6 +149,171 @@ bool isMpiApp() {
 #endif
 }
 
+
+
+// Book keeping for replies to a Tcl command:
+
+typedef struct _ProcessResult { // Note rank will be the index of the item in the vector.
+    int status;                 // Tcl status of replier.
+    int remainingResult;        // Remainng characters to get.
+    std::string result;         // Result string built up  from resposes from that rank.
+} ProcessResult;
+
+
+bool allRepliesIn(std::vector<ProcessResult>& replies) {
+    for (auto& reply: replies) {
+        if (reply.remainingResult > 0) {
+            return false;                    // This one has more.
+        }
+    }
+
+    return true;
+}
+
+void fillResponse(ProcessResult& result, MpiTclResultMsg& msg) {
+    // If this is a new rank.. initialize remaining result:
+
+    if (result.remainingResult == std::string::npos) {
+        result.remainingResult = msg.resultSize;
+    }
+    // Figure how much data to append:
+
+    size_t nbytes;
+    if (result.remainingResult < MAX_TCL_CHUNKSIZE) {
+        nbytes = result.remainingResult;
+    } else {
+        nbytes = MAX_TCL_CHUNKSIZE;
+    }
+    result.status = msg.status;
+    result.result.append(msg.resultChunk, msg.resultChunk + nbytes);
+    result.remainingResult -= nbytes;
+}
+
+// Ok all replies are in, get the status and set the interp result.
+
+static int
+getStatusFrom(CTCLInterpreter& interp, std::vector<ProcessResult>& replies) {
+    int status = TCL_OK;
+    size_t maxReply;
+    size_t maxRank;
+    for (int i = 0; i < replies.size(); i ++) {
+
+        if (replies[i].status != TCL_OK) {
+            interp.setResult(replies[i].result);
+            return replies[i].status;
+        } else {
+            if (replies[i].result.size() > maxReply) {
+                maxRank = i;
+                maxReply = replies[i].result.size();
+            }
+        }
+    }
+    // Good status, set the result from replies[rank]
+
+    interp.setResult(replies[maxRank].result);
+    return TCL_OK;
+
+}
+// constructMpiTclStatus
+//  Given that we just sprayed a command to the slave processes, 
+//  Collect the responses from all of the slaves and construct/set a result and return
+// a status as follows:
+//  *  Pull in all replies from all processes.
+//  * if any process returned other than TCL_ERROR, set the result from the first such and
+//    retunr that status.
+//  * If all of the processes returned TCL_OK, in a properly constructed app (and hopefully
+//    SpecTcl is properly constructed, only one of the repliers will have a non-empty result)
+//    Set the result from that one.
+//
+
+static int constructMpiTclStatus(CTCLInterpreter& interp) {
+#ifdef WITH_MPI
+    std::vector<ProcessResult> replies;
+
+    // Build up the initial replies vector note that rank 0 is us and therefore done.
+    // we just put in some non-zero value for the other remaining results so there's more to do:
+
+    ProcessResult value;
+    value.status = TCL_OK;
+    value.remainingResult = 0;
+    replies.push_back(value);
+    value.remainingResult = std::string::npos;
+    value.status = -100;   // Some non Tcl status.
+    int num;
+    if (MPI_Comm_size(MPI_COMM_WORLD, &num) != MPI_SUCCESS) {
+        throw std::runtime_error("constructMpiTclStatus could not get comm size");
+    }
+    num -= 1;
+    for (int i =0; i < num; i++) {
+        replies.push_back(value);
+    }
+
+    while(!allRepliesIn(replies)) {
+        MpiTclResultMsg msg;
+        MPI_Status status;
+        if(
+            MPI_Recv(&msg, 1, getTclResultType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status) 
+            != MPI_SUCCESS
+        ) {
+            throw std::runtime_error("Failed to get a result message");
+        }
+        int from = status.MPI_SOURCE;
+        fillResponse(replies[from], msg);
+
+    }
+    return getStatusFrom(interp, replies);
+#else
+    return TCL_OK;
+#endif
+}
+
+// Static function to build words into a string:
+
+static std::string wordsToString(std::vector<CTCLObject>& objv) {
+    std::string result;
+    for (auto& w : objv) {
+        result += std::string(w);
+        result += " ";
+    }
+    return result;
+}
+
+// Do a Tcl command in the MPI envirionment.
+// this means spraying it to the rest of the app and
+// gathering the replies...then constructing a result and status from those replies.
+// Note we'll only get called in the MPI runtime so we don't check for that...since
+// ExecCommand calls isMpiApp to determine if we should even be called.
+//
+// Assumption:  We are rank 0.
+static int MPIExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& words) {
+#ifdef WITH_MPI
+    std::string command = wordsToString(words);
+    size_t len = command.size();
+    size_t remaining = len + 1;     // Null terminator.
+    int    thisChunk;
+    int chunkstart = 0;
+    while (remaining) {
+        if (remaining > MAX_TCL_CHUNKSIZE) {
+            thisChunk = MAX_TCL_CHUNKSIZE;
+        } else {
+            thisChunk = remaining;
+        }
+
+        // Constrcut the message and broadcast it:
+
+        MpiTclCommandChunk chunk;
+        chunk.commandLength = len + 1;           // Null terminator.
+        memcpy(chunk.commandChunk, command.substr(chunkstart, thisChunk).data(), thisChunk);
+        if (MPI_Bcast(&chunk, 1, getTclCommandChunkType(), 0, MPI_COMM_WORLD) != MPI_SUCCESS) {
+            throw std::runtime_error("Failed to send command to slaves");
+        }
+        return constructMpiTclStatus(interp);
+    }
+#else   
+    return TCL_OK;    
+#endif
+    
+}
 
 /**
  *  Execute a tcl command either locally or by spraying it out to the
