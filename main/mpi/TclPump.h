@@ -49,6 +49,7 @@ int ExcecCommand(CTCLInterpreter& rInterp, std::vector<CTCLObject&> words);
  * start the command pump.
 */
 int StartCommandPump(CTCLInterpreter& rInterp);          // Start pumping commands via the event loop.
+void stopCommandPump();
 
 /**
  * Am I bult with MPI and running under MPI:
