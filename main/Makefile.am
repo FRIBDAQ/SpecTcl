@@ -4,6 +4,7 @@ SUBDIRS = Replace \
 					Scripts \
 					Utility \
 					factories \
+					mpi \
 					XamineParsers \
 					Display \
 					Core \

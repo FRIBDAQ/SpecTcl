@@ -1068,6 +1068,7 @@ AC_OUTPUT(Makefile
           contrib/Grace/Makefile
           contrib/multiread/Makefile
           contrib/treeparam/Makefile
+          mpi/Makefile
           compress/Makefile
 	  RootInterface/Makefile
           Core/Makefile 
