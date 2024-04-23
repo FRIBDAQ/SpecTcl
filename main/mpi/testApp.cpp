@@ -65,7 +65,17 @@ int appMain(Tcl_Interp* pInterp) {
             //Enter the event loop -- I think this is ok....
 
             while (true) {
-                Tcl_DoOneEvent(TCL_ALL_EVENTS);
+                Tcl_ReapDetachedProcs();
+                struct Tcl_Time timeout;
+                timeout.sec = 1000;
+                timeout.usec = 0;
+                if (Tcl_WaitForEvent(&timeout)) {
+                    std::cerr << "Event loop exiting\n";
+                    Tcl_Exit(-1);
+                }
+                std::cerr << "Events to process\n";
+                while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
+                    ;
             }
         }
     } else {

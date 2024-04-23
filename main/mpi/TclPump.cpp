@@ -344,7 +344,7 @@ static int MPIExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& word
 */
 int ExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& words) {
     if (isMpiApp()) {
-        return TCL_OK;
+        return MPIExecCommand(interp, words);
     } else {
         // Local command evaluation:
 
@@ -366,7 +366,7 @@ static bool runPump(false);    // If false, don't run.
 static Tcl_ThreadId mainThread;  // Thread running the interp.
 static Tcl_ThreadId pumpThread;  // Thread running the pump.
 static CTCLInterpreter* pReceiverInterp(0); // Interp we're pumping to.
-
+ClientData notifier(0);
 // The Event that we will send to the main thread:
 
 typedef struct _CommandEvent {
@@ -480,9 +480,9 @@ static void CommandPumpThread(ClientData pData) {
     while (runPump) {
         MpiTclCommandChunk chunk;
         MPI_Status         status;
-        if (MPI_Recv(
-                &chunk, 1, getTclCommandChunkType(), MPI_ANY_SOURCE, MPI_TCL_TAG,
-                MPI_COMM_WORLD, &status
+        if (MPI_Bcast(
+                &chunk, 1, getTclCommandChunkType(), MPI_TCL_SOURCE, 
+                MPI_COMM_WORLD
             ) != MPI_SUCCESS) {
             std::cerr << "Failed to receive a tcl command chunk in command pump thread\n";
             Tcl_Exit(-1);
@@ -494,6 +494,7 @@ static void CommandPumpThread(ClientData pData) {
             Tcl_ThreadQueueEvent(
                 mainThread, reinterpret_cast<Tcl_Event*>(event), TCL_QUEUE_TAIL
             );
+            Tcl_AlertNotifier(notifier);
             event = createCommandEvent();
         }
     }
@@ -521,6 +522,9 @@ void startCommandPump(CTCLInterpreter& rInterp) {
         // Stop running pump:
 
         stopCommandPump();
+    }
+    if (!notifier) {
+        notifier = Tcl_InitNotifier();
     }
     // Start the pump:
 
@@ -557,7 +561,7 @@ void stopCommandPump() {
         if (MPI_Comm_rank(MPI_COMM_WORLD, &rank) != MPI_SUCCESS) {
             throw std::runtime_error("stopCommandPump could not get MPI Ranks");
         }
-        if (MPI_Send(&dummyChunk, 1, getTclCommandChunkType(), rank, MPI_TCL_TAG, MPI_COMM_WORLD) != MPI_SUCCESS) {
+        if (MPI_Bcast(&dummyChunk, 1, getTclCommandChunkType(), rank, MPI_COMM_WORLD) != MPI_SUCCESS) {
             throw std::runtime_error("stopCommandPump could not stop the pump");
         }
         int pumpResult;
