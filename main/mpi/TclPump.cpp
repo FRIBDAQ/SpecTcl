@@ -153,6 +153,21 @@ bool isMpiApp() {
 #endif
 }
 
+/**
+ *  Convenience function to prevent client #ifdefery to get rank:
+ * @return  rank in MPI_COMM_WORLD (if mpi else 0).
+*/
+int myRank() {
+    int rank(0);
+    if (isMpiApp()) {
+#ifdef WITH_MPI
+        if (MPI_Comm_rank(MPI_COMM_WORLD, &rank) != MPI_SUCCESS) {
+            throw std::runtime_error("Unable to get World comm rank");
+        }
+#endif
+    }
+    return rank;
+}
 
 
 // Book keeping for replies to a Tcl command:

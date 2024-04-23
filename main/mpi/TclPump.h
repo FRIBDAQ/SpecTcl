@@ -43,7 +43,7 @@ class CTCLObject;
 /**
  *   Execute a Tcl command MPI or non MPI environment.  The result is set appropriately either wai.
 */
-int ExcecCommand(CTCLInterpreter& rInterp, std::vector<CTCLObject>& words);
+int ExecCommand(CTCLInterpreter& rInterp, std::vector<CTCLObject>& words);
 
 /**
  * start the command pump.
@@ -55,5 +55,6 @@ void stopCommandPump();
  * Am I bult with MPI and running under MPI:
 */
 bool isMpiApp();
+int  myRank();
 
 #endif
