@@ -43,12 +43,12 @@ class CTCLObject;
 /**
  *   Execute a Tcl command MPI or non MPI environment.  The result is set appropriately either wai.
 */
-int ExcecCommand(CTCLInterpreter& rInterp, std::vector<CTCLObject&> words);
+int ExcecCommand(CTCLInterpreter& rInterp, std::vector<CTCLObject>& words);
 
 /**
  * start the command pump.
 */
-int StartCommandPump(CTCLInterpreter& rInterp);          // Start pumping commands via the event loop.
+void startCommandPump(CTCLInterpreter& rInterp);          // Start pumping commands via the event loop.
 void stopCommandPump();
 
 /**

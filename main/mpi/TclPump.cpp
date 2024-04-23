@@ -21,11 +21,14 @@
 #include "TclPump.h"
 #include "TCLInterpreter.h"
 #include "TCLObject.h"
+#include "TCLException.h"
 #include <stdlib.h>
 
 #include <string>
 #include <string.h>
 #include <stdexcept>
+#include <stdio.h>
+#include <iostream>
 
 
 #ifdef WITH_MPI
@@ -37,7 +40,8 @@ typedef int MPI_Datatype;
 
 // Tag that identifes a messages as being TCL related:
 
-static const int MPI_TCL_TAG  = 1;
+static const int MPI_TCL_TAG  = 1;    // Tcl commands have this tag
+static const int MPI_TCL_SOURCE = 0;  // And come from here.
 
 /**
  * MPI's fixed size data types can be a pain in the a$$.  The problem is that
@@ -68,7 +72,7 @@ MPI_Datatype TclResultType;
 */
 
 typedef struct _MpiTclCommandChunk {
-    int commandLength;                     // Length of the command.
+    int long commandLength;                     // Length of the command.
     char commandChunk[MAX_TCL_CHUNKSIZE];  // command chunk.
 } MpiTclCommandChunk, *pMpiTclCommandChunk;
 MPI_Datatype TclCommandChunk;
@@ -155,7 +159,7 @@ bool isMpiApp() {
 
 typedef struct _ProcessResult { // Note rank will be the index of the item in the vector.
     int status;                 // Tcl status of replier.
-    int remainingResult;        // Remainng characters to get.
+    size_t remainingResult;        // Remainng characters to get.
     std::string result;         // Result string built up  from resposes from that rank.
 } ProcessResult;
 
@@ -335,4 +339,214 @@ int ExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& words) {
         }
         return Tcl_EvalObjv(interp.getInterpreter(), objv.size(), objv.data(), TCL_EVAL_GLOBAL);
     }
+}
+
+// Here's the types, data and code for the command pump thread. 
+//  It just watches for messages for TCL and
+// when a full command has been received (there's only one sender; rank0), it 
+// queues an event for the main thread which is handled by executing the command and returning the
+// status and result to the rank0 sender.
+
+static bool runPump(false);    // If false, don't run.
+static Tcl_ThreadId mainThread;  // Thread running the interp.
+static Tcl_ThreadId pumpThread;  // Thread running the pump.
+static CTCLInterpreter* pReceiverInterp(0); // Interp we're pumping to.
+
+// The Event that we will send to the main thread:
+
+typedef struct _CommandEvent {
+    Tcl_Event header;
+    std::string* command;
+} CommandEvent, *pCommandEvent;
+
+//  When a command is executed locally, the result must be sent
+// to MPI_TCL_SOURCE via one or more MpiTclResultMessage(s).
+// depending on the size of the result.
+// @param status - command status (e.g. TCL_OK or TCL_ERROR).
+// @param result - the result text which may require chunking to 
+//                 if it does not fit in to a single MpiResultMessage.
+//
+static void
+sendCommandResult(int status, std::string& result) {
+#ifdef HAVE_MPI           // Only if built with MPI:
+    result.append('\0');   // Add a null terminator to be sure.
+    MpiTclResultMsg chunk;
+    chunk.status = status;
+    chunk.resultSize = result.size();  // Null terminator.
+    size_t bytesLeft = chunk.resultSize;
+    size_t offset = 0;
+    while (bytesLeft) {
+        size_t chunkSize;
+        if (bytesLeft > MAX_TCL_CHUNKSIZE) {
+            chunkSize = MAX_TCL_CHUNKSIZE;
+        } else {
+            chunkSize = bytesLeft;
+        }
+        memcpy(
+            chunk.resultChunk, result.substr(offset, chunkSize).data(), 
+            chunkSize
+        );
+        if (MPI_Send(&chunk, 1, getTclResultType(), MPI_TCL_SOURCE, MPI_TCL_TAG, MPI_COMM_WORLD) != MPI_SUCCESS) {
+            throw std::runtime_error("Failed to send result chunk to MPI Source");
+        }
+
+        bytesLeft -= chunkSize;
+        offset += chunkSize;
+    }
+#endif
+}
+
+// Handle events from the command pump:
+// We try to run the command:
+//  On success send the result to MPI_TCL_SOURCE
+//  On failure pickup the status and send it and the result
+//  back as well.
+//
+static int commandEventHandler(Tcl_Event* p, int flags) {
+    pCommandEvent pCommand = reinterpret_cast<pCommandEvent>(p);
+    try {
+        auto result = pReceiverInterp->GlobalEval(pCommand->command->c_str());
+        
+        sendCommandResult(TCL_OK, result);
+    }
+    catch (CTCLException& e) {
+        std::string reason = e.ReasonText();
+        sendCommandResult(e.ReasonCode(), reason);
+    }
+    // Regardless let the event go:
+
+    delete pCommand->command;   // Tcl doesn't know how.
+    return 1;
+
+}
+// Append chunk.
+// Given that a command chunk was received, append it to the event
+// string.
+static void
+appendCommandChunk(pCommandEvent event, MpiTclCommandChunk& chunk) {
+    std::string& command(*(event->command)); // For notiational convenience.
+    auto remaining = chunk.commandLength - command.size(); // 
+    size_t appendSize;            // Amount to append.
+    if (remaining > MAX_TCL_CHUNKSIZE) {
+        appendSize = MAX_TCL_CHUNKSIZE;
+    } else {
+        appendSize = remaining;
+    }
+    command.append(chunk.commandChunk, appendSize);
+}
+// Create an initialized command event.
+// - Specify commandEventHandler as the event handler.
+// - Construct the command string.
+// - Set the next field to null just in case.
+//
+static pCommandEvent
+createCommandEvent() {
+    pCommandEvent result = 
+        reinterpret_cast<pCommandEvent>(Tcl_Alloc(sizeof(CommandEvent)));
+    if (!result) {
+        std::cerr << "Failed to allocated a command event it's hopeless\n";
+        Tcl_Exit(-1);
+    }
+    // Initialize the event before returning it:
+
+    result->header.proc = commandEventHandler;
+    result->header.nextPtr = nullptr;
+    result->command = new std::string;
+
+    return result;
+}
+
+// This is the actual thread. The assumption (which, for SpecTcl
+// is valid) is that there's only one sender and that's rank 0.
+//
+static void CommandPumpThread(ClientData pData) {
+#ifdef WITH_MPI
+    pCommandEvent event = createCommandEvent();
+    while (runPump) {
+        MpiTclCommandChunk chunk;
+        MPI_Status         status;
+        if (MPI_Recv(
+                &chunk, 1, getTclCommandChunkType(), MPI_ANY_SOURCE, MPI_TCL_TAG,
+                MPI_COMM_WORLD, &status
+            ) != MPI_SUCCESS) {
+            std::cerr << "Failed to receive a tcl command chunk in command pump thread\n";
+            Tcl_Exit(-1);
+        }
+        appendCommandChunk(event, chunk);
+        if (event->command->size() == chunk.commandLength) {
+            // We have a full command:
+
+            Tcl_ThreadQueueEvent(
+                mainThread, reinterpret_cast<Tcl_Event*>(event), TCL_QUEUE_TAIL
+            );
+            event = createCommandEvent();
+        }
+    }
+    // Done...
+
+    delete event->command;
+    Tcl_Free(reinterpret_cast<char*>(event));
+#endif
+    Tcl_ExitThread(0);
+}
+
+/**
+ * startCommandPump 
+ *    If the command pump is not running start it.  If it is running,
+ *    stop it first and then start it. The use case is that we need to
+ *    pump to a different interpreter.  Note that at present we can
+ *    only pump to one interpreter at a time.
+ * 
+ * @param rInterp - reference to the interpreter to receive commands.
+ * 
+*/
+void startCommandPump(CTCLInterpreter& rInterp) {
+#ifdef WITH_MPI
+    if (runPump) {
+        // Stop running pump:
+
+        stopCommandPump();
+    }
+    // Start the pump:
+
+    runPump = true;          // Should pump.
+    pReceiverInterp = &rInterp;
+    mainThread = Tcl_GetCurrentThread();
+    int status = Tcl_CreateThread(&pumpThread, CommandPumpThread, nullptr, TCL_THREAD_STACK_DEFAULT, TCL_THREAD_JOINABLE);
+    if (status != TCL_OK) {
+        runPump = false;
+        throw std::runtime_error("Could not start command pump thread!");
+    }
+#endif
+}
+/** 
+ * If the command pump thread is running, stop it
+ * This is done by setting runPump false and 
+ * sending a null command pump message to ourselves to ensure that
+ * we stop...then  joining the thread.
+ * 
+*/
+void stopCommandPump() {
+#ifdef WITH_MPI
+    if (runPump) {
+        runPump = false;
+        // Note that initializing the length to bigger than maxchunk
+        // ensures that we won't queue an event.
+
+        MpiTclCommandChunk dummyChunk;
+        dummyChunk.commandLength = MAX_TCL_CHUNKSIZE + 100;
+
+        // Need to send to self:
+
+        int rank;
+        if (MPI_Comm_rank(MPI_COMM_WORLD, &rank) != MPI_SUCCESS) {
+            throw std::runtime_error("stopCommandPump could not get MPI Ranks");
+        }
+        if (MPI_Send(&dummyChunk, 1, getTclCommandChunkType(), rank, MPI_TCL_TAG, MPI_COMM_WORLD) != MPI_SUCCESS) {
+            throw std::runtime_error("stopCommandPump could not stop the pump");
+        }
+        int pumpResult;
+        Tcl_JoinThread(pumpThread, &pumpResult);
+    }
+#endif
 }
