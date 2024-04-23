@@ -383,8 +383,8 @@ typedef struct _CommandEvent {
 //
 static void
 sendCommandResult(int status, std::string& result) {
-#ifdef HAVE_MPI           // Only if built with MPI:
-    result.append('\0');   // Add a null terminator to be sure.
+#ifdef WITH_MPI           // Only if built with MPI:
+    result.append("\0");   // Add a null terminator to be sure.
     MpiTclResultMsg chunk;
     chunk.status = status;
     chunk.resultSize = result.size();  // Null terminator.
