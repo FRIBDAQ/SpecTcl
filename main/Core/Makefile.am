@@ -1,13 +1,13 @@
 lib_LTLIBRARIES = libSpecTclTcp.la libTclGrammerApp.la libSpecTclMain.la 
 
 libSpecTclMain_la_SOURCES=SpecTclMain.cpp
-libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la
+libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la @top_builddir@/mpi/libMPIUtilities.la
 libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
-	-I@top_srcdir@/Utility
+	-I@top_srcdir@/Utility -I@top_srcdir@/mpi
 
 
 
-COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@
+COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
