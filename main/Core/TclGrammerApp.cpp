@@ -1365,8 +1365,8 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
 #ifdef WITH_MPI
   std::cerr << "Starting parallel SpecTcl\n";
   auto me = CTclGrammerApp::getInstance();
-
-  int stat = MPI_Init(&me->m_argc, &me->m_pArgV);
+  int actualModel;
+  int stat = MPI_Init_thread(&me->m_argc, &me->m_pArgV, MPI_THREAD_MULTIPLE, &actualModel);
   if (stat != MPI_SUCCESS) {
     Tcl_Obj* result = Tcl_NewStringObj("BUG : MPI_InitFailed", -1);
     Tcl_SetObjResult(pInterp, result);
