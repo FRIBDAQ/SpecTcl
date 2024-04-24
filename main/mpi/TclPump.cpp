@@ -214,7 +214,7 @@ static int
 getStatusFrom(CTCLInterpreter& interp, std::vector<ProcessResult>& replies) {
     int status = TCL_OK;
     size_t maxReply(0);
-    size_t maxRank;
+    size_t maxRank(0);
     for (int i = 0; i < replies.size(); i ++) {
 
         if (replies[i].status != TCL_OK) {
