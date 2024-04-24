@@ -58,7 +58,7 @@ CMPITclCommandAll::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
 
     int remoteStatus = TCL_OK;
     std::string remoteResult;
-    if (isMpiApp() && (myRank == 0)) {
+    if (isMpiApp() && (myRank() == 0)) {
         remoteStatus = ExecCommand(interp, objv);
         remoteResult = interp.GetResultString();
     }
@@ -78,9 +78,8 @@ CMPITclCommandAll::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
     if (localResult.size() > remoteResult.size()) {
         interp.setResult(localResult);
         return TCL_OK;
+    } else {
+        return TCL_OK;
     }
-    // Control should not land here so:
-
-    interp.setResult("BUG - CMPITclCommandAll fell through all the cases");
-    return TCL_ERROR;
+   
 }

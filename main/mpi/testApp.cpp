@@ -12,6 +12,7 @@
 #include <config.h>
 #include "TclPump.h"
 #include "MPITclCommand.h"
+#include "MPITclCommandAll.h"
 #include <tcl.h>
 #include "TCLInterpreter.h"
 #include "TCLObject.h"
@@ -55,6 +56,16 @@ public:
     }
 };
 
+class Helper3 : public CTCLObjectProcessor {
+public:
+    Helper3(CTCLInterpreter& interp, const char* cmd) : 
+        CTCLObjectProcessor(interp, cmd, true) {}
+    int operator() (CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+        std::cerr << "Running in " << myRank() << std::endl;
+        return TCL_OK;
+    }
+};
+
 // Create the wrapped interpreter and register
 // testCommand1 and testCommand2.
 //  helper1 is the actual for testCommand1 and helper2 for testCommmand2.
@@ -69,7 +80,8 @@ int appMain(Tcl_Interp* pInterp) {
         *pInterpreter, "testCommand2",
         new Helper2(*pInterpreter, "testCommand2")
     );
-
+    new CMPITclCommandAll(*pInterpreter, "testCommand3",
+        new Helper3(*pInterpreter, "testCommand3"));
     if (isMpiApp()) {
 #if WITH_MPI
         int threadModel;
