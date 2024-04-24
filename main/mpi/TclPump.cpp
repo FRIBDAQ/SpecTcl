@@ -213,7 +213,7 @@ void fillResponse(ProcessResult& result, MpiTclResultMsg& msg) {
 static int
 getStatusFrom(CTCLInterpreter& interp, std::vector<ProcessResult>& replies) {
     int status = TCL_OK;
-    size_t maxReply;
+    size_t maxReply(0);
     size_t maxRank;
     for (int i = 0; i < replies.size(); i ++) {
 
@@ -323,7 +323,7 @@ static int MPIExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& word
         MpiTclCommandChunk chunk;
         chunk.commandLength = len + 1;           // Null terminator.
         memcpy(chunk.commandChunk, command.substr(chunkstart, thisChunk).data(), thisChunk);
-        if (MPI_Bcast(&chunk, 1, getTclCommandChunkType(), 0, MPI_COMM_WORLD) != MPI_SUCCESS) {
+        if (MPI_Bcast(&chunk, 1, getTclCommandChunkType(), myRank(), MPI_COMM_WORLD) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to send command to slaves");
         }
         return constructMpiTclStatus(interp);
