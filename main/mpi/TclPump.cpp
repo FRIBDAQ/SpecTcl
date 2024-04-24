@@ -390,24 +390,27 @@ sendCommandResult(int status, std::string& result) {
     chunk.resultSize = result.size();  // Null terminator.
     size_t bytesLeft = chunk.resultSize;
     size_t offset = 0;
-    while (bytesLeft) {
+    // Do because even if there's no result we need to send a reply with the status.
+    do {
         size_t chunkSize;
         if (bytesLeft > MAX_TCL_CHUNKSIZE) {
             chunkSize = MAX_TCL_CHUNKSIZE;
         } else {
             chunkSize = bytesLeft;
         }
-        memcpy(
-            chunk.resultChunk, result.substr(offset, chunkSize).data(), 
-            chunkSize
-        );
+        if (chunkSize > 0) {
+            memcpy(
+                chunk.resultChunk, result.substr(offset, chunkSize).data(), 
+                chunkSize
+            );
+        }
         if (MPI_Send(&chunk, 1, getTclResultType(), MPI_TCL_SOURCE, MPI_TCL_TAG, MPI_COMM_WORLD) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to send result chunk to MPI Source");
         }
 
         bytesLeft -= chunkSize;
         offset += chunkSize;
-    }
+    } while (bytesLeft > 0);
 #endif
 }
 
