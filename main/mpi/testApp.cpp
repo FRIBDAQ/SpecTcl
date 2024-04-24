@@ -52,7 +52,8 @@ int appMain(Tcl_Interp* pInterp) {
 
     if (isMpiApp()) {
 #if WITH_MPI
-        MPI_Init(&savedArgc, &savedArgv);
+        int threadModel;
+        MPI_Init_thread(&savedArgc, &savedArgv, MPI_THREAD_MULTIPLE, &threadModel);
 #endif
         std::cerr << "Running as an MPI app. my rank: " 
             << myRank() << std::endl;
