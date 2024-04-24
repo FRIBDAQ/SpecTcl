@@ -39,6 +39,22 @@ public:
     }
 };
 
+class Helper2 : public CTCLObjectProcessor {
+public:
+    Helper2(CTCLInterpreter& interp, const char* cmd) : 
+    CTCLObjectProcessor(interp, cmd, true) {}
+    int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+        std::cerr <<"Helper2 in " << myRank() << std::endl;
+        if (myRank() ==1) {
+            interp.setResult("Hello world from an MPI application");
+            return TCL_OK;
+        } else {
+            interp.setResult("Planned Error.");
+            return TCL_ERROR;
+        }
+    }
+};
+
 // Create the wrapped interpreter and register
 // testCommand1 and testCommand2.
 //  helper1 is the actual for testCommand1 and helper2 for testCommmand2.
@@ -48,6 +64,10 @@ int appMain(Tcl_Interp* pInterp) {
     new CMPITclCommand(
         *pInterpreter, "testCommand1",
         new Helper1(*pInterpreter, "testCommand1")
+    );
+    new CMPITclCommand(
+        *pInterpreter, "testCommand2",
+        new Helper2(*pInterpreter, "testCommand2")
     );
 
     if (isMpiApp()) {
@@ -74,7 +94,6 @@ int appMain(Tcl_Interp* pInterp) {
                     std::cerr << "Event loop exiting\n";
                     Tcl_Exit(-1);
                 }
-                std::cerr << "Events to process\n";
                 while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
                     ;
             }
