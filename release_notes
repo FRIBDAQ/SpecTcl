@@ -1,3 +1,9 @@
+== 5.13-014 ==
+* VMUSBSpecTcl
+  * VMUSB controller scaler data support
+  * MDPP-32 SCP streaming readout support
+== 5.13-014 ==
+
 == 5.13-012 ==
 * MDPP-16 QDC support
 * MDPP-32 SCP support
