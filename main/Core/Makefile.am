@@ -104,7 +104,7 @@ Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
 	NSCLJumboBufferDecoder.h DopeVector.h 
 
-Event_noinst_INCULDES = EventMessgae.h;
+Event_noinst_INCULDES = EventMessage.h;
 
 # Removed TapeException.cpp, Tapefile
 

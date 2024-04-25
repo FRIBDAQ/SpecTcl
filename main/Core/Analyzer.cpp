@@ -43,11 +43,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include "Globals.h"
 #include "FilterBufferDecoder.h"
 #include "FilterEventProcessor.h"
-#include <stdexcept>
-#include <string>
+#include "SpecTcl.h"
 #include "Analyzer.h"
 #include "EventMessage.h"
 #include "TclPump.h"
+
+#include <stdexcept>
+#include <string>
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -68,7 +71,6 @@ CAnalyzer::CAnalyzer(UInt_t am_nParametersInEvent, UInt_t nThreshold) :
     m_nParametersInEvent(am_nParametersInEvent),
     m_EventList(nThreshold),
     m_pDecoder(0),
-    m_pSink(0),
     m_pFilterEventProcessor((CFilterEventProcessor*)kpNULL) // For event filtering.
     {
       
@@ -395,33 +397,6 @@ CBufferDecoder* CAnalyzer::DetachDecoder() {
   return pDecoder;
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    CEventSink* AttachSink(CEventSink& rsink)
-//  Operation Type:
-//
-//
-CEventSink* CAnalyzer::AttachSink(CEventSink& rSink) {
-  CEventSink* pSink = m_pSink;
-  setEventSink(&rSink);
-
-  return pSink;
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    CEventSink* DetachSink()
-//  Operation Type:
-//
-//
-CEventSink* CAnalyzer::DetachSink() {
-  CEventSink* pSink = m_pSink;
-  setEventSink((CEventSink*)kpNULL);
-
-  return pSink;
-}
 /*!
     This function provides support for super events.  A super event is an
     entity in a physics buffer that has several physics events packed inside
@@ -452,7 +427,6 @@ CAnalyzer::entityNotDone()
 //
 void CAnalyzer::DetachAll() {
   DetachDecoder();
-  DetachSink();
 }
 
 ///////////////////////////////////////////////////////////////////////////

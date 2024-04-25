@@ -719,11 +719,6 @@ void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink) {
 				 m_nListSize);
   gpAnalyzer  = m_pAnalyzer;
 
-  // The histogrammer is hooked to the analyzer as an event sink:
-  //m_pAnalyzer->AttachSink(*gpEventSink);
-
-
-  m_pAnalyzer->AttachSink(*gpEventSinkPipeline);
 }  
 
 //  Function:
