@@ -111,6 +111,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdexcept>
 #include <memory>
 #include <stdint.h>
+#include <tcl.h>
 
 
 #include <TclPump.h>
@@ -1303,7 +1304,36 @@ CTclGrammerApp::protectVariable(CTCLInterpreter* pInterp, const char* pVarName)
 {
   new CSpecTclInitVar(pInterp, pVarName);
 }
+// Set up Tcl command processing for non rank 0.
+// - start the command pump.
+// - Enter an event loop suitable for the slave:
+//
+static void setupSlaveInterpreter(CTCLInterpreter* pInterp) {
 
+  // Close stdin as we're just going to get
+  // commands via the pump and event loop.
+
+  int mode;
+  auto tclstdin = Tcl_GetChannel(pInterp->getInterpreter(), "stdin", &mode);
+  Tcl_UnregisterChannel(pInterp->getInterpreter(), tclstdin);
+
+  // Start the pump/notifier and run a prompt-less event loop:
+
+  startCommandPump(*pInterp);
+ 
+  while (true) {
+    Tcl_ReapDetachedProcs();
+    struct Tcl_Time timeout;
+    timeout.sec = 1000;
+    timeout.usec = 0;
+    if (Tcl_WaitForEvent(&timeout)) {
+        std::cerr << "Event loop exiting\n";
+        Tcl_Exit(-1);
+    }
+    while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
+        ;
+}
+}
 
 /*!
  * \brief CTclGrammerApp::AppInit
@@ -1333,10 +1363,15 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
 
     // This is the virtual method that sets up all of SpecTcl.
     pInstance->operator()();
+    if (gMPIParallel && (pInstance->m_mpiRank != 0)) {
+      // Slave process in MPI env.
 
-    CTCLLiveEventLoop* pEventLoop = CTCLLiveEventLoop::getInstance();
-    pEventLoop->start(gpInterpreter);
-
+      setupSlaveInterpreter(gpInterpreter);
+    } else {
+      // Serial or master process in MPI env.
+      CTCLLiveEventLoop* pEventLoop = CTCLLiveEventLoop::getInstance();
+      pEventLoop->start(gpInterpreter);
+    }
     return TCL_OK;
 }
 
@@ -1415,9 +1450,9 @@ void CTclGrammerApp::run()
     Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::MPIAppInit);
     
     // Teardown MPI:
-
+#ifdef WITH_MPI
     MPI_Finalize();
-
+#endif
   } else {
     // init start with the Serial
     std::cerr << "Serial Appinit starting\n";
