@@ -326,8 +326,9 @@ static int MPIExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& word
         if (MPI_Bcast(&chunk, 1, getTclCommandChunkType(), myRank(), MPI_COMM_WORLD) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to send command to slaves");
         }
-        return constructMpiTclStatus(interp);
+        
     }
+    return constructMpiTclStatus(interp);
 #else   
     return TCL_OK;    
 #endif
@@ -477,7 +478,7 @@ createCommandEvent() {
 // This is the actual thread. The assumption (which, for SpecTcl
 // is valid) is that there's only one sender and that's rank 0.
 //
-static void CommandPumpThread(ClientData pData) {
+static Tcl_ThreadCreateType CommandPumpThread(ClientData pData) {
 #ifdef WITH_MPI
     pCommandEvent event = createCommandEvent();
     while (runPump) {
@@ -506,7 +507,7 @@ static void CommandPumpThread(ClientData pData) {
     delete event->command;
     Tcl_Free(reinterpret_cast<char*>(event));
 #endif
-    Tcl_ExitThread(0);
+    TCL_THREAD_CREATE_RETURN;
 }
 
 /**
