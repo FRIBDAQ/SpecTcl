@@ -39,7 +39,7 @@ class CTCLObject;
  * When not built with MPI, the broadcaster just executes the command in the local
  * interpreter, and the function to start the event loop is a no-op.
 */
-
+extern void* TclNotifier;
 /**
  *   Execute a Tcl command MPI or non MPI environment.  The result is set appropriately either wai.
 */

@@ -367,7 +367,7 @@ static bool runPump(false);    // If false, don't run.
 static Tcl_ThreadId mainThread;  // Thread running the interp.
 static Tcl_ThreadId pumpThread;  // Thread running the pump.
 static CTCLInterpreter* pReceiverInterp(0); // Interp we're pumping to.
-ClientData notifier(0);
+ClientData TclNotifier(0);
 // The Event that we will send to the main thread:
 
 typedef struct _CommandEvent {
@@ -498,7 +498,7 @@ static Tcl_ThreadCreateType CommandPumpThread(ClientData pData) {
             Tcl_ThreadQueueEvent(
                 mainThread, reinterpret_cast<Tcl_Event*>(event), TCL_QUEUE_TAIL
             );
-            Tcl_AlertNotifier(notifier);
+            Tcl_AlertNotifier(TclNotifier);
             event = createCommandEvent();
         }
     }
@@ -527,8 +527,8 @@ void startCommandPump(CTCLInterpreter& rInterp) {
 
         stopCommandPump();
     }
-    if (!notifier) {
-        notifier = Tcl_InitNotifier();
+    if (!TclNotifier) {
+        TclNotifier = Tcl_InitNotifier();
     }
     // Start the pump:
 
