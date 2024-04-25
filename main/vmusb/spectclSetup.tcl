@@ -466,6 +466,18 @@ proc buildMDPP32QDCMap {param name} {
 
     return [makeParamsSpectraAndMap $param $name $::typeMDPP32QDC $::adcChannels($name)  $resolution ]
 }
+
+proc buildMDPP32SCPSROMap {param name} {
+    set resolution $::channelCount($::typeMDPP32SCPSRO);
+
+    return [makeParamsSpectraAndMap $param $name $::typeMDPP32SCPSRO $::adcChannels($name)  $resolution ]
+}
+
+proc buildVMUSBSCALERMap {param name} {
+    set resolution $::channelCount($::typeVMUSBSCALER);
+
+    return [makeParamsSpectraAndMap $param $name $::typeVMUSBSCALER $::adcChannels($name)  $resolution ]
+}
 #------------------------------------------------------------------
 #
 # Build a simple parameter/spectrum set and channel maps:
@@ -537,6 +549,10 @@ proc buildChannelMaps param {
 	    set param [buildMQDC32Map $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32QDC} {
 	    set param [buildMDPP32QDCMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32SCPSRO} {
+	    set param [buildMDPP32SCPSROMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeVMUSBSCALER} {
+	    set param [buildVMUSBSCALERMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
 	    set param [buildV1729Map $param $module]
 	    createFreezeButton
