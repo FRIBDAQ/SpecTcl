@@ -181,8 +181,9 @@ static bool pumping(false);                         //  Flag to keep running the
 static int EventEventHandler(Tcl_Event* p, int flags) {
     pEventEvent pEvent = reinterpret_cast<pEventEvent>(p);
     auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
-    (*pipeline)(*pEvent->pEvents);
-
+    if (pipeline) {
+        (*pipeline)(*pEvent->pEvents);
+    }
     delete pEvent->pEvents;
     return 1;
 }
@@ -237,7 +238,9 @@ EventPumpThread(ClientData pData) {
 void HistogramEvents(CEventList& events) {
     if (isMpiApp()) {
         auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
-        (*pipeline)(events);
+        if (pipeline) {
+            (*pipeline)(events);    
+        }
     } else {
         MPIHistogramEvents(events);
     }
