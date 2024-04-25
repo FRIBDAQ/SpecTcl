@@ -81,14 +81,7 @@ class CAnalyzer {
 
   // Constructor with arguments
   CAnalyzer(UInt_t am_nParametersInEvent,
-	    UInt_t nThreshold = CAnalyzer::m_nDefaultEventThreshold) :
-  m_nEventThreshold(nThreshold),
-    m_nParametersInEvent(am_nParametersInEvent),
-    m_EventList(nThreshold),
-    m_pDecoder(0),
-    m_pSink(0),
-    m_pFilterEventProcessor((CFilterEventProcessor*)kpNULL) // For event filtering.
-    {};
+	    UInt_t nThreshold = CAnalyzer::m_nDefaultEventThreshold);
 
   // Copy constructor
   CAnalyzer(const CAnalyzer& aCAnalyzer) {

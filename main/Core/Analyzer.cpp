@@ -46,6 +46,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <stdexcept>
 #include <string>
 #include "Analyzer.h"
+#include "EventMessage.h"
+#include "TclPump.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -54,6 +56,23 @@ using namespace std;
 // Static class member initializations:
 UInt_t CAnalyzer::m_nDefaultEventThreshold = 128;
 UInt_t CAnalyzer::m_nDefaultParameterCount = 512;
+
+/** Main constructor:
+ *  @param am_nParametersInEvent - initial event size
+ *  @param nThreshold            - Number of events in an event list before
+ *      flushing it to the event processing pipeline.
+ * 
+*/
+CAnalyzer::CAnalyzer(UInt_t am_nParametersInEvent, UInt_t nThreshold) :
+  m_nEventThreshold(nThreshold),
+    m_nParametersInEvent(am_nParametersInEvent),
+    m_EventList(nThreshold),
+    m_pDecoder(0),
+    m_pSink(0),
+    m_pFilterEventProcessor((CFilterEventProcessor*)kpNULL) // For event filtering.
+    {
+      
+    };
 
 // Functions for class CAnalyzer
 /////////////////////////////////////////////////////////////////////////
@@ -158,9 +177,8 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	  cerr << " Buffer size = " << nBufferSize << endl;
 	  cerr << "Analysis continue with the next buffer\n";
 	  cerr << "--------------------------------------------------\n";
-	  if(m_pSink) {
-	    (*m_pSink)(m_EventList); // Dump partial event list.
-	  }
+	  
+    HistogramEvents(m_EventList); // Dump partial event list.
 	  ClearEventList();
 	  return;
 	}
@@ -196,18 +214,15 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	pData     = (Address_t)((uint8_t*)pData + nEventSize);
 	nOffset  += nEventSize;
 	if(nEventNo >= m_nEventThreshold) {
-	  if(m_pSink) {		// Flush the event list to the sink.
-	    (*m_pSink)(m_EventList);
-	  }
+    HistogramEvents(m_EventList);
+	  
 	  ClearEventList();
 	  nEventNo = 0;
 	}
       }
       // Dump any partial event list:
       if(nEventNo) {
-	if(m_pSink) {
-	  (*m_pSink)(m_EventList);
-	}
+	HistogramEvents(m_EventList);
 	ClearEventList();
 	nEventNo = 0;
       }
