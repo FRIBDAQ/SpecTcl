@@ -28,6 +28,8 @@ CV977Unpacker.cpp \
 CMTDC32Unpacker.cpp \
 CMQDC32Unpacker.cpp \
 CMDPP32QDCUnpacker.cpp \
+CMDPP32SCPSROUnpacker.cpp \
+CVMUSBScalerUnpacker.cpp \
 LICENCE.cpp
 
 libVMUSBSpecTcl_la_CPPFLAGS=$(COMMON_cppflags)
@@ -53,7 +55,9 @@ CV1x90Unpacker.h \
 CV977Unpacker.h \
 CMTDC32Unpacker.h \
 CMQDC32Unpacker.h \
-CMDPP32QDCUnpacker.h
+CMDPP32QDCUnpacker.h \
+CMDPP32SCPSROUnpacker.h \
+CVMUSBScalerUnpacker.h
 
 bin_PROGRAMS=VMUSBSpecTcl
 

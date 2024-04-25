@@ -15,6 +15,8 @@ set typeV1729    9;			# CAEN V1729 FADC.
 set typeMTDC32  10;                     # Mesytec MTDC 32.
 set typeMQDC32  11;                     # Mesytec MQDC 32.
 set typeMDPP32QDC  12;                  # Mesytec MDPP 32 QDC.
+set typeMDPP32SCPSRO  13;                  # Mesytec MDPP 32 SCP streaming readout.
+set typeVMUSBSCALER   14;                  # VMUSB Scaler
 set typeVMUSB    null;                  # Used to flag this makes no data.
 
 set channelCount($typeCAEN)   4096
@@ -29,3 +31,5 @@ set channelCount($typeV1729)   8192;	# Waveform count.
 set channelCount($typeMTDC32)  16384;   # MTDC32 default resolution
 set channelCount($typeMQDC32)  4096;	# Currently only 12 chans.
 set channelCount($typeMDPP32QDC)  65535;
+set channelCount($typeMDPP32SCPSRO)  65535;
+set channelCount($typeVMUSBSCALER)  65535;

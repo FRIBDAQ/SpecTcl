@@ -149,11 +149,22 @@ proc v1729create tail {
 #
 proc vmusb args {
     # Name of the modules is always after the subcommand:
-
+    set subcommand [lindex $args 0]
     set name [lindex $args 1]
+
     set ::adcConfiguration($name) -1
     set ::readoutDeviceType($name) $::typeVMUSB
     
+    if {($subcommand eq "create") || ($subcommand eq "config")} {
+      set readscaleridx [lsearch -exact $args "-readscalers"]
+      if {$readscaleridx != -1} {
+        incr readscaleridx
+        set isreadscaler [lindex $args $readscaleridx]
+        if {$isreadscaler == true} {
+          set ::readoutDeviceType($name) $::typeVMUSBSCALER
+        }
+      }
+    }
 }
 
 #------------------------------------------------------------------
@@ -567,6 +578,15 @@ proc mdpp32scp args {
     # -id config which sets the 'vsn' for this module.
 
     if {($subcommand eq "create") || ($subcommand eq "config")} {
+      set outputformatidx [lsearch -exact $args "-outputformat"]
+      if {$outputformatidx != -1} {
+        incr outputformatidx
+        set outputformat [lindex $args $outputformatidx]
+        if {$outputformat == 4} {
+          set ::readoutDeviceType($name) $::typeMDPP32SCPSRO
+        }
+      }
+
       set ididx [lsearch -exact $args "-id"]
       if {$ididx != -1} {
         incr ididx

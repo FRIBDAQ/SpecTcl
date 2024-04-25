@@ -30,6 +30,8 @@
 #include "CMTDC32Unpacker.h"
 #include "CMQDC32Unpacker.h"
 #include "CMDPP32QDCUnpacker.h"
+#include "CMDPP32SCPSROUnpacker.h"
+#include "CVMUSBScalerUnpacker.h"
 
 #include <Event.h>
 #include <TCLAnalyzer.h>
@@ -63,6 +65,8 @@ static CV1729Unpacker     unpackV1729;
 static CMTDC32Unpacker    unpackMTDC32;
 static CMQDC32Unpacker    unpackMQDC32;
 static CMDPP32QDCUnpacker    unpackMDPP32QDC;
+static CMDPP32SCPSROUnpacker unpackMDPP32SCPSRO;
+static CVMUSBScalerUnpacker  unpackVMUSBScaler;
 
 // table of unpackers for each type of module.
 
@@ -80,7 +84,9 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpackV1729,
     &unpackMTDC32,
     &unpackMQDC32,
-    &unpackMDPP32QDC
+    &unpackMDPP32QDC,
+    &unpackMDPP32SCPSRO,
+    &unpackVMUSBScaler
 };
 
 //////////////////////////////////////////////////////////////////////////////////
