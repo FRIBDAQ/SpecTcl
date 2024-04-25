@@ -33,7 +33,7 @@ class CEventList;
 
 // The API:
 
-void HistogramEvents(const CEventList& events);
+void HistogramEvents(CEventList& events);
 void startHistogramPump();
 void stopHistogramPump();
 
