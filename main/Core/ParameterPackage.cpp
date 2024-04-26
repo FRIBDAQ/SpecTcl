@@ -79,14 +79,13 @@ using namespace std;
 
 CParameterPackage::CParameterPackage (CTCLInterpreter* pInterp, 
 				      CTCLHistogrammer* pHistogrammer) :
-  CTCLCommandPackage(pInterp, Copyright),
   m_pHistogrammer(0),
   m_pParameter(0),
   m_pPseudo(0)
 {
 
   m_pHistogrammer = pHistogrammer;      // If MPI and not MPI_EVENT_SINK_RANK - this will be null.
-  m_pParameter = new CMPITclCommandAll(*interp, "parameter", (new CParameterCommand(pInterp, *this));
+  m_pParameter = new CMPITclCommandAll(*pInterp, "parameter", (new CParameterCommand(pInterp)));
   m_pPseudo = new CMPITclCommand(*pInterp, "pseudo", (new CPseudoCommand(pInterp, *this)));
   addCommand(m_pParameter);
   AddProcessor(m_pPseudo);

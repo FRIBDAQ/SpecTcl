@@ -67,7 +67,7 @@ private:
     TraceDispatcher m_Observer;
 public:
 
-  CParameterCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage ); 
+  CParameterCommand (CTCLInterpreter* pInterp); 
   virtual ~ CParameterCommand ( );
 	
 			//Copy constructor [illegal]

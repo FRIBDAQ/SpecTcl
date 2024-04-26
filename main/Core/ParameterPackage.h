@@ -303,13 +303,18 @@ class CTCLHistogrammer;
 class CParameter;
 class CParameterCommand;
 class CPseudoCommand;
+class CTCLString;
+class CMPITclCommandAll;
+class CMPITclCommand;
+
+
 class CParameterPackage : public CTCLObjectPackage
 {
   CTCLHistogrammer*  m_pHistogrammer;	// Refers to the Histogrammer in which
 				// parameters will be defined.
 
-  CParameterCommand* m_pParameter; // Command Processor.
-  CPseudoCommand*    m_pPseudo;
+  CMPITclCommandAll* m_pParameter; // Command Processor.
+  CMPITclCommand*    m_pPseudo;
 public:
 			// Normal constructor.
 
@@ -362,7 +367,7 @@ public:
   TCLPLUS::Int_t ListParameter (CTCLInterpreter& interp, TCLPLUS::UInt_t  nId)  ;
   CTCLString getParameterInfoListString (CParameter& rParameter)  ;
 
-  TCLPLUS::Int_t AddPseudo(CTCLResult& rResult, const char* pPseudoName,
+  TCLPLUS::Int_t AddPseudo(CTCLInterpreter& interp, const char* pPseudoName,
 		  std::vector<std::string>& rDependents, const char* pBody);
   TCLPLUS::Int_t DescribePseudo(const std::string& rName, std::string& rDescription);
   TCLPLUS::Int_t DeletePseudo(const std::string& rName, std::string& rResult);

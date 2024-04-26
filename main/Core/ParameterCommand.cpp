@@ -90,7 +90,7 @@ static UInt_t nLookupTableSize = sizeof(LookupTable)/sizeof(LookupTableEntry);
  * @param rPackage - reference to our enclosing package.
  */
 CParameterCommand::CParameterCommand(
-    CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage
+    CTCLInterpreter* pInterp
 )  :
      CTCLPackagedObjectProcessor(*pInterp, "parameter", true),
      m_Observer(pInterp)
