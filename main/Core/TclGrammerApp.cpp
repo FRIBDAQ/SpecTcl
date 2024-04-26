@@ -134,6 +134,11 @@ void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
 using namespace std;
 #endif
 
+// Fixed ranks in MPI
+
+#define MPI_ROOT_RANK   0
+#define MPI_EVENT_SINK_RANK 1
+
 // TCL Script to print the program version.
 
 static const char* printVersionScript = 
@@ -966,6 +971,8 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
 int CTclGrammerApp::operator()() {
   try {
   // Fetch and setup the interpreter member/global pointer.
+  // All ranks get an interpreter and source these scripts:
+
   gpInterpreter = getInterpreter();
   
 
@@ -979,132 +986,162 @@ int CTclGrammerApp::operator()() {
   SetLimits();
 
   // Create the histogrammer event sink:
-  CreateHistogrammer();
 
-  // Create the available displays
-  CreateDisplays();
+  // Histogramer is only created if:
+  // ! mpi or mpi but rank1 (the event sink pipeline).  Same for the displays:
+  // 
 
-  // Setup the histogram displayer.. note here's where we also
-  // handle the case where a use has specified
-  // HTTDPort in their init file:
-  
-  CTCLVariable http(gpInterpreter, "HTTPDPort", false);
-  const char* httpdPort = http.Get();
-  if (httpdPort) {
-    // This must be an integer in the non privileged port range:
-    
-    int nPort = atoi(httpdPort);
-    if (nPort < 1024) {
-        std::cerr << "The HTTPDPort SpecTclInit.tcl variable must be an integer > 1023"
-            << " it was: '" << httpdPort << "'\n";
-        exit(EXIT_FAILURE);
-    }
-    CHttpdServer server(gpInterpreter);
-    try {
-        if(!server.isRunning()) server.start(nPort);
-        char hostbuffer[256];
-        int hostname;
-        hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-        std::string host(hostbuffer);
-        //host += ".nscl.msu.edu";
+  if (!gMPIParallel || (m_mpiRank == MPI_EVENT_SINK_RANK)) {
+    CreateHistogrammer();
+
+    // Create the available displays
+    CreateDisplays();
+  }
+  // The servers run in RANK 0 in the MPI:
+
+  if(!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) { 
+    // Setup the histogram displayer.. note here's where we also
+    // handle the case where a use has specified
+    // HTTDPort in their init file:
+    // We'll run this in the 
+    CTCLVariable http(gpInterpreter, "HTTPDPort", false);
+    const char* httpdPort = http.Get();
+    if (httpdPort) {
+      // This must be an integer in the non privileged port range:
       
-        std::cout << "hostname: " << host << std::endl;
-        std::cout << "port: " << atoi(httpdPort) << std::endl;  
-      
-        int p = atoi(httpdPort);
-        std::string port = std::to_string(p);
-        ::setenv("RESThost", host.c_str(), 1);
-        ::setenv("RESTport", port.c_str(), 1);
+      int nPort = atoi(httpdPort);
+      if (nPort < 1024) {
+          std::cerr << "The HTTPDPort SpecTclInit.tcl variable must be an integer > 1023"
+              << " it was: '" << httpdPort << "'\n";
+          exit(EXIT_FAILURE);
+      }
+      CHttpdServer server(gpInterpreter);
+      try {
+          if(!server.isRunning()) server.start(nPort);
+          char hostbuffer[256];
+          int hostname;
+          hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+          std::string host(hostbuffer);
+          //host += ".nscl.msu.edu";
+        
+          std::cout << "hostname: " << host << std::endl;
+          std::cout << "port: " << atoi(httpdPort) << std::endl;  
+        
+          int p = atoi(httpdPort);
+          std::string port = std::to_string(p);
+          ::setenv("RESThost", host.c_str(), 1);
+          ::setenv("RESTport", port.c_str(), 1);
+      }
+      catch (std::exception& e) {
+          std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
+          exit(EXIT_FAILURE);
+      }
+    } else {
+      ::setenv("RESThost", "host", 1);   /// local no mirror may be needed
+      ::setenv("RESTport", "0", 1);   /// local no mirror may be needed
     }
-    catch (std::exception& e) {
-        std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
-        exit(EXIT_FAILURE);
-    }
-  } else {
-    ::setenv("RESThost", "host", 1);   /// local no mirror may be needed
-    ::setenv("RESTport", "0", 1);   /// local no mirror may be needed
   }
 
-
   
-  SelectDisplayer();
+  // Displayer is  run in the EVENT sink rank.
 
-  // Set up the display that was picked
-  SetUpDisplay();
+  if (!gMPIParallel || (m_mpiRank == MPI_EVENT_SINK_RANK)) {
+    SelectDisplayer();
 
-  // Setup the test data source:
-  SetupTestDataSource(); // No longer done. By default, no source is to be set so that users aren't mistakenly fooled by test data.
+    // Set up the display that was picked
+    SetUpDisplay();
+  }
 
-  // Create an analyzer and hook the histogrammer to it.
-  //CreateAnalyzer(gpEventSink);
-  CreateAnalyzer(gpEventSinkPipeline);
+  // Setup the test data source: - in the root rank.
+  // The analyzer and decoder are done here as when we are analyzing data
+  // it's the root process that ships it off to the workers.
+  //
 
-  //  Setup the buffer decoder:
-  SelectDecoder(*gpAnalyzer);
+  if (!gMPIParallel ||(m_mpiRank == MPI_ROOT_RANK)) { 
+    SetupTestDataSource(); // No longer done. By default, no source is to be set so that users aren't mistakenly fooled by test data.
 
-  // Setup the command packages:
+    // Create an analyzer and hook the histogrammer to it.
+    //CreateAnalyzer(gpEventSink);
+    CreateAnalyzer(gpEventSinkPipeline);
+
+    //  Setup the buffer decoder:
+    SelectDecoder(*gpAnalyzer);
+  }
+  // Setup the command packages: -- all ranks do this.
   AddCommands(*gpInterpreter);
 
-  // the run control objects.
-  SetupRunControl();
+  // the run control objects. -- Root rank for now.
 
-  //  Setup the user's analysis pipeline:
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    SetupRunControl();
+  }
+  //  Setup the user's analysis pipeline worker ranks - for now that's the root.
+  // Later the rank  will be anything larger than MPI_FIRST_SLAVE.
 
-
-  CreateAnalysisPipeline(*gpAnalyzer);
-  CTreeParameter::BindParameters();           // Needed by treeparameter.
-
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    CreateAnalysisPipeline(*gpAnalyzer);
+    CTreeParameter::BindParameters();           // Needed by treeparameter.
+  }
   
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
-  // set up.
-  SourceFunctionalScripts(*gpInterpreter);
+  // set up... done in the root with appropriate e.g. broadcasts
+  //
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    SourceFunctionalScripts(*gpInterpreter);
   
-  // Now that SpecTcl is essentially set up, we can initialize the analyzer
+    // Now that SpecTcl is essentially set up, we can initialize the analyzer
+    
+    SpecTcl*      pApi      = SpecTcl::getInstance();
+    CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
+    pAnalyzer->OnInitialize();
+  }  
+  // Set up the first incantaion of TimedUpdates.  This has to do with display shared memory
+  // and only the event sink pipe knows that:
+
+  if (!gMPIParallel || (m_mpiRank == MPI_EVENT_SINK_RANK)) {
   
-  SpecTcl*      pApi      = SpecTcl::getInstance();
-  CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
-  pAnalyzer->OnInitialize();
-  
-  // Set up the first incantaion of TimedUpdates.
-  
-  Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
-
-
-  
-  // Additional credits.
-
-  cerr << "SpecTcl and its GUI would not be possible without the following open source software: \n";
-  cerr << "    - Gri  by Dan Kelley and Peter Galbraith.\n";
-  cerr << "    - TkCon by Jeff Hobbs\n";
-  cerr << "    - BWidgets by Jeff Hobbs\n";
-  cerr << "    - BLT by George Howlett\n";
-  cerr << "    - Snit by Will Duquette\n";
-  cerr << "    - TkTable by Eric Melski, Jeff Hobbs, Joe English and Pat Thoyts\n";
-  cerr << "    - IWidgets by David Gravereaux, Don Porter, Jeff Hobbs, Mark Harrison,\n";
-  cerr << "                  Marty Backe, Michael McLennan, Chad Smith, and Brent B. Welch\n";
-  cerr << "    - Tcl/Tk originally by John K. Ousterhout embellished and extended by the Tcl Core Team\n";
-  cerr << "    - Daniel Bazin for the concept of TreeParameter and its original GUI\n";
-  cerr << "    - Leilehau Maly and Tony Denault of the NASA IRTF Telescope\n";
-  cerr << "      for the  gaussian fit harnesses to the gsl: fitgsl.{c,h}\n";
-  cerr << "    - Emmanuel Frecon Swedish Institute of Computer Science for the splash package\n";
-  cerr << "    - Kevin Carnes James R. Macdonald Laboratory Kansas State University\n";
-  cerr << "      for many good functionality suggestions and for catching some of my stupidities\n";
-  cerr << "    - Dirk Weisshaar NSCL for many suggestions for performance and functional improvements\n";
-  cerr << "    - Dave Caussyn at Florida State University for comments and defect fixes\n";
-  cerr << " If your name should be on this list and is not, my apologies, please contact\n";
-  cerr << " fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
-  cerr << " the list of credits.\n";
-
-  // Finally run the version script:
-
-  try {
-    gpInterpreter->GlobalEval(printVersionScript);
-  }
-  catch (...) {
-    cerr << "SpecTcl Version: " << gpVersion << endl;
+    Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
   }
 
+
+  // Credits only go out in root rank:
+
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+
+    // Additional credits.
+
+    cerr << "SpecTcl and its GUI would not be possible without the following open source software: \n";
+    cerr << "    - Gri  by Dan Kelley and Peter Galbraith.\n";
+    cerr << "    - TkCon by Jeff Hobbs\n";
+    cerr << "    - BWidgets by Jeff Hobbs\n";
+    cerr << "    - BLT by George Howlett\n";
+    cerr << "    - Snit by Will Duquette\n";
+    cerr << "    - TkTable by Eric Melski, Jeff Hobbs, Joe English and Pat Thoyts\n";
+    cerr << "    - IWidgets by David Gravereaux, Don Porter, Jeff Hobbs, Mark Harrison,\n";
+    cerr << "                  Marty Backe, Michael McLennan, Chad Smith, and Brent B. Welch\n";
+    cerr << "    - Tcl/Tk originally by John K. Ousterhout embellished and extended by the Tcl Core Team\n";
+    cerr << "    - Daniel Bazin for the concept of TreeParameter and its original GUI\n";
+    cerr << "    - Leilehau Maly and Tony Denault of the NASA IRTF Telescope\n";
+    cerr << "      for the  gaussian fit harnesses to the gsl: fitgsl.{c,h}\n";
+    cerr << "    - Emmanuel Frecon Swedish Institute of Computer Science for the splash package\n";
+    cerr << "    - Kevin Carnes James R. Macdonald Laboratory Kansas State University\n";
+    cerr << "      for many good functionality suggestions and for catching some of my stupidities\n";
+    cerr << "    - Dirk Weisshaar NSCL for many suggestions for performance and functional improvements\n";
+    cerr << "    - Dave Caussyn at Florida State University for comments and defect fixes\n";
+    cerr << " If your name should be on this list and is not, my apologies, please contact\n";
+    cerr << " fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
+    cerr << " the list of credits.\n";
+
+    // Finally run the version script:
+
+    try {
+      gpInterpreter->GlobalEval(printVersionScript);
+    }
+    catch (...) {
+      cerr << "SpecTcl Version: " << gpVersion << endl;
+    }
+    }  
   }
   catch (std::string msg) {
     std::cerr << "Caught string exception in init: " << msg << std::endl;
@@ -1119,7 +1156,7 @@ int CTclGrammerApp::operator()() {
     std::cerr << "Caught std:exception in init: " << e.what() << std::endl;
   }
   
-  return TCL_OK;
+  return TCL_OK;                        // If we got here return TCL_OK.
 }
 
 CTCLInterpreter* CTclGrammerApp::getInterpreter() {
