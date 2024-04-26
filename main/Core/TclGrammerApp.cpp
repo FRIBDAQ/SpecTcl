@@ -134,10 +134,7 @@ void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
 using namespace std;
 #endif
 
-// Fixed ranks in MPI
 
-#define MPI_ROOT_RANK   0
-#define MPI_EVENT_SINK_RANK 1
 
 // TCL Script to print the program version.
 

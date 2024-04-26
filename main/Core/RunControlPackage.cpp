@@ -79,10 +79,10 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
 
   if(!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
 
-    m_pStartRun = (new CStartRun(pInterp, *this)),
-    m_pStopRun = (new CStopRun(pInterp, *this)),
+    m_pStartRun = (new CStartRun(pInterp, *this));
+    m_pStopRun = (new CStopRun(pInterp, *this));
     m_pRunState = (new CTCLVariable(pInterp,
-              std::string("RunState"), TCLPLUS::kfFALSE))
+              std::string("RunState"), TCLPLUS::kfFALSE));
 
     // Add commands to the package table:
 
