@@ -17,7 +17,7 @@
 #ifndef PARAMETERCOMMAND_H  //Required for current class
 #define PARAMETERCOMMAND_H
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 #include "TCLCommandPackage.h"
 #include "Dictionary.h"
 #include "Histogrammer.h"
@@ -28,8 +28,10 @@
 class CTCLInterpreter;                             
 class CTCLResult;
 class CParameter;
+class CTCLObject;
+class CTCLList;
                                
-class CParameterCommand  : public CTCLPackagedCommand        
+class CParameterCommand  : public CTCLPackagedObjectProcessor
 {
     
 private:
@@ -85,27 +87,20 @@ public:
   //
 public:
   virtual   int operator() (CTCLInterpreter& rInterp, 
-			    CTCLResult& rResult, 
-			    int nArguments, char* pArguments[])  ;
+			    std::vector<CTCLObject>& objv)  ;
 
   // Subcommands:
   //
-  UInt_t Create (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 UInt_t nArg, char*  pArg[])  ;
+  UInt_t Create (CTCLInterpreter& rInterp, int firstCreateParam, std::vector<CTCLObject>& objv)  ;
 
-  UInt_t List (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	       UInt_t nPars, char* pPars[])  ;
+  UInt_t List (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  ;
 
-  UInt_t Delete (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 UInt_t nPars, Char_t* pPars[])  ;
+  UInt_t Delete (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  ;
   
   UInt_t addTrace(
-        CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 UInt_t nPars, Char_t* pPars[]
-  );
+        CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
   UInt_t removeTrace(
-        CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 UInt_t nPars, Char_t* pPars[]
+        CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
   );
 
   //  Utility members:
@@ -114,12 +109,14 @@ protected:
   //
   // General parsing utilities:
   //
-  void Usage (CTCLInterpreter& rInterp, CTCLResult& rResult)  ;
+  void Usage (CTCLInterpreter& rInterp, const char* pMsg =0)  ;
   SwitchValue_t ParseSwitch (const char* pSwitch)  ;
 
   // Utilities for producing Tcl lists for parameter definitions.
 
-  UInt_t ListParametersById(CTCLResult& rResult, const char* pattern);
+  UInt_t ListParametersById(const char* pattern);
+  int ParseInt(const char* pString, int* pValue);
+  CTCLObject* makeListObject(CTCLList& list);
  
 };
 

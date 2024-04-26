@@ -36,6 +36,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include "ParameterCommand.h"                               
 #include "ParameterPackage.h"
+#include "CParameterDictionarySingleton.h"
 #include "TCLInterpreter.h"
 #include "TCLResult.h"
 #include "TCLCommandPackage.h"
@@ -44,22 +45,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpecTcl.h"
 #include "TCLVariable.h"
 #include "TCLObject.h"
+#include "TCLObject.h"
 #include <Exception.h>
 
 #include <tcl.h>
 #include <string.h>
-
-#ifdef HAVE_MALLOC_H
 #include <malloc.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-
 #include <map>
 #include <stdio.h>
 #include <iostream>
+#include <string>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -96,11 +92,10 @@ static UInt_t nLookupTableSize = sizeof(LookupTable)/sizeof(LookupTableEntry);
 CParameterCommand::CParameterCommand(
     CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage
 )  :
-     CTCLPackagedCommand("parameter", pInterp, rPackage),
+     CTCLPackagedObjectProcessor(*pInterp, "parameter", true),
      m_Observer(pInterp)
 {
-    SpecTcl* api = SpecTcl::getInstance();
-    api->GetHistogrammer()->addParameterObserver(&m_Observer);
+    CParameterDictionarySingleton::getInstance()->addObserver(&m_Observer);
 }
 
 /**
@@ -109,8 +104,7 @@ CParameterCommand::CParameterCommand(
  */
 CParameterCommand::~CParameterCommand()
 {
-    SpecTcl* pApi = SpecTcl::getInstance();
-    pApi->GetHistogrammer()->removeParameterObserver(&m_Observer);
+    CParameterDictionarySingleton::getInstance()->removeObserver(&m_Observer);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,8 +116,7 @@ CParameterCommand::~CParameterCommand()
 //     Execution
 //
 Int_t 
-CParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			      int nArguments, char* pArguments[]) 
+CParameterCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) 
 {
 //  Processes the parameter command.
 //  This command has several subcommands
@@ -139,51 +132,39 @@ CParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //         CTCLInterpreter& rInterpreter:
 //                Refers to the interpreter on which this
 //                command is running.
-//          CTCLResutl&   rResult:
-//                Represents the result string of that interpreter.
-//          int nArguments:
-//                Total Number of command arguments.
-//          char* pArgv[]:
-//                Array of pointers to the parameters.  Note that
-//               pArgv[0] points to the command name itself.
+//         std::vector<CTCLObject>& objv - the command words encapsulated as CTCLObjects.
 // Returns:
 //      TCL_OK         - The command succeeded.
 //      TCL_ERROR - The command failed.
 // 
-
+  size_t nArguments = objv.size();
   if(nArguments < 2) {		// Minimal command is "parameter list"
-    Usage(rInterp, rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
+
   // The second parameter can be a switch or if it isn't this signals
   // a desire to create a new parameter:
 
-  UInt_t  nTail   = nArguments;
-  char** pTail    = pArguments;
-  switch(ParseSwitch(pArguments[1])) {
+  
+  bindAll(rInterp, objv);
+  unsigned firstCreateParam(1);
+  switch(ParseSwitch(std::string(objv[1]).c_str())) {
   case CParameterCommand::ListSw: // List the parameters:
-    return List(rInterp, rResult,
-		nArguments - 2, pArguments+2);
+    return List(rInterp, objv);
   case CParameterCommand::DeleteSw: // Delete a parameter:
-    return Delete(rInterp, rResult,
-		  nArguments-2, pArguments+2);
+    return Delete(rInterp,objv);
   case CParameterCommand::NewSw:	// Create a new parameter
-    nTail--;			// Allow for the new switch.
-    pTail++;
+    firstCreateParam++;
   case CParameterCommand::NotSwitch:
-    nTail--;			// Allow for the command name.
-    pTail++;			
-    return Create(rInterp, rResult,
-		  nTail, pTail);
+    return Create(rInterp, firstCreateParam, objv);
   case CParameterCommand::AddTrace:
-    nTail -= 2; pTail += 2;
-    return addTrace(rInterp, rResult, nTail, pTail);
+    return addTrace(rInterp, objv);
  case CParameterCommand::RmTrace:
-    nTail -= 2; pTail += 2;
-    return removeTrace(rInterp, rResult, nTail, pTail);
+    return removeTrace(rInterp, objv);
 
   default:			// Some other switch invalid in context:
-    Usage(rInterp, rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
 }
@@ -196,8 +177,7 @@ CParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //     Creational
 //
 UInt_t
-CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			  UInt_t nArg, char*  pArg[]) 
+CParameterCommand::Create(CTCLInterpreter& rInterp, int firstCreateParam, std::vector<CTCLObject>& objv) 
 {
 // Creates a new parameter.
 // This is the default, if there is a subcommand selector switch,
@@ -209,39 +189,48 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
 // Formal Parameters:
 //     CTCLInterpreter& rInterp:
 //        Refers to the interpreter under which we are running
-//     CTCLResult&      rResult:
-//        Refers to an object representation of the result
-//        string for this interpreter.
-//     UInt_t   nArgs:
-//        count of parameters in the tail of the command.
-//     char*     pArgs[]:
-//        Array of pointers to the parameters in the tail of the command.
-//
+//     unsigned firstCreateParam - where the tail starts This can vary since the
+//        lack of a switch defaults to -create.
+//    std::vector<CTCLObject>& objv - enacpsulated command words.
 
-  // The tail of the command can be any of the folowing:
-  // The parameter name
-  // A parameter id that defines the index within the event array that
-  //    contains the parameter data.
-  // An optional full scale value that represents the number of bits the
-  //    raw parameter has (leave this off for 'real units' parameters).
-  // An optional full scale value  as above and a three element list containing
-  //    information about the meaningful range of values the parameter takes:
-  //    low value in real units, high value in real units and units.
-  //    (intended for automatically calibrating integer parameters).
-  // A single optional units value: for real parameters describing the units
-  //    of the parameter.
-  // No additional parameters for a unitless real parameter.
-  //  Examples:
-  //       name id bits       ;# Integer parameter with bits resolution.
-  //       name id bits {low hi units} ;# Integer scalable parameter with units
-  //       name id units      ;# Real parameter with units.
-  //       name id            ;# Real parameter without units.
+// The tail of the command can be any of the folowing:
+// The parameter name
+// A parameter id that defines the index within the event array that
+//    contains the parameter data.
+// An optional full scale value that represents the number of bits the
+//    raw parameter has (leave this off for 'real units' parameters).
+// An optional full scale value  as above and a three element list containing
+//    information about the meaningful range of values the parameter takes:
+//    low value in real units, high value in real units and units.
+//    (intended for automatically calibrating integer parameters).
+// A single optional units value: for real parameters describing the units
+//    of the parameter.
+// No additional parameters for a unitless real parameter.
+//  Examples:
+//       name id bits       ;# Integer parameter with bits resolution.
+//       name id bits {low hi units} ;# Integer scalable parameter with units
+//       name id units      ;# Real parameter with units.
+//       name id            ;# Real parameter without units.
+
+
+  // Simplest is really to re-create nArg and pArg.
+
+  std::vector<std::string>  argStrings;   // Stringified args.
+  std::vector<const char*>  args;
+  unsigned nArg = objv.size() - firstCreateParam;
+  for (int i = firstCreateParam; i <  objv.size(); i++) {
+    argStrings.push_back(std::string(objv[i]));
+    args.push_back(argStrings.back().c_str());
+  }
+  auto pArg = args.data();
 
   if((nArg != 2) && (nArg != 3) && (nArg != 4)) {
-    Usage(rInterp, rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
-  char* pName = pArg[0];
+
+  
+  const char* pName = pArg[0];
   Int_t nId;
   Int_t nResolution;
 
@@ -251,6 +240,8 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   Float_t nHi;
   const char*   pUnits = (char*)kpNULL;
   
+  std::string rResult;
+
   //  To simplify error handling, the parsing of the id and resolution
   //  values is done within a try catch block with the CTCLResult reference
   //  thrown in event of error.
@@ -274,33 +265,33 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
     if(nArg > 2) {
       if (string(pArg[2]) == "") {
-	rResult = "Units/resolution parameter cannot be blank: ";
-	rResult += pArg[2];
-	rResult += "\n";
-	throw rResult;
-      }
+      rResult = "Units/resolution parameter cannot be blank: ";
+      rResult += pArg[2];
+      rResult += "\n";
+      throw rResult;
+    }
       
   
       if(ParseInt(pArg[2], &nResolution) != TCL_OK) { // pArg[2] are units.
-	pUnits = pArg[2];
+	      pUnits = pArg[2];
 
       }
       else {
 	//  BUGBUGBUG - Really need to know how big a word is to do this right
 	//              for now assume a 32 bit system.
 	
-	if((nResolution <= 0) ||
-	   (nResolution >  31)) {	// Must be in range of allowable bits
-	  rResult = "Parameter resolution must be in the range (0,32). ";
-	  rResult += pArg[2];
-	  rResult += "\n";
-	  throw rResult;
-	}
+        if((nResolution <= 0) ||
+          (nResolution >  31)) {	// Must be in range of allowable bits
+          rResult = "Parameter resolution must be in the range (0,32). ";
+          rResult += pArg[2];
+          rResult += "\n";
+          throw rResult;
+        }
       }
     }
   }
-  catch (CTCLResult& rExcept) {
-    Usage(rInterp, rExcept);
+  catch (std::string msg) {
+    Usage(rInterp, msg.c_str());
     return TCL_ERROR;
   }
 
@@ -313,8 +304,7 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     CTCLList lRangeList(&rInterp, pArg[3]);
     lRangeList.Split(nListElements, &ppListElements);
     if(nListElements < 2) {
-      rResult = "Too few elements in range list\n";
-      Usage(rInterp, rResult);
+      Usage(rInterp, "Too few elements in range list\n");
       return TCL_ERROR;
     }
     nLow   = atof(ppListElements[0]);
@@ -332,7 +322,7 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // The Package manager will return the appropriate result string and
   // error code.
   //
-  CParameterPackage& rPackage = (CParameterPackage&)getMyPackage();
+  CParameterPackage& rPackage(*(CParameterPackage*)getPackage());
 
   // What we do now depends on how we parsed the parameter.
   // nArg == 2 : Real unitless parameter.
@@ -341,20 +331,20 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // nArg == 4 : Integer parameter with scaling information.
   Int_t added;
   if(nArg == 2) {		// Unitless real.
-    added = rPackage.AddParameter(rResult, pName, nId);
+    added = rPackage.AddParameter(rInterp, pName, nId);
   }
   else if ( (nArg == 3) && (pUnits == kpNULL)) { // Integer with resolution.
 
-    added = rPackage.AddParameter(rResult, 
+    added = rPackage.AddParameter(rInterp, 
 				  pName, nId, nResolution);
     
   }
   else if ( (nArg == 3) && (pUnits != kpNULL )) { // Real with units.
-    added = rPackage.AddParameter(rResult,
+    added = rPackage.AddParameter(rInterp,
 				  pName, nId, pUnits);
   }
   else if (( nArg == 4)) {	                  // Integer with scale/units
-    added = rPackage.AddParameter(rResult, pName, nId, nResolution,
+    added = rPackage.AddParameter(rInterp, pName, nId, nResolution,
 				  nLow, nHi, pUnits);
   }
   else {			// Error bugcheck error message and continue.
@@ -374,8 +364,7 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //     Subcommand
 //
 UInt_t 
-CParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			UInt_t nPars, char* pPars[]) 
+CParameterCommand::List(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) 
 {
 // Lists the attributes of parameters.
 //  The following tails are recognized:
@@ -397,71 +386,81 @@ CParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //  Formal Parameters:
 //      CTCLInterpreter&  rInterpreter:
 //         The interpreter running the command.
-//      CTCLResult&       rResult:
-//          Representation of the result string of the interpreter.
-//      UInt_t      nPars:
-//          Number of command parameters in the tail of the command.
-//      char*      pPars[]:
-//          array of pointers to the tail parameters.
+//      std::vector<CTCLObject>& objv - the encapsulated command words.
 // Returns:
 //      TCL_OK                - List succeeded.
 //      TCL_ERROR        - List failed for a reason which didn't demand
 //                                     an exception.
 
-  CParameterPackage& rPackage = (CParameterPackage&)getMyPackage();
-
+  std::string rResult;
+  CParameterPackage& rPackage(*(CParameterPackage*)getPackage());;
+  int  nPars = objv.size() - 2;      // For the parameter and -list opetion.
   if(nPars == 0) {		// List all parameters:
     CTCLList ParamList(rPackage.CreateTclParameterList(rInterp, "*"));
-    rResult = ParamList.getList();
+    CTCLObject* result = makeListObject(ParamList);
+    rInterp.setResult(*result);
+    delete result;
     return TCL_OK;
   }
+  // Reconstruct the nPars and the pPars from the objv:
 
+  std::vector<std::string>  argStrings;   // Stringified args.
+  std::vector<const char*>  args;
+  
+  for (int i = 2; i <  objv.size(); i++) {
+    argStrings.push_back(std::string(objv[i]));
+    args.push_back(argStrings.back().c_str());
+  }
+  auto pPars = args.data();
 
   const char* pattern = "*";
   // The next parameter is either a switch (-byid or -id) or it is
   // the name of a parameter to list:
   //
 
+  int status;
   switch(ParseSwitch(pPars[0])) {
   case CParameterCommand::ByIdSw:	// List all by id.
-    if (nPars>1)
-      {
-	pattern = pPars[1];
-      } 
-    return ListParametersById(rResult, pattern);
+    if (nPars>1) {
+	    pattern = pPars[1];
+    } 
+    return ListParametersById(pattern);
   case CParameterCommand::IdSw:	// List one given an id.
     if(nPars != 2) {
-      Usage(rInterp, rResult);
+      Usage(rInterp, "Need an id");
       return TCL_ERROR;
     }
     Int_t nId;
     try {			// See previous fcn for notes on this try/catch
       if(ParseInt(pPars[1], &nId) != TCL_OK) {
-	rResult = " Unable to parse the parameter Id as an integer : ";
-	rResult += pPars[1];
-	rResult += "\n";
-	throw rResult;
+        rResult = " Unable to parse the parameter Id as an integer : ";
+        rResult += pPars[1];
+        rResult += "\n";
+        throw rResult;
       }
       if(nId < 0) {
-	rResult = " Parameter ID's must be positive integers was: ";
-	rResult+= pPars[1];
-	rResult+= "\n";
-	throw rResult;
+        rResult = " Parameter ID's must be positive integers was: ";
+        rResult+= pPars[1];
+        rResult+= "\n";
+        throw rResult;
       }
     }
-    catch (CTCLResult& rException) {
-      Usage(rInterp, rException);
+    catch (std::string msg) {
+      Usage(rInterp, msg.c_str());
       return TCL_ERROR;
     }
-    return rPackage.ListParameter(rResult, nId);
+    status = rPackage.ListParameter(rInterp, nId);
+    return status;
   case CParameterCommand::NotSwitch: // List using pattern
     CTCLList ParamList(rPackage.CreateTclParameterList(rInterp, pPars[0]));
-    rResult = ParamList.getList();
+    CTCLObject* pList = makeListObject(ParamList);
+    rInterp.setResult(*pList);
+    delete pList;
     return TCL_OK;
     break;
   }
   //default:			// Some switch invalid in context.
-    Usage(rInterp, rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   
 
@@ -474,8 +473,7 @@ CParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //     mutator.
 //
 UInt_t 
-CParameterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			  UInt_t nPars, Char_t* pPars[]) 
+CParameterCommand::Delete(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) 
 {
 // Deletes parameters which are in the current set.
 //    This subcommand is triggered by the -delete subcommand
@@ -500,11 +498,25 @@ CParameterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //     Some problems result in throwing the result string.
 //  
 
+  // Reconstruct nPars, pPars:
+  // Starting with the stuff post "parameter -delete"
+
+  std::vector<std::string> stringArgs;
+  std::vector<const char*>  charArgs;
+  std::string rResult;
+
+  for (int i =2; i < objv.size(); i++) {
+    stringArgs.push_back(objv[i]);
+    charArgs.push_back(stringArgs.back().c_str());
+  }
+  int nPars = charArgs.size();
+  auto pPars = charArgs.data();
+
   if(nPars < 1) {		// Must have at leat one parameter.
-    Usage(rInterp, rResult);
+    Usage(rInterp, "Missing command parameters");
     return TCL_ERROR;
   }
-  CParameterPackage& rPackage = (CParameterPackage&)getMyPackage();
+  CParameterPackage& rPackage(*(CParameterPackage*)getPackage());
   Int_t              nId;
   // The next parameter must either be an -id switch or a
   // parameter name:
@@ -512,37 +524,37 @@ CParameterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
   switch(ParseSwitch(pPars[0])) {
   case CParameterCommand::IdSw:	// Delete given parameter id.
     if(nPars != 2) {
-      Usage(rInterp, rResult);
+      Usage(rInterp, "-id needs an id");
       return TCL_ERROR;
     } 
     try {			// See Create() for comments on this try/catch
       if(ParseInt(pPars[1], &nId) != TCL_OK) { // idiom.
-	rResult = "Unable to parse parameter id as integer ";
-	rResult += pPars[1];
-	rResult += "\n";
-	throw rResult;
+        rResult = "Unable to parse parameter id as integer ";
+        rResult += pPars[1];
+        rResult += "\n";
+        throw rResult;
       }
       if(nId < 0) {
-	rResult = "Parameter ids must be positive or zero ";
-	rResult += pPars[1];
-	rResult += "\n";
-	throw rResult;
+        rResult = "Parameter ids must be positive or zero ";
+        rResult += pPars[1];
+        rResult += "\n";
+        throw rResult;
       }
     }
-    catch (CTCLResult& rResult) {
-      Usage(rInterp, rResult);
+    catch (std::string msg) {
+      Usage(rInterp, msg.c_str());
       return TCL_ERROR;
     }
-    return rPackage.DeleteParameter(rResult, nId);
+    return rPackage.DeleteParameter(rInterp, nId);
   case CParameterCommand::NotSwitch: // Delete given parameter name.
     if(nPars != 1) {
-      Usage(rInterp, rResult);
+      Usage(rInterp, "MIsssing a parameter name");
       return TCL_ERROR;
     }
-    return rPackage.DeleteParameter(rResult, pPars[0]);
+    return rPackage.DeleteParameter(rInterp, pPars[0]);
 
   default:			// Invalid switch in this context.
-    Usage(rInterp, rResult);
+    Usage(rInterp, "Invalid option for -delete");
     return TCL_ERROR;
   }
 }
@@ -604,18 +616,22 @@ CParameterCommand::removeTrace(
 //     Utility
 //
 void 
-CParameterCommand::Usage(CTCLInterpreter& rInterp, CTCLResult& rResult) 
+CParameterCommand::Usage(CTCLInterpreter& rInterp, const char* pMsg)
 {
 // Appends the proper command usage to the result string.
 // 
 // Formal Parameters:
 //     CTCLInterpeter&  rInterp:
 //        Interpreter on which command is running.
-//     CTCLResult&       rResult:
-//        Result string associated with that interpreter.
+//     const char* pMsg
+//        If not null an additiona message.
 //
 // Exceptions:  
 
+  std::string rResult;
+  if (pMsg) {
+    result ++ pMsg;
+  }
   rResult += "Usage:\n";
   rResult += "   parameter [-new] name id bits\n";
   rResult += "   parameter [-new] name id bits {low hi units}\n";
@@ -629,7 +645,7 @@ CParameterCommand::Usage(CTCLInterpreter& rInterp, CTCLResult& rResult)
   rResult += "   parameter -trace script \n";
   rResult += "   parameter -untrace script \n\n";
    
-
+  rInterp.setResult(rResult);
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -666,7 +682,7 @@ CParameterCommand::ParseSwitch(const char* pSwitch)
 // Operation:
 //    Utility Function
 UInt_t
-CParameterCommand::ListParametersById(CTCLResult& rResult, const char* pattern)
+CParameterCommand::ListParametersById(const char* pattern)
 {
   // This function retrieves the list of parameter definitions,
   // sorts them by parameter id order and
@@ -685,7 +701,7 @@ CParameterCommand::ListParametersById(CTCLResult& rResult, const char* pattern)
   //    TCL_ERROR
  
   typedef map<UInt_t, std::string> SortingMap;
-  CParameterPackage& rPackage = (CParameterPackage&)getMyPackage();
+  CParameterPackage& rPackage(*(CParameterPackage*)getPackage());
 
 
   CTCLList ParameterList(rPackage.CreateTclParameterList(*(getInterpreter()),pattern));
@@ -768,7 +784,7 @@ CParameterCommand::ListParametersById(CTCLResult& rResult, const char* pattern)
     SortedList.Append("\n");
   }
 
-  rResult = (const char*)SortedList; 
+  getIntepreter()->setResult(std::string(SortedList));
   return TCL_OK;
 }
 /*-----------------------------------------------------------------------------
@@ -864,4 +880,35 @@ CParameterCommand::TraceDispatcher::onRemove(std::string name, CParameter& param
 
         }
     }
+}
+/**
+ *  ParseInt 
+ *     This is used to parse integers in the same way that CTCLCommand used to.
+ *    
+ * @param pString - pointer to the string.
+ * @param pValue - Pointer to the value to fill on success.
+ * @return int - TCL_OK on success.
+*/
+int
+CParameterCommand::(const char* pString, int* pValue) {
+  return Tcl_GetInt(getInterpreter()->getInterpreter(), pString, pValue);
+}
+/**
+ *  makeListResult
+ *    Create a CTCLObject that contains a list of strings.
+ * 
+ *   @param list - references a CTCLList object.
+ *   @return CTCLObject* - dynamically allocated object containing the list.
+*/
+CTCLObject*
+CParamterCommand::makeListObject(CTCLList& list) {
+  int argc;
+  char** argv;
+  list.Split(argc, &argv);
+  CTCLObject* pResult = new CTCLObject();
+  pResult->Bind(getInterpreter());
+  for (int i =0; i < argc; i++) {
+    (*pResult) += argv[i];
+  }
+  return pResult;
 }

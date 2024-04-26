@@ -42,6 +42,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "PseudoScript.h"
 #include "SpecTcl.h"
 #include "TCLResult.h"
+#include "MPITclCommand.h"
+#include "MPITclCommandAll.h"
+#include "TclPump.h"
+#include "Globals.h"
 
 #include <histotypes.h>
 #include <string>
@@ -66,14 +70,25 @@ using namespace std;
 //    Constructor
 //
 
+
+// In MPI spectcl:
+//  - the histogramer is only in the event sink rank.
+//  - The parameter command executes everywhere maintaining the paramter dictionary...but how it
+//    executes may depend on the rank.
+//  - The pseudo command only executes in the root rank for now (later it'll execute in the workers.)
+
 CParameterPackage::CParameterPackage (CTCLInterpreter* pInterp, 
 				      CTCLHistogrammer* pHistogrammer) :
   CTCLCommandPackage(pInterp, Copyright),
-  m_pHistogrammer(pHistogrammer),
-  m_pParameter(new CParameterCommand(pInterp, *this)),
-  m_pPseudo(new CPseudoCommand(pInterp, *this))
+  m_pHistogrammer(0),
+  m_pParameter(0),
+  m_pPseudo(0)
 {
-  AddProcessor(m_pParameter);
+
+  m_pHistogrammer = pHistogrammer;      // If MPI and not MPI_EVENT_SINK_RANK - this will be null.
+  m_pParameter = new CMPITclCommandAll(*interp, "parameter", (new CParameterCommand(pInterp, *this));
+  m_pPseudo = new CMPITclCommand(*pInterp, "pseudo", (new CPseudoCommand(pInterp, *this)));
+  addCommand(m_pParameter);
   AddProcessor(m_pPseudo);
 }
 //////////////////////////////////////////////////////////////////////////
@@ -391,7 +406,7 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, TCLPLUS::UInt_t nId)
 //     Inquiry
 //
 TCLPLUS::Int_t 
-CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName) 
+CParameterPackage::ListParameter(CTCLInterpreter& interp, const char*  pName) 
 {
 // Creates a TCL list which describes a single parameter.
 // 
@@ -415,10 +430,10 @@ CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName)
       throw CDictionaryException(CDictionaryException::knNoSuchKey,
 				 "Looking up parameter",
 				 pName);
-    rResult = (const char*)getParameterInfoListString(*pParam);
+      interp.setResult(const char*)getParameterInfoListString(*pParam));
   }
   catch(CException& rExcept) {
-    rResult = rExcept.ReasonText();
+    interp.setResult(rExcept.ReasonText());
     return TCL_ERROR;
   }
   return TCL_OK;
@@ -432,7 +447,7 @@ CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName)
 //     Inquiry
 //
 TCLPLUS::Int_t 
-CParameterPackage::ListParameter(CTCLResult& rResult, TCLPLUS::UInt_t  nId) 
+CParameterPackage::ListParameter(CTCLInterpreter& interp, TCLPLUS::UInt_t  nId) 
 {
 // Creates a Tcl list which represents the information
 // describing a parameter. 
@@ -460,10 +475,10 @@ CParameterPackage::ListParameter(CTCLResult& rResult, TCLPLUS::UInt_t  nId)
       throw CDictionaryException(CDictionaryException::knNoSuchKey,
 				 "Looking up parameter",
 				 Id);
-    rResult = (const char*)getParameterInfoListString(*pParam);
+    interp.setResult((const char*)getParameterInfoListString(*pParam));
   }
   catch(CException& rExcept) {
-    rResult = rExcept.ReasonText();
+    interp.setResult(rExcept.ReasonText());
     return TCL_ERROR;
   }
   return TCL_OK;

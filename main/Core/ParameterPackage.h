@@ -292,21 +292,9 @@ DAMAGES.
 
 #ifndef __PARAMETERPACKAGE_H  //Required for current class
 #define __PARAMETERPACKAGE_H
-
-#ifndef __TCLCOMMANDPACKAGE_H
-#include "TCLCommandPackage.h"
-#endif
-
-#ifndef __TCLLIST_H
+#include <TCLObjectPackage.h>
 #include "TCLList.h"
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
 
 // Forward class references:
 
@@ -315,7 +303,7 @@ class CTCLHistogrammer;
 class CParameter;
 class CParameterCommand;
 class CPseudoCommand;
-class CParameterPackage : public CTCLCommandPackage
+class CParameterPackage : public CTCLObjectPackage
 {
   CTCLHistogrammer*  m_pHistogrammer;	// Refers to the Histogrammer in which
 				// parameters will be defined.
@@ -359,19 +347,19 @@ protected:
   //
 
 public:             
-  TCLPLUS::Int_t AddParameter (CTCLResult& rResult, const char* pName,
+  TCLPLUS::Int_t AddParameter (CTCLInterpreter& rInterp, const char* pName,
 			       TCLPLUS::UInt_t nId, 
 			       const char* pUnits = (const char*)TCLPLUS::kpNULL); // Add a real param.
 
-  TCLPLUS::Int_t AddParameter (CTCLResult& rResult, const char* pName, 
+  TCLPLUS::Int_t AddParameter (CTCLInterpreter& rInterp, const char* pName, 
 			       TCLPLUS::UInt_t nId, TCLPLUS::UInt_t nBits, TCLPLUS::Float_t nLow=0,
 			       TCLPLUS::Float_t nHi=0, 
 		      const char* pUnits=0)  ; // Add int parameters.
   CTCLList CreateTclParameterList (CTCLInterpreter& rInterp, const char* pattern)  ;
-  TCLPLUS::Int_t DeleteParameter (CTCLResult& rResult, const char* pName)  ;
-  TCLPLUS::Int_t DeleteParameter (CTCLResult& rResult, TCLPLUS::UInt_t nId)  ;
-  TCLPLUS::Int_t ListParameter (CTCLResult& rResult, const char*  pName)  ;
-  TCLPLUS::Int_t ListParameter (CTCLResult& rResult, TCLPLUS::UInt_t  nId)  ;
+  TCLPLUS::Int_t DeleteParameter (CTCLInterpreter& rInterp, const char* pName)  ;
+  TCLPLUS::Int_t DeleteParameter (CTCLInterpreter& rInterp, TCLPLUS::UInt_t nId)  ;
+  TCLPLUS::Int_t ListParameter (CTCLInterpreter& interp, const char*  pName)  ;
+  TCLPLUS::Int_t ListParameter (CTCLInterpreter& interp, TCLPLUS::UInt_t  nId)  ;
   CTCLString getParameterInfoListString (CParameter& rParameter)  ;
 
   TCLPLUS::Int_t AddPseudo(CTCLResult& rResult, const char* pPseudoName,
