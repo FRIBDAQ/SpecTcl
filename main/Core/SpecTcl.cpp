@@ -58,6 +58,7 @@
 #include <DictionaryException.h>
 
 #include <TCLInterpreter.h>
+#include <CParameterDictionarySingleton.h>
 
 #include <TCLAnalyzer.h>
 #include <DisplayInterface.h>
@@ -189,9 +190,10 @@ SpecTcl::AssignParameterId()
 CParameter* 
 SpecTcl::AddParameter(string name, UInt_t Id, string Units)
 {
-  CHistogrammer* pHistogrammer  = GetHistogrammer();
-  CParameter*    pParameter    = pHistogrammer->AddParameter(name, Id, 
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  CParameter* pParameter =   new CParameter(name, Id, 
 	 						    Units.c_str());
+  pDict->Enter(name, *pParameter);
   return pParameter;
 
 }
@@ -221,9 +223,9 @@ SpecTcl::AddParameter(string name, UInt_t Id, string Units)
 CParameter* 
 SpecTcl::AddParameter(string name, UInt_t id, UInt_t scale)
 {
-  CHistogrammer* pHistogrammer   = GetHistogrammer();
-  CParameter*    pParameter      = pHistogrammer->AddParameter(name, id,
-							       scale);
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  CParameter*    pParameter      = new CParamter(name, id, scale);
+  pDict->Enter(name, *pParameter);
   return pParameter;
 }
 
@@ -263,10 +265,11 @@ SpecTcl::AddParameter(string name, UInt_t id,
 				  UInt_t scale, Float_t low, Float_t high, 
 				  string units)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  CParameter*    pParameter    = pHistogrammer->AddParameter(name, id, 
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  CParameter*    pParameter    = new CParameter(name, id, 
 							     scale, low, high,
 							     units);
+  pDict->Enter(name, *pParameter);
   return pParameter;
 }
 
@@ -286,8 +289,12 @@ SpecTcl::AddParameter(string name, UInt_t id,
 CParameter* 
 SpecTcl::RemoveParameter(string name)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->RemoveParameter(name);
+  CParameter* result = FindParameter(name);
+  if (result) {
+    auto pDict = CParameterDictionarySingleton::getInstance();
+    pDict->Remove(name);
+  }
+  return result;
 }
 
 
@@ -304,8 +311,13 @@ SpecTcl::RemoveParameter(string name)
 CParameter* 
 SpecTcl::FindParameter(string name)
 {  
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->FindParameter(name);
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  auto p = pDict->Lookup(name);
+  CParameter* pResult = nullptr;
+  if (p != pDict->end()) {
+    result = p->second;
+  }
+  return result;
 }
 
 
@@ -321,11 +333,29 @@ SpecTcl::FindParameter(string name)
   
   
 */
+namepsace SpecTclUtil {
+  class MatchParameterId {
+    private:
+      UInt_t m_id;
+    public:
+      MatchParameterId(UInt_t id) : m_id(id) {}
+      bool operator(CParameterDictionaryIterator p) {
+        return (id == p->second->getNumber());
+      }
+  }
+};
 CParameter* 
 SpecTcl::FindParameter(UInt_t Id)
 {
-  CHistogrammer*   pHistogrammer = GetHistogrammer();
-  return           pHistogrammer->FindParameter(Id);
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  SpecTclUtil::MatchParameterId pred(Id);
+  auto p = pDict->FindMatch(pred);
+  CParameter* result(nullptr);
+  if (p != pDict->end()) {
+    result = p-> second;
+  }
+
+  return result;
 }
 
 
@@ -335,8 +365,8 @@ SpecTcl::FindParameter(UInt_t Id)
 ParameterDictionaryIterator
 SpecTcl::BeginParameters()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->ParameterBegin();
+  return CParameterDictionarySingleton::getInstance()->begin();
+  
 }
 
 
@@ -346,8 +376,7 @@ SpecTcl::BeginParameters()
 ParameterDictionaryIterator 
 SpecTcl::EndParameters()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->ParameterEnd();
+  return CParameterDictionarySingleton::getInstance()->end();
 }
 
 
@@ -357,8 +386,7 @@ SpecTcl::EndParameters()
 UInt_t 
 SpecTcl::ParameterCount()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->ParameterCount();
+  return CParameterDictionarySingleton::getInstance()->size();
 }
 
 
