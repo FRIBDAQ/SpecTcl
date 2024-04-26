@@ -571,17 +571,15 @@ CParameterCommand::Delete(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj
  * */
 UInt_t
 CParameterCommand::addTrace(
-    CTCLInterpreter& rInterp, CTCLResult& rResult,
-    UInt_t nParas, Char_t* pPars[]
+    CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
 )
 {
-    if (nParas > 1) {
-        rResult = "Incorrect number of command parameters";
-        Usage(rInterp, rResult);
+    if (objv.size() != 3) {
+        Usage(rInterp, "Incorrect number of command parameters");
         return TCL_ERROR;
     }
-    
-    m_Observer.addTrace(pPars[0]);
+    std::string traceInfo = objv[2];
+    m_Observer.addTrace(traceInfo.c_str());
     return TCL_OK;
 }
 /**
@@ -595,17 +593,16 @@ CParameterCommand::addTrace(
  * @return UInt_t - TCL_OK for success and TCL_ERROR for failures.
  * */
 UInt_t
-CParameterCommand::removeTrace(
-    CTCLInterpreter& rInterp, CTCLResult& rResult,
-    UInt_t nParas, Char_t* pPars[]
-)
+CParameterCommand::removeTrace(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 {
-    if (nParas > 1) {
-        rResult = "Incorrect number of command parameters";
-        Usage(rInterp, rResult);
+    // There should be:  parameter -tracedel procname or something similar:
+
+    if (objv.size() != 3) {
+        Usage(rInterp, "Incorrect number of command parameters");
         return TCL_ERROR;
     }
-    m_Observer.removeTrace(pPars[0]);
+    std::string tracename = objv[2];
+    m_Observer.removeTrace(tracename.c_str());
     return TCL_OK;
 }
 //////////////////////////////////////////////////////////////////////////
@@ -630,7 +627,7 @@ CParameterCommand::Usage(CTCLInterpreter& rInterp, const char* pMsg)
 
   std::string rResult;
   if (pMsg) {
-    result ++ pMsg;
+    rResult += pMsg;
   }
   rResult += "Usage:\n";
   rResult += "   parameter [-new] name id bits\n";
@@ -719,9 +716,9 @@ CParameterCommand::ListParametersById(const char* pattern)
   Int_t    nParameters;	// These hold the split list.
   Char_t**  pParameters;
   SortingMap aMap;
-
+  std::string rResult;
   if(ParameterList.Split(nParameters, &pParameters) != TCL_OK) {
-    rResult = "Unable to split parameter list\n";
+    getInterpreter()->setResult("Unable to split parameter list\n");
     return TCL_ERROR;
   }
   for(UInt_t i = 0; i < nParameters; i++) {
@@ -738,6 +735,7 @@ CParameterCommand::ListParametersById(const char* pattern)
       rResult += pParameters[i];
       rResult += "\n";
       Tcl_Free((char*)pParameters);
+      getInterpreter()->setResult(rResult);
       return TCL_ERROR;
     }
     if(nItems < 2) {
@@ -745,6 +743,7 @@ CParameterCommand::ListParametersById(const char* pattern)
       rResult += pParameters[i];
       rResult += "\n";
       Tcl_Free((char*)pParameters);
+      getInterpreter()->setResult(rResult);
       return TCL_ERROR;
     }
 
@@ -756,6 +755,7 @@ CParameterCommand::ListParametersById(const char* pattern)
       rResult += pItems[1];
       rResult += "\n";
       Tcl_Free((char*)pItems);
+      getInterpreter()->setResult(rResult);
       return TCL_ERROR;
     }
     if(nId < 0) {
@@ -764,6 +764,7 @@ CParameterCommand::ListParametersById(const char* pattern)
       rResult += "\n";
       Tcl_Free((char*)pItems);
       Tcl_Free((char*)pParameters);
+      getInterpreter()->setResult(rResult);
       return TCL_ERROR;
     }
     aMap[(UInt_t)nId] = Parameter.getList();
@@ -783,8 +784,8 @@ CParameterCommand::ListParametersById(const char* pattern)
     SortedList.AppendElement((*Index).second.c_str());
     SortedList.Append("\n");
   }
-
-  getIntepreter()->setResult(std::string(SortedList));
+  std::string listing = SortedList;
+  getInterpreter()->setResult(listing);
   return TCL_OK;
 }
 /*-----------------------------------------------------------------------------
@@ -890,7 +891,7 @@ CParameterCommand::TraceDispatcher::onRemove(std::string name, CParameter& param
  * @return int - TCL_OK on success.
 */
 int
-CParameterCommand::(const char* pString, int* pValue) {
+CParameterCommand::ParseInt(const char* pString, int* pValue) {
   return Tcl_GetInt(getInterpreter()->getInterpreter(), pString, pValue);
 }
 /**
@@ -901,7 +902,7 @@ CParameterCommand::(const char* pString, int* pValue) {
  *   @return CTCLObject* - dynamically allocated object containing the list.
 */
 CTCLObject*
-CParamterCommand::makeListObject(CTCLList& list) {
+CParameterCommand::makeListObject(CTCLList& list) {
   int argc;
   char** argv;
   list.Split(argc, &argv);
