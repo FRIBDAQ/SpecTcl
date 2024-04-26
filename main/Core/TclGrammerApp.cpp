@@ -804,38 +804,57 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   // of related commands.  These packages are not Tcl packages but are just
   // groups of commands which share a common set of services provided
   // by a containing class.
+
+  // Commands get registered everywhere as they are built to run in the
+  // correct rank(s) when parallel, but the signons need to be 
+  // only output in the root process.
+  
   m_pRunControlPackage = new CRunControlPackage(&rInterp);
   m_pRunControlPackage->Register();
   m_pRunControlPackage->InitializeRunState();
-  cerr << m_pRunControlPackage->getSignon() << endl;
-  cerr << "Tabbed widget (xmTabWidgetClass) used in Xamine thanks to Pralay Dakua \n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pRunControlPackage->getSignon() << endl;
+    cerr << "Tabbed widget (xmTabWidgetClass) used in Xamine thanks to Pralay Dakua \n";
+  }
+
   
   // Tacit assumption that the event sink is a histogrammer
   m_pParameterPackage = new CParameterPackage(&rInterp, 
 					      (CTCLHistogrammer*)gpEventSink);
   m_pParameterPackage->Register();
-  cerr << m_pParameterPackage->getSignon() << endl;
+
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pParameterPackage->getSignon() << endl;
+  }
 
   m_pSpectrumPackage  = new CSpectrumPackage(&rInterp, 
                          (CHistogrammer*)gpEventSink,
                          gpDisplayInterface);
   m_pSpectrumPackage->Register();
-  cerr << m_pSpectrumPackage->getSignon() << endl;
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pSpectrumPackage->getSignon() << endl;
+  }
 
   m_pDataSourcePackage = new CDataSourcePackage(&rInterp);
   m_pDataSourcePackage->Register();
-  cerr << m_pDataSourcePackage->getSignon() << endl;
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pDataSourcePackage->getSignon() << endl;
+  }
 
   m_pGatePackage = new CGatePackage(&rInterp, 
 				    (CHistogrammer*)gpEventSink);
   m_pGatePackage->Register();
-  cerr << m_pGatePackage->getSignon() << endl;
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pGatePackage->getSignon() << endl;
+  }
 
   // For Filter command.
   CFilterCommand* pFilterCommand = new CFilterCommand(rInterp);
   pFilterCommand->Bind(rInterp);
   pFilterCommand->Register();
-  cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
+  }
 
   // Create the tree parameter package commands and bind any variables
   // that have been defined:
@@ -845,45 +864,64 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   CTreeVariableCommand*  pTreeVariableCommand = new CTreeVariableCommand;
   CTreeVariable::BindVariables(*(getInterpreter()));
 
-  cerr << "Tree parameter/variable  command " << CTreeParameter::TreeParameterVersion;
-  cerr << " (c) Copyright 2005 NSCL written by Daniel Bazin, Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "Tree parameter/variable  command " << CTreeParameter::TreeParameterVersion;
+    cerr << " (c) Copyright 2005 NSCL written by Daniel Bazin, Ron Fox\n";
+  }
 
   CFoldCommand* pFold = new CFoldCommand(&rInterp);
 
-  cerr << "fold command (c) 2005 NSCL Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "fold command (c) 2005 NSCL Written by Ron Fox\n";
+  }
 
   CProjectionCommand* pProjection = new CProjectionCommand(rInterp);
 
-
-  cerr << "project command (c) 2005 NSCL Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "project command (c) 2005 NSCL Written by Ron Fox\n";
+  }
 
   CFitCommand *Fit  = new CFitCommand(rInterp);
-  cerr << "fit command (c) 2006 NSCL Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "fit command (c) 2006 NSCL Written by Ron Fox\n";
+  }
 
   CIntegrateCommand* pIntegrate = new CIntegrateCommand(rInterp);
   
-  cerr << "integrate command (c) 2007 Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "integrate command (c) 2007 Written by Ron Fox\n";
+  }
   
   CVersionCommand* pVersion = new CVersionCommand(rInterp);
   CSContentsCommand* pContents = new CSContentsCommand(rInterp);
-  
-  cerr << "version, scontents command (c) 2015 Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "version, scontents command (c) 2015 Written by Ron Fox\n";
+  }
   
   new CSpectrumStatsCommand(rInterp);
   
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
+  }
   
-  cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
-
   new CSharedMemoryKeyCommand(rInterp, *SpecTcl::getInstance());
-  cerr << "shmemkey - shared memory key command (c) 2016 Written by Jeromy Tompkins\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "shmemkey - shared memory key command (c) 2016 Written by Jeromy Tompkins\n";
+  }
 
   new CSharedMemorySizeCommand(rInterp);
-  cerr << "shmemsize - shared memory size command (c) 2016 Written by Jeromy Tompkins\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "shmemsize - shared memory size command (c) 2016 Written by Jeromy Tompkins\n";
+  }
 
   new CPipelineCommand(rInterp);
-  cerr << "pman - analysis pipeline manager (c) 2018 Written by Giordano Cerizza\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "pman - analysis pipeline manager (c) 2018 Written by Giordano Cerizza\n";
+  }
   new CUnpackEvbCommand(rInterp);
-  cerr << "evbunpack - Event built data unpacking manager (c) 2018 written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "evbunpack - Event built data unpacking manager (c) 2018 written by Ron Fox\n";
+  }
   
   new CRemoteCommand(rInterp);
   new CMirrorCommand(rInterp);

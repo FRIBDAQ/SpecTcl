@@ -32,7 +32,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
-//
 // Header Files:
 //
 #include <config.h>
@@ -43,7 +42,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLInterpreter.h"
 #include "TCLVariable.h"
 #include <string>
-
+#include "TclPump.h"
+//=
 
 
 #ifdef HAVE_STD_NAMESPACE
@@ -58,6 +58,8 @@ using namespace std;
 
 
 // Functions for class CRunControlPackage
+// Note in parallel/MPI SpecTcl, the run control package is entirely
+// in rank 0.  This is because that's where we read the data.
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -69,21 +71,29 @@ using namespace std;
 CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
   CTCLCommandPackage(pInterp,
 		     std::string(Copyright)),
-  m_pStartRun(new CStartRun(pInterp, *this)),
-  m_pStopRun(new CStopRun(pInterp, *this)),
-  m_pRunState(new CTCLVariable(pInterp,
-			       std::string("RunState"), TCLPLUS::kfFALSE))
+  m_pStartRun(0),
+  m_pStopRun(0),
+  m_pRunState(0)
 {
-  // Add commands to the package table:
+  // Create the commands:
 
-  AddProcessor(m_pStartRun);
-  AddProcessor(m_pStopRun);
+  if(!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
 
-  // Initialize the state:
-  //
+    m_pStartRun = (new CStartRun(pInterp, *this)),
+    m_pStopRun = (new CStopRun(pInterp, *this)),
+    m_pRunState = (new CTCLVariable(pInterp,
+              std::string("RunState"), TCLPLUS::kfFALSE))
 
-  InitializeRunState();
+    // Add commands to the package table:
 
+    AddProcessor(m_pStartRun);
+    AddProcessor(m_pStopRun);
+
+    // Initialize the state:
+    //
+
+    InitializeRunState();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -94,7 +104,8 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
 //    Destructor.
 //
 CRunControlPackage::~CRunControlPackage()
-{
+{ 
+  // Can do this b/c of the initializers
   delete m_pStartRun;
   delete m_pStopRun;
   delete m_pRunState;

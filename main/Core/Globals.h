@@ -60,4 +60,11 @@ extern CDisplayInterface*  gpDisplayInterface;  // Display interface
 extern volatile void*               gpDisplayMemory;     // Display memory.
 extern bool                gMPIParallel;       // TRUE if built with MPI and run with MPIRUN.
 
+// MPI constant definitions
+
+// Fixed ranks in MPI
+
+#define MPI_ROOT_RANK   0
+#define MPI_EVENT_SINK_RANK 1
+
 #endif
