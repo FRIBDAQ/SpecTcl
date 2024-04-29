@@ -417,7 +417,7 @@ CParameterCommand::List(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
     argStrings.push_back(std::string(objv[i]));
   }
   for (int i =0; i < argStrings.size(); i++) {
-    args.push_back(argStrings.back().c_str());
+    args.push_back(argStrings[i].c_str());
   }
   auto pPars = args.data();
 
@@ -521,7 +521,7 @@ CParameterCommand::Delete(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj
     stringArgs.push_back(objv[i]);
   }
   for (int i = 0; i < stringArgs.size(); i++) {
-    charArgs.push_back(stringArgs.back().c_str());
+    charArgs.push_back(stringArgs[i].c_str());
   }
   int nPars = charArgs.size();
   auto pPars = charArgs.data();
