@@ -162,7 +162,24 @@ SpecTcl::AssignParameterId()
   return id;			// If a tight block starting @ 0 return next int
 }
 
-
+void 
+SpecTcl::throwIfDuplicateParameterId(UInt_t id) {
+  if (FindParameter(id)) {
+    std::stringstream msg;
+    msg << "Duplicate parameter id: " << id;
+    std::string smsg = msg.str();
+    throw CException(smsg);
+  }
+}
+void
+SpecTcl::throwIfDuplicateParameterName(std::string name) {
+  if (FindParameter(name)) {
+    std::stringstream msg;
+    msg << "Duplicate parameter name: " << name;
+    std::string smsg = msg.str();
+    throw CException(smsg);
+  }
+}
 /*!
   Create a new parameter that is a floating point parameter, and add it to the
   parameter dictionary.  Note that AssignParameterId can be used to get an unused
@@ -190,9 +207,13 @@ SpecTcl::AssignParameterId()
 CParameter* 
 SpecTcl::AddParameter(string name, UInt_t Id, string Units)
 {
+  throwIfDuplicateParameterName(name);
+  throwIfDuplicateParameterId(Id);
+
+
   auto pDict = CParameterDictionarySingleton::getInstance();
   CParameter* pParameter =   new CParameter(name, Id, 
-	 						    Units.c_str());
+                  Units.c_str());
   pDict->Enter(name, *pParameter);
   return pParameter;
 
@@ -223,6 +244,9 @@ SpecTcl::AddParameter(string name, UInt_t Id, string Units)
 CParameter* 
 SpecTcl::AddParameter(string name, UInt_t id, UInt_t scale)
 {
+  throwIfDuplicateParameterName(name);
+  throwIfDuplicateParameterId(id);
+
   auto pDict = CParameterDictionarySingleton::getInstance();
   CParameter*    pParameter      = new CParameter(scale, name, id);
   pDict->Enter(name, *pParameter);
@@ -265,6 +289,9 @@ SpecTcl::AddParameter(string name, UInt_t id,
 				  UInt_t scale, Float_t low, Float_t high, 
 				  string units)
 {
+  throwIfDuplicateParameterName(name);
+  throwIfDuplicateParameterId(id);
+
   auto pDict = CParameterDictionarySingleton::getInstance();
   CParameter*    pParameter    = new CParameter(scale, name, id, 
 							     low, high,

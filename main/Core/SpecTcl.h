@@ -108,6 +108,8 @@ public:
   // Manipulate the parameter diectionary etc.
 
   UInt_t AssignParameterId();
+  void throwIfDuplicateParameterId(UInt_t id);
+  void throwIfDuplicateParameterName(std::string name);
   CParameter* AddParameter(std::string name, 
 			   UInt_t Id, 
 			   std::string Units);
