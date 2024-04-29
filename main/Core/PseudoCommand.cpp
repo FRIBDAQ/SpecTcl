@@ -134,7 +134,9 @@ int CPseudoCommand::operator()(CTCLInterpreter& rInterp,  std::vector<CTCLObject
   std::vector<char const*> args;
   for (auto& obj : objv) {
     words.push_back(std::string(obj));
-    args.push_back(words.back().c_str());
+  }
+  for (int i = 0; i < words.size(); i++) {
+    args.push_back(words[i].c_str());
   }
 
   const char** pArgs = args.data();
