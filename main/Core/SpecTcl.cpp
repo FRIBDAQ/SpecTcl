@@ -224,7 +224,7 @@ CParameter*
 SpecTcl::AddParameter(string name, UInt_t id, UInt_t scale)
 {
   auto pDict = CParameterDictionarySingleton::getInstance();
-  CParameter*    pParameter      = new CParamter(name, id, scale);
+  CParameter*    pParameter      = new CParameter(scale, name, id);
   pDict->Enter(name, *pParameter);
   return pParameter;
 }
@@ -266,8 +266,8 @@ SpecTcl::AddParameter(string name, UInt_t id,
 				  string units)
 {
   auto pDict = CParameterDictionarySingleton::getInstance();
-  CParameter*    pParameter    = new CParameter(name, id, 
-							     scale, low, high,
+  CParameter*    pParameter    = new CParameter(scale, name, id, 
+							     low, high,
 							     units);
   pDict->Enter(name, *pParameter);
   return pParameter;
@@ -310,14 +310,14 @@ SpecTcl::RemoveParameter(string name)
 */
 CParameter* 
 SpecTcl::FindParameter(string name)
-{  
+{    
   auto pDict = CParameterDictionarySingleton::getInstance();
   auto p = pDict->Lookup(name);
   CParameter* pResult = nullptr;
   if (p != pDict->end()) {
-    result = p->second;
+    pResult = &(p->second);
   }
-  return result;
+  return pResult;
 }
 
 
@@ -333,16 +333,16 @@ SpecTcl::FindParameter(string name)
   
   
 */
-namepsace SpecTclUtil {
+namespace SpecTclUtil {
   class MatchParameterId {
     private:
       UInt_t m_id;
     public:
       MatchParameterId(UInt_t id) : m_id(id) {}
-      bool operator(CParameterDictionaryIterator p) {
-        return (id == p->second->getNumber());
+      bool operator()(const std::pair<std::string, CParameter>& p) {
+        return (m_id == p.second.getNumber());
       }
-  }
+  };
 };
 CParameter* 
 SpecTcl::FindParameter(UInt_t Id)
@@ -352,7 +352,7 @@ SpecTcl::FindParameter(UInt_t Id)
   auto p = pDict->FindMatch(pred);
   CParameter* result(nullptr);
   if (p != pDict->end()) {
-    result = p-> second;
+    result = &(p->second);
   }
 
   return result;
