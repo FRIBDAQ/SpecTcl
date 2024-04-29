@@ -2,9 +2,10 @@ lib_LTLIBRARIES=libMPIUtilities.la
 libMPIUtilities_la_CPPFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
 libMPIUtilities_lla_LDFLAGS=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @LIBEXCEPTION_LDFLAGS@
 
-libMPIUtilities_la_SOURCES= TclPump.cpp TclPump.h MPITclCommand.cpp MPITclCommandAll.cpp
+libMPIUtilities_la_SOURCES= TclPump.cpp TclPump.h MPITclCommand.cpp MPITclCommandAll.cpp \
+    MPITclPackagedCommand.cpp
 
-include_HEADERS = MPITclCommand.h MPITclCommandAll.h
+include_HEADERS = MPITclCommand.h MPITclCommandAll.h MPITclPackagedCommand.h
 
 noinst_PROGRAMS= testApp
 
