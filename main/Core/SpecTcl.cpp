@@ -168,7 +168,10 @@ SpecTcl::throwIfDuplicateParameterId(UInt_t id) {
     std::stringstream msg;
     msg << "Duplicate parameter id: " << id;
     std::string smsg = msg.str();
-    throw CException(smsg);
+    std::string empty;
+    CDictionaryException e(CDictionaryException::knDuplicateId, smsg, empty);
+    e.setID(id);
+    throw e;
   }
 }
 void
@@ -177,7 +180,10 @@ SpecTcl::throwIfDuplicateParameterName(std::string name) {
     std::stringstream msg;
     msg << "Duplicate parameter name: " << name;
     std::string smsg = msg.str();
-    throw CException(smsg);
+    std::string empty;
+    CDictionaryException e(CDictionaryException::knDuplicateKey, smsg, empty);
+    e.setName(name);
+    throw e;
   }
 }
 /*!
