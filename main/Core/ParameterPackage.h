@@ -325,7 +325,7 @@ public:
 
 
                         // Copy Constructor.
-
+private:
   CParameterPackage (const CParameterPackage& aCParameterPackage );
 
 			//Operator= Assignment Operator
@@ -372,6 +372,7 @@ public:
   TCLPLUS::Int_t DescribePseudo(const std::string& rName, std::string& rDescription);
   TCLPLUS::Int_t DeletePseudo(const std::string& rName, std::string& rResult);
   void  GetPseudoNames(STD(list)<std::string>& rNames);
+  const char* getSignon() const;
   
 };
 

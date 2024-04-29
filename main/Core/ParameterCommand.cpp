@@ -15,7 +15,7 @@
 */
 
 
-static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
+static const char* Copyright = "(C) Copyright Michigan State University 2008, 2024 All rights reserved";
 
 //  CParameterCommand.cpp
 //
