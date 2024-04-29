@@ -220,7 +220,9 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, int firstCreateParam, std::v
   unsigned nArg = objv.size() - firstCreateParam;
   for (int i = firstCreateParam; i <  objv.size(); i++) {
     argStrings.push_back(std::string(objv[i]));
-    args.push_back(argStrings.back().c_str());
+  }
+  for (int i = 0; i < argStrings.size(); i++) {
+    args.push_back(argStrings[i].c_str());
   }
   auto pArg = args.data();
 
@@ -289,6 +291,10 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, int firstCreateParam, std::v
         }
       }
     }
+  }
+  catch (CException& e) {
+    Usage(rInterp, e.WasDoing());
+    return TCL_ERROR;
   }
   catch (std::string msg) {
     Usage(rInterp, msg.c_str());
@@ -409,6 +415,8 @@ CParameterCommand::List(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
   
   for (int i = 2; i <  objv.size(); i++) {
     argStrings.push_back(std::string(objv[i]));
+  }
+  for (int i =0; i < argStrings.size(); i++) {
     args.push_back(argStrings.back().c_str());
   }
   auto pPars = args.data();
@@ -444,6 +452,10 @@ CParameterCommand::List(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
         rResult+= "\n";
         throw rResult;
       }
+    }
+    catch (CException& e) {
+      Usage(rInterp, e.ReasonText());
+      return TCL_ERROR;
     }
     catch (std::string msg) {
       Usage(rInterp, msg.c_str());
@@ -507,6 +519,8 @@ CParameterCommand::Delete(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj
 
   for (int i =2; i < objv.size(); i++) {
     stringArgs.push_back(objv[i]);
+  }
+  for (int i = 0; i < stringArgs.size(); i++) {
     charArgs.push_back(stringArgs.back().c_str());
   }
   int nPars = charArgs.size();
@@ -540,6 +554,10 @@ CParameterCommand::Delete(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj
         rResult += "\n";
         throw rResult;
       }
+    }
+    catch (CException& e) {
+      Usage(rInterp, e.ReasonText());
+      return TCL_ERROR;
     }
     catch (std::string msg) {
       Usage(rInterp, msg.c_str());
