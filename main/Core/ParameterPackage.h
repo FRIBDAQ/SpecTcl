@@ -304,8 +304,8 @@ class CParameter;
 class CParameterCommand;
 class CPseudoCommand;
 class CTCLString;
-class CMPITclCommandAll;
-class CMPITclCommand;
+class CMPITclPackagedCommandAll;
+class CMPITclPackagedCommand;
 
 
 class CParameterPackage : public CTCLObjectPackage
@@ -313,8 +313,8 @@ class CParameterPackage : public CTCLObjectPackage
   CTCLHistogrammer*  m_pHistogrammer;	// Refers to the Histogrammer in which
 				// parameters will be defined.
 
-  CMPITclCommandAll* m_pParameter; // Command Processor.
-  CMPITclCommand*    m_pPseudo;
+  CMPITclPackagedCommandAll* m_pParameter; // Command Processor.
+  CMPITclPackagedCommand*    m_pPseudo;
 public:
 			// Normal constructor.
 
