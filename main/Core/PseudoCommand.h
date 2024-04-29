@@ -64,9 +64,11 @@
 #define PSEUDOCOMMAND_H
 
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
+class CTCLInterpreter;
+class CTCLObject;
                                
-class CPseudoCommand  : public CTCLPackagedCommand        
+class CPseudoCommand  : public CTCLPackagedObjectProcessor        
 {                       
 			
 protected:
@@ -85,8 +87,8 @@ public:
   
   // Constructors and other cannonical operations:
   
-  CPseudoCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage) :
-    CTCLPackagedCommand("pseudo", pInterp, rPackage)
+  CPseudoCommand (CTCLInterpreter* pInterp) :
+    CTCLPackagedObjectProcessor(*pInterp, "pseudo", true )
   { 
   } 
   virtual ~ CPseudoCommand ( )  // Destructor 
@@ -108,24 +110,16 @@ public:
   
 public:
   
-  virtual   int operator() (CTCLInterpreter& rInterp, 
-			    CTCLResult& rResult, 
-			    int nArgs, char* pArgs[]);
+  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
 
-  TCLPLUS::Int_t Create (CTCLInterpreter& rInterp, 
-		CTCLResult& rResult, 
-			 TCLPLUS::UInt_t nArgs, char** pArgs);
+  TCLPLUS::Int_t Create (CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char** pArgs);
 
-  TCLPLUS::UInt_t List (CTCLInterpreter& rInterp, 
-	       CTCLResult& rResult, 
-	       TCLPLUS::UInt_t nArgs, char** pArgs);
+  TCLPLUS::UInt_t List (CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char** pArgs);
 
-  TCLPLUS::UInt_t Delete (CTCLInterpreter& rInterp, 
-		 CTCLResult& rResult, 
-		 TCLPLUS::UInt_t nArgs, char** pArgs);
+  TCLPLUS::UInt_t Delete (CTCLInterpreter& rInterp,  TCLPLUS::UInt_t nArgs, const char** pArgs);
   
 protected:
-  void Usage (CTCLResult& rResult)   ;
+  void Usage (CTCLInterpreter& rInterp)   ;
   SwitchValue_t ParseSwitch (const char* pSwitch)   ;
   
 private:

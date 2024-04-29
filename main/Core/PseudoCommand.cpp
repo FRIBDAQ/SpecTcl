@@ -61,11 +61,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "PseudoCommand.h"    				
 #include "ParameterPackage.h"
 #include <TCLList.h>
-#include <TCLResult.h>
+#include <TCLInterpreter.h>
+#include <TCLObject.h>
 #include <histotypes.h>
 
 #include <vector>
 #include <list>
+#include <string>
 #include <string.h>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -73,7 +75,7 @@ using namespace std;
 #endif
 
 static const  char* pCopyrightNotice = 
-"(C) Copyright 1999 NSCL, All rights reserved PseudoCommand.cpp \n";
+"(C) Copyright 1999, 2024 NSCL, All rights reserved PseudoCommand.cpp \n";
 
 // static data:
 
@@ -101,9 +103,7 @@ static TCLPLUS::UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchDefinition);
 //                int nArgs, char* pArgs[])
 //  Operation Type: 
 //     evaluation
-int CPseudoCommand::operator()(CTCLInterpreter& rInterp, 
-			       CTCLResult& rResult, 
-			       int nArgs, char* Args[])  
+int CPseudoCommand::operator()(CTCLInterpreter& rInterp,  std::vector<CTCLObject>& objv)  
 {
   // Called for top level processing of the pseudo
   // command.  See the module comment header for
@@ -126,12 +126,25 @@ int CPseudoCommand::operator()(CTCLInterpreter& rInterp,
   //  The result string on exit (an out parameter) depends on the 
   //   subfunction invoked.
   //
-  char** pArgs = Args;
+
+  // Turn objv into nArgs, pArgs:
+
+  bindAll(rInterp, objv);                // Bind all to the interpreter.
+  std::vector<std::string> words;
+  std::vector<char const*> args;
+  for (auto& obj : objv) {
+    words.push_back(std::string(obj));
+    args.push_back(words.back().c_str());
+  }
+
+  const char** pArgs = args.data();
+  TCLPLUS::UInt_t nArgs = args.size();
+
   nArgs--;			// Command line arguments include the
   pArgs++;			// the command name.
 
   if(!nArgs) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
 
@@ -142,17 +155,17 @@ int CPseudoCommand::operator()(CTCLInterpreter& rInterp,
     nArgs--;
     pArgs++;
   case SwNotSwitch:		// Create.
-    return Create(rInterp, rResult, nArgs, pArgs);
+    return Create(rInterp, nArgs, pArgs);
   case SwList:			// List
     nArgs--;
     pArgs++;
-    return List(rInterp, rResult, nArgs, pArgs);
+    return List(rInterp, nArgs, pArgs);
   case SwDelete:		// Delete
     nArgs--;
     pArgs++;
-    return Delete(rInterp, rResult, nArgs, pArgs);
+    return Delete(rInterp, nArgs, pArgs);
   default:			// Inappropriate switch at this point.
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
 }
@@ -163,8 +176,7 @@ int CPseudoCommand::operator()(CTCLInterpreter& rInterp,
 //  Operation Type: 
 //     SubFunction
 TCLPLUS::Int_t 
-CPseudoCommand::Create(CTCLInterpreter& rInterp, CTCLResult& 
-		       rResult, TCLPLUS::UInt_t nArgs, char** pArgs)  
+CPseudoCommand::Create(CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char** pArgs)  
 {
   // Creates the pseudo parameter.
   // See module header for the command syntax.
@@ -172,8 +184,6 @@ CPseudoCommand::Create(CTCLInterpreter& rInterp, CTCLResult&
   //     Formal Parameters:
   //           CTCLInterpeter& rInterp:
   //                Interpreter running the command.
-  //           CTCResult& rResult:
-  //                Result string returned.
   //           UInt_t nArg:
   //                 No. parameters in command tail.
   //           char* pArgs[]:
@@ -192,14 +202,14 @@ CPseudoCommand::Create(CTCLInterpreter& rInterp, CTCLResult&
   //
 
   if(nArgs != 3) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
 
-  char* pPseudoName = pArgs[0];	 // Pseudo name.
+  const char* pPseudoName = pArgs[0];	 // Pseudo name.
   CTCLList Parameters(&rInterp,
 		      pArgs[1]); // List of names of dependent parameters.
-  char* pBody       = pArgs[2];  // Script body.
+  const char* pBody       = pArgs[2];  // Script body.
 
   // The Parameter names are pulled out into a vector, from a properly
   // formatted TCL List:
@@ -209,8 +219,8 @@ CPseudoCommand::Create(CTCLInterpreter& rInterp, CTCLResult&
 
   // Now ask our package to make the pseudo.
 
-  CParameterPackage& rPack = (CParameterPackage&)getMyPackage();
-  return rPack.AddPseudo(rResult, pPseudoName, DependentParameters, pBody);
+  auto& rPack(*(CParameterPackage*)getPackage());
+  return rPack.AddPseudo(rInterp, pPseudoName, DependentParameters, pBody);
 
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -220,8 +230,7 @@ CPseudoCommand::Create(CTCLInterpreter& rInterp, CTCLResult&
 //          UInt_t nArgs, char* pArgs[])
 //  Operation Type: 
 //     SubFunction
-TCLPLUS::UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    TCLPLUS::UInt_t nArgs, char** pArgs)  
+TCLPLUS::UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char** pArgs)  
 {
   // Lists the set of pseudos which have been
   // defined or a subset of the pseudos selected
@@ -231,8 +240,6 @@ TCLPLUS::UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResu
   // Formal Parameters:
   //    CTCLInterpreter& rInterp:
   //       Refers to the interpreter executing this command.
-  //    CTCLResult&       rResult:
-  //       Refers tothe reseult string.
   //    UInt_t nArgs:
   //       number of arguments in the command tail.
   //     char* pArgs[]:
@@ -253,7 +260,7 @@ TCLPLUS::UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResu
   // of pseudo parameter names.
   //
 
-  CParameterPackage& rPack = (CParameterPackage&)getMyPackage();
+  auto& rPack(*(CParameterPackage*)getPackage());
 
   list<string> PseudoNames;
   const char* pattern = "*";
@@ -290,19 +297,17 @@ TCLPLUS::UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResu
   }
   // Set the result string according to the error count, and return:
 
-  rResult = (char*)(nErrors ? (const char*)errors : (const char*)oks);
+  rInterp.setResult((char*)(nErrors ? (const char*)errors : (const char*)oks));
   return (nErrors ? TCL_ERROR : TCL_OK);
 
 }
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     Delete(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-//            UInt_t nArgs, char** pArgs)
+//     Delete(CTCLInterpreter& rInterp, UInt_t nArgs, char** pArgs)
 //  Operation Type: 
 //     SubFunction
-TCLPLUS::UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			      TCLPLUS::UInt_t nArgs, char** pArgs)  
+TCLPLUS::UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char** pArgs)  
 {
   // Deletes an existing pseudo parameter
   // definition script.
@@ -310,8 +315,6 @@ TCLPLUS::UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rRe
   // Formal Parameters:
   //    CTCLInterpreter& rInterp:
   //        Interpreter which is executing the cmd.
-  //    CTCLResult&      rResult:
-  //        Result string returned from the cmd.
   //    UInt_t nArgs:
   //        No. of args in command tail.
   //    char* pArgs[]:
@@ -322,10 +325,10 @@ TCLPLUS::UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rRe
   //
   
   if(nArgs <= 0) {		// Must have at least one item to delete.
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
-  CParameterPackage& rPack = (CParameterPackage&)getMyPackage();
+  auto& rPack(*(CParameterPackage*)getPackage());
   CTCLString errors;
   TCLPLUS::UInt_t     nErrors = 0;
   while(nArgs) {
@@ -338,7 +341,7 @@ TCLPLUS::UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rRe
     nArgs--;
     pArgs++;
   }
-  rResult = (const char*)errors;
+  rInterp.setResult((const char*)errors);
   return (nErrors ? TCL_ERROR : TCL_OK);
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -348,25 +351,26 @@ TCLPLUS::UInt_t CPseudoCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rRe
 //  Operation Type: 
 //     Factorization
 //
-void CPseudoCommand::Usage(CTCLResult& rResult)  
+void CPseudoCommand::Usage(CTCLInterpreter& rInterp)  
 {
   // Appends to the input result string the command usage
   //
   //  Formal Parameters:
-  //     CTCLResult& rResult:
-  //          Result string.
+  //     CTCLResult& rInterp:
+  //        the interpreter who's result will be set:
 
-  rResult += "Usage: \n";
-  rResult += "   pseudo name { depemendent_params } { proc_body }\n";
-  rResult += "   pseudo -list [pattern]\n";
-  rResult += "   pseudo -delete name1 [name2 ... ]\n";
-  rResult += "  name             - Name of a Pseudo parameter\n";
-  rResult += "  dependent_params - names of parameters on which a pseudo\n";
-  rResult += "                     depends\n";
-  rResult += "  proc_body        - Tcl script body to return the value of\n";
-  rResult += "                     pseudo computed in terms of\n";
-  rResult += "                     dependent_params\n";
-   
+    std::string rResult;
+    rResult += "Usage: \n";
+    rResult += "   pseudo name { depemendent_params } { proc_body }\n";
+    rResult += "   pseudo -list [pattern]\n";
+    rResult += "   pseudo -delete name1 [name2 ... ]\n";
+    rResult += "  name             - Name of a Pseudo parameter\n";
+    rResult += "  dependent_params - names of parameters on which a pseudo\n";
+    rResult += "                     depends\n";
+    rResult += "  proc_body        - Tcl script body to return the value of\n";
+    rResult += "                     pseudo computed in terms of\n";
+    rResult += "                     dependent_params\n";
+    rInterp.setResult(rResult);
   
 }
 //////////////////////////////////////////////////////////////////////////////

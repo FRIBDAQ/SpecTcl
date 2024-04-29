@@ -14,7 +14,7 @@
 	     East Lansing, MI 48824-1321
 */
 
-static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
+static const char* Copyright = "Parameter command package\n   (C) Copyright Michigan State University 2008, 2024, All rights reserved";
 
 //  CParameterPackage.cpp
 //
@@ -91,9 +91,10 @@ CParameterPackage::CParameterPackage (CTCLInterpreter* pInterp,
   m_pParameter = new CMPITclPackagedCommandAll(*pInterp, "parameter", parameterInner);
   addCommand(m_pParameter);
 
-  m_pPseudo = new CMPITclCommand(*pInterp, "pseudo", (new CPseudoCommand(pInterp, *this)));
-  
-  AddProcessor(m_pPseudo);
+  auto pseudoInner = new CPseudoCommand(pInterp);
+  addCommand(pseudoInner);
+  m_pPseudo = new CMPITclPackagedCommand(*pInterp, "pseudo", pseudoInner);
+  addCommand(m_pPseudo);
 }
 //////////////////////////////////////////////////////////////////////////
 // 
@@ -641,4 +642,14 @@ CParameterPackage::GetPseudoNames(list<string>& rNames)
     rNames.push_back((*p).getOutputParameter());
     p++;
   }
+}
+
+
+/**
+ *  getSignon - return the string to output at startup when the package is included;
+ *   @return const char*
+*/
+const char*
+CParameterPackage::getSignon() const {
+  return Copyright;
 }

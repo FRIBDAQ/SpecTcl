@@ -818,7 +818,6 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   // Tacit assumption that the event sink is a histogrammer
   m_pParameterPackage = new CParameterPackage(&rInterp, 
 					      (CTCLHistogrammer*)gpEventSink);
-  m_pParameterPackage->Register();
 
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     cerr << m_pParameterPackage->getSignon() << endl;
