@@ -830,9 +830,10 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     cerr << m_pSpectrumPackage->getSignon() << endl;
   }
-
-  m_pDataSourcePackage = new CDataSourcePackage(&rInterp);
-  m_pDataSourcePackage->Register();
+  if (!gMPIParallel || m_mpiRank == MPI_ROOT_RANK) {    // attach/ringformat are only in root.
+    m_pDataSourcePackage = new CDataSourcePackage(&rInterp);
+    m_pDataSourcePackage->Register();
+  }
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     cerr << m_pDataSourcePackage->getSignon() << endl;
   }

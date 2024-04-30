@@ -66,5 +66,5 @@ extern bool                gMPIParallel;       // TRUE if built with MPI and run
 
 #define MPI_ROOT_RANK   0
 #define MPI_EVENT_SINK_RANK 1
-
+#define MPI_FIRST_WORKER_RANK 2
 #endif
