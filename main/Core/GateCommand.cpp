@@ -251,7 +251,7 @@ CGateCommand::~CGateCommand()
 //          evaulation
 //
 int 
-CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
+CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
   // Called to evaluate the "gate" command.
   // This command creates, lists or deletes a gate.
   //
@@ -265,9 +265,10 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
   
   // Manufactor, nArgs, and pArgs from objv:
 
-  UInt_t nArgs = objv.size();
+  TCLPLUS::UInt_t nArgs = objv.size();
   std::vector<std::string> words;
   std::vector<const char*> pWords;
+
 
   // Due to lifetime issues with const char* have to
   // do it in two loops but there are usually few words so...
@@ -282,7 +283,7 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
   nArgs--; 
   pArgs++;			// Skip the command name.
   if(nArgs  < 1) {		// Must be at least one parameter:
-    rResult = Usage();
+    rInterp.setResult(Usage());
     return TCL_ERROR;
   }
   // Now decode the switch and figure out what we got:
@@ -347,14 +348,14 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
 
  */
 Int_t 
-CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
+CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[])
 {
 
 
   SpecTcl& api(*(SpecTcl::getInstance()));
 
   if(nArgs != 3) {		// must be exactly 3 parameters....
-    rResult = Usage();
+    rInterp.setResult(Usage());
     return TCL_ERROR;
   }
  // need to figure out how to parse the gate description... the first two items
@@ -414,7 +415,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
     if(Description.size() != (Item.nParameters+1)) {
       rResult = Usage();
       rResult += "Incorrect description list format";
-      rInterp.setResult();
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
 
@@ -450,7 +451,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
         return TCL_ERROR;
       }
       pGate = api.CreateGate(Item.eGateType, Parameters, Compare);
-      if(rPackage.AddGate(rResult, string(pName), pGate)) {
+      if(rPackage.AddGate(rInterp, string(pName), pGate)) {
         return TCL_OK;
       }
       else {
@@ -645,7 +646,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
 //  Operation Type: 
 //      SubFunction
 //
-Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, UInt_t  nArgs, char* pArgs[])  
+Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, UInt_t  nArgs, const char* pArgs[])  
 {
   // Returns a textually formatted list of gates
   // in the gate dictionary.
@@ -686,17 +687,17 @@ Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, UInt_t  nArgs, char* pAr
     } else {
         rResult = Usage();
         rResult += "\nIncorrect number or wrong order of parameters";
-        interp.setResult(rResult);
+        rInterp.setResult(rResult);
         return TCL_ERROR;
       }
     break;
   default:
     rResult = Usage();
     rResult += "\nIncorrect number of parameters";
-    interp.setResult(rResult);
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
-  interp.setResult((const char*)(ResultString));
+  rInterp.setResult((const char*)(ResultString));
   return TCL_OK;
   
 }
@@ -708,7 +709,7 @@ Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, UInt_t  nArgs, char* pAr
 //       Subfunction
 //
 Int_t 
-CGateCommand::DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])  
+CGateCommand::DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[])  
 {
   // Deletes a gate or a set of gates.
   //
@@ -730,7 +731,7 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
   }
   // What we do depends on whether or not the next Item is a -id switch:
 
-  CGatePackage& Package((CGatePackage&)getMyPackage());
+  CGatePackage& Package(*(CGatePackage*)getPackage());
   if(MatchSwitches(*pArgs) == id) { // Remaining list is a set of ids...
     nArgs--;
     pArgs++;
@@ -759,11 +760,9 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
       }
       pArgs++;
     }
-    if(Package.DeleteGates(rResult, Ids) && (!ConvertFailed)) {
-      rInterp.setResult(rResult);
+    if(Package.DeleteGates(rInterp, Ids) && (!ConvertFailed)) {   // Sets the result.
       return TCL_OK;
     } else {
-      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   }
@@ -773,11 +772,9 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
       Names.push_back(*pArgs); // All strings are legal names.
       pArgs++;
     }
-    if(Package.DeleteGates(rResult, Names)) {
-      rInterp.setResult(rResult);
+    if(Package.DeleteGates(rInterp, Names)) {    // Sets the result.
       return TCL_OK;
     } else {
-      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   }
@@ -795,7 +792,7 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
 //   TCL_OK    - Everything ok and the previous script in the result.
 //   TCL_ERROR - some failure, with result an error message.
 Int_t 
-CGateCommand::traceGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* args[])
+CGateCommand::traceGates(CTCLInterpreter& rInterp, UInt_t nArgs,const char* args[])
 {
   std::string rResult;
   // Must be no more than 2 but at least one parameter:
@@ -935,7 +932,7 @@ CGateCommand::invokeAScript(CTCLObject* pScript,
 //    Protected utility.
 //
 CGateCommand::Switches
-CGateCommand::MatchSwitches(char* pKey)
+CGateCommand::MatchSwitches(const char* pKey)
 {
   // attempts to match the switch text pointed to by pKey with
   // a valid gate command switch.

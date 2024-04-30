@@ -1902,16 +1902,16 @@ SpecTcl::CreateMaskNotGate(vector<string> parameters,
 
 /// Throw if agate by this name already exists.
 void SpecTcl::throwIfGateExists(std::string& name) {
-    auto dict = CGateDictionarySingleton::getInstance();
-    if (dict.lookup(name) != dict.end()) {
-      throw CDictionaryException(CDictionaryException::knDuplicateKey, "Disallowing duplicate gate", name());
+    auto& dict = *CGateDictionarySingleton::getInstance();
+    if (dict.Lookup(name) != dict.end()) {
+      throw CDictionaryException(CDictionaryException::knDuplicateKey, "Disallowing duplicate gate", name);
     }
 }
 // throw if a gate by ths name does not exist:
 
 void SpecTcl::throwIfNoSuchGate(std::string& name) {
-  auto dict = CGateDictionarySingleton::getInstance();
-  if (dict.lookup(name) == dict.end()) {
+  auto& dict = *CGateDictionarySingleton::getInstance();
+  if (dict.Lookup(name) == dict.end()) {
     throw CDictionaryException(CDictionaryException::knNoSuchKey, "Checking gate existence", name);
   }
 }
@@ -1932,12 +1932,12 @@ void
 SpecTcl::AddGate(string name, CGate* gate)
 {
   throwIfGateExists(name);
-  int id = CGateFactory::AssignId();
+  UInt_t id = CGateFactory::AssignId();
 
   // Wrap the gate in a container and add the container to the dictionary.
 
-  CGateContainer& container = *new CGateContainer(name, id, *gate);
-  auto dict = CGateDictionarySingleton::getInstance();
+  CGateContainer& container(*new CGateContainer(name, id, *gate));
+  auto& dict = *CGateDictionarySingleton::getInstance();
   dict.Enter(name, container);
 
 }
@@ -1979,10 +1979,10 @@ void
 SpecTcl::ReplaceGate(string gateName, CGate& newGate)
 {
   throwIfNoSuchGate(gateName);
-  auto dict = CGateDictionarySingleton::getInstance();
+  auto& dict = *CGateDictionarySingleton::getInstance();
   auto p = dict.Lookup(gateName); 
   CGateContainer* pContainer = &(p->second);        // Cannot be null as p cannot be end().
-  pContainer->setGate(newGate);                     // Replace the gate in the container.
+  pContainer->setGate(&newGate);                     // Replace the gate in the container.
 
 }
 
@@ -2005,9 +2005,9 @@ SpecTcl::ReplaceGate(string gateName, CGate& newGate)
 CGateContainer* 
 SpecTcl::FindGate(string gateName)
 {
-  auto dict = CGateDictionarySingleton::getInstance();
+  auto& dict = *CGateDictionarySingleton::getInstance();
   auto p = dict.Lookup(gateName);
-  return (p != dict.end()) (&p.second) : nullptr;
+  return (p != dict.end()) ? (&(p->second)) : nullptr;
 }
 
 
@@ -2024,7 +2024,7 @@ SpecTcl::FindGate(string gateName)
 CGateDictionaryIterator 
 SpecTcl::GateBegin()
 {
-  return CGateDictionarySingleton::getInstance().begin();
+  return CGateDictionarySingleton::getInstance()->end();
 }
 
 /*!
@@ -2037,7 +2037,7 @@ SpecTcl::GateBegin()
 CGateDictionaryIterator 
 SpecTcl::GateEnd()
 {
-  return CGateDictionarySingleton::getInstance().end();
+  return CGateDictionarySingleton::getInstance()->end();
 }
 
 
@@ -2048,7 +2048,7 @@ SpecTcl::GateEnd()
 UInt_t 
 SpecTcl::GateCount()
 {
-  return CGateDictionarySingleton::getInstance().size();
+  return CGateDictionarySingleton::getInstance()->size();
 
 }
 /*!
@@ -2058,7 +2058,7 @@ SpecTcl::GateCount()
 void
 SpecTcl::addGateDictionaryObserver(CGateObserver* observer)
 {
-  CGateDictionarySingleton::getInstance().addObserver(observer);
+  CGateDictionarySingleton::getInstance()->addObserver(observer);
 }
 
 /*!
@@ -2067,7 +2067,7 @@ SpecTcl::addGateDictionaryObserver(CGateObserver* observer)
 void
 SpecTcl::removeGateDictionaryObserver(CGateObserver* observer)
 {
-  CGateDictionarySingleton::getInstance().removeObserver(observer);
+  CGateDictionarySingleton::getInstance()->removeObserver(observer);
 }
 
 /*!
@@ -2089,7 +2089,7 @@ void
 SpecTcl::ApplyGate(string gateName, string spectrumName)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  if (pHistogramer) {
+  if (pHistogrammer) {
     pHistogrammer->ApplyGate(gateName, spectrumName);
   }
 }

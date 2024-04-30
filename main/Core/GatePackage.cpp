@@ -40,6 +40,9 @@
 #include <Parameter.h>
 #include <Exception.h>
 
+#include <MPITclPackagedCommandAll.h>
+#include <MPITclPackagedCommand.h>
+
 #include <string>
 #include <algorithm>
 #include <stdio.h>
@@ -78,8 +81,9 @@ Bool_t IdCompare(CGateContainer* e1,
 //
 CGatePackage::CGatePackage(CTCLInterpreter* pInterp, CHistogrammer* pHistogrammer) :
   m_pHistogrammer(pHistogrammer),
-  
-  
+  m_pGateCommand(0),
+  m_pApplyCommand(0),
+  m_pUngateCommand(0) 
 {
   /*
   m_pUngateCommand(new CUngateCommand(pInterp, *this))  // MPI Packaged (only runs in histogramer).
@@ -89,17 +93,19 @@ CGatePackage::CGatePackage(CTCLInterpreter* pInterp, CHistogrammer* pHistogramme
   // The gate command.
 
   auto pGateInner = new CGateCommand(pInterp);
-  addProcessor(gateInner);
+  addCommand(pGateInner);
   m_pGateCommand = new CMPITclPackagedCommandAll(*pInterp, "gate", pGateInner);
   addCommand(m_pGateCommand);
 
-  auto applyInner = new CApplyCommand(pInterp);
-  addProcessor(applyInner);
+  auto pApplyInner = new CApplyCommand(pInterp);
+  addCommand(pApplyInner);
   m_pApplyCommand = new CMPITclPackagedCommand(*pInterp, "applygate", pApplyInner);
+  addCommand(m_pApplyCommand);
   
-  AddProcessor(m_pApplyCommand);
-  AddProcessor(m_pUngateCommand);
-  AddProcessor(m_pApplyGateCommand);
+  auto pUngateInner = new CUngateCommand(pInterp);
+  addCommand(pUngateInner);
+  m_pUngateCommand = new CMPITclPackagedCommand(*pInterp, "ungate", pUngateInner);
+  addCommand(m_pUngateCommand);
   
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -161,7 +167,7 @@ CGatePackage::AddGate(CTCLInterpreter& rInterp, const std::string& rGateName,
       return kfTRUE;		// Success.
     }
     catch (CException& rException) {
-      rInterp.setResult(ReasonText());
+      rInterp.setResult(rException.ReasonText());
       return kfFALSE;
     }
   }
@@ -307,7 +313,7 @@ CGatePackage::DeleteGates(CTCLInterpreter& rInterp,
       nFailed++;
     }
   }
-  interp.setResult(std::string(RestulString));
+  rInterp.setResult((const char*)(ResultString));
   return (nFailed == 0);
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -372,8 +378,8 @@ Bool_t CGatePackage::DeleteGates(
   }
   // Now Delete the gates we got:
 
-  interp.setResult(result);
-  Bool_t AllDeleted = DeleteGates(rResult, Names);
+  rInterp.setResult(result);
+  Bool_t AllDeleted = DeleteGates(rInterp, Names);
   return ((AllDeleted) && (nFailed == 0));
   
   
@@ -475,13 +481,17 @@ CGatePackage::Ungate(CTCLString& rResult, const string& rName)
   //   Bool_t kfTRUE on success, kfFALSE on failure.
   //
 
-  try {
-    m_pHistogrammer->UnGate(rName);
-    return kfTRUE;
-  }
-  catch(CException& rExcept) {
-    rResult = rExcept.ReasonText();
-    return kfFALSE;
+  if (m_pHistogrammer) {
+    try {
+      m_pHistogrammer->UnGate(rName);
+      return kfTRUE;
+    }
+    catch(CException& rExcept) {
+      rResult = rExcept.ReasonText();
+      return kfFALSE;
+    }
+  } else {
+    return kfTRUE;      // MPI but not in the event sink pipeline rank.
   }
   assert(0);
 } 

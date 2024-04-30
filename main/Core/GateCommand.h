@@ -146,7 +146,7 @@ protected:
   
 private:
   void   invokeAScript(CTCLObject* pScript, std::string parameter);
-  static Switches MatchSwitches(char* pKey);
+  static Switches MatchSwitches(const char* pKey);
   static std::string   Usage();
   static GateFactoryTable* MatchGateType(const char* pGateType);
 

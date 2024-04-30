@@ -88,7 +88,7 @@ class CGatePackage  : public CTCLObjectPackage
 			
   CHistogrammer*  m_pHistogrammer;   //!< Pointer to SpecTcl Histogrammer        
   CMPITclPackagedCommandAll*   m_pGateCommand;    // 1:1 association object data member
-  CMPITclPackagedCommand*  m_pApplyGateCommand; // Same as apply but applygate
+  CMPITclPackagedCommand*  m_pApplyCommand; // Same as apply but applygate
   CMPITclPackagedCommand* m_pUngateCommand;  // 1:1 association object data member
   static UInt_t   m_nNextId;	     //!< Next Gate Id.
 
@@ -125,48 +125,7 @@ public:
   { 
     return m_pHistogrammer;
   }
-                       
-  const CGateCommand* getGateCommand() const
-  {
-    return m_pGateCommand;
-  }
-  const CApplyCommand* getApplyCommand() const
-  { 
-    return m_pApplyCommand;
-  }
-  const CUngateCommand* getUngateCommand() const
-  { 
-    return m_pUngateCommand;
-  }
-  UInt_t getNextId() const {
-    return m_nNextId;
-  }
-                       
-// Mutators:
-
-protected:
-
-  void setHistogrammer (CHistogrammer* am_pHistogrammer)
-  { 
-    m_pHistogrammer = am_pHistogrammer;
-  }
-       
-  void setGateCommand (CGateCommand* p)
-  {
-    m_pGateCommand = p;
-  }
-  void setApplyCommand (CApplyCommand* p)
-  {
-    m_pApplyCommand = p;
-  }
-  void setUngateCommand (CUngateCommand* p)
-  {
-    m_pUngateCommand = p;
-  }
-  void setNextId(UInt_t n) {
-    m_nNextId = n;
-  }
-
+                    
   // Class operations:
 
 public:
@@ -184,7 +143,7 @@ public:
 		                  const std::string& rSpectrumName);
    Bool_t ListAppliedGate (CTCLString& rApplication, 
                            const std::string& rName)    ;
-   Bool_t  Ungate(CTCLInterpreter& rInterp, const std::string & rName);
+   Bool_t  Ungate(CTCLString& rResult, const std::string & rName);
 
    std::string GateToString (CGateContainer* pGate);
    static  UInt_t AssignId();

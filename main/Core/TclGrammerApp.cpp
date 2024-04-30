@@ -840,7 +840,6 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
 
   m_pGatePackage = new CGatePackage(&rInterp, 
 				    (CHistogrammer*)gpEventSink);
-  m_pGatePackage->Register();
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     cerr << m_pGatePackage->getSignon() << endl;
   }
