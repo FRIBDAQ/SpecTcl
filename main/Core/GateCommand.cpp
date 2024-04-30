@@ -106,7 +106,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <TCLList.h>
 #include <TCLString.h>
-#include <TCLResult.h>
+#include <TCLInterpreter.h>
 #include <Exception.h>
 #include <SpecTcl.h>
 #include <TCLObject.h>
@@ -215,11 +215,10 @@ static const UInt_t nUsageLines = (sizeof(pUsage) / sizeof(char*));
   Construct the object.
   \param pInterp   - Points to the interpreter object on which the command
                      will be registered
-  \param pack      - The command package in which we belong.
+  The package will be registered by the package itself when the command is added.
 */
-CGateCommand::CGateCommand(CTCLInterpreter*      pInterp,
-			   CTCLCommandPackage&  rPack) :
-  CTCLPackagedCommand("gate", pInterp, rPack),
+CGateCommand::CGateCommand(CTCLInterpreter*      pInterp) :
+  CTCLPackagedObjectProcessor(*pInterp, "gate", true),
   m_pAddScript(0),
   m_pDeleteScript(0),
   m_pChangeScript(0),
@@ -252,22 +251,34 @@ CGateCommand::~CGateCommand()
 //          evaulation
 //
 int 
-CGateCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			 int nArgs, char* pArgs[])  
-{
+CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
   // Called to evaluate the "gate" command.
   // This command creates, lists or deletes a gate.
   //
   // Formal Parameters:
   //    CTCLInterpreter& rInterp:
   //        Refers to the interpreter which is invoking us.
-  //     CTCLResult& rResult:
-  //         Result string of operation...name of gate on success.
-  //     int nArgs:
-  //        Number of command line arguments.
-  //     char* pArgs[]
-  //        Points to the array of parameter strings.
+  //    objv - the command words.
+  //
+  // Return int - TCL_OK on success, TCL_ERROR otherwise.
+  //
   
+  // Manufactor, nArgs, and pArgs from objv:
+
+  UInt_t nArgs = objv.size();
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+
+  // Due to lifetime issues with const char* have to
+  // do it in two loops but there are usually few words so...
+  for (auto& word: words) {
+    words.push_back(std::string(word));
+  }
+  for (int i =0; i < words.size(); i++) {
+    pWords.push_back(words[i].c_str());
+  }
+  auto pArgs = pWords.data();
+
   nArgs--; 
   pArgs++;			// Skip the command name.
   if(nArgs  < 1) {		// Must be at least one parameter:
@@ -281,21 +292,21 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     nArgs--;
     pArgs++;
   case notswitch:		// Make a new gate:
-    return NewGate(rInterp, rResult, nArgs, pArgs);
+    return NewGate(rInterp, nArgs, pArgs);
   case deletegate:		// Delete gates:
     nArgs--;
     pArgs++;
-    return DeleteGates(rInterp, rResult, nArgs, pArgs);
+    return DeleteGates(rInterp, nArgs, pArgs);
   case listgates:
     nArgs--;
     pArgs++;
-    return ListGates(rInterp, rResult, nArgs, pArgs);
+    return ListGates(rInterp, nArgs, pArgs);
   case trace:
     nArgs--;
     pArgs++;
-    return traceGates(rInterp, rResult, nArgs, pArgs);
+    return traceGates(rInterp,nArgs, pArgs);
   default:
-    rResult = Usage();
+    rInterp.setResult(Usage());
     return TCL_ERROR;		// Bad switch in context.
   }
   assert(0);			// Should not pass control to here.
@@ -319,28 +330,24 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   \para Formal Parameters:
   \param  <TT>rInterp (CTCLInterpreter& [in]):</TT>
               Reference to the interpreter running us.
-  \param  <TT>rResult (CTCLResult& [out]):</TT>
-              Reference to the result string for this command.
-              on success, this is the name of the created gate, else
-             the failure reason.
+              interp.setResult is used to set the result.
   \param <TT>nArgs (UInt_t [in])</TT>
         Number of parameters remaining on the command line.
-  \PARAM <TT>pArgs[] (char** [in]):</TT>
+  \param] <TT>pArgs[] (char** [in]):</TT>
         Pointer to the remaining command parameters 
         (pArgs[0] should be the gate name).
   
-  \para Return value:
-  \retval Int_t
-  One of:
-  - TCL_OK    - the command worked and a new gate was created.
-  - TCL_ERROR - The command failed.  The reason for the failure is in
-      rResult, the result of the command.
+  
+  \return Int_t
+
+  \retval  TCL_OK    - the command worked and a new gate was created.
+   \retval  TCL_ERROR - The command failed.  The reason for the failure is in
+      the result
 
 
  */
 Int_t 
-CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		   UInt_t nArgs, char* pArgs[])
+CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
 {
 
 
@@ -360,11 +367,11 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
   const char* pType = *pArgs;
   pArgs++;
   const char* pList = *pArgs;
-
+  std::string rResult;         // Notationally convenient for the port
   // the gate table is used to drive the rest of the parse:
 
   CGate*  pGate;
-  CGatePackage& rPackage((CGatePackage&)getMyPackage());
+  CGatePackage& rPackage(*(CGatePackage*)getPackage());
   CGateFactory Factory(rPackage.getHistogrammer());
   vector<FPoint> PointValues;	// filled in below.
   vector<string> paramValues;  // Filled in further below
@@ -374,6 +381,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if(!pItem) {
     rResult = Usage();
     rResult += "\n  invalid gate type";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   GateFactoryTable& Item(*pItem);
@@ -384,6 +392,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
     if(GateList.Split(Gates) != TCL_OK) {
       rResult =  Usage();
       rResult += "list of gates had incorrect format\n";
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
     try {
@@ -393,6 +402,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
     catch(CException& rExcept) {
       rResult = Usage();
       rResult += rExcept.ReasonText();
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   }
@@ -404,6 +414,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
     if(Description.size() != (Item.nParameters+1)) {
       rResult = Usage();
       rResult += "Incorrect description list format";
+      rInterp.setResult();
       return TCL_ERROR;
     }
 
@@ -454,6 +465,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	    rResult = Usage();
 	    rResult += "\ninvalid point string in description";
 	    rResult += PointString[npoint];
+      rInterp.setResult(rResult);
 	    return TCL_ERROR;
 	  }
 	  PointValues.push_back(FPoint(x,0));
@@ -471,6 +483,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	  rResult = Usage();
 	  rResult += "\nInvalid point string in description  ";
 	  rResult += Point.getList();
+    rInterp.setResult(rResult);
 	  return TCL_ERROR;
 	}
 	Float_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
@@ -480,6 +493,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	  rResult = Usage();
 	  rResult += "\nInvalid point string in description  ";
 	  rResult += Point.getList();
+    rInterp.setResult(rResult);
 	  return TCL_ERROR;
 	}
 	FPoint pt(x,y);
@@ -492,6 +506,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
     catch(CException& rExcept) {
       rResult = Usage();
       rResult += rExcept.ReasonText();
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   }
@@ -508,18 +523,20 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       Float_t x1, x2;
       Int_t i = sscanf(Description[nPoint].c_str(), "%f %f", &x1, &x2);
       if(i != 2) {
-	rResult = Usage();
-	rResult += "\nInvalid point string in description";
-	rResult += Description[nPoint];
-	return TCL_ERROR;
+        rResult = Usage();
+        rResult += "\nInvalid point string in description";
+        rResult += Description[nPoint];
+        rInterp.setResult(rResult);
+        return TCL_ERROR;
       }
       PointValues.push_back(FPoint(x1,0));
       PointValues.push_back(FPoint(x2,0));
       if(PointValues.size() != 2) {
-	rResult = Usage();
-	rResult += "\nInvalid point string in description";
-	rResult += Description[nPoint];
-	return TCL_ERROR;
+        rResult = Usage();
+        rResult += "\nInvalid point string in description";
+        rResult += Description[nPoint];
+        rInterp.setResult(rResult);
+        return TCL_ERROR;
       }
 
       if(Description.size() == 2) { // Here are the parameters (used to be spectra).
@@ -531,9 +548,10 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	}
       }
       else {
-	rResult = "Gamma gates now require a non-empty parameter list\n";
-	rResult +=Usage();
-	return TCL_ERROR;
+        rResult = "Gamma gates now require a non-empty parameter list\n";
+        rResult +=Usage();
+        rInterp.setResult(rResult);
+        return TCL_ERROR;
       }
     }
     
@@ -549,6 +567,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	  rResult = Usage();
 	  rResult += "\nInvalid point string in description  ";
 	  rResult += Point.getList();
+    rInterp.setResult(rResult);
 	  return TCL_ERROR;
 	}
 	Float_t x,y;
@@ -558,6 +577,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	  rResult = Usage();
 	  rResult += "\nInvalid point string in description  ";
 	  rResult += Point.getList();
+    rInterp.setResult(rResult);
 	  return TCL_ERROR;
 	}
 	FPoint pt(x, y);
@@ -565,17 +585,17 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       }
       
       if(Description.size() == 2) { // means there are parameters
-	CTCLList params(&rInterp, Description[1]);
-	vector<string> paramString;
-	params.Split(paramString);
-	for(UInt_t k = 0; k < paramString.size(); k++) {
-	  paramValues.push_back(paramString[k]);
-	}
+        CTCLList params(&rInterp, Description[1]);
+        vector<string> paramString;
+        params.Split(paramString);
+        for(UInt_t k = 0; k < paramString.size(); k++) {
+          paramValues.push_back(paramString[k]);
+        }
       }
       else {
-	rResult = "Gamma gates now require a non-empty parameter list\n";
-	rResult += Usage();
-	return TCL_ERROR;
+        rResult = "Gamma gates now require a non-empty parameter list\n";
+        rResult += Usage();
+        return TCL_ERROR;
       }
     }
     
@@ -584,15 +604,16 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       //
       vector<UInt_t> paramIds;
       for(int i =0; i < paramValues.size(); i++) {
-	CParameter* pParam = api.FindParameter(paramValues[i]);
-	if(!pParam) {
-	  rResult = "Gamma gate creation attempted with nonexisting parameter: ";
-	  rResult += paramValues[i];
-	  rResult += "\n";
-	  rResult += Usage();
-	  return TCL_ERROR;
-	}
-	paramIds.push_back(pParam->getNumber());
+      CParameter* pParam = api.FindParameter(paramValues[i]);
+        if(!pParam) {
+          rResult = "Gamma gate creation attempted with nonexisting parameter: ";
+          rResult += paramValues[i];
+          rResult += "\n";
+          rResult += Usage();
+          rInterp.setResult(rResult);
+          return TCL_ERROR;
+        }
+	      paramIds.push_back(pParam->getNumber());
 
       }
       pGate = api.CreateGate(Item.eGateType, PointValues, 
@@ -601,13 +622,14 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
     catch(CException& rExcept) {
       rResult = Usage();
       rResult += rExcept.ReasonText();
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   }
   
   // Now try to enter the gate in the dictionary:
   
-  if(rPackage.AddGate(rResult, string(pName), pGate)) {
+  if(rPackage.AddGate(rInterp, string(pName), pGate)) {
     return TCL_OK;
   }
   else {
@@ -618,13 +640,12 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//      ListGates(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+//      ListGates(CTCLInterpreter& rInterp, 
 //                UInt_t  nArgs, char* pArgs[])
 //  Operation Type: 
 //      SubFunction
 //
-Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			      UInt_t  nArgs, char* pArgs[])  
+Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, UInt_t  nArgs, char* pArgs[])  
 {
   // Returns a textually formatted list of gates
   // in the gate dictionary.
@@ -639,8 +660,9 @@ Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //       -byid switch).
   //
   CTCLString ResultString;
-  CGatePackage& Package((CGatePackage&)getMyPackage());
+  CGatePackage& Package(*(CGatePackage*)getPackage());
   const char* pattern;
+  std::string rResult;
 
   switch(nArgs) {
   case 0:
@@ -657,39 +679,36 @@ Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
     ResultString = Package.ListGatesById(pattern);
     break;
   case 2:
-    if (MatchSwitches(*pArgs) == byid)
-      {
-	*pArgs++;
-	pattern = *pArgs;
-	ResultString = Package.ListGatesById(pattern);
-      }
-    else 
-      {
-	rResult = Usage();
-	rResult += "\nIncorrect number or wrong order of parameters";
-	return TCL_ERROR;
+    if (MatchSwitches(*pArgs) == byid) {
+      *pArgs++;
+      pattern = *pArgs;
+      ResultString = Package.ListGatesById(pattern);
+    } else {
+        rResult = Usage();
+        rResult += "\nIncorrect number or wrong order of parameters";
+        interp.setResult(rResult);
+        return TCL_ERROR;
       }
     break;
   default:
     rResult = Usage();
     rResult += "\nIncorrect number of parameters";
+    interp.setResult(rResult);
     return TCL_ERROR;
   }
-  rResult = (const char*)(ResultString);
+  interp.setResult((const char*)(ResultString));
   return TCL_OK;
   
 }
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//       DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rRestul, 
-//                   UInt_t nArgs, char* pArgs[])
+//       DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])
 //  Operation Type: 
 //       Subfunction
 //
 Int_t 
-CGateCommand::DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			  UInt_t nArgs, char* pArgs[])  
+CGateCommand::DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* pArgs[])  
 {
   // Deletes a gate or a set of gates.
   //
@@ -702,10 +721,11 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //         Pointer to the command tail.
   //         Either Points to a list of gates, or -id followed by a list of gates.
   //
-  
+  std::string rResult;
   if(nArgs == 0) {		// Not allowed.
     rResult = Usage();
     rResult += "\nMust at least be a gate to delete.";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // What we do depends on whether or not the next Item is a -id switch:
@@ -719,32 +739,31 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
     for(UInt_t i = 0; i < nArgs; i++) {
       Int_t n;
       if(sscanf(*pArgs, "%d", &n) != 1) {
-	CTCLString error;
-	error.StartSublist();
-	error.AppendElement(*pArgs);
-	error.AppendElement("Invalid Gate Id string");
-	error.EndSublist();
-	rResult += (const char*)error;
-	ConvertFailed = kfTRUE;
-      }
-      else if(n < 0) {
-	CTCLString error;
-	error.StartSublist();
-	error.AppendElement(*pArgs);
-	error.AppendElement(" Gate ID cannot be negative");
-	error.EndSublist();
-	rResult += (const char*)error;
-	ConvertFailed = kfFALSE;
-      }
-      else {			// n  is a good gate id:
-	Ids.push_back((UInt_t)n);
+        CTCLString error;
+        error.StartSublist();
+        error.AppendElement(*pArgs);
+        error.AppendElement("Invalid Gate Id string");
+        error.EndSublist();
+        rResult += (const char*)error;
+        ConvertFailed = kfTRUE;
+      } else if(n < 0) {
+        CTCLString error;
+        error.StartSublist();
+        error.AppendElement(*pArgs);
+        error.AppendElement(" Gate ID cannot be negative");
+        error.EndSublist();
+        rResult += (const char*)error;
+        ConvertFailed = kfFALSE;
+      } else {			// n  is a good gate id:
+	      Ids.push_back((UInt_t)n);
       }
       pArgs++;
     }
     if(Package.DeleteGates(rResult, Ids) && (!ConvertFailed)) {
+      rInterp.setResult(rResult);
       return TCL_OK;
-    }
-    else {
+    } else {
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   }
@@ -755,14 +774,159 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
       pArgs++;
     }
     if(Package.DeleteGates(rResult, Names)) {
+      rInterp.setResult(rResult);
       return TCL_OK;
-    }
-    else {
+    } else {
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   }
-  assert(0);
+  assert(0);                   // Should never get here.
 }
+/// Process the gate -trace command and its subcommands.
+///
+// Parameters:
+//    rInterp - Reference to the interpreter object that is running the command.
+//    nArgs   - Numberof remaining parameters on the line.
+//              should be one  or two
+//    pArgs   - The arguments themselves.. should be at most one,
+//              and that would be what to trace and the script.
+// Returns:
+//   TCL_OK    - Everything ok and the previous script in the result.
+//   TCL_ERROR - some failure, with result an error message.
+Int_t 
+CGateCommand::traceGates(CTCLInterpreter& rInterp, UInt_t nArgs, char* args[])
+{
+  std::string rResult;
+  // Must be no more than 2 but at least one parameter:
+  if ((nArgs) > 2  || (nArgs < 1)){
+    rResult = "Too many or too few command line parameters\n";
+    rResult += Usage();
+    rInterp.setResult(rResult);
+    return TCL_ERROR;
+  }
+  // The first parameter will fetch determine which pointer we're
+  // playing with.
+
+  CTCLObject** ppScript(0)
+;
+  string       scriptSelector(args[0]);
+  if (scriptSelector == string("add")) {
+    ppScript = &m_pAddScript;
+  }
+  if (scriptSelector == string("delete")) {
+    ppScript = &m_pDeleteScript;
+  }
+  if (scriptSelector == string("change")) {
+    ppScript = &m_pChangeScript;
+  }
+  if (!ppScript) {
+    rResult = "Incorrect trace type selector must be 'add' 'delete' or 'change'\n";
+    rResult += Usage();
+    rInterp.setResult(rResult);
+    return TCL_ERROR;
+  }
+  // Create the old script string; empty if there is no object else the contents
+  // of the script string.
+  string oldScript;
+  if (*ppScript) {
+    oldScript = string(**ppScript);
+  } 
+  else {
+    oldScript =  "";
+  }
+
+  // If there is a new script replace the old one:
+
+  if (nArgs == 2) {
+    string newScript(args[1]);
+    delete *ppScript;
+    *ppScript = (CTCLObject*)NULL;
+
+    if (newScript != string("")) {
+      CTCLObject* pNewObject = new CTCLObject();
+      pNewObject->Bind(rInterp);
+      (*pNewObject) = newScript;
+      *ppScript = pNewObject;
+    }
+  }
+
+  // Return the old script and OK:
+
+  rResult = oldScript;
+  rInterp.setResult(rResult);
+  return TCL_OK;
+
+}
+
+/*!
+   Invoke the add script if it's defined.
+   Parameters:
+     Name of the added gate.
+*/
+void
+CGateCommand::invokeAddScript(std::string name)
+{
+  invokeAScript(m_pAddScript, name);
+}
+
+/*!
+   Invoke the delete script if it's defined.
+   Parameters:
+      Name of the deleted gate.
+*/
+void
+CGateCommand::invokeDeleteScript(std::string name)
+{
+  invokeAScript(m_pDeleteScript, name);
+}
+/*!
+  Invoke the gate changed script if it's defined.
+  Parameter:
+     Name of the modified gate.
+*/
+void
+CGateCommand::invokeChangedScript(std::string name)
+{
+  invokeAScript(m_pChangeScript, name);
+}
+/*!
+  Invoke some script object
+  Parameters:
+    Pointer to the script object.
+    Parameter to append to the script.
+
+*/
+void
+CGateCommand::invokeAScript(CTCLObject* pScript,
+			    string      parameter)
+{
+  // Do nothing if there's no script defined:
+
+  if (pScript) {
+    CTCLObject fullScript(*pScript);
+    fullScript.Bind(getInterpreter());
+    fullScript += parameter;
+
+    try {
+      fullScript();
+    }
+    catch (CException& e) {
+      cerr << "Gate trace script failed: " << e.ReasonText() << endl;
+    }
+    catch (string msg) {
+      cerr << "Gate trace script faield: " << msg << endl;
+    }
+    catch (const char* msg) {
+      cerr << "Gate trace script failed: " << msg << endl;
+    }
+    catch (...) {
+      cerr << "Gate trace script failed with an un-anticipated exception type\n";
+    }
+
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 //
 // Function:
@@ -848,146 +1012,3 @@ CGateCommand::MatchGateType(const char* pGateType)
 }
 
 
-/// Process the gate -trace command and its subcommands.
-///
-// Parameters:
-//    rInterp - Reference to the interpreter object that is running the command.
-//    rResult - Reference to the result object.
-//    nArgs   - Numberof remaining parameters on the line.
-//              should be one  or two
-//    pArgs   - The arguments themselves.. should be at most one,
-//              and that would be what to trace and the script.
-// Returns:
-//   TCL_OK    - Everything ok and the previous script in the result.
-//   TCL_ERROR - some failure, with result an error message.
-Int_t 
-CGateCommand::traceGates(CTCLInterpreter& rInterp,
-			 CTCLResult&      rResult,
-			 UInt_t           nArgs,
-			 char*            args[])
-{
-  // Must be no more than 2 but at least one parameter:
-  if ((nArgs) > 2  || (nArgs < 1)){
-    rResult = "Too many or too few command line parameters\n";
-    rResult += Usage();
-    return TCL_ERROR;
-  }
-  // The first parameter will fetch determine which pointer we're
-  // playing with.
-
-  CTCLObject** ppScript(0)
-;
-  string       scriptSelector(args[0]);
-  if (scriptSelector == string("add")) {
-    ppScript = &m_pAddScript;
-  }
-  if (scriptSelector == string("delete")) {
-    ppScript = &m_pDeleteScript;
-  }
-  if (scriptSelector == string("change")) {
-    ppScript = &m_pChangeScript;
-  }
-  if (!ppScript) {
-    rResult = "Incorrect trace type selector must be 'add' 'delete' or 'change'\n";
-    rResult += Usage();
-    return TCL_ERROR;
-  }
-  // Create the old script string; empty if there is no object else the contents
-  // of the script string.
-  string oldScript;
-  if (*ppScript) {
-    oldScript = string(**ppScript);
-  } 
-  else {
-    oldScript =  "";
-  }
-
-  // If there is a new script replace the old one:
-
-  if (nArgs == 2) {
-    string newScript(args[1]);
-    delete *ppScript;
-    *ppScript = (CTCLObject*)NULL;
-
-    if (newScript != string("")) {
-      CTCLObject* pNewObject = new CTCLObject();
-      pNewObject->Bind(rInterp);
-      (*pNewObject) = newScript;
-      *ppScript = pNewObject;
-    }
-  }
-
-  // Return the old script and OK:
-
-  rResult = oldScript;
-  return TCL_OK;
-
-}
-
-/*!
-   Invoke the add script if it's defined.
-   Parameters:
-     Name of the added gate.
-*/
-void
-CGateCommand::invokeAddScript(std::string name)
-{
-  invokeAScript(m_pAddScript, name);
-}
-
-/*!
-   Invoke the delete script if it's defined.
-   Parameters:
-      Name of the deleted gate.
-*/
-void
-CGateCommand::invokeDeleteScript(std::string name)
-{
-  invokeAScript(m_pDeleteScript, name);
-}
-/*!
-  Invoke the gate changed script if it's defined.
-  Parameter:
-     Name of the modified gate.
-*/
-void
-CGateCommand::invokeChangedScript(std::string name)
-{
-  invokeAScript(m_pChangeScript, name);
-}
-/*!
-  Invoke some script object
-  Parameters:
-    Pointer to the script object.
-    Parameter to append to the script.
-
-*/
-void
-CGateCommand::invokeAScript(CTCLObject* pScript,
-			    string      parameter)
-{
-  // Do nothing if there's no script defined:
-
-  if (pScript) {
-    CTCLObject fullScript(*pScript);
-    fullScript.Bind(getInterpreter());
-    fullScript += parameter;
-
-    try {
-      fullScript();
-    }
-    catch (CException& e) {
-      cerr << "Gate trace script failed: " << e.ReasonText() << endl;
-    }
-    catch (string msg) {
-      cerr << "Gate trace script faield: " << msg << endl;
-    }
-    catch (const char* msg) {
-      cerr << "Gate trace script failed: " << msg << endl;
-    }
-    catch (...) {
-      cerr << "Gate trace script failed with an un-anticipated exception type\n";
-    }
-
-  }
-}

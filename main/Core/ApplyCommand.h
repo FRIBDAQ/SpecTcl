@@ -46,25 +46,22 @@
 #ifndef APPLYCOMMAND_H  //Required for current class
 #define APPLYCOMMAND_H
 
-#include "TCLPackagedCommand.h"
+#include <TCLPackagedObjectProcessor.h>
 #include <string>
    
 class CGatePackage;		// Forward class type definition.
 class CTCLInterpreter;		// Forward class type definition
-           
-class CApplyCommand  : public CTCLPackagedCommand        
+class CTCLObject;
+class CApplyCommand  : public CTCLPackagedObjectProcessor
 {                       
 
 
 public:
 
-   // Constructor:  
+   // Constructor/destructor - moved into implementation file.
 
-  CApplyCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack, const char* cmd="apply") :
-    CTCLPackagedCommand(cmd, pInterp, rPack)
-  { 
-  } 
-  ~CApplyCommand ( ) { }  //Destructor 
+  CApplyCommand (CTCLInterpreter* pInterp,  const char* cmd="applygate");
+  ~CApplyCommand ( );  //Destructor 
   
    //Copy constructor: Illegal
 
@@ -80,15 +77,10 @@ public:
 
 public:
 
-  virtual   int operator() (CTCLInterpreter& rInterp, 
-			    CTCLResult& rResult, int nParams, 
-			    char* pParams[])    ;
+  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
 
-  TCLPLUS::Int_t ApplyGate (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		   TCLPLUS::UInt_t nArgs, char*  pArgs[])    ;
-  
-  TCLPLUS::Int_t ListApplications (CTCLInterpreter& rInterp, CTCLResult& rResult,
-			  TCLPLUS::UInt_t nArgs, char* pArgs[])    ;
+  TCLPLUS::Int_t ApplyGate (CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char*  pArgs[]);
+  TCLPLUS::Int_t ListApplications (CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char* pArgs[]);
 
   // Utility functions.
  

@@ -56,7 +56,7 @@
 #define GATEPACKAGE_H
 
                                //Required for base classes
-#include "TCLCommandPackage.h"
+#include "TCLObjectPackage.h"
 #include "GateCommand.h"
 #include "ApplyCommand.h"
 #include "UngateCommand.h"
@@ -68,6 +68,12 @@
 #include <vector>        //Required for include files
 #include <string>        //Required for include files
                                //Required for 1:1 association classes
+
+// Forward classes:
+
+class CMPITclPackagedCommandAll;
+class CMPITclPackagedCommand;
+class CTCLInterpreter;
                                                              
 /*!
 
@@ -77,14 +83,13 @@
  scripting language and the underlying 
  representation of gates etc.
 */
-class CGatePackage  : public CTCLCommandPackage        
+class CGatePackage  : public CTCLObjectPackage        
 {                       
 			
   CHistogrammer*  m_pHistogrammer;   //!< Pointer to SpecTcl Histogrammer        
-  CGateCommand*   m_pGateCommand;    // 1:1 association object data member
-  CApplyCommand*  m_pApplyCommand;   // 1:1 association object data member
-  CApplyCommand*  m_pApplyGateCommand; // Same as apply but applygate
-  CUngateCommand* m_pUngateCommand;  // 1:1 association object data member
+  CMPITclPackagedCommandAll*   m_pGateCommand;    // 1:1 association object data member
+  CMPITclPackagedCommand*  m_pApplyGateCommand; // Same as apply but applygate
+  CMPITclPackagedCommand* m_pUngateCommand;  // 1:1 association object data member
   static UInt_t   m_nNextId;	     //!< Next Gate Id.
 
 public:
@@ -105,18 +110,12 @@ public:
 
 private:
   CGatePackage& operator= (const CGatePackage& aCGatePackage);
-public:
+private:
    //Operator== Equality Operator - No compiler default operator== generated
    // This is legal but not worth much.
   //
 
-  int operator== (const CGatePackage& aCGatePackage) {
-    return (CTCLCommandPackage::operator==(aCGatePackage)          &&
-	    (m_pHistogrammer  == aCGatePackage.m_pHistogrammer)   &&
-	    (m_pGateCommand   == aCGatePackage.m_pGateCommand)    &&
-	    (m_pUngateCommand == aCGatePackage.m_pUngateCommand)  &&
-	    (m_nNextId        == aCGatePackage.m_nNextId));
-  }
+  int operator== (const CGatePackage& aCGatePackage);
 	
 // Selectors:
 
@@ -172,23 +171,24 @@ protected:
 
 public:
 
-   Bool_t AddGate (CTCLResult& rResult,
+   Bool_t AddGate (CTCLInterpreter& rInterp,
                    const std::string& rGateName, 
-		   const CGate* pGate);
+		                const CGate* pGate);
    CTCLString ListGates(const char* pattern);
    CTCLString ListGatesById(const char* pattern);
-   Bool_t DeleteGates (CTCLResult& rResult, 
+   Bool_t DeleteGates (CTCLInterpreter& rInterp,
 		       const std::vector<std::string>& rGateNames);
-   Bool_t DeleteGates (CTCLResult& rResult, 
+   Bool_t DeleteGates (CTCLInterpreter& rInterp,
                        const std::vector<UInt_t>& rIds)    ;
    Bool_t ApplyGate (CTCLString& rResult, const std::string& rGateName, 
-		     const std::string& rSpectrumName);
+		                  const std::string& rSpectrumName);
    Bool_t ListAppliedGate (CTCLString& rApplication, 
                            const std::string& rName)    ;
-   Bool_t  Ungate(CTCLString& rResult, const std::string & rName);
+   Bool_t  Ungate(CTCLInterpreter& rInterp, const std::string & rName);
 
    std::string GateToString (CGateContainer* pGate);
    static  UInt_t AssignId();
+   std::string getSignon() const;
 protected:
    static  void SortGateListById (std::vector<CGateContainer*>& rpGates);
 private:

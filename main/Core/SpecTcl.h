@@ -312,7 +312,8 @@ public:
 
 
   // Gate dictionary manipulation:
-
+  void throwIfGateExists(std::string& name);
+  void throwIfNoSuchGate(std::string& name);
   void AddGate(std::string name, CGate* gate);
   void DeleteGate(std::string gateName);
   void ReplaceGate(std::string gateName, CGate& newGate);

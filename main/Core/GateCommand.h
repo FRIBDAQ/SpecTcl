@@ -31,7 +31,7 @@
 #define GATECOMMAND_H
 
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 #include <histotypes.h>
 #include "GateFactory.h"
 #include <string>
@@ -76,7 +76,7 @@ is not supplied, the current script is displayed as the command result.
 If ?script? is empty, no  script is associated with the action.
 
 */
-class CGateCommand  : public CTCLPackagedCommand        
+class CGateCommand  : public CTCLPackagedObjectProcessor
 {
 private:
   // Script handlers.
@@ -108,7 +108,7 @@ public:
 
    // Constructor 
 
-  CGateCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack);
+  CGateCommand (CTCLInterpreter* pInterp);
   ~CGateCommand ( );	// Destructor.
 
   //Copy constructor alternative to compiler provided default copy constructor
@@ -131,8 +131,7 @@ public:
   // Class operations:
 public:
 
- virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			   int nArgs, char* pArgs[])    ;
+ virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
   void   invokeAddScript(std::string name);
   void   invokeDeleteScript(std::string name);
   void   invokeChangedScript(std::string name);
@@ -140,24 +139,13 @@ public:
 
 protected:
 
-    Int_t NewGate (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		   UInt_t nArgs, char* pArgs[])   ;
-
-  virtual   Int_t ListGates (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			     UInt_t  nArgs, char* pArgs[])   ;
-
-    Int_t DeleteGates (CTCLInterpreter& rInterp, CTCLResult& rRestul, 
-		       UInt_t nArgs, char* pArgs[])   ;
-
-
-protected:
-  Int_t  traceGates(CTCLInterpreter& rInterp,
-		    CTCLResult&      rResult,
-		    UInt_t           nArgs,
-		    char*            pArgs[]);
-  void   invokeAScript(CTCLObject* pScript,
-		       std::string parameter);
-
+    Int_t NewGate (CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[])   ;
+    Int_t ListGates (CTCLInterpreter& rInterp, UInt_t  nArgs, const char* pArgs[])   ;
+    Int_t DeleteGates (CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[])   ;
+    Int_t  traceGates(CTCLInterpreter& rInterp,UInt_t nArgs, const char* pArgs[]);
+  
+private:
+  void   invokeAScript(CTCLObject* pScript, std::string parameter);
   static Switches MatchSwitches(char* pKey);
   static std::string   Usage();
   static GateFactoryTable* MatchGateType(const char* pGateType);

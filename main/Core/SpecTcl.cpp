@@ -59,6 +59,7 @@
 
 #include <TCLInterpreter.h>
 #include <CParameterDictionarySingleton.h>
+#include <CGateDictionarySingleton.h>
 
 #include <TCLAnalyzer.h>
 #include <DisplayInterface.h>
@@ -1897,6 +1898,23 @@ SpecTcl::CreateMaskNotGate(vector<string> parameters,
   CGateFactory factory(GetHistogrammer());
   return       factory.CreateMaskNotGate(parameters, Compare);
 }
+//// Gate dictionary items:
+
+/// Throw if agate by this name already exists.
+void SpecTcl::throwIfGateExists(std::string& name) {
+    auto dict = CGateDictionarySingleton::getInstance();
+    if (dict.lookup(name) != dict.end()) {
+      throw CDictionaryException(CDictionaryException::knDuplicateKey, "Disallowing duplicate gate", name());
+    }
+}
+// throw if a gate by ths name does not exist:
+
+void SpecTcl::throwIfNoSuchGate(std::string& name) {
+  auto dict = CGateDictionarySingleton::getInstance();
+  if (dict.lookup(name) == dict.end()) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey, "Checking gate existence", name);
+  }
+}
 
 /*!
   Adds a gate to the gate dictionary.  The gate dictionary does not manage
@@ -1913,25 +1931,30 @@ SpecTcl::CreateMaskNotGate(vector<string> parameters,
 void 
 SpecTcl::AddGate(string name, CGate* gate)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  CGateFactory   factory(pHistogrammer);
+  throwIfGateExists(name);
+  int id = CGateFactory::AssignId();
 
-  pHistogrammer->AddGate(name, CGateFactory::AssignId(), *gate);
+  // Wrap the gate in a container and add the container to the dictionary.
+
+  CGateContainer& container = *new CGateContainer(name, id, *gate);
+  auto dict = CGateDictionarySingleton::getInstance();
+  dict.Enter(name, container);
+
 }
 
 
 /*!
   Deletes the named gate from the gate dictionary.   This only removes the gate
   from the  dictionary.  If the gate was dynamically created, you must delete the
-  gate object.
+  gate object.  Note this actually replaces the exiting gate with a false gate.
   @param gateName
     Name of the gate to delete.
   \throw CDictionaryException - if the gate does not exist.
 */
 void SpecTcl::DeleteGate(string gateName)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();;
-  pHistogrammer->DeleteGate(gateName);
+  static CFalseGate falseGate;              // The false gate used to replace the existing gate.
+  ReplaceGate(gateName, falseGate);
 }
 
 
@@ -1955,8 +1978,12 @@ void SpecTcl::DeleteGate(string gateName)
 void 
 SpecTcl::ReplaceGate(string gateName, CGate& newGate)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->ReplaceGate(gateName, newGate);
+  throwIfNoSuchGate(gateName);
+  auto dict = CGateDictionarySingleton::getInstance();
+  auto p = dict.Lookup(gateName); 
+  CGateContainer* pContainer = &(p->second);        // Cannot be null as p cannot be end().
+  pContainer->setGate(newGate);                     // Replace the gate in the container.
+
 }
 
 
@@ -1978,8 +2005,9 @@ SpecTcl::ReplaceGate(string gateName, CGate& newGate)
 CGateContainer* 
 SpecTcl::FindGate(string gateName)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return pHistogrammer->FindGate(gateName);
+  auto dict = CGateDictionarySingleton::getInstance();
+  auto p = dict.Lookup(gateName);
+  return (p != dict.end()) (&p.second) : nullptr;
 }
 
 
@@ -1996,8 +2024,7 @@ SpecTcl::FindGate(string gateName)
 CGateDictionaryIterator 
 SpecTcl::GateBegin()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->GateBegin();
+  return CGateDictionarySingleton::getInstance().begin();
 }
 
 /*!
@@ -2010,8 +2037,7 @@ SpecTcl::GateBegin()
 CGateDictionaryIterator 
 SpecTcl::GateEnd()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->GateEnd();
+  return CGateDictionarySingleton::getInstance().end();
 }
 
 
@@ -2022,8 +2048,7 @@ SpecTcl::GateEnd()
 UInt_t 
 SpecTcl::GateCount()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->GateCount();
+  return CGateDictionarySingleton::getInstance().size();
 
 }
 /*!
@@ -2033,8 +2058,7 @@ SpecTcl::GateCount()
 void
 SpecTcl::addGateDictionaryObserver(CGateObserver* observer)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->addGateObserver(observer);
+  CGateDictionarySingleton::getInstance().addObserver(observer);
 }
 
 /*!
@@ -2043,8 +2067,7 @@ SpecTcl::addGateDictionaryObserver(CGateObserver* observer)
 void
 SpecTcl::removeGateDictionaryObserver(CGateObserver* observer)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->removeGateObserver(observer);
+  CGateDictionarySingleton::getInstance().removeObserver(observer);
 }
 
 /*!
@@ -2055,6 +2078,10 @@ SpecTcl::removeGateDictionaryObserver(CGateObserver* observer)
   @param spectrumName
     Name of the spectrum to which to apply the gate.
   
+  @note  that in the mpiSpecTcl, the gate application is only possible in the event sink pipline
+  process as that's the only one with a histogramer hence the defense against a non-null histogramer:
+  @note in SpecTcl ungating a spectrum is just gating it with a True gate.
+  
   \throw CDictionaryException if the gate or spectrum do not exist.
  
 */
@@ -2062,7 +2089,9 @@ void
 SpecTcl::ApplyGate(string gateName, string spectrumName)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->ApplyGate(gateName, spectrumName);
+  if (pHistogramer) {
+    pHistogrammer->ApplyGate(gateName, spectrumName);
+  }
 }
 
 
@@ -2926,14 +2955,19 @@ SpecTcl::getDisplayMemory()
  *   determine if they are running in SpecTclInit.tcl where they're
  *   really not allowed to run - and raise an appropriate error
  *   if so. See e.g. daqdev/SpecTcl#379
- *
+ *   MPI - in the MPI case, the only thing we carea bout is the interpreter
+ *        as that's all that's common to all of the ranks.
  * @return bool - true if all the bits and pieces are initialized.
  */
 bool
 SpecTcl::isInitialized()
 {
-  return (
-      getInterpreter() && GetHistogrammer() && GetAnalyzer() &&
-      GetEventSinkPipeline() && GetDisplayInterface()
-  );
+  if (gMPIParallel) {
+    return getInterpreter();
+  } else {
+    return (
+        getInterpreter() && GetHistogrammer() && GetAnalyzer() &&
+        GetEventSinkPipeline() && GetDisplayInterface()
+    );
+  }
 }
