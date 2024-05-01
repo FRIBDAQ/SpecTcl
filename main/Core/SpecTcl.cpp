@@ -1239,8 +1239,12 @@ SpecTcl::CreateM2Projection(
 void 
 SpecTcl::AddSpectrum(CSpectrum& spectrum)
 {
+  // This is really only supported when histogramers are present.
+  // That's not the case if mpi parallel and not PI_EVENT_SINK_RANK
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->AddSpectrum(spectrum);
+  if (pHistogrammer) {
+    pHistogrammer->AddSpectrum(spectrum);
+  }
 }
 
 
@@ -1256,7 +1260,11 @@ CSpectrum*
 SpecTcl::RemoveSpectrum(string name)
 {
   CHistogrammer*  pHistogrammer = GetHistogrammer();
-  return          pHistogrammer->RemoveSpectrum(name);
+  if (pHistogrammer) {
+    return          pHistogrammer->RemoveSpectrum(name);
+  } else {
+    return nullptr;
+  }
 }
 
 
@@ -1273,7 +1281,11 @@ CSpectrum*
 SpecTcl::FindSpectrum(string name)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->FindSpectrum(name);
+  if (pHistogrammer) {
+    return         pHistogrammer->FindSpectrum(name);
+  } else {
+    return nullptr;
+  }
 }
 /*!
   Locates the named spectrum in the spectrum dictionary.
@@ -1288,7 +1300,11 @@ CSpectrum*
 SpecTcl::FindSpectrum(UInt_t nid)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  return pHistogrammer->FindSpectrum(nid);
+  if (pHistogrammer) {
+    return pHistogrammer->FindSpectrum(nid);
+  } else {
+    return nullptr;
+  }
 }
 
 /*!
@@ -1297,8 +1313,9 @@ SpecTcl::FindSpectrum(UInt_t nid)
 SpectrumDictionaryIterator 
 SpecTcl::SpectrumBegin()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->SpectrumBegin();
+  // Note if there's no histogrammer the dictionary is empty.
+  return CSpectrumDictionarySingleton::getInstance()->begin();
+  
 }
 
 
@@ -1308,8 +1325,8 @@ SpecTcl::SpectrumBegin()
 SpectrumDictionaryIterator 
 SpecTcl::SpectrumEnd()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->SpectrumEnd();
+  return CSpectrumDictionarySingleton::getInstance()->end();
+  
 }
 
 /*!
@@ -1323,7 +1340,9 @@ void
 SpecTcl::addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->addSpectrumDictionaryObserver(observer);
+  if (pHistogrammer) {
+    pHistogrammer->addSpectrumDictionaryObserver(observer);
+  }
 }
 /*!
   Remove an observer from the spectrum dictionary.
@@ -1333,7 +1352,9 @@ void
 SpecTcl::removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->removeSpectrumDictionaryObserver(observer);
+  if (pHistogrammer) {
+    pHistogrammer->removeSpectrumDictionaryObserver(observer);
+  }
 
 }
 /*!
@@ -1342,8 +1363,8 @@ SpecTcl::removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
 UInt_t 
 SpecTcl::SpectrumCount()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->SpectrumCount();  
+  
+  return CSpectrumDictionarySingleton::getInstance()->size();  // 0 if there's no hisogrammer.
 }
 
 
@@ -1359,7 +1380,9 @@ void
 SpecTcl::ClearSpectrum(string name)
 {
   CHistogrammer* pHistogram = GetHistogrammer();
-  pHistogram->ClearSpectrum(name);
+  if (pHistogram) {
+    pHistogram->ClearSpectrum(name);
+  }
 }
 
 
@@ -1372,7 +1395,9 @@ void
 SpecTcl::ClearAllSpectra()
 {
   CHistogrammer* pHistogram = GetHistogrammer();
-  return         pHistogram->ClearAllSpectra();
+  if (pHistogram) {
+    pHistogram->ClearAllSpectra();
+  }
 }
 
 
