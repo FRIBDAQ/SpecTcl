@@ -265,14 +265,14 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
   
   // Manufactor, nArgs, and pArgs from objv:
 
-  TCLPLUS::UInt_t nArgs = objv.size();
+  TCLPLUS::Int_t nArgs = objv.size();
   std::vector<std::string> words;
   std::vector<const char*> pWords;
 
 
   // Due to lifetime issues with const char* have to
   // do it in two loops but there are usually few words so...
-  for (auto& word: words) {
+  for (auto& word: objv) {
     words.push_back(std::string(word));
   }
   for (int i =0; i < words.size(); i++) {

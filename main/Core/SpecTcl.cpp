@@ -2024,7 +2024,7 @@ SpecTcl::FindGate(string gateName)
 CGateDictionaryIterator 
 SpecTcl::GateBegin()
 {
-  return CGateDictionarySingleton::getInstance()->end();
+  return CGateDictionarySingleton::getInstance()->begin();
 }
 
 /*!
