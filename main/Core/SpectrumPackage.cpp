@@ -152,13 +152,13 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   m_pRead(new CReadCommand(pInterp, *this)),
   m_pDisplay(pDisplay)
 {
-  AddProcessor(m_pSpectrum);
-  AddProcessor(m_pClear);
-  AddProcessor(m_pBind);
-  AddProcessor(m_pUnbind);
-  AddProcessor(m_pChannel);
-  AddProcessor(m_pWrite);
-  AddProcessor(m_pRead);
+  AddProcessor(m_pSpectrum);             // In Event sink pipeline. (CMPITclPackagedCommand/CPackagedObjectProcessor
+  AddProcessor(m_pClear);                // In Event sink pipeline.
+  AddProcessor(m_pBind);                 // In Event sink pipeline
+  AddProcessor(m_pUnbind);               // In Event sink pipeline.
+  AddProcessor(m_pChannel);              // In Event sink pipeline.
+  AddProcessor(m_pWrite);                // In event sink pipeline.
+  AddProcessor(m_pRead);                 // In Event sink pipeline.
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -187,10 +187,9 @@ CSpectrumPackage::~CSpectrumPackage ( )
    - install the spectrum in the sorter. Translating exceptions into
       appropriate rResult return strings.
 
-      \param <tt> rResult (CTCLResult& [out])            </tt>
-          The result string. This string will be available
-	  as the result of the command in Tcl. In standalone
-	  use, it is put out to stdout. in []'d use it is
+      \param <tt> rInterp  (CTCLInterpreter&)</tt>
+          Interpreter running the command.  setResult is used to set the result
+          string
 	  the text that is returned from the command substitution.
       \param <tt> pName   (const char* [in])            </tt>
           The name of the spectrum to create.
@@ -227,7 +226,7 @@ CSpectrumPackage::~CSpectrumPackage ( )
 
 */
 int
-CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
+CSpectrumPackage::CreateSpectrum(CTCLInterpreter& rInterp,
 				 const char* pName, 
 				 const char* pSpecType,
 				 std::vector<std::string>& rvParameterNames,
@@ -237,7 +236,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
 				 const char*               pDataType)
 {
   SpecTcl& api(*(SpecTcl::getInstance()));
-
+  std::string rResult;    // Makes porting a bit easier.
   CSpectrum* pSpec = 0;
   try {
     SpectrumType_t sType = SpectrumType(pSpecType);
@@ -254,6 +253,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
   catch (CException& rExcept) {
     delete pSpec;		// In case it was the add that did it.
     rResult = rExcept.ReasonText();
+    rInterp.setResult(rResult)
     return TCL_ERROR;
   }
   // pre-compute the description string and set it:
@@ -263,6 +263,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
   // Return the name as the result.
   
   rResult = pSpec->getName();
+  rInterp.setResult(rResult);
   return TCL_OK;
 }
 
@@ -270,9 +271,8 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
   Create a spectrum that requires separate axis specs,and enter it into the
   histogrammer's spectrum dictionarry.
 
-  \param rResult   - The result string of the creation. This will
-                     either be the name of the spectrum created or an error
-		     message if a problem was encountered.
+  \param rInterp   - The interpreter running the command that invoked us.
+                     setResult is used to set the command result
   \param pName     - The name of the spectrum to create.
   \param pSpecType - Points to the textual spectrum type. 
   \param xParmeterNames - Names of the parameters on the x axis.
@@ -283,7 +283,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
   \param pDataType - Type of data for each channel
  */
 int
-CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
+CSpectrumPackage::CreateSpectrum(CTCLInterpreter& rInterp, const char* pName,
 		     const char* pSpecType,
 		     std::vector<std::string> xParameterNames,
 		     std::vector<std::string> yParameterNames,
@@ -298,6 +298,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
 
   CSpectrum* pSpec(0);
   SpecTcl *pApi = SpecTcl::getInstance();
+  std::string rResult;
   try {
     SpectrumType_t sType = SpectrumType(pSpecType);
     DataType_t     dType = Datatype(sType, pDataType);
@@ -309,22 +310,27 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
 				 &fLows, &fHighs);
     pApi->AddSpectrum(*pSpec);
     rResult = pSpec->getName();
+    rInterp.setResult(rResult);
     return TCL_OK;
   }
   catch (CException& except) {
     rResult = except.ReasonText();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   catch (string& msg) {
     rResult = msg;
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   catch (const char* msg) {
     rResult = string(msg);
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   catch (...) {
     rResult = string("Unanticipated exception while creating spectrum");
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 }
@@ -333,7 +339,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
    Create a spectrum that requires a vector of a vector of parameters.
    At present, the only example of this is a gamma summary spectrum.
 
-   \param rResult     - TCL result object.
+   \param rInterp    - A Tcl interpreter running the command. setResult is used to set the result string.
    \param pName       - Name of the new spectrum.
    \param pSpecType   - Pointer to the text string spectrum type.
    \param parameterNames - Vector of parameter name vectors.
@@ -354,7 +360,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
 
 */
 int 
-CSpectrumPackage::CreateSpectrum(CTCLResult&                            rResult, 
+CSpectrumPackage::CreateSpectrum(CTCLInterpreter& rInterp,
 				 const char*                            pName,
 				 const char*                            pSpecType,
 				 std::vector<std::vector<std::string> > parameterNames,
@@ -365,6 +371,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult&                            rResult,
 {
   CSpectrum* pSpec(0);
   SpecTcl*   pApi = SpecTcl::getInstance();
+  std::string rResult;                   // Eases the port to not having a CTCLResult param.
 
   // Wrap the 'business logic' in a try/catch block so that the
   // exceptions can be converted to result strings and TCL_ERROR returns:
@@ -378,24 +385,28 @@ CSpectrumPackage::CreateSpectrum(CTCLResult&                            rResult,
 						nChannels, &fLows, &fHighs);
     pApi->AddSpectrum(*pSpec);
     rResult = pSpec->getName();
-    
+    rInterp.setResult(rResult);
 
     return TCL_OK;
   }
   catch (CException& except) {
     rResult = except.ReasonText();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   catch (string& msg) {
     rResult = msg;
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   catch (const char* msg) {
     rResult = string(msg);
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   catch (...) {
     rResult = string("Unanticipated exception while creating spectrum");
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 }
@@ -403,7 +414,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult&                            rResult,
  * CreateSpectrum
  *     Creates an m2dprojection.
  *
- * @param[out] result - a TCL result used to report errors.
+ * @param[out] rInterp - Interpreter running the command. setResult is used to set the result string.
  * @param[in]  pName  - Name of the new spectrum.
  * @param[in]  pType  - Spectrum type.   Must be ke2DmProj
  * @param[in]  parameters - Names of the parameters (x1 y1 x2 y2...).
@@ -416,7 +427,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult&                            rResult,
  */
 int
 CSpectrumPackage::CreateSpectrum(
-    CTCLResult& result, const char* pName, const char* pType,
+    CTCLInterpreter& rInterp, const char* pName, const char* pType,
     const std::vector<std::string>& parameters, bool inX,
     const std::vector<CGateContainer*>& roi,
     const std::vector<UInt_t>&  nchans,
@@ -425,6 +436,7 @@ CSpectrumPackage::CreateSpectrum(
 )
 {
     SpecTcl& api(*SpecTcl::getInstance());
+    std::string result;
     try {
         // Convert spectrum and channel types to their enums.
         
@@ -475,25 +487,31 @@ CSpectrumPackage::CreateSpectrum(
         api.AddSpectrum(*pSpec);
         
         result = pName;
+        rInterp.setResult(result);
         return TCL_OK;
 
     } 
     catch (const char* msg) {
         result = std::string(msg);
+        rInterp.setResult(result);
     }
     catch (std::string msg) {
         result = msg;
+        rInterp.setResult(result);
     }
     catch (CException& re) {
         result = re.ReasonText();
+        rInterp.setResult(result);
     }
     catch (std::exception& e) {
         result = e.what();
+        rInterp.setResult(result);
     }
     catch (...) {
         result = std::string(
             "Unanticipated exception type caught in CSpectrumPackage::CreateSpectrum for m2dproj"
         );    
+        rInterp.setResult(result);
     }
     // TCL_OK returns are done inside the try block:
     
@@ -567,8 +585,8 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
  the form:
        id   name  dimensions {parameterlist} {resolutionlist} ?gatename?
 
-    \param   rResult CTCLResult& 
-          References the command result string.
+    \param   rInterp CTCLInterpreter&
+          Interpreter running the command. setResult is used to set the result string.
     \param  nId UInt_t
          Identifier of the spectrum to describe.
     \param showGate : bool [false]
@@ -583,12 +601,13 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
 
 */
 Int_t 
-CSpectrumPackage::ListSpectrum(CTCLResult& rResult, UInt_t nId,
+CSpectrumPackage::ListSpectrum(CTCLInterpreter& rInterp, UInt_t nId,
 			       bool showGates) 
 {
 
 
   SpecTcl& api(*(SpecTcl::getInstance()));
+  std::string rResult;
   CSpectrum* pSpec(0);
   SpectrumDictionaryIterator i = api.SpectrumBegin();
   while(i != api.SpectrumEnd()) {
@@ -602,10 +621,12 @@ CSpectrumPackage::ListSpectrum(CTCLResult& rResult, UInt_t nId,
 
   if(pSpec) {
     rResult += DescribeSpectrum(*pSpec, showGates);
+    rInterp.setResult(rResult);
     return TCL_OK;
   }
   else {
     rResult += "Spectrum does not exist";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -631,20 +652,20 @@ CSpectrumPackage::ClearAll()
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t ClearSubset ( CTCLResult& rResult, 
+//    Int_t ClearSubset ( CTCLInterpreter& rInterp, 
 //                        std::vector<std::string>& rvSpectra )
 //  Operation Type:
 //     Interface.
 //
 Int_t 
-CSpectrumPackage::ClearSubset(CTCLResult& rResult, 
+CSpectrumPackage::ClearSubset(CTCLInterpreter& rInterp,
 			      std::vector<std::string>& rvSpectra) 
 {
 // Clears a set of histograms.
 //  
 // Formal Parameters:
-//     CTCLResult&    rResult:
-//           The TCL Result string.
+//     CTCLInterpreter&    rInterp:
+//           Interpreter running the command.  setResult is used to set the result string.
 //      std::vector<std::string>& rvSpectra:
 //            Vector of names of spectra to clear.
 // Returns:
@@ -657,6 +678,7 @@ CSpectrumPackage::ClearSubset(CTCLResult& rResult,
   SpecTcl& api(*(SpecTcl::getInstance()));
 
   Bool_t     Failed = kfFALSE;
+  std::string rResult;
   CTCLString ResultString;
   std::vector<std::string>::iterator p = rvSpectra.begin();
   for(; p != rvSpectra.end(); p++) {
@@ -670,23 +692,24 @@ CSpectrumPackage::ClearSubset(CTCLResult& rResult,
   }
 
   rResult = (const char*)ResultString;
+  rInterp.setResult(rResult);
   return (Failed ? TCL_ERROR : TCL_OK);
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t ClearSubset ( CTCLResult& rResult, std::vector<UInt_t>& rvIds )
+//    Int_t ClearSubset ( CTCLInterpreter& rInterp, std::vector<UInt_t>& rvIds )
 //  Operation Type:
 //     Interface
 //
 Int_t 
-CSpectrumPackage::ClearSubset(CTCLResult& rResult, std::vector<UInt_t>& rvIds) 
+CSpectrumPackage::ClearSubset(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvIds) 
 {
 // Clears a subset of the spectra.
 // 
 // Formal Parameters:
-//       CTCLResult& rResult:
-//           result string for the TCL Command.
+//       CTCLResult& rInterp
+//           Interpreter running the command.  setResult sets the result string
 //       std::vector<UInt_t>& rvIds:
 //            Vector of Idents of spectra to clear.
 //  Returns:
@@ -698,7 +721,7 @@ CSpectrumPackage::ClearSubset(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
 //                                exist.
 //
   SpecTcl& api(*(SpecTcl::getInstance()));
-
+  std::string rResult;
   Bool_t      Failed = kfFALSE;
   CTCLString  Result;
   std::vector<UInt_t>::iterator p = rvIds.begin();
@@ -715,17 +738,18 @@ CSpectrumPackage::ClearSubset(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
     }
   }
   rResult = (const char*)(Result);
+  rInterp.setResult(rResult);
   return  (Failed ? TCL_ERROR : TCL_OK);
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t BindAll ( CTCLResult& rResult )
+//    Int_t BindAll ( CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Interface.
 //
 Int_t
-CSpectrumPackage::BindAll(CTCLResult& rResult) 
+CSpectrumPackage::BindAll(CTCLInterpreter& rInterp)
 {
 // The current set of spectra bound to the
 //  histogrammer memory is unbound.  The
@@ -733,8 +757,8 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
 //  memory.
 // 
 // Formal Parameters:
-//     CTCLResult&  rResult:
-//         References the TCL result string.
+//     CTCLInterpreter& rInterp:
+//         References the TCL Interpreter running the command that called us.
 // Returns:
 //      TCL_OK         - All spectra could be bound.
 //      TCL_ERROR - Some spectra could not be bound.
@@ -746,6 +770,7 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
 
   SpecTcl& api(*(SpecTcl::getInstance()));
   CTCLString Result;
+
   Bool_t     Failed = kfFALSE;
   SpectrumDictionaryIterator p = api.SpectrumBegin();
 
@@ -765,26 +790,26 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
       Failed = kfTRUE;
     }
   }
-  rResult = (const char*)(Result);
+  rInterp.setResult((const char*)(Result));
   return (Failed ? TCL_ERROR : TCL_OK);
 
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t BindList ( CTCLResult& rResult, std::vector<std::string>& rvNames )
+//    Int_t BindList ( CTCLInterpreter& rInterp, std::vector<std::string>& rvNames )
 //  Operation Type:
 //     Interface.
 //
 Int_t 
-CSpectrumPackage::BindList(CTCLResult& rResult,
+CSpectrumPackage::BindList(CTCLInterpreter& rInterp,
 			   std::vector<std::string>& rvNames) 
 {
 // Binds a subset of the spectra to the display memory.
 // 
 // Formal Parameters:
-//      CTCLResult&   rResult:
-//           References the TCL result string.
+//      CTCLInterpreter& rInterp:
+//           References the TCL Interpreter running this command.
 //      std::vector<std::string>& rvNames:
 //           vector of spectrum names which will be
 //           bound.
@@ -829,26 +854,26 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
     }
   }
 
-  rResult = (const char*)Result;
+  rInterp.setResult((const char*)Result);
   return (Failed ? TCL_ERROR : TCL_OK);
 
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t BindList ( CTCLResult& rResult, std::vector<UInt_t>& rIds )
+//    Int_t BindList ( CTCLInterpreter rInterp, std::vector<UInt_t>& rIds )
 //  Operation Type:
 //     Interface.
 //
 Int_t
-CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds) 
+CSpectrumPackage::BindList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rIds) 
 {
 // Binds a list of spectra to the displayer 
 // given their ids.
 // 
 // Formal Parameters
-//     CTCLResult& rResult:
-//        The TCL Result string.
+//     CTCLInterpreter& rInterp:
+//        The TCL Interpreter running the calling command..
 //     std:vector<UInt_t>&
 //         Vector containing the IDs  to bind.
 // Returns:
@@ -892,19 +917,19 @@ CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds)
       }
   }
 
-  rResult = (const char*)(Result);
+  rInterp.setResult((const char*)(Result));
   return (Failed ? TCL_ERROR : TCL_OK);
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t UnbindList ( CTCLResult& rResult, 
+//    Int_t UnbindList ( CTCLInterpreter& rInterp, 
 //                       std::vector<std::string> rvNames )
 //  Operation Type:
 //     Interface
 //
 Int_t 
-CSpectrumPackage::UnbindList(CTCLResult& rResult, 
+CSpectrumPackage::UnbindList(CTCLInterpreter& rInterp, 
 			     std::vector<std::string>& rvNames) 
 {
 // Unbinds a set of spectra from display memory.
@@ -913,8 +938,8 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
 //  about the spectrum. 
 //
 // Formal Parameters:
-//      CTCLResult&   rResult:
-//            References the TCL result string.
+//      CTCLInterpreter& rInterp
+//            References the TCL interpreter running this command.
 //       std::vector<std::string>& rvNames:
 //             Names of the spectra to unbind.
 //   Returns:
@@ -931,7 +956,7 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
 
   SpecTcl* pApi                     = SpecTcl::getInstance();
   CHistogrammer* pSorter            = pApi->GetHistogrammer();
-  
+  std::string rResult;
 
   for(auto p=rvNames.begin(), end=rvNames.end(); p != end; p++) {
     try {
@@ -957,6 +982,7 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
   if (Failed) {
       rResult += " ";
       rResult += (const char*)(MyResults);
+      rInterp.setResult(rResult);
   }
 
   return (Failed ? TCL_ERROR : TCL_OK);
@@ -965,18 +991,18 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t UnbindList ( CTCLResult& rResult, std::vector<UInt_t>& rvIds )
+//    Int_t UnbindList (CTCLInterpreter& rInterp, std::vector<UInt_t>& rvIds )
 //  Operation Type:
 //     Interface
 //
 Int_t
-CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds) 
+CSpectrumPackage::UnbindList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvIds) 
 {
 // Unbinds a list of spectra from the display
 //
 // Formal Parameters:
-//     CTCLResult&   rResult:
-//          TCL Result string.
+//     CTCLInterpreter& rInterp:
+//          TCL Interpreter runnin gthe command.
 //      std::vector<UInt_t>& rvIds
 //           Vector of spectrum ids to unbind.
 //   Returns:
@@ -1002,6 +1028,7 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
 
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
   CHistogrammer* pSorter = api.GetHistogrammer();
+  std::string rResult;
 
   // Build the xid list.. Any failures go into the MyResults string.
   //
@@ -1030,6 +1057,7 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
   if (Failed) {
       rResult += " ";
       rResult += (const char*)(MyResults);
+      interp.setResult(rResult);
   }
 
   return (Failed ? TCL_ERROR : TCL_OK);
@@ -1072,7 +1100,7 @@ CSpectrumPackage::UnbindAll()
 //     Interface.
 //
 Int_t 
-CSpectrumPackage::DeleteList(CTCLResult& rResult,
+CSpectrumPackage::DeleteList(CTCLInterpreter& rInterp,
 			     std::vector<std::string>& rvNames) 
 {
 //  Deletes a list of spectra.  Note that if the
@@ -1080,8 +1108,8 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult,
 //  first unbound before being deleted.
 //
 // Formal parameters:
-//      CTCLResult&  rResult:
-//         References the result string for the command.
+//      CTCLInterpreter& rInterp:
+//         References the interpreter running the command that called us
 //      std::vector<std::string>& rNames:
 //          vector containing the names of the spectra to
 //          delete.
@@ -1122,24 +1150,24 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult,
   }
   // Set result string from the failure list.
   //
-  rResult = (const char*)(MyResult);
+  rInterp.setResult((const char*)(MyResult));
   return (fFailed ? TCL_ERROR : TCL_OK);
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t DeleteList ( CTCLResult& rResult, std::vector<UInt_t>& rvnIds )
+//    Int_t DeleteList ( CTCLInterpreter& rInterp, std::vector<UInt_t>& rvnIds )
 //  Operation Type:
 //     Interface
 //
 Int_t 
-CSpectrumPackage::DeleteList(CTCLResult& rResult, std::vector<UInt_t>& rvnIds) 
+CSpectrumPackage::DeleteList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvnIds) 
 {
 // Deletes a set of spectra given their Ids.
 //
 // Formal Parameters:
-//      CTCLResult&  rResult:
-//            The result string for the command.
+//      CTCLInterpreter& rInterp
+//            The interpreter running the command.
 //      std::vector<UInt_t>& rvnIds:
 //             Vector of ids of spectra to delete.
 // Returns:
@@ -1151,6 +1179,7 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult, std::vector<UInt_t>& rvnIds)
   CTCLString  MyResult;
   Bool_t     fFailed = kfFALSE;
   std::vector<std::string> vNameList;
+  std::string rResult;
 
   // Our strategy is to just convert the ids into a vector of names
   // and call the DeleteList which operates on names.
@@ -1176,9 +1205,11 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult, std::vector<UInt_t>& rvnIds)
   //  Once that's done, we just merge the failure lists and
   //  status codes...
 
-  Int_t tclStat = DeleteList(rResult, vNameList);
-  rResult += " ";
+  Int_t tclStat = DeleteList(rInterp, vNameList);
+  rResult rInterp.GetResultString();
   rResult += (const char*)MyResult;
+  rInterp.setResult(rResult);
+
   if(tclStat != TCL_OK) fFailed = kfTRUE;
 
   return (fFailed ? TCL_ERROR : TCL_OK);
@@ -1227,22 +1258,19 @@ CSpectrumPackage::DeleteAll()
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t ListBindings ( TCLResult& rResult, std::vector<std::string> rvNames )
+//    Int_t ListBindings (CTCLInterpreter& rInterp, std::vector<std::string> rvNames )
 //  Operation Type:
 //     Interface
 //
 Int_t 
-CSpectrumPackage::ListBindings(CTCLResult& rResult, 
+CSpectrumPackage::ListBindings(CTCLInterpreter& rInterp, 
 			       std::vector<std::string>& rvNames) 
 {
 // Produces a list of the display bindings.
 //
 // Formal Parameters:
-//     CTCLResult&   rResult:
-//        contains display bindings information.
-//        this consists of a string containing a list.
-//        each list element is a sublist containing 
-//        (in this order):   specid specname xid.
+//     CTCLInterpreter& rInterp:
+//        interpreter running the command.  
 //    std::vector<std::string>&   rvNames:
 //        Names of spectra about which to give bindings.
 // Returns:
@@ -1285,23 +1313,23 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
   // Return the appropriate error code and results string:
 
   if(fFailed) {
-    rResult = (const char*)BadResults;
+    rInterp.setResult((const char*)BadResults);
     return TCL_ERROR;
   }
   else {
-    rResult = (const char*)GoodResults;
+    rInterp.setResult((const char*)GoodResults);
     return TCL_OK;
   }
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t ListBindings ( CTCLResult& rResult, std::vector<UInt_t>& rvIds )
+//    Int_t ListBindings (CTCLInterpreter& rInterp, std::vector<UInt_t>& rvIds )
 //  Operation Type:
 //     interface
 //
 Int_t 
-CSpectrumPackage::ListBindings(CTCLResult& rResult, 
+CSpectrumPackage::ListBindings(CTCLInterpreter& rInterp, 
 			       std::vector<UInt_t>& rvIds) 
 {
 // lists bindings given spectrum ids.
@@ -1310,8 +1338,8 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
 //   specified by ids.
 //
 // Formal Parameters:
-//     CTCLResult& rResult:
-//         TCL Result string.
+//     CTCLInterpreter& rInterp:
+//         TCL Interpreter running the command that alled us.
 //    std::vector<UInt_t>&   rvIds:
 //         set of spectrum ids to list bindings for.
 // Returns:
@@ -1332,11 +1360,11 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
       UInt_t     xid   = FindDisplayBinding(*p);
       CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
       if(!pSpec) {
-	char txtid[100];
-	sprintf(txtid, "%d", *p);
-	throw CDictionaryException(CDictionaryException::knNoSuchId,
-				   "Looking up bound spectrum",
-				   txtid);
+        char txtid[100];
+        sprintf(txtid, "%d", *p);
+        throw CDictionaryException(CDictionaryException::knNoSuchId,
+                "Looking up bound spectrum",
+                txtid);
       }
       FormatBinding(GoodList, xid, pSpec);
     }
@@ -1352,82 +1380,33 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
   // Fill in result from the appropriate list and return the status.
 
   if(fFailed) {
-    rResult = (const char*)BadList;
+    rInterp.setResult((const char*)BadList);
     return TCL_ERROR;
       
   }
   else {
-    rResult = (const char*)GoodList;
+    rInterp.setResult((const char*)GoodList);
     return TCL_OK;
   }
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t ListXidBindings ( CTCLResult& rResult, std::vector<UInt_t>& rvXIds )
-//  Operation Type:
-//     Interface
-//
-//Int_t
-//CSpectrumPackage::ListXidBindings(CTCLResult& rResult,
-//				  std::vector<UInt_t>& rvXIds)
-//{
-//// Lists display bindings given a set of binding
-//// ids.
-////    Formal Parameters:
-////       CTCLResult&  rResult:
-////              Result string for the TCL command.
-////        std::vector<UInt_t>&  rvXids:
-////                set of binding ids.
-//// Returns:
-////     See the ListBindings members.
-
-//  CTCLString                    GoodList;
-//  CTCLString                    BadList;
-//  Bool_t                        fFailed = kfFALSE;
-//  std::vector<UInt_t>::iterator p       = rvXIds.begin();
-//  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
-
-//  for(; p != rvXIds.end(); p++) {
-//    CSpectrum* pSpec = pDisplay->getSpectrum(*p);
-//    if(pSpec) {
-//      FormatBinding(GoodList, *p, pSpec);
-//    }
-//    else {
-//      char txtid[100];
-//      sprintf(txtid,"%d", *p);
-//      BadList.StartSublist();
-//      BadList.AppendElement(txtid);
-//      BadList.AppendElement("Binding is not associated with a spectrum");
-//      BadList.EndSublist();
-//      fFailed = kfFALSE;
-//    }
-//  }
-//  if(fFailed) {
-//    rResult = (const char*)BadList;
-//    return  TCL_ERROR;
-//  }
-//  else {
-//    rResult = (const char*)GoodList;
-//    return TCL_ERROR;
-//  }
-//}
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    void ListAllBindings ( CTCLResult& rResult )
+//    void ListAllBindings (CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Interface
 //
 void 
-CSpectrumPackage::ListAllBindings(CTCLResult& rResult, const char* pattern) 
+CSpectrumPackage::ListAllBindings(CTCLInterpreter& rInterp, const char* pattern) 
 {
 // Creates a complete list of the display bindings.
 // 
 // Formal Parameters:
-//      CTCLResult&  rResult:
-//               TCL Result string.
-// 
+//      CTCLInterpreter& rInterp:
+//               TCL Interpreter running the command.
+//      const char* pattern
+//             If not null only spectra that match this glob pattern are included in the list.
+//             defaults to "*"
 
   CTCLString ResultList;
 
@@ -1449,26 +1428,25 @@ CSpectrumPackage::ListAllBindings(CTCLResult& rResult, const char* pattern)
     catch(CException& rExcept) { // No match .. ignore.
     }
   }
-  rResult = (const char*)ResultList; // Put output list in the result string.
+  rInterp.setResult((const char*)ResultList); // Put output list in the result string.
 
 }
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     GetChannel(CTCLResult& rResult, const string& rName,
+//     GetChannel(CTCLInterpreter& rInterp, const string& rName,
 //                const UInt_t* pIndices)
 //  Operation Type: 
 //     selector.
 Bool_t 
-CSpectrumPackage::GetChannel(CTCLResult& rResult, const string& rName,
+CSpectrumPackage::GetChannel(CTCLInterpreter& rInterp, const string& rName,
 			     const vector<UInt_t>& rIndices)  
 {
   // Retrieves a channel value from a spectrum.
   // 
   // Formal Parameters:
-  //    CTCLResult& rResult:
-  //       Result string. Filled with the spectrum channel
-  //       or the reason it could not be fetched.
+  //    CTCLInterpreter& rInterp:
+  //       Interpreter that's running this command.
   //   const string& rName:
   //       Name of spectrum.
   //   const vector<UInt_t>& pIndices:
@@ -1477,6 +1455,7 @@ CSpectrumPackage::GetChannel(CTCLResult& rResult, const string& rName,
   //      Bool_t   kfTRUE - It worked.
   //      Bool_t   kfFALSE - it failed.
 
+  std::string rResult;
   try {
     // Get a pointer to the spectrum object.
     //
@@ -1498,10 +1477,12 @@ CSpectrumPackage::GetChannel(CTCLResult& rResult, const string& rName,
     char sChan[20];
     sprintf(sChan, "%lu", nChan);
     rResult += sChan;
+    rInterp.setResult(rResult);
 
   }
   catch (CException & rExcept) {
     rResult += rExcept.ReasonText();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   return kfTRUE;
@@ -1510,20 +1491,20 @@ CSpectrumPackage::GetChannel(CTCLResult& rResult, const string& rName,
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     SetChannel(CTCLResult& rResult, const string& rName, const UInt_t* 
+//     SetChannel(CTCLInterpreter& rInterp, const string& rName, const UInt_t* 
 //                pIndices, ULong_t nValue)
 //  Operation Type: 
 //     Mutator
 Bool_t 
-CSpectrumPackage::SetChannel(CTCLResult& rResult, const string& rName, 
+CSpectrumPackage::SetChannel(CTCLInterpreter& rInterp, const string& rName, 
 			     const vector<UInt_t>& rIndices, ULong_t nValue)  
 {
   // Sets the value of a spectrum channel to a
   // particular value.
   //
   // Formal Parameters:
-  //     CTCLResult& rResult
-  //        Will contain the new value or an error message on failure.
+  //     CTCLInterpreter& rInterp
+  //        Interpreter running the command that called us.
   //     const string& rName
   //        Name of spectrum to modify.
   //     const UInt_t* pIndices:
@@ -1534,6 +1515,7 @@ CSpectrumPackage::SetChannel(CTCLResult& rResult, const string& rName,
   //    kfTRUE  - Success, with new vailue in the result string.
   //    kfFALSE - Failure with reason in the Result string.   
   //
+  std::string rResult;
   try {
     // Get a pointer to the spectrum object.
     //
@@ -1555,10 +1537,11 @@ CSpectrumPackage::SetChannel(CTCLResult& rResult, const string& rName,
     char sValue[20];
     sprintf(sValue, "%ld", nOldValue);
     rResult += sValue;
-
+    rInterp.setResult(rResult);
   }
   catch (CException & rExcept) {
     rResult += rExcept.ReasonText();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   return kfTRUE;
@@ -2072,13 +2055,13 @@ CSpectrumPackage::FormatBinding(CTCLString& rString, UInt_t nXId,
 ///////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    Bool_t    GetNumberList(CTCLResult& rResult, 
+//    Bool_t    GetNumberList(CTCLInterpreter& rInterp, 
 //			      std::vector<UInt_t>& rvIds,
 //			      int nArgs, char* pArgs[]);
 //  Operation Type:
 //    Protected parsing utility.
 Bool_t
-CSpectrumPackage::GetNumberList(CTCLResult& rResult, 
+CSpectrumPackage::GetNumberList(CTCLInterpreter& rInterp, 
 			    std::vector<UInt_t>& rvIds,
 			    int nArgs, char* pArgs[])
 {
@@ -2093,6 +2076,7 @@ CSpectrumPackage::GetNumberList(CTCLResult& rResult,
   //
   CTCLString MyResult;
   Bool_t fFailed = kfFALSE;
+  std::string rResult;
 
   for(Int_t i = 0; i < nArgs; i++) {
     Int_t value;
@@ -2100,10 +2084,10 @@ CSpectrumPackage::GetNumberList(CTCLResult& rResult,
 
     if((tclStatus != TCL_OK) || (value < 0) ) {
       if(!fFailed) {		// First failure needs to add string:
-	fFailed = kfTRUE;
-	MyResult.AppendElement
-	  ("The following parameters must be Unsigned integers");
-	MyResult.StartSublist();
+        fFailed = kfTRUE;
+        MyResult.AppendElement
+          ("The following parameters must be Unsigned integers");
+        MyResult.StartSublist();
       }
       MyResult.AppendElement(pArgs[i]);
     }
@@ -2115,6 +2099,7 @@ CSpectrumPackage::GetNumberList(CTCLResult& rResult,
     MyResult.EndSublist();
     rResult += (const char*)MyResult;
   }
+  rInterp.setResult(rResult);
   return fFailed;
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -2127,7 +2112,6 @@ CSpectrumPackage::GetNumberList(CTCLResult& rResult,
 //
 void
 CSpectrumPackage:: GetNameList(std::vector<std::string>& rvNames,
-			       CTCLResult& rResult,
 			       char* pattern)
 {
   //  produces a vector of names from the nArgs, pArgs parameters.
@@ -2140,8 +2124,8 @@ CSpectrumPackage:: GetNameList(std::vector<std::string>& rvNames,
     const char* name = ((p->second)->getName()).c_str();
     if (Tcl_StringMatch(name, pattern) )
       {
-	CSpectrum* rSpec((*p).second);
-	rvNames.push_back(((p->second)->getName()).c_str());
+        CSpectrum* rSpec((*p).second);
+        rvNames.push_back(((p->second)->getName()).c_str());
       }
   }
   return;
