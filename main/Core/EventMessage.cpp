@@ -237,12 +237,12 @@ EventPumpThread(ClientData pData) {
 */
 void HistogramEvents(CEventList& events) {
     if (isMpiApp()) {
+        MPIHistogramEvents(events);    // Parallel
+    } else {                           // Serial
         auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
         if (pipeline) {
             (*pipeline)(events);    
         }
-    } else {
-        MPIHistogramEvents(events);
     }
 }
 /**
