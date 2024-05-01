@@ -822,40 +822,47 @@ CSpectrumPackage::BindList(CTCLInterpreter& rInterp,
 //                                   could not be bound and the reason it
 //                                   couldn't be bound.
 //  
+  // This only operates if the m_pHistogrammer is not null.  It will be null 
+  // in parallel mode for ranks not equal to MPI_EVENT_SINK_RANK (Globals.h)
+  // ALl other ranks will return TCL_OK with  an empty result string
 
-  CTCLString Result;
-  Bool_t     Failed = kfFALSE;
-  CDisplay*  pDisplay = m_pDisplay->getCurrentDisplay();
-  SpecTcl& api = *(SpecTcl::getInstance());
+  if (m_pHistogrammer) {
+    CTCLString Result;
+    Bool_t     Failed = kfFALSE;
+    CDisplay*  pDisplay = m_pDisplay->getCurrentDisplay();
+    SpecTcl& api = *(SpecTcl::getInstance());
 
-  std::vector<std::string>::iterator p = rvNames.begin();
-  for(; p != rvNames.end(); p++) {
-      try {
-          CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
-          if (pSpec) {
-            makeBinding(*pSpec, *(api.GetHistogrammer()));
-          } else {
-              throw CDictionaryException(CDictionaryException::knNoSuchKey,
-                                         "binding spectrum by name", *p);
-          }
+    std::vector<std::string>::iterator p = rvNames.begin();
+    for(; p != rvNames.end(); p++) {
+        try {
+            CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
+            if (pSpec) {
+              makeBinding(*pSpec, *(api.GetHistogrammer()));
+            } else {
+                throw CDictionaryException(CDictionaryException::knNoSuchKey,
+                                          "binding spectrum by name", *p);
+            }
+        }
+      catch (CException& rExcept) {
+        Failed = kfTRUE;
+        Result.StartSublist();
+        Result.AppendElement(*p);
+        Result.AppendElement(rExcept.ReasonText());
+        Result.EndSublist();
       }
-    catch (CException& rExcept) {
-      Failed = kfTRUE;
-      Result.StartSublist();
-      Result.AppendElement(*p);
-      Result.AppendElement(rExcept.ReasonText());
-      Result.EndSublist();
-    }
-    catch (...) {
-      // Any other exception...
+      catch (...) {
+        // Any other exception...
 
-      Failed = kfTRUE;
-      Result = "BindToDisplay threw an error of some sort";
+        Failed = kfTRUE;
+        Result = "BindToDisplay threw an error of some sort";
+      }
     }
+
+    rInterp.setResult((const char*)Result);
+    return (Failed ? TCL_ERROR : TCL_OK);
+  } else {
+    return TCL_OK;
   }
-
-  rInterp.setResult((const char*)Result);
-  return (Failed ? TCL_ERROR : TCL_OK);
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -886,39 +893,48 @@ CSpectrumPackage::BindList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rIds)
 //                              reason is the reason it could not be bound.
 //
 
-  Bool_t      Failed = kfFALSE;
-  CTCLString  Result;
+  // This method can only execute if there's a histogramer.  There will not be one
+  // in parallel mode for ranks other than MPI_EVENT_SINK_RANK (Globals.h).
+  // 
+  if (m_pHistogrammer) {
+    Bool_t      Failed = kfFALSE;
+    CTCLString  Result;
 
-  CDisplay*    pDisplay = m_pDisplay->getCurrentDisplay();
-  SpecTcl& api          = *(SpecTcl::getInstance());
+    CDisplay*    pDisplay = m_pDisplay->getCurrentDisplay();
+    SpecTcl& api          = *(SpecTcl::getInstance());
 
-  for(auto p=rIds.begin(), end=rIds.end(); p != end; p++) {
-      try {
-          CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
-          if(pSpec) {
-              makeBinding(*pSpec, *(api.GetHistogrammer()));
-          }
-          else {
-              char TextId[100];
-              sprintf(TextId, "id=%d", *p);
-              throw CDictionaryException(CDictionaryException::knNoSuchId,
-                                         "Looking up spectrum to bind",
-                                         TextId);
-          }
-      }
-      catch (CException& rExcept) {
-          char TextId[100];
-          sprintf(TextId, "%d", *p);
-          Result.StartSublist();
-          Result.AppendElement(TextId);
-          Result.AppendElement(rExcept.ReasonText());
-          Result.EndSublist();
-          Failed = kfTRUE;
-      }
+    for(auto p=rIds.begin(), end=rIds.end(); p != end; p++) {
+        try {
+            CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
+            if(pSpec) {
+                makeBinding(*pSpec, *(api.GetHistogrammer()));
+            }
+            else {
+                char TextId[100];
+                sprintf(TextId, "id=%d", *p);
+                throw CDictionaryException(CDictionaryException::knNoSuchId,
+                                          "Looking up spectrum to bind",
+                                          TextId);
+            }
+        }
+        catch (CException& rExcept) {
+            char TextId[100];
+            sprintf(TextId, "%d", *p);
+            Result.StartSublist();
+            Result.AppendElement(TextId);
+            Result.AppendElement(rExcept.ReasonText());
+            Result.EndSublist();
+            Failed = kfTRUE;
+        }
+    }
+
+    rInterp.setResult((const char*)(Result));
+    return (Failed ? TCL_ERROR : TCL_OK);
+  } else {
+    // If we are not the event sink pipeline just return TCL_OK with no result
+
+    return TCL_OK;
   }
-
-  rInterp.setResult((const char*)(Result));
-  return (Failed ? TCL_ERROR : TCL_OK);
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -1074,20 +1090,25 @@ CSpectrumPackage::UnbindList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvId
 void 
 CSpectrumPackage::UnbindAll() 
 {
-// Unbinds all spectra from the display
+// Unbinds all spectra from the display  
 //
-  SpecTcl& api = *(SpecTcl::getInstance());
+  // Can only be done  if we have a display or a histogtramer...and we won't have either
+  // if we're parallel but not MPI_EVENT_SINK_RANK.
 
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
-  CHistogrammer* pSorter = api.GetHistogrammer();
+  if (m_pHistogrammer && m_pDisplay) {
+    SpecTcl& api = *(SpecTcl::getInstance());
 
-  for(auto p = m_pHistogrammer->SpectrumBegin();
-           p != m_pHistogrammer->SpectrumEnd(); p++) {
-      try {
-          removeBinding(*(p->second), *pSorter);
-          pDisplay->removeSpectrum(*(p->second), *pSorter);
-      }
-      catch(CException& rException) { } // Some spectra will not be bound.
+    CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+    CHistogrammer* pSorter = api.GetHistogrammer();
+
+    for(auto p = m_pHistogrammer->SpectrumBegin();
+            p != m_pHistogrammer->SpectrumEnd(); p++) {
+        try {
+            removeBinding(*(p->second), *pSorter);
+            pDisplay->removeSpectrum(*(p->second), *pSorter);
+        }
+        catch(CException& rException) { } // Some spectra will not be bound.
+    }
   }
 
 }
@@ -1175,45 +1196,47 @@ CSpectrumPackage::DeleteList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvnI
 //       TCL_ERROR             - Some deletes not done.  The
 //                               result string is formatted as in BindList()
 //
+  if (m_pHistogrammer) {
+    CTCLString  MyResult;
+    Bool_t     fFailed = kfFALSE;
+    std::vector<std::string> vNameList;
+    std::string rResult;
 
-  CTCLString  MyResult;
-  Bool_t     fFailed = kfFALSE;
-  std::vector<std::string> vNameList;
-  std::string rResult;
+    // Our strategy is to just convert the ids into a vector of names
+    // and call the DeleteList which operates on names.
 
-  // Our strategy is to just convert the ids into a vector of names
-  // and call the DeleteList which operates on names.
-
-  std::vector<UInt_t>::iterator p = rvnIds.begin();
-  for(auto p=rvnIds.begin(), end=rvnIds.end(); p != end; p++) {
-    CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
-    if(pSpec) {			// Spectrum exists..
-      vNameList.push_back(pSpec->getName());
+    std::vector<UInt_t>::iterator p = rvnIds.begin();
+    for(auto p=rvnIds.begin(), end=rvnIds.end(); p != end; p++) {
+      CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
+      if(pSpec) {			// Spectrum exists..
+        vNameList.push_back(pSpec->getName());
+      }
+      else {			// Spectrum does not exist.
+        char txtid[100];
+        MyResult.StartSublist();
+        sprintf(txtid," %d ", *p);
+        MyResult.AppendElement(txtid);
+        MyResult.AppendElement("No Such Spectrum ID");
+        MyResult.EndSublist();
+        fFailed = kfFALSE;
+      }
     }
-    else {			// Spectrum does not exist.
-      char txtid[100];
-      MyResult.StartSublist();
-      sprintf(txtid," %d ", *p);
-      MyResult.AppendElement(txtid);
-      MyResult.AppendElement("No Such Spectrum ID");
-      MyResult.EndSublist();
-      fFailed = kfFALSE;
-    }
+    //  The vNameList is a spectrum list which is suitable for
+    //  the name drive version of delete list:
+    //  Once that's done, we just merge the failure lists and
+    //  status codes...
+
+    Int_t tclStat = DeleteList(rInterp, vNameList);
+    rResult rInterp.GetResultString();
+    rResult += (const char*)MyResult;
+    rInterp.setResult(rResult);
+
+    if(tclStat != TCL_OK) fFailed = kfTRUE;
+
+    return (fFailed ? TCL_ERROR : TCL_OK);
+  } else {
+    return TCL_OK;
   }
-  //  The vNameList is a spectrum list which is suitable for
-  //  the name drive version of delete list:
-  //  Once that's done, we just merge the failure lists and
-  //  status codes...
-
-  Int_t tclStat = DeleteList(rInterp, vNameList);
-  rResult rInterp.GetResultString();
-  rResult += (const char*)MyResult;
-  rInterp.setResult(rResult);
-
-  if(tclStat != TCL_OK) fFailed = kfTRUE;
-
-  return (fFailed ? TCL_ERROR : TCL_OK);
-
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -1226,33 +1249,34 @@ CSpectrumPackage::DeleteList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvnI
 void 
 CSpectrumPackage::DeleteAll() 
 {
-  SpecTcl& api(*(SpecTcl::getInstance()));
+  if (m_pHistogrammer) {
+      SpecTcl& api(*(SpecTcl::getInstance()));
 
-// Deletes all spectra known to the
-// histogrammer.
-//
+      // Deletes all spectra known to the
+      // histogrammer.
+      //
 
-  // For each spectrum in the list, we unbind it and then delete it.
-  // Note that since deletion invalidates iterators, we repeatedly 
-  // delete the front element.
-  // 
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
-  CHistogrammer* pSorter = api.GetHistogrammer();
+      // For each spectrum in the list, we unbind it and then delete it.
+      // Note that since deletion invalidates iterators, we repeatedly 
+      // delete the front element.
+      // 
+      CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+      CHistogrammer* pSorter = api.GetHistogrammer();
 
-  SpectrumDictionaryIterator p;
-  while(m_pHistogrammer->SpectrumCount()) {
-      p = m_pHistogrammer->SpectrumBegin();
-      CSpectrum* pSpec = (*p).second;
-      try {
-          if ( pDisplay->spectrumBound(pSpec) ) {
-              pDisplay->removeSpectrum(*pSpec, *pSorter);
+      SpectrumDictionaryIterator p;
+      while(m_pHistogrammer->SpectrumCount()) {
+          p = m_pHistogrammer->SpectrumBegin();
+          CSpectrum* pSpec = (*p).second;
+          try {
+              if ( pDisplay->spectrumBound(pSpec) ) {
+                  pDisplay->removeSpectrum(*pSpec, *pSorter);
+              }
           }
-      }
-      catch (CException& rExcept) { // Exceptions in the find are ignored.
-      }
-      CSpectrum* pSpectrum = api.RemoveSpectrum(pSpec->getName());
-      delete pSpectrum;		// Destroy spectrum storage.
-  }
+          catch (CException& rExcept) { // Exceptions in the find are ignored.
+          }
+          CSpectrum* pSpectrum = api.RemoveSpectrum(pSpec->getName());
+          delete pSpectrum;		// Destroy spectrum storage.
+    }
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -1277,48 +1301,51 @@ CSpectrumPackage::ListBindings(CTCLInterpreter& rInterp,
 //     TCL_OK            - Successful list.
 //     TCL_ERROR         - Failed list and contains the reasons for failures.
 //
+  if (m_pHistogrammer) {
+    std::vector<std::string>::iterator p = rvNames.begin();
+    CTCLString                         GoodResults;
+    CTCLString                         BadResults;
+    Bool_t                             fFailed = kfFALSE;
 
-  std::vector<std::string>::iterator p = rvNames.begin();
-  CTCLString                         GoodResults;
-  CTCLString                         BadResults;
-  Bool_t                             fFailed = kfFALSE;
-
-  // For each spectrum in the list, locate a binding.   Good bindings are
-  // put in the GoodResults string while any exception adds entries
-  // to the BadResults string and sets fFailed -> kfTRUE
- 
-  for(; p != rvNames.end(); p++) {
-    try {
-      UInt_t xid = FindDisplayBinding(*p);
-      CSpectrum* pSpec  = m_pHistogrammer->FindSpectrum(*p);
-      if(pSpec) {
-	FormatBinding(GoodResults, xid, pSpec);
-	
+    // For each spectrum in the list, locate a binding.   Good bindings are
+    // put in the GoodResults string while any exception adds entries
+    // to the BadResults string and sets fFailed -> kfTRUE
+  
+    for(; p != rvNames.end(); p++) {
+      try {
+        UInt_t xid = FindDisplayBinding(*p);
+        CSpectrum* pSpec  = m_pHistogrammer->FindSpectrum(*p);
+        if(pSpec) {
+    FormatBinding(GoodResults, xid, pSpec);
+    
+        }
+        else {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+            "Looking up bound spectrum",
+            *p);
+        }
       }
-      else {
-	throw CDictionaryException(CDictionaryException::knNoSuchKey,
-				   "Looking up bound spectrum",
-				   *p);
+      catch (CException& rExcept) {
+        BadResults.StartSublist();
+        BadResults.AppendElement(*p);
+        BadResults.AppendElement(rExcept.ReasonText());
+        BadResults.EndSublist();
+        fFailed = kfTRUE;
       }
     }
-    catch (CException& rExcept) {
-      BadResults.StartSublist();
-      BadResults.AppendElement(*p);
-      BadResults.AppendElement(rExcept.ReasonText());
-      BadResults.EndSublist();
-      fFailed = kfTRUE;
+
+    // Return the appropriate error code and results string:
+
+    if(fFailed) {
+      rInterp.setResult((const char*)BadResults);
+      return TCL_ERROR;
     }
-  }
-
-  // Return the appropriate error code and results string:
-
-  if(fFailed) {
-    rInterp.setResult((const char*)BadResults);
-    return TCL_ERROR;
-  }
-  else {
-    rInterp.setResult((const char*)GoodResults);
-    return TCL_OK;
+    else {
+      rInterp.setResult((const char*)GoodResults);
+      return TCL_OK;
+    }
+  } else {
+    return TCL_OK;              // Parallel but not in event sink pipeline.
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -1345,48 +1372,52 @@ CSpectrumPackage::ListBindings(CTCLInterpreter& rInterp,
 // Returns:
 //    See previous function.
 //
-  CTCLString                     GoodList;
-  CTCLString                     BadList;
-  SpectrumDictionaryIterator     pS;
-  std::vector<UInt_t>::iterator  p = rvIds.begin();
-  Bool_t                         fFailed = kfFALSE;
+  if (m_pHistogrammer) {
+    CTCLString                     GoodList;
+    CTCLString                     BadList;
+    SpectrumDictionaryIterator     pS;
+    std::vector<UInt_t>::iterator  p = rvIds.begin();
+    Bool_t                         fFailed = kfFALSE;
 
-  // Each binding is looked up by id and added to the output list.
-  // The name from the bindings list is used to lookup the spectrum and
-  // get the information on it.
+    // Each binding is looked up by id and added to the output list.
+    // The name from the bindings list is used to lookup the spectrum and
+    // get the information on it.
 
-  for(; p != rvIds.end(); p++) {
-    try {
-      UInt_t     xid   = FindDisplayBinding(*p);
-      CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
-      if(!pSpec) {
+    for(; p != rvIds.end(); p++) {
+      try {
+        UInt_t     xid   = FindDisplayBinding(*p);
+        CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
+        if(!pSpec) {
+          char txtid[100];
+          sprintf(txtid, "%d", *p);
+          throw CDictionaryException(CDictionaryException::knNoSuchId,
+                  "Looking up bound spectrum",
+                  txtid);
+        }
+        FormatBinding(GoodList, xid, pSpec);
+      }
+      catch (CException& rException) {
         char txtid[100];
         sprintf(txtid, "%d", *p);
-        throw CDictionaryException(CDictionaryException::knNoSuchId,
-                "Looking up bound spectrum",
-                txtid);
+        BadList.StartSublist();
+        BadList.AppendElement(txtid);
+        BadList.AppendElement(rException.ReasonText());
+        BadList.EndSublist();
       }
-      FormatBinding(GoodList, xid, pSpec);
     }
-    catch (CException& rException) {
-      char txtid[100];
-      sprintf(txtid, "%d", *p);
-      BadList.StartSublist();
-      BadList.AppendElement(txtid);
-      BadList.AppendElement(rException.ReasonText());
-      BadList.EndSublist();
-    }
-  }
-  // Fill in result from the appropriate list and return the status.
+    // Fill in result from the appropriate list and return the status.
 
-  if(fFailed) {
-    rInterp.setResult((const char*)BadList);
-    return TCL_ERROR;
-      
-  }
-  else {
-    rInterp.setResult((const char*)GoodList);
-    return TCL_OK;
+    if(fFailed) {
+      rInterp.setResult((const char*)BadList);
+      return TCL_ERROR;
+        
+    }
+    else {
+      rInterp.setResult((const char*)GoodList);
+      return TCL_OK;
+    }
+  } else {
+    return TCL_OK;   // MPI Parallel but not in MPI_EVENT_SINK_RANK
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -1407,29 +1438,31 @@ CSpectrumPackage::ListAllBindings(CTCLInterpreter& rInterp, const char* pattern)
 //      const char* pattern
 //             If not null only spectra that match this glob pattern are included in the list.
 //             defaults to "*"
+  if (m_pHistogrammer) {
+    CTCLString ResultList;
 
-  CTCLString ResultList;
-
-  // The strategy is to find the binding for each spectrum.
-  // if it exists, then add it to the list.  If not, return the error.
-  //
-  SpectrumDictionaryIterator p = m_pHistogrammer->SpectrumBegin();
-  for(; p != m_pHistogrammer->SpectrumEnd(); p++) {
-    try {
-      char textId[100];
-      CSpectrum *pSpec = (*p).second;
-      UInt_t xid = FindDisplayBinding(pSpec->getName());
-      const char* name = (pSpec->getName()).c_str();
-      if (Tcl_StringMatch(name, pattern))
-	{  
-	  FormatBinding(ResultList,  xid, pSpec);
-	}
+    // The strategy is to find the binding for each spectrum.
+    // if it exists, then add it to the list.  If not, return the error.
+    //
+    SpectrumDictionaryIterator p = m_pHistogrammer->SpectrumBegin();
+    for(; p != m_pHistogrammer->SpectrumEnd(); p++) {
+      try {
+        char textId[100];
+        CSpectrum *pSpec = (*p).second;
+        UInt_t xid = FindDisplayBinding(pSpec->getName());
+        const char* name = (pSpec->getName()).c_str();
+        if (Tcl_StringMatch(name, pattern))
+    {  
+      FormatBinding(ResultList,  xid, pSpec);
     }
-    catch(CException& rExcept) { // No match .. ignore.
+      }
+      catch(CException& rExcept) { // No match .. ignore.
+      }
     }
+    rInterp.setResult((const char*)ResultList); // Put output list in the result string.
+  } else {
+    return TCL_OK; // mpi parallel but not in MPI_EVENT_SINK_RANK
   }
-  rInterp.setResult((const char*)ResultList); // Put output list in the result string.
-
 }
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1455,38 +1488,41 @@ CSpectrumPackage::GetChannel(CTCLInterpreter& rInterp, const string& rName,
   //      Bool_t   kfTRUE - It worked.
   //      Bool_t   kfFALSE - it failed.
 
-  std::string rResult;
-  try {
-    // Get a pointer to the spectrum object.
-    //
-    CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(rName);
-    if(pSpec == (CSpectrum*)kpNULL) {
-      throw CDictionaryException(CDictionaryException::knNoSuchKey,
-				 "Looking up spectrum for channel get",
-				 rName);
+  if (m_pHistogrammer) {
+    std::string rResult;
+    try {
+      // Get a pointer to the spectrum object.
+      //
+      CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(rName);
+      if(pSpec == (CSpectrum*)kpNULL) {
+        throw CDictionaryException(CDictionaryException::knNoSuchKey,
+          "Looking up spectrum for channel get",
+          rName);
+      }
+
+      UInt_t* pIds = ValidateIndices(pSpec, rIndices);
+      ULong_t nChan = (*pSpec)[pIds];
+      delete []pIds;
+
+      // Now the nChan must be turned into a string which is placed in the
+      // reason text:
+      //
+
+      char sChan[20];
+      sprintf(sChan, "%lu", nChan);
+      rResult += sChan;
+      rInterp.setResult(rResult);
+
     }
-
-    UInt_t* pIds = ValidateIndices(pSpec, rIndices);
-    ULong_t nChan = (*pSpec)[pIds];
-    delete []pIds;
-
-    // Now the nChan must be turned into a string which is placed in the
-    // reason text:
-    //
-
-    char sChan[20];
-    sprintf(sChan, "%lu", nChan);
-    rResult += sChan;
-    rInterp.setResult(rResult);
-
-  }
-  catch (CException & rExcept) {
-    rResult += rExcept.ReasonText();
-    rInterp.setResult(rResult);
-    return TCL_ERROR;
-  }
-  return kfTRUE;
-  
+    catch (CException & rExcept) {
+      rResult += rExcept.ReasonText();
+      rInterp.setResult(rResult);
+      return TCL_ERROR;
+    }
+    return kfTRUE;
+  } else {
+    return kfTRUE;     // MPI Parallel but not MPI_EVENT_SINK_RANK
+  }  
 }
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1515,36 +1551,40 @@ CSpectrumPackage::SetChannel(CTCLInterpreter& rInterp, const string& rName,
   //    kfTRUE  - Success, with new vailue in the result string.
   //    kfFALSE - Failure with reason in the Result string.   
   //
-  std::string rResult;
-  try {
-    // Get a pointer to the spectrum object.
-    //
-    CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(rName);
-    if(pSpec == (CSpectrum*)kpNULL) {
-      throw CDictionaryException(CDictionaryException::knNoSuchKey,
-				 "Looking up spectrum for channel get",
-				 rName);
-    }
+  if (m_pHistogrammer) {
+    std::string rResult;
+    try {
+      // Get a pointer to the spectrum object.
+      //
+      CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(rName);
+      if(pSpec == (CSpectrum*)kpNULL) {
+        throw CDictionaryException(CDictionaryException::knNoSuchKey,
+          "Looking up spectrum for channel get",
+          rName);
+      }
 
-    UInt_t* pIds = ValidateIndices(pSpec, rIndices);
-    
-    ULong_t nOldValue = (*pSpec)[pIds];
-    pSpec->set(pIds, nValue);
-    delete []pIds;                      // Was a memory leak!!
-    
-    // Result code will be the old value.
-    
-    char sValue[20];
-    sprintf(sValue, "%ld", nOldValue);
-    rResult += sValue;
-    rInterp.setResult(rResult);
+      UInt_t* pIds = ValidateIndices(pSpec, rIndices);
+      
+      ULong_t nOldValue = (*pSpec)[pIds];
+      pSpec->set(pIds, nValue);
+      delete []pIds;                      // Was a memory leak!!
+      
+      // Result code will be the old value.
+      
+      char sValue[20];
+      sprintf(sValue, "%ld", nOldValue);
+      rResult += sValue;
+      rInterp.setResult(rResult);
+    }
+    catch (CException & rExcept) {
+      rResult += rExcept.ReasonText();
+      rInterp.setResult(rResult);
+      return kfFALSE;
+    }
+    return kfTRUE;
+  } else {
+    return kfTRUE;  // MPI Parellel but  not MPI_EVENT_SINK_RANK
   }
-  catch (CException & rExcept) {
-    rResult += rExcept.ReasonText();
-    rInterp.setResult(rResult);
-    return TCL_ERROR;
-  }
-  return kfTRUE;
 
 }
 /////////////////////////////////////////////////////////////////////////
@@ -1573,28 +1613,31 @@ CSpectrumPackage::Write(string& rResult, const string& rSpectrum,
   //       Points to a formatter which will actually to the write.
   //
 
-
-  try {
-    CSpectrum* pSpectrum =  m_pHistogrammer->FindSpectrum(rSpectrum);
-    if(!pSpectrum) {
-      throw CDictionaryException(CDictionaryException::knNoSuchKey,
-				 "CSpectrumPackage::Write() spectrum lookup",
-				 rSpectrum);
+  if (m_pHistogrammer) {
+    try {
+      CSpectrum* pSpectrum =  m_pHistogrammer->FindSpectrum(rSpectrum);
+      if(!pSpectrum) {
+        throw CDictionaryException(CDictionaryException::knNoSuchKey,
+          "CSpectrumPackage::Write() spectrum lookup",
+          rSpectrum);
+      }
+      ParameterDictionary& rDict((ParameterDictionary&)
+              m_pHistogrammer->getParameterDictionary());
+      pFormat->Write(rOut, *pSpectrum, rDict);
     }
-    ParameterDictionary& rDict((ParameterDictionary&)
-			       m_pHistogrammer->getParameterDictionary());
-    pFormat->Write(rOut, *pSpectrum, rDict);
+    catch (CException& rException) {
+      rResult = rException.ReasonText();
+      return TCL_ERROR;
+    }
+    catch (...) {
+      rResult = "Unrecognized exception caught at CSpectrumPackage::WRite() ";
+      rResult += " -- Continuing.";
+      return TCL_ERROR;
+    }
+    return TCL_OK;
+  } else {
+    return TCL_OK;           // MPI Parallel but not MPI_EVENT_SINK_RANK
   }
-  catch (CException& rException) {
-    rResult = rException.ReasonText();
-    return TCL_ERROR;
-  }
-  catch (...) {
-    rResult = "Unrecognized exception caught at CSpectrumPackage::WRite() ";
-    rResult += " -- Continuing.";
-    return TCL_ERROR;
-  }
-  return TCL_OK;
 }
 /////////////////////////////////////////////////////////////////////////
 //
@@ -1645,98 +1688,101 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
   //    TCL_OK      - Success.
   //    TCL_ERROR   - On failure.
 
-  SpecTcl& api(*(SpecTcl::getInstance()));
+  if (m_pHistogrammer && m_pDisplay) {
+    SpecTcl& api(*(SpecTcl::getInstance()));
 
-  ParameterDictionary& rDict((ParameterDictionary&)
-			        m_pHistogrammer->getParameterDictionary());
-  CSpectrum*           pSpectrum(0);
-  std::string          originalName;
-  CSpectrum*           pOld(0);              // Will hold old spectrum.
+    ParameterDictionary& rDict((ParameterDictionary&)
+                m_pHistogrammer->getParameterDictionary());
+    CSpectrum*           pSpectrum(0);
+    std::string          originalName;
+    CSpectrum*           pOld(0);              // Will hold old spectrum.
 
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
-  std::pair<std::string, CSpectrum*> specread;
-  
-  // First thing to try to do is to get the spectrum formatter to read the
-  // spectrum from file.  We'll get a  pointer to a newly allocated 
-  // filled in spectrum.  The flags will determine if we are to wrap
-  // a snapshot spectrum around this.
-
-  try {
-    specread = pFormat->Read(rIn, rDict);
-    originalName = specread.first;
-    pSpectrum    = specread.second;
+    CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+    std::pair<std::string, CSpectrum*> specread;
     
-    
-    //
-    // Process the Replace flag, this determines if we are allowed to
-    // overwrite an existing spectrum or if we must uniquify the name.
-    //
-    if((fFlags & fReplace) == 0) { // Must uniquify name:
-        pSpectrum->renameSpectrum(UniquifyName(originalName).c_str());
-    }
-    else {			// Replace existing spectrum if there's one.
-        
-        pOld = api.FindSpectrum(originalName);
-        if (pOld) {        
-          // Apply any old gate to the new spectrum - doesn't matter if this is
-          // a snapshot or not:
-          CGateContainer* pGate = (CGateContainer*)pOld->getGate();
-          if(pGate) {
-            pSpectrum->ApplyGate(pGate);
+    // First thing to try to do is to get the spectrum formatter to read the
+    // spectrum from file.  We'll get a  pointer to a newly allocated 
+    // filled in spectrum.  The flags will determine if we are to wrap
+    // a snapshot spectrum around this.
+
+    try {
+      specread = pFormat->Read(rIn, rDict);
+      originalName = specread.first;
+      pSpectrum    = specread.second;
+      
+      
+      //
+      // Process the Replace flag, this determines if we are allowed to
+      // overwrite an existing spectrum or if we must uniquify the name.
+      //
+      if((fFlags & fReplace) == 0) { // Must uniquify name:
+          pSpectrum->renameSpectrum(UniquifyName(originalName).c_str());
+      }
+      else {			// Replace existing spectrum if there's one.
+          
+          pOld = api.FindSpectrum(originalName);
+          if (pOld) {        
+            // Apply any old gate to the new spectrum - doesn't matter if this is
+            // a snapshot or not:
+            CGateContainer* pGate = (CGateContainer*)pOld->getGate();
+            if(pGate) {
+              pSpectrum->ApplyGate(pGate);
+            }
+            // If needed unbind the old spectrum.
+            
+            pDisplay->removeSpectrum(*pOld, *m_pHistogrammer);
+            api.RemoveSpectrum(originalName);
+            
+            delete pOld;             // Should also unbind.
           }
-          // If needed unbind the old spectrum.
           
-          pDisplay->removeSpectrum(*pOld, *m_pHistogrammer);
-          api.RemoveSpectrum(originalName);
-          
-          delete pOld;             // Should also unbind.
-        }
-        
-        pSpectrum->renameSpectrum(originalName.c_str());   // Now that the old one is gone.
+          pSpectrum->renameSpectrum(originalName.c_str());   // Now that the old one is gone.
+      }
+      //  Process the Live flag: This determines if we need to wrap the
+      //  spectrum around a snapshot spectrum container:
+      //
+      if( !((fFlags & fLive) && AllParamsExist(pSpectrum))) {  // Must wrap
+          pSpectrum = new CSnapshotSpectrum(*pSpectrum, kfTRUE);
+      }
+      //  We now have a viable spectrum.  The spectrum is entered into the
+      //  dictionary.
+      //
+      m_pHistogrammer->AddSpectrum(*pSpectrum);
+
+      if(fFlags & fBind) {	// Bind it if requested.
+          pDisplay->addSpectrum(*pSpectrum, *(api.GetHistogrammer()));
+      }
     }
-    //  Process the Live flag: This determines if we need to wrap the
-    //  spectrum around a snapshot spectrum container:
+    catch (CException& rExcept) {	// All exceptions drop here.
+      if(pSpectrum) {		// It may have been entered in the hgrammer.
+        api.RemoveSpectrum(pSpectrum->getName());
+        delete pSpectrum;
+      }
+      string Reason(rExcept.ReasonText()); // Haul out the reason code.
+      rResult = Reason + string(" ") +
+        string(rExcept.WasDoing()); // return it to the caller 
+      return TCL_ERROR;		// along with an error completion status.
+    }
+    catch (...) {
+      rResult = string( " some unexpected exception type was caught reading the spectrum");
+      if(pSpectrum) {		// It may have been entered in the hgrammer.
+        api.RemoveSpectrum(pSpectrum->getName());
+        delete pSpectrum;
+      }
+      return TCL_ERROR;
+    }
     //
-    if( !((fFlags & fLive) && AllParamsExist(pSpectrum))) {  // Must wrap
-        pSpectrum = new CSnapshotSpectrum(*pSpectrum, kfTRUE);
-    }
-    //  We now have a viable spectrum.  The spectrum is entered into the
-    //  dictionary.
+    // Control passes here only if the spectrum was read in with no errors.
+    // The name is returned as the result string and a success indication
+    // is returned for the function value.
     //
-    m_pHistogrammer->AddSpectrum(*pSpectrum);
+    rResult = pSpectrum->getName();
+    pSpectrum->createStatArrays(pSpectrum->Dimensionality());
+    return TCL_OK;
 
-    if(fFlags & fBind) {	// Bind it if requested.
-        pDisplay->addSpectrum(*pSpectrum, *(api.GetHistogrammer()));
-    }
+  } else {
+    return TCL_OK;                 // MPI  Parallel but not MPI_EVENT_SINK_RANK
   }
-  catch (CException& rExcept) {	// All exceptions drop here.
-    if(pSpectrum) {		// It may have been entered in the hgrammer.
-      api.RemoveSpectrum(pSpectrum->getName());
-      delete pSpectrum;
-    }
-    string Reason(rExcept.ReasonText()); // Haul out the reason code.
-    rResult = Reason + string(" ") +
-      string(rExcept.WasDoing()); // return it to the caller 
-    return TCL_ERROR;		// along with an error completion status.
-  }
-  catch (...) {
-    rResult = string( " some unexpected exception type was caught reading the spectrum");
-    if(pSpectrum) {		// It may have been entered in the hgrammer.
-      api.RemoveSpectrum(pSpectrum->getName());
-      delete pSpectrum;
-    }
-    return TCL_ERROR;
-  }
-  //
-  // Control passes here only if the spectrum was read in with no errors.
-  // The name is returned as the result string and a success indication
-  // is returned for the function value.
-  //
-  rResult = pSpectrum->getName();
-  pSpectrum->createStatArrays(pSpectrum->Dimensionality());
-  return TCL_OK;
-
-
 }
 /*!
     Given a spectrum, this function describes it in 'standard' form.
@@ -1802,21 +1848,21 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
   // a single parameter list.
   //
 
-  
+  auto api = SpecTcl::getInstance();
   Description.StartSublist();	// Regardless there's an outer sublist:
 
   if(Def.eType == keG2DD) {
     Description.StartSublist();	// X parameters:
     std::vector<UInt_t>::iterator p;
     for (p = Def.vParameters.begin(); p != Def.vParameters.end(); p++) {
-      CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+      CParameter* pPar = api->FindParameter(*p);
       Description.AppendElement(pPar ? pPar->getName() : 
 				std::string("--Deleted Parameter--"));
     }
     Description.EndSublist();   // X parameters.
     Description.StartSublist();	// Y parameters:
     for (p = Def.vyParameters.begin(); p != Def.vyParameters.end(); p++) {
-      CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+      CParameter* pPar = api->FindParameter(*p);
       Description.AppendElement(pPar ? pPar->getName() :
 				std::string("--Deleted Parameter--"));
     }
@@ -1835,7 +1881,7 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
         Description.EndSublist();
         newSublist = true;
       } else {
-        CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+        CParameter* pPar = api->FindParameter(*p);
         Description.AppendElement(pPar ? pPar->getName() :
 				  std::string("--Deleted Parameter--"));
       }
@@ -1858,8 +1904,8 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
     
     Description.StartSublist();
     for (int i = 0; i < Def.vParameters.size(); i++) {
-        CParameter* xpar = m_pHistogrammer->FindParameter(Def.vParameters[i]);
-        CParameter* ypar = m_pHistogrammer->FindParameter(Def.vyParameters[i]);
+        CParameter* xpar = api>FindParameter(Def.vParameters[i]);
+        CParameter* ypar = api->FindParameter(Def.vyParameters[i]);
         if (x) {
           Description.AppendElement(
               xpar ? xpar->getName() : std::string("--Deleted Parameter--")
@@ -1887,7 +1933,7 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
   else {
     std::vector<UInt_t>::iterator p = Def.vParameters.begin();
     for(; p != Def.vParameters.end(); p++) {
-      CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+      CParameter* pPar = api->FindParameter(*p);
       Description.AppendElement(pPar ? pPar->getName() :
 				std::string("--Deleted Parameter--"));
     }
@@ -1959,26 +2005,30 @@ CSpectrumPackage::FindDisplayBinding(const string& rName)
   //    CDictionary Exception if the spectrum is not bound.
   // 
   
-  CSpectrum *pSpec = m_pHistogrammer->FindSpectrum(rName);
-  if(!pSpec) {			// the spectrum must exist in fact..
-    throw CDictionaryException(CDictionaryException::knNoSuchId,
-			       "Looking up spectrum from name",
-			       rName);
-  }
+  if (m_pHistogrammer) {
+    CSpectrum *pSpec = m_pHistogrammer->FindSpectrum(rName);
+    if(!pSpec) {			// the spectrum must exist in fact..
+      throw CDictionaryException(CDictionaryException::knNoSuchId,
+              "Looking up spectrum from name",
+              rName);
+    }
 
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
-  SpectrumContainer spectra = pDisplay->getBoundSpectra();
-  size_t nSpectra = spectra.size();
-  for(size_t i = 0; i < nSpectra; i++) {
-      CSpectrum* pBoundSpec = spectra[i];
-      if(pBoundSpec) {
-          if(rName == pBoundSpec->getName())
-              return i;
-      }
+    CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+    SpectrumContainer spectra = pDisplay->getBoundSpectra();
+    size_t nSpectra = spectra.size();
+    for(size_t i = 0; i < nSpectra; i++) {
+        CSpectrum* pBoundSpec = spectra[i];
+        if(pBoundSpec) {
+            if(rName == pBoundSpec->getName())
+                return i;
+        }
+    }
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+            "Spectrum with this name is not bound",
+            rName);
+  } else {
+    return 0;               // MPI but not MPI_EVENT_SINK_RANK
   }
-  throw CDictionaryException(CDictionaryException::knNoSuchKey,
-			     "Spectrum with this name is not bound",
-			     rName);
 }
 ////////////////////////////////////////////////////////////////////////
 //
@@ -2005,18 +2055,21 @@ CSpectrumPackage::FindDisplayBinding(UInt_t nId)
   //     b. If nId does not correspond to a spectrum known to the histogrammer
   //
 
-  CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(nId);
-  if(pSpec) {
-    return FindDisplayBinding(pSpec->getName());
+  if (m_pHistogrammer) {
+    CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(nId);
+    if(pSpec) {
+      return FindDisplayBinding(pSpec->getName());
+    }
+    else {
+      char txtId[100];
+      sprintf(txtId, "%d", nId);
+      throw CDictionaryException(CDictionaryException::knNoSuchId,
+              "Looking up spectrum from id",
+              txtId);
+    }
+  } else {
+    return 0;             // MPI but not MPI_EVENT_SINK_RANK
   }
-  else {
-    char txtId[100];
-    sprintf(txtId, "%d", nId);
-    throw CDictionaryException(CDictionaryException::knNoSuchId,
-			       "Looking up spectrum from id",
-			       txtId);
-  }
-
 }
 /////////////////////////////////////////////////////////////////////////
 //
@@ -2303,14 +2356,16 @@ CSpectrumPackage::ValidateIndices(CSpectrum* pSpec,
 std::string
 CSpectrumPackage::UniquifyName(std::string basename)
 {
+
   UInt_t nSuffix(0);
   std::string result(basename);
-
-  while(m_pHistogrammer->FindSpectrum(result)) {
-    char Suffix[100];
-    sprintf(Suffix,"_%u", nSuffix);
-    result = basename + Suffix;
-    nSuffix++;
+  if (m_pHistogram) {    // Null if MPI and not MPI_EVENT_SINK_RANK
+    while(m_pHistogrammer->FindSpectrum(result)) {
+      char Suffix[100];
+      sprintf(Suffix,"_%u", nSuffix);
+      result = basename + Suffix;
+      nSuffix++;
+    }
   }
   return result;
 }
