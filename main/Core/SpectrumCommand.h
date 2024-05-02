@@ -32,7 +32,7 @@
 #ifndef SPECTRUMCOMMAND_H  //Required for current class
 #define SPECTRUMCOMMAND_H
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 #include <TCLObject.h>
 #include <histotypes.h>
 #include <vector>
@@ -47,7 +47,7 @@ class CSpectrum;
 class CGateContainer;
 class CTCLObject;
                                
-class CSpectrumCommand  : public CTCLPackagedCommand        
+class CSpectrumCommand  : public CTCLPackagedObjectProcessor       
 {
 public:
   enum Switch {
@@ -70,7 +70,7 @@ private:
 
 public:
 			//Constructor with arguments
-  CSpectrumCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage );
+  CSpectrumCommand (CTCLInterpreter* pInterp);
   virtual ~CSpectrumCommand ( );
 
 			//Copy constructor - Illegal
@@ -88,25 +88,25 @@ public:
   // Operations:
 
 public:  
-  virtual   int operator() (CTCLInterpreter& rInterpreter, CTCLResult& rResult,
-			    int  nArgs, char* pArgs[])  ;
-  Int_t New (CTCLInterpreter& rInterpreter, CTCLResult& rResult,
-	     int nArgs, char* pArgs[])  ;
-  Int_t List (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	      int nArgs, char* Args[]);
-  Int_t Delete (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		int nArgs, char* pArgs[])  ;
-  Int_t Trace  (CTCLInterpreter& rInterp, CTCLResult& rResult,
-		int nArgs, char* pArgs[]);
+  virtual   int operator() (CTCLInterpreter& rInterpreter, 
+			    std::vector<CTCLObject>& objv)  ;
+  Int_t New (CTCLInterpreter& rInterpreter, 
+	     int nArgs, const char* pArgs[])  ;
+  Int_t List (CTCLInterpreter& rInterp, 
+	      int nArgs, const char* Args[]);
+  Int_t Delete (CTCLInterpreter& rInterp,
+		int nArgs, const char* pArgs[])  ;
+  Int_t Trace  (CTCLInterpreter& rInterp, 
+		int nArgs, const char* pArgs[]);
 
 protected:
-  static void   Usage(CTCLResult& rResult);
+  static void   Usage(CTCLInterpreter& rInterp, const char* prefix = nullptr);
   static Switch MatchSwitch(const char* pSwitch);
 
   void          SortSpectraById(std::vector<std::string>& rvProperties);
   void          SortSpectraByName(std::vector<std::string>& rvProperties);
 
-  static void   VectorToResult(CTCLResult& rResult, 
+  static void   VectorToResult(CTCLInterpreter& rInterp, 
 			       std::vector<std::string>& rvStrings);
 public:
   UInt_t      ExtractId(const std::string& rProperties);
@@ -115,8 +115,8 @@ public:
 		const CSpectrum* pSpectrum);
   void traceRemove(const std::string& name,
 		   const CSpectrum* pSpectrum);
-  std::vector<CGateContainer*> getConstituents(CTCLResult& res, std::string gateName);
-  std::vector<CGateContainer*> getGates(CTCLResult& res, CTCLObject& gates);
+  std::vector<CGateContainer*> getConstituents(CTCLInterpreter& rInterp, std::string gateName);
+  std::vector<CGateContainer*> getGates(CTCLInterpreter& rInterp, CTCLObject& gates);
 
 };
 

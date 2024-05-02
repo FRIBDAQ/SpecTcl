@@ -46,6 +46,7 @@ class ChannelCommand;
 class CWriteCommand;
 class CReadCommand;
 class CDisplayInterface;
+class CMPITclPackagedCommand;
                                                                
 class CSpectrumPackage  : public CTCLObjectPackage
 {
@@ -97,6 +98,7 @@ public:
   }
   // Mutators:
 
+  std::string getSignon() const;
 protected:               
 
   void setHistogrammer (CHistogrammer* am_pHistogrammer)

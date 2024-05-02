@@ -62,6 +62,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <DisplayInterface.h>
 #include <Display.h>
 
+#include <MPITclPackageCommand.h>
+
 #include <iostream>
 
 #include <tcl.h>
@@ -141,7 +143,6 @@ static const UInt_t nDataTypes = sizeof(aDataTypes)/sizeof(DataTypes);
 CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
                     CHistogrammer*   pHistogrammer,
                     CDisplayInterface *pDisplay) :
-  CTCLCommandPackage(pInterp, Copyright),
   m_pHistogrammer(pHistogrammer),
   m_pSpectrum(new CSpectrumCommand(pInterp, *this)),
   m_pClear(new CClearCommand(pInterp, *this)),
@@ -152,7 +153,12 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   m_pRead(new CReadCommand(pInterp, *this)),
   m_pDisplay(pDisplay)
 {
-  AddProcessor(m_pSpectrum);             // In Event sink pipeline. (CMPITclPackagedCommand/CPackagedObjectProcessor
+  auto spectrumInner = new CSpectrumCommand(pInterp);
+  AddCommand(spectrumInner);
+  m_pSpectrum = new CMPITclPackagedCommand(*pInterp, "spectrum", spectrumInner);
+  AddCommand(m_pSpectrum);
+
+
   AddProcessor(m_pClear);                // In Event sink pipeline.
   AddProcessor(m_pBind);                 // In Event sink pipeline
   AddProcessor(m_pUnbind);               // In Event sink pipeline.
@@ -176,6 +182,10 @@ CSpectrumPackage::~CSpectrumPackage ( )
   delete m_pChannel;
   delete m_pWrite;
   delete m_pRead;
+}
+
+std::string getSignon() const {
+  return Copyright;
 }
 /*!
    Creates a spectrum and enters it in the Sorter's spectrum dictionary.

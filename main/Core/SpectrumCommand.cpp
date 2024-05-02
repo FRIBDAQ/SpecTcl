@@ -131,15 +131,13 @@ public:
    and set up our member data.  We will also
    set up a trace observer on the histogrammer.
 */
-CSpectrumCommand::CSpectrumCommand (CTCLInterpreter* pInterp, 
-				    CTCLCommandPackage& rPackage) :
+CSpectrumCommand::CSpectrumCommand (CTCLInterpreter* pInterp) :
 
-  CTCLPackagedCommand("spectrum", pInterp, rPackage),
+  CTCLPackagedObjectProcessor(*pInterp, "spectrum", true),
   m_fTracing(false),
   m_pObserver(new SpectrumTraceObserver(this))
   
 { 
-  Bind(pInterp);
   m_createTrace = defaultTrace;
   m_createTrace.Bind(pInterp);
 
@@ -170,8 +168,7 @@ CSpectrumCommand::~CSpectrumCommand()
 //     Functional operator
 //
 int 
-CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter,
-			     CTCLResult& rResult, int  nArgs, char* pArgs[]) 
+CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter, std::vector<CTCLObject>& objv)
 {
 // Called by the TCL subsystem when the
 // parameter command is being executed.
@@ -179,16 +176,28 @@ CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter,
 // Formal Parameters:
 //    CTCLInterpreter& rInterpreter:
 //       The interpreter executing the command.
-//    CTCLResult& rResult:
-//        Represents the result string.
-//    UInt_t nArgs:
-//         Number of command parameters.
-//    char* pArgs[]:
-//         Array of arguments.
+//    std::vector<CTCLOjbect>& objv:
+//       Object encapsulated comamnd words.
 // Returns:
 //      TCL_OK        - If the command executed correctly.
 //      TCL_ERROR     - If not.
 //
+  // Create nArgs and pArgs in order to make the port -> object processor simpler:
+
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+
+  // Due to lifetimes and how c_str behaves we need two loops not one:
+
+  for (auto& word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (int i =0; i < words.size(); i++) {
+    pWords.push_back(words[i].c_str());
+  }
+  int nArgs = words.size();
+  auto pArgs = pWords.data();
+
   nArgs--;
   pArgs++;
 
@@ -204,7 +213,7 @@ CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter,
   case keList:			// List spectra.
     nArgs--;
     pArgs++;
-    return List(rInterpreter, rResult, nArgs, pArgs);
+    return List(rInterpreter, nArgs, pArgs);
   case keDelete:		// Delete spectra.
     nArgs--;
     pArgs++;
@@ -212,19 +221,19 @@ CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter,
       Usage(rResult);
       return TCL_ERROR;
     }
-    return Delete(rInterpreter, rResult, nArgs, pArgs);
+    return Delete(rInterpreter, nArgs, pArgs);
   case keNew:			// Explicit new spectrum.
     nArgs--;
     pArgs++;
   case keNotSwitch:		// Implicit new spectrum.
     if((nArgs != 4) && (nArgs != 5)) { // Optional 5'th param is data type.
-      Usage(rResult);
+      Usage(rInterp);
       return TCL_ERROR;
     }
-    return New(rInterpreter, rResult, nArgs, pArgs);
+    return New(rInterpreter, nArgs, pArgs);
   case keTrace:
     nArgs--; pArgs++;		// advance past the -trace switch.
-    return Trace(rInterpreter, rResult, nArgs, pArgs);
+    return Trace(rInterpreter, nArgs, pArgs);
   default:			// Invalid switch in context.
     Usage(rResult);
     return TCL_ERROR;
@@ -277,10 +286,7 @@ CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter,
 
     \param <tt> rInterpreter (CTCLInterpreter& [in])</tt>
        The TCL interpreter that is running this command.
-    \param <tt> rResult      (CTCLResult& [out])    </tt>
-       The result string that will be filled with either an
-       error message if the creation failed, or the name of the
-       spectrum on success.
+    
     \param <tt> nArgs        </tt>
        Number of parameter remaining on the command line.
     \param <tt> pArgs        </tt>
@@ -301,11 +307,12 @@ parameter is the name of the spectrum.
 */
 Int_t 
 CSpectrumCommand::New(CTCLInterpreter& rInterpreter, 
-		      CTCLResult& rResult,
-		      int nArgs, char* pArgs[]) 
+		      int nArgs, const char* pArgs[]) 
 {
 
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  std::string rResult;
+
   char* pName = pArgs[0];
   char* pType = pArgs[1];
 
@@ -359,8 +366,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 
     }
     else {
-      rResult = string("Gamma 2d spectra must have a pair of parameter lists");
-      Usage(rResult);
+      Usage(rInterp, "Gamma 2d spectra must have a pair of parameter lists");
       return TCL_ERROR;
     }
   }
@@ -407,8 +413,10 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
         
         xproj = (direction== "x") || (direction == "X");
         if (!xproj && ((direction != "Y") && (direction != "y"))) {
-            rResult =
-                std::string("Invalid projection direction must be 'x' or 'y'");
+            interp.setResult(
+                std::string("Invalid projection direction must be 'x' or 'y'")
+            );
+              
             return TCL_ERROR;
         }
         // Get the Gate(s).  Assume that gate names can't have spaces or it's just
@@ -419,7 +427,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
         gates.Bind(rInterpreter);
         gates = projectionGate;
         if (gates.llength() == 1) {
-            m2projGates = getConstituents(rResult, projectionGate);
+            m2projGates = getConstituents(rInterp, projectionGate);
         } else {
             m2projGates = getGates(rResult, gates);
         }
@@ -431,8 +439,9 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
         
         
     }  else{
-        rResult =
+        rInterp.setResult(
             std::string("M2 projection spectra must have parameters, direction and ROI gate in their definition");
+        );
         return TCL_ERROR;
     }
   }
@@ -510,11 +519,11 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
         rResult += " must evaluate to an integer\n";
         rResult += rExcept.ReasonText();
         rResult += "\n";
-        Usage(rResult);
+        Usage(rInterp, rResult.c_str());
 	
         if (*ppAxisElements) Tcl_Free((char*)ppAxisElements);
         if (*ppListElements) Tcl_Free((char*)ppListElements);
-	return TCL_ERROR;		       
+	        return TCL_ERROR;		       
 	
       }
 
@@ -546,18 +555,18 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
         rResult += " contains an invalid element: ";
         rResult += ppAxisElements[element];
         rResult += "\n";
-        Usage(rResult);
+        Usage(rInterp, rResult.c_str());
     
         Tcl_Free((char*)ppAxisElements);
         Tcl_Free((char*)ppListElements);
-	return TCL_ERROR;
+	      return TCL_ERROR;
       }
     }
     else {			   // Invalid description. 
       rResult += "Axis definition: ";
       rResult += ppListElements[i];
       rResult += " is not a valid axis definition\n";
-      Usage(rResult);
+      Usage(rInterp, rResult.c_str());
       return TCL_ERROR;
 	
     }
@@ -569,22 +578,22 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 
   if (string(pType) == string("gs")) {
 
-    return rPack.CreateSpectrum(rResult, pName, pType, vGSParameters,
+    return rPack.CreateSpectrum(rInterp, pName, pType, vGSParameters,
 			 vChannels, vLows, vHighs, pDataType);
   } else if (string(pType) == "2dmproj") {
     return rPack.CreateSpectrum(
-            rResult, pName, pType, vParameters, xproj, m2projGates,
+            rInterp, pName, pType, vParameters, xproj, m2projGates,
             vChannels, vLows, vHighs, pDataType                                        
         );
   }
   else if (vyParameters.size() == 0) {
     
-    return rPack.CreateSpectrum(rResult,  pName, pType, vParameters, 
+    return rPack.CreateSpectrum(rInterp,  pName, pType, vParameters, 
 				vChannels, vLows, vHighs,
 				pDataType);
   }
   else {
-    return rPack.CreateSpectrum(rResult, pName, pType, 
+    return rPack.CreateSpectrum(rInterp, pName, pType, 
 				vParameters,
 				vyParameters,
 				vChannels,
@@ -596,12 +605,12 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t List ( CTCLInterpeter& rInterp, CTCLResult& rResult, int nArgs, char* Args[] )
+//    Int_t List ( CTCLInterpeter& rInterp, int nArgs, char* Args[] )
 //  Operation Type:
 //     Utility
 //
 Int_t 
-CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+CSpectrumCommand::List(CTCLInterpreter& rInterp,
 		       int nArgs, char* pArgs[]) 
 {
 // Handles the subparsing and dispatching
@@ -610,15 +619,15 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //  Formal parameters:
 //      CTCLInterpreter& rInterp:
 //              Refers to the interpreter.
-//      CTCLResult&       rResult:
-//               Refers to the command result string.
+//      
 //      int nArgs:
 //                Number of command parameters past the -list switch.
 //      char* pArgs[]:
 //                  Pointers to the arguments.
 //
 
-  CSpectrumPackage& rPack = (CSpectrumPackage& )getMyPackage();
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  std::string rResult;
 
 
   // First process the switches that are legal:
@@ -643,7 +652,7 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
       rResult = "Switch ";
       rResult += pArgs[0];
       rResult += " not recognized in this context\n";
-      Usage(rResult);
+      Usage(rInterp, rResult.c_str());
       return TCL_ERROR;
     }
 
@@ -660,7 +669,7 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   if (idswitch && byidswitch) {
     rResult = "-id and -byid cannot both be specified on a -list operation\n";
-    Usage(rResult);
+    Usage(rInterp, rResult.c_str());
     return TCL_ERROR;
   }
   
@@ -679,10 +688,10 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
       rResult = "Invalid spectrum id ";
       rResult += pArgs[0];
       rResult += "\n";
-      Usage(rResult);
+      Usage(rInterp, rResult.c_str());
       return TCL_ERROR;      
     }
-    return rPack.ListSpectrum(rResult, nId, showgates);
+    return rPack.ListSpectrum(rInterp, nId, showgates);
   }
   else {  
     // List possibly matching a pattern.
@@ -694,7 +703,7 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
     if (nArgs > 1) {
       rResult = "Too many parameters.  Expecting at most a spectrum name pattern only\n";
-      Usage(rResult);
+      Usage(rInterpreter, rResult.c_str());
       return TCL_ERROR;
     }
     if(nArgs) {
@@ -705,7 +714,7 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     if (byidswitch) {
       SortSpectraById(vDescriptions);
     }
-    VectorToResult(rResult, vDescriptions);
+    VectorToResult(rInterp, vDescriptions);
   }
   return TCL_OK;
 
@@ -713,13 +722,13 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t Delete ( TCLInterpreter& rInterp, TCLResult& rResult, 
+//    Int_t Delete ( TCLInterpreter& rInterp, 
 //                   int nArgs, char* pArgs[] )
 //  Operation Type:
 //     Utillity
 //
 Int_t 
-CSpectrumCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
+CSpectrumCommand::Delete(CTCLInterpreter& rInterp, 
 			 int nArgs, char* pArgs[]) 
 {
 // Parses and dispatches the spectrum -delete
@@ -731,9 +740,6 @@ CSpectrumCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //      TCLInterpreter&  rInterp:
 //          References the interpreter executing
 //          this command.
-//      TCLResult&   rResult:
-//          References the result string of the
-//          interpreter.
 //       int nArgs:
 //          number of command arguments following the -delete
 //          switch.
@@ -741,7 +747,7 @@ CSpectrumCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //          Array of pointers to the arguments.
 //
 
-  CSpectrumPackage& rPack = (CSpectrumPackage&) getMyPackage();
+  CSpectrumPackage& rPack(*(CSpectrumPackage*) getPackage());
 
   if(nArgs <= 0) {		// Must be at least one parameter.
     Usage(rResult);
@@ -967,24 +973,24 @@ CSpectrumCommand::SortSpectraByName(vector<string>& rvProperties)
 ////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    void   VectorToResult(CTCLResult& rResult, 
+//    void   VectorToResult(CTCLInterpreter& rInterp,
 //                          vector<string>& rvStrings)
 //  Operation Type:
 //     protected Utility function.
 //
 void
-CSpectrumCommand::VectorToResult(CTCLResult& rResult, 
+CSpectrumCommand::VectorToResult(CTCLInterpreter& rInterp, 
 				 vector<string>& rvStrings)
 {
   // Appends a vector of strings as a list to rResult.
   //
-
+  
   CTCLString List;
   for(UInt_t i = 0; i < rvStrings.size(); i++) {
     List.AppendElement(rvStrings[i]);
     List.Append("\n");
   }
-  rResult += (const char*)List;
+  rInterp.setResult((const char*)List);
 }
 /////////////////////////////////////////////////////////////////////////
 //
@@ -1107,14 +1113,15 @@ CSpectrumCommand::traceRemove(const string& name,
  *    - It is an error for the gate not to exist.
  *    - It is an error for the gate not to be an OR gate.
  *    
- * @param res - Result used to store any error message.
+ * @param res - Interpreter running the  command..
  * @param gateName - the parent gate name.
  * @return std::vector<CGateContainer*> - the containers for the constituents.
- * @retval - empty vector if there was an error.
+ * @retval - empty vector if there was an error.  The interpreter result is set on error.
  */
 std::vector<CGateContainer*>
-CSpectrumCommand::getConstituents(CTCLResult& res, std::string gateName)
+CSpectrumCommand::getConstituents(CTCLInterpreter& rInterp, std::string gateName)
 {
+
     SpecTcl& api(*SpecTcl::getInstance());
     std::vector<CGateContainer*> result;
     // Find the parent's gate container.
@@ -1123,7 +1130,7 @@ CSpectrumCommand::getConstituents(CTCLResult& res, std::string gateName)
     if (!pParent) {
         std::string message = "No such gate: ";
         message += gateName;
-        res = message;
+        rInterp.setResult(message);
         return result;
     }
     // Must be an or gate:
@@ -1133,7 +1140,7 @@ CSpectrumCommand::getConstituents(CTCLResult& res, std::string gateName)
         message += gateName;
         message += "'s gate type is ";
         message += (*pParent)->Type();
-        res = message;
+        rInterp.setResult(message);
         return result;
     }
     // Get the constituent gates; We'll let the creation determine that these are
@@ -1153,15 +1160,15 @@ CSpectrumCommand::getConstituents(CTCLResult& res, std::string gateName)
  *      There are other restrictions, but we'll let the gate construction
  *      throw errors for those.
  *
- * @param @res  - Tcl result - on correct operation, this is empty.
+ * @param rInterp  - Tcl interpreter running the command.
  * @param gates - CTCLObject reference for a Tcl list of gate names.
  * @return std::vector<CGateContainer*> - vector of pointers to gate containers for
  *       the gates.
- * @retval empty - error and res has the error message.
+ * @retval empty - error and the interpreter result has the error message.
  * @note it is an error for the gate list to be empty as well.
  */
 std::vector<CGateContainer*>
-CSpectrumCommand::getGates(CTCLResult& res, CTCLObject& gates)
+CSpectrumCommand::getGates(CTCLInterpreter& rInterp, CTCLObject& gates)
 {
     SpecTcl& api(*SpecTcl::getInstance());
     std::vector<CGateContainer*> result;
@@ -1182,14 +1189,14 @@ CSpectrumCommand::getGates(CTCLResult& res, CTCLObject& gates)
             std::string message = "Gate: ";
             message += aName;
             message += " does not exist";
-            res = message;
+            rInterp.setResult(message);
             return errorResult;
         }
         if ((*pGate)->Type() != "c") {
             std::string message("Gate: ");
             message += aName;
             message += " is not a contour but all ROI gates must be";
-            res = message;
+            rInterp.setResult(message);
             return errorResult;
         }
         result.push_back(pGate);
