@@ -31,13 +31,13 @@
 #ifndef UNBINDCOMMAND_H  //Required for current class
 #define UNBINDCOMMAND_H
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 
 class CTCLInterpreter;
 class CTCLCommandPackage;
 class CTCLResult;                               
                                
-class CUnbindCommand  : public CTCLPackagedCommand        
+class CUnbindCommand  : public CTCLPackagedObjectProcessor
 {
 public:
   enum Switch {
@@ -49,9 +49,8 @@ public:
   };
 public:
 			//Constructor with arguments
-  CUnbindCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage) : 
-    CTCLPackagedCommand("unbind", pInterp, rPackage)
-  { }        
+  CUnbindCommand (CTCLInterpreter* pInterp);
+            
   virtual ~ CUnbindCommand ( ) { }       //Destructor
   
   //Copy constructor   -- Illegal
@@ -69,22 +68,17 @@ public:
   // Operations:
 
 public:             
-  virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    int nArgs, char* pArgs[])  ;
-  TCLPLUS::Int_t UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		     int nArgs, char* pArgs[]);
-  TCLPLUS::Int_t UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		   int nArgs, char* pArgs[])  ;
+  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  ;
+  TCLPLUS::Int_t UnbindByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]);
+  TCLPLUS::Int_t UnbindById(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])  ;
   TCLPLUS::Int_t Trace(
-    CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		int nArgs, char* pArgs[]
+    CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
   );
   TCLPLUS::Int_t Untrace(
-    CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		int nArgs, char* pArgs[]
+    CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
   );
 protected:
-  static void   Usage(CTCLResult& rResult);
+  static void   Usage(CTCLInterpretert& rResult);
   static Switch MatchSwitch(const char* pSwitch);
  
 };
