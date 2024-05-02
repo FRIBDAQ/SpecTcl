@@ -45,7 +45,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "ClearCommand.h"                               
 #include "SpectrumPackage.h"
 #include "TCLInterpreter.h"
-#include "TCLResult.h"
+#include "TCLObject.h"
 #include "SpecTcl.h"
 
 #include <stdio.h>
@@ -71,6 +71,15 @@ static const UInt_t SwitchTableSize = sizeof(SwitchTable)/sizeof(SwitchEntry);
 
 // Functions for class ClearCommand
 
+/**
+ *  Constructor
+ *     pInterp - Pointer to the interpreter on which to register us:
+*/
+CCLearCommand::CClearCommand(CTCLInterpreter* pInterp) :
+  CTCLPackagedObjectProcessor(*pInterp, "clear", true)
+{
+
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -80,8 +89,7 @@ static const UInt_t SwitchTableSize = sizeof(SwitchTable)/sizeof(SwitchEntry);
 //     Command Processor.
 //
 int 
-CClearCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			  int nArgs, char* pArgs[]) 
+CClearCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) 
 {
 // Called by the TCL application framework
 // when the clear command is encountered.
@@ -93,16 +101,25 @@ CClearCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //     CTCLInterpreter& rInterp:
 //          Reference to the interpreter executing
 //          this command.
-//     CTCLResult&  rResult:
-//           References the command's result string.
-//     int nArgs:
-//           Number of command parameters..
-//    char* pArgs[]:
-//           Pointers to the command parameters.
+//     std::vector<CTCLObject>& objv - the command words object encapsulated.
 // Returns:
 //    TCL_OK         - if all spectra are cleared.
 //    TCL_ERROR - if one or more spectra could not be cleared.
 //
+
+  // In order to make the port easier, marshall objv into nArgs, pArgs as in
+  // the original. Note that due to c_str() lifetime constraints, the stuff below
+  // must be in two loops.
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+  int nArgs = objv.size();
+  for (auto& word : words) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word: words) {
+    pWords.push_back(word.c_str());
+  }
+  auto pArgs = pWords.data();
 
   nArgs--;			// Don't pay attention to command name.
   pArgs++;
@@ -128,7 +145,7 @@ CClearCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // -all and a non-zero CSpectrum* vector is not allowed.
   
   if ((switches.count(keAll) > 0) && (spectrumIdentifiers.size() > 0)) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   
@@ -138,9 +155,9 @@ CClearCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     clearAll(switches);
     return TCL_OK;
   } else if (switches.count(keId)) {
-    return clearIdList(rResult, switches, spectrumIdentifiers);  
+    return clearIdList(rInterp, switches, spectrumIdentifiers);  
   } else {
-    return clearNameList(rResult, switches, spectrumIdentifiers);
+    return clearNameList(rInterp, switches, spectrumIdentifiers);
   }
   
 }
@@ -148,13 +165,14 @@ CClearCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 /////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//     void   Usage(CTLResult& rResult)
+//     void   Usage(CTCLInterpreter& rInterp)
 //  Operation type:
 //     Protected Utility.
 //
 void
-CClearCommand::Usage(CTCLResult& rResult)
+CClearCommand::Usage(CTCLInterpreter& rInterp)
 {
+  std::string rResult;             // Simplify port.
   rResult += "Usage: \n";
   rResult += "   clear ?-stats? ?-channels? -all\n";
   rResult += "   clear ?-stats? ?-channels? name1 [name2 ...]\n";
@@ -162,6 +180,9 @@ CClearCommand::Usage(CTCLResult& rResult)
   rResult += "\n  Clears all or a selected set of spectra\n";
   rResult += "\n  Using -stats or -channels allows you to specify ";
   rResult += "clearing the statistics or channels or both.";
+  rResult += "\nIf omitted both statistics and channels are cleared."
+
+  interp.setResult(rResult);
 }
 ////////////////////////////////////////////////////////////////////
 //
@@ -206,31 +227,34 @@ void CClearCommand::clearAll(std::set<Switch> switches)
  *     - one of the ids is not an integer.
  *     - one of the ids does not identify an existing spectrum.
  *
- * @param  rResult - Interpreter result - set to an error message on bad return.
+ * @param rInterp   - Interpreter running the calling command.  setResult is used to
+ *               set the result string.
  * @param  switches - Switches that were present in the command.
  * @param  idStrings - Vector of strings that are supposed to be ids.
  * @return int TCL_OK - succes - no result, TCL_ERROR-  failed, result is error msg.
  */
 int
 CClearCommand::clearIdList(
-    CTCLResult& rResult, std::set<Switch> switches,
+    CTCLInterpreter& rInterp, std::set<Switch> switches,
     std::vector<std::string> idStrings
   )
   {
     SpecTcl* pApi = SpecTcl::getInstance();
     std::vector<CSpectrum*> spectra;            // Built up by looking up spectra.
-    
+    std::string rResult;                       // Make the port to object comand easier.
     for (int i = 0; i < idStrings.size(); i++) {
         unsigned id;
         if (sscanf(idStrings[i].c_str(), "%u", &id) != 1) {
             rResult = "Invalid spectrum id: ";
             rResult += idStrings[i];
+            rInterp.setResult(rResult);
             return TCL_ERROR;
         } else {
             CSpectrum* pSpec = pApi->FindSpectrum(id);
             if (!pSpec) {
                 rResult = "There is no spectrum with the id: ";
                 rResult += idStrings[i];
+                rInterp.setResult(rResult);
                 return TCL_ERROR;
             }
             spectra.push_back(pSpec);
@@ -243,32 +267,34 @@ CClearCommand::clearIdList(
     for (int i = 0; i < spectra.size(); i++) {
         clearSpectrum(clearFlags, spectra[i]);
     }
-    
     return TCL_OK;
   }
 
 /**
  *   clearNameList
  *      Same as above, but the vector is a vector of spectrum names.
- * @param  rResult - Interpreter result - set to an error message on bad return.
+ * @param  rInterp - Interpreter running the callilng command.  setResult is used
+ *       to set the result string.
  * @param  switches - Switches that were present in the command.
  * @param  names    - Vector of strings that are supposed to be spectrum names.
  * @return int TCL_OK - succes - no result, TCL_ERROR-  failed, result is error msg.
  */ 
 int CClearCommand::clearNameList(
-    CTCLResult& rResult, std::set<CClearCommand::Switch> switches,
+    CTCLInterpreter& rInterp, std::set<CClearCommand::Switch> switches,
     std::vector<std::string> names
   )
 {
     SpecTcl* pApi = SpecTcl::getInstance();
     std::vector<CSpectrum*> spectra;            // Built up by looking up spectra.
-    
+    std::string rResult;
+
     for (int i = 0; i < names.size(); i++) {
         
         CSpectrum* pSpec = pApi->FindSpectrum(names[i]);
         if (!pSpec) {
             rResult = "There is no spectrum with the name ";
             rResult += names[i];
+            rInterp.setResult(rResult);
             return TCL_ERROR;
         }
         spectra.push_back(pSpec);
@@ -280,7 +306,6 @@ int CClearCommand::clearNameList(
     for (int i = 0; i < spectra.size(); i++) {
         clearSpectrum(clearFlags, spectra[i]);
     }
-    
     return TCL_OK;
 
 }

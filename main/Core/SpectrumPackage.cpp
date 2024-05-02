@@ -144,9 +144,9 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
                     CHistogrammer*   pHistogrammer,
                     CDisplayInterface *pDisplay) :
   m_pHistogrammer(pHistogrammer),
-  m_pSpectrum(new CSpectrumCommand(pInterp, *this)),
-  m_pClear(new CClearCommand(pInterp, *this)),
-  m_pBind(new CBindCommand(pInterp, *this)),
+  m_pSpectrum(0),
+  m_pClear(0),
+  m_pBind(0),
   m_pUnbind(new CUnbindCommand(pInterp, *this)),
   m_pChannel(new ChannelCommand(pInterp, *this)),
   m_pWrite(new CWriteCommand(pInterp, *this)),
@@ -158,9 +158,17 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   m_pSpectrum = new CMPITclPackagedCommand(*pInterp, "spectrum", spectrumInner);
   AddCommand(m_pSpectrum);
 
+  auto clearInner = new CClearCommand(pInterp);
+  AddCommand(clearInner);
+  m_pClear = new CMPITclPackagedCommand(*pInterp, "clear", clearInner);
+  AddCommand(m_pClear);
 
-  AddProcessor(m_pClear);                // In Event sink pipeline.
-  AddProcessor(m_pBind);                 // In Event sink pipeline
+  auto sbindInner = new CBindCommand(pInterp);
+  AddCommand(clearInner);
+  m_pBind = new CMPITclPackagedCommand(*pInterp, "sbind", sbindInner);
+  AddCommand(m_pBind);
+
+
   AddProcessor(m_pUnbind);               // In Event sink pipeline.
   AddProcessor(m_pChannel);              // In Event sink pipeline.
   AddProcessor(m_pWrite);                // In event sink pipeline.

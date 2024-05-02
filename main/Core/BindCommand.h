@@ -39,7 +39,7 @@
 #ifndef BINDCOMMAND_H  //Required for current class
 #define BINDCOMMAND_H
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 
 
 // Forward class definitions:
@@ -47,7 +47,7 @@
 class CTCLCommandPackage;
 class CTCLInterpreter;
                                
-class CBindCommand  : public CTCLPackagedCommand        
+class CBindCommand  : public CTCLPackagedObjectProcessor
 {
 public:			// Internal class definitions:
   enum eSwitches {
@@ -63,17 +63,13 @@ public:			// Internal class definitions:
 public:
 
 			//Constructor with arguments
-  CBindCommand (CTCLInterpreter* pInterp,  CTCLCommandPackage& rPack) :
-    CTCLPackagedCommand("sbind", pInterp, rPack)
-  { }        
+  CBindCommand (CTCLInterpreter* pInterp);
    ~ CBindCommand ( ) { }       //Destructor
 	
 			//Copy constructor - illegal
 
 private:
   CBindCommand (const CBindCommand& aCBindCommand ) ;
-public:
-			//Operator= Assignment Operator - illegal
 private:
   CBindCommand& operator= (const CBindCommand& aCBindCommand);
   int operator==(const CBindCommand& rhs) const;
@@ -83,34 +79,23 @@ public:
   // Operations:
 
 public:                       
-  virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult,
-			    int nArgs, char* pArgs[])  ;
+  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
 
-  TCLPLUS::Int_t BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult);
-  TCLPLUS::Int_t BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
-		   int nArgs, char* pArgs[]);
-  TCLPLUS::Int_t ListBindings (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			int nArgs, char* pArgs[])  ;
+  TCLPLUS::Int_t BindAll(CTCLInterpreter& rInterp);
+  TCLPLUS::Int_t BindByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]);
+  TCLPLUS::Int_t ListBindings (CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])  ;
 
-  TCLPLUS::Int_t ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		const char* pattern);
-  TCLPLUS::Int_t ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
-		   int nArgs, char* pArgs[]);
-  TCLPLUS::Int_t Trace(
-      CTCLInterpreter& rInterp, CTCLResult& rResult,
-		  int nArgs, char* pArgs[]
-  );
-  TCLPLUS::Int_t Untrace(
-      CTCLInterpreter& rInterp, CTCLResult& rResult,
-      int nArgs, char* pArgs[]
-  );
+  TCLPLUS::Int_t ListAll(CTCLInterpreter& rInterp, const char* pattern = "*");
+  TCLPLUS::Int_t ListByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]);
+  TCLPLUS::Int_t Trace(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]);
+  TCLPLUS::Int_t Untrace(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]);
   
   // Protected member functions:
 
 protected:
 
   static eSwitches MatchSwitch(const char* pSwitch);
-  static void      Usage(CTCLResult& rResult);
+  static void      Usage(CTCLInterpreter& rInterp);
 
 };
 

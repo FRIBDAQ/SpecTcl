@@ -611,7 +611,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 //
 Int_t 
 CSpectrumCommand::List(CTCLInterpreter& rInterp,
-		       int nArgs, char* pArgs[]) 
+		       int nArgs, const char* pArgs[]) 
 {
 // Handles the subparsing and dispatching
 // for the parameter -list command.
@@ -729,7 +729,7 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp,
 //
 Int_t 
 CSpectrumCommand::Delete(CTCLInterpreter& rInterp, 
-			 int nArgs, char* pArgs[]) 
+			 int nArgs, const char* pArgs[]) 
 {
 // Parses and dispatches the spectrum -delete
 //  subcommand.  This command can delete
@@ -824,7 +824,7 @@ CSpectrumCommand::Delete(CTCLInterpreter& rInterp,
 Int_t 
 CSpectrumCommand::Trace(CTCLInterpreter& rInterp, 
 			CTCLResult&      rResult,
-			int argc, char** argv)
+			int argc, const char** argv)
 {
   // Need at least one extra argument, the trace operation
   // which  must be add or delete and just selects the trace object:
