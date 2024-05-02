@@ -36,7 +36,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <config.h>
 #include "WriteCommand.h"    				
-#include <TCLResult.h>
+#include <TCLInterpreter.h>
+#include <TCLObject.h>
 #include <SpectrumPackage.h>
 #include <SpectrumFormatter.h>
 #include <SpectrumFormatterFactory.h>
@@ -65,12 +66,10 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-//                int nArgs, char* pArgs[])
+//     operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 //  Operation Type: 
 //     evaluator.
-int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			      int nArgs, char* pArgs[])  
+int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  
 {
   // Implements the swrite command.
   // swrite writes spectra to a file.
@@ -87,15 +86,37 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //        Interpreter running the command.
   //   CTCLResult&         rResult:
   //        Result string being created.
-  //    int nArgs:
-  //         Number of command parameters.
-  //    char* pArgs[] :
-  //         Command arguments.
+  //   std::vector<CTCLObject>& objv
+  //        Object encapsulated command words. 
   //
+
+  // If there's no histogramer, just return normal...we're mpi Parallel and not the event sink:
+
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  CHistogrammer*   pHist = (CHistogrammer*)rPack.getHistogrammer();
+  if(!pHist) {
+    return TCL_OK;
+  }
+
+  // To ease porting, reconstruct nArgs/pArgs:
+
+  int nArgs = objv.size();
+  std::vector<std::string> words;
+  std::vectro<const char*> pWords;
+
+  for (auto& word : objv) {
+    words.push_back(std::string(word))l
+  }
+  for (auto &word: words) {
+    pWords.push_back(words.c_str());
+  }
+  auto pArgs = pWords.data();
+  std::string rResult;
+
   nArgs--;
   pArgs++;
   if(nArgs < 2) {		// Need at least a file and 1 spectrum.
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   // The next parameter is either a file descriptor or a 
@@ -121,7 +142,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
 
   // Before we go and create a new file, we want to respond to 
-  // Bug #111 by ensuring there's at lease one valid spectrum in 
+  // Bug #111 by ensuring there's at least one valid spectrum in 
   // the list we've been handed.
 
   char** pSpectra = pArgs;
@@ -133,7 +154,9 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   
   if(nValid <= 0) {		// No valid spectra!!
     rResult = "None of the spectra in this swrite command exist\n";
-    Usage(rResult);
+    Usage(rInterp);
+    rResult = rInterp.GetResultString();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -239,8 +262,9 @@ CWriteCommand::GetFormatter(const char* pFormatter)
 //   protected utility.
 //
 void
-CWriteCommand::Usage(CTCLResult& rResult)
+CWriteCommand::Usage(CTCLInterpreter& rInterp)
 {
+  std::string rResult;
   rResult += "Usage:\n";
   rResult += "  swrite -format fmtname file spectrum1 [spectrum2 ... ]\n";
   rResult += "Where:\n";
@@ -262,6 +286,7 @@ CWriteCommand::Usage(CTCLResult& rResult)
 
     i++;
   }
+  rInterp.setResult(rResult);
 }
 /*!
    Return the number of spectra in a list that actually exist.
@@ -276,20 +301,23 @@ CWriteCommand::CountValidSpectra(char** pSpectra,
 {
   // Locate the histogrammer:
 
-  CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
   CHistogrammer*   pHist = (CHistogrammer*)rPack.getHistogrammer();
+  if (pHist) {
+    // Figure out the set of valid spectra.
 
-  // Figure out the set of valid spectra.
-
-  int result(0);
-  while (nSpectra) {
-    if(pHist->FindSpectrum(string(*pSpectra))) {
-      result++;
+    int result(0);
+    while (nSpectra) {
+      if(pHist->FindSpectrum(string(*pSpectra))) {
+        result++;
+      }
+      nSpectra--;
+      pSpectra++;
     }
-    nSpectra--;
-    pSpectra++;
+    return result;
+  }  else {   // No histogramer if mpi and not event sink pipeline
+    return 0;
   }
   
   
-  return result;
 }

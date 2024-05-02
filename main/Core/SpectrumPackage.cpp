@@ -149,7 +149,7 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   m_pBind(0),
   m_pUnbind(0),
   m_pChannel(0),
-  m_pWrite(new CWriteCommand(pInterp, *this)),
+  m_pWrite(0),
   m_pRead(new CReadCommand(pInterp, *this)),
   m_pDisplay(pDisplay)
 {
@@ -178,7 +178,11 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   m_pChannel = new CMPITclPackagedCommand(*pInterp, "channel", chanInner);
   AddCommand(m_pChannel);
 
-  AddProcessor(m_pWrite);                // In event sink pipeline.
+  auto writeInner = new CWriteCommand(pInterp);
+  AddCommand(writeInner);
+  m_pWrite = new CMPITclPackagedCommand(*pInterp, "swrite", writeInner);
+  AddCommand(m_pWrite);
+
   AddProcessor(m_pRead);                 // In Event sink pipeline.
 }
 //////////////////////////////////////////////////////////////////////////
