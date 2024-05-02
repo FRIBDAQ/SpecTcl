@@ -92,12 +92,11 @@ TCLPLUS::Int_t ChannelCommand::EvalIndex(CTCLInterpreter* pInterp, string& index
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[])
+//     operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 //  Operation Type: 
 //     Command processor
 int 
-ChannelCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			   int nArgs, char* pArgs[])  
+ChannelCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  
 {
   // Processes the chan command.
   // The command options are parsed an
@@ -107,16 +106,25 @@ ChannelCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // Formal Paramters:
   //    CTCLInterpreter&  rInterp:
   //        References the interpreter on which the command runs.
-  //     CTCLResult&  rResult:
-  //        References the resutl associated with rInterp.
-  //      int nArgs:
-  //        Number of command line parameters.
-  //     char* pArgs[]:
-  //        Array of pointers to command line parameters.
+  //    std::vector<CTCLObject>& objv
+  //       Object encapsulated command words.
   // Returns:
   //     TCL_OK         - Success.
   //     TCL_ERROR - Failure.
   //
+
+  // To make the port simple; reconstruct nArgs, pArgs:
+
+  std::vector<std::string> words;
+  std::vectro<const char*> pWords;
+  for (auto& word: objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word : words) {
+    pWords.push_back(word.c_str());
+  }
+  int nArgs = words.size();
+  auto pArgs = pWords.data();
 
   nArgs--; 
   pArgs++;
@@ -124,7 +132,7 @@ ChannelCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // There must be at least one more parameter...
   
   if(nArgs <= 0) {
-    Usage(rResult);
+    Usage(rInterpt);
     return TCL_ERROR;
   }
   // and it must be a switch:
@@ -133,13 +141,13 @@ ChannelCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   case kSetSwitch:
     nArgs--;
     pArgs++;
-    return Set(&rInterp, rResult, nArgs, pArgs);
+    return Set(&rInterp, nArgs, pArgs);
   case kGetSwitch:
     nArgs--;
     pArgs++;
-    return Get(&rInterp, rResult, nArgs, pArgs);
+    return Get(&rInterp, nArgs, pArgs);
   default:
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   
@@ -147,21 +155,17 @@ ChannelCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     Get(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t nArgs, const char* pArgs[])
+//     Get(CTCLInterpreter* pInterp,  UInt_t nArgs, const char* pArgs[])
 //  Operation Type: 
 //     interface.
 TCLPLUS::UInt_t 
-ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult, 
-		    TCLPLUS::UInt_t nArgs, char* pArgs[])  
+ChannelCommand::Get(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, char* pArgs[])  
 {
   // Parses the chan -get command and initiates the get of a channel value.
   //
   // Formal Paramters:
   //     CTCLInterpreter* pInterp:
   //        Points to the interpreter which is running the command.
-  //     CTCLResult& rResult:
-  //        Refers to the result string.. if successful,this will be the
-  //        textual equivalent of the channel value.
   //     UInt_t nArgs:
   //        # parameters in the argument tail.
   //     const char* pArgs[]:
@@ -172,7 +176,7 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
   //
   
   if(nArgs != 2) {		// Must be spectrum name and channel indexes.
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   // The parameters are the spectrum name and a TCL formatted list of
@@ -185,28 +189,25 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
   nArgs--;
   pArgs++;
   CTCLList           ParamList(pInterp, *pArgs);
-  //CTCLObject         IndexObject;
   StringArray        StringIndices;
   vector<TCLPLUS::UInt_t>     NumericIndices;
   TCLPLUS::Int_t              nIndex;
-
+  std::string rResult;
   //IndexObject.Bind(pInterp);
+
   ParamList.Split(StringIndices);
   for(TCLPLUS::UInt_t i = 0; i < StringIndices.size(); i++) {
-    //IndexObject = StringIndices[i]; // String -> TCL Object.
-    //nIndex      = IndexObject;      // TCL Object -> Integer.
-
-
+    
     nIndex = EvalIndex(pInterp, StringIndices[i]); // perform string -> integer conversion
-    //                     with ExprLong instead of a TCLObject.  will replace
-    //                     variables etc. and do the conversion.
-
+    
     if(nIndex < 0) {		   //  Array indices must be positive... 
       char MoreUsage[100];
-      Usage(rResult);
+      Usage(rInterp);
+      rResult = rInterp.GetResultString();
       sprintf(MoreUsage, "\n Index value %d must be positive and isn't", 
 	      nIndex);
       rResult += MoreUsage;
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
     NumericIndices.push_back(static_cast<TCLPLUS::UInt_t>(nIndex));
@@ -214,21 +215,21 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
   // Now the parameters are marshalled. We need to ask our package to do 
   // the get for us.
   // 
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-  if(rPack.GetChannel(rResult, SpectrumName, NumericIndices)) 
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  if(rPack.GetChannel(rInterp, SpectrumName, NumericIndices)) 
     return TCL_OK;
   else
     return TCL_ERROR;
-  rResult = "BUG - Report that: Control fell through the end of CChannelCommand::Get";
+  rInterp.setResult("BUG - Report that: Control fell through the end of CChannelCommand::Get");
   return TCL_ERROR;
 }
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t nArgs, char* pArgs[])
+//     Set(CTCLInterpreter* pInterp, UInt_t nArgs, char* pArgs[])
 //  Operation Type: 
 //     Interface.
-TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, TCLPLUS::UInt_t nArgs, char* pArgs[])  
+TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, char* pArgs[])  
 {
   // Sets the value of a spectrum channel to a 
   // specific number.
@@ -236,8 +237,6 @@ TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResul
   // Formal Parameters:
   //      CTCLInterpreter* pInterp:
   //         Pointer to the interpreter running the command.
-  //      CTCLResult&       rResult:
-  //          Refers to the result string.
   //      UInt_t nArgs:
   //          Number of parameters in the command tail.
   //      const char* pArgs[]:
@@ -247,7 +246,7 @@ TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResul
   //     TCL_ERROR - failure, the result is the reason for the failure.
   
   if(nArgs != 3) {		// Must be spectrum name channel, value.
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   // The parameters are the spectrum name and a TCL formatted list of
@@ -261,14 +260,14 @@ TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResul
   StringArray        StringIndices;
   vector<TCLPLUS::UInt_t>     NumericIndices;
   TCLPLUS::Int_t              nIndex;
-
+  std::string    rResult;
   const char* Value = *pArgs;	// String representation of the value to set.
   errno             = 0;
   TCLPLUS::UInt_t      nValue= strtoul(Value, NULL, 0);
   if ((nValue ==0 ) && (errno != 0)) {
     char message[100];
     sprintf(message,"%s is not a valid channel value", Value);
-    rResult = message;
+    rInterp.setResult(message);
     return TCL_ERROR;
   }
   
@@ -284,25 +283,27 @@ TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResul
     
     if(nIndex < 0) {		   //  Array indices must be positive... 
       char MoreUsage[100];
-      Usage(rResult);
+      Usage(rInterp);
+      rResult =  rInterp.GetResultString();
       sprintf(MoreUsage, "\n Index value %d must be positive and isn't", 
 	      nIndex);
       rResult += MoreUsage;
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
     NumericIndices.push_back(static_cast<TCLPLUS::UInt_t>(nIndex));
   }
   // Now set the channel using the package's facility.
 
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-  if(rPack.SetChannel(rResult, SpectrumName, NumericIndices, 
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  if(rPack.SetChannel(rInterp, SpectrumName, NumericIndices, 
 		      static_cast<TCLPLUS::ULong_t>(nValue))) {
     return TCL_OK;
   }
   else {
     return TCL_ERROR;
   }
-  rResult = "BUG Report that: Control fell through to the end of CChannelCommand::Set";
+  rInterp.setResult("BUG Report that: Control fell through to the end of CChannelCommand::Set");
   return TCL_ERROR;
 }
 /////////////////////////////////////////////////////////////////////////////
@@ -327,15 +328,16 @@ ChannelCommand::ParseSwitch(const char* pSwitch)
 ////////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//    void Usage(CTCLResult& rResult)
+//    void Usage(CTCLInterpreter& rInterp)
 // Operation type:
 //    protected utility.
 //
 void
-ChannelCommand::Usage(CTCLResult& rResult)
+ChannelCommand::Usage(CTCLInterpreter& rInterp)
 {
+  std::string rResult;
   rResult += "Usage:\n";
   rResult += "   channel -get spectrumname { indices }\n";
   rResult += "   channel -set spectrumname { indices } NewValue\n";
-
+  rInterp.setResult(rResult);
 }

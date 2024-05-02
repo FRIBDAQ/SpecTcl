@@ -47,9 +47,9 @@
 #define CHANCOMMAND_H
 
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
                                
-class ChannelCommand  : public CTCLPackagedCommand        
+class ChannelCommand  : public CTCLPackagedObjectProcesor
 {                       
 public:
   enum Switches {		// Command switches in enum form.
@@ -62,8 +62,8 @@ public:
 
 // Constructors and other cannonical operations:
 
-   ChannelCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage)  :
-                   CTCLPackagedCommand("channel", pInterp, rPackage)
+   ChannelCommand (CTCLInterpreter* pInterp) :
+    CTCLPackagedObjectProcessor(*pInterp, "channel", true)
   { }
   
   virtual ~ChannelCommand ( )  // Destructor 
@@ -72,10 +72,6 @@ public:
 private:
   ChannelCommand (const ChannelCommand& aChannelCommand );
   TCLPLUS::Int_t EvalIndex(CTCLInterpreter*, std::string&);
-public:
-
-   // Operator= Assignment Operator 
-private:
   ChannelCommand& operator= (const ChannelCommand& aChannelCommand);
   int operator==(const ChannelCommand& rhs) const;
   int operator!=(const ChannelCommand& rhs) const;
@@ -84,18 +80,15 @@ public:
   // operations:       
 public:
 
-  virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    int nArgs, char* pArgs[])    ;
+  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject& objv)    ;
 
-  TCLPLUS::UInt_t Get (CTCLInterpreter* pInterp, CTCLResult& rResult, 
-	      TCLPLUS::UInt_t nArgs, char* pArgs[])    ;
+  TCLPLUS::UInt_t Get (CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, const char* pArgs[])    ;
 
-  TCLPLUS::UInt_t Set (CTCLInterpreter* pInterp, CTCLResult& rResult, 
-	      TCLPLUS::UInt_t nArgs, char* pArgs[])    ;
+  TCLPLUS::UInt_t Set (CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, const char* pArgs[])    ;
 
 protected:
   Switches ParseSwitch(const char* pSwitch);
-  void Usage(CTCLResult& rResult);
+  void Usage(CTCLInterpreter& rInterp);
 
 };
 
