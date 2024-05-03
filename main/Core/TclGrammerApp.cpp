@@ -826,7 +826,7 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   m_pSpectrumPackage  = new CSpectrumPackage(&rInterp, 
                          (CHistogrammer*)gpEventSink,
                          gpDisplayInterface);
-  m_pSpectrumPackage->Register();
+
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     cerr << m_pSpectrumPackage->getSignon() << endl;
   }

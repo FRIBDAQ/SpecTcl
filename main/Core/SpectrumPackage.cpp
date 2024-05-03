@@ -164,7 +164,7 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   addCommand(m_pClear);
 
   auto sbindInner = new CBindCommand(pInterp);
-  addCommand(clearInner);
+  addCommand(sbindInner);
   m_pBind = new CMPITclPackagedCommand(*pInterp, "sbind", sbindInner);
   addCommand(m_pBind);
 
