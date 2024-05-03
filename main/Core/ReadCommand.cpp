@@ -276,7 +276,7 @@ CReadCommand::Usage(CTCLInterpreter& rInterp)
 
     i++;
   }  
-  rInterp.setResult(rRestult);
+  rInterp.setResult(rResult);
 }
 //////////////////////////////////////////////////////////////////////////////
 //
