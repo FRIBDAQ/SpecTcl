@@ -176,7 +176,7 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, const char*
   //
   
   if(nArgs != 2) {		// Must be spectrum name and channel indexes.
-    Usage(rInterp);
+    Usage(*pInterp);
     return TCL_ERROR;
   }
   // The parameters are the spectrum name and a TCL formatted list of
@@ -202,12 +202,12 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, const char*
     
     if(nIndex < 0) {		   //  Array indices must be positive... 
       char MoreUsage[100];
-      Usage(rInterp);
-      rResult = rInterp.GetResultString();
+      Usage(*pInterp);
+      rResult = pInterp->GetResultString();
       sprintf(MoreUsage, "\n Index value %d must be positive and isn't", 
 	      nIndex);
       rResult += MoreUsage;
-      rInterp.setResult(rResult);
+      pInterp->setResult(rResult);
       return TCL_ERROR;
     }
     NumericIndices.push_back(static_cast<TCLPLUS::UInt_t>(nIndex));
@@ -216,11 +216,11 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, const char*
   // the get for us.
   // 
   CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
-  if(rPack.GetChannel(rInterp, SpectrumName, NumericIndices)) 
+  if(rPack.GetChannel(*pInterp, SpectrumName, NumericIndices)) 
     return TCL_OK;
   else
     return TCL_ERROR;
-  rInterp.setResult("BUG - Report that: Control fell through the end of CChannelCommand::Get");
+  pInterp->setResult("BUG - Report that: Control fell through the end of CChannelCommand::Get");
   return TCL_ERROR;
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -246,7 +246,7 @@ TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nA
   //     TCL_ERROR - failure, the result is the reason for the failure.
   
   if(nArgs != 3) {		// Must be spectrum name channel, value.
-    Usage(rInterp);
+    Usage(*pInterp);
     return TCL_ERROR;
   }
   // The parameters are the spectrum name and a TCL formatted list of
@@ -267,7 +267,7 @@ TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nA
   if ((nValue ==0 ) && (errno != 0)) {
     char message[100];
     sprintf(message,"%s is not a valid channel value", Value);
-    rInterp.setResult(message);
+    pInterp->setResult(message);
     return TCL_ERROR;
   }
   
@@ -283,12 +283,12 @@ TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nA
     
     if(nIndex < 0) {		   //  Array indices must be positive... 
       char MoreUsage[100];
-      Usage(rInterp);
-      rResult =  rInterp.GetResultString();
+      Usage(*pInterp);
+      rResult =  pInterp->GetResultString();
       sprintf(MoreUsage, "\n Index value %d must be positive and isn't", 
 	      nIndex);
       rResult += MoreUsage;
-      rInterp.setResult(rResult);
+      pInterp->setResult(rResult);
       return TCL_ERROR;
     }
     NumericIndices.push_back(static_cast<TCLPLUS::UInt_t>(nIndex));
@@ -296,14 +296,14 @@ TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nA
   // Now set the channel using the package's facility.
 
   CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
-  if(rPack.SetChannel(rInterp, SpectrumName, NumericIndices, 
+  if(rPack.SetChannel(*pInterp, SpectrumName, NumericIndices, 
 		      static_cast<TCLPLUS::ULong_t>(nValue))) {
     return TCL_OK;
   }
   else {
     return TCL_ERROR;
   }
-  rInterp.setResult("BUG Report that: Control fell through to the end of CChannelCommand::Set");
+  pInterp->setResult("BUG Report that: Control fell through to the end of CChannelCommand::Set");
   return TCL_ERROR;
 }
 /////////////////////////////////////////////////////////////////////////////
