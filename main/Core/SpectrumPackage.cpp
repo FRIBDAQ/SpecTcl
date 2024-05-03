@@ -2455,7 +2455,7 @@ CSpectrumPackage::makeBinding(CSpectrum& spec, CHistogrammer& hist)
   BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
   CTCLObject objName;
   CTCLObject objId;
-  CTCLInterpreter* pInterp = getInterpreter();
+  CTCLInterpreter* pInterp = m_pClear->getInterpreter();  // Need to get it from one of my commands.
   objName.Bind(*pInterp);
   objId.Bind(*pInterp);
   objName = name;
@@ -2495,7 +2495,7 @@ CSpectrumPackage::removeBinding(CSpectrum& spec, CHistogrammer& hist)
   // prevents a spurious trace in that case.
   
   if (id >= 0) {
-    CTCLInterpreter* pInterp = getInterpreter();
+    CTCLInterpreter* pInterp = m_pClear->getInterpreter();
     CTCLObject      objName;
     CTCLObject      objId;
     objName.Bind(*pInterp);
