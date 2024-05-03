@@ -42,7 +42,7 @@
 #ifndef READCOMMAND_H  //Required for current class
 #define READCOMMAND_H
 
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 #include <fstream>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -55,7 +55,7 @@ class CTCLCommandPackage;
 
 //
 
-class CReadCommand  : public CTCLPackagedCommand        
+class CReadCommand  : public CTCLPackagedObjectProcessor
 {                       
   // Data types.
 public:
@@ -71,8 +71,8 @@ public:
 
    // Constructors and other cannonical operations:
 
-  CReadCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack)  :
-    CTCLPackagedCommand("sread", pInterp, rPack)
+  CReadCommand (CTCLInterpreter* pInterp)  :
+    CTCLPackagedObjectProcessor(pInterp, "sread", true)
   { 
   } 
   ~ CReadCommand ( )  // Destructor 
@@ -100,13 +100,12 @@ public:
        
 public:
 
-  virtual   TCLPLUS::Int_t operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			     int nArgs, char* pArgs[])    ;
+  virtual   TCLPLUS::Int_t operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)    ;
  
   // Utilities.
 
 protected:
-  static void     Usage(CTCLResult& rResult);
+  static void     Usage(CTCLInterpreter& rResult);
   static Switch_t NextSwitch(const char* pText);
 
 

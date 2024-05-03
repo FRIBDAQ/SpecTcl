@@ -88,12 +88,10 @@ static TCLPLUS::UInt_t nTableSize = sizeof(Switches)/sizeof(SwitchEntry);
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-//                int nArgs, char* pArgs[])
+//     operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 //  Operation Type: 
 //     Evaluator.
-TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, 
-			       CTCLResult& rResult, int nArgs, char* pArgs[])  
+TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 {
   // Called to process the sread command. sread reads the next single
   // spectrum from a file.  If you have a file with multiple spectra,
@@ -113,18 +111,26 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
   // Formal Parameters:
   //      CTCLInterpreter& rInterp:
   //          Interpreter running the command.
-  //      CTCLResult&       rResult:
-  //          Result string of the operation which is:
-  //            Success: Name of spectrum created.
-  //            Failure: Reason for error.
-  //        int        nArgs:
-  //          Number of parameters in the command.      
-  //        char* pArgs[]:
-  //           Command parameters.        
+  //      std::vector<CTCLObject>& objv
+  //          object encapsulated commnand words.
   // Returns:
   //   TCL_OK on success.
   //   TCL_ERROR on failure.
   //
+
+  // Convert objj -> nArgs, pArgs for compatibility:
+
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+  for (auto& word: objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word : words) {
+    pWords.push_back(word.c_str());
+  }
+  int nArgs = words.size();
+  auto pArgs = pWords.data();
+  std::string rResult;     // Make port syntacitcally simpler
 
   string format("nsclascii");	// Default value for format.
   string file;			// no default file.
@@ -134,7 +140,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
 
   nArgs--; pArgs++;		// Skip over the command name.
   if(nArgs < 1) {		// Must be at least a file specifier.
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   CReadCommand::Switch_t Switch;
@@ -146,7 +152,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
       {
 	nArgs--; pArgs++;
 	if(nArgs < 2) {		// Need a format specifier as well as a file..
-	  Usage(rResult);
+	  Usage(rInterp);
 	  return TCL_ERROR;
 	}
 	format = string(*pArgs);	// Fetch format specifier string.
@@ -171,7 +177,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
       fBind = kfFALSE;
       break;
     default:
-      Usage(rResult);
+      Usage(rInterp);
       return TCL_ERROR;
     }
     nArgs--; pArgs++;
@@ -185,7 +191,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
   file = string(*pArgs);
   CSpectrumFormatter* pFormatter = CWriteCommand::GetFormatter(format.c_str());
   if(pFormatter == (CSpectrumFormatter*)kpNULL) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
 
@@ -213,9 +219,11 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
   }
   // If the open failed, *pIn is false:
 
+  
   if(!(*pIn)) {
     rResult = "Unable to open a stream on ";
     rResult = pArgs[0];
+    rInterp.setResult(rResult);
     delete pIn;
     return TCL_ERROR;
   }
@@ -231,24 +239,26 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
   string Result;
   TCLPLUS::Int_t  status = rPack.Read(Result, *pIn, pFormatter, ReadFlags);
 
-  rResult = Result;
+  rInterp.setResult(Result);
   return status;
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//   void Usage(CTCLResult& rResult)
+//   void Usage(CTCLInterpreter& rInterp)
 // Operation Type:
 //    Static utility
 //
 void
-CReadCommand::Usage(CTCLResult& rResult)
+CReadCommand::Usage(CTCLInterpreter& rInterp)
 {
   //  Appends the command's usage string to rResult.
   //  Note that the usage consists of a fixed part which describes the general
   //  command usage, and a variable part describing the formatters availble
   //  by iterating the formatter list.
   //
+
+  std::string rResult = rInterp.GetResultString();
   rResult += "Usage: \n";
   rResult += "   sread [-format fmtname] [-[no]snapshot] \\ \n";
   rResult += "         [-[no]replace]    [-[no]bind] file    \n\n";
@@ -266,6 +276,7 @@ CReadCommand::Usage(CTCLResult& rResult)
 
     i++;
   }  
+  rInterp.setResult(rRestult);
 }
 //////////////////////////////////////////////////////////////////////////////
 //
