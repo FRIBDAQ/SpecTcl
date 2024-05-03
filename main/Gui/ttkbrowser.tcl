@@ -1973,7 +1973,7 @@ image create photo ::browser::foldericon   -format png \
         
         # Gate application
         
-        set application [apply -list [lindex $info 1]]
+        set application [applygate -list [lindex $info 1]]
         set appliedGateDescription [lindex [lindex $application 0] 1]
         set appliedGateType [lindex $appliedGateDescription 2]
         if {$appliedGateType ne "T"} {

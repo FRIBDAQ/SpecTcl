@@ -442,16 +442,16 @@ proc SpecTclRestCommand::shutdown { } {
 
 #------------------------------------------------------------------------------
 #
-# apply
-#    Simulate the apply command.  There are two versions:
-#    -  apply gate spectrum....
-#    -  apply -list ?pattern?
+# applygate
+#    Simulate the applygate command.  There are two versions:
+#    -  applygate gate spectrum....
+#    -  applygate -list ?pattern?
 #  We are a bit more tolerant than the native command.
-#  If there's junk after the pattern in apply -list we ignore it.
+#  If there's junk after the pattern in applygate -list we ignore it.
 # @parm args - the command parameters.
-# @note - yes we know this masks the apply command.
+# @note - yes we know this masks the applygate command.
 #
-proc apply {args} {
+proc applygate {args} {
     if {[llength $args] < 1} {
         error "'apply' command requires parameters"
     }
@@ -467,7 +467,7 @@ proc apply {args} {
         set gate $first
         set spectra [lrange $args 1 end]
         if {[llength $spectra] == 0} {
-            error "'apply' needs at least one spectrum in addition to the gate."
+            error "'applgate' needs at least one spectrum in addition to the gate."
         }
         return [$SpecTclRestCommand::client applyGate $gate $spectra]
     }

@@ -813,7 +813,7 @@ proc getgates {{dest "stdout"}} {
 
 proc getapply {{dest "stdout"}} {
     global Gates
-    set applications [apply -list]
+    set applications [applygate -list]
 
     foreach application $applications {
 	set spectrum [lindex $application 0]
@@ -830,7 +830,7 @@ proc getapply {{dest "stdout"}} {
 		set state [lindex $Gates($gatename) 0]
 		if {$state != "unwritable"} {
 		    set command "handle \""
-		    append command "apply [Wrap $gatename]  [Wrap $spectrum]\""
+		    append command "applygate [Wrap $gatename]  [Wrap $spectrum]\""
 		    puts $dest $command
 		}
 	    }

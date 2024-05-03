@@ -549,7 +549,7 @@ proc selectAndApplyGate {} {
 
         if { ($gate != "") && ([llength $spectra] != 0)} {
 	    foreach spectrum $spectra {
-		apply $gate $spectrum
+		applygate $gate $spectrum
 	    }
         }
         failsafeWrite
