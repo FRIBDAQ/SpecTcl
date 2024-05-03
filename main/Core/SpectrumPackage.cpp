@@ -62,7 +62,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <DisplayInterface.h>
 #include <Display.h>
 
-#include <MPITclPackageCommand.h>
+#include <MPITclPackagedCommand.h>
 
 #include <iostream>
 
