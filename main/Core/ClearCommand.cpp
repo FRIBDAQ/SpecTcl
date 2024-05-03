@@ -182,7 +182,7 @@ CClearCommand::Usage(CTCLInterpreter& rInterp)
   rResult += "clearing the statistics or channels or both.";
   rResult += "\nIf omitted both statistics and channels are cleared.";
 
-  interp.setResult(rResult);
+  rInterp.setResult(rResult);
 }
 ////////////////////////////////////////////////////////////////////
 //
