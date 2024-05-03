@@ -49,6 +49,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <config.h>
 #include "BindCommand.h"
+#include "TCLInterpreter.h"
 #include "TCLString.h"
 #include "TCLObject.h"
 #include "SpectrumPackage.h"
@@ -102,7 +103,7 @@ CBindCommand::CBindCommand(CTCLInterpreter* pInterp) :
 //     Command Processor
 //
 int 
-CBindCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
+CBindCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 {
 // Called whenever TCL executes the bind
 // command.  The command is parsed and 
@@ -134,6 +135,7 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
   for (auto& word: words) {
     pWords.push_back(word.c_str());
   }
+  auto pArgs = pWords.data();
 
   nArgs--; pArgs++;		// Don't care about command name.
   
@@ -201,7 +203,7 @@ CBindCommand::BindAll(CTCLInterpreter& rInterp)
 
 
 TCLPLUS::Int_t
-CBindCommand::BindByName(CTCLInterpreter& rInterp, int nArgs, char* pArgs[])
+CBindCommand::BindByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])
 {
   // Binds a list of spectrum names to Displayer slots. 
   //
@@ -237,7 +239,7 @@ CBindCommand::BindByName(CTCLInterpreter& rInterp, int nArgs, char* pArgs[])
 //     Utility
 //
 TCLPLUS::Int_t 
-CBindCommand::ListBindings(CTCLInterpreter& rInterp, int nArgs, char* pArgs[]) 
+CBindCommand::ListBindings(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) 
 {
 // Processes the bind commands which
 //  list bindings.
@@ -284,7 +286,7 @@ CBindCommand::ListAll(CTCLInterpreter& rInterp, const char* pattern)
   // List all spectrum bindings.
   //
 
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
   rPack.ListAllBindings(rInterp, pattern);
   return TCL_OK;
 
@@ -297,7 +299,7 @@ CBindCommand::ListAll(CTCLInterpreter& rInterp, const char* pattern)
 //   Utility
 //
 TCLPLUS::Int_t
-CBindCommand::ListByName(CTCLInterpreter& rInterp, int nArgs, char* pArgs[])
+CBindCommand::ListByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])
 {
   // List the bindings of a set of spectra given their names.
   // The set of parameters in nArgs/pArgs is assumed to be a set of
@@ -333,7 +335,7 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, int nArgs, char* pArgs[])
  */
 TCLPLUS::Int_t
 CBindCommand::Trace(
-  CTCLInterpreter& rInterp, int nArgs, char* pArgs[]
+  CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
 )
 {
   // Validate the argument count:
@@ -368,7 +370,7 @@ CBindCommand::Trace(
  */
 TCLPLUS::Int_t
 CBindCommand::Untrace(
-  CTCLInterpreter& rInterp, int nArgs, char* pArgs[]
+  CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
 )
 {
   // Validate the argument count.
