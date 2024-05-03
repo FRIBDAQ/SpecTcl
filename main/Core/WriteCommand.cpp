@@ -182,7 +182,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
   }
   else {
     pOut = new ofstream(pArgs[0], ios::trunc | ios::out);
-    rResult="";
+    rInterp.setResult("");   // Channel lookup failure set error msg in result.
   }
   // If the file could not be created/mapped then pOut is false:
   // kill it off, and return the error:
