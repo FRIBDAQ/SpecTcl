@@ -202,8 +202,8 @@ CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp,
   std::vector<std::string> vNames;
   CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
 
-  CSpectrumPackage& rPack(*(CSpectrumPackage*)getMyPackage());
-  return rPack.UnbindList(rResult, vNames);
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  return rPack.UnbindList(rInterp, vNames);
 
 }
 ////////////////////////////////////////////////////////////////////////
@@ -319,7 +319,7 @@ CUnbindCommand::Untrace(
 //      Protected Utility.
 //
 void
-CUnbindCommand::Usage(CTCLInterpreter& rInerp)
+CUnbindCommand::Usage(CTCLInterpreter& rInterp)
 {
   std::string rResult;
   rResult += "Usage: \n";
