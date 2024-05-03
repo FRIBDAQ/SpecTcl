@@ -221,7 +221,7 @@ CBindCommand::BindByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[
     std::vector<std::string> vNames;
     CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
   
-    CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+    CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
   
     return rPack.BindList(rInterp, vNames);
   }
@@ -321,7 +321,7 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[
   vector<string> vNames;
   CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
 
-  CSpectrumPackage& rPack(*(CSpectrumPackage*)getMyPackage());
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
   return rPack.ListBindings(rInterp, vNames);
 }
 /**

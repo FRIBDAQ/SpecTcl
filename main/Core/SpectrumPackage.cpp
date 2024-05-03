@@ -2195,7 +2195,7 @@ CSpectrumPackage::GetNumberList(CTCLInterpreter& rInterp,
 //    Protected parsing utility.
 //
 void
-CSpectrumPackage:: GetNameList(std::vector<std::string>& rvNames,
+CSpectrumPackage::GetNameList(std::vector<std::string>& rvNames,
 			       char* pattern)
 {
   //  produces a vector of names from the nArgs, pArgs parameters.
@@ -2224,8 +2224,8 @@ CSpectrumPackage:: GetNameList(std::vector<std::string>& rvNames,
 //    Protected parsing utility.
 //
 void
-CSpectrumPackage:: GetNameList(std::vector<std::string>& rvNames,
-			       int nArgs, char* pArgs[])
+CSpectrumPackage::GetNameList(std::vector<std::string>& rvNames,
+			       int nArgs, const char* pArgs[])
 {
   //  produces a vector of names from the nArgs, pArgs parameters.
   //
