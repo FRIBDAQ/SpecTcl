@@ -55,7 +55,7 @@ public:
    // Constructors and other cannonical operations:
 
   CWriteCommand (CTCLInterpreter* pInterp) :
-    CTCLPackatedObjectProcessor(*pInterp, "swrite", triue)
+    CTCLPackagedObjectProcessor(*pInterp, "swrite", true)
   { 
   } 
   ~ CWriteCommand ( )  // Destructor 
@@ -70,7 +70,7 @@ private:
 
 public:
   virtual
-  int operator()(CTCLInterpreter& rInterp, std::vector<CTCLOjv>& objv)  ;
+  int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  ;
 protected:
   int    CountValidSpectra(char** pSpectrum, int nSpectra);
   static CSpectrumFormatter*  GetFormatter(const char* pFormatter);
