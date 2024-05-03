@@ -214,7 +214,7 @@ public:
   static void      GetNameList(std::vector<std::string>& rvNames,
 			              char* pattern);
   static void      GetNameList(std::vector<std::string>& rvNames,
-			       int nArgs, char* pArgs[]);
+			       int nArgs, const char* pArgs[]);
   static const char*     SpecTypeToText(SpectrumType_t sType);
   static const char*     DataTypeToText(DataType_t dType);
   static SpectrumType_t  SpectrumType(const char* pType);
