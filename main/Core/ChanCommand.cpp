@@ -116,7 +116,7 @@ ChannelCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& ob
   // To make the port simple; reconstruct nArgs, pArgs:
 
   std::vector<std::string> words;
-  std::vectro<const char*> pWords;
+  std::vector<const char*> pWords;
   for (auto& word: objv) {
     words.push_back(std::string(word));
   }
@@ -132,7 +132,7 @@ ChannelCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& ob
   // There must be at least one more parameter...
   
   if(nArgs <= 0) {
-    Usage(rInterpt);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   // and it must be a switch:
@@ -159,7 +159,7 @@ ChannelCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& ob
 //  Operation Type: 
 //     interface.
 TCLPLUS::UInt_t 
-ChannelCommand::Get(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, char* pArgs[])  
+ChannelCommand::Get(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, const char* pArgs[])  
 {
   // Parses the chan -get command and initiates the get of a channel value.
   //
@@ -229,7 +229,7 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, char* pArgs
 //     Set(CTCLInterpreter* pInterp, UInt_t nArgs, char* pArgs[])
 //  Operation Type: 
 //     Interface.
-TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, char* pArgs[])  
+TCLPLUS::UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, const char* pArgs[])  
 {
   // Sets the value of a spectrum channel to a 
   // specific number.
