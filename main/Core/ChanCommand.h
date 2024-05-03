@@ -49,7 +49,7 @@
                                //Required for base classes
 #include "TCLPackagedObjectProcessor.h"
                                
-class ChannelCommand  : public CTCLPackagedObjectProcesor
+class ChannelCommand  : public CTCLPackagedObjectProcessor
 {                       
 public:
   enum Switches {		// Command switches in enum form.
@@ -80,7 +80,7 @@ public:
   // operations:       
 public:
 
-  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject& objv)    ;
+  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)    ;
 
   TCLPLUS::UInt_t Get (CTCLInterpreter* pInterp, TCLPLUS::UInt_t nArgs, const char* pArgs[])    ;
 

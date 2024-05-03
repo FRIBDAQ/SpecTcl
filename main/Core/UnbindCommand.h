@@ -78,7 +78,7 @@ public:
     CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
   );
 protected:
-  static void   Usage(CTCLInterpretert& rResult);
+  static void   Usage(CTCLInterpreter& rResult);
   static Switch MatchSwitch(const char* pSwitch);
  
 };
