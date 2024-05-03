@@ -113,7 +113,7 @@ CClearCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj
   std::vector<std::string> words;
   std::vector<const char*> pWords;
   int nArgs = objv.size();
-  for (auto& word : words) {
+  for (auto& word : objv) {
     words.push_back(std::string(word));
   }
   for (auto& word: words) {
