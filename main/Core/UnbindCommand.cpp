@@ -176,22 +176,20 @@ CUnbindCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& ob
 /////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//    Int_t UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+//    Int_t UnbindByName(CTCLInterpreter& rInterp, 
 //		         int nArgs, char* pArgs[])
 // Operation Type:
 //    Utility Function
 //
 TCLPLUS::Int_t
-CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			     int nArgs, char* pArgs[])
+CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, 
+			     int nArgs, const char* pArgs[])
 {
   // Unbinds a set of spectra from the display given their names.
   // 
   // Formal Paramters:
   //    CTCLInterpreter&  rInterp:
   //        References the interpreter on which the command runs.
-  //     CTCLResult&  rResult:
-  //        References the resutl associated with rInterp.
   //      int nArgs:
   //        Number of command line parameters.
   //     char* pArgs[]:
@@ -217,7 +215,7 @@ CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //    Utility.
 //
 TCLPLUS::Int_t
-CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, int nArgs, char* pArgs[])
+CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])
 {
   // Unbinds a set of spectra from the display given their ids.
   //
@@ -252,7 +250,7 @@ CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, int nArgs, char* pArgs[])
  */
 TCLPLUS::Int_t
 CUnbindCommand::Trace(
-	CTCLInterpreter& rInterp, int nArgs, char* pArgs[]
+	CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
 )
 {
 	// Check the parameter count.
@@ -286,7 +284,7 @@ CUnbindCommand::Trace(
  */
 TCLPLUS::Int_t
 CUnbindCommand::Untrace(
-	CTCLInterpreter& rInterp, int nArgs, char* pArgs[]
+	CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
 )
 {
 	// Check the parameter count:

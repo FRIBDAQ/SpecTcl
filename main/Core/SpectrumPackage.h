@@ -210,7 +210,7 @@ protected:
 public:
   Bool_t      GetNumberList(CTCLInterpreter& rInterp, 
 			    std::vector<UInt_t>& rvIds,
-			    int nArgs, char* pArgs[]);
+			    int nArgs, const char* pArgs[]);
   static void      GetNameList(std::vector<std::string>& rvNames,
 			              char* pattern);
   static void      GetNameList(std::vector<std::string>& rvNames,

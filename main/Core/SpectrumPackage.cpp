@@ -2147,7 +2147,7 @@ CSpectrumPackage::FormatBinding(CTCLString& rString, UInt_t nXId,
 Bool_t
 CSpectrumPackage::GetNumberList(CTCLInterpreter& rInterp, 
 			    std::vector<UInt_t>& rvIds,
-			    int nArgs, char* pArgs[])
+			    int nArgs, const char* pArgs[])
 {
   // Parses the remainder of the parameters as an unsigned
   // integer list (e.g. set of spectrum ids).
