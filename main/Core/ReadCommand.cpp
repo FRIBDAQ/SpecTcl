@@ -230,7 +230,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
 
   // Now we can read the spectrum from file/channel.
 
-  CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
   TCLPLUS::UInt_t ReadFlags = 0;
   if(!fSnapshot) ReadFlags |= CSpectrumPackage::fLive;
   if(fReplace)   ReadFlags |= CSpectrumPackage::fReplace;

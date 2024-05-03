@@ -75,7 +75,7 @@ static const UInt_t SwitchTableSize = sizeof(SwitchTable)/sizeof(SwitchEntry);
  *  Constructor
  *     pInterp - Pointer to the interpreter on which to register us:
 */
-CCLearCommand::CClearCommand(CTCLInterpreter* pInterp) :
+CClearCommand::CClearCommand(CTCLInterpreter* pInterp) :
   CTCLPackagedObjectProcessor(*pInterp, "clear", true)
 {
 
@@ -131,7 +131,7 @@ CClearCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj
   
   std::vector<std::string> spectrumIdentifiers;    // Names or ids.
   std::set<CClearCommand::Switch> switches;
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+  CSpectrumPackage& rPack = (*(CSpectrumPackage*)getPackage());
 
   for(int i = 0; i < nArgs; i++) {
     CClearCommand::Switch sw = MatchSwitch(pArgs[i]);
@@ -180,7 +180,7 @@ CClearCommand::Usage(CTCLInterpreter& rInterp)
   rResult += "\n  Clears all or a selected set of spectra\n";
   rResult += "\n  Using -stats or -channels allows you to specify ";
   rResult += "clearing the statistics or channels or both.";
-  rResult += "\nIf omitted both statistics and channels are cleared."
+  rResult += "\nIf omitted both statistics and channels are cleared.";
 
   interp.setResult(rResult);
 }
