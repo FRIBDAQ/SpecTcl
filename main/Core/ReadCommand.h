@@ -72,7 +72,7 @@ public:
    // Constructors and other cannonical operations:
 
   CReadCommand (CTCLInterpreter* pInterp)  :
-    CTCLPackagedObjectProcessor(pInterp, "sread", true)
+    CTCLPackagedObjectProcessor(*pInterp, "sread", true)
   { 
   } 
   ~ CReadCommand ( )  // Destructor 

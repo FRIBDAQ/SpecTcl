@@ -150,40 +150,43 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   m_pUnbind(0),
   m_pChannel(0),
   m_pWrite(0),
-  m_pRead(new CReadCommand(pInterp, *this)),
+  m_pRead(0),
   m_pDisplay(pDisplay)
 {
   auto spectrumInner = new CSpectrumCommand(pInterp);
-  AddCommand(spectrumInner);
+  addCommand(spectrumInner);
   m_pSpectrum = new CMPITclPackagedCommand(*pInterp, "spectrum", spectrumInner);
-  AddCommand(m_pSpectrum);
+  addCommand(m_pSpectrum);
 
   auto clearInner = new CClearCommand(pInterp);
-  AddCommand(clearInner);
+  addCommand(clearInner);
   m_pClear = new CMPITclPackagedCommand(*pInterp, "clear", clearInner);
-  AddCommand(m_pClear);
+  addCommand(m_pClear);
 
   auto sbindInner = new CBindCommand(pInterp);
-  AddCommand(clearInner);
+  addCommand(clearInner);
   m_pBind = new CMPITclPackagedCommand(*pInterp, "sbind", sbindInner);
-  AddCommand(m_pBind);
+  addCommand(m_pBind);
 
   auto unbindInner = new CUnbindCommand(pInterp);
-  AddCommand(unbindInner);
+  addCommand(unbindInner);
   m_pUnbind = new CMPITclPackagedCommand(*pInterp, "unbind", unbindInner);
-  AddCommand(m_pUnbind);
+  addCommand(m_pUnbind);
 
   auto chanInner = new ChannelCommand(pInterp);
-  AddCommand(chanInner);
+  addCommand(chanInner);
   m_pChannel = new CMPITclPackagedCommand(*pInterp, "channel", chanInner);
-  AddCommand(m_pChannel);
+  addCommand(m_pChannel);
 
   auto writeInner = new CWriteCommand(pInterp);
-  AddCommand(writeInner);
+  addCommand(writeInner);
   m_pWrite = new CMPITclPackagedCommand(*pInterp, "swrite", writeInner);
-  AddCommand(m_pWrite);
+  addCommand(m_pWrite);
 
-  AddProcessor(m_pRead);                 // In Event sink pipeline.
+  auto readInner = new CReadCommand(pInterp);
+  addCommand(readInner);
+  m_pRead = new CMPITclPackagedCommand(*pInterp, "sread", readInner);
+  addCommand(m_pRead);                 // In Event sink pipeline.
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -203,7 +206,8 @@ CSpectrumPackage::~CSpectrumPackage ( )
   delete m_pRead;
 }
 
-std::string getSignon() const {
+std::string 
+CSpectrumPackage::getSignon() const {
   return Copyright;
 }
 /*!
@@ -282,7 +286,7 @@ CSpectrumPackage::CreateSpectrum(CTCLInterpreter& rInterp,
   catch (CException& rExcept) {
     delete pSpec;		// In case it was the add that did it.
     rResult = rExcept.ReasonText();
-    rInterp.setResult(rResult)
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // pre-compute the description string and set it:
@@ -1102,7 +1106,7 @@ CSpectrumPackage::UnbindList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvId
   if (Failed) {
       rResult += " ";
       rResult += (const char*)(MyResults);
-      interp.setResult(rResult);
+      rInterp.setResult(rResult);
   }
 
   return (Failed ? TCL_ERROR : TCL_OK);
@@ -1180,8 +1184,7 @@ CSpectrumPackage::DeleteList(CTCLInterpreter& rInterp,
   // the results of the unbind.
   //
   
-  UnbindList(rResult, rvNames);
-  rResult = "";			// Re-empty the result string.
+  UnbindList(rInterp, rvNames);
 
 
   std::vector<std::string>::iterator p = rvNames.begin();
@@ -1256,7 +1259,7 @@ CSpectrumPackage::DeleteList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvnI
     //  status codes...
 
     Int_t tclStat = DeleteList(rInterp, vNameList);
-    rResult rInterp.GetResultString();
+    rResult =  rInterp.GetResultString();
     rResult += (const char*)MyResult;
     rInterp.setResult(rResult);
 
@@ -1307,6 +1310,7 @@ CSpectrumPackage::DeleteAll()
           delete pSpectrum;		// Destroy spectrum storage.
     }
 
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -1489,9 +1493,7 @@ CSpectrumPackage::ListAllBindings(CTCLInterpreter& rInterp, const char* pattern)
       }
     }
     rInterp.setResult((const char*)ResultList); // Put output list in the result string.
-  } else {
-    return TCL_OK; // mpi parallel but not in MPI_EVENT_SINK_RANK
-  }
+  } 
 }
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1933,7 +1935,7 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
     
     Description.StartSublist();
     for (int i = 0; i < Def.vParameters.size(); i++) {
-        CParameter* xpar = api>FindParameter(Def.vParameters[i]);
+        CParameter* xpar = api->FindParameter(Def.vParameters[i]);
         CParameter* ypar = api->FindParameter(Def.vyParameters[i]);
         if (x) {
           Description.AppendElement(
@@ -2162,7 +2164,7 @@ CSpectrumPackage::GetNumberList(CTCLInterpreter& rInterp,
 
   for(Int_t i = 0; i < nArgs; i++) {
     Int_t value;
-    Int_t tclStatus = m_pSpectrum->ParseInt(pArgs[i], &value);
+    Int_t tclStatus = Tcl_GetInt(rInterp.getInterpreter(), pArgs[i], &value);
 
     if((tclStatus != TCL_OK) || (value < 0) ) {
       if(!fFailed) {		// First failure needs to add string:
@@ -2388,7 +2390,7 @@ CSpectrumPackage::UniquifyName(std::string basename)
 
   UInt_t nSuffix(0);
   std::string result(basename);
-  if (m_pHistogram) {    // Null if MPI and not MPI_EVENT_SINK_RANK
+  if (m_pHistogrammer) {    // Null if MPI and not MPI_EVENT_SINK_RANK
     while(m_pHistogrammer->FindSpectrum(result)) {
       char Suffix[100];
       sprintf(Suffix,"_%u", nSuffix);
