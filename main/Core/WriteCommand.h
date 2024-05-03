@@ -72,7 +72,7 @@ public:
   virtual
   int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  ;
 protected:
-  int    CountValidSpectra(char** pSpectrum, int nSpectra);
+  int    CountValidSpectra(const char** pSpectrum, int nSpectra);
   static CSpectrumFormatter*  GetFormatter(const char* pFormatter);
   static void                 Usage(CTCLInterpreter& rInterp);
 

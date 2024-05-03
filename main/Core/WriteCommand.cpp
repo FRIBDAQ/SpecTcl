@@ -102,13 +102,13 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
 
   int nArgs = objv.size();
   std::vector<std::string> words;
-  std::vectro<const char*> pWords;
+  std::vector<const char*> pWords;
 
   for (auto& word : objv) {
-    words.push_back(std::string(word))l
+    words.push_back(std::string(word));
   }
   for (auto &word: words) {
-    pWords.push_back(words.c_str());
+    pWords.push_back(word.c_str());
   }
   auto pArgs = pWords.data();
   std::string rResult;
@@ -132,12 +132,12 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
   // There must still be 2 parameters at least (fd and spectrum).
 
   if(nArgs < 2) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   CSpectrumFormatter* pFormatter = GetFormatter(pFormat);
   if(!pFormatter) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
 
@@ -145,7 +145,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
   // Bug #111 by ensuring there's at least one valid spectrum in 
   // the list we've been handed.
 
-  char** pSpectra = pArgs;
+  const char** pSpectra = pArgs;
   int    nSpectra = nArgs;
   pSpectra++;                     // Don't check the file itself.
   nSpectra--;
@@ -201,7 +201,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
   UInt_t nFailed = 0;
   vector<string> Failures;
   vector<string> FailedNames;
-  CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
+  
   while(nArgs) {
     string thisResult;
     if(rPack.Write(thisResult, string(*pArgs), *pOut, pFormatter) != TCL_OK) {
@@ -296,7 +296,7 @@ CWriteCommand::Usage(CTCLInterpreter& rInterp)
    \retval int - number of spectra that exist.
 */
 int
-CWriteCommand::CountValidSpectra(char** pSpectra,
+CWriteCommand::CountValidSpectra(const char** pSpectra,
 				 int    nSpectra) 
 {
   // Locate the histogrammer:
