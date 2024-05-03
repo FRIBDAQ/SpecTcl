@@ -21,7 +21,7 @@
 #define SPECTRUMPACKAGE_H
 
                                //Required for base classes
-#include <TCLObjectPazckage.h>
+#include <TCLObjectPackage.h>
 #include <Histogrammer.h>
 #include <histotypes.h>
 #include <string>
