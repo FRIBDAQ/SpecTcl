@@ -25,7 +25,6 @@ SUBDIRS = Replace \
 					compress \
 					docs \
 					scalerWrapper \
-					packaged \
 					restclient \
 					mirrorclient \
 					Python db \
@@ -35,7 +34,10 @@ SUBDIRS = Replace \
 					firstof \
 					map	\
 					radwareio \
-					rootFilterFormat
+					rootFilterFormat 
+
+# Removed packaged from the build - mpiSpecTcl - the offline version maybe
+# gets obsolete and I think that's what it was for.
 
 ACLOCAL_AMFLAGS=-I m4
 

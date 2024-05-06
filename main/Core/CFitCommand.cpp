@@ -24,15 +24,17 @@
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <Exception.h>
+#include <SpecTcl.h>
 #include <assert.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
 
+
 // Static class data:
 
-int CFitCommand::m_fitId(0);	// Unique fit id (not really used but no cost).
+int CFitCommandActual::m_fitId(0);	// Unique fit id (not really used but no cost).
 
 /*!
   Create/register the fit command with the interpreter.
@@ -45,7 +47,7 @@ int CFitCommand::m_fitId(0);	// Unique fit id (not really used but no cost).
   \param name : std::string [fit]
       Command name (argv[0]).  This defaults to "fit" if not provided.
 */
-CFitCommand::CFitCommand(CTCLInterpreter& interp,
+CFitCommandActual::CFitCommandActual(CTCLInterpreter& interp,
 			 string           name) : 
   CTCLObjectProcessor(interp, name),
   m_dictionary(CFitDictionary::getInstance())
@@ -54,7 +56,7 @@ CFitCommand::CFitCommand(CTCLInterpreter& interp,
   Nothing really to destruction, but this is provdied to chain tot he base class
   which deletes us from the interpreter.
 */
-CFitCommand::~CFitCommand()
+CFitCommandActual::~CFitCommandActual()
 {
 }
 //////////////////////////////////////////////////////////////////////
@@ -72,15 +74,20 @@ CFitCommand::~CFitCommand()
    \return int
    \retval TCL_OK  - Command was successful.
    \retval TCL_ERROR - command had an error.
-
+  @note - if we can't get a histogramer, this is a no-op returning TCL_OK as 
+          fits must execute in the EventSink  rank as they need access to 
+          spectrum contents.
     In most cases where TCL_ERROR is returned, usable error and usage
     information is returned in the command result as well.
 */
 
 int
-CFitCommand::operator()(CTCLInterpreter& interp,
+CFitCommandActual::operator()(CTCLInterpreter& interp,
 			vector<CTCLObject>& objv) 
 {
+  if (!SpecTcl::getInstance()->GetHistogrammer()) {
+    return TCL_OK;
+  }
   // We must have at least a subcommand.
 
   if (objv.size() < 2) {
@@ -127,7 +134,7 @@ CFitCommand::operator()(CTCLInterpreter& interp,
    Allocate a fit id. (used for external fit creators).
 */
 int 
-CFitCommand::id()
+CFitCommandActual::id()
 {
   return m_fitId++;
 }
@@ -158,7 +165,7 @@ CFitCommand::id()
 
 */
 int
-CFitCommand::Create(CTCLInterpreter& interp,
+CFitCommandActual::Create(CTCLInterpreter& interp,
 		    vector<CTCLObject>& objv)
 {
   // ensure we have all the stuff we need:
@@ -274,7 +281,7 @@ CFitCommand::Create(CTCLInterpreter& interp,
    \retval TCL_ERROR - command had an error.
 */
 int 
-CFitCommand::Update(CTCLInterpreter& interp,
+CFitCommandActual::Update(CTCLInterpreter& interp,
 		    vector<CTCLObject>& objv)
 {
   // We need either 2 or three parameters in the command line:
@@ -334,7 +341,7 @@ CFitCommand::Update(CTCLInterpreter& interp,
    \retval TCL_ERROR - command had an error
 */
 int
-CFitCommand::Delete(CTCLInterpreter& interp,
+CFitCommandActual::Delete(CTCLInterpreter& interp,
 		    vector<CTCLObject>& objv)
 {
   // There must be exactly 3 parameters on the command line:
@@ -404,7 +411,7 @@ CFitCommand::Delete(CTCLInterpreter& interp,
    \retval TCL_ERROR - command had an error
 */
 int
-CFitCommand:: List(CTCLInterpreter& interp,
+CFitCommandActual:: List(CTCLInterpreter& interp,
 		   vector<CTCLObject>& objv)
 {
   // the command must have either 2 or 3 words:
@@ -480,7 +487,7 @@ CFitCommand:: List(CTCLInterpreter& interp,
    \retval TCL_ERROR - command had an error
 */
 int
-CFitCommand::Proc(CTCLInterpreter& interp,
+CFitCommandActual::Proc(CTCLInterpreter& interp,
 		  vector<CTCLObject>& objv)
 {
   // The command requires exactly 3 parameters:
@@ -525,7 +532,7 @@ CFitCommand::Proc(CTCLInterpreter& interp,
 
 */
 CTCLObject
-CFitCommand::describeFit(CTCLInterpreter& interp, CSpectrumFit* pFit)
+CFitCommandActual::describeFit(CTCLInterpreter& interp, CSpectrumFit* pFit)
 {
   // Pull out the elements of the fit description:
   //
@@ -577,7 +584,7 @@ CFitCommand::describeFit(CTCLInterpreter& interp, CSpectrumFit* pFit)
    Return a string that describes the proper command syntax.
 */
 string
-CFitCommand::Usage()
+CFitCommandActual::Usage()
 {
   string usage;
   usage       = "Usage:\n";
@@ -596,3 +603,10 @@ CFitCommand::Usage()
   return usage;
   
 }
+
+
+// The MPI wrapper:
+
+CFitCommand::CFitCommand(CTCLInterpreter& rInterp, std::string name) :
+  CMPITclCommand(rInterp, name.c_str(), new CFitCommandActual(rInterp, name)) 
+{}
