@@ -31,13 +31,25 @@
 #ifndef CTREEVARIABLECOMMAND_H
 #define CTREEVARIABLECOMMAND_H
 
-#include <TCLProcessor.h>
+#include <TCLObjectProcessor.h>
+#include <MPITclCommandAll.h>
 #include <string>
+
+/** 
+ * For mpiSpecTcl, we do the usual trick of changing the name of the 
+ * CTreeVariableCommand class to CTreeVariableCommandActual and making
+ * a new CTreeVariableCommand class derived from CMPITclCommandAll
+ * which encapsulates CTreeVariableCommandActual.
+ * One thing we do do is only execute the -list subcommand in rank 0
+ * if in parallel mode.
+ * 
+*/
 
 // Forward definitions:
 
 class CTCLInterpreter;
 class CTCLResult;
+class CTCLObject;
 class CTreeVariableProperties;
 
 /**
@@ -63,27 +75,26 @@ class CTreeVariableProperties;
  * @version 1.0
  * @created 30-Mar-2005 11:03:53 AM
  */
-class CTreeVariableCommand : public CTCLProcessor
+class CTreeVariableCommandActual : public CTCLObjectProcessor
 {
   
 public:
-  virtual ~CTreeVariableCommand();
-  CTreeVariableCommand(CTCLInterpreter* pInterp = 0);
-  int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 int argc, char** argv);
-  
+  virtual ~CTreeVariableCommandActual();
+  CTreeVariableCommandActual(CTCLInterpreter* pInterp);
+  int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+
 protected:
   friend class TreeVarCommandTest;	// For testability.
-  int SetChanged(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 int argc, char** argv);
-  int List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	   int argc, char** argv);
-  int SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		    int argc, char** argv);
-  int CheckChanged(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		   int argc, char** argv);
-  int FireTraces(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 int argc, char** argv);
+  int SetChanged(CTCLInterpreter& rInterp,
+		 int argc, const char** argv);
+  int List(CTCLInterpreter& rInterp,
+	   int argc, const char** argv);
+  int SetProperties(CTCLInterpreter& rInterp,
+		    int argc, const char** argv);
+  int CheckChanged(CTCLInterpreter& rInterp,
+		   int argc, const char** argv);
+  int FireTraces(CTCLInterpreter& rInterp,
+		 int argc, const char** argv);
 
   std::string FormatVariable(CTreeVariableProperties* pProperties);
   std::string Usage();
@@ -91,6 +102,10 @@ protected:
 };
 
 
-
+class CTreeVariableCommand : public CMPITclCommandAll {
+public:
+  CTreeVariableCommand(CTCLInterpreter* pInterp = 0);
+  virtual ~CTreeVariableCommand(){}
+};
 
 #endif

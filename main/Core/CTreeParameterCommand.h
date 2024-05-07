@@ -31,6 +31,7 @@
 #define CTREEPARAMETERCOMMAND_H
 
 #include <TCLProcessor.h>
+#include <MPITclCommandAll.h>
 #include <string>
 #include <map>
 
@@ -39,6 +40,12 @@
 class CTCLInterpreter;
 class CTCLResult;
 
+/* For MPI SpecTcl, we do the trick of changing the class name
+  to CTreeVariableCommandActual and then encapsulating it in a
+  CMPITclCommandAll.  In order to maintain some sense of
+  order, only rank 0 (in parallel mode) will do perform the
+  -list operation.
+*/
 
 /**
  * Provides a command that interrogates the tree parameter set.  This only
