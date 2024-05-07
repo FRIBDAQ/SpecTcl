@@ -545,7 +545,7 @@ proc writeGateDefinitions fd {
 #
 proc writeGateApplications fd {
     puts $fd "\n# Gate Applications: \n"
-    foreach application [apply -list] {
+    foreach application [applygate -list] {
         set spectrum [lindex $application 0]
         set gate     [lindex $application 1]
         set gatename [lindex $gate 0]
