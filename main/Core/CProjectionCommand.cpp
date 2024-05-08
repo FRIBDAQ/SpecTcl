@@ -54,17 +54,17 @@ static  CGateContainer   truecontainer("-Ungated-", 0, truegate);
 /*!
    Construction registers the command.
 */
-CProjectionCommand::CProjectionCommand(CTCLInterpreter& rInterp) :
-  CTCLProcessor("project", &rInterp)
+CProjectionCommandActual::CProjectionCommandActual(CTCLInterpreter& rInterp) :
+  CTCLObjectProcessor(rInterp, "project", true)
 {
-  Register();
+  
 }
 
 
 /*!
    Unregistration/cleanup is done by the base class.
 */
-CProjectionCommand::~CProjectionCommand()
+CProjectionCommandActual::~CProjectionCommandActual()
 {
 
 }
@@ -103,25 +103,37 @@ CProjectionCommand::~CProjectionCommand()
  *
  * @param CTCLInterpreter&    
  *        Reference to the interpreter that is running this command.
- * @param CTCLResult&
- *        The result string for the command.
- *        - On success this will be the name of the spectrum created.
- *        - On failure this will be a message descriptive of the error along 
- *          with a usage summary.
- * @param argc
- *       Number of command line words, after Tcl's round of substitution.
- *       Note that this includes the command keyword itself.
- * @param argv
- *       Pointers to the command line words.
+ * @param objv 
+ *       Vector of encapsulated command words.
  *
  * \return int
  * \retval TCL_ERROR  an error occured in parse or processing.
  * \retval TCL_OK     the projection was successfully accomplished. 
  */
 int 
-CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult, 
-			       int argc, char** argv)
+CProjectionCommandActual::operator()(CTCLInterpreter& rInterp,  std::vector<CTCLObject>& objv)
 {
+  // Need a histoigramer to project:
+
+  if (!SpecTcl::getInstance()->GetHistogrammer()) {
+    return TCL_OK;
+  }
+  // compatibility stuff to ease the port from argc/argv -> objv processor:
+
+  std::string rResult;
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+  int argc = objv.size();
+  for (auto& word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word : words) {
+    pWords.push_back(word.c_str());
+  }
+
+  auto argv = pWords.data();
+
+
   // The first argument is the command name keyword which we don't care about
   // since we trust Tcl's dispatch:
 
@@ -133,6 +145,7 @@ CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult,
   if (!argc) {
     rResult  = "Insufficient command line parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // The first argument could be the -snapshot keyword. If so, the
@@ -146,6 +159,7 @@ CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult,
   if (argc < 3) {
     rResult  = "Insufficient command line parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   const char* pSourceName = argv[0];
@@ -175,6 +189,7 @@ CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult,
       if(!pContainer) {
         rResult   = "Invalid gate for projection\n";
         rResult  += Usage();
+        rInterp.setResult(rResult);
         return TCL_ERROR;
       }
       argc--; argv++;
@@ -188,16 +203,19 @@ CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult,
     rResult += "\n";
 
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   } catch(CException& e) {
     rResult = e.ReasonText();
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
     
   } catch (...) {
     rResult = "Unexpected exception type caught\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
     
   }
@@ -207,6 +225,7 @@ CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult,
   if (argc) {
     rResult  = "Too many command line parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Now do the projection
@@ -268,7 +287,7 @@ CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult,
  * \retval false  - The user wants the projection to increment. 
  */
 bool 
-CProjectionCommand::isSnapshotRequest(int& argc, char**& argv)
+CProjectionCommandActual::isSnapshotRequest(int& argc, const char**& argv)
 {
   if (string("-snapshot") == string(*argv)) {
     argv++;
@@ -301,7 +320,7 @@ CProjectionCommand::isSnapshotRequest(int& argc, char**& argv)
  * \retval other - Pointer to the source
  */
 CSpectrum* 
-CProjectionCommand::getValidatedSourceSpectrum(const char* name)
+CProjectionCommandActual::getValidatedSourceSpectrum(const char* name)
 {
   SpecTcl*    pApi    = SpecTcl::getInstance();
   CSpectrum*  pSource = pApi->FindSpectrum(name);
@@ -336,8 +355,8 @@ CProjectionCommand::getValidatedSourceSpectrum(const char* name)
  * \retval y  - to project in y direction.
  *
  */
-CProjectionCommand::direction 
-CProjectionCommand::getValidatedDirection(const char* pDirection)
+CProjectionCommandActual::direction 
+CProjectionCommandActual::getValidatedDirection(const char* pDirection)
 {
 
   if (strlen(pDirection) != 1) {
@@ -389,7 +408,7 @@ CProjectionCommand::getValidatedDirection(const char* pDirection)
  *
  */
 CSpectrum* 
-CProjectionCommand::getValidatedTargetSpectrum(const char* name, 
+CProjectionCommandActual::getValidatedTargetSpectrum(const char* name, 
 					       CSpectrum* pSource, 
 					       direction which, CGateContainer* gate)
 {
@@ -509,7 +528,7 @@ CProjectionCommand::getValidatedTargetSpectrum(const char* name,
  * 
  */
 CGateContainer* 
-CProjectionCommand::getProjectionGate(const char* pGateName, 
+CProjectionCommandActual::getProjectionGate(const char* pGateName, 
 				      CSpectrum* pSourceSpectrum)
 {
   
@@ -585,7 +604,7 @@ CProjectionCommand::getProjectionGate(const char* pGateName,
  * 
  */
 void 
-CProjectionCommand::projectX(CSpectrum* sourceSpectrum, 
+CProjectionCommandActual::projectX(CSpectrum* sourceSpectrum, 
 			     CSpectrum* targetSpectrum, 
 			     CGateContainer* gate)
 {
@@ -639,7 +658,7 @@ CProjectionCommand::projectX(CSpectrum* sourceSpectrum,
  * 
  */
 void 
-CProjectionCommand::projectY(CSpectrum* sourceSpectrum, CSpectrum* targetSpectrum, 
+CProjectionCommandActual::projectY(CSpectrum* sourceSpectrum, CSpectrum* targetSpectrum, 
 CGateContainer* gate)
 {
   // Figure out which index is which relative to the gate.
@@ -679,7 +698,7 @@ CGateContainer* gate)
  *
  */
 string
-CProjectionCommand::Usage()
+CProjectionCommandActual::Usage()
 {
   string Result;
   Result  = "Usage: \n";
@@ -704,7 +723,7 @@ CProjectionCommand::Usage()
  *   is created, otherwise an Everywhere ROI.
  */
 CROI*
-CProjectionCommand::selectROI(CSpectrum*      pSource, 
+CProjectionCommandActual::selectROI(CSpectrum*      pSource, 
 			      CGateContainer* pGate)
 {
   
@@ -759,7 +778,7 @@ CProjectionCommand::selectROI(CSpectrum*      pSource,
  *    Pointer to the gate container.
  */
 void
-CProjectionCommand::parameterOrder(int* orderArray, CSpectrum* pSource, 
+CProjectionCommandActual::parameterOrder(int* orderArray, CSpectrum* pSource, 
 				   CGateContainer* pGate)
 {
   orderArray[0] = 0;		// Assume no flip required.
@@ -819,7 +838,7 @@ CProjectionCommand::parameterOrder(int* orderArray, CSpectrum* pSource,
    Figure out how to gate the target spectum.
 */
 void
-CProjectionCommand::GateTarget(CSpectrum*      pSource,
+CProjectionCommandActual::GateTarget(CSpectrum*      pSource,
 			       CSpectrum*      pTarget,
 			       CGateContainer* pROI)
 {
@@ -858,7 +877,7 @@ CProjectionCommand::GateTarget(CSpectrum*      pSource,
 /*!  Copy the fold from the source to the target spectrum.
  */
 void
-CProjectionCommand::FoldTarget(CSpectrum* pSource, CSpectrum* pTarget)
+CProjectionCommandActual::FoldTarget(CSpectrum* pSource, CSpectrum* pTarget)
 {
   CGammaSpectrum* pS = dynamic_cast<CGammaSpectrum*>(pSource);
   CGammaSpectrum* pD = dynamic_cast<CGammaSpectrum*>(pTarget);
@@ -895,7 +914,7 @@ CProjectionCommand::FoldTarget(CSpectrum* pSource, CSpectrum* pTarget)
  *    @retval nullptr - the gate is not valid for projection.
  */
 CGateContainer*
-CProjectionCommand::isValid2DmGate(CSpectrum* pSource, CGateContainer* pGate)
+CProjectionCommandActual::isValid2DmGate(CSpectrum* pSource, CGateContainer* pGate)
 {
 	CSpectrum2Dm* pSpectrum = reinterpret_cast<CSpectrum2Dm*>(pSource);
 	if ((*pGate)->Type() == "+") {
@@ -936,4 +955,12 @@ CProjectionCommand::isValid2DmGate(CSpectrum* pSource, CGateContainer* pGate)
 	// If we got here we didn't satisfy one of the criteria above.
 	
 	return nullptr;
+}
+
+// Wrapper for mpiSpecTcl
+
+CProjectionCommand::CProjectionCommand(CTCLInterpreter& rInterp) :
+  CMPITclCommand(rInterp, "project", new CProjectionCommandActual(rInterp))
+{
+
 }

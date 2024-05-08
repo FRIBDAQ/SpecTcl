@@ -23,16 +23,20 @@
 
 #ifndef CPROJECTIONCOMMAND_H
 #define CPROJECTIONCOMMAND_H
-#include <TCLProcessor.h>
+#include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>
 #include <string>
 
 // Forward class definitions.
 
 class CTCLInterpreter;
-class CTCLResult;
+class CTCLObject;
 class CGateContainer;
 class CSpectrum;
 class CROI;
+
+// In mpiSpecTcl, the project command must run in the event sink pipeline rank.
+// as it has to have access to the actual spectrum data/dictionary.
 
 /**
  * Executes the project command:
@@ -52,28 +56,27 @@ class CROI;
  * @version 1.0
  * @created 20-Jun-2005 10:10:54 AM
  */
-class CProjectionCommand : public CTCLProcessor
+class CProjectionCommandActual : public CTCLObjectProcessor
 {
 protected:
   typedef enum _direction_ {x, y} direction;
 
 public:
-  CProjectionCommand(CTCLInterpreter& rInterp);
-  virtual ~CProjectionCommand();
+  CProjectionCommandActual(CTCLInterpreter& rInterp);
+  virtual ~CProjectionCommandActual();
   
   // Outlawed functions:
 private:
-  CProjectionCommand(const CProjectionCommand& rhs);
-  CProjectionCommand& operator=(const CProjectionCommand& rhs);
-  int operator==(const CProjectionCommand& rhs) const;
-  int operator!=(const CProjectionCommand& rhs) const;
+  CProjectionCommandActual(const CProjectionCommandActual& rhs);
+  CProjectionCommandActual& operator=(const CProjectionCommandActual& rhs);
+  int operator==(const CProjectionCommandActual& rhs) const;
+  int operator!=(const CProjectionCommandActual& rhs) const;
 
 public:
-  int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
-		 int argc, char** argv);
+  int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
   
 protected:
-  bool isSnapshotRequest(int& argc, char**& argv);
+  bool isSnapshotRequest(int& argc, const char**& argv);
   CSpectrum* getValidatedSourceSpectrum(const char* name);
   direction  getValidatedDirection(const char* pDirection);
   CSpectrum* getValidatedTargetSpectrum(const char* name, CSpectrum* pSource, 
@@ -95,5 +98,11 @@ protected:
   static CGateContainer* isValid2DmGate(CSpectrum* pSource, CGateContainer* pGate);
 };
 
+
+class CProjectionCommand : public CMPITclCommand {
+public:
+  CProjectionCommand(CTCLInterpreter& rInterp);
+  ~CProjectionCommand() {}
+};
 
 #endif 
