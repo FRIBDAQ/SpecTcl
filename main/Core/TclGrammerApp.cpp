@@ -918,8 +918,9 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     cerr << "evbunpack - Event built data unpacking manager (c) 2018 written by Ron Fox\n";
   }
-  
-  new CRemoteCommand(rInterp);
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    new CRemoteCommand(rInterp);
+  }
   new CMirrorCommand(rInterp);
   
   cerr.flush();
