@@ -42,13 +42,13 @@ class evbunpackCmdTests : public CppUnit::TestFixture {
 private:
   CPipelineManager*  m_pMgr;
   CTCLInterpreter*   m_pInterp;
-  CUnpackEvbCommand* m_pCmd;
+  CUnpackEvbCommandActual* m_pCmd;
   CHistogrammer*     m_pHistogrammer;
 public:
   void setUp() {
     m_pMgr = CPipelineManager::getInstance();
     m_pInterp = new CTCLInterpreter;
-    m_pCmd    = new CUnpackEvbCommand(*m_pInterp);
+    m_pCmd    = new CUnpackEvbCommandActual(*m_pInterp);
     m_pHistogrammer = new CHistogrammer;
     gpEventSink     = m_pHistogrammer;
   }
