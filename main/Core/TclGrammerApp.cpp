@@ -856,7 +856,7 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   // that have been defined:
 
 
-  CTreeParameterCommand* pTreeParamCommand = new CTreeParameterCommand;
+  CTreeParameterCommand* pTreeParamCommand = new CTreeParameterCommand(&rInterp);
   CTreeVariableCommand*  pTreeVariableCommand = new CTreeVariableCommand;
   CTreeVariable::BindVariables(*(getInterpreter()));
 

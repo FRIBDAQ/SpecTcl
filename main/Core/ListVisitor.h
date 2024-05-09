@@ -39,7 +39,7 @@
 // forward definitions:
 
 class CTreeParameter;
-class CTCLResult;
+class CTCLInterpreter;
 
 
 /**
@@ -54,7 +54,7 @@ private:
   /**
    * Referenced to the result into which the list will be placed.
    */
-  CTCLResult& m_OutputList;
+  CTCLInterpreter& m_OutputList;
   
   // Prevent duplicate lists - arguably this filtering could be done
   // in MatchingVisitor but that's a policy decision about how to deal with
@@ -64,7 +64,7 @@ private:
   
 public:
   virtual ~ListVisitor();
-  ListVisitor(std::string pattern, CTCLResult& rResult);
+  ListVisitor(std::string pattern, CTCLInterpreter& rResult);
   virtual void OnMatch(CTreeParameter* parameter);
   
   

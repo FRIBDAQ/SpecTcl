@@ -48,7 +48,7 @@ using namespace std;
 
 // Static member data:
 
-const string CTreeParameter::TreeParameterVersion("2.1");
+const string CTreeParameter::TreeParameterVersion("2.2");
 bool  CTreeParameter::StrictTypeChecking(false);
 CEvent* CTreeParameter::m_pEvent(0);
 
