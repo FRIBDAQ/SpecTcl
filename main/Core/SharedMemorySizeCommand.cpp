@@ -27,7 +27,7 @@
 
 //
 //
-CSharedMemorySizeCommand::CSharedMemorySizeCommand(CTCLInterpreter& rInterp)
+CSharedMemorySizeCommandActual::CSharedMemorySizeCommandActual(CTCLInterpreter& rInterp)
     : CTCLObjectProcessor(rInterp, "shmemsize", true)
 {
 }
@@ -41,7 +41,7 @@ CSharedMemorySizeCommand::CSharedMemorySizeCommand(CTCLInterpreter& rInterp)
  * \param rInterp   the interpreter
  * \param objv      a list containing "shmemsize" as its sole element
  */
-int CSharedMemorySizeCommand::operator()(CTCLInterpreter& rInterp,
+int CSharedMemorySizeCommandActual::operator()(CTCLInterpreter& rInterp,
                                         std::vector<CTCLObject>& objv)
 {
     bindAll(rInterp, objv);
@@ -57,3 +57,7 @@ int CSharedMemorySizeCommand::operator()(CTCLInterpreter& rInterp,
     
     return TCL_OK;
 }
+// constructor for the MPI wrapper:
+
+CSharedMemorySizeCommand::CSharedMemorySizeCommand(CTCLInterpreter& rInterp) :
+    CMPITclCommand(rInterp, "shmemsize", new CSharedMemorySizeCommandActual(rInterp)) {}

@@ -18,6 +18,7 @@
 #define SHAREDMEMORYSIZECOMMAND_H
 
 #include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>>
 
 class CTCLInterpreter;
 
@@ -26,13 +27,21 @@ class CTCLInterpreter;
  *  When a display exists, this provides the size of the shared memory 
  *  file that it is attached to. The REST server uses this for remote clients.
  */
-class CSharedMemorySizeCommand : public CTCLObjectProcessor
+class CSharedMemorySizeCommandActual : public CTCLObjectProcessor
 {
 public:
-    CSharedMemorySizeCommand(CTCLInterpreter& rInterp);
+    CSharedMemorySizeCommandActual(CTCLInterpreter& rInterp);
 
     int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj);
 
+};
+
+/// MPi wrapper:
+
+class CSharedMemorySizeCommand : public CMPITclCommand {
+public:
+    CSharedMemorySizeCommand(CTCLInterpreter& rInterp);
+    ~CSharedMemorySizeCommand() {}
 };
 
 #endif // SHAREDMEMORYSIZECOMMAND_H
