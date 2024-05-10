@@ -68,7 +68,7 @@ CUnpackEvbCommandActual::operator()(
 {
     try {
         bindAll(interp, objv);
-        requireAtLeast(objv, 2, "Insufficient parameters");
+        requireAtLeast(objv, 2, "Insufficient parameters 'evbunpack help' will give usage.");
         std::string subcommand = objv[1];
         
         if (subcommand == "create") {
@@ -77,6 +77,8 @@ CUnpackEvbCommandActual::operator()(
             addprocessor(interp, objv);
         } else if (subcommand == "list") {
             list(interp, objv);
+        } else if (subcommand == "help") {
+            Usage(interp, objv, "");
         } else {
             Usage(interp, objv, "Invalid subcommand keyword");
         }
@@ -266,10 +268,12 @@ CUnpackEvbCommandActual::Usage(
     
     smsg <<  msg << std::endl;
     smsg << "Usage\n";
+    smsg << "  " << cmd << " help\n";
     smsg << "  " << cmd << " create name mhz basename\n";
     smsg << "  " << cmd << " addprocessor name sid pipe-name\n";
     smsg << "  " << cmd << " list ?pattern?\n";
     smsg << "Subcommands:\n";
+    smsg << "   help   - Get this usage message\n";
     smsg << "   create - creates a new processor:\n";
     smsg << "      name - is the name under which to register the processor\n";
     smsg << "      mhz  - is the timestamp clockspeed in MHz\n";
