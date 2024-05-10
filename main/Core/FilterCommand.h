@@ -19,16 +19,22 @@
 
 //Required for base classes.
 
-#include "TCLPackagedCommand.h"
+#include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>
 #include <string>
 #include <GatedEventFilter.h>
 #include <FilterDictionary.h>
 
 // Forward declarations.
-class CTCLCommandPackage;
+
 class CTCLInterpreter;
+class CTCLObject;
 class CGatedEventFilter;
 class CFilterDictionary;
+
+// Note that the filter command only  runs in the
+// Event Sink Pipeline rank in mpiSpecTcl.
+// 
 
 /*!
    Implements the SpecTcl \em filter command. This command has the
@@ -53,7 +59,7 @@ class CFilterDictionary;
 
 */
 
-class CFilterCommand : public CTCLProcessor {
+class CFilterCommandActual : public CTCLObjectProcessor {
   // Internal class definitions:
  public:
   enum eSwitches {
@@ -70,31 +76,34 @@ class CFilterCommand : public CTCLProcessor {
 
   // Constructors.
  public:
-  //  CFilterCommand(CTCLInterpreter& rInterp) : CTCLProcessor("filter", &rInterp);
-  CFilterCommand(CTCLInterpreter& rInterp);
-  ~CFilterCommand();
+  //  CFilterCommandActual(CTCLInterpreter& rInterp) : CTCLProcessor("filter", &rInterp);
+  CFilterCommandActual(CTCLInterpreter& rInterp);
+  ~CFilterCommandActual();
+
+  // Unimplemented operations:
  private:
-  CFilterCommand (const CFilterCommand& aCFilterCommand ); // Copy constructor is illegal.
+  CFilterCommandActual (const CFilterCommandActual& aCFilterCommandActual ); // Copy constructor is illegal.
+
+
+  CFilterCommandActual& operator=(const CFilterCommandActual& aCFilterCommandActual); // Assignment operator is illegal.
+  int operator==(const CFilterCommandActual& rhs) const;
+  int operator!=(const CFilterCommandActual& rhs) const;
 
   // Operators.
  public:
-  virtual int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
+  virtual int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
 
- private:
-  CFilterCommand& operator=(const CFilterCommand& aCFilterCommand); // Assignment operator is illegal.
-  int operator==(const CFilterCommand& rhs) const;
-  int operator!=(const CFilterCommand& rhs) const;
-
+  
   // Additional functions.
  public:
-  Int_t Create(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  Int_t Delete(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  Int_t Enable(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  Int_t Disable(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  Int_t Regate(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  Int_t File(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  Int_t List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  Int_t Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int Nargs, char* pArgs[]);
+  Int_t Create(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]);
+  Int_t Delete(CTCLInterpreter& rInterp,  int nArgs, const char* pArgs[]);
+  Int_t Enable(CTCLInterpreter& rInterp,  int nArgs, const char* pArgs[]);
+  Int_t Disable(CTCLInterpreter& rInterp,  int nArgs, const char* pArgs[]);
+  Int_t Regate(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]);
+  Int_t File(CTCLInterpreter& rInterp,  int nArgs, const char* pArgs[]);
+  Int_t List(CTCLInterpreter& rInterp,  int nArgs, const char* pArgs[]);
+  Int_t Format(CTCLInterpreter& rInterp, int nargs, const char* pArgs[]);
 
   std::string ListFilter(const std::string& rName,
 		    CGatedEventFilter* pFilter);
@@ -103,6 +112,12 @@ class CFilterCommand : public CTCLProcessor {
   static eSwitches MatchSwitch(const char* pSwitch);
   static std::string Usage();
   static std::string SinkName(std::string filterName);
+};
+
+class CFilterCommand : public CMPITclCommand {
+public:
+  CFilterCommand(CTCLInterpreter& rInterp);
+  ~CFilterCommand() {}
 };
 
 #endif

@@ -846,8 +846,7 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
 
   // For Filter command.
   CFilterCommand* pFilterCommand = new CFilterCommand(rInterp);
-  pFilterCommand->Bind(rInterp);
-  pFilterCommand->Register();
+
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
   }
