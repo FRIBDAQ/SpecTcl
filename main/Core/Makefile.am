@@ -398,8 +398,8 @@ libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
 
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
-			@top_builddir@/mpi/libMPIUtilities.la \
 			@builddir@/libSpecTclTcp.la \
+			@top_builddir@/mpi/libMPIUtilities.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
 			@JSONCPP_LIBS@ \
 			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@
@@ -452,6 +452,7 @@ commonTestCXXFLAGS = -I@top_srcdir@/Core \
 
 commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@builddir@/libSpecTclTcp.la \
+		@top_builddir@/mpi/libMPIUtilities.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
@@ -524,7 +525,7 @@ spectraDisplayTests_SOURCES = TestRunner.cpp \
 			SpectraLocalDisplayTests.cpp SpectraProcessTests.cpp
 
 spectclCmdTests_CXXFLAGS = $(commonTestCXXFLAGS)
-spectclCmdTests_LDADD    = $(commonTestLdFlags)
+spectclCmdTests_LDADD    = $(commonTestLdFlags) 
 spectclCmdTests_SOURCES  = TestRunner.cpp \
 			SharedMemoryKeyCommandTest.cpp \
 			SharedMemorySizeCommandTest.cpp
