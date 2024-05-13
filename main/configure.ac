@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.14-000, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl,7.0-000, daqhelp@frib.msu.edu)
 
 # These are default version/tag for unifiedfmt, tcl++ and qtpi
 # If the bulder has not explicitly run the incorporation 
