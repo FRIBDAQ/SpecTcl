@@ -87,9 +87,6 @@ struct SwitchDef {
 
 static const SwitchDef SwitchTable[] = {
   {"-file", CAttachCommand::keFile},
-#ifdef ENABLE_TAPE    
-  {"-tape", CAttachCommand::keTape},
-#endif    
   {"-pipe", CAttachCommand::kePipe},
   {"-size", CAttachCommand::keBufferSize},
   {"-format", CAttachCommand::keFormat},
@@ -101,9 +98,6 @@ static const SwitchDef SwitchTable[] = {
 typedef enum {
   eUnspecified,
   eFile,
-#ifdef ENABLE_TAPE    
-  eTape,
-#endif  
   ePipe,
   eTest,
   eNull} SourceType;		// Possible source types:
@@ -176,12 +170,6 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
       numSourceTypes++;
       options.eSource = eFile;
       break;
-#ifdef ENABLE_TAPE      
-    case keTape:
-      numSourceTypes++;
-      options.eSource = eTape;
-      break;
-#endif      
     case kePipe:
       numSourceTypes++;
       options.eSource = ePipe;
@@ -303,12 +291,6 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     status =  AttachFile(rResult, options.Connection,
 		      options.nBytes);
     break;
-#ifdef ENABLE_TAPE    
-  case eTape:
-    status = AttachTape(rResult, options.Connection,
-		      options.nBytes);
-    break;
-#endif    
   case ePipe:
     status = AttachPipe(rResult, options.Connection,
 		      options.nBytes);
@@ -392,45 +374,6 @@ int CAttachCommand::AttachFile(CTCLResult& rResult,
 }
 
 
-#ifdef ENABLE_TAPE
-
-/*!
-    Attaches a tape data source to SpecTcl.
-    Note that the attachment of tape data sources
-    enables the tape commands.
-      \param rResult (out):
-          Refers to the command interpreter result string.
-      \param name (in):
-          The name of the device special file.
-      \param nSize (in):
-          Number of bytes per block in the file.
-   \return int status (see operator()). 
-
-
-*/
-int CAttachCommand::AttachTape(CTCLResult& rResult, 
-			       const string& rName,
-			       long nSize)
-{
-  int stat;
-
-  // This one is just an attach.  Opens are done using the tape -open 
-  // command.
-
-  CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
-  stat =  rPack.AttachTapeSource(rResult, rName.c_str());
-
-  if (stat == TCL_OK) {
-    m_AttachedTo = "Tape: ";
-    m_AttachedTo += rName;
-  }
-  else {
-    m_AttachedTo = "";
-  }
-
-  return stat;
-}
-#endif
 /*!
     Attaches a data source which comes through a pipe file.
     These are programs which generate data on the fly and pipe
@@ -564,11 +507,6 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "     {sourcetype} which can be only one of:\n";
   rResult += "        -file  when connection is the name of the file\n";
   rResult += "               from which data will be taken\n";
-#ifdef ENABLE_TAPE
-  rResult += "        -tape  When connection is the name of a tape device\n";
-  rResult += "               special file and the tape command selects\n";
-  rResult += "               files on the ansi labelled volume\n";
-#endif
   rResult += "        -pipe  When connection is a command whose stdout is \n";
   rResult += "               taken as the event source.\n";
   rResult += "        -test  When connection selects one of the test data";

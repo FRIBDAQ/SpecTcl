@@ -44,7 +44,6 @@
 #include <histotypes.h>
 
 // Forward Class reference:
-class CTapeCommand;
 class CAttachCommand;
 class CRingFormatCommand;
 class CTCLInterpreter;
@@ -57,14 +56,12 @@ class CDataSourcePackage : public CTCLCommandPackage {
   enum SourceType_t { // Types of data sources:
     kTestSource,
     kFileSource,
-    kTapeSource,
     kPipeSource,
     kNullSource
   };
  private:
   // Attributes:
   SourceType_t        m_eSourceType; // Type of data source connected
-  CTapeCommand*       m_pTape;
   CAttachCommand*     m_pAttach;
   CRingFormatCommand* m_pRingFormat;
   
@@ -98,10 +95,6 @@ class CDataSourcePackage : public CTCLCommandPackage {
     return m_eSourceType;
   }
 
-  // Get accessor function for 1:1 association
-  CTapeCommand* getTapeCommand() const {
-    return m_pTape;
-  }
 
   // Get accessor function for 1:1 association
   CAttachCommand* getAttachCommand() const {
@@ -114,10 +107,7 @@ class CDataSourcePackage : public CTCLCommandPackage {
     m_eSourceType = am_eSourceType;
   }
 
-  // Set accessor function for 1:1 association
-  void setTapeCommand(CTapeCommand* pTape) {
-    m_pTape= pTape;
-  }
+  
 
   // Set accessor function for 1:1 association
   void setAttachCommand(CAttachCommand* pAttach) {
@@ -127,7 +117,6 @@ class CDataSourcePackage : public CTCLCommandPackage {
   // Operations:
  public:
   int AttachFileSource(CTCLResult& rResult);
-  int AttachTapeSource(CTCLResult& rResult, const char* pDevice);
   int AttachPipeSource(CTCLResult& rResult);
   int AttachTestSource(CTCLResult& rResult);
   int AttachNullSource(CTCLResult& rResult);
@@ -135,15 +124,11 @@ class CDataSourcePackage : public CTCLCommandPackage {
 		 const char* pConnectionString,
 		 UInt_t nBufferSize);
   int CloseSource(CTCLResult& rResult);
-  int OpenNextTapeFile(CTCLResult& rResult);
-  int RewindTape(CTCLResult& rResult);
+
 
   // Simple pseudo selectors.
  public:
-  Bool_t isTape() {
-    return m_eSourceType == kTapeSource;
-  }
-
+  
   Bool_t isFile() {
     return m_eSourceType == kFileSource;
   }
