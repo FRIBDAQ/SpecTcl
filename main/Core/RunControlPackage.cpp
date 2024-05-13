@@ -76,24 +76,26 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
   m_pRunState(0)
 {
   // Create the commands:
+  // TODO: modify the commands so that in non-root processe they just
+  // set the variables...and are wrapped in CMPITclCommandAll commands.
 
-  if(!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
+  m_pStartRun = (new CStartRun(pInterp, *this));
+  m_pStartRun->Bind(pInterp);
+  m_pStopRun = (new CStopRun(pInterp, *this));
+  m_pStopRun->Bind(pInterp);
+  m_pRunState = (new CTCLVariable(pInterp,
+            std::string("RunState"), TCLPLUS::kfFALSE));
+  m_pRunState->Bind(pInterp);
 
-    m_pStartRun = (new CStartRun(pInterp, *this));
-    m_pStopRun = (new CStopRun(pInterp, *this));
-    m_pRunState = (new CTCLVariable(pInterp,
-              std::string("RunState"), TCLPLUS::kfFALSE));
+  // Add commands to the package table:
 
-    // Add commands to the package table:
+  AddProcessor(m_pStartRun);
+  AddProcessor(m_pStopRun);
 
-    AddProcessor(m_pStartRun);
-    AddProcessor(m_pStopRun);
+  // Initialize the state:
+  //
 
-    // Initialize the state:
-    //
-
-    InitializeRunState();
-  }
+  InitializeRunState();
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -1013,7 +1013,7 @@ int CTclGrammerApp::operator()() {
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);
 
-  // Source limit setting scripts:
+  // Source limit setting scripts; done everywhere.
   SourceLimitScripts(*gpInterpreter);
 
   // Based on all of this set the final startup limits/values:
@@ -1452,7 +1452,7 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
 static void
 MpiExitHandler(ClientData ignoreMe) {
 #ifdef WITH_MPI
-  MPI_Finalize();
+  MPI_Finalize();   // Ignore status - might have already been called.
 #endif
 }
 
@@ -1478,22 +1478,10 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
    Tcl_CreateExitHandler(MpiExitHandler, nullptr);
   // For now exit if my rank is not zero:
 
-  int rank;
-  stat = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  if (stat != MPI_SUCCESS) {
-    Tcl_Obj* result = Tcl_NewStringObj("BUG: Could not get my rank in the world", -1);
-    Tcl_SetObjResult(pInterp, result);
-  }
-  me->m_mpiRank = rank;
-  if (rank == 0) {
-    return CTclGrammerApp::AppInit(pInterp);   // For now start up as serial.
-  } else {
-    // Just exit for now:
-
-    MPI_Finalize();
-    Tcl_Exit(0);
-  }
   
+  me->m_mpiRank = myRank();
+  
+  CTclGrammerApp::AppInit(pInterp);   // For now start up as serial.
 #else
   // Should not have been called so error out of Tcl:
 

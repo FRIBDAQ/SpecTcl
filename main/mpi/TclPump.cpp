@@ -271,7 +271,7 @@ static int constructMpiTclStatus(CTCLInterpreter& interp) {
         MpiTclResultMsg msg;
         MPI_Status status;
         if(
-            MPI_Recv(&msg, 1, getTclResultType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status) 
+            MPI_Recv(&msg, 1, getTclResultType(), MPI_ANY_SOURCE, MPI_TCL_TAG, MPI_COMM_WORLD, &status) 
             != MPI_SUCCESS
         ) {
             throw std::runtime_error("Failed to get a result message");
@@ -326,6 +326,10 @@ static int MPIExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& word
         if (MPI_Bcast(&chunk, 1, getTclCommandChunkType(), myRank(), MPI_COMM_WORLD) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to send command to slaves");
         }
+        // Book keeping for the next chunk, if needed.
+
+        remaining  -= thisChunk;            
+        chunkstart += thisChunk; 
         
     }
     return constructMpiTclStatus(interp);
