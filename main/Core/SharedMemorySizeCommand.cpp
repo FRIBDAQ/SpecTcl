@@ -24,7 +24,8 @@
 #include <vector>
 #include <iostream>
 #include <unistd.h>
-
+#include <TclPump.h>
+#include <Globals.h>
 //
 //
 CSharedMemorySizeCommandActual::CSharedMemorySizeCommandActual(CTCLInterpreter& rInterp)
@@ -44,6 +45,12 @@ CSharedMemorySizeCommandActual::CSharedMemorySizeCommandActual(CTCLInterpreter& 
 int CSharedMemorySizeCommandActual::operator()(CTCLInterpreter& rInterp,
                                         std::vector<CTCLObject>& objv)
 {
+    // Do this in the MPI_EVENT_SINK_RANK only if parallel:
+
+    if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+        return TCL_OK;
+    }
+
     bindAll(rInterp, objv);
     requireAtMost(objv, 1, "Usage\n shmemsize");
     requireAtLeast(objv, 1, "Usage\n shmemsize");

@@ -18,7 +18,7 @@
 #define SHAREDMEMORYSIZECOMMAND_H
 
 #include <TCLObjectProcessor.h>
-#include <MPITclCommand.h>>
+#include <MPITclCommand.h>
 
 class CTCLInterpreter;
 
