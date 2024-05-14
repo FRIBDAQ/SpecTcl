@@ -125,6 +125,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
+#ifdef WITH_MPI
+#include <TclPump.h>
+#include <Globals.h>
+#include <stdexcept>
+#endif
 
 
 static const  char* pCopyrightNotice = 
@@ -227,6 +232,12 @@ CGateCommand::CGateCommand(CTCLInterpreter*      pInterp) :
   m_pObserver = new CMyGateObserver(this);
   SpecTcl* pApi = SpecTcl::getInstance();
   pApi->addGateDictionaryObserver(m_pObserver);
+#ifdef WITH_MPI
+  m_id = Tcl_GetCurrentThread();
+  if (isMpiApp()) {
+    startTracePump();
+  }
+#endif  
 }
 
 /*!
@@ -1008,4 +1019,94 @@ CGateCommand::MatchGateType(const char* pGateType)
   return (GateFactoryTable*)kpNULL;
 }
 
+//  This section of code represents the receiver part of the gate trace
+// pump (the sender part is in Histogrammer.{h,cpp}.
+// what we do is forward gate traces for any scripts that have
+// done a gate -trace operation.
+//
+// We have three methods:
+//   -  mpiTraceRelayCatchThread - runs in MPI_ROOT_RANK  it accepts messgaes 
+//      tagged as MPI_TRACE_RELAY_TAG and queues them to the main thread via
+//      Tcl_ThreadQueueEvent
+//   -  traceRelayHandler - handles the events queued in the main thread and just
+//      invokes the appropriate invoke...Script method.
+//  - startTracePump - starts the  pump thread.
+//
+#ifdef WITH_MPI
 
+// We need an event struct that contains the object as well as the trace information in the
+// message:
+
+struct GateTraceEvent {
+  Tcl_Event     s_event;
+  CGateCommand* s_commandObject;
+  TraceRelay   s_trace;
+};
+
+// This implements the thread that receives MPI trace forward messages from the Event sink
+// process We don't need to check for the right rank or even that we are in an MPI app.  That's
+// already been done.  Our ClientData are just a pointer to the CGateCommand so we can establish
+// object to fill in s_commandObject.
+//
+Tcl_ThreadCreateType
+CGateCommand::mpiTraceRelayCatchThread(ClientData command) {
+  CGateCommand* pCommand = reinterpret_cast<CGateCommand*>(command);
+
+  while (true) {
+    TraceRelay message;
+    MPI_Status stat;
+    if(MPI_Recv(
+      &message, 1, getTraceRelayType(), MPI_EVENT_SINK_RANK, MPI_TRACE_RELAY_TAG, MPI_COMM_WORLD, &stat) 
+      != MPI_SUCCESS) {
+        throw std::runtime_error("Failed to read a trace notifiation");
+    }
+    auto pEvent = reinterpret_cast<GateTraceEvent*>(Tcl_Alloc(sizeof(GateTraceEvent)));
+    if (!pEvent) {
+      throw std::runtime_error("Failed to allocate a gate trace Tcl event");
+    }
+    pEvent->s_event.proc = CGateCommand::traceRelayEventHandler;
+    pEvent->s_event.nextPtr = nullptr;
+    pEvent->s_commandObject = pCommand;
+    memcpy(&(pEvent->s_trace), &message, sizeof(TraceRelay));
+
+    Tcl_ThreadQueueEvent(pCommand->m_id, &pEvent->s_event, TCL_QUEUE_TAIL);
+    Tcl_ThreadAlert(pCommand->m_id);
+  }
+
+}
+// The event handler - we just invoke the appropriate trace script method.
+//
+
+int 
+CGateCommand::traceRelayEventHandler(Tcl_Event* pEvent, int flags) {
+  GateTraceEvent* pTraceEvent = reinterpret_cast<GateTraceEvent*>(pEvent);
+  std::string gateName(pTraceEvent->s_trace.s_gateName);
+  switch (pTraceEvent->s_trace.s_traceType) {
+    case TRACE_ADD_GATE:
+      pTraceEvent->s_commandObject->invokeAddScript(gateName);
+      break;
+    case TRACE_REMOVE_GATE:
+      pTraceEvent->s_commandObject->invokeDeleteScript(gateName);
+      break;
+    case TRACE_MODIFY_GATE:
+      pTraceEvent->s_commandObject->invokeChangedScript(gateName);
+      break;
+    default:
+      throw std::runtime_error("Unexpected gate trace type!");
+  }
+
+  return 1;
+}
+// For the root rank, start the event pump...other wise we are a no-op.
+// It's already been determined that we are an MPI app at this time.
+void
+CGateCommand::startTracePump() {
+  if (myRank() == MPI_ROOT_RANK) {
+    Tcl_ThreadId tid;
+    Tcl_CreateThread(
+      &tid, CGateCommand::mpiTraceRelayCatchThread, this,
+      TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS
+    );
+  }
+}
+#endif

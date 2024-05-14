@@ -1167,7 +1167,7 @@ static bool typesRegistered(false);
 //  if it typesRegistered is fale, then the type is 
 // registered and committed first.
 
-static MPI_Datatype getTraceRelayType() {
+MPI_Datatype getTraceRelayType() {
   if (!typesRegistered) {
     if (isMpiApp()) {                   // Could be _running_ serially.
       MPI_Aint offsets[2] = {offsetof(TraceRelay, s_traceType), offsetof(TraceRelay, s_gateName)};

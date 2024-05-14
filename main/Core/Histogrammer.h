@@ -45,6 +45,9 @@
 #include "EventSink.h"
 #include <GateContainer.h>
 #include <GatingObserver.h>
+#ifdef WITH_MPI
+#include <mpi.h>
+#endif
 
 // Forward class definitions (probably should be a lot more of these).
 
@@ -215,6 +218,8 @@ struct TraceRelay {            // trace message body.
   int s_traceType;             // Type of trace -see above.
   char s_gateName[MAX_GATE_NAME]; // Name of affected gate.
 };
+
+MPI_Datatype getTraceRelayType();
 #endif
 
 

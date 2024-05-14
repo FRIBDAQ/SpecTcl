@@ -85,6 +85,9 @@ private:
   CTCLObject*     m_pDeleteScript;
   CTCLObject*     m_pChangeScript;
   CGateObserver*  m_pObserver;
+#ifdef WITH_MPI
+  Tcl_ThreadId      m_id;
+#endif
 
 public:				// Data types:
   enum Switches {		//!< Set of command line switches.
@@ -131,10 +134,12 @@ public:
   // Class operations:
 public:
 
- virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
   void   invokeAddScript(std::string name);
   void   invokeDeleteScript(std::string name);
   void   invokeChangedScript(std::string name);
+  void   invokeAScript(CTCLObject* pScript, std::string parameter);
+
 
 
 protected:
@@ -143,12 +148,17 @@ protected:
     Int_t ListGates (CTCLInterpreter& rInterp, UInt_t  nArgs, const char* pArgs[])   ;
     Int_t DeleteGates (CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[])   ;
     Int_t  traceGates(CTCLInterpreter& rInterp,UInt_t nArgs, const char* pArgs[]);
-  
+    
 private:
-  void   invokeAScript(CTCLObject* pScript, std::string parameter);
+  
   static Switches MatchSwitches(const char* pKey);
   static std::string   Usage();
   static GateFactoryTable* MatchGateType(const char* pGateType);
+#ifdef WITH_MPI
+  static Tcl_ThreadCreateType mpiTraceRelayCatchThread(ClientData command);
+  static int traceRelayEventHandler(Tcl_Event* pEvent, int flags);
+  void startTracePump();
+#endif
 
 };
 #endif
