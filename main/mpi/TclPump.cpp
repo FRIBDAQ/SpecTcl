@@ -334,7 +334,8 @@ static int MPIExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& word
     }
     return constructMpiTclStatus(interp);
 #else   
-    return TCL_OK;    
+    interp.setResult("Somehow MPIExecCommand was called but this is not an MPI application")
+    return TCL_ERROR;
 #endif
     
 }
