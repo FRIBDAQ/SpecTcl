@@ -168,13 +168,13 @@ CRunControlPackage::StartRun()
 //
 
   if(!gpRunControl) {
-    InitializeRunState();
+    m_pRunState->Set("1", TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);    // Assume we started
     return TCLPLUS::kfFALSE;
   }
   if(!gpRunControl->getRunning()) {
     gpRunControl->Start();
   }
-  InitializeRunState();
+  InitializeRunState();                                  // Get the actual state.
   return TCLPLUS::kfTRUE;
   
 
@@ -205,7 +205,7 @@ CRunControlPackage::StopRun()
 // Exceptions:  
 
   if(!gpRunControl) {
-    InitializeRunState();
+    m_pRunState->Set("0", TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);   // Assume we stopped.
     return TCLPLUS::kfFALSE;
   }
   if(gpRunControl->getRunning()) {
