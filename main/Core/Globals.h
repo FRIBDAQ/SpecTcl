@@ -67,4 +67,12 @@ extern bool                gMPIParallel;       // TRUE if built with MPI and run
 #define MPI_ROOT_RANK   0
 #define MPI_EVENT_SINK_RANK 1
 #define MPI_FIRST_WORKER_RANK 2
+
+// Message type tags:
+
+#ifndef MPI_TCL_TAG
+#define MPI_TCL_TAG 1                   // Messages involving the TCL Pump.
+#endif
+#define MPI_TRACE_RELAY_TAG 2           // Trace relay messages.
+
 #endif

@@ -42,6 +42,13 @@ using namespace std;
 #include <time.h>
 #endif
 
+#if WITH_MPI
+#include <mpi.h>
+#include <TclPump.h>
+#include <Globals.h>
+#include <stdexcept>
+#endif
+
 //
 //   Local variables:
 // 
@@ -54,6 +61,19 @@ static CGateContainer NoGate(U, 0,      AlwaysTrue);
 static CGateContainer Deleted(D, 0, AlwaysFalse);
 
 
+// This class is needed in MPI apps to relay gate changes to the rank 0 so that e.g. GUI scripts can
+// do a gate -trace ... operation.
+//
+#ifdef WITH_MPI
+class CHistogrammerGateTraceRelay : public CGateObserver {
+public:
+  void onAdd(std::string name, CGateContainer& container);
+  void onRemove(std::string name, CGateContainer& container);
+  void onChange(std::string name, CGateContainer& container);
+private:
+  void forwardTrace(int type, std::string name);
+};
+#endif
 
 // Very stupid local function to do parameter scaling: 
 static inline UInt_t scale(UInt_t nValue, Int_t nScale) {
@@ -125,9 +145,19 @@ CHistogrammer::CHistogrammer() :
   m_SpectrumDictionary(*CSpectrumDictionarySingleton::getInstance()),
   m_GateDictionary(*CGateDictionarySingleton::getInstance())
 {
-  srand(time(NULL)); 
+  srand(time(NULL));    // Is this obsolete?  
   createListObservers();
+  // If we are an MPI app, we need to add the HistogramGateTraceRelay
+  // So that it can relay traces to rank 0.
+
+#ifdef WITH_MPI
+  if (isMpiApp() && (myRank() == MPI_EVENT_SINK_RANK)) {
+    addGateObserver(new CHistogrammerGateTraceRelay);
+  }
+#endif
 }
+
+
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -141,54 +171,7 @@ CHistogrammer::~CHistogrammer() {
   delete m_pSpectrumLists;
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//    CHistogrammer(const CHistogrammer& rRhs)
-// Operation Type:
-//    Copy constructor
-//
-CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
-m_ParameterDictionary(*CParameterDictionarySingleton::getInstance()),
-m_SpectrumDictionary(*CSpectrumDictionarySingleton::getInstance()),
-m_GateDictionary(*CGateDictionarySingleton::getInstance())
-{
-  m_GateDictionary      = rRhs.m_GateDictionary;
 
-  createListObservers();
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//    CHistogrammer& operator=(const CHistogrammer& rRhs)
-//
-// Operation Type:
-//    Assignment operator.
-// 
-CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
-  m_ParameterDictionary = rRhs.m_ParameterDictionary;
-  m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
-  m_GateDictionary      = rRhs.m_GateDictionary;
-
-  createListObservers();
-  return *this;
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   int operator==(const CHistogrammer& rRhs)
-// Operation Type:
-//   Equality comparison.
-//
-int CHistogrammer::operator==(const CHistogrammer& rRhs) {
-  return (
-      ( m_ParameterDictionary ==   rRhs.m_ParameterDictionary) &&
-	  ( m_SpectrumDictionary  ==   rRhs.m_SpectrumDictionary)  &&
-	  ( m_GateDictionary      ==   rRhs.m_GateDictionary)
-	  );
-}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -1154,3 +1137,104 @@ void CHistogrammer::observeApplyGate(CGateContainer &rGate, CSpectrum &rSpectrum
         ++it;
     }
 }
+
+#ifdef WITH_MPI
+// Implement trace relays for gates
+// The problem we're trying to solve is that in mpiSpecTcl,
+// the histogramer runs in the MPI_EVENT_SINK_RANK.  However
+// the main Tcl interpreter runs in the MPI_ROOT_RANK.  Some 
+// scripts there may want to set traces.  This is only problematic
+// with gate traces where the traces are fired by the histogramer
+// in order to support a gate changed trace.  That a gate has 
+// changed really can only be seen by the histograme.r
+// 
+//   What we do:
+//   MPI applications will register a CHistogramerGateTraceRelay
+// gate observer. This is implemented here to marshall the trace
+// into a TrceRelay struct which is sent tagged with a MPI_TRACE_RELAY_TAG
+// to MPI_ROOT_RANK.   CGateCommand, in the 
+// root process will set up a thread to pump those messages up into Tcl events
+// which, when handled, run the traces.   We can then allow gate -trace in the root
+// rank's interpreter.
+// 
+// An important script that does gate tracing is the treeGUI.
+
+MPI_Datatype traceRelayType;
+static bool typesRegistered(false);
+
+
+// This  function returns the trace relay MPI data type.
+//  if it typesRegistered is fale, then the type is 
+// registered and committed first.
+
+static MPI_Datatype getTraceRelayType() {
+  if (!typesRegistered) {
+    if (isMpiApp()) {                   // Could be _running_ serially.
+      MPI_Aint offsets[2] = {offsetof(TraceRelay, s_traceType), offsetof(TraceRelay, s_gateName)};
+      int lengths[2] = {1, MAX_GATE_NAME};
+      MPI_Datatype dataTypes[2] = {MPI_INTEGER, MPI_CHARACTER};
+      if (MPI_Type_create_struct(3, lengths, offsets, dataTypes, &traceRelayType) != MPI_SUCCESS) {
+        throw std::runtime_error("Unable to create the gate tracer relay type");
+      } 
+      if(MPI_Type_commit(&traceRelayType) != MPI_SUCCESS) {
+        throw std::runtime_error("Unable to commit the trace relay type");
+      }
+    }
+  }
+  return traceRelayType;
+}
+
+
+// Now that we have a way to register the trace relay type, we can 
+// implement the CHistogramerTraceRelayMethods  public methods are implemented
+// in terms of forwardTrace which does all of the heavy lifting.
+
+/** Gate was added
+ *  @param name  -name of the gate.
+ *  @param container - gate container of the new gate.
+ * 
+*/
+void 
+CHistogrammerGateTraceRelay::onAdd(std::string name, CGateContainer& container) {
+  forwardTrace(TRACE_ADD_GATE, name);
+}
+/** 
+ * gate was removed
+ * 
+ *  @param name  -name of the gate.
+ *  @param container - gate container of the new gate.
+ * 
+*/
+void 
+CHistogrammerGateTraceRelay::onRemove(std::string name, CGateContainer& container) {
+  forwardTrace(TRACE_REMOVE_GATE, name);
+}
+/** 
+ * gtae was modified - the reason we can't just use a dicionary trace.  This means the
+ * container already in a dictionary has had what it's pointing to modified.
+ * 
+ * @param name - name of the gate.
+ * @param container - container holding the modified gate.
+ * 
+*/
+void 
+CHistogrammerGateTraceRelay::onChange(std::string name, CGateContainer& container) {
+  forwardTrace(TRACE_MODIFY_GATE, name);
+}
+
+//Marshall a TraceRelay object and send it to rank 0 with MPI_TRACE_RELAY_TAG.
+
+void
+CHistogrammerGateTraceRelay::forwardTrace(int traceType, std::string name) {
+  TraceRelay traceObj = {
+    s_traceType: traceType
+  };
+  strncpy(traceObj.s_gateName, name.c_str(), MAX_GATE_NAME);
+  traceObj.s_gateName[MAX_GATE_NAME - 1] = '\0';    // Ensure null terminator.
+  if (MPI_Send(
+    &traceObj, 1, getTraceRelayType(), MPI_ROOT_RANK, MPI_TRACE_RELAY_TAG, MPI_COMM_WORLD) 
+    != MPI_SUCCESS) {
+      throw std::runtime_error("Failed to relay a trace to rank 0.");
+    }
+}
+#endif
