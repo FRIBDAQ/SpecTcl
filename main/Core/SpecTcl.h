@@ -318,6 +318,7 @@ public:
   void DeleteGate(std::string gateName);
   void ReplaceGate(std::string gateName, CGate& newGate);
   CGateContainer* FindGate(std::string gateName);
+  CGateContainer* FindGate(unsigned id);
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
@@ -328,6 +329,7 @@ public:
 
 
   void ApplyGate(std::string gateName, std::string spectrumName);
+  void UnGate(std::string spectrum);
 
   // Manipulate event processing pipelines:
   

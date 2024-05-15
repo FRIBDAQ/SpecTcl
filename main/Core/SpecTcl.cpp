@@ -2055,7 +2055,19 @@ SpecTcl::FindGate(string gateName)
   auto p = dict.Lookup(gateName);
   return (p != dict.end()) ? (&(p->second)) : nullptr;
 }
+/*
+  Same as above but by gate id.
 
+*/
+CGateContainer*
+SpecTcl::FindGate(unsigned id) {
+  auto& dict = *CGateDictionarySingleton::getInstance();
+  for (auto p = dict.begin(); p != dict.end(); p++) {
+        if(p->second.getNumber() == id) return &(p->second);
+  }
+
+  return nullptr;
+}
 
 /*!
   Returns a begin iterator into the gate dictionary.  GateDictionaryIterators are
@@ -2137,9 +2149,44 @@ SpecTcl::ApplyGate(string gateName, string spectrumName)
   CHistogrammer* pHistogrammer = GetHistogrammer();
   if (pHistogrammer) {
     pHistogrammer->ApplyGate(gateName, spectrumName);
+  } else {
+    throwIfNoSuchGate(gateName);
+    auto spec = FindSpectrum(spectrumName);
+    if (!spec) {
+      CDictionaryException(CDictionaryException::knNoSuchKey, "Checking spectrum existence", spectrumName);
+    }
+    auto gc   = FindGate(gateName);   // will exist.
+    spec->ApplyGate(gc);
   }
 }
+/**
+ * ungate a spectrum.
+ * IF there is a histogrammer it's useed otherwise this is done in the local gate/spectrum dict.
+ * we do it this way because the histogramer has traces it must fire but in mpiSpecTcl where
+ * we are in ranks other than MPI_EVENT_SINK_RANK there won't be a histogramer.
+ * 
+ * @param name - name of the spectrum to ungate.
+ * @note ungating a spectrum really means gating with a true gate See ungated below; stolen from 
+ *    Histogammer.cpp.
+ * @note the -Ungated- gate is not in the dictionary so we duplicate the code.
+*/
+static string U("-Ungated-");
+static CTrueGate   AlwaysTrue;
+static CGateContainer NoGate(U, 0,      AlwaysTrue);
 
+void
+SpecTcl::UnGate(std::string name) {
+  auto pHistogrammer = GetHistogrammer();
+  if (pHistogrammer) {
+    pHistogrammer->UnGate(name);
+  } else {
+    auto pSpec = FindSpectrum(name);
+    if (!pSpec) {
+      CDictionaryException(CDictionaryException::knNoSuchKey, "Checking spectrum existence", name);
+    } 
+    pSpec->ApplyGate(&NoGate);
+  }
+}
 
 /**
  * getEventPipeline

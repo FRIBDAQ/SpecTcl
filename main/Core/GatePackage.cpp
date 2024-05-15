@@ -359,7 +359,7 @@ Bool_t CGatePackage::DeleteGates(
   //
 
   for(UInt_t nGate = 0; nGate < rIds.size(); nGate++) {
-    CGateContainer* pG = m_pHistogrammer->FindGate(rIds[nGate]);
+    CGateContainer* pG = SpecTcl::getInstance()->FindGate(rIds[nGate]);
     if(pG) {
       Names.push_back(pG->getName());
     }
@@ -447,7 +447,7 @@ Bool_t CGatePackage::ListAppliedGate(CTCLString& rApplication,
   //     kfTRUE  - Able to get gate information.
   //    kfFALSE   - Unable to get gate information.
   
-  CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(rName);
+  CSpectrum* pSpec = SpecTcl::getInstance()->FindSpectrum(rName);
   if(!pSpec) {
     rApplication += "Spectrum not in dictionary";
     return kfFALSE;
@@ -481,19 +481,15 @@ CGatePackage::Ungate(CTCLString& rResult, const string& rName)
   //   Bool_t kfTRUE on success, kfFALSE on failure.
   //
 
-  if (m_pHistogrammer) {
     try {
-      m_pHistogrammer->UnGate(rName);
+      SpecTcl::getInstance()->UnGate(rName);
       return kfTRUE;
     }
     catch(CException& rExcept) {
       rResult = rExcept.ReasonText();
       return kfFALSE;
     }
-  } else {
-    return kfTRUE;      // MPI but not in the event sink pipeline rank.
-  }
-  assert(0);
+    assert(0);
 } 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -553,11 +549,11 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   Result.StartSublist();
 
   string type = rGate->Type();
- 
+  auto api = SpecTcl::getInstance();
   if(type == "s" ) {		// Cut.
     CCut& rCut((CCut&)*rGate);
     UInt_t nPid = rCut.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    CParameter* Param = api->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -569,14 +565,14 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
 	   (type == "c")) {	// Band or contour, C2Band
     CPointListGate& rPlist((CPointListGate&)(*rGate));
     Result.StartSublist();
-    CParameter* Param = m_pHistogrammer->FindParameter(rPlist.getxId());
+    CParameter* Param = api->FindParameter(rPlist.getxId());
     if(Param) {
       Result.AppendElement(Param->getName());
     }
     else {
       Result.AppendElement("-Deleted Parameter-");
     }
-    Param = m_pHistogrammer->FindParameter(rPlist.getyId());
+    Param = api->FindParameter(rPlist.getyId());
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -589,7 +585,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   else if (type == "em") {
     CMaskEqualGate& rMask((CMaskEqualGate&)*rGate);  
     UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    CParameter* Param = api->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -604,7 +600,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
  else if (type == "am") {
     CMaskAndGate& rMask((CMaskAndGate&)*rGate);  
     UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    CParameter* Param = api->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -619,7 +615,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
  else if (type == "nm") {
     CMaskNotGate& rMask((CMaskNotGate&)*rGate);  
     UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    CParameter* Param = api->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -714,7 +710,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     for(pIds = paramIds.begin(); pIds != paramIds.end(); pIds++) {
       UInt_t id;
       id =*pIds;
-      CParameter* pParam = m_pHistogrammer->FindParameter(id);
+      CParameter* pParam = api->FindParameter(id);
       if(pParam) {
 	Result.AppendElement(pParam->getName());
       } 
