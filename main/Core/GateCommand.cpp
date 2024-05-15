@@ -122,6 +122,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdlib.h>
 #include <vector>
 #include <string>
+#include <iostream>
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -290,6 +291,11 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
     pWords.push_back(words[i].c_str());
   }
   auto pArgs = pWords.data();
+  std::cerr << "Command: \n";
+  for (auto pw: pWords) {
+    std::cerr << "'" << pw << "'" << " ";
+  }
+  std::cerr << std::endl;
 
   nArgs--; 
   pArgs++;			// Skip the command name.
@@ -805,6 +811,17 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, UInt_t nArgs, const char* pA
 Int_t 
 CGateCommand::traceGates(CTCLInterpreter& rInterp, UInt_t nArgs,const char* args[])
 {
+  // if we are mpiParallel, the only ranks in which tracing will work is
+  // are the root and the event sink threads. Since we are wrapped in an MPI command,
+  // however we'll just make other ranks returrn TCL_OK but as a no-op.
+
+  if (isMpiApp() && 
+    (myRank() != MPI_ROOT_RANK) && 
+    (myRank() != MPI_EVENT_SINK_RANK)
+  ) {
+    return TCL_OK;
+  }
+
   std::string rResult;
   // Must be no more than 2 but at least one parameter:
   if ((nArgs) > 2  || (nArgs < 1)){

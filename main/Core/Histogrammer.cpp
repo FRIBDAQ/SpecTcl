@@ -1172,8 +1172,8 @@ MPI_Datatype getTraceRelayType() {
     if (isMpiApp()) {                   // Could be _running_ serially.
       MPI_Aint offsets[2] = {offsetof(TraceRelay, s_traceType), offsetof(TraceRelay, s_gateName)};
       int lengths[2] = {1, MAX_GATE_NAME};
-      MPI_Datatype dataTypes[2] = {MPI_INTEGER, MPI_CHARACTER};
-      if (MPI_Type_create_struct(3, lengths, offsets, dataTypes, &traceRelayType) != MPI_SUCCESS) {
+      MPI_Datatype dataTypes[2] = {MPI_INT, MPI_CHAR};
+      if (MPI_Type_create_struct(2, lengths, offsets, dataTypes, &traceRelayType) != MPI_SUCCESS) {
         throw std::runtime_error("Unable to create the gate tracer relay type");
       } 
       if(MPI_Type_commit(&traceRelayType) != MPI_SUCCESS) {
