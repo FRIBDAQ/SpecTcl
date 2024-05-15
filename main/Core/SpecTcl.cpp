@@ -1940,6 +1940,11 @@ void SpecTcl::throwIfNoSuchGate(std::string& name) {
     throw CDictionaryException(CDictionaryException::knNoSuchKey, "Checking gate existence", name);
   }
 }
+// How we handle the gate dict depends on our environment.
+// If there's a histogramer, in order to ensure the correct traces
+// get fired we must do this stuff via the histogramer.
+// If not, we just do it via the gate dict singleton.
+
 
 /*!
   Adds a gate to the gate dictionary.  The gate dictionary does not manage
@@ -1961,10 +1966,16 @@ SpecTcl::AddGate(string name, CGate* gate)
 
   // Wrap the gate in a container and add the container to the dictionary.
 
-  CGateContainer& container(*new CGateContainer(name, id, *gate));
-  auto& dict = *CGateDictionarySingleton::getInstance();
-  dict.Enter(name, container);
+  
+  auto pHisto = GetHistogrammer();
+  if (pHisto) {
+    pHisto->AddGate(name, id, *gate);
+  } else {
 
+    CGateContainer& container(*new CGateContainer(name, id, *gate));
+    auto& dict = *CGateDictionarySingleton::getInstance();
+    dict.Enter(name, container);
+  }
 }
 
 
@@ -2003,14 +2014,24 @@ void SpecTcl::DeleteGate(string gateName)
 void 
 SpecTcl::ReplaceGate(string gateName, CGate& newGate)
 {
-  throwIfNoSuchGate(gateName);
-  auto& dict = *CGateDictionarySingleton::getInstance();
-  auto p = dict.Lookup(gateName); 
-  CGateContainer* pContainer = &(p->second);        // Cannot be null as p cannot be end().
-  pContainer->setGate(&newGate);                     // Replace the gate in the container.
+  throwIfNoSuchGate(gateName);            // Note that if there's a histogramer it too uses the gate singleton.
+  
+  // If there's a histogramer we need to use it so the correct trace fires:
+  //
 
+  auto pHisto = GetHistogrammer();
+  if (pHisto) {
+    pHisto->ReplaceGate(gateName, newGate);
+  } else {
+    auto& dict = *CGateDictionarySingleton::getInstance();
+    auto p = dict.Lookup(gateName); 
+    CGateContainer* pContainer = &(p->second);        // Cannot be null as p cannot be end().
+    pContainer->setGate(&newGate);                     // Replace the gate in the container.
+  }
 }
 
+// Iteration etc. can use the gate dictionary singleton since that's the underlying
+// storage for gates in the histogramer.
 
 /*!
   Locates a gate in the gate dictionary.  Note that a pointer to a gate container
