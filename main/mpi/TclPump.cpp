@@ -291,7 +291,14 @@ static int constructMpiTclStatus(CTCLInterpreter& interp) {
 static std::string wordsToString(std::vector<CTCLObject>& objv) {
     std::string result;
     for (auto& w : objv) {
+        // Tcl has done the substitutions it's going to do.
+        // We surround the words with {} so that when
+        // reconstructed into obvj on the other end,
+        // the same list elements of the commands are
+        // retained.
+        result += "{";
         result += std::string(w);
+        result += "}";
         result += " ";
     }
     return result;
