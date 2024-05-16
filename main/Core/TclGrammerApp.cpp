@@ -92,6 +92,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include "AbstractThreadedServer.h"
 #include "MirrorServer.h"
+#include "EventMessage.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -1030,6 +1031,12 @@ int CTclGrammerApp::operator()() {
 
     // Create the available displays
     CreateDisplays();
+
+    // If we are mpi parallel we need to start the histogram pump too:
+
+    if (gMPIParallel) {
+      startHistogramPump();
+    }
   }
   // The servers run in RANK 0 in the MPI:
 
