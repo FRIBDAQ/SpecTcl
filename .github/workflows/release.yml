@@ -59,7 +59,7 @@ jobs:
       - name: Move all files into one place
         run: mv */*.tar.gz .
       - name: Create a release
-        uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@v2
         with:
           files: ./*.tar.gz
           name: Release of ${{ inputs.tag }}
