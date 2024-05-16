@@ -1114,9 +1114,14 @@ int CTclGrammerApp::operator()() {
 
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     CreateAnalysisPipeline(*gpAnalyzer);
-    CTreeParameter::BindParameters();           // Needed by treeparameter.
   }
-  
+  // User's code may have created statically defined tree parameters.  
+  // These need to bound in all ranks.
+  // So that the parameter dicts are consistent
+  // TODO - figure out what to do if the user creates them at runtime.
+  // CraeteAnalysisPipeline.
+  // 
+  CTreeParameter::BindParameters();           // Needed by treeparameter in all ranks
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
   // set up... done in the root with appropriate e.g. broadcasts
