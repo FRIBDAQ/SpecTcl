@@ -151,7 +151,7 @@ MPIReceiveEvent(CEventList& eventList) {
             params.data(), size, getParameterType(), 
             sender, EVENT_TAG, MPI_COMM_WORLD, &status
         ) != MPI_SUCCESS) {
-        throw std::runtime_exception("Failed to receive event parameters");
+        throw std::runtime_error("Failed to receive event parameters");
     }
     // Build the event:
 
