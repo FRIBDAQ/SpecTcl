@@ -97,7 +97,7 @@ SendEventToHistogramer(CEvent& event) {
     // Marshall the event:
     std::vector<MPIParameter> parameters;
     for (int i = 0; i < valids; i++) {
-        MPIParameter param = {number: dope[i], value: event[i]};
+        MPIParameter param = {number: dope[i], value: event[dope[i]]};
         parameters.push_back(param);
     }
     if (MPI_Send(
@@ -129,7 +129,7 @@ static void
 MPIReceiveEvent(CEventList& eventList) {
     CEvent& event(*eventList[0]);
 
-#ifdef MPI
+#ifdef WITH_MPI
     // Get the size and sender:
 
     MPI_Status status;
