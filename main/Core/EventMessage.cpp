@@ -113,8 +113,9 @@ SendEventToHistogramer(CEvent& event) {
 
 static void
 MPIHistogramEvents(CEventList& events) {
-    for (auto& event : events) {
-        SendEventToHistogramer(*event);
+    for (int i =0; i < events.size(); i++) {
+        SendEventToHistogramer(*events[i]);
+        events[i]->clear();     //   Invalidate the parameters.
     }
 }
 ////////////////////////////// Receiver side private functions/structs  //////////////////////////
