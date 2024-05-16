@@ -210,8 +210,8 @@ CAxis::ComputeScale()
                                          
   double width =  range/(m_nChannels-1);
                                          
-  range += width;      // Add in the width of the last channel.
-  m_fHigh += width;   // New high is the right end of the last channel.
+  //range += width;      // Add in the width of the last channel.
+  //m_fHigh += width;   // New high is the right end of the last channel.
   
 
   // The scale factor is the reciprocal of the channel width:

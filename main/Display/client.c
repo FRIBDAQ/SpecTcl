@@ -181,7 +181,7 @@ static int genname(char *name)
 
 /*
 ** Functional Description:
-**   genmem:
+
 **     Function to generate the shared memory region and map to it.
 ** Formal Parameters:
 **   char *name:

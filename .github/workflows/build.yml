@@ -53,6 +53,12 @@ jobs:
           ssh-add -D
           
           eval `ssh-agent -k`
+      - name: Incorporate CutiePie
+        working-directory: ./main
+        shell: bash
+        run: |
+          git config --global --add safe.directory '*'
+          if test -e qtpi-incorp.sh ; then ./qtpi-incorp.sh  v1.4; fi
       - name: Creating build directory
         run: mkdir main/oot
       - name: Configuring

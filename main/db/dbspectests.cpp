@@ -121,6 +121,18 @@ public:
     
     CPPUNIT_TEST(getpar_1);
     CPPUNIT_TEST(getpar_2);
+
+    CPPUNIT_TEST(getxypar_1);   // 1d spectrum.
+    CPPUNIT_TEST(getxypar_2);   // 2d spectrum.
+    CPPUNIT_TEST(getxypar_3);   // g1
+    CPPUNIT_TEST(getxypar_4);   // g2
+    CPPUNIT_TEST(getxypar_5);   // s
+    CPPUNIT_TEST(getxypar_6);   // b
+    CPPUNIT_TEST(getxypar_7);   // gs
+    CPPUNIT_TEST(getxypar_8);   // m2
+    CPPUNIT_TEST(getxypar_9);   // S 
+    CPPUNIT_TEST(getxypar_10);  // gd
+    
     
     CPPUNIT_TEST(construct_1);
     CPPUNIT_TEST(construct_2);
@@ -185,6 +197,17 @@ protected:
     
     void getpar_1();
     void getpar_2();
+
+    void getxypar_1();
+    void getxypar_2();
+    void getxypar_3();
+    void getxypar_4();
+    void getxypar_5();
+    void getxypar_6();
+    void getxypar_7();
+    void getxypar_8();
+    void getxypar_9();
+    void getxypar_10();
     
     void construct_1();
     void construct_2();
@@ -755,6 +778,201 @@ void dbspectest::getpar_2()
     
     delete pSpec;
     delete pSpec2;
+}
+
+void dbspectest::getxypar_1() {
+    // 1-d spectrum. can give the correct parameter names in X/Y.
+
+    makeStandardParams();
+    std::vector<const char*> pnames = {"param.0"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test1d", "1", pnames, axes
+    );
+
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+    EQ(size_t(1), x.size());
+    EQ(std::string("param.0"), x[0]);
+    EQ(size_t(0), y.size());
+
+    delete pSpec;
+}
+void dbspectest::getxypar_2() {
+    // 2-d spectra give x and y parameters:
+
+    makeStandardParams();             //  x            y
+    std::vector<const char*> pnames = {"param.0", "param.1"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}, {-1, 0, 256, 256}};
+
+    auto pSpec = SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test2d", "2", pnames, axes
+    );
+
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+
+    EQ(size_t(1), x.size());
+    EQ(std::string("param.0"), x[0]);
+    EQ(size_t(1), y.size());
+    EQ(std::string("param.1"), y[0]);
+
+    delete pSpec;
+}
+void dbspectest::getxypar_3() {
+    // g1 spectrum is all x parameters:
+    makeStandardParams();
+    std::vector<const char*> pnames = {"param.0", "param.1", "param.2"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+
+    auto pSpec = SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "testg1", "g1", pnames, axes
+    );
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+    EQ(pnames.size(), x.size());
+    for ( int i =0; i < pnames.size(); i++) {
+        EQ(std::string(pnames[i]), x[i]);
+    }
+    EQ(size_t(0), y.size());
+
+}
+void dbspectest::getxypar_4() {
+    // g2 are also all x parameters oddly enough since they are not
+    // distinguishable:
+    makeStandardParams();
+    std::vector<const char*> pnames = {"param.0", "param.1", "param.2"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}, {-1, 0.0, 100.0, 100}};
+
+    auto pSpec = SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "testg1", "g2", pnames, axes
+    );
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+    EQ(pnames.size(), x.size());
+    for ( int i =0; i < pnames.size(); i++) {
+        EQ(std::string(pnames[i]), x[i]);
+    }
+    EQ(size_t(0), y.size());
+
+
+}
+void dbspectest::getxypar_5() {
+    // Summary spectra are all X parameters:
+    makeStandardParams();
+    std::vector<const char*> pnames = {"param.0", "param.1", "param.2"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+
+    auto pSpec = SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "testg1", "s", pnames, axes
+    );
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+    EQ(pnames.size(), x.size());
+    for ( int i =0; i < pnames.size(); i++) {
+        EQ(std::string(pnames[i]), x[i]);
+    }
+    EQ(size_t(0), y.size());
+
+
+}
+void dbspectest::getxypar_6() {
+    // bit mask has a single X parameter.
+
+    makeStandardParams();
+    std::vector<const char*> pnames = {"param.0", };
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+
+    auto pSpec = SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "testb", "b", pnames, axes
+    );
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+    EQ(pnames.size(), x.size());
+    for ( int i =0; i < pnames.size(); i++) {
+        EQ(std::string(pnames[i]), x[i]);
+    }
+    EQ(size_t(0), y.size());
+
+}
+void dbspectest::getxypar_7() {
+    // GS gives nothing sadly.
+
+    makeStandardParams();
+    std::vector<const char*> pnames = {"param.0", "param.1", "param.2", "param.3"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+
+    auto pSpec = SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "testb", "gs", pnames, axes
+    );
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+    EQ(size_t(0), x.size());
+    EQ(size_t(0), y.size());
+}
+void dbspectest::getxypar_8() {
+    // m2 - every other param is x every other is y.
+
+    makeStandardParams();        //       x          y          x          y
+    std::vector<const char*> pnames = {"param.0", "param.3", "param.1", "param.2"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}, {-1, 0, 256, 256}};
+
+    auto pSpec =SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "testb", "m2", pnames, axes
+    );
+
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+    EQ(pnames.size()/2, x.size());
+    EQ(pnames.size()/2, y.size());
+    for (int i =0; i < pnames.size(); i++) {
+        auto p = std::string(pnames[i]);
+        auto rhs = (i%2 == 0)? x[i/2] : y[i/2];
+        EQ(p, rhs);
+    }
+    delete pSpec;
+
+}
+void dbspectest::getxypar_9() {
+    // Stripchart has one x one y parameter:
+
+    makeStandardParams();
+    std::vector<const char*> pnames = {"param.0", "param.1"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, 0, 100, 100}};
+
+    auto pspec = SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "testb", "S", pnames, axes
+    );
+
+    auto x = pspec->getXParameterNames();
+    auto y = pspec->getYParameterNames();
+
+    EQ(size_t(1), x.size());
+    EQ(std::string(pnames[0]), x[0]);
+
+    EQ(size_t(1), y.size());
+    EQ(std::string(pnames[1]), y[0]);
+
+    delete pspec;
+}
+void dbspectest::getxypar_10() {
+    // Gamma deluxe also can't give parameters.
+
+    makeStandardParams();
+    std::vector<const char*> pnames = {"param.0", "param.3", "param.1", "param.2"};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}, {-1, 0, 256, 256}};
+
+    auto pSpec =SpecTclDB::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "testb", "gd", pnames, axes
+    );
+
+    auto x = pSpec->getXParameterNames();
+    auto y = pSpec->getYParameterNames();
+
+    EQ(size_t(0), x.size());
+    EQ(size_t(0), y.size());
+    delete pSpec;
+    
 }
 
 void dbspectest::construct_1()

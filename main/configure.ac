@@ -1,6 +1,16 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.13-014, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl,5.14-000, daqhelp@frib.msu.edu)
+
+# These are default version/tag for unifiedfmt, tcl++ and qtpi
+# If the bulder has not explicitly run the incorporation 
+# scripts, the versions below will be used to incorporate for you:
+# Update as the 'good' version updates:
+
+
+UNIFIED_FMT_VERSION="1.2"
+TCLPLUS_VERSION="libtclplus-v4.3-002"
+CUTIEPIE_VERSION="v1.5"
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
@@ -41,6 +51,13 @@ AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
 
+# Is GIT installed?
+
+AC_CHECK_PROG(GIT, git, git, :)
+AC_SUBST(GIT)
+
+#
+
 # PYthon C/C++ extension environment build flags:
 
 PKG_CHECK_MODULES(PYTHON, [python3-embed], [PYTHON_CXXFLAGS=`pkg-config --cflags python3-embed`; PYTHON_LDFLAGS=`pkg-config --libs python3-embed`],
@@ -62,6 +79,7 @@ AC_PATH_PROG(HCDOCBOOK,   docbook2dvi,  echo)
 AC_PATH_PROG(HTMLDOCBOOK, docbook2html, echo)
 AC_PATH_PROG(DVIPDF,      dvipdf,       echo)
 AC_PATH_PROG(MANDOCBOOK,  xmlto,        echo)
+AC_PATH_PROG(PDFDOCBOOK,  docbook2pdf, echo)
 
 #   Starting with SpecTcl 5.0 we have a new style startup.
 #   Let's let the compiler know so that people can
@@ -773,24 +791,34 @@ AX_CHECK_ZLIB([AC_MSG_RESULT([Have zlib])], [AC_MSG_ERROR([zlib is a prerequisit
 # the source tree and configura/build it into $prefix/unifiedformat
 #
 AC_CHECK_PROG([havecmake], cmake, [1], [0])
-if `test ${havcmake} = 0`
+if test "${havcmake}" = "0"
 then
 	AC_MSG_ERROR([cmake must be in the path to build SpecTcl])
 fi
 
-AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [
-   rm -rf unifiedformat/build
-   mkdir -p unifiedformat/build
-   sourcedir="`realpath ${srcdir}`"
-   (cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
-   UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
-   UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
-   AC_SUBST(UFMT_CPPFLAGS)
-   AC_SUBST(UFMT_LDFLAGS)
-   ],
-   [AC_MSG_ERROR([You need to incorporate the unified format library with unifiedfmt-incorp.sh])
-   ])
+#
+#  If the user has not yet incorporated at unified format
+#  version try incorporating it for them then building regardless.
+#  This won't work on an out of tree initial build without the 
+#  Source tree already having done one and a readonly source tree.
+#
+AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [UFMT_USER="1"], [UFMT_USER="0"])
 
+if test "${UFMT_USER}" = "0"
+then
+   AC_MSG_NOTICE([Incorporating version ${UNIFIED_FMT_VERSION} for you])
+   ${srcdir}/unifiedfmt-incorp.sh ${UNIFIED_FMT_VERSION}
+fi
+
+rm -rf unifiedformat/build
+mkdir -p unifiedformat/build
+sourcedir="`realpath ${srcdir}`"
+AC_MSG_NOTICE([Building unified format at ${sourcedir}])
+(cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all install)
+UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
+UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
+AC_SUBST(UFMT_CPPFLAGS)
+AC_SUBST(UFMT_LDFLAGS)
 
 #
 #   libTclPlus and libException could have been installed from 
@@ -805,42 +833,41 @@ AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [
 #
 # 
 
-AC_MSG_CHECKING([libtcl++ installed as package (e.g. .deb)])
+# We no longer look for Ryan's deb to be installed as that ship sailed
+# a long time ago:
 
-AC_CHECK_FILE([/usr/include/TCLInterpreterObject.h], [systemtcl="yes"], [systemtcl="no"])
-
-if test $systemtcl = "yes"
+AC_CHECK_FILE([${srcdir}/tibtcl/configure.ac], [TCLPLUS_INCORP="1"], [TCLPLUS_INCORP="0"])
+if test "${TCLPLUS_INCORP}" = "0"
 then
-	LIBTCLPLUS_CFLAGS=""
-	LIBEXCEPTION_LDFLAGS="-lException"
-	LIBTCLPLUS_LDFLAGS="-ltclPlus ${LIBEXCEPTION_LDFLAGS}"
-	AC_MSG_RESULT([Found in  system libraries])
-else
-  AC_CHECK_FILE([${prefix}/lib/libException.so],[libtclinstalled="yes"],[libtclinstalled="no"])
-  AC_CHECK_FILE([${prefix}/lib/libtclPlus.so],[libexceptioninstalled="yes"],[libexceptioninstalled="no"])
-  AC_CHECK_FILE([${prefix}/include/TCLInterpreterObject.h],[tclinterpobjinstalled="yes"],[tclinterpobjinstalled="no"])
-  if [ [ $libtclinstalled = "no" ] || [ $libexceptioninstalled = "no" ] || [ $tclinterpobjinstalled = "no" ] ]
-  then
-    AC_CHECK_FILE([${srcdir}/libtcl], [havelibtcldir="yes"], [havelibtcldir="no"])
-	  if test $havelibtcldir = "yes"
-  	then
-      AC_MSG_RESULT([Need to build local tagged copy])
-      AC_CHECK_FILE([${srcdir}/libtcl/configure], [havelibtcldir="yes"], [havelibtcldir="no"])
-		  (cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
-	  else
-		  AC_MSG_ERROR([I seem to be missing libtcl, please use tcl++incorp.sh to fill it with a tagged release of libtclplus])
-	  fi
-  else
-    AC_MSG_RESULT([Previously built version found in ${prefix}])
-  fi
-  LIBTCLPLUS_CFLAGS="-I${prefix}/include"
-  LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefix}/lib\""
-	LIBTCLPLUS_LDFLAGS="-L${prefix}/lib -ltclPlus ${LIBEXCEPTION_LDFLAGS}"
-
+  AC_MSG_NOTICE([Incorporating tcl++ version ${TCLPLUS_VERSION} for you])
+  ${srcdir}/tcl++incorp ${TCLPLUS_VERSION}
 fi
+AC_MSG_NOTICE([Building/installing tcl++])
+(cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
+LIBTCLPLUS_CFLAGS="-I${prefix}/include"
+LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefix}/lib\""
+LIBTCLPLUS_LDFLAGS="-L${prefix}/lib -ltclPlus ${LIBEXCEPTION_LDFLAGS}"
 AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
 AC_SUBST(LIBEXCEPTION_LDFLAGS)
+
+
+# If PyQtGui/main/configure.ac is not present the user must first run.
+# qtpi-incorp.sh to pull in a version:
+
+AC_MSG_CHECKING([Ensuring a version of CutiePie has been included])
+QTPIDIR="${srcdir}/PyQtGUI"
+QTPIBUILDDIR="${QTPIDIR}/main"
+AC_CHECK_FILE([${QTPIBUILDDIR}/configure.ac],[qtpi=1],[qtpi=0])
+if test ${qtpi}  = 0
+then
+  AC_MSG_NOTICE([Incorporating version ${CUTIEPIE_VERSION} for you])
+  ${srcdir}/qtpi-incorp.sh ${CUTIEPIE_VERSION}
+else
+  AC_MSG_RESULT([incorporated previously])
+fi
+(cd ${QTPIBUILDDIR}; ./configure --prefix=${prefix}; make clean all install)
+
 
 ######################################## Checks for ZMQ
 AX_ZMQ
@@ -1025,15 +1052,14 @@ AC_OUTPUT(Makefile
 	  packaged/Makefile
 	  packaged/Makefile_skel
 	  db/Makefile
-	  PyQtGUI/Makefile
-	  PyQtGUI/src/Makefile
-	  PyQtGUI/sip/Makefile
-	  PyQtGUI/gui/Makefile
-	  PyQtGUI/test/Makefile
-	  PyQtGUI/standalone/Makefile
 	  restclient/Makefile
 	  xaminerunner/Makefile
 	  mirrorclient/Makefile
 	  rootxamine/Makefile
+    const/Makefile
+    firstof/Makefile
+    map/Makefile
+    radwareio/Makefile
+    rootFilterFormat/Makefile
 	  )
           

@@ -18,7 +18,7 @@ package provide guistate 1.0
 package require Tk
 package require Iwidgets
 package require snit
-
+package require dbconfig
 
 
 #  Snidget to prompt for a save file.
@@ -53,6 +53,7 @@ package require snit
 #    -gatedefs      bool      If set, gate definitions should be saved.
 #    -gateapps      bool      If set, gate applications should be saved.
 #    -filters       bool      If set, filers definitions will be saved.
+#    -text          bool      If set save in text (Tcl) format.
 #
 #    -filename      string    The filename selected.
 #    
@@ -75,6 +76,7 @@ snit::widget saveDefPrompt {
     option   -gatedefs      1
     option   -gateapps       1
     option   -filters       1
+    option   -text          1
 
     option   -filename
 
@@ -124,12 +126,15 @@ snit::widget saveDefPrompt {
 	checkbutton $optframe.filter \
 	    -variable ${selfns}::options(-filters) \
 	    -text {Filter Definitions}
+    checkbutton $optframe.text \
+        -variable [myvar options(-text)] \
+        -text {As text (Tcl) file} -command [mymethod _toggleFileType $optframe.text]
 
 	grid $optframe.title    -columnspan 2      -sticky w
 	grid $optframe.tp       $optframe.pseudo   -sticky w
 	grid $optframe.tv       $optframe.spectra  -sticky w
 	grid $optframe.gatedefs $optframe.gateapps -sticky w
-	grid $optframe.filter                      -sticky w
+	grid $optframe.filter   $optframe.text     -sticky w
 
 	# The middle frame only has an Iwidgets file choice widget.
 	# and a title.
@@ -193,6 +198,17 @@ snit::widget saveDefPrompt {
 
     #  Internal methods 
 
+    #   The file type has toggled, set the file mask appropriately:
+
+    method _toggleFileType {widget} {
+        if { $options(-text) } {
+            set mask *.tcl
+        } else {
+            set mask *.db
+        }
+        $win.fileframe.fs configure -mask $mask
+        $win.fileframe.fs filter
+    }
     # Ok click.. dispatch and destroy hidden if it exists.
     #
     method onOk {} {
@@ -609,35 +625,50 @@ proc writeAll fd {
 # widget is the widget that fired the ok.
 #  
 proc saveSelectedState widget {
-    set filename [$widget cget -filename]
-    set fd [open $filename w]
-    writeComments $fd
+    if {[$widget cget -text]} {
+        set filename [$widget cget -filename]
+        set fd [open $filename w]
+        writeComments $fd
 
-    if {[$widget cget -treeparams]} {
-	writeTreeParameters $fd
-    }
-    if {[$widget cget -pseudoparams]} {
-	writePseudoParameters $fd
-    }
-    if {[$widget cget -treevariables]} {
-	writeTreeVariables $fd
-    }
-    if {[$widget cget -spectrumdefs]} {
-	writeSpectrumDefinitions $fd
-    }
-    if {[$widget cget -gatedefs]} {
-	writeGateDefinitions $fd
-    }
-    if {[$widget cget -gateapps]} {
-	writeGateApplications $fd
-    }
-    if {[$widget cget -filters]} {
-	writeFilters $fd
-    }
+        if {[$widget cget -treeparams]} {
+        writeTreeParameters $fd
+        }
+        if {[$widget cget -pseudoparams]} {
+        writePseudoParameters $fd
+        }
+        if {[$widget cget -treevariables]} {
+        writeTreeVariables $fd
+        }
+        if {[$widget cget -spectrumdefs]} {
+        writeSpectrumDefinitions $fd
+        }
+        if {[$widget cget -gatedefs]} {
+        writeGateDefinitions $fd
+        }
+        if {[$widget cget -gateapps]} {
+        writeGateApplications $fd
+        }
+        if {[$widget cget -filters]} {
+        writeFilters $fd
+        }
 
-    close $fd
+        close $fd
+
+    } else {
+        #Sqlite save note this is not selective.
+
+        set filename [$widget cget -filename]
+        if { [file exists $filename] } {
+            file delete $filename
+        }
+        dbconfig::makeSchema $filename
+        set db [dbconfig::connect $filename]
+        dbconfig::saveForRustogramer $db
+        $db destroy
 
 
+
+    }
 }
 
 # saveState
@@ -654,22 +685,7 @@ proc saveState {} {
 
     return
 
-    set file [tk_getSaveFile -defaultextension .tcl                    \
-                             -title {Save To...}                       \
-                             -filetypes [list                          \
-                                         [list {Tcl Scripts} .tcl]    \
-                                         [list {Tk Scripts}  .tk]     \
-                                         [list {All Files}    *]]]
-    if {$file != ""} {
-        if {[catch {open $file w} msg]} {
-            tk_messageBox -icon error -title {Not Writable}  \
-                -message "Unable to create $file because: $msg"
-            return
-        }
-        set fd $msg
-        writeAll $fd
-        close $fd
-    }
+    
 }
 #  failsafeWrite
 #      Write the file [pdw]failsafe.tcl

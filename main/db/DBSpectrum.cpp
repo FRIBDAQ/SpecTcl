@@ -28,6 +28,7 @@
 
 
 #include <sstream>
+#include <string>
 #include <stdexcept>
 #include <assert.h>
 
@@ -91,6 +92,72 @@ DBSpectrum::getParameterNames()
     return result;
 }
 /**
+ * getXParameterNames
+ *    @return std::vector<std::string>
+ *    @retval the names of the X parameters for the spectrum... for
+ *          Old  databases this will be an empty list           
+*/
+std::vector<std::string>
+DBSpectrum::getXParameterNames() {
+    std::vector<std::string> result;
+         
+    try {
+        std::string query =
+            "SELECT name FROM parameter_defs AS pd \
+            INNER JOIN spectrum_x_params As sp ON sp.parameter_id = pd.id \
+            WHERE spectrum_id = ? AND ";
+        CInFilter ids("parameter_id", m_Info.s_xParameters);
+        query += ids.toString();
+        query += " ORDER BY sp.id";              // definition order.
+        
+        CSqliteStatement f(
+            m_conn,
+            query.c_str()
+        );
+        f.bind(1, m_Info.s_base.s_id);
+        while (!(++f).atEnd()) {
+            result.push_back(reinterpret_cast<const char*>(f.getText(0)));
+        }
+    }
+    catch(...) {
+        // Fails on old databases.
+    }
+
+    return result;
+}
+/** 
+ *   getYParmaeterNames
+ *     See above but for the Y parametes.
+ */
+std::vector<std::string>
+DBSpectrum::getYParameterNames() {
+    std::vector<std::string> result;
+    try {
+        std::string query =
+            "SELECT name FROM parameter_defs AS pd \
+            INNER JOIN spectrum_y_params As sp ON sp.parameter_id = pd.id \
+            WHERE spectrum_id = ? AND ";
+        CInFilter ids("parameter_id", m_Info.s_yParameters);
+        query += ids.toString();
+        query += " ORDER BY sp.id";              // definition order.
+        
+        CSqliteStatement f(
+            m_conn,
+            query.c_str()
+        );
+        f.bind(1, m_Info.s_base.s_id);
+        while (!(++f).atEnd()) {
+            result.push_back(reinterpret_cast<const char*>(f.getText(0)));
+        }
+    }
+    catch(...) {
+        // Fails on old databases.
+    }
+
+    return result;
+}
+
+/**
  * storeValues
  *    Store the values of a spectrum in the the spectrum_contents
  *    table.
@@ -150,7 +217,7 @@ DBSpectrum::getValues()
     CSqliteStatement fetch(
         m_conn,
         "SELECT xbin, ybin, value FROM spectrum_contents \
-            WHERE spectrum_id = ? ORDER BY id ASC"
+            WHERE spectrum_id = ? "
     );
     fetch.bind(1, m_Info.s_base.s_id);
     while (!(++fetch).atEnd()) {
@@ -217,6 +284,7 @@ DBSpectrum::exists(CSqlite& connection, int sid, const char* name)
  * @param connection   - Database connection object.
  * @param sid          - Save set into which the definition is saved.
  * @param name         - Name of the spectrum, must not exist in saveset.
+ * @param type         - Type of the spectrum to create (stringified).
  * @param parameterNames - Vector of parameter names.
  * @param axes         - Axis definitions.
  * @param datatype     - Channel data type.
@@ -249,6 +317,13 @@ DBSpectrum::create(
     
     validateParameterCount(type, parameterNames.size());
     specinfo.s_parameters = fetchParameters(connection, sid, parameterNames);
+
+    // Generate the X/Y paramter id vectors depending on the
+    // spectrum type:
+
+    std::string strType(type);
+    specinfo.s_xParameters = fetchXParameters(strType, specinfo.s_parameters);
+    specinfo.s_yParameters = fetchYParameters(strType, specinfo.s_parameters);
     
     // Each spectrum type as a specific number of allowed axes:
     
@@ -355,6 +430,65 @@ DBSpectrum::fetchParameters(
     return result;
 }
 /**
+ * fetchXParameters
+ *    GIven the spectrum type string and the parameter ids for all parametesr,
+ *    returns a vector of the 'x' parameters.
+ * @param specType - Spectrum type string.
+ * @param ids      - The All parameter ids in -list order.
+ */
+DBSpectrum::Parameters
+DBSpectrum::fetchXParameters(
+    const std::string& specType, const Parameters& ids
+) {
+    Parameters result;
+
+    // All depends on the parameter types:
+
+    if (specType == "1" || specType == "g1" || specType == "g2" || 
+        specType == "s" || specType == "b" ) {
+        result = ids;                                        // They're all X parameters.
+    } else if (specType == "m2" ) {
+        // Even parameters.
+
+        for (auto i = 0; i < ids.size(); i += 2) {
+            result.push_back(ids[i]);
+        }
+    } else if (specType == "gd" || specType == "gs") {
+        // Don't know how to do in general.
+
+    } else if (specType == "2" || specType == "S") {
+        result.push_back(ids[0]);
+    }
+
+    return result;
+}
+/**
+ * fetchYParmaetrs
+ *    See  above, but the Y parameters are returned.
+*/
+DBSpectrum::Parameters
+DBSpectrum::fetchYParameters(
+    const std::string& specType, const Parameters& ids
+) {
+    Parameters result;
+
+    if (specType == "m2" ) {
+        // odd parameters.
+
+        for (auto i = 1; i < ids.size(); i += 2) {
+            result.push_back(ids[i]);
+        }
+    } else if (specType == "gd") {
+        // Don't know how to do in general.
+
+    } else if (specType == "2" || specType == "S") {
+        result.push_back(ids[1]);
+    }
+
+    return result;
+}
+
+/**
  * validateBaseInfo
  *    Do a few checks:
  *    -   The Spectrum name is unique in the save set.
@@ -407,7 +541,7 @@ DBSpectrum::validateParameterCount(const char* type, size_t n)
         // For gd, 2dmproj and m2, there must be an even number of params:
         
         if (stype == "m2" || stype == "2dmproj") {
-            ok == ((n % 2) == 0);
+            ok = ((n % 2) == 0);
         } else {
             ok = true;
         }
@@ -529,7 +663,7 @@ DBSpectrum::enterSpectrum(CSqlite& connection, Info& info)
     ++root;                        // insert.
     info.s_base.s_id = root.lastInsertId();
     
-    // add the parameters to spectrum_params
+    // add the parameters to spectrum_params, spectrum_x_params, and spectrum_y_params
     
     CSqliteStatement param (
         connection,
@@ -542,6 +676,31 @@ DBSpectrum::enterSpectrum(CSqlite& connection, Info& info)
         ++param;                     //  insert.
         param.reset();              // prepared for next loop.
     }
+
+    CSqliteStatement xparams (
+        connection,
+        "INSERT INTO spectrum_x_params (spectrum_id, parameter_id) \
+            VALUES (?,?)"
+    );
+    xparams.bind(1, info.s_base.s_id);
+    for (int i =0; i < info.s_xParameters.size(); i++) {
+        xparams.bind(2, info.s_xParameters[i]);
+        ++xparams;
+        xparams.reset();
+    }
+    
+    CSqliteStatement yparams(
+        connection,
+        "INSERT INTO spectrum_y_params (spectrum_id, parameter_id) \
+            VALUES (?,?)"
+    );
+    yparams.bind(1, info.s_base.s_id);
+    for (int i =0; i < info.s_yParameters.size(); i++) {
+        yparams.bind(2, info.s_yParameters[i]);
+        ++yparams;
+        yparams.reset();
+    }
+
     
     // Add the axis definitions (note we need to capture the id of each.)
     
@@ -631,7 +790,7 @@ DBSpectrum::loadInfo(int sid, const char* name)
     
     CSqliteStatement f2(
         m_conn,
-        "SELECT parameter_id FROM spectrum_params WHERE spectrum_id = ?"
+        "SELECT parameter_id FROM spectrum_params WHERE spectrum_id = ? "
     );
     f2.bind(1, m_Info.s_base.s_id);
     while(!(++f2).atEnd()) {
@@ -650,6 +809,29 @@ DBSpectrum::loadInfo(int sid, const char* name)
             << " has no associated parameter records!!!";
         throw std::logic_error(msg.str());
     }
-}
+    // Now x/y parameters, thess _can be empty if we don't know
+    // how to create them (e.g. gd)... These will also fail
+    // for old data bases so ignore exceptions, that will leave the
+    // x/y parameters empty.
 
+    try {
+
+        CSqliteStatement f3(
+            m_conn, 
+            "SELECT parameter_id FROM spectrum_x_params WHERE spectrum_id = ? "
+        );
+        f3.bind(1, m_Info.s_base.s_id);
+        while(! (++f3).atEnd()) {
+            m_Info.s_xParameters.push_back(f3.getInt(0));
+        }
+        CSqliteStatement f4(
+            m_conn, 
+            "SELECT parameter_id FROM spectrum_y_params WHERE spectrum_id = ? "
+        );
+        f4.bind(1, m_Info.s_base.s_id);
+        while(! (++f4).atEnd()) {
+            m_Info.s_yParameters.push_back(f4.getInt(0));
+        }
+    } catch(...) {}
+}
 }               // namespace SpecTclDB

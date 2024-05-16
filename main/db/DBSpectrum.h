@@ -94,6 +94,8 @@ namespace SpecTclDB {
         struct Info {
             BaseInfo   s_base;
             Parameters s_parameters;
+            Parameters s_xParameters;
+            Parameters s_yParameters;
             Axes       s_axes;
             Info() {}
             Info(const Info& rhs) {
@@ -106,6 +108,8 @@ namespace SpecTclDB {
             void copyIn(const Info& rhs) {
                 s_base       = rhs.s_base;
                 s_parameters = rhs.s_parameters;
+                s_xParameters = rhs.s_xParameters;
+                s_yParameters = rhs.s_yParameters;
                 s_axes       = rhs.s_axes;
             }
         };
@@ -137,6 +141,9 @@ namespace SpecTclDB {
         public:
             const Info& getInfo() const { return m_Info; }
             std::vector<std::string> getParameterNames();
+            std::vector<std::string> getXParameterNames();
+            std::vector<std::string> getYParameterNames();
+
             void storeValues(const std::vector<ChannelSpec>& data);
             std::vector<ChannelSpec>  getValues();
             bool hasStoredChannels();
@@ -156,6 +163,12 @@ namespace SpecTclDB {
             static Parameters fetchParameters(
                 CSqlite& connection, int sid,
                 const std::vector<const char*>& parameterNames
+            );
+            static Parameters fetchXParameters(
+                const std::string& specType, const Parameters& ids
+            );
+            static Parameters fetchYParameters(
+                const std::string& specType, const Parameters& ids
             );
             static void validateBaseInfo(
                 CSqlite& connection,  const BaseInfo& base
