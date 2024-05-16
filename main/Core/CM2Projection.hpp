@@ -187,7 +187,11 @@ CM2Projection<T,R>::UsesParameter(UInt_t id) const
 {
     for (int i = 0; i < m_XYParameterPairs.size(); i++) {
         const std::pair<UInt_t, UInt_t>& xy(m_XYParameterPairs[i]);
-        if ((id == xy.first) || (id == xy.second)) return kfTRUE;
+        if(m_x) {
+            if (id == xy.first) return kfTRUE;
+        } else {
+            if (id == xy.second) return kfFALSE;
+        }
     }
     return kfFALSE;
 }
@@ -205,8 +209,12 @@ CM2Projection<T,R>::GetParameterIds(std::vector<UInt_t>& ids)
     ids.clear();
     for (int i = 0; i < m_XYParameterPairs.size(); i++) {
         std::pair<UInt_t, UInt_t>& xy(m_XYParameterPairs[i]);
-        ids.push_back(xy.first);
-        ids.push_back(xy.second);
+        if (m_x) {
+            ids.push_back(xy.first);
+        } else {
+            ids.push_back(xy.second);
+        }
+        
     }
 }
 /**

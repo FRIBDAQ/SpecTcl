@@ -8,7 +8,7 @@ docdir=$prefix/share/rest
 
 mkdir -p $pkgdir
 
-tar czf - bin lib custom htdocs htdocs_2 startServer.tcl pkgIndex.tcl | \
+tar czf - bin lib custom  htdocs_2 startServer.tcl pkgIndex.tcl | \
     (cd $pkgdir; tar xzf -)
 
 mkdir -p $docdir

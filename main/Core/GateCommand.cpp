@@ -119,6 +119,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 #include <vector>
 #include <string>
 #ifdef HAVE_STD_NAMESPACE
@@ -420,20 +421,32 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
     if(Item.nParameters == 1) {
       if ((string(pType) == string("em")) || 
-	  (string(pType) == string("am")) || 
-	  (string(pType) == string("nm")))
-	{
-	  long Compare ;
-	  sscanf(PointString[0].c_str(), "%lx", &Compare);
-          pGate = api.CreateGate(Item.eGateType, Parameters, Compare);
-	  if(rPackage.AddGate(rResult, string(pName), pGate)) {
-	    return TCL_OK;
+	      (string(pType) == string("am")) || 
+	      (string(pType) == string("nm"))) {
+      unsigned long Compare;
+      char* endPtr(nullptr);
+
+      // Issue 90:  was using sscanf which forced interpretation 
+      //  of the string to hex regardless of how it was passed.
+      // strtoul is better since with base =0 it uses any radix
+      // elements to decide if the string is hex, or even octal.
+      //
+      Compare = strtoul(PointString[0].c_str(), &endPtr, 0);
+      if (endPtr == PointString[0].c_str()) {
+        // Bad conversion:
+
+        rInterp.setResult("Invalid mask value");
+        return TCL_ERROR;
+      }
+      pGate = api.CreateGate(Item.eGateType, Parameters, Compare);
+      if(rPackage.AddGate(rResult, string(pName), pGate)) {
+        return TCL_OK;
+      }
+      else {
+        return TCL_ERROR;
+      }
+      assert(0);
 	  }
-	  else {
-	    return TCL_ERROR;
-	  }
-	  assert(0);
-	}
       else {
 	for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
 	  Float_t x;

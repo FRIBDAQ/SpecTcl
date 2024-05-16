@@ -1877,13 +1877,15 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
     for (int i = 0; i < Def.vParameters.size(); i++) {
         CParameter* xpar = m_pHistogrammer->FindParameter(Def.vParameters[i]);
         CParameter* ypar = m_pHistogrammer->FindParameter(Def.vyParameters[i]);
-        
-        Description.AppendElement(
-            xpar ? xpar->getName() : std::string("--Deleted Parameter--")
-        );
-        Description.AppendElement(
-            ypar ? ypar->getName() : std::string("--Deleted Parameter--")
-        );
+        if (x) {
+          Description.AppendElement(
+              xpar ? xpar->getName() : std::string("--Deleted Parameter--")
+          );
+        } else {
+          Description.AppendElement(
+              ypar ? ypar->getName() : std::string("--Deleted Parameter--")
+          );
+        }
     }
     Description.EndSublist();
     

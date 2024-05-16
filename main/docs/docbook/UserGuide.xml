@@ -8336,4 +8336,730 @@ USERCXXFLAGS=-DANALYZE_FILTERS
             </section>
         </section>
     </chapter>
+    <appendix>
+        <title>Format of NSCLASCII spectrum files.</title>
+        <para>
+            This chapter is intended to be read by programmers interested
+            either in:
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        writing software to read SpecTcl NSCLASCII formatted spectrum files
+                        in their own software
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        writing software to export spectrum data that can be read by SpecTcl.
+                    </para>
+                </listitem>
+            </itemizedlist>.
+            We will describe the format of spectra in files written by 
+            <command>swrite -format ascii</command> either directly or in a GUI that invokes
+            that command.
+        </para>
+        <para>
+            NSCLASCII formatted files are divided in two sections; a header that describes the
+            spectrum and a body that contains the data from bins in the spectrum that have non-zero
+            counts.  These two sections are separated by a line containing 54 <literal>-</literal>
+            characters.  E.g. a line that consists mostly of <literal>-</literal> characters.
+        </para>
+        <section>
+            <title>The header section</title>
+            <para>
+                The header part of the file contains the spectrum whose data will follow in 
+                the data section.  This consist of several lines of text.  
+            </para>
+            <para>
+                The first line of text contains the name of the spectrum as a quoted string and 
+                a parenthesized list of spectrum dimensions.  Note that for summary spectra,
+                as the X axis dimension is determined by the list of parameters, only the Y dimension
+                is provided.  These dimensions represent the
+                <emphasis>non overflow and non underflow</emphasis>
+                numberof bins on each axis of the spectrum. See 
+                <link linkend='sample-header-first-lines' endterm='sample-header-first-lines.title'/>
+                for examples of the contents of this first line of the header.  All lines in that
+                example represent first lines of the header.
+            </para>
+            <example id='sample-header-first-lines'>
+                <title id='sample-header-first-lines.title'>Sample header first lines</title>
+                <programlisting>
+"one-d" (4096)  <co id='first-line-1d' />
+
+"two-d" (1024 512) <co id='first-line-2d' />
+
+"summary" (4096) <co id='firstline-summary' />
+                </programlisting>
+            </example>
+            <para>
+                The numbers in the explanatory text refer to the numbers in 
+                <link linkend='sample-header-first-lines' endterm='sample-header-first-lines.title'/>.
+            </para>
+            <calloutlist>
+                <callout arearefs='first-line-1d'>
+                    <para>
+                        This is an example first header line for a spectrum named <literal>one-d</literal>
+                        that has <literal>4096</literal> channels of data between the under and overflow bins.
+                    </para>
+                </callout>
+                <callout arearefs='first-line-2d'>
+                    <para>
+                        This is a sample first header line for a spectrum named
+                        <literal>two-d</literal>.  The spectrum has <literal>1024</literal>
+                        bins on its X axis between the under and overflow bins and <literal>512</literal>
+                        bins on the Y axis between the under and overflow bins.
+                    </para>
+                </callout>
+                <callout arearefs='firstline-summary' >
+                    <para>
+                        This is a sample first header line for a summary spectrum.   The spectrum's name
+                        is <literal>summary</literal>  The spectrum has <literal>4096</literal>
+                        bins on the Y axis.  As with all summary spectra it will have one X axis bin for 
+                        each paramter in the summary.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+               The second line of this is the date and time at which the file was written in any of the
+               formats that is acceptable to the UNIX data and time formatting.  SpecTcl itslef will write
+               something like:
+               <literal>Wed May 10 11:34:16 2023</literal>.  Data from e.g. rustogramer may use a different
+               date/time format.  Any format that the function <function>gedate(3)</function> can parse is usable.
+               For reference, a sample date/time rustogramer may emit looks like:
+               <literal>2023-05-15 11:27:33.993974400 -04:00</literal>  Which means May 15, 20223, 11:27:33 
+               (and a nearly another second) in 
+               the time zone -4 hours from GMT.  Note that neither format is quoted in any way.
+            </para>
+            <para>
+                Line 3 of the header is the format level which is currently <literal>3</literal> 
+                if changes are made to the NSCLASCII format, this will be different.
+            </para>
+            <para>
+                Line 4 of the header are two space separated fields.  The first field is the SpecTclspectrum
+                type and he second is the channel data type.   The reader is free to choose a different channel
+                data type.  Sample values are shown in:
+                <link linkend='sample-header-line4' endterm='sample-header-line4.title' />.
+            </para>
+            <example id='sample-header-line4'>
+                <title id='sample-header-line4.title'>Sample line 4's of NSCLASCII file headers</title>
+                <programlisting>
+1 long      <co id='line4-1dlong' />
+gd word     <co id='line4-gdword' />
+2 byte      <co id='line4-2dbyte' />
+                </programlisting>
+            </example>
+            <para>
+                In the disucssion of <link linkend='sample-header-line4' endterm='sample-header-line4.title' />
+                below the numbers refer to the callout bullets in the example.
+            </para>
+            <calloutlist>
+                <callout arearefs='line4-1dlong'>
+                    <para>
+                        This line describes a 1-d spectrum with longword (32 bit) channels.
+                    </para>
+                </callout>
+                <callout arearefs='line4-gdword'>
+                    <para>
+                        This line describes a 'gamma deluxe' spectrum with word (16 bit) channels.
+                    </para>
+                </callout>
+                <callout arearefs='line4-2dbyte'>
+                    <para>
+                        This line describes a 2-d spectrum with byte (8 bit) channels.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                The fifth line of the header contains names of parameters.  There are two forats.
+                The first format used for most spectra is just a parenthesized list of space separated
+                parameter names.  Each parameter name is enclosedin <literal>"</literal> characters
+                (e.g. <literal>"aparameter"</literal>).  The second form, used only for gamma deluxe spectra
+                and 2d-multi spectra.
+                
+            </para>
+            <para>
+                While you might think that second form would be used for 2-d spectra, this is
+                not the case..  2-d spectra have a
+                pair of parameters.  The first is the X parameter, the second the Y parameter.
+                Let's look at a set of examples.  See:
+                <link linkend='sample-header-line5' endterm='sample-header-line5.title' />
+            </para>
+            <example id='sample-header-line5'>
+                <title id='sample-header-line5.title'>Sample of line 5 of the spectrum header.</title>
+                <programlisting>
+("aparameter")                         <co id='line5-single' />
+("param1" "param2")                    <co id='line5-2d' />
+("param1" "param2" "param3" "param4")  <co id='line5-several' />
+("xp1" "xp2")  ("yp1" "yp2")           <co id='line5-xy' />
+                </programlisting>
+            </example>
+            <para>
+                The numbers in the callout blobs below refer to corresponding callout blobs in 
+                <link linkend='sample-header-line5' endterm='sample-header-line5.title' />.
+            </para>
+            <calloutlist>
+                <callout arearefs='line5-single'>
+                    <para>
+                        This is how a 1-d spectrum or bitmask spectrum will look. The single parameter
+                        <literal>aparameter</literal> is specified.
+                    </para>
+                </callout>
+                <callout arearefs='line5-2d' >
+                    <para>  
+                        This is what a 2-d spectrum will look like. The X axis will be <literal>param1</literal>
+                        the Y axis will be <literal>param2</literal>.
+                    </para>
+                </callout>
+                <callout arearefs='line5-several'>
+                    <para>
+                        This list of parameters is typical of <literal>s</literal> <literal>g1</literal>, 
+                        or <literal>g2</literal>.  In the 2-d histograms (<literal>s</literal> and <literal>g2</literal>)
+                        there's no differentiation between X and Y parameters so a single parameter list is used.
+                    </para>
+                </callout>
+                <callout arearefs='line5-xy'>
+                    <para>
+                        This is how either a <literal>gd</literal> or <literal>2dm</literal> spectrum looks. 
+                        There are two lists of parameters.  The first list of parametesr are X parameters.
+                        The second list are Y parameters.  In <literal>2dm</literal> spectra there will
+                        be the same number of X and Y parameters while this need not be the case for
+                        <literal>gd</literal> spectra.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Line 6 of the header provides axis definitions.  These will be one or two parenthesized
+                list of floating point low/high pairs defining the world coordinate limits of each axis.
+                Note that while summary spectra (type <literal>s</literal>) have two axes, the X axis
+                is fully defined by the number of parameterized summarized by the spectrum.  Therefore
+                for summary spectra there is a single axis definition but it is for the Y axis.
+            </para>
+            <para> 
+                <link linkend='sample-header-line6' endterm='sample-header-line6' /> provides 
+                sample line-6 contents.
+            </para>
+            <example id='sample-header-line6'>
+                <title> id='sample-header-line6.title'>Sample contents of line 6</title>
+                <programlisting>
+(-1.0 1.0)              <co id='line6-oneaxis' />
+(1.0 1.0) (0.0 4096.0)  <co id='line6-twoaxes' />
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='line6-oneaxis' >
+                    <para>
+                        This is a typical single axis definitions for e.g. 1d, gamma 1d, bitmask,
+                        or summary spectrum types. It specifies a single axis that contains the range
+                        [-1.0 1.0)
+                    </para>
+                </callout>
+                <callout arearefs='line6-twoaxes'>
+                    <para>
+                        This is an example of specification of two axes.  The X axis spans the 
+                        range [-1.0 1.0) whie the Y axis spans the range [0.0 4096.0].  This style of
+                        specification is used by 2-d, gamma 2d, gamma deluxe, and twod sum specctra.
+                    </para>
+                </callout>
+            </calloutlist>
+        </section>
+        <section>
+            <title>The data setion</title>
+            <para>
+                The data section of NSCLASCII spectra contains channel values for all channels with 
+                non-zero contents. 
+                The contents of each non-zero bin is one line of text.  The line contains the 
+                bin number coordinate(s) of the channel and the channel value.
+                Bin coordinates are specified as a paranethesized integer or pair of integers.
+                The bin coordinate(s) are then followed by the contents of that bin space separated
+                from the coordinates.
+            </para>
+            <para>
+                Once all non-zero channels have been specified, a sentinnel consisting of 
+                bin coordinate(s) that are <literal>-1</literal> and a bin contents that can be ignored.
+                <link linkend='asc-oned-data' endterm='asc-oned-data.title'/> is a sample of
+                a data section for a 1-d spectrum.
+            </para>
+            <example id='asc-oned-data'>
+                <title id='asc-oned-data.title'> Sample 1d data section</title>
+                <programlisting>
+(100) 7        <co id='asc-oned-channel' />
+(101) 10
+(103) 12       <co id='asc-oned-skip-zero' />
+... 
+(-1) -1        <co id='asc-oned-sentinnel' />
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='asc-oned-data' >
+                    <para>
+                        This is an example of a typical channel of 1-d data.  It specifies that there 
+                        are 7 counts in bin number 100 of the spectrum.  Note that bin 0 is the First
+                        non-underflow channel.
+                    </para>
+                </callout>
+                <callout arearefs='asc-oned-skip-zero'>
+                    <para>
+                        Note that channel number 102 does not appear in the data list.  
+                        This means that there are no counts in that bin of the spectrum.
+                    </para>
+                </callout>
+                <callout arearefs='asc-oned-sentinnel'>
+                    <para>
+                        This is one the end of data sentinnel looks like for 1-d data.
+                        This marks the end of the data section for this spectrum.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Data for a spectrum that has two dimensions is very similar.  A small sample
+                is shown in <link linkend='asc-twod-data' endterm='asc-twod-data.title' />
+            </para>
+            <example id='asc-twod-data' >
+                <title id='asc-twod-data.title'> Sample 2-d data section</title>
+                <programlisting>
+(12 100)  12
+(12 107)  15
+...
+(-1 -1) -1
+                </programlisting>
+            </example>
+            <para> 
+                I think, if you understand the format of 1-d data this is pretty clear and
+                requires no additional explanation.
+            </para>
+        </section>
+        <section>
+            <title>Sample empty spectrum files</title>
+            <para>
+                This section contains two examples.  The first provides a 1-d spectrum
+                file with no non-zero channels of data.  The second is the same for
+                a 2-d spectrum.
+            </para>
+            <example>
+                <title>Sample 1d data file with no counts</title>
+                <programlisting>
+"raw" (1024)
+Tue Oct  3 13:48:58 2023
+ 3
+1 long
+("event.raw.00")
+(0 1024)
+--------------------------------------------
+(-1) -1
+
+                </programlisting>
+            </example>
+            <example>
+                <title>Sample 2-d data file with no counts</title>
+                <programlisting>
+"twod" (512 514)
+Tue Oct  3 13:48:58 2023
+ 3
+2 long
+("event.raw.00" "event.raw.01")
+(0 1024) (0 1024)
+--------------------------------------------
+(-1 -1) -1
+
+                </programlisting>
+            </example>
+        </section>
+    </appendix>
+    <appendix>
+        <title>Format of SpecTcl JSON spectrum files.</title>
+        <para>
+            JavaScript Object Notation (or JSON for short), 
+            is a lightweight data-interchange format intended
+            for use with structured data.  SpecTcl uses the
+            jsoncpp package.
+            Jsoncpp is documented at <ulink url='http://open-source-parsers.github.io/jsoncpp-docs/doxygen/index.html' />.
+            The JSON organization and format documentation is at
+            <ulink url='https://www.json.org/json-en.html' />.  JSON 
+            is a fully textual format.
+        </para>
+        <para>
+            To summarize JSON, JSON defines arrays and objects.  Arrays are 
+            surrounded by <literal>[]</literal>.  Objects are surrounded by
+            <literal>{}</literal>.  An object has attributes (member data in C++).
+            Each attribute is described by a name value pair of the form.
+            Without any explanation, here is a sample spectrum file from SpecTcl
+            in JSON format:
+        </para>
+        <informalexample>
+            <programlisting>
+[
+        {
+                "channels" :
+                [
+                        {
+                                "chan_type" : "Bin",
+                                "value" : 1234,
+                                "x_bin" : 101,
+                                "x_coord" : 201,
+                                "y_bin" : 101,
+                                "y_coord" : 201
+                        },
+                        {
+                                "chan_type" : "Bin",
+                                "value" : 1000,
+                                "x_bin" : 256,
+                                "x_coord" : 511,
+                                "y_bin" : 256,
+                                "y_coord" : 511
+                        }
+                ],
+                "description" :
+                {
+                        "name" : "twod",
+                        "type_string" : "2",
+                        "x_axis" :
+                        [
+                                0,
+                                1024,
+                                514
+                        ],
+                        "x_parameters" :
+                        [
+                                "event.raw.00"
+                        ],
+                        "y_axis" :
+                        [
+                                0,
+                                1024,
+                                514
+                        ],
+                        "y_parameters" :
+                        [
+                                "event.raw.01"
+                        ]
+                }
+        }
+]
+            </programlisting>
+        </informalexample>
+        <para>
+            Note that based on our introductory paragraph, the file contains an array
+            of objects.  Each of those objecgts is a spectrum.
+        </para>
+        <para>
+            As with NSCLDASCII, JSON formatted spectrum files contain metadata which
+            descdribe the spectrum itself and data which contains the channel values
+            for bins that have non-zero values.  Unlike NSCLASCII data, channel data
+            includes inforation about the world coordinates of each channel as well 
+            as the bin coordinates of each channel. 
+        </para>
+        <para>
+            Each spectrum, therefore, is comprised of an object that has two attributes:
+            <literal>description</literal> and <literal>channels</literal>.
+            Each of these attributes is in turn an object with 
+            <literal>description</literal> providing spectrum metadata and,
+            <literal>channels</literal> providing the data in the spectrum.
+        </para>
+        <section>
+            <title> The <literal>description</literal> object.</title>
+            <para>
+                The <literal>description</literal> contains an object
+                that describes the spectrum.  That is it provides 
+                spectrum metadata.  We use the terms
+                <firstterm>description attribute</firstterm> and
+                <firstterm>description object</firstterm> interchangeably.
+                We also use the terms <firstterm>attribute</firstterm> and
+                <firstterm>field</firstterm> interchangeably.
+            </para>
+            <para>
+                The <literal>description</literal> attribute has the Following
+                fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal>name</literal></term>
+                    <listitem>
+                        <para>
+                            This attribute containst he name of the
+                            spectrum.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>type_string</literal></term>
+                    <listitem>
+                        <para>Contains the SpecTcl spectrum type string.
+                            e.g. <literal>"2"</literal> for a 2-d spectrum.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>x_axis</literal></term>
+                    <listitem>
+                        <para>
+                            Contains an X axis specification.  This is
+                            an array that will be described in 
+                            <link linkend='sec.axis-spec' endterm='sec.axis-spec.title' />.
+                            This field is always not <literal>"null"</literal>.  For a summary spectrum
+                            it will define real coordinates and bins suitable for the number
+                            of summarized parameters.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>x_parameters</literal></term>
+                    <listitem>
+                        <para>
+                            This attribute is an array containing the names of all
+                            X-axis parameters.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>y_axis</literal></term>
+                    <listitem>
+                        <para>
+                            This attribute is <literal>"null"</literal> if the
+                            spectrum has no y axis.  Otherwise it is an array
+                            that describes the Y axis of the spectrum.
+                            See <link linkend='sec.axis-spec' endterm='sec.axis-spec.title' />
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>y_parameters</literal></term>
+                    <listitem>
+                        <para>
+                            Contains an array of Y axis parameters.  This will be
+                            an empty array if there are no Y axis parameters in this
+                            spectrum type.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                </variablelist>
+            <para>
+                Have a look at the annotated example of a <literal>description</literal>
+                object for any needed clarification.
+                See 
+                <link linkend='json-description' endterm='json-description.title' />
+            </para>
+            <example id='json-description'>
+                <title id='json-description.title'>Sample <literal>description</literal> object</title>
+                <programlisting>
+"description" :
+{
+        "name" : "twod",       <co id='json.name' />
+        "type_string" : "2",   <co id='json.type' />
+        "x_axis" :             <co id='json.xaxis' />
+        [
+                0,
+                1024,
+                514
+        ],
+        "x_parameters" :       <co id='json.xparams' />
+        [
+                "event.raw.00"
+        ],
+        "y_axis" :            <co id='json.yaxis' />
+        [
+                0,
+                1024,
+                514
+        ],
+        "y_parameters" :     <co id='yparams' />
+        [
+                "event.raw.01"
+        ]
+}
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='json.name'>
+                <para>
+                    The <literal>name</literal> attribute in this
+                    description says that the spectrum was originally
+                    named <literal>twod</literal>.   It's up to the
+                    software reading this definition to decide what to do
+                    with this name.  SpecTcl uses this as the base from
+                    which a unique name is formed.
+                </para>
+                </callout>
+                <callout arearefs='json.type'>
+                    <para>
+                        The <literal>type_string</literal> attribute of the
+                        description, in this case, specifies that the spectrum
+                        is of type <literal>2</literal>, or a 
+                        simple 2-d spectrum.
+                    </para>
+                </callout>
+                <callout arearefs='json.xaxis'>
+                    <para>
+                        This array describes the X axis limits and
+                        binning, see
+                        <link linkend='sec.axis-spec' endterm='sec.axis-spec.title' />
+                        for more information.  The <literal>x_axis</literal>
+                        attribute is never <literal>"null"</literal> unlike the
+                        <literal>y_axis</literal> attribute which can be depending on
+                        the spectrum type.
+                    </para>
+                </callout>
+                <callout arearefs='json.xparams'>
+                    <para>
+                        This array valued field is the list of X axis parameters
+                        in the spectrum. This attribute specifies only one
+                        X parameter (<literal>event.raw.000</literal>) as is
+                        the case for all <literal>2</literal> typed spectra.
+                        For e.g. a <literal>g1</literal> spectrum type, there can be
+                        any number of <literal>x_parameters</literal>.
+                    </para>
+                </callout>
+                <callout arearefs='json.yaxis'>
+                    <para>
+                        Describes the y axis if there is one.  In case the spectrum
+                        type does not need a y axis specification, this attribute
+                        will have the <literal>"null"</literal> value.  In JSON,
+                        this is a reserved value that specifies the field does not
+                        have a value, like e.g. <literal>nullptr</literal> in 
+                        C++.
+                    </para>
+                </callout>
+                <callout arearefs='yparams'>
+                    <para>
+                        Provides a list of parameters for the Y axis.  In this case,
+                        for a spectrum of type <literal>2</literal> there is a single
+                        Y parameter; <literal>event.raw.01</literal>.  For spectra without
+                        Y parameters; e.g. <literal>1</literal> the value of this field
+                        will merely be an empty array.
+                    </para>
+                </callout>
+            </calloutlist>
+
+            <section id='sec.axis-spec'>
+                <title id='sec.axis-spec.title'>The axis specification</title>
+                <para>
+                    Axis specification arrays define axis limits and binning.
+                    Note that the bin counts in JSON format 
+                    <emphasis>include</emphasis> the under and overflow bins.
+                </para>
+                <para>
+                    Axis specifications are three element array which contain,
+                    in order;  The axis real coordinate low limit, the axis
+                    real coordinate high limit and the number of  bins on the axis,
+                    including the underflow and overflow bins.
+                    For example:
+                </para>
+                <informalexample>
+                    <programlisting>
+"x_axis" :             
+[
+        0,
+        1024,
+        514
+],
+                    </programlisting>
+                </informalexample>
+                <para>
+                    is equivalent to the SpecTcl axis specification
+                    <literal>{{0.0 1024.0 512}}</literal> note the
+                    512 bins because the <command>spectrum</command>
+                    axis specifications do not include under and overflow
+                    bins.
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>The <literal>channels</literal> object.</title>
+            <para>
+                The <literal>channels</literal> field of a spectrum
+                contains the data from all of the bins that do not have
+                zero counts.  Therefore <literal>channels</literal>
+                is an array of objects.  For the sake of this
+                document, we'll call each of these objects a 
+                <firstterm>channel</firstterm>.
+            </para>
+            <para>
+                <literal>channel</literal> objects have the following
+                fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal>chan_type</literal></term>
+                    <listitem>
+                        <para> 
+                            Describes the type of bin this channel is.
+                            At present, this will always be 
+                            <literal>Bin</literal> which indicates the
+                            data are for an ordinary bin.  In the future
+                            this may contain <literal>Overflow</literal>
+                            or <literal>Underflow</literal> indicating that
+                            this bin contains under or overflow counts
+                            respectively.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>value</literal></term>
+                    <listitem>
+                        <para>
+                            This field contains the number of counts in
+                            the channel described by this channel.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>x_bin</literal></term>
+                    <listitem>
+                        <para>
+                            Contains the bin number along the X axis
+                            for this bin.  Note that bin <literal>1</literal>
+                            is the first ordinary bin as bin nuber 0 is the
+                            underflow bin.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>x_coord</literal></term>
+                    <listitem>
+                        <para>Contains a world coordinate value that lies
+                        inside the bin.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>y_bin</literal></term>
+                    <listitem>
+                        <para>
+                            As with <literal>x_bin</literal> but this field
+                            contains the bin number on the Y axis.  For 
+                            spectra whose y axis are a counts axis, this is
+                            <literal>0</literal>.
+                            It would be wise to be prepared to also handle
+                            the value <literal>"null"</literal> in this 
+                            case.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>y_coord</literal></term>
+                    <listitem>
+                        <para>
+                            Same as for <literal>x_coord</literal> but 
+                            along the Y axis.  For spectrum whose Y axis
+                            is a counts axis, this will be <literal>0.0</literal>
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Below is a sample channel objects.
+            </para>
+            <informalexample>
+                <programlisting>
+{
+        "chan_type" : "Bin",
+        "value" : 1234,
+        "x_bin" : 101,
+        "x_coord" : 201,
+        "y_bin" : 101,
+        "y_coord" : 201
+},
+                </programlisting>
+            </informalexample>
+
+        </section>
+    </appendix>
 </book>

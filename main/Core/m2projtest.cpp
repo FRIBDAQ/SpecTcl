@@ -231,18 +231,18 @@ void m2projtest::querymethods()
 {
     std::unique_ptr<CM2ProjectionL> p(makeSpectrum()); // avoids leaks.
     
-    // parameters [1,6] are used.
+    // parameters [1,3,5] are 'used' the x ones.
     
-    for (int i =1; i < 7; i++) {
+    for (int i =1; i < 7; i+=2) {
         ASSERT(p->UsesParameter(i));
     }
     // Parameters get returned in 1-6 order:
     
     std::vector<UInt_t> params;
     p->GetParameterIds(params);
-    EQ(size_t(6), params.size());
-    for (UInt_t i =0; i < 6; i++) {
-        EQ(i+1, params[i]);
+    EQ(size_t(3), params.size());
+    for (UInt_t i =0; i < params.size(); i++) {
+        EQ(2*(i)+1, params[i]);
     }
     // only one resolution and it's 128.
     
