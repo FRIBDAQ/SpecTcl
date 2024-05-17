@@ -7,7 +7,9 @@ libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 
 
 
-COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@
+COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' \
+-DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@ \
+-I@top_srcdir@/mpi
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
@@ -443,6 +445,7 @@ commonTestCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
 				  -I@top_srcdir@/factories \
 				  -I@top_srcdir@/Display \
+				  -I@top_srcdir@/mpi \
 	  			@LIBTCLPLUS_CFLAGS@ \
 				@TCL_CPPFLAGS@ \
 				@CPPUNIT_CFLAGS@ \

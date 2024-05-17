@@ -291,12 +291,7 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
     pWords.push_back(words[i].c_str());
   }
   auto pArgs = pWords.data();
-  std::cerr << "Command: \n";
-  for (auto pw: pWords) {
-    std::cerr << "'" << pw << "'" << " ";
-  }
-  std::cerr << std::endl;
-
+  
   nArgs--; 
   pArgs++;			// Skip the command name.
   if(nArgs  < 1) {		// Must be at least one parameter:
