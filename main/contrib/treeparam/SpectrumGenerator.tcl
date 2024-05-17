@@ -567,11 +567,11 @@ proc CreateSpectrum {SpectrumList Name ParameterList ResolutionList} {
 	} else {
 #		if {[string match [tk_messageBox -icon warning -message "The spectrum $Name already exists.  Do you want to overwrite it?" \
 		-title Warning -type yesno -parent .gui] yes]} {
-			set gate [lindex [lindex [lindex [apply -list $Name] 0] 1] 0]
+			set gate [lindex [lindex [lindex [applygate -list $Name] 0] 1] 0]
 			spectrum -delete $Name
 			spectrum $Name $spectrumType $ParameterList $ResolutionList $spectrumDatatype
 			if {![string equal $gate -TRUE-]} {
-				apply $gate $Name
+				applygate $gate $Name
 			}
 			puts "Spectrum $Name replaced"
 #		}
@@ -616,7 +616,7 @@ proc UpdateSpectrumList {} {
 	set fraction [lindex [$tops.slist.listbox yview] 0]
 	$tops.slist.listbox delete 0 end
 	set theList [spectrum -list]
-	set theApplyList [apply -list]
+	set theApplyList [applygate -list]
 	set i 0
 	foreach spectrum $theList {
 		set id [lindex $spectrum 0]
@@ -949,7 +949,7 @@ proc ApplyGate {} {
 	foreach index $selectedlist {
 		set spectrum [$lbox get $index]
 		set name [lindex $spectrum 0]
-		apply $spectrumGate $name
+		applygate $spectrumGate $name
 	}
 	UpdateSpectrumList
 	Modified
@@ -1093,7 +1093,7 @@ proc LoadDefinitionFile {file} {
 			set gatename [lindex $gate 0]
 			set gatetype [lindex $gate 2]
 			if {[string compare $gatetype T] != 0} {
-				apply $gatename $spectrum
+				applygate $gatename $spectrum
 			}
 		}
 	}
@@ -1153,7 +1153,7 @@ proc SaveDefinitionFile {file} {
 	}		
 	set gateList [SortGates $gateList]
 
-	set applyList [apply -list]
+	set applyList [applygate -list]
 
 	set extension [lindex [split $definitionFile .] end]
 	if {[string compare $extension sdef] == 0} {
@@ -1207,7 +1207,7 @@ proc SaveDefinitionFile {file} {
 			set gatename [lindex $gate 0]
 			set gatetype [lindex $gate 2]
 			if {![string equal $gatetype T] && ![string equal $gatetype F]} {
-				puts $handle "apply $gatename $spectrum"
+				puts $handle "applygate $gatename $spectrum"
 			}
 		}
 		puts $handle "# TreeParameter changes from C++ code"

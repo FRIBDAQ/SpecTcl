@@ -14,7 +14,7 @@
 	     East Lansing, MI 48824-1321
 */
 
-static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
+static const char* Copyright = "Parameter command package\n   (C) Copyright Michigan State University 2008, 2024, All rights reserved";
 
 //  CParameterPackage.cpp
 //
@@ -42,6 +42,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "PseudoScript.h"
 #include "SpecTcl.h"
 #include "TCLResult.h"
+#include "MPITclCommand.h"
+#include "MPITclPackagedCommandAll.h"
+#include "MPITclPackagedCommand.h"
+#include "TclPump.h"
+#include "Globals.h"
 
 #include <histotypes.h>
 #include <string>
@@ -66,15 +71,30 @@ using namespace std;
 //    Constructor
 //
 
+
+// In MPI spectcl:
+//  - the histogramer is only in the event sink rank.
+//  - The parameter command executes everywhere maintaining the paramter dictionary...but how it
+//    executes may depend on the rank.
+//  - The pseudo command only executes in the root rank for now (later it'll execute in the workers.)
+
 CParameterPackage::CParameterPackage (CTCLInterpreter* pInterp, 
 				      CTCLHistogrammer* pHistogrammer) :
-  CTCLCommandPackage(pInterp, Copyright),
-  m_pHistogrammer(pHistogrammer),
-  m_pParameter(new CParameterCommand(pInterp, *this)),
-  m_pPseudo(new CPseudoCommand(pInterp, *this))
+  m_pHistogrammer(0),
+  m_pParameter(0),
+  m_pPseudo(0)
 {
-  AddProcessor(m_pParameter);
-  AddProcessor(m_pPseudo);
+
+  m_pHistogrammer = pHistogrammer;      // If MPI and not MPI_EVENT_SINK_RANK - this will be null.
+  auto parameterInner = new CParameterCommand(pInterp);
+  addCommand(parameterInner);
+  m_pParameter = new CMPITclPackagedCommandAll(*pInterp, "parameter", parameterInner);
+  addCommand(m_pParameter);
+
+  auto pseudoInner = new CPseudoCommand(pInterp);
+  addCommand(pseudoInner);
+  m_pPseudo = new CMPITclPackagedCommand(*pInterp, "pseudo", pseudoInner);
+  addCommand(m_pPseudo);
 }
 //////////////////////////////////////////////////////////////////////////
 // 
@@ -90,67 +110,13 @@ CParameterPackage::~CParameterPackage()
 }
 //////////////////////////////////////////////////////////////////////////
 //
-// Function:
-//    CParameterPackage (const CParameterPackage& aCParameterPackage )
-//  Operation Type:
-//     Copy Constructor
-//
-
-CParameterPackage::CParameterPackage 
-                         (const CParameterPackage& aCParameterPackage ) :
-  CTCLCommandPackage(aCParameterPackage),
-  m_pHistogrammer(aCParameterPackage.m_pHistogrammer),
-  m_pParameter(new CParameterCommand(aCParameterPackage.getInterpreter(),
-				   *this))
-{
-
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//    CParameterPackage& operator=(const CParameterPackage& aCParameterPackage)
-// Operation Type:
-//    Assignment operator.
-//
-
-CParameterPackage&
-CParameterPackage::operator=(const CParameterPackage& aCParameterPackage)
-{
-  if(this != &aCParameterPackage) {
-    CTCLCommandPackage::operator=(aCParameterPackage);
-    m_pHistogrammer = aCParameterPackage.m_pHistogrammer; 
-    m_pParameter    = new CParameterCommand(getInterpreter(),
-					    *this);
-  }
-  return *this;
-}
-
-//////////////////////////////////////////////////////////////////////////
-// 
-// Function:
-//     int operator== (const CParameterPackage& aCParameterPackage)
-// Operation Type:
-//      Comparison.
-//
-int
-CParameterPackage::operator==(const CParameterPackage& aCParameterPackage)
-{
-  return (
-	  CTCLCommandPackage::operator==(aCParameterPackage) &&
-	  (m_pHistogrammer == aCParameterPackage.m_pHistogrammer)
-	  );
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
 //  Function:   
 //    Int_t AddParameter ( CTCLResult& rResult, const char* pName, UInt_t nId, UInt_t nBits )
 //  Operation Type:
 //     Interface
 //
 TCLPLUS::Int_t 
-CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName, 
+CParameterPackage::AddParameter(CTCLInterpreter& rInterp, const char* pName, 
 				TCLPLUS::UInt_t nId, TCLPLUS::UInt_t nBits,
 				TCLPLUS::Float_t nLow, TCLPLUS::Float_t nHi, 
 				const char* pUnits) 
@@ -161,11 +127,8 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
 //
 // Formal Parameters
 //
-//    CTCLResult&     result:
-//         Where the result is placed.  The result is one of the
-//         following:
-//             If successful, the name of the new parameter.
-//             If failed a string describing why failed.
+//    CTCLInterpreter& rInterp
+//         Interpteter - rInterp.setResult is used to set the result of the command.
 //    const char*  pName:
 //             Requested name of the new parameter.
 //     UInt_t          nID:
@@ -183,22 +146,22 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
   try {
     if(nHi == nLow) {
       api.AddParameter(pName, nId, nBits);
-      rResult = pName;
+      rInterp.setResult(pName);
       return TCL_OK;
     }
     else {
       if(pUnits != (char*)kpNULL) {
-	api.AddParameter(pName, nId, nBits, nLow, nHi, pUnits);
+	      api.AddParameter(pName, nId, nBits, nLow, nHi, pUnits);
       }
       else {
-	api.AddParameter(pName, nId, nBits, nLow, nHi, "");
+	      api.AddParameter(pName, nId, nBits, nLow, nHi, "");
       }
-      rResult = pName;
+      rInterp.setResult(pName);
       return TCL_OK;
     }
   }
   catch (CException& rException) { // Map exceptions to result code, return.
-    rResult = rException.ReasonText();
+    rInterp.setResult(rException.ReasonText());
     return TCL_ERROR;
   }
   assert(0);
@@ -206,9 +169,8 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
 /*!
    Add a real parameter.  Real parameters are never scaled.  Spectra select
    from a range within the real parameter. 
-   \param rResult (CTCLResult& [out]) Result string of the creation.  If
-                 the parameter was created, the result string contains the
-		 new parameter's name. Otherwise and error message.
+   \param rInterp (CTCLInterpreter& [inout]) THe interpreter object.
+         rInterp.setResult() is used to set the command's result string.
    \param pName   (const char* [in]) Name to assign the new parameter.
                  Note the histogrammer's parameter creationals will throw
 		 an exception if this is a duplicate.  We catch the exception
@@ -229,7 +191,7 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
                 dictionary.
 */
 TCLPLUS::Int_t
-CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
+CParameterPackage::AddParameter(CTCLInterpreter& rInterp, const char* pName,
 				TCLPLUS::UInt_t nId, const char* pUnits)
 {
   SpecTcl& api(*(SpecTcl::getInstance()));
@@ -243,10 +205,10 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
 
   }
   catch (CException& rException) {
-    rResult = rException.ReasonText();
+    rInterp.setResult(rException.ReasonText());
     return TCL_ERROR;
   }
-  rResult = pName;
+  rInterp.setResult(pName);
   return TCL_OK;
 }
 //////////////////////////////////////////////////////////////////////////
@@ -295,16 +257,14 @@ CParameterPackage::CreateTclParameterList(CTCLInterpreter& rInterp, const char* 
 //     mutator
 //
 TCLPLUS::Int_t 
-CParameterPackage::DeleteParameter(CTCLResult& rResult, const char* pName) 
+CParameterPackage::DeleteParameter(CTCLInterpreter& rInterp, const char* pName) 
 {
 // Requests that a parameter be deleted.
 //
 // Formal Parameters:
-//    CTCLResult:
-//        Holds either:
-//              Name of the parameter deleted or
-//              reason parameter could not be deleted
-//              from caught exceptions
+//    CTCLInterpreter& rInterp
+//        Interpreter.  rInterp.setResult() will be used to set the
+//        operation's result string.
 //    const char* pName:
 //        Name of the parameter string
 //
@@ -328,11 +288,11 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, const char* pName)
 				 pName);
     pParam = api.RemoveParameter(pName);
     delete pParam;
-    rResult = pName;
+    rInterp.setResult(pName);
     return TCL_OK;
   }
   catch (CException& rExcept) {
-    rResult = rExcept.ReasonText();
+    rInterp.setResult(rExcept.ReasonText());
     return TCL_ERROR;
   }
   assert(0);
@@ -346,16 +306,13 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, const char* pName)
 //     mutator
 //
 TCLPLUS::Int_t 
-CParameterPackage::DeleteParameter(CTCLResult& rResult, TCLPLUS::UInt_t nId) 
+CParameterPackage::DeleteParameter(CTCLInterpreter& rInterp, TCLPLUS::UInt_t nId) 
 {
 // Deletes a requested parameter.
 // 
 // Formal Parameters:
-//      CTCLResult& rResult:
-//         The result string which will contain either:
-//          The name of the parameter deleted or
-//          The reason (snagged from the exception)
-//           why the deletion failed.
+//      CTCLResult& rInterp:
+//         Interpreter.  rInterp.setResult() will set the command's result tring.
 //      UInt_t id:
 //         Number of the parameter to delete.
 // NOTE:
@@ -373,11 +330,11 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, TCLPLUS::UInt_t nId)
       throw CDictionaryException(CDictionaryException::knNoSuchId,
 				 "Looking up parameter",
 				 Id);
-    DeleteParameter(rResult, pPar->getName().c_str());
+    DeleteParameter(rInterp, pPar->getName().c_str());
     return TCL_OK;
   }
   catch (CException& rException) {
-    rResult = rException.ReasonText();
+    rInterp.setResult(rException.ReasonText());
     return TCL_ERROR;
   }
   assert(0);
@@ -391,7 +348,7 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, TCLPLUS::UInt_t nId)
 //     Inquiry
 //
 TCLPLUS::Int_t 
-CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName) 
+CParameterPackage::ListParameter(CTCLInterpreter& interp, const char*  pName) 
 {
 // Creates a TCL list which describes a single parameter.
 // 
@@ -415,10 +372,10 @@ CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName)
       throw CDictionaryException(CDictionaryException::knNoSuchKey,
 				 "Looking up parameter",
 				 pName);
-    rResult = (const char*)getParameterInfoListString(*pParam);
+      interp.setResult((const char*)(getParameterInfoListString(*pParam)));
   }
   catch(CException& rExcept) {
-    rResult = rExcept.ReasonText();
+    interp.setResult(rExcept.ReasonText());
     return TCL_ERROR;
   }
   return TCL_OK;
@@ -432,7 +389,7 @@ CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName)
 //     Inquiry
 //
 TCLPLUS::Int_t 
-CParameterPackage::ListParameter(CTCLResult& rResult, TCLPLUS::UInt_t  nId) 
+CParameterPackage::ListParameter(CTCLInterpreter& interp, TCLPLUS::UInt_t  nId) 
 {
 // Creates a Tcl list which represents the information
 // describing a parameter. 
@@ -460,10 +417,10 @@ CParameterPackage::ListParameter(CTCLResult& rResult, TCLPLUS::UInt_t  nId)
       throw CDictionaryException(CDictionaryException::knNoSuchKey,
 				 "Looking up parameter",
 				 Id);
-    rResult = (const char*)getParameterInfoListString(*pParam);
+    interp.setResult((const char*)getParameterInfoListString(*pParam));
   }
   catch(CException& rExcept) {
-    rResult = rExcept.ReasonText();
+    interp.setResult(rExcept.ReasonText());
     return TCL_ERROR;
   }
   return TCL_OK;
@@ -543,18 +500,17 @@ CParameterPackage::getParameterInfoListString(CParameter& rParameter)
 //   Mutator.
 //
 TCLPLUS::Int_t
-CParameterPackage::AddPseudo(CTCLResult& rResult, const char* pPseudoName,
+CParameterPackage::AddPseudo(CTCLInterpreter& rInterp, const char* pPseudoName,
 			     vector<string>& rDependents, const char* pBody)
 {
   // Adds a Pseudo parameter definition to the current histogrammer.
   // 
   // Formal Parameters:
-  //  CTCLResult& rResult:
-  //    Result string which, on success is the name of the procedure
-  //    created.
+  //  CTCLInterpreter& rInterp
+  //    Interpreter - rInterp.setResult() will be used to set the command result.
   //  const char* pPseudoName:
   //    Name of the pseudo to add.
-  //  vector<string>& rDependents:
+  //  vector<string>& rDependents: 
   //    The parameters on which this pseudo depends.
   //  const char* pBody:
   //    The text of the body of the script.
@@ -567,11 +523,12 @@ CParameterPackage::AddPseudo(CTCLResult& rResult, const char* pPseudoName,
     CPseudoScript pseudo(name, rDependents,
 			 *m_pHistogrammer, Interp, body);
     m_pHistogrammer->AddPseudo(pseudo);
-    rResult += pseudo.getName();
-    rResult += "_Procedure";
+    std::string result = pseudo.getName();
+    result += "_Procedure";
+    rInterp.setResult(result);
   }
   catch(CException& rException) {
-    rResult += rException.ReasonText();
+    rInterp.setResult(rException.ReasonText());
     return TCL_ERROR;
   }
 
@@ -685,4 +642,14 @@ CParameterPackage::GetPseudoNames(list<string>& rNames)
     rNames.push_back((*p).getOutputParameter());
     p++;
   }
+}
+
+
+/**
+ *  getSignon - return the string to output at startup when the package is included;
+ *   @return const char*
+*/
+const char*
+CParameterPackage::getSignon() const {
+  return Copyright;
 }

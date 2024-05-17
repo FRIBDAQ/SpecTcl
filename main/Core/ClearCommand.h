@@ -48,16 +48,15 @@
 #ifndef CLEARCOMMAND_H  //Required for current class
 #define CLEARCOMMAND_H
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 #include <vector>
 #include <string>
 #include <set>
 
 class CTCLInterpreter;
-class CTCLResult;
 class CSpectrum;
                                
-class CClearCommand  : public CTCLPackagedCommand        
+class CClearCommand  : public CTCLPackagedObjectProcessor        
 {
 public:
   // Switch set:
@@ -71,10 +70,8 @@ public:
 
 
 public:
-  CClearCommand (CTCLInterpreter* pInterp,
-		 CTCLCommandPackage& rPack) :
-    CTCLPackagedCommand("clear", pInterp, rPack)
-  { }        
+  CClearCommand (CTCLInterpreter* pInterp);   
+		         
   virtual ~CClearCommand ( ) 
   { }				//Destructor	
 			//Copy constructor - illegal
@@ -92,20 +89,20 @@ public:
   // Operations.
 
 public:
-  virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    int nArgs, char* pArgs[])  ;
+  virtual   int operator() (CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+			
 protected:
-  static void   Usage(CTCLResult& rResult);
+  static void   Usage(CTCLInterpreter& rInterp);
   static Switch MatchSwitch(const char* pSwitchText);
 
 private:
   void clearAll(std::set<Switch> switches);
   int  clearIdList(
-    CTCLResult& rResult, std::set<Switch> switches,
+    CTCLInterpreter& rInterp, std::set<Switch> switches,
     std::vector<std::string> idStrings
   );
   int clearNameList(
-    CTCLResult& rResult, std::set<Switch> switches,
+    CTCLInterpreter& rInterp, std::set<Switch> switches,
     std::vector<std::string> names
   );
   std::pair<bool, bool> clearWhat(std::set<Switch> switches);

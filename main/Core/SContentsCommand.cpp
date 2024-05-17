@@ -24,6 +24,8 @@
 #include <Spectrum.h>
 #include <SpecTcl.h>
 #include <stdio.h>
+#include <Globals.h>
+#include <TclPump.h>
 
 /**
  * constructor
@@ -32,14 +34,14 @@
  * @param command - Pointer to the string that defines the command keyword.
  *                  this defaults to "scontents"
  */
-CSContentsCommand::CSContentsCommand(CTCLInterpreter& interp, const char* command) :
+CSContentsCommandActual::CSContentsCommandActual(CTCLInterpreter& interp, const char* command) :
     CTCLObjectProcessor(interp, command, true)
 {}
 
 /**
  * destructor
  */
-CSContentsCommand::~CSContentsCommand() {}
+CSContentsCommandActual::~CSContentsCommandActual() {}
 
 /**
  * operator()
@@ -53,10 +55,13 @@ CSContentsCommand::~CSContentsCommand() {}
  * @return int   - TCL_OK if successful or TCL_ERROR if not
  */
 int
-CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CSContentsCommandActual::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     // We'll use the exception throw model for handling errors.
     
+    if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+        return TCL_OK;
+    }
     try {
         bindAll(interp, objv);
         
@@ -169,3 +174,7 @@ CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
     }
     return TCL_OK;
 }
+/// MPI Wrapper constructor.
+
+CSContentsCommand::CSContentsCommand(CTCLInterpreter& rInterp, const char* command) :
+    CMPITclCommand(rInterp, command, new CSContentsCommandActual(rInterp, command)) {}

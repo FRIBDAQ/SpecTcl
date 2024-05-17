@@ -4,6 +4,8 @@
 #include "Display.h"
 #include "NullDisplay.h"
 #include "client.h"
+#include <Globals.h>
+#include <TclPump.h>
 
 #include "TCLInterpreter.h"
 #include "TCLObject.h"
@@ -13,7 +15,7 @@
 
 //
 // Constructor
-CSharedMemoryKeyCommand::CSharedMemoryKeyCommand(CTCLInterpreter &rInterp,
+CSharedMemoryKeyCommandActual::CSharedMemoryKeyCommandActual(CTCLInterpreter &rInterp,
                                                  SpecTcl& rSpecTcl)
     : CTCLObjectProcessor(rInterp, "shmemkey", true),
       m_rSpecTcl(rSpecTcl)
@@ -21,7 +23,7 @@ CSharedMemoryKeyCommand::CSharedMemoryKeyCommand(CTCLInterpreter &rInterp,
 }
 
 
-CSharedMemoryKeyCommand::~CSharedMemoryKeyCommand()
+CSharedMemoryKeyCommandActual::~CSharedMemoryKeyCommandActual()
 {
 }
 
@@ -36,9 +38,12 @@ CSharedMemoryKeyCommand::~CSharedMemoryKeyCommand()
  *  associated with spectcl.
  */
 int
-CSharedMemoryKeyCommand::operator ()(CTCLInterpreter& interp,
+CSharedMemoryKeyCommandActual::operator ()(CTCLInterpreter& interp,
                                      std::vector<CTCLObject>& objv)
 {
+    if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+        return TCL_OK;
+    }
     bindAll(interp, objv);
     requireAtMost(objv, 1, "Usage\n shmemkey");
     requireAtLeast(objv, 1, "Usage\n shmemkey");
@@ -63,3 +68,8 @@ CSharedMemoryKeyCommand::operator ()(CTCLInterpreter& interp,
 
     return status;
 }
+
+// Construct the MPI wrapper:
+
+CSharedMemoryKeyCommand::CSharedMemoryKeyCommand(CTCLInterpreter& rInterp, SpecTcl& rSpecTcl) :
+    CMPITclCommand(rInterp, "shmemkey", new CSharedMemoryKeyCommandActual(rInterp, rSpecTcl)) {}

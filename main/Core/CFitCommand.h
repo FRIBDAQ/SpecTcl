@@ -18,6 +18,7 @@
 #define CFITCOMMAND_H
 
 #include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>
 #include <TCLObject.h>
 #include <vector>
 
@@ -95,24 +96,27 @@ class CTCLInterpreter;
       rename fitline $name
 \endverbatim
 
+/*  For mpiSpecTcl, we need the actual processor (which unimaginatively will
+  be CFitCommandActual) encapsulated in a class derived from CMPITclCommand
+  which will be called CFitCommand to be compatible with existing code.
 
 */
-class CFitCommand : public CTCLObjectProcessor
+class CFitCommandActual : public CTCLObjectProcessor
 {
 private:
   CFitDictionary&  m_dictionary;
   static int       m_fitId;
 public:
-  CFitCommand(CTCLInterpreter& interp,
+  CFitCommandActual(CTCLInterpreter& interp,
 	      std::string      name = std::string("fit"));
-  virtual ~CFitCommand();
+  virtual ~CFitCommandActual();
 
   // Illegal cannonicals:
 private:
-  CFitCommand(const CFitCommand& rhs);
-  CFitCommand& operator=(const CFitCommand& rhs);
-  int operator==(const CFitCommand& rhs) const;
-  int operator!=(const CFitCommand& rhs) const;
+  CFitCommandActual(const CFitCommandActual& rhs);
+  CFitCommandActual& operator=(const CFitCommandActual& rhs);
+  int operator==(const CFitCommandActual& rhs) const;
+  int operator!=(const CFitCommandActual& rhs) const;
 public:
 
   // Public interface:
@@ -146,5 +150,11 @@ private:
   std::string Usage();
 };
 
+
+class CFitCommand : public CMPITclCommand {
+
+public:
+  CFitCommand(CTCLInterpreter& interp, std::string name = std::string("fit"));
+};
 
 #endif

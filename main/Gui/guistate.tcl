@@ -545,13 +545,13 @@ proc writeGateDefinitions fd {
 #
 proc writeGateApplications fd {
     puts $fd "\n# Gate Applications: \n"
-    foreach application [apply -list] {
+    foreach application [applygate -list] {
         set spectrum [lindex $application 0]
         set gate     [lindex $application 1]
         set gatename [lindex $gate 0]
         # ungated spectra are actually gated on -TRUE-
         if {$gatename != "-TRUE-" && $gatename != "-Ungated-"} {
-            puts $fd "apply [list $gatename]  [list $spectrum]"
+            puts $fd "applygate [list $gatename]  [list $spectrum]"
         }
     }
 }

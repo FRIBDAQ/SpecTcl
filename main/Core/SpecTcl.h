@@ -108,6 +108,8 @@ public:
   // Manipulate the parameter diectionary etc.
 
   UInt_t AssignParameterId();
+  void throwIfDuplicateParameterId(UInt_t id);
+  void throwIfDuplicateParameterName(std::string name);
   CParameter* AddParameter(std::string name, 
 			   UInt_t Id, 
 			   std::string Units);
@@ -310,11 +312,13 @@ public:
 
 
   // Gate dictionary manipulation:
-
+  void throwIfGateExists(std::string& name);
+  void throwIfNoSuchGate(std::string& name);
   void AddGate(std::string name, CGate* gate);
   void DeleteGate(std::string gateName);
   void ReplaceGate(std::string gateName, CGate& newGate);
   CGateContainer* FindGate(std::string gateName);
+  CGateContainer* FindGate(unsigned id);
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
@@ -325,6 +329,7 @@ public:
 
 
   void ApplyGate(std::string gateName, std::string spectrumName);
+  void UnGate(std::string spectrum);
 
   // Manipulate event processing pipelines:
   

@@ -76,37 +76,6 @@ CTCLHistogrammer::CTCLHistogrammer (CTCLInterpreter* m_pInterpreter) :
 CTCLHistogrammer::~CTCLHistogrammer()
 {
 }
-/////////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//    operator=(const CTCLHistogrammer& aCTCLHistogrammer)
-// Operation Type:
-//    Assignment
-//
-CTCLHistogrammer& 
-CTCLHistogrammer::operator=(const CTCLHistogrammer& aCTCLHistogrammer)
-{
-  if(this != &aCTCLHistogrammer) {
-    CHistogrammer::operator=(aCTCLHistogrammer);
-    m_pIntObject = aCTCLHistogrammer.m_pIntObject;
-    m_Pseudos    = aCTCLHistogrammer.m_Pseudos;
-  }
-  return *this;
-}
-/////////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//    int operator== (const CTCLHistogrammer& aCTCLHistogrammer) const
-// Operation Type:
-//    Comparison.
-//
-int
-CTCLHistogrammer::operator== (const CTCLHistogrammer& aCTCLHistogrammer)
-{
-  return (CHistogrammer::operator==(aCTCLHistogrammer)     &&
-	  (m_pIntObject == aCTCLHistogrammer.m_pIntObject) &&
-	  (m_Pseudos    == aCTCLHistogrammer.m_Pseudos));
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -39,9 +39,15 @@
 #include "Parameter.h"
 #include "Spectrum.h"
 #include "Dictionary.h"
+#include "CParameterDictionarySingleton.h"
+#include "CSpectrumDictionarySingleton.h"
+#include "CGateDictionarySingleton.h"
 #include "EventSink.h"
 #include <GateContainer.h>
 #include <GatingObserver.h>
+#ifdef WITH_MPI
+#include <mpi.h>
+#endif
 
 // Forward class definitions (probably should be a lot more of these).
 
@@ -49,27 +55,16 @@ class CFlattenedGateList;
 class CSpectrumByParameter;
 class CDisplayGate;
 
-// Typedefs for some of instances of templated classes:
-// Dictionary types:
-typedef CDictionary<CParameter>                 ParameterDictionary;
-typedef ParameterDictionary::DictionaryIterator ParameterDictionaryIterator;
-typedef DictionaryObserver<CParameter>          ParameterDictionaryObserver;
 
-typedef CDictionary<CSpectrum*>                 SpectrumDictionary;
-typedef SpectrumDictionary::DictionaryIterator  SpectrumDictionaryIterator;
-typedef SpectrumDictionary::ConstDictionaryIterator  ConstSpectrumDictIterator;
-typedef DictionaryObserver<CSpectrum*>          SpectrumDictionaryObserver;
 
-typedef CDictionary<CGateContainer>             CGateDictionary;
-typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
-typedef DictionaryObserver<CGateContainer>      GateDictionaryObserver;
+
 
 /*!
    Abstract base class for gate observers:
 */
 class CGateObserver : public GateDictionaryObserver {
 public:
-  virtual void onChange(std::string name, CGateContainer& gateContainer) = 0;
+  virtual void onChange(std::string name, CGateContainer& gateContainer) {};
 };
 
 
@@ -90,11 +85,11 @@ class CHistogrammer : public CEventSink {
   typedef std::list<CGatingObserver*> GatingObserverList;
 
 
-  ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
+  ParameterDictionary& m_ParameterDictionary; // Dictionary of parameters.
   
+  SpectrumDictionary&  m_SpectrumDictionary;  // Dictionary of Spectra.
+  CGateDictionary&     m_GateDictionary;      // Dictionary of Gates.
   
-  SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
-  CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
   GateObserverList    m_gateObservers;       // Observers of gate dict
   GatingObserverList  m_gatingObservers;     // Observers of applyGate/ungate
 
@@ -109,16 +104,15 @@ class CHistogrammer : public CEventSink {
   // Constructors.
   CHistogrammer();
   virtual ~CHistogrammer();
+  
+
+  // disallowed operations.
+  private:
   CHistogrammer(const CHistogrammer& aCHistogrammer);
-
-  // Operator= Assignment Operator
   CHistogrammer& operator=(const CHistogrammer& aCHistogrammer);
-
-  // Operator== Equality Operator
+  
   int operator== (const CHistogrammer& aCHistogrammer);
-  int operator!= (const CHistogrammer& aCHistogrammer) {
-    return !(operator==(aCHistogrammer));
-  }
+  int operator!= (const CHistogrammer& aCHistogrammer) ;
 
   // Selectors:
  public:
@@ -210,7 +204,24 @@ class CHistogrammer : public CEventSink {
   void createListObservers();
   
   void observeApplyGate(CGateContainer& rGate, CSpectrum& rSpectrum);
-		
+	
 };
 
+#ifdef WITH_MPI
+// Definitions used by the trace relay:
+
+static const int TRACE_ADD_GATE(1);
+static const int TRACE_REMOVE_GATE(2);
+static const int TRACE_MODIFY_GATE(3);
+#define MAX_GATE_NAME 256     // Hopefully enough.
+struct TraceRelay {            // trace message body.
+  int s_traceType;             // Type of trace -see above.
+  char s_gateName[MAX_GATE_NAME]; // Name of affected gate.
+};
+
+MPI_Datatype getTraceRelayType();
 #endif
+
+
+
+#endif                 // include guard.

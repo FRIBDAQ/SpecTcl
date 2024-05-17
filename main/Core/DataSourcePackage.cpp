@@ -19,7 +19,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //  CDataSourcePackage.cpp:
 //    Encapsulates the commands and services required to 
 //    attach SpecTcl to external data sources.
-//    Currently this package supports File, Tape and
+//    Currently this package supports File and
 //    pipe data sources.
 // 
 //
@@ -40,10 +40,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <config.h>
 #include "DataSourcePackage.h"                               
 #include "AttachCommand.h"
-#ifdef ENABLE_TAPE
-#include "TapeCommand.h"
-#include "TapeFile.h"
-#endif
 #include "RingFormatCommand.h"
 #include "TCLInterpreter.h"
 #include "TCLResult.h"
@@ -139,16 +135,12 @@ public:
 CDataSourcePackage::CDataSourcePackage(CTCLInterpreter* pInterp) :
   CTCLCommandPackage(pInterp, Copyright),
   m_eSourceType(CDataSourcePackage::kTestSource),
-#ifdef ENABLE_TAPE  
-  m_pTape(new CTapeCommand(pInterp, *this)),
-#endif 
+
   m_pAttach(new CAttachCommand(pInterp, *this)),
   m_pRingFormat(new CRingFormatCommand(pInterp, *this))
   
 {
-#ifdef ENABLE_TAPE  
-  AddProcessor(m_pTape);
-#endif  
+
   AddProcessor(m_pAttach);
   AddProcessor(m_pRingFormat);
   
@@ -206,52 +198,7 @@ int CDataSourcePackage::AttachFileSource(CTCLResult& rResult) {
   rResult = "file:";
   return TCL_OK;
 }
-#ifdef ENABLE_TAPE
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    int AttachTapeSource ( CTCLResult& rResult, const char* pDevice )
-//  Operation Type:
-//     connection
-//
-int CDataSourcePackage::AttachTapeSource(CTCLResult& rResult, const char* pDevice) {
-  // Attaches the SpecTcl analysis engine to
-  // a Tape data source. Tape data sources
-  // are ANSI lvl 2 labelled tapes with multiple run
-  // files
-  //
-  // Formal Parameters:
-  //    CTCLResult& rResult:
-  //         References the tcl return string.  If successful,
-  //         this is tape:device_name
-  //     const char* pDevice:
-  //          The name of the tape device (e.g. /dev/nrmt0h).
-  //  Return:
-  //     TCL_OK          - Event source is attached.
-  //     TCL_ERROR  - Event source could not be attached.
-  //                              rResult contains reason for this.
-  //         Will contain
 
-  // The data source must be halted...
-  if(gpRunControl->getRunning()) { // Analysis is active...
-    rResult = "Analysis is active and must first be stopped";
-    return TCL_ERROR;
-  }
-
-  // Now connect the new source:
-  CFile* pNew   = new CTapeFile(std::string(pDevice));
-  gpEventSource = pNew;
-  CFile* pOld   = gpRunControl->Attach(pNew);
-  delete pOld;
-
-  // The new data source type is a file, the result string and
-  // return code should now show success:
-  m_eSourceType = CDataSourcePackage::kTapeSource;
-  rResult = "tape:";
-  return TCL_OK;
-}
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -362,14 +309,12 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
   //             Result string which will either contain:
   //                  sourcetype:connectionstring   - success.
   //     const char* pConnectionString:
-  //             Specifies the connection string.  For file and tape
-  //             data sources, this is the name of an event file.
+  //             Specifies the connection string.  For file
+  //              this is the name of an event file.
   //              For pipe data sources, this is the program which is run.
   //     UInt_t   nBufferSize:
   //              Specifies the size of the data buffer to use.
-  //              This is used by file and pipe data sources but ignored
-  //               by tape data sources which get the blocksize from the tape
-  //               labels.
+  //              
   // Returns:
   //     TCL_OK        - Success
   //     TCL_ERROR- Failure.
@@ -387,20 +332,12 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
     gpEventSource->Open(pConnectionString, kacRead,
 			gpBufferDecoder->blockMode());
     
-    // Now the event record size is set.  Either from the parameter, or,
-    // if the source was a tape, from the blocksize in the event tape source.
+    // Now the event record size is set from the parameter.
     // Two assumptions are made:
     //   1. The Event source type matches that of our m_eSourceType
     //   2. The run control is derived from CTKRunControl
     CTKRunControl* pSource = (CTKRunControl*)gpRunControl;
-    if(m_eSourceType != CDataSourcePackage::kTapeSource) 
-      pSource->setBufferSize(nBufferSize);
-#ifdef ENABLE_TAPE    
-    else {			// Tape sources know their own buffer size:
-      CTapeFile* pTape = (CTapeFile*)gpEventSource;
-      pSource->setBufferSize(pTape->getBlocksize());
-    }
-#endif    
+    
   }
   catch (CException& rExcept) {
     rResult = rExcept.ReasonText();
@@ -413,16 +350,6 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
   case kFileSource:
     rResult = "file:";
     break;
-#ifdef ENABLE_TAPE    
-  case kTapeSource:
-    {
-      rResult   = "tape:";
-      CTapeFile* pTape = (CTapeFile*)gpEventSource;
-      rResult += pTape->getDevice().c_str();
-      rResult += ":";
-    }
-    break;
-#endif
   case kPipeSource:
     rResult = "pipe:";
     break;
@@ -471,74 +398,6 @@ int CDataSourcePackage::CloseSource(CTCLResult& rResult) {
 
   return TCL_OK;
 }
-#ifdef ENABLE_TAPE
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    int OpenNextTape
-//  Operation Type:
-//     Source manipulation
-//
-int CDataSourcePackage::OpenNextTapeFile(CTCLResult& rResult) {
-  // This function only works if the run is halted and
-  //  the data source is a tape.  In that case, the next
-  //  file on tape is opened.
-  // 
-  // Formal Parameters:
-  //    CTCLResult& rResult:
-  //          TCL result string which can be any of:
-  //                  tape:Filename             - Success.
-  //                  End of tape                 - No more files on tape.
-  //                  Not a tape source       - m_eSourceType != kTape
-  //              anything else appropriate to other errors.
-  // Returns:
-  //     TCL_OK         - Success.
-  //     TCL_ERROR - Failure.
-
-  // Pre-requisites are:
-  //    1. Data analysis is inactive.
-  //    2. Data source is a tape.
-  // Note that if necessary, the tape is closed first.
-
-  // BUGBUGBUG - not implemented yet... requires support for open next
-  //             from CTapeFile, not yet implemented.
-
-  rResult = "OpenTextTapeFile - not yet supported";
-  return TCL_ERROR;
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    int RewindTape ( CTCLResult& rResult )
-//  Operation Type:
-//     Source manipulation
-//
-int CDataSourcePackage::RewindTape(CTCLResult& rResult) {
-  // Rewinds the tape.  Useful prior to opening a file which
-  // is behind the current tape position.
-  //
-  // Formal Parameters:
-  //     CTCLResult&  rResult&
-  //         TCL Result string.  This is
-  //               tape:devicename   - success
-  //              or an error reason.
-  //   Returns:
-  //        TCL_OK        - Success.
-  //        TCL_ERROR- Failure.
-
-  // Pre-requisites are:
-  //    1. Data analysis is inactive.
-  //    2. Data source is a tape.
-  // Note that if necessary, the tape is closed first.
-
-  // BUGBUGBUG - not implemented yet... requires support for rewind
-  //             from CTapeFile, not yet implemented.
-
-  rResult = "RewindTape -not yet supported";
-  return TCL_ERROR;
-}
-#endif
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

@@ -1,5 +1,6 @@
 #ifndef CPIPELINECOMMAND_H
 #define CPIPELINECOMMAND_H
+#include <MPITclCommandAll.h>
 #include <TCLObjectProcessor.h>
 #include <TCLAnalyzer.h>
 #include "CPipelineManager.h"
@@ -8,7 +9,7 @@ class CTCLInterpreter;
 class CTCLObject;
 
 
-class CPipelineCommand : public CTCLObjectProcessor
+class CPipelineCommandActual : public CTCLObjectProcessor
 {
 
  private:
@@ -28,11 +29,19 @@ class CPipelineCommand : public CTCLObjectProcessor
   void listEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
   void rmEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 
-  CPipelineCommand(CTCLInterpreter& interp);
+  CPipelineCommandActual(CTCLInterpreter& interp);
   int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 private:
     void listPipeline(CTCLObject& list, std::string pipename);
 
+};
+
+// Encapsulator  for MPI spectcl:
+
+class CPipelineCommand : public CMPITclCommandAll {
+public:
+  CPipelineCommand(CTCLInterpreter& rInterp) ;
+  ~CPipelineCommand() {}
 };
 
 #endif

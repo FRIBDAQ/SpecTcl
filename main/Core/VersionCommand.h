@@ -23,12 +23,14 @@
 #define VERSIONCOMMAND_H
 
 #include <TCLObjectProcessor.h>
-
+#include <MPITclCommandAll.h>
 class CTCLInterpreter;
 class CTCLObject;
 
+// in MPI parallel we'll only do this in rank 0.
+
 /**
- * @class CVersionCommand
+ * @class CVersionCommandActual
  *
  *   Define a command processor that returns the Spectcl version in
  *   major.minor-editlevel format.
@@ -37,14 +39,21 @@ class CTCLObject;
  *   octal leading 0 bit scripts should trim leading zeroes from the edit level
  *   prior to interpreting it.
  */
-class CVersionCommand : public CTCLObjectProcessor
+class CVersionCommandActual : public CTCLObjectProcessor
 {
 public:
-    CVersionCommand(CTCLInterpreter& interp, const char* pCommand="version");
-    virtual ~CVersionCommand();
+    CVersionCommandActual(CTCLInterpreter& interp, const char* pCommand);
+    virtual ~CVersionCommandActual();
     
     int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 };
 
+// THe MPI Wrapper:
+
+class CVersionCommand : CMPITclCommandAll {
+public:
+    CVersionCommand(CTCLInterpreter& interp, const char* command = "version");
+    ~CVersionCommand() {}
+};
 
 #endif

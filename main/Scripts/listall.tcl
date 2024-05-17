@@ -373,7 +373,7 @@ proc GateList {{glist ""} {option cdown}} {
 }
 proc ApList {{alist ""} {option cdown}} {
     if {$alist == ""} {
-	set alist [apply -list]
+	set alist [applygate -list]
     }
     set output "Name\t\tGate\t\tId\tType\tDescription\n"
     foreach ap $alist {

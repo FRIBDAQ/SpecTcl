@@ -31,6 +31,7 @@
 #include <CGammaSpectrum.h>
 #include <CFold.h>
 #include <vector>
+#include <string>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -43,13 +44,13 @@ static CTrueGate truegate;
 //
 // Beast of a gate container used to remove a folding from a spectrum.
 //
-CGateContainer CFoldCommand::Unfolded("unfolded", 666, truegate);
+CGateContainer CFoldCommandActual::Unfolded("unfolded", 666, truegate);
 
 /**
  *  The base class destructor will unregister the command.  We don't need to 
  *  do anything.
  */
-CFoldCommand::~CFoldCommand()
+CFoldCommandActual::~CFoldCommandActual()
 {
 }
 
@@ -60,10 +61,9 @@ CFoldCommand::~CFoldCommand()
  *           The interpreter on which we register this command.
  * 
  */
-CFoldCommand::CFoldCommand(CTCLInterpreter* pInterp) :
-  CTCLProcessor("fold", pInterp)
+CFoldCommandActual::CFoldCommandActual(CTCLInterpreter* pInterp) :
+  CTCLObjectProcessor(*pInterp, "fold", true)
 {
-  Register();
 }
 
 
@@ -76,20 +76,36 @@ CFoldCommand::CFoldCommand(CTCLInterpreter* pInterp) :
  *      
  * @param rInterp
  *    The interpreter that is running this command.
- * @param rResult
- *    The result object for rInterp.
- * @param argc
- *    Number of command line parameters.  Note that this includes the
- *    command keyword.
- * @param argv
- *    List of command line parameters.  Note that argv[0] -> "fold"
+ * @param objv
+ *     The ovject encapsulated command words.  In order to ease the burden of the
+ *     port, these get marshalled into argc, argv to make the subcommand processors
+ *     happy.
  * 
  */
 int 
-CFoldCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			 int argc, char** argv)
+CFoldCommandActual::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 {
-  
+  // If we don't have histogramer it's parallel and we're not the rank with 
+  // the event sink pipeline so just return TCL_OK
+  // Marshall objv into argc, argv.
+
+  if(!SpecTcl::getInstance()->GetHistogrammer()) {
+    return TCL_OK;
+  }
+
+  int argc = objv.size();
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+
+  for (auto& word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word : words) {
+    pWords.push_back(word.c_str());
+  }
+
+  auto argv = pWords.data();
+  std::string rResult;
   // Skip the command keyword:
   
   argc--;
@@ -100,6 +116,7 @@ CFoldCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if(!argc) {
      rResult   = "Missing subcommand\n";
      rResult  +=  Usage();
+     rInterp.setResult(rResult);
      return TCL_ERROR;
   }
   //
@@ -111,19 +128,20 @@ CFoldCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // or error if there is no match:
   //
   if(subcommand == "-apply") {
-     return applyFold(rInterp, rResult, argc, argv);
+     return applyFold(rInterp, argc, argv);
   }
   else if (subcommand == "-remove") {
-     return removeFold(rInterp, rResult, argc, argv);
+     return removeFold(rInterp, argc, argv);
   }
   else if (subcommand == "-list") {
-     return listFolds(rInterp, rResult, argc, argv);
+     return listFolds(rInterp,  argc, argv);
   }
   else {
     rResult   = "Unrecognized subcommand: ";
     rResult += subcommand;
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -137,8 +155,7 @@ CFoldCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * either totally successful or a total failure.
  * @param rInterp
  *    The interpreter that is running this command.
- * @param rResult
- *    The result object for rInterp.
+ 
  * @param argc
  *    Number of command line parameters; the fold command and the -
  *    apply switch have been eaten up. The remaining items should be a fold 
@@ -147,10 +164,9 @@ CFoldCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
  *    List of command line parameters.
  * 
  */
-int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    int argc, char** argv)
+int CFoldCommandActual::applyFold(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
-
+  std::string rResult;
   SpecTcl& api(*(SpecTcl::getInstance()));
   //
   // We need to have a fold and at least one spectrum to apply it to.
@@ -163,6 +179,7 @@ int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if(!argc) {
      rResult   = "fold -apply  requires a gate name\n";
      rResult += Usage();
+     rInterp.setResult(rResult);
      return TCL_ERROR;
   }
   gateName = argv[0];
@@ -172,6 +189,7 @@ int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if(!argc) {
      rResult = "fold -apply requires at least one spectrum name\n";
      rResult += Usage();
+     rInterp.setResult(rResult);
      return TCL_ERROR;
   }
   // Save the spectrum names to which we will be applying this gate as a fold
@@ -191,6 +209,7 @@ int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += gateName;
     rResult += " does not exist.\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   if(!isGammagate(pGateC)) {
@@ -198,6 +217,7 @@ int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult +=  gateName;
     rResult += "  is not a gamma gate\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -232,6 +252,7 @@ int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
       rResult += "\n";
     }
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Now we know the folding will work so we can loop over the spectrum list
@@ -240,7 +261,7 @@ int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
   for(int i =0; i < goodSpectra.size(); i++) {
     goodSpectra[i]->Fold(pGateC);
   }
-  
+  rInterp.setResult(rResult);
   return TCL_OK;
 }
 
@@ -251,9 +272,6 @@ int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * name, and the name of the gate involved in the fold.
  * @param rInterp
  *    Refers to the interpreter that is running this command.
- * @param rResult
- *    Refers to the result object for the interpreter that is
- *    running this command.
  * @param argc
  *    Number of parameters remaining in the tail of the command.  This
  *    should be 0 or 1.
@@ -264,9 +282,9 @@ int CFoldCommand::applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CFoldCommand::listFolds(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    int argc, char** argv)
+CFoldCommandActual::listFolds(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
+  std::string rResult;
 
   // Figure out the search pattern.
   
@@ -286,6 +304,7 @@ CFoldCommand::listFolds(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += argv[0];
     rResult += " ...\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -319,7 +338,7 @@ CFoldCommand::listFolds(CTCLInterpreter& rInterp, CTCLResult& rResult,
     i++;
   }
     
-  rResult = (const char*)(answer);
+  rInterp.setResult((const char*)(answer));
   return TCL_OK;
   
   
@@ -343,9 +362,9 @@ CFoldCommand::listFolds(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CFoldCommand::removeFold(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			 int argc, char** argv)
+CFoldCommandActual::removeFold(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
+  std::string rResult;
 
   // Get the spectrum and ensure there are no extra
   // params nor too few params.
@@ -353,6 +372,7 @@ CFoldCommand::removeFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if (!argc) {
     rResult += "fold -remove ... too few command parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -366,6 +386,7 @@ CFoldCommand::removeFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += spectrumName;
     rResult += " ... too many command parameters";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -378,6 +399,7 @@ CFoldCommand::removeFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += "fold -remove ";
     rResult += spectrumName;
     rResult += " : Spectrum not found";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }  
   
@@ -385,6 +407,7 @@ CFoldCommand::removeFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += "fold -remove ";
     rResult += spectrumName;
     rResult += " : Spectrum is not a gamma spectrum.";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -393,8 +416,8 @@ CFoldCommand::removeFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // The spectrum will revert to unfolded behavior.
   //
   CGammaSpectrum* pG = dynamic_cast<CGammaSpectrum*>(pSpectrum);
-  pG->Fold(&CFoldCommand::Unfolded);
-  
+  pG->Fold(&CFoldCommandActual::Unfolded);
+  rInterp.setResult(rResult);          // presumably empty string.
   return TCL_OK;
   
 
@@ -405,7 +428,7 @@ CFoldCommand::removeFold(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * Provide usage information in the event of an error.
  */
 std::string 
-CFoldCommand::Usage()
+CFoldCommandActual::Usage()
 {
 
   string info    = "Usage:\n";
@@ -429,7 +452,7 @@ CFoldCommand::Usage()
  * 
  */
 Bool_t 
-CFoldCommand::isGammaSpectrum(CSpectrum* pSpectrum)
+CFoldCommandActual::isGammaSpectrum(CSpectrum* pSpectrum)
 {
 
   SpectrumType_t  t = pSpectrum->getSpectrumType();
@@ -446,7 +469,7 @@ CFoldCommand::isGammaSpectrum(CSpectrum* pSpectrum)
  * 
  */
 Bool_t 
-CFoldCommand::isGammagate(CGateContainer* pGateContainer)
+CFoldCommandActual::isGammagate(CGateContainer* pGateContainer)
 {
 
   string type = (*pGateContainer)->Type();
@@ -456,4 +479,7 @@ CFoldCommand::isGammagate(CGateContainer* pGateContainer)
   
 }
 
+// MPI wrapper for CFoldCommandActual:
 
+CFoldCommand::CFoldCommand(CTCLInterpreter* pInterp) :
+  CMPITclCommand(*pInterp, "fold", new CFoldCommandActual(pInterp)) {}

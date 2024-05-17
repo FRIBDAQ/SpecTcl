@@ -23,6 +23,8 @@
 #include "VersionCommand.h"
 #include "TCLObject.h"
 #include "TCLInterpreter.h"
+#include "Globals.h"
+#include <TclPump.h>
 
 
 /**
@@ -33,14 +35,14 @@
  *                   registered.
  *   @param command - Command keyword (defaults to version).
  */
-CVersionCommand::CVersionCommand(CTCLInterpreter& interp, const char* command) :
+CVersionCommandActual::CVersionCommandActual(CTCLInterpreter& interp, const char* command) :
     CTCLObjectProcessor(interp, command, true)
 {}
 
 /**
  * destructor
  */
-CVersionCommand::~CVersionCommand() {}
+CVersionCommandActual::~CVersionCommandActual() {}
 
 /**
  * operator()
@@ -53,8 +55,11 @@ CVersionCommand::~CVersionCommand() {}
  *                   The only possible failure is to have additional words in
  *                   the command list after the keyword.
  */
-int CVersionCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+int CVersionCommandActual::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
+    if (gMPIParallel && (myRank() != MPI_ROOT_RANK)) {
+        return TCL_OK;
+    }
     if (objv.size() != 1) {
         interp.setResult("Incorrect number of parameters");
         return TCL_ERROR;
@@ -63,3 +68,8 @@ int CVersionCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>
     interp.setResult(VERSION);
     return TCL_OK;
 }
+
+// MPI Wrapper constructor:
+
+CVersionCommand::CVersionCommand(CTCLInterpreter& interp, const char* command) :
+    CMPITclCommandAll(interp, command, new CVersionCommandActual(interp, command)) {}

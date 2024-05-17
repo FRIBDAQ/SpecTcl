@@ -27,6 +27,8 @@
 #include <PointlistGate.h>
 #include <Gamma2DW.h>
 #include <Cut.h>
+#include <TclPump.h>
+#include <Globals.h>
 
 #include <math.h>
 
@@ -51,7 +53,7 @@ static const double fwhmgamma(2.354); // sigma*fwhmgamma = fwhm for gaussians.
 
     \param interp   - Interpreter on which the command is being registered:
 */
-CIntegrateCommand::CIntegrateCommand(CTCLInterpreter& interp) :
+CIntegrateCommandActual::CIntegrateCommandActual(CTCLInterpreter& interp) :
   CTCLObjectProcessor(interp, "integrate", true)
 {}
 
@@ -60,7 +62,7 @@ CIntegrateCommand::CIntegrateCommand(CTCLInterpreter& interp) :
    Destructor is a no-op but is suppled so that there's a clean
    path of virtual destrcutors all the way back to the base clsss.
 */
-CIntegrateCommand::~CIntegrateCommand()
+CIntegrateCommandActual::~CIntegrateCommandActual()
 {}
 
 
@@ -97,9 +99,14 @@ CIntegrateCommand::~CIntegrateCommand()
                       error message describing why.
 */
 int
-CIntegrateCommand::operator()(CTCLInterpreter&    interp,
+CIntegrateCommandActual::operator()(CTCLInterpreter&    interp,
 			      vector<CTCLObject>& objv)
 {
+  // Just return TCL_OK if mpi parallel but not the event sink rank:
+
+  if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+    return TCL_OK;
+  }
   // Validate the objv count:
 
   if  (objv.size() != 3) {
@@ -225,7 +232,7 @@ CIntegrateCommand::operator()(CTCLInterpreter&    interp,
                       displayable this vector will be emtpy to signal the error.
 */
 vector<CPoint>
-CIntegrateCommand::contourPoints(CGateContainer&     gate,
+CIntegrateCommandActual::contourPoints(CGateContainer&     gate,
 				 CSpectrum&          spectrum)
 {
   vector<CPoint>   points;
@@ -284,7 +291,7 @@ CIntegrateCommand::contourPoints(CGateContainer&     gate,
     for more information about this.
 */
 vector<int>
-CIntegrateCommand::sliceLimits(CGateContainer& gate, CSpectrum& spectrum)
+CIntegrateCommandActual::sliceLimits(CGateContainer& gate, CSpectrum& spectrum)
 {
   vector<int> points;
 
@@ -329,7 +336,7 @@ CIntegrateCommand::sliceLimits(CGateContainer& gate, CSpectrum& spectrum)
                     above, we're going to return an empty vector.
 */
 vector<CPoint>
-CIntegrateCommand::roiFromList(CTCLInterpreter& interp,
+CIntegrateCommandActual::roiFromList(CTCLInterpreter& interp,
 			       CTCLObject&      obj,
 			       CSpectrum&       spectrum)
 {
@@ -392,7 +399,7 @@ CIntegrateCommand::roiFromList(CTCLInterpreter& interp,
 
 */
 vector<int>
-CIntegrateCommand::limitsFromList(CTCLInterpreter&  interp,
+CIntegrateCommandActual::limitsFromList(CTCLInterpreter&  interp,
 				  CTCLObject&       object,
 				  CSpectrum&        spectrum)
 {
@@ -428,7 +435,7 @@ CIntegrateCommand::limitsFromList(CTCLInterpreter&  interp,
     Produce a string that describes how to use the command:
 */
 string
-CIntegrateCommand::Usage()
+CIntegrateCommandActual::Usage()
 {
   string usage;
   usage += "Usage:\n";
@@ -462,7 +469,7 @@ CIntegrateCommand::Usage()
 
 */
 int
-CIntegrateCommand::integrate1d(CTCLInterpreter& interp,
+CIntegrateCommandActual::integrate1d(CTCLInterpreter& interp,
 			       CSpectrum&      spectrum,
 			       vector<int>     limits)
 {
@@ -720,7 +727,7 @@ makeEdgePoints(vector<Edge*> edges, int y)
    Now we have the infrastruture in place to do the 2-d integration:
 */
 int 
-CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
+CIntegrateCommandActual::integrate2d(CTCLInterpreter&    interp,
 			       CSpectrum&          spectrum,
 			       std::vector<CPoint> points)
 {
@@ -780,8 +787,8 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
  *  @note the caller must verify there is a non null region of integrations
  *        amd that there are channels in the integration region.
  */
-CIntegrateCommand::Integration1d
-CIntegrateCommand::integrate1d(CSpectrum* spec, std::vector<int> limits)
+CIntegrateCommandActual::Integration1d
+CIntegrateCommandActual::integrate1d(CSpectrum* spec, std::vector<int> limits)
 {
   CSpectrum& spectrum(*spec);    // because function signatures must differ in 
   Integration1d result;         // more than return type.
@@ -840,8 +847,8 @@ CIntegrateCommand::integrate1d(CSpectrum* spec, std::vector<int> limits)
  *                     if s_sum == 0. all other fields will be zero and
  *                     meaningless as computing them requires division by the sum.
  */
-CIntegrateCommand::Integration2d
-CIntegrateCommand::integrate2d(CSpectrum* pSpectrum, std::vector<CPoint> points)
+CIntegrateCommandActual::Integration2d
+CIntegrateCommandActual::integrate2d(CSpectrum* pSpectrum, std::vector<CPoint> points)
 {
   CSpectrum& spectrum(*pSpectrum);
   
@@ -959,3 +966,8 @@ CIntegrateCommand::integrate2d(CSpectrum* pSpectrum, std::vector<CPoint> points)
 
   
 }
+
+// The MPI command wrapper:
+
+CIntegrateCommand::CIntegrateCommand(CTCLInterpreter& rInterp) :
+  CMPITclCommand(rInterp, "integrate", new CIntegrateCommandActual(rInterp)) {}

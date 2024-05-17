@@ -51,13 +51,8 @@ public:
   virtual ~ CTCLHistogrammer ( );  
   
    //Copy constructor 
-
-  CTCLHistogrammer (const CTCLHistogrammer& aCTCLHistogrammer )   : 
-    CHistogrammer (aCTCLHistogrammer) 
-  {     
-    m_pIntObject = aCTCLHistogrammer.m_pIntObject;
-    m_Pseudos    = aCTCLHistogrammer.m_Pseudos;
-  }                                     
+private:
+  CTCLHistogrammer (const CTCLHistogrammer& aCTCLHistogrammer ) ;
 
    // Operator= Assignment Operator 
 

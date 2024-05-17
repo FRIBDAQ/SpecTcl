@@ -8,7 +8,8 @@
 #ifndef CFOLDCOMMAND_H
 #define CFOLDCOMMAND_H
 
-#include "TCLProcessor.h"
+#include "TCLObjectProcessor.h"
+#include <MPITclCommand.h>
 #include "GateContainer.h"
 #include <histotypes.h>
 
@@ -16,9 +17,14 @@
 // Forward definitions:
 
 class CTCLInterpreter;
-class CTCLResult;
+class CTCLObject;
 class CGateContainer;
 class CSpectrum;
+
+// In mpiSpecTcl fold commands must be executed in the event sink thread as they
+// modify how spectra are incremented by the histogramer.  We therefore encapsulate 
+// them in a CMPITclCommand and within that command ensure the histogramer can be 
+// gotten in order to do something.  
 
 /**
  * Implements the fold command.  The fold command has the following forms: 
@@ -37,20 +43,16 @@ class CSpectrum;
   * @version 1.0
  * @updated 22-Apr-2005 02:40:16 PM
  */
-class CFoldCommand : public CTCLProcessor
+class CFoldCommandActual : public CTCLObjectProcessor
 {
   
 public:
-  virtual ~CFoldCommand();
-  CFoldCommand(CTCLInterpreter* pInterp);
-  int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
-		 int argc, char** argv);
-  int applyFold(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		int argc, char** argv);
-  int listFolds(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		int argc, char** argv);
-  int removeFold(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 int argc, char** argv);
+  virtual ~CFoldCommandActual();
+  CFoldCommandActual(CTCLInterpreter* pInterp);
+  int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+  int applyFold(CTCLInterpreter& rInterp,int argc, const char** argv);
+  int listFolds(CTCLInterpreter& rInterp, int argc, const char** argv);
+  int removeFold(CTCLInterpreter& rInterp, int argc, const char** argv);
   Bool_t isGammagate(CGateContainer* pGateContainer);
   
 protected:
@@ -66,4 +68,11 @@ private:
 };
 
 
+// The command that will be registered is a container for CFoldCommandActual:
+
+class CFoldCommand : public CMPITclCommand {
+public:
+  CFoldCommand(CTCLInterpreter* pInterp);
+  ~CFoldCommand() {}
+};
 #endif

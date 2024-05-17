@@ -49,8 +49,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <config.h>
 #include "BindCommand.h"
+#include "TCLInterpreter.h"
 #include "TCLString.h"
-#include "TCLResult.h"
+#include "TCLObject.h"
 #include "SpectrumPackage.h"
 
 #include <histotypes.h>                               
@@ -85,17 +86,24 @@ static const TCLPLUS::UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntr
 
 // Functions for class CBindCommand
 
+/**
+ *  Constructor.
+ *    @param pInterp - pointer to the interpreter on which this command will be
+ *      registered
+*/
+CBindCommand::CBindCommand(CTCLInterpreter* pInterp) :
+  CTCLPackagedObjectProcessor(*pInterp, "sbind", true)
+{}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    int operator() ( CTCLInterpreter& rInterp, CTCLResult& rResult, 
-//                    int nArgs, char* pArgs[] )
+//    int operator() ( CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv )
 //  Operation Type:
 //     Command Processor
 //
 int 
-CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			 int nArgs, char* pArgs[]) 
+CBindCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 {
 // Called whenever TCL executes the bind
 // command.  The command is parsed and 
@@ -104,12 +112,7 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 // Formal Parameters:
 //     CTCLInterpreter&  rInterp:
 //         The interpreter on which this command is running.
-//     CTCLResult&        rResult:
-//          A result string for this command.
-//     int nArgs:
-//           Number of command line parameters.
-//     char* pArgs[]:
-//           Set of pointers to arguments.
+//      std::vector<CTCLObject>& objv - the command words.
 // Returns:
 //      TCL_OK           - If the command worked.
 //      TCL_ERROR   - if not.
@@ -118,10 +121,26 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // This function must mostly distinguish between actual binding requests
   // and list requests:
 
+  // marshall into arg , argv form to make the porting minimal work:
+
+  int nArgs = objv.size();
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+
+  // Two loops due to lifetime issues and c_str().
+
+  for (auto& word: objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word: words) {
+    pWords.push_back(word.c_str());
+  }
+  auto pArgs = pWords.data();
+
   nArgs--; pArgs++;		// Don't care about command name.
   
   if(nArgs <= 0) {		// Need at least on parameter.
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   // Parse out the switch:
@@ -130,32 +149,32 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   case keList:			// List bindings.
     nArgs--;
     pArgs++;
-    return ListBindings(rInterp, rResult, nArgs, pArgs);
+    return ListBindings(rInterp,  nArgs, pArgs);
 
   case keAll:			// New bindings with all.
     nArgs--;
     pArgs++;
     if(nArgs) {			// No arguments permitted on -all switch.
-      Usage(rResult);
+      Usage(rInterp);
       return TCL_ERROR;
     }
-    return BindAll(rInterp, rResult);
+    return BindAll(rInterp);
     
   case keNew:			// New by name (explicit).
     nArgs--;			// Skip over the -new switch
     pArgs++;			// and fall through.
   case keNotSwitch:		// New by name (implied).
     if(nArgs <= 0) {		// Must be at least on binding:
-      Usage(rResult);
+      Usage(rInterp);
       return TCL_ERROR;
     }
-    return BindByName(rInterp, rResult, nArgs, pArgs);
+    return BindByName(rInterp, nArgs, pArgs);
   case keTrace:
-    return Trace(rInterp, rResult, nArgs, pArgs);
+    return Trace(rInterp, nArgs, pArgs);
   case keUntrace:
-    return Untrace(rInterp, rResult, nArgs, pArgs);
+    return Untrace(rInterp, nArgs, pArgs);
   default:			// Switch not allowed or unrecognized.
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
 
@@ -163,20 +182,20 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //////////////////////////////////////////////////////////////////////////
 // 
 //  Function:
-//    Int_t BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
+//    Int_t BindAll(CTCLInterpreter& rInterp)
 // Operation type:
 //    Utility
 //
 TCLPLUS::Int_t 
-CBindCommand::BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
+CBindCommand::BindAll(CTCLInterpreter& rInterp)
 {
   try {
-    CSpectrumPackage &rPack = (CSpectrumPackage&)(getMyPackage());
+    CSpectrumPackage &rPack(*(CSpectrumPackage*)(getPackage()));
   
-    return rPack.BindAll(rResult);
+    return rPack.BindAll(rInterp);
   }
   catch (std::exception& e) {
-    rResult = e.what();
+    rInterp.setResult(e.what());
     return TCL_ERROR;
   }
 }
@@ -184,16 +203,13 @@ CBindCommand::BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
 
 
 TCLPLUS::Int_t
-CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			 int nArgs, char* pArgs[])
+CBindCommand::BindByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])
 {
   // Binds a list of spectrum names to Displayer slots. 
   //
   // Formal Parameters:
   //     CTCLInterpreter& rInterp:
   //        TCL Interpreter executing the command.
-  //     CTCLResult& rResult:
-  //        Result string associated with this interpreter.
   //     int nArgs, char* p Args[]:
   //        Command line parameters.
   // Returns:
@@ -205,12 +221,12 @@ CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
     std::vector<std::string> vNames;
     CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
   
-    CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+    CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
   
-    return rPack.BindList(rResult, vNames);
+    return rPack.BindList(rInterp, vNames);
   }
   catch (std::exception & e) {
-    rResult = e.what();
+    rInterp.setResult(e.what());
     return TCL_ERROR;
   }
 }
@@ -218,12 +234,12 @@ CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Int_t ListBindings ( CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[] )
+//    Int_t ListBindings ( CTCLInterpreter& rInterp,  int nArgs, char* pArgs[] )
 //  Operation Type:
 //     Utility
 //
 TCLPLUS::Int_t 
-CBindCommand::ListBindings(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]) 
+CBindCommand::ListBindings(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) 
 {
 // Processes the bind commands which
 //  list bindings.
@@ -231,8 +247,6 @@ CBindCommand::ListBindings(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
 // Formal parameters:
 //     CTCLInterpreter&  rInterp:
 //            TCL Interpreter.
-//     CTCLResult&       rResult:
-//           Command result string.
 //     int nArgs:
 //           Number of parameters past the
 //           -list swtich.
@@ -247,47 +261,45 @@ CBindCommand::ListBindings(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
 
     case keNotSwitch:		// List given names.
       //return ListByName(rInterp, rResult, nArgs, pArgs);
-      return ListAll(rInterp,rResult, pArgs[0]);
+      return ListAll(rInterp, pArgs[0]);
 
     default:			// Invalid switch in this context...
-      return ListAll(rInterp,rResult, pArgs[0]);
+      return ListAll(rInterp, pArgs[0]);
 
     }
   }
   else {
-    return ListAll(rInterp, rResult, "*");
+    return ListAll(rInterp, "*");
   }
 
 }
 ////////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//   Int_t ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
+//   Int_t ListAll(CTCLInterpreter& rInterp, const char* pattern)
 // Operation Type:
 //   Utility:
 //
 TCLPLUS::Int_t
-CBindCommand::ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult, const char* pattern)
+CBindCommand::ListAll(CTCLInterpreter& rInterp, const char* pattern)
 {
   // List all spectrum bindings.
   //
 
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-  rPack.ListAllBindings(rResult, pattern);
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  rPack.ListAllBindings(rInterp, pattern);
   return TCL_OK;
 
 }
 ////////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//   Int_t ListByName(CTCLINterpreter& rInterp, CTCLResult& rResult,
-//                    int nArgs, char* pArgs[])
+//   Int_t ListByName(CTCLINterpreter& rInterp, int nArgs, char* pArgs[])
 // Operation Type:
 //   Utility
 //
 TCLPLUS::Int_t
-CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			 int nArgs, char* pArgs[])
+CBindCommand::ListByName(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])
 {
   // List the bindings of a set of spectra given their names.
   // The set of parameters in nArgs/pArgs is assumed to be a set of
@@ -309,8 +321,8 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
   vector<string> vNames;
   CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
 
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-  return rPack.ListBindings(rResult, vNames);
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  return rPack.ListBindings(rInterp, vNames);
 }
 /**
  * Trace
@@ -323,14 +335,13 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
  */
 TCLPLUS::Int_t
 CBindCommand::Trace(
-  CTCLInterpreter& rInterp, CTCLResult& rResult,
-	int nArgs, char* pArgs[]
+  CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
 )
 {
   // Validate the argument count:
   
   if (nArgs != 2) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   CTCLObject scriptStem;
@@ -359,14 +370,13 @@ CBindCommand::Trace(
  */
 TCLPLUS::Int_t
 CBindCommand::Untrace(
-  CTCLInterpreter& rInterp, CTCLResult& rResult,
-	int nArgs, char* pArgs[]
+  CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
 )
 {
   // Validate the argument count.
   
   if (nArgs != 2) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
   // Pull the script stem into an object:
@@ -381,7 +391,7 @@ CBindCommand::Untrace(
     BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
     traceContainer.removeSbindTrace(scriptStem);
   } catch (std::exception& e) {
-    rResult = e.what();
+    rInterp.setResult(e.what());
     return TCL_ERROR;
   }
   return TCL_OK;
@@ -411,11 +421,12 @@ CBindCommand::MatchSwitch(const char* pSwitch)
 //    Protected Utility
 //
 void 
-CBindCommand::Usage(CTCLResult& rResult)
+CBindCommand::Usage(CTCLInterpreter& rInterp)
 {
   // Fills rResult with the correct command usage for the
   // bind Tcl Command:
 
+  std::string rResult;
   rResult  = "Usage: \n";
   rResult += "   sbind [-new] name1 [name2...]\n";
   rResult += "   sbind -all\n";
@@ -430,4 +441,6 @@ CBindCommand::Usage(CTCLResult& rResult)
   rResult += "  has been added with the -trace and -untrace options.\n";
   rResult += "NOTE: The bind command is a Tk command that binds gui events\n";
   rResult += "      to tcl procedures\n";
+
+  rInterp.setResult(rResult);
 }

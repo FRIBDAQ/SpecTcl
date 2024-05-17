@@ -182,11 +182,11 @@ proc ChangeSpectra {id} {
 				lappend sNew [lindex $sReso $i]
 			}
 		}
-		set gate [lindex [lindex [lindex [apply -list $s] 0] 1] 0]
+		set gate [lindex [lindex [lindex [applygate -list $s] 0] 1] 0]
 		spectrum -delete $s
 		spectrum $s $sType $sParam $sNew $sData
 		if {![string equal $gate -TRUE-]} {
-			apply $gate $s
+			applygate $gate $s
 		}
 		puts "Spectrum $s replaced"
 		incr index
