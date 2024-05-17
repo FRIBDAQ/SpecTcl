@@ -185,7 +185,7 @@ static int EventEventHandler(Tcl_Event* p, int flags) {
     if (pipeline) {
         (*pipeline)(*pEvent->pEvents);
     }
-    delete pEvent->pEvents;
+    delete pEvent->pEvents;  //Event list destructor destroys the events too.
     return 1;
 }
 
@@ -202,6 +202,8 @@ createTclEvent() {
     result->header.proc = EventEventHandler;
     result->header.nextPtr = nullptr;
     result->pEvents = new CEventList(RECEIVER_EVENTLIST_SIZE);         // We're sending one event around.
+    (*result->pEvents)[0] = new CEvent;
+    return result;
 }
 
 // The eventpump thread itself:
