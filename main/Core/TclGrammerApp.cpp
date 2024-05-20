@@ -1476,7 +1476,7 @@ MpiExitHandler() {
 
       MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
     }
-    std::cerr << "Finalizing\n";
+  
     MPI_Finalize();   // Ignore status - might have already been called.
   }
 #endif
