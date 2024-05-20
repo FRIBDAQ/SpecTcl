@@ -1503,10 +1503,27 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
 
    atexit(MpiExitHandler);
 
-  // For now exit if my rank is not zero:
+  // Save the current rank.
 
-  
   me->m_mpiRank = myRank();
+
+  // Create a communicator/group for sending around the ring items from root
+  // to the workers. 
+  // There's only one 'color' ranks will retain the same ordering so the
+  // world rank 0 is rank 0 for gRingItemComm.
+  // It includes the root rank and all workers:
+
+  // We just need this, realy to distinguish broadcasts intended for the 
+  // ring items and for commands.
+
+
+  int mycolor = ((me->m_mpiRank == 0) || (me->m_mpiRank >= MPI_FIRST_WORKER_RANK)) ? 
+     1 :  MPI_UNDEFINED;
+  if (MPI_Comm_split(MPI_COMM_WORLD, mycolor, me->m_mpiRank, &gRingItemComm) != MPI_SUCCESS)  {
+    Tcl_Obj* result = Tcl_NewStringObj("BUG - could not create the ring item group", -1);
+    Tcl_SetObjResult(pInterp, result);
+    return TCL_ERROR;
+  }
   
   CTclGrammerApp::AppInit(pInterp);   // For now start up as serial.
 #else
