@@ -21,6 +21,7 @@ LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 
 SpecTcl_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		@top_builddir@/Display/libXamine.la \
+		@top_builddir@/mpi/libMPIUtilities.la \
 		@ROOT_LDFLAGS@ -lXt -lX11 -lgsl -lgslcblas
 
 SpecTcl_LDFLAGS = -Wl,"-rpath=$(libdir)"

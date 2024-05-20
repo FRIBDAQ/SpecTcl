@@ -5,7 +5,8 @@ lib_LTLIBRARIES=libScripted.la
 
 ScriptedSpecTcl_SOURCES = MySpecTclApp.cpp
 
-libScripted_la_LDFLAGS = -version-info $(SOVERSION):0 @ROOT_LDFLAGS@
+libScripted_la_LDFLAGS = -version-info $(SOVERSION):0 \
+	@ROOT_LDFLAGS@
 
 MainSources=CConfigurableObject.cpp \
 	CSegmentUnpacker.cpp \
@@ -91,6 +92,7 @@ ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
 	@top_builddir@/Core/libSpecTclMain.la \
 	@top_builddir@/Core/libTclGrammerApp.la \
 	@top_builddir@/Display/libXamine.la  \
+	@top_builddir@/mpi/libMPIUtilities.la  \
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  \
 	$(LD_EXTRA_FLAGS) @ROOT_LDFLAGS@ \
 	-lgsl \

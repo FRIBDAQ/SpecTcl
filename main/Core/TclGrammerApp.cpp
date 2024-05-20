@@ -1460,11 +1460,25 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
 
 /**
  * mpiExitHandler calles MPI_Finalize on Tcl exit:
+ *    Tcl has already killed off the stdout/err so we can't really do any error handling.
  */
 static void
-MpiExitHandler(ClientData ignoreMe) {
+MpiExitHandler() {
 #ifdef WITH_MPI
-  MPI_Finalize();   // Ignore status - might have already been called.
+  // Note that if we are rank 0 we spray the exit command to all of the
+  // other ranks.  Sincde exit won't make a status, we don't get replies.
+  if (gMPIParallel) {
+    if (myRank() == MPI_ROOT_RANK) {
+      MpiTclCommandChunk exitCommand;
+      exitCommand.commandLength = strlen("exit") + 1;
+      strcpy(exitCommand.commandChunk, "exit");
+      exitCommand.commandChunk[exitCommand.commandLength - 1] = '\0';
+
+      MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
+    }
+    std::cerr << "Finalizing\n";
+    MPI_Finalize();   // Ignore status - might have already been called.
+  }
 #endif
 }
 
@@ -1487,7 +1501,8 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
   }
   // Let's make sure that MPI_Finalize is called by setting a Tcl exit handler:
 
-   Tcl_CreateExitHandler(MpiExitHandler, nullptr);
+   atexit(MpiExitHandler);
+
   // For now exit if my rank is not zero:
 
   
