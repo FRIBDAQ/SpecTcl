@@ -40,7 +40,7 @@ typedef int MPI_Datatype;
 
 // Tag that identifes a messages as being TCL related:
 
-static const int MPI_TCL_TAG  = 1;    // Tcl commands have this tag
+
 static const int MPI_TCL_SOURCE = 0;  // And come from here.
 
 /**
@@ -56,7 +56,7 @@ static const int MPI_TCL_SOURCE = 0;  // And come from here.
  *                   reading until we have all of the bytes.
  *   * resultChunk - is a buffer that can contain the first/only/next chunk of the result string.
 */
-#define MAX_TCL_CHUNKSIZE 500
+
 typedef struct _MpiTclResultMsg {
     int status;     // Tcl status e.g. hopefully TCL_OK.
     int resultSize; // Total number of bytes in the stringified result.
@@ -71,10 +71,7 @@ MPI_Datatype TclResultType;
  * We use the same concept:
 */
 
-typedef struct _MpiTclCommandChunk {
-    int long commandLength;                     // Length of the command.
-    char commandChunk[MAX_TCL_CHUNKSIZE];  // command chunk.
-} MpiTclCommandChunk, *pMpiTclCommandChunk;
+
 MPI_Datatype TclCommandChunk;
 
 static bool typesRegistered(false);
@@ -124,6 +121,11 @@ static void registerCustomTypes() {
     typesRegistered = true;          // Only reigster once.
 #endif
 }
+// Public entry to register the custom types with a name that's a bit more
+// distinct.
+void registerTclCustomTypes() {
+    registerCustomTypes();
+}
 
 /*
    Local function to return the various data types:
@@ -132,7 +134,7 @@ static MPI_Datatype getTclResultType() {
     registerCustomTypes();
     return TclResultType;
 }
-static MPI_Datatype getTclCommandChunkType() {
+MPI_Datatype getTclCommandChunkType() {
     registerCustomTypes();
     return TclCommandChunk;
 }

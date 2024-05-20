@@ -22,8 +22,18 @@
 #include <vector>
 #include <tcl.h>
 
+
 class CTCLInterpreter;
 class CTCLObject;
+
+#define MPI_TCL_TAG  1    // Tcl commands have this tag
+#define MAX_TCL_CHUNKSIZE 50
+typedef struct _MpiTclCommandChunk {
+    int long commandLength;                     // Length of the command.
+    char commandChunk[MAX_TCL_CHUNKSIZE];  // command chunk.
+} MpiTclCommandChunk, *pMpiTclCommandChunk;
+
+
 /**
  * This header contains definitions to support Tcl command pumping in MPI SpecTcl
  * Tcl command pumping refers to the fact that MPISpecTcl consists of a master
@@ -48,6 +58,10 @@ int ExecCommand(CTCLInterpreter& rInterp, std::vector<CTCLObject>& words);
 /**
  * start the command pump.
 */
+#ifdef WITH_MPI
+#include <mpi.h>
+MPI_Datatype getTclCommandChunkType();
+#endif
 void startCommandPump(CTCLInterpreter& rInterp);          // Start pumping commands via the event loop.
 void stopCommandPump();
 
