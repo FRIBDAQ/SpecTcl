@@ -20,6 +20,7 @@
 #include <config.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdexcept>
 
 #ifdef WITH_MPI
@@ -39,6 +40,38 @@ static const size_t MAX_MESSAGE_SIZE = 16*1024;
 
 // Internal methods. Only needed if MPI is included so:
 
+ // This type is what is sent via MPI_Bcast so that 
+ // the receiver knows what it got:
+
+ typedef struct _BroadcastData {
+    uint32_t s_payloadSize;
+    uint8_t  s_payload[MAX_MESSAGE_SIZE];
+ } BroadcastData, *pBroadcastData;
+
+ static MPI_Datatype
+ broadCastDataType() {
+    static bool initialized = false;
+    MPI_Datatype result;
+    if (!initialized) {
+        // Define and register the data type.
+
+        MPI_Datatype types[2] = {MPI_UINT32_T, MPI_UINT8_T};
+        int          sizes[2] = {1, MAX_MESSAGE_SIZE};
+        MPI_Aint     offsets[2] = {
+            offsetof(BroadcastData, s_payloadSize), 
+            offsetof(BroadcastData, s_payload)
+        };
+        if (MPI_Type_create_struct(2, sizes, offsets, types, &result) != MPI_SUCCESS) {
+            throw std::runtime_error("Failed to create the BroadcastData struct");
+        }
+        if (MPI_Type_commit(&result) != MPI_SUCCESS) {
+            throw std::runtime_error("Filed to commit BroadcastData struct");
+        }
+        initialized = true;
+
+    }
+    return result;
+ }
 
 /**
  * (static) transmitChunks - 
@@ -107,7 +140,7 @@ RingItemEventHandler(Tcl_Event* pEvent, int flags) {
     } p;
     p.pBytes = reinterpret_cast<uint8_t*>(pInfo->s_pData);
     // Throws if it's not a CRingBufferDecoder:
-    CRingBufferDecoder& rDecoder = dynamic_cast<CringBufferDecoder&>(*gpBufferDecoder);
+    CRingBufferDecoder& rDecoder = dynamic_cast<CRingBufferDecoder&>(*gpBufferDecoder);
     while (nBytes) {
         rDecoder.dispatchEvent(p.pBytes);
 
@@ -115,12 +148,12 @@ RingItemEventHandler(Tcl_Event* pEvent, int flags) {
         p.pBytes += *p.pLongs;
     }
 
-    Tcl_Free(reinterpret_cast<char*>(pInfo->s_pData);
-    return 1;)
+    Tcl_Free(reinterpret_cast<char*>(pInfo->s_pData));
+    return 1;
 }
 
 static void
-initEvent(pRingItemEvent, pEvent) {
+initEvent(pRingItemEvent pEvent) {
     pEvent->s_base.proc = RingItemEventHandler;
     pEvent->s_base.nextPtr = nullptr;
     pEvent->s_dataSize = 0;
@@ -138,9 +171,12 @@ initEvent(pRingItemEvent, pEvent) {
  * 
  * @param pEvent - A pRingItemEvent. This is fully filled in
  * by this method.
+ * @note assembly is, for the most part, non-zero copy at our end receiving
+ *     data directly into the block we queue to the main thread;
+ *     unless Tcl_Realloc needs to move our data block.
 */
 static void
-assembleTargetedData(pRingItemEvent, pEvent) {
+assembleTargetedData(pRingItemEvent pEvent) {
     // Fill in the header an init the data fields:
 
     initEvent(pEvent);
@@ -151,7 +187,7 @@ assembleTargetedData(pRingItemEvent, pEvent) {
     //
     pEvent->s_pData = Tcl_Alloc(MAX_MESSAGE_SIZE);
     if (!pEvent->s_pData) {
-        throw std::runtime_error("Tcl_Alloc faile d in assembleTargetedData");
+        throw std::runtime_error("Tcl_Alloc failed in assembleTargetedData");
     }
     MPI_Status status;
     if (MPI_Recv
@@ -174,7 +210,7 @@ assembleTargetedData(pRingItemEvent, pEvent) {
     // Make a  pointer to where to read the next chunk.
 
     if (remainingSize > 0) {
-        pEvent->s_pData = Tcl_Realloc(*pSize);
+        pEvent->s_pData = Tcl_Realloc(reinterpret_cast<char*>(pEvent->s_pData), *pSize);
         if (!pEvent->s_pData) {
             throw std::runtime_error("Failed to alloc remaining buffer in assembleTargetedData");
         }
@@ -186,10 +222,54 @@ assembleTargetedData(pRingItemEvent, pEvent) {
             ) != MPI_SUCCESS) {
                 throw std::runtime_error("Failed to receive a chunk in assembleTargetedData");
             }
-            MPI_GetCount(&status, MPI_UINT8_t, &receivedBytes)
+            MPI_Get_count(&status, MPI_UINT8_T, &receivedBytes);
             p += receivedBytes;
             remainingSize -= receivedBytes;
         }
+    }
+}
+/**
+ * receiveBroadcastEvent
+ *     Get a single broadcast event into the RingItemEvent's buffer.
+ * 
+ * @param pEvent - pRingItemEvent whose buffer and size we will fill.
+ * 
+*/
+static void
+receiveBroadcastEvent(pRingItemEvent pEvent) {
+    
+    
+    // The first broadcast tells us how much total data we're getting.
+    
+    BroadcastData buffer;
+
+    if (MPI_Bcast(&buffer, 1, broadCastDataType(), 0, gRingItemComm) != MPI_SUCCESS) {
+        throw std::runtime_error("Could not receive the first broadcasted chunk");
+    }
+    pEvent->s_dataSize = buffer.s_payloadSize;
+    pEvent->s_pData    = reinterpret_cast<void*>(Tcl_Alloc(buffer.s_payloadSize));
+    if(!pEvent->s_pData) {
+        throw std::runtime_error("receiveBroadcastEvent failed initial buffer allocation");
+    }
+    memcpy(pEvent->s_pData, buffer.s_payload, buffer.s_payloadSize);
+    uint32_t* pSize = reinterpret_cast<uint32_t*>(buffer.s_payload);
+    uint32_t totalsize = *pSize;
+    
+    // Allocate the whole ring item so we can keep a running destination pointer:
+    // and minimize the reallocs:
+    pEvent->s_pData = reinterpret_cast<void*>(
+        Tcl_Realloc(reinterpret_cast<char*>(pEvent->s_pData), totalsize)
+    );
+    uint8_t* p = reinterpret_cast<uint8_t*>(pEvent->s_pData);
+    p += buffer.s_payloadSize;
+    
+    while (pEvent->s_dataSize < totalsize) {
+        if (MPI_Bcast(&buffer, 1, broadCastDataType(), 0, gRingItemComm) != MPI_SUCCESS) {
+            throw std::runtime_error("receiveBroadcastEvent failed to receive subsequent broadcast chunk");
+        }
+        memcpy(p, buffer.s_payload, buffer.s_payloadSize);
+        p += buffer.s_payloadSize;
+        pEvent->s_dataSize += buffer.s_payloadSize;
     }
 }
 
@@ -216,25 +296,47 @@ physicsThread(ClientData parent) {
 
     while (1) {
         pRingItemEvent pE = reinterpret_cast<pRingItemEvent>(Tcl_Alloc(sizeof(RingItemEvent)));
+        if (!pE) {
+            throw std::runtime_error("physicsThread failed to allocate RingItemEvent");
+        }
         // Send our request for data:
 
-        uint8_t dummy:
+        uint8_t dummy;
         if (!MPI_Send(
-            &dummy, 1, MPI_CHAR_T, 
+            &dummy, 1, MPI_CHAR, 
             MPI_RING_ITEM_TAG, 0, gRingItemComm
         ) != MPI_SUCCESS) {
             throw std::runtime_error("Worker failed to request a work item");
         }
         
-        assembleTargetedData(pE);) // Fills in all of pE.
+        assembleTargetedData(pE); // Fills in all of pE.
 
-        Tcl_ThreadQueueEvent(targetThread, pE->s_base, TCL_QUEUE_TAIL);
+        Tcl_ThreadQueueEvent(targetThread, &(pE->s_base), TCL_QUEUE_TAIL);
     }
 }
 
+
+/**
+ * nonPhysicsThread
+ *    This is the thread that handles non-PHYSICS_EVENT data.  It recieves data broadcast
+ *  fron the gRingItemComm communicator's rank 0 and queues an event for it to
+ * the main thread's interpreter.  
+ * 
+ * @param parent -Actually a Tcl_ThreadId for the thread we should post the event to.
+*/
 static Tcl_ThreadCreateType
 nonPhysicsThread(ClientData parent) {
+    Tcl_ThreadId target = reinterpret_cast<Tcl_ThreadId>(parent);
 
+    while(1) {
+        pRingItemEvent pE = reinterpret_cast<pRingItemEvent>(Tcl_Alloc(sizeof(RingItemEvent)));
+        if (!pE) {
+            throw std::runtime_error("nonPhysicsThread failed to allocate RingItemEvent");
+        }
+        initEvent(pE);
+        receiveBroadcastEvent(pE);
+        Tcl_ThreadQueueEvent(target, &(pE->s_base), TCL_QUEUE_TAIL);
+    }
 }
 #endif
 
@@ -292,22 +394,29 @@ sendRingItem(const void* pItem, size_t size) {
  * @param pItem - Item to send. 
  * @param size  - # of bytes in the item to send.
  *     Since scaler items can, theoretically, be arbitrarily sized
- * (think a large DDAS system e.g) items are chunked out
- *  just as sendRingItem does...if required.  The main difference
- * is that workers don't sollicit these they get sprayed to them.
- * (the members of the RingItemComm are the transmitter and workers).
+ * (think a large DDAS system e.g) items are chunked out.
+ *  just as sendRingItem does...if required. The main differences are:
+ *  -  Workers don't request data but have it broadcast to them.
+ *  -  Since MPI_Bcast does not say how much data the receiver actually got,
+ *      we use the BroadcastData special type and this, inherently, will require
+ *      data copying.  Fortunately, the send rate for these items is much smaller than
+ *      for 'directed' sends(sendRingItem).
 */
 void
 broadcastRingItem(const void* pItem, size_t size) {
 #ifdef WITH_MPI
-    const uint8_t* p = reintrpret_cast<const uint8_t*>(pItem);
+    MPI_Datatype bcType = broadCastDataType();
+    BroadcastData buffer;                             // Chunk buffer.
+    const uint8_t* p = reinterpret_cast<const uint8_t*>(pItem);
     while (size) {
         int chunksize = MAX_MESSAGE_SIZE;
         if (size < chunksize) chunksize = size;
-        if (MPI_Bcast(p, chunksize, MPI_UINT8_T, 0, gRingItemComm) != MPI_SUCCESS) {
-            throw std::runtime_error("Failed to broadcast chunk to worker");
+        buffer.s_payloadSize = chunksize;
+        memcpy(buffer.s_payload, p, chunksize);
+
+        if (MPI_Bcast(&buffer, 1, bcType, 0, gRingItemComm) != MPI_SUCCESS) { 
+            throw std::runtime_error("broadcastRingItem: Failed to broadast a ring item chunk");
         }
-        // See if there is a next chunk and where it starts:
 
         size -= chunksize;
         p += chunksize;
@@ -337,7 +446,7 @@ startRingitemPump()
     );
     Tcl_CreateThread(&bcastReceiveThread, 
         nonPhysicsThread, reinterpret_cast<ClientData>(targetThread), 
-        TCL_THREAD_STACK_DEFAUL, TCL_THREAD_NOFLAGS
+        TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS
     );
 #endif
 }
