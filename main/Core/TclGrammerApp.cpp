@@ -1098,18 +1098,23 @@ int CTclGrammerApp::operator()() {
   // Setup the test data source: - in the root rank.
   // The analyzer and decoder are done here as when we are analyzing data
   // it's the root process that ships it off to the workers.
-  //
+  //  These are also needed in the workers.
 
-  if (!gMPIParallel ||(m_mpiRank == MPI_ROOT_RANK)) { 
+  if (!gMPIParallel ||(m_mpiRank == MPI_ROOT_RANK)) {
     SetupTestDataSource(); // No longer done. By default, no source is to be set so that users aren't mistakenly fooled by test data.
-
+  }
+  if (!gMPIParallel || 
+    (gMPIParallel && ((m_mpiRank == MPI_ROOT_RANK) || (m_mpiRank >= MPI_FIRST_WORKER_RANK)))
+  ) {
     // Create an analyzer and hook the histogrammer to it.
     //CreateAnalyzer(gpEventSink);
     CreateAnalyzer(gpEventSinkPipeline);
-
-    //  Setup the buffer decoder:
+    
+      //  Setup the buffer decoder:
     SelectDecoder(*gpAnalyzer);
+  
   }
+  
   // Setup the command packages: -- all ranks do this.
   AddCommands(*gpInterpreter);
 
