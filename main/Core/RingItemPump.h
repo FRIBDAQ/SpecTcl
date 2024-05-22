@@ -32,8 +32,8 @@
 #include <stdlib.h>
 // Event sending:
 
-void sendRingItem(void* pItem, size_t size);
-void broadcastRingItem(void* pItem, size_t size);
+void sendRingItem(const void* pItem, size_t size);
+void broadcastRingItem(const void* pItem, size_t size);
 
 void startRingItemPumps();
 #endif

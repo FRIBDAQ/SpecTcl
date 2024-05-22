@@ -480,7 +480,7 @@ gateTests_SOURCES  = TestRunner.cpp gateTests.cpp
 
 spectrumPkgTests_CXXFLAGS = $(commonTestCXXFLAGS)
 spectrumPkgTests_LDADD    = $(commonTestLdFlags)
-spectrumPkgTests_SOURCES  = TestRunner.cpp SpectrumPackageTests.cpp
+spectrumPkgTests_SOURCES  = TestRunner.cpp SpectrumPackageTests.cpp 
 
 displayInterfaceTests_CXXFLAGS = $(commonTestCXXFLAGS)
 displayInterfaceTests_LDADD = $(commonTestLdFlags)
