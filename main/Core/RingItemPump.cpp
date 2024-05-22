@@ -96,7 +96,7 @@ transmitChunks(const void* buf, size_t size, int dest) {
         if (size < chunksize) chunksize = size;
 
         if (MPI_Send(p, chunksize, MPI_UINT8_T, 
-            MPI_RING_ITEM_TAG, dest, gRingItemComm
+            dest, MPI_RING_ITEM_TAG, gRingItemComm
         ) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to send chunk of a ring item to worker");
         }
@@ -192,7 +192,7 @@ assembleTargetedData(pRingItemEvent pEvent) {
     MPI_Status status;
     if (MPI_Recv
         (pEvent->s_pData, MAX_MESSAGE_SIZE, MPI_UINT8_T,
-         MPI_RING_ITEM_TAG, 0, gRingItemComm, &status
+         0, MPI_RING_ITEM_TAG, gRingItemComm, &status
         ) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to receive a chunk in assembleTargetedData");
     }
@@ -218,7 +218,7 @@ assembleTargetedData(pRingItemEvent pEvent) {
         while (remainingSize) {
             if (MPI_Recv(
                 p, remainingSize, MPI_UINT8_T, 
-                MPI_RING_ITEM_TAG, 0, gRingItemComm, &status
+                0, MPI_RING_ITEM_TAG, gRingItemComm, &status
             ) != MPI_SUCCESS) {
                 throw std::runtime_error("Failed to receive a chunk in assembleTargetedData");
             }
@@ -304,7 +304,7 @@ physicsThread(ClientData parent) {
         uint8_t dummy;
         if (!MPI_Send(
             &dummy, 1, MPI_CHAR, 
-            MPI_RING_ITEM_TAG, 0, gRingItemComm
+            0, MPI_RING_ITEM_TAG, gRingItemComm
         ) != MPI_SUCCESS) {
             throw std::runtime_error("Worker failed to request a work item");
         }
@@ -434,7 +434,7 @@ broadcastRingItem(const void* pItem, size_t size) {
  * and just dispatches the ring item.
 */
 void 
-startRingitemPump()
+startRingItemPump()
 {
 #ifdef WITH_MPI
     Tcl_ThreadId targetThread = Tcl_GetCurrentThread();
