@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdexcept>
-
+#include <iostream>
 #ifdef WITH_MPI
 #include <mpi.h>
 #endif
@@ -302,10 +302,12 @@ physicsThread(ClientData parent) {
         // Send our request for data:
 
         uint8_t dummy;
-        if (!MPI_Send(
+        int status =MPI_Send(
             &dummy, 1, MPI_CHAR, 
             0, MPI_RING_ITEM_TAG, gRingItemComm
-        ) != MPI_SUCCESS) {
+        );
+        if(status != MPI_SUCCESS) {
+            std::cerr << "MPI Stauts on send error in pump: " << status << std::endl;
             throw std::runtime_error("Worker failed to request a work item");
         }
         
