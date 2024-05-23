@@ -1239,11 +1239,14 @@ SpecTcl::CreateM2Projection(
 void 
 SpecTcl::AddSpectrum(CSpectrum& spectrum)
 {
-  // This is really only supported when histogramers are present.
-  // That's not the case if mpi parallel and not PI_EVENT_SINK_RANK
+  // If there's a histogramer we should use that to ensure that
+  // all internals are satisfied, otherwise just enter it in the dict.
   CHistogrammer* pHistogrammer = GetHistogrammer();
   if (pHistogrammer) {
     pHistogrammer->AddSpectrum(spectrum);
+  } else {
+    CSpectrum* p = &spectrum;
+    CSpectrumDictionarySingleton::getInstance()->Enter(spectrum.getName(), p);
   }
 }
 
@@ -1263,7 +1266,15 @@ SpecTcl::RemoveSpectrum(string name)
   if (pHistogrammer) {
     return          pHistogrammer->RemoveSpectrum(name);
   } else {
-    return nullptr;
+    auto dict = CSpectrumDictionarySingleton::getInstance();
+    auto p = dict->Lookup(name);
+    if (p == dict->end()) { 
+      return nullptr;
+    } else {
+      CSpectrum* pResult = p->second;
+      dict->Remove(name);
+      return pResult;
+    }
   }
 }
 
@@ -1284,7 +1295,13 @@ SpecTcl::FindSpectrum(string name)
   if (pHistogrammer) {
     return         pHistogrammer->FindSpectrum(name);
   } else {
-    return nullptr;
+    auto dict = CSpectrumDictionarySingleton::getInstance();
+    auto p = dict->Lookup(name);
+    if (p == dict->end()) {
+      return nullptr;
+    } else {
+      return p->second;
+    }
   }
 }
 /*!
@@ -1296,6 +1313,20 @@ SpecTcl::FindSpectrum(string name)
   \retval  NULL No spectrum by that name to delete.
  
  */
+// Helper class to match by id:
+
+namespace SpecTclUtil {
+  class MatchSpectrumId {
+    private:
+      UInt_t m_id;
+    public:
+      MatchSpectrumId(UInt_t id) : m_id(id) {}
+      bool operator()(const std::pair<std::string, CSpectrum*>& p) {
+        return (m_id = p.second->getNumber());
+      }
+  };
+}
+
 CSpectrum*
 SpecTcl::FindSpectrum(UInt_t nid)
 {
@@ -1303,7 +1334,14 @@ SpecTcl::FindSpectrum(UInt_t nid)
   if (pHistogrammer) {
     return pHistogrammer->FindSpectrum(nid);
   } else {
-    return nullptr;
+    SpecTclUtil::MatchSpectrumId pred(nid);
+    auto dict = CSpectrumDictionarySingleton::getInstance();
+    auto p = dict->FindMatch(pred);
+    if (p == dict->end()) {
+      return nullptr;
+    } else{
+      return p->second;
+    }
   }
 }
 
@@ -1342,7 +1380,7 @@ SpecTcl::addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
   CHistogrammer* pHistogrammer = GetHistogrammer();
   if (pHistogrammer) {
     pHistogrammer->addSpectrumDictionaryObserver(observer);
-  }
+  } 
 }
 /*!
   Remove an observer from the spectrum dictionary.
@@ -2147,13 +2185,14 @@ void
 SpecTcl::ApplyGate(string gateName, string spectrumName)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
+
   if (pHistogrammer) {
     pHistogrammer->ApplyGate(gateName, spectrumName);
   } else {
     throwIfNoSuchGate(gateName);
     auto spec = FindSpectrum(spectrumName);
     if (!spec) {
-      CDictionaryException(CDictionaryException::knNoSuchKey, "Checking spectrum existence", spectrumName);
+      throw CDictionaryException(CDictionaryException::knNoSuchKey, "Checking spectrum existence", spectrumName);
     }
     auto gc   = FindGate(gateName);   // will exist.
     spec->ApplyGate(gc);
