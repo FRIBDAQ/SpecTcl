@@ -44,6 +44,9 @@
 #include <File.h>
 #include <RunControl.h>
 #include <Analyzer.h>
+#ifdef WITH_MPI
+#include <mpi.h>
+#endif
 
 class CDisplayInterface;
 
@@ -60,6 +63,12 @@ extern CDisplayInterface*  gpDisplayInterface;  // Display interface
 extern volatile void*               gpDisplayMemory;     // Display memory.
 extern bool                gMPIParallel;       // TRUE if built with MPI and run with MPIRUN.
 
+#ifdef WITH_MPI
+// Communicator for event messages:
+
+extern MPI_Comm                  gRingItemComm;      // Only defined in root and workers.
+#endif
+
 // MPI constant definitions
 
 // Fixed ranks in MPI
@@ -74,5 +83,7 @@ extern bool                gMPIParallel;       // TRUE if built with MPI and run
 #define MPI_TCL_TAG 1                   // Messages involving the TCL Pump.
 #endif
 #define MPI_TRACE_RELAY_TAG 2           // Trace relay messages.
+#define MPI_RING_ITEM_TAG 3             // Ring items -> workers e.g.
 
 #endif
+

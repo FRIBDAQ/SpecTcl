@@ -63,6 +63,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Display.h>
 
 #include <MPITclPackagedCommand.h>
+#include <TclPump.h>
 
 #include <iostream>
 
@@ -801,31 +802,39 @@ CSpectrumPackage::BindAll(CTCLInterpreter& rInterp)
 //                               spectrum which could not be bound and
 //                              the second  is the reason it couldn't be bound.
 
+  // This all requires a histotgramer:
+
+  
   SpecTcl& api(*(SpecTcl::getInstance()));
-  CTCLString Result;
+ 
+  if (m_pHistogrammer) {
+    CTCLString Result;
 
-  Bool_t     Failed = kfFALSE;
-  SpectrumDictionaryIterator p = api.SpectrumBegin();
+    Bool_t     Failed = kfFALSE;
+    SpectrumDictionaryIterator p = api.SpectrumBegin();
 
-  for(; p != api.SpectrumEnd(); p++) {
-    CSpectrum* pSpec = (*p).second;
-    try {
-      CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
-      if (pDisplay) {
-        makeBinding(*pSpec, *api.GetHistogrammer());
+    for(; p != api.SpectrumEnd(); p++) {
+      CSpectrum* pSpec = (*p).second;
+      try {
+        CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
+        if (pDisplay) {
+          makeBinding(*pSpec, *m_pHistogrammer);
+        }
+      }
+      catch (CException& rExcept) {
+        Result.StartSublist();
+        Result.AppendElement(pSpec->getName());
+        Result.AppendElement(rExcept.ReasonText());
+        Result.EndSublist();
+        Failed = kfTRUE;
       }
     }
-    catch (CException& rExcept) {
-      Result.StartSublist();
-      Result.AppendElement(pSpec->getName());
-      Result.AppendElement(rExcept.ReasonText());
-      Result.EndSublist();
-      Failed = kfTRUE;
-    }
-  }
-  rInterp.setResult((const char*)(Result));
-  return (Failed ? TCL_ERROR : TCL_OK);
+    rInterp.setResult((const char*)(Result));
+    return (Failed ? TCL_ERROR : TCL_OK);
 
+  } else {
+    return TCL_OK;
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -1006,6 +1015,11 @@ CSpectrumPackage::UnbindList(CTCLInterpreter& rInterp,
   SpecTcl* pApi                     = SpecTcl::getInstance();
   CHistogrammer* pSorter            = pApi->GetHistogrammer();
   std::string rResult;
+  #ifdef WITH_MPI
+  if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+    return TCL_OK;
+  }
+  #endif
 
   for(auto p=rvNames.begin(), end=rvNames.end(); p != end; p++) {
     try {
@@ -1079,6 +1093,11 @@ CSpectrumPackage::UnbindList(CTCLInterpreter& rInterp, std::vector<UInt_t>& rvId
   CHistogrammer* pSorter = api.GetHistogrammer();
   std::string rResult;
 
+#ifdef WITH_MPI
+  if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+    return TCL_OK;
+  }
+#endif
   // Build the xid list.. Any failures go into the MyResults string.
   //
   for(auto p=rvIds.begin(), end=rvIds.end(); p != end; p++) {
@@ -1127,7 +1146,11 @@ CSpectrumPackage::UnbindAll()
 //
   // Can only be done  if we have a display or a histogtramer...and we won't have either
   // if we're parallel but not MPI_EVENT_SINK_RANK.
-
+#ifdef WITH_MPI
+  if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+    return;
+  }
+#endif
   if (m_pHistogrammer && m_pDisplay) {
     SpecTcl& api = *(SpecTcl::getInstance());
 

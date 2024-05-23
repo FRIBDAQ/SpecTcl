@@ -147,13 +147,17 @@ CDataSourcePackage::CDataSourcePackage(CTCLInterpreter* pInterp) :
 
   // install the buffer decoder creators for the default set
   // of buffer format types:
+  // Note in MPI spectcl, only the ring buffer decoder is allowed:
 
   SpecTcl* pApi = SpecTcl::getInstance();
-  pApi->addBufferDecoder("nscl", new CNSCLDecoderCreator());
-  pApi->addBufferDecoder("jumbo", new CJumboDecoderCreator());
-  pApi->addBufferDecoder("filter",new CFilterDecoderCreator());
-  pApi->addBufferDecoder("ring",  new CRingDecoderCreator());
-  
+  if (gMPIParallel) {
+    pApi->addBufferDecoder("ring",  new CRingDecoderCreator());  
+  } else {
+    pApi->addBufferDecoder("nscl", new CNSCLDecoderCreator());
+    pApi->addBufferDecoder("jumbo", new CJumboDecoderCreator());
+    pApi->addBufferDecoder("filter",new CFilterDecoderCreator());
+    pApi->addBufferDecoder("ring",  new CRingDecoderCreator());
+  }  
 }
 
 //////////////////////////////////////////////////////////////////////////

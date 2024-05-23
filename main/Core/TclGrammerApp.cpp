@@ -97,6 +97,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,6 +117,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 
 #include <TclPump.h>
+#include <RingItemPump.h>
 
 
 
@@ -1096,18 +1098,23 @@ int CTclGrammerApp::operator()() {
   // Setup the test data source: - in the root rank.
   // The analyzer and decoder are done here as when we are analyzing data
   // it's the root process that ships it off to the workers.
-  //
+  //  These are also needed in the workers.
 
-  if (!gMPIParallel ||(m_mpiRank == MPI_ROOT_RANK)) { 
+  if (!gMPIParallel ||(m_mpiRank == MPI_ROOT_RANK)) {
     SetupTestDataSource(); // No longer done. By default, no source is to be set so that users aren't mistakenly fooled by test data.
-
+  }
+  if (!gMPIParallel || 
+    (gMPIParallel && ((m_mpiRank == MPI_ROOT_RANK) || (m_mpiRank >= MPI_FIRST_WORKER_RANK)))
+  ) {
     // Create an analyzer and hook the histogrammer to it.
     //CreateAnalyzer(gpEventSink);
     CreateAnalyzer(gpEventSinkPipeline);
-
-    //  Setup the buffer decoder:
+    
+      //  Setup the buffer decoder:
     SelectDecoder(*gpAnalyzer);
+  
   }
+  
   // Setup the command packages: -- all ranks do this.
   AddCommands(*gpInterpreter);
 
@@ -1116,11 +1123,14 @@ int CTclGrammerApp::operator()() {
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     SetupRunControl();
   }
-  //  Setup the user's analysis pipeline worker ranks - for now that's the root.
-  // Later the rank  will be anything larger than MPI_FIRST_SLAVE.
-
-  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+  //  Setup the user's analysis pipeline worker ranks -- and if, mpi start the ring item pumps:
+  //
+  if (!gMPIParallel || (m_mpiRank >= MPI_FIRST_WORKER_RANK)) {
     CreateAnalysisPipeline(*gpAnalyzer);
+    if (gMPIParallel) {
+      startRingItemPump();
+    }
+
   }
   // User's code may have created statically defined tree parameters.  
   // These need to bound in all ranks.
@@ -1495,20 +1505,57 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
   int actualModel;
   int stat = MPI_Init_thread(&me->m_argc, &me->m_pArgV, MPI_THREAD_MULTIPLE, &actualModel);
   if (stat != MPI_SUCCESS) {
-    Tcl_Obj* result = Tcl_NewStringObj("BUG : MPI_InitFailed", -1);
-    Tcl_SetObjResult(pInterp, result);
-    return TCL_ERROR;
+    std::cerr << "BUG : MPI_InitFailed" << std::endl;
+    exit(EXIT_FAILURE);
   }
   // Let's make sure that MPI_Finalize is called by setting a Tcl exit handler:
 
    atexit(MpiExitHandler);
 
-  // For now exit if my rank is not zero:
+  // The app must be at least big enough for one worker:
+
+  int appSize;
+  if (MPI_Comm_size(MPI_COMM_WORLD, &appSize) != MPI_SUCCESS) {
+    std::cerr << "Could not determine the number of processes in the MPI app" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // Save the current rank.
+
+  me->m_mpiRank = myRank();
+
+  // Be sure we have at least one worker:
+
+  if ((appSize <= MPI_FIRST_WORKER_RANK)) {
+    if (me->m_mpiRank == 0) {
+      std::stringstream msgStream;
+      std::cerr << "The -n parameter to mpirun must be at least " 
+        << MPI_FIRST_WORKER_RANK + 1 << " but was " << appSize << std::endl;
+    }
+    exit(EXIT_FAILURE);
+  }
+
 
   
-  me->m_mpiRank = myRank();
+  // Create a communicator/group for sending around the ring items from root
+  // to the workers. 
+  // There's only one 'color' ranks will retain the same ordering so the
+  // world rank 0 is rank 0 for gRingItemComm.
+  // It includes the root rank and all workers:
+
+  // We just need this, realy to distinguish broadcasts intended for the 
+  // ring items and for commands.
+
+
+  int mycolor = ((me->m_mpiRank == 0) || (me->m_mpiRank >= MPI_FIRST_WORKER_RANK)) ? 
+     1 :  MPI_UNDEFINED;
+  if (MPI_Comm_split(MPI_COMM_WORLD, mycolor, me->m_mpiRank, &gRingItemComm) != MPI_SUCCESS)  {
+    std::cerr << "BUG - could not create the ring item group" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
   
-  CTclGrammerApp::AppInit(pInterp);   // For now start up as serial.
+  CTclGrammerApp::AppInit(pInterp); 
 #else
   // Should not have been called so error out of Tcl:
 

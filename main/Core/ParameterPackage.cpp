@@ -516,22 +516,23 @@ CParameterPackage::AddPseudo(CTCLInterpreter& rInterp, const char* pPseudoName,
   //    The text of the body of the script.
   //
 
-  CTCLInterpreter* Interp = m_pHistogrammer->getInterpreter();
-  try {
-    string name(pPseudoName);
-    string body(pBody);
-    CPseudoScript pseudo(name, rDependents,
-			 *m_pHistogrammer, Interp, body);
-    m_pHistogrammer->AddPseudo(pseudo);
-    std::string result = pseudo.getName();
-    result += "_Procedure";
-    rInterp.setResult(result);
+  if (m_pHistogrammer) {
+    CTCLInterpreter* Interp = m_pHistogrammer->getInterpreter();
+    try {
+      string name(pPseudoName);
+      string body(pBody);
+      CPseudoScript pseudo(name, rDependents,
+        *m_pHistogrammer, Interp, body);
+      m_pHistogrammer->AddPseudo(pseudo);
+      std::string result = pseudo.getName();
+      result += "_Procedure";
+      rInterp.setResult(result);
+    }
+    catch(CException& rException) {
+      rInterp.setResult(rException.ReasonText());
+      return TCL_ERROR;
+    }
   }
-  catch(CException& rException) {
-    rInterp.setResult(rException.ReasonText());
-    return TCL_ERROR;
-  }
-
   return TCL_OK;  
 }
 /////////////////////////////////////////////////////////////////////////////
@@ -558,6 +559,9 @@ CParameterPackage::DescribePseudo(const string& rName, string& rDescription)
   //    TCL_OK    - Found and described.
   //    TCL_ERROR - Not found.
 
+  if (!m_pHistogrammer) {
+    return TCL_OK;
+  }
   try {
     // Script name:
 
@@ -610,6 +614,9 @@ CParameterPackage::DeletePseudo(const string& rName, string& rResult)
   //   TCL_ERROR on failure.
   //
 
+  if (!m_pHistogrammer) {
+    return TCL_OK;
+  }
   try {
     m_pHistogrammer->RemovePseudo(rName);
     rResult = "";
@@ -637,10 +644,12 @@ CParameterPackage::GetPseudoNames(list<string>& rNames)
   //    list<string>& rNames:
   //       Set of names returned.
   //
-  PseudoParameterIterator p = m_pHistogrammer->PseudoBegin();
-  while(p != m_pHistogrammer->PseudoEnd()) {
-    rNames.push_back((*p).getOutputParameter());
-    p++;
+  if (m_pHistogrammer) {
+    PseudoParameterIterator p = m_pHistogrammer->PseudoBegin();
+    while(p != m_pHistogrammer->PseudoEnd()) {
+      rNames.push_back((*p).getOutputParameter());
+      p++;
+    }
   }
 }
 
