@@ -131,10 +131,11 @@ public:
   
   // Made public for mpiSpecTcl
   
-  void dispatchEvent(void* pEvent);     
+  void dispatchEvent(void* pEvent);  
+  void setAnalyzer(CAnalyzer* pAnalyzer);   // MPI SpecTcl.   
 
 private:
-  void createTranslator();
+  void createTranslator(void *p = 0);
   void processBuffer();
   void dispatchPartialEvent();
   

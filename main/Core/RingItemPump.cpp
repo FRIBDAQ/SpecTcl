@@ -141,6 +141,7 @@ RingItemEventHandler(Tcl_Event* pEvent, int flags) {
     p.pBytes = reinterpret_cast<uint8_t*>(pInfo->s_pData);
     // Throws if it's not a CRingBufferDecoder:
     CRingBufferDecoder& rDecoder = dynamic_cast<CRingBufferDecoder&>(*gpBufferDecoder);
+    rDecoder.setAnalyzer(gpAnalyzer);
     while (nBytes) {
         rDecoder.dispatchEvent(p.pBytes);
 
