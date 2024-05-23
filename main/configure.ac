@@ -836,7 +836,7 @@ AC_SUBST(UFMT_LDFLAGS)
 # We no longer look for Ryan's deb to be installed as that ship sailed
 # a long time ago:
 
-AC_CHECK_FILE([${srcdir}/tibtcl/configure.ac], [TCLPLUS_INCORP="1"], [TCLPLUS_INCORP="0"])
+AC_CHECK_FILE([${srcdir}/libtcl/configure.ac], [TCLPLUS_INCORP="1"], [TCLPLUS_INCORP="0"])
 if test "${TCLPLUS_INCORP}" = "0"
 then
   AC_MSG_NOTICE([Incorporating tcl++ version ${TCLPLUS_VERSION} for you])
