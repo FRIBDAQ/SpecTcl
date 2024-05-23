@@ -802,31 +802,39 @@ CSpectrumPackage::BindAll(CTCLInterpreter& rInterp)
 //                               spectrum which could not be bound and
 //                              the second  is the reason it couldn't be bound.
 
+  // This all requires a histotgramer:
+
+  
   SpecTcl& api(*(SpecTcl::getInstance()));
-  CTCLString Result;
+ 
+  if (m_pHistogrammer) {
+    CTCLString Result;
 
-  Bool_t     Failed = kfFALSE;
-  SpectrumDictionaryIterator p = api.SpectrumBegin();
+    Bool_t     Failed = kfFALSE;
+    SpectrumDictionaryIterator p = api.SpectrumBegin();
 
-  for(; p != api.SpectrumEnd(); p++) {
-    CSpectrum* pSpec = (*p).second;
-    try {
-      CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
-      if (pDisplay) {
-        makeBinding(*pSpec, *api.GetHistogrammer());
+    for(; p != api.SpectrumEnd(); p++) {
+      CSpectrum* pSpec = (*p).second;
+      try {
+        CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
+        if (pDisplay) {
+          makeBinding(*pSpec, *m_pHistogrammer);
+        }
+      }
+      catch (CException& rExcept) {
+        Result.StartSublist();
+        Result.AppendElement(pSpec->getName());
+        Result.AppendElement(rExcept.ReasonText());
+        Result.EndSublist();
+        Failed = kfTRUE;
       }
     }
-    catch (CException& rExcept) {
-      Result.StartSublist();
-      Result.AppendElement(pSpec->getName());
-      Result.AppendElement(rExcept.ReasonText());
-      Result.EndSublist();
-      Failed = kfTRUE;
-    }
-  }
-  rInterp.setResult((const char*)(Result));
-  return (Failed ? TCL_ERROR : TCL_OK);
+    rInterp.setResult((const char*)(Result));
+    return (Failed ? TCL_ERROR : TCL_OK);
 
+  } else {
+    return TCL_OK;
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 //
