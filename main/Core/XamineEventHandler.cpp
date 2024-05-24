@@ -783,7 +783,7 @@ CXamineEventHandler::scaleSumSpectrumPoints(CSpectrum* pSpectrum,
  * @param pGate - Pointer to the CGate that describes the gate.
  * 
 */
-void sprayGate(std::string name, CGate* pGate) {
+void CXamineEventHandler::sprayGate(std::string name, CGate* pGate) {
 #ifdef WITH_MPI
 #endif
 }
