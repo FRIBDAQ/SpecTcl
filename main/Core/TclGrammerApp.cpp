@@ -110,7 +110,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <memory>
 #include <stdint.h>
 
-
+// Fix for issue #122: suppress <RootX11ErrorHandler> messages:
+#include <TError.h>
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -967,7 +968,9 @@ int CTclGrammerApp::operator()() {
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
   
-
+  // Fix for issue #122: suppress <RootX11ErrorHandler> messages:
+  gErrorIgnoreLevel = kFatal;
+  
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);
 
