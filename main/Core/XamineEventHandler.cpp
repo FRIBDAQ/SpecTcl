@@ -44,6 +44,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <SpecTcl.h>
 #include <XamineEvent.h>
 #include <CM2Projection.h>
+#include <Globals.h>
 
 #include <Gamma2DW.h>
 
@@ -507,6 +508,8 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
     else {			// Add new gate.
       api->AddGate(strGateName, pSpecTclGate);
     }
+    sprayGate(strGateName, pSpecTclGate);
+
   }
   catch (CException& rExcept) {
     cerr << "Could not enter gate into SpecTcl: \n";
@@ -769,4 +772,18 @@ CXamineEventHandler::scaleSumSpectrumPoints(CSpectrum* pSpectrum,
   }
   return result;
 
+}
+/** 
+ * sprayGate
+ *     Only used in MPI SpecTcl in parallel mode.  In that case, Xamine gates come in through the  
+ * event sink rank and must be propagated to all ranks (as they are with the gate command in the
+ * root rank).   This method takes care of that.
+ * 
+ * @param name - name of the gate.
+ * @param pGate - Pointer to the CGate that describes the gate.
+ * 
+*/
+void sprayGate(std::string name, CGate* pGate) {
+#ifdef WITH_MPI
+#endif
 }
