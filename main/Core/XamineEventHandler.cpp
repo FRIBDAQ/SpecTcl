@@ -219,6 +219,7 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
 
 
   CGateFactory Factory(m_pSorter); // We'll use this to create the
+  auto api = SpecTcl::getInstance();
 				          // Gate itself.
 
   // Before invoking the factory creation method, we must 
@@ -442,7 +443,7 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
                          // GateFactory on gamma gates
 
   for(pid = pIds.begin(); pid != pIds.end(); pid++) {
-    CParameter* pParam = m_pSorter->FindParameter(*pid);
+    CParameter* pParam = api->FindParameter(*pid);
     if(!pParam) {
       cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
       return;
@@ -499,13 +500,12 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
   //
   
   try {
-    if(m_pSorter->FindGate(strGateName)) { // Replace existing gate.
+    if(api->FindGate(strGateName)) { // Replace existing gate.
       cerr << "Replacing exisiting gate: " << strGateName << endl;
-      m_pSorter->ReplaceGate(strGateName, *pSpecTclGate);
+      api->ReplaceGate(strGateName, *pSpecTclGate);
     } 
     else {			// Add new gate.
-      m_pSorter->AddGate(strGateName,CGatePackage::AssignId(),
-			       *pSpecTclGate);
+      api->AddGate(strGateName, pSpecTclGate);
     }
   }
   catch (CException& rExcept) {
