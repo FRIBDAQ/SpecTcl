@@ -119,6 +119,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TclPump.h>
 #include <RingItemPump.h>
 
+#include <TError.h>
 
 
 #if defined(Darwin)
@@ -1191,14 +1192,19 @@ int CTclGrammerApp::operator()() {
 
     // Finally run the version script:
 
-    try {
-      gpInterpreter->GlobalEval(printVersionScript);
-    }
-    catch (...) {
-      cerr << "SpecTcl Version: " << gpVersion << endl;
-    }
+      try {
+        gpInterpreter->GlobalEval(printVersionScript);
+      }
+      catch (...) {
+        cerr << "SpecTcl Version: " << gpVersion << endl;
+      }
     }  
+    gErrorIgnoreLevel = kFatal;
   }
+  // Turn off all those root warnings about x11 crap (I hope).
+
+  
+
   catch (std::string msg) {
     std::cerr << "Caught string exception in init: " << msg << std::endl;
   }
