@@ -89,9 +89,9 @@ typedef enum {			// Types of display program gates.
    kgContour2d,	 	        // 2-d closed countour
    kgBand2d,			// 2-d open band
    kgGammaCut1d,
-   kgGammaBand1d,
-   kgGammaContour1d,
-   kgGammaCut2d,
+   //kgGammaBand1d,
+   //kgGammaContour1d,
+   //kgGammaCut2d,
    kgGammaBand2d,
    kgGammaContour2d,
    kgPeak1d,

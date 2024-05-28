@@ -33,6 +33,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "XamineEventHandler.h"    				
 #include "GateFactory.h"
 #include "GatePackage.h"	// need to assign gate ids.
+#include "GatePump.h"
 
 #include <Exception.h>
 #include <DictionaryException.h>
@@ -784,6 +785,5 @@ CXamineEventHandler::scaleSumSpectrumPoints(CSpectrum* pSpectrum,
  * 
 */
 void CXamineEventHandler::sprayGate(std::string name, CGate* pGate) {
-#ifdef WITH_MPI
-#endif
+  broadcastGate(name, pGate);
 }
