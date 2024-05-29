@@ -257,7 +257,7 @@ void HistogramEvents(CEventList& events) {
  * 
 */
 void startHistogramPump() {
-    if (!TclNotifier) TclNotifier = Tcl_InitNotifier();
+    
     mainThread = Tcl_GetCurrentThread();
     if (pumping) {
         stopHistogramPump();
