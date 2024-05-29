@@ -1567,7 +1567,15 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
     std::cerr << "BUG - could not create the ring item group" << std::endl;
     exit(EXIT_FAILURE);
   }
+  // We also need a separate communicator to send gate broadcasts around so they don't get
+  // with command broadcasts.  Again there's only one color
 
+  mycolor = 1;          // All in the same group.
+
+  if(MPI_Comm_split(MPI_COMM_WORLD, mycolor, me->m_mpiRank, &gXamineGateComm) != MPI_SUCCESS) {
+    std::cerr << "BUg - could not create the Xamine gate communicator\n";
+    exit(EXIT_FAILURE);
+  }
   
   CTclGrammerApp::AppInit(pInterp); 
 #else

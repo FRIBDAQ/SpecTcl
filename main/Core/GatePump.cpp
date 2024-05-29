@@ -401,7 +401,7 @@ receiveGate() {
         GateNameAndType buffer;
         if (MPI_Bcast(
             &buffer, 1, nameAndType(),
-             MPI_EVENT_SINK_RANK, MPI_COMM_WORLD
+             MPI_EVENT_SINK_RANK, gXamineGateComm
             ) != MPI_SUCCESS) {
             throw std::runtime_error("receiveGate failed to get name and type");
         }
@@ -415,7 +415,7 @@ receiveGate() {
         char buffer[MAX_MULTI_STRING];
         if (MPI_Bcast(
             buffer, MAX_MULTI_STRING, MPI_CHAR, 
-            MPI_EVENT_SINK_RANK, MPI_COMM_WORLD) != MPI_SUCCESS) {
+            MPI_EVENT_SINK_RANK, gXamineGateComm) != MPI_SUCCESS) {
                 throw std::runtime_error("Failed to read parameter names");
             }
         stringsToVector(result->s_parameterNames, buffer);
@@ -424,7 +424,7 @@ receiveGate() {
 
     int numPoints;
     {
-        if (MPI_Bcast(&numPoints, 1, MPI_INT, MPI_EVENT_SINK_RANK, MPI_COMM_WORLD) != MPI_SUCCESS) {
+        if (MPI_Bcast(&numPoints, 1, MPI_INT, MPI_EVENT_SINK_RANK, gXamineGateComm) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to read number of gate points.");
         }
     }
@@ -436,7 +436,7 @@ receiveGate() {
     for (int i = 0; i < numPoints; i++) {
         GatePoint buffer;
         if (MPI_Bcast(
-            &buffer, 1, pointType(), MPI_EVENT_SINK_RANK, MPI_COMM_WORLD) != MPI_SUCCESS
+            &buffer, 1, pointType(), MPI_EVENT_SINK_RANK, gXamineGateComm) != MPI_SUCCESS
         ) {
             throw std::runtime_error("Failed to read an event point");
         }
@@ -586,7 +586,7 @@ broadcastGate(std::string name, CGate* pGate) {
         strncpy(firstMsg.s_gateName, name.c_str(), MAX_GATENAME);
         if (MPI_Bcast(
             &firstMsg, 1, nameAndType(), 
-            MPI_EVENT_SINK_RANK, MPI_COMM_WORLD) != MPI_SUCCESS) {
+            MPI_EVENT_SINK_RANK, gXamineGateComm) != MPI_SUCCESS) {
                 throw std::runtime_error("broadcastGate - failed to send name and type");
         }
         // Next the parameters:    
@@ -597,7 +597,7 @@ broadcastGate(std::string name, CGate* pGate) {
         stringVectorToString(params, parameters);
         if(MPI_Bcast(
             params, MAX_MULTI_STRING, MPI_CHAR, 
-            MPI_EVENT_SINK_RANK, MPI_COMM_WORLD
+            MPI_EVENT_SINK_RANK, gXamineGateComm
         ) != MPI_SUCCESS) {
             throw std::runtime_error("broadcastGate - failed to send parmeter names");
         }
@@ -608,14 +608,14 @@ broadcastGate(std::string name, CGate* pGate) {
         int npts = points.size();
         if (MPI_Bcast(
             &npts, 1, MPI_INT,
-            MPI_EVENT_SINK_RANK, MPI_COMM_WORLD) != MPI_SUCCESS) {
+            MPI_EVENT_SINK_RANK, gXamineGateComm) != MPI_SUCCESS) {
             throw std::runtime_error("broadcastGate -failed to send point count.");
         }
         // and the points:
 
         for (auto& pt : points) {
             if (MPI_Bcast(
-                &pt, 1, pointType(), MPI_EVENT_SINK_RANK, MPI_COMM_WORLD
+                &pt, 1, pointType(), MPI_EVENT_SINK_RANK, gXamineGateComm
             ) != MPI_SUCCESS) {
                 throw std::runtime_error("broadcastGate -failed to send a point");
             }

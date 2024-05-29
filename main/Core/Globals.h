@@ -67,6 +67,7 @@ extern bool                gMPIParallel;       // TRUE if built with MPI and run
 // Communicator for event messages:
 
 extern MPI_Comm                  gRingItemComm;      // Only defined in root and workers.
+extern MPI_Comm                  gXamineGateComm;    // Defined in all processes.
 #endif
 
 // MPI constant definitions
