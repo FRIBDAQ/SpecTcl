@@ -221,7 +221,7 @@ EventPumpThread(ClientData pData) {
         Tcl_ThreadQueueEvent(
             mainThread, reinterpret_cast<Tcl_Event*>(pEvent), TCL_QUEUE_TAIL
         );
-        Tcl_AlertNotifier(TclNotifier);
+        Tcl_ThreadAlert(mainThread);
 
     }
     TCL_THREAD_CREATE_RETURN;
@@ -257,7 +257,7 @@ void HistogramEvents(CEventList& events) {
  * 
 */
 void startHistogramPump() {
-    if (!TclNotifier) TclNotifier = Tcl_InitNotifier();
+    
     mainThread = Tcl_GetCurrentThread();
     if (pumping) {
         stopHistogramPump();

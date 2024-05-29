@@ -155,3 +155,11 @@ bool          gMPIParallel(false);
 #ifdef WITH_MPI
 MPI_Comm  gRingItemComm;
 #endif
+
+// This variable holds the communicator used to broadcast
+// gates received from Xamine.  It's needed to
+// keep broadcasts for commands distinct from gates.
+//
+#ifdef WITH_MPI
+MPI_Comm                  gXamineGateComm;
+#endif

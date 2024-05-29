@@ -117,8 +117,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 
 #include <TclPump.h>
-#include <RingItemPump.h>
+#include "RingItemPump.h"
+#include "GatePump.h"
 
+#include <TError.h>
 
 
 #if defined(Darwin)
@@ -1040,6 +1042,13 @@ int CTclGrammerApp::operator()() {
       startHistogramPump();
     }
   }
+  // All ranks but the event sink must start the pump to get them
+  // xamine gates if Xamine is the displayer:
+
+  if (gMPIParallel && (m_mpiRank != MPI_EVENT_SINK_RANK)) {
+    startGatePump();
+  }
+
   // The servers run in RANK 0 in the MPI:
 
   if(!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) { 
@@ -1191,14 +1200,19 @@ int CTclGrammerApp::operator()() {
 
     // Finally run the version script:
 
-    try {
-      gpInterpreter->GlobalEval(printVersionScript);
-    }
-    catch (...) {
-      cerr << "SpecTcl Version: " << gpVersion << endl;
-    }
+      try {
+        gpInterpreter->GlobalEval(printVersionScript);
+      }
+      catch (...) {
+        cerr << "SpecTcl Version: " << gpVersion << endl;
+      }
     }  
+    gErrorIgnoreLevel = kFatal;
   }
+  // Turn off all those root warnings about x11 crap (I hope).
+
+  
+
   catch (std::string msg) {
     std::cerr << "Caught string exception in init: " << msg << std::endl;
   }
@@ -1553,7 +1567,15 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
     std::cerr << "BUG - could not create the ring item group" << std::endl;
     exit(EXIT_FAILURE);
   }
+  // We also need a separate communicator to send gate broadcasts around so they don't get
+  // with command broadcasts.  Again there's only one color
 
+  mycolor = 1;          // All in the same group.
+
+  if(MPI_Comm_split(MPI_COMM_WORLD, mycolor, me->m_mpiRank, &gXamineGateComm) != MPI_SUCCESS) {
+    std::cerr << "BUg - could not create the Xamine gate communicator\n";
+    exit(EXIT_FAILURE);
+  }
   
   CTclGrammerApp::AppInit(pInterp); 
 #else
