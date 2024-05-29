@@ -117,7 +117,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 
 #include <TclPump.h>
-#include <RingItemPump.h>
+#include "RingItemPump.h"
+#include "GatePump.h"
 
 #include <TError.h>
 
@@ -1041,6 +1042,13 @@ int CTclGrammerApp::operator()() {
       startHistogramPump();
     }
   }
+  // All ranks but the event sink must start the pump to get them
+  // xamine gates if Xamine is the displayer:
+
+  if (gMPIParallel && (m_mpiRank != MPI_EVENT_SINK_RANK)) {
+    startGatePump();
+  }
+
   // The servers run in RANK 0 in the MPI:
 
   if(!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) { 

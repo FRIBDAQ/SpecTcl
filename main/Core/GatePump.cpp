@@ -28,6 +28,8 @@
 #include "Cut.h"
 #include "PointlistGate.h"
 #include "CGammaCut.h"
+#include "CGammaBand.h"
+#include "CGammaContour.h"
 #ifdef WITH_MPI
 #include <mpi.h>
 #endif
@@ -72,14 +74,14 @@ typedef struct _SerializedGate {
 
 typedef struct _GateEvent {
     Tcl_Event s_base;
-    pSerializedData s_pGate;
+    pSerializedGate s_pGate;
 } GateEvent, *pGateEvent;
 
 static Tcl_ThreadId interpThread;
 
 #ifdef WITH_MPI
 static MPI_Datatype MPINameAndType;
-static MPI_DataType MPIPoint;
+static MPI_Datatype MPIPoint;
 
 
 
@@ -112,7 +114,7 @@ static void RegisterTypes() {
         {
             MPI_Aint offsets[2] = {offsetof(GatePoint, x), offsetof(GatePoint, y)};
             MPI_Datatype types[2] = {MPI_FLOAT, MPI_FLOAT};
-            int sizess[2] = {1,1};
+            int sizes[2] = {1,1};
 
             if (MPI_Type_create_struct(2, sizes, offsets, types, &MPIPoint) != MPI_SUCCESS) {
                 throw std::runtime_error("Failed to create gate point struct");
@@ -138,7 +140,41 @@ static MPI_Datatype nameAndType() {
 */
 static MPI_Datatype pointType() {
     RegisterTypes();
-    return MPI_Point;
+    return MPIPoint;
+}
+/**
+ * convertToFpoints
+ *    Convert GatePoints vector to FPoint vector.
+ * 
+ * @param in - input GatePoints vector
+ * @return std::vector<FPoint>
+ * 
+*/
+static std::vector<FPoint>
+convertToFpoints(const std::vector<GatePoint>& in) {
+    std::vector<FPoint> result;
+    for (auto& p : in) {
+        result.push_back(FPoint(p.x, p.y));
+    }
+
+    return result;
+}
+/**
+ * convertFromFPoints 
+ *    Convert std::vector<FPoint> -> std::vector<GatePoint>
+ * 
+ * @param in - the vector to convert.
+ * @return std::vector<GatePOint>
+*/
+static std::vector<GatePoint> 
+convertFromFpoints(const std::vector<FPoint>& in) {
+    std::vector<GatePoint> result;
+    for (auto& p : in) {
+        GatePoint pt = {x: p.X(), y: p.Y()};
+        result.push_back(pt);
+    }
+
+    return result;
 }
 /**
  * stringsToVector
@@ -152,7 +188,7 @@ static MPI_Datatype pointType() {
 static void
 stringsToVector(std::vector<std::string>& vec, const char* src) {
     auto p = src;
-    while strlen(src != 0) {
+    while (strlen(src) != 0){
         vec.push_back(std::string(src));
         p += strlen(src) +1;                      // +1 for the null terminator.
         if ((p - src) > MAX_MULTI_STRING) {
@@ -175,9 +211,9 @@ static void
 stringVectorToString(char* buffer, const std::vector<std::string>& strings) {
     char* p = buffer;
     size_t remaining = MAX_MULTI_STRING;
-    for (auto& s : string) {
+    for (auto& s : strings) {
         if (s.size() >=  remaining) {  // == for the null terminator.
-            throw std::overflow_error("stringVectorToString - strings won't fit in output buffer.")
+            throw std::overflow_error("stringVectorToString - strings won't fit in output buffer.");
         }
         strncpy(p, s.c_str(), remaining);
         p += s.size() + 1;                         // + 1 the null.
@@ -194,25 +230,25 @@ stringVectorToString(char* buffer, const std::vector<std::string>& strings) {
  * @todo - Why not add a getType (e.g.) pure virtual method to CGate to do this for us.
 */
 static GateType_t
-gateType(const pGate* pGate) {
+gateType(const CGate* pGate) {
     std::string typeString = pGate->Type();
 
     // Now the if chain.
 
     if (typeString == "s") {
-        return kgCut1d 
+        return kgCut1d; 
     } else if (typeString == "c") {
         return kgContour2d;
     } else if (typeString == "b") {
         return kgBand2d;
     } else if (typeString == "gs") {
         return kgGammaCut1d;
-    } else if (typesString == "gc") {
+    } else if (typeString == "gc") {
         return kgGammaContour2d;
     } else if (typeString == "gb") {
         return kgGammaBand2d;
     } else {
-        throw std::invalid_argument("gateType - this gate type is not an Xamine gate.")
+        throw std::invalid_argument("gateType - this gate type is not an Xamine gate.");
     }
 
 }
@@ -230,30 +266,30 @@ gateType(const pGate* pGate) {
  *      std::bad_cast if there's a mismatch between the gate type and type of pGate.
  * 
 */
-static 
-gateParameters(std::vector<std::string>& names, GateType_t gtype, CGate* pGate) {
+static void
+gateParameters(std::vector<std::string>& names, GateType_t gtype, const CGate* pGate) {
     auto api = SpecTcl::getInstance();
     switch (gtype) {
     case kgCut1d:
         {
-            CCut& rCut = dynamic_cast<CCut&>(*pGate);
+            const CCut& rCut = dynamic_cast<const CCut&>(*pGate);
             auto pid = rCut.getId();
             auto pParameter = api->FindParameter(pid);
             if (!pParameter) {
                 throw std::invalid_argument("gateParameters - gate as non-existent parameters");
             }
-            names.push_back(pParameter.getName());
+            names.push_back(pParameter->getName());
         }
         break;
     case kgBand2d:
     case kgContour2d:
         {
-            PointlistGate& rGate = dynamic_cast<PointlistGate&>(*pGate);
+            const CPointListGate& rGate = dynamic_cast<const CPointListGate&>(*pGate);
             auto xid  = rGate.getxId();
             auto yid = rGate.getyId();
 
-            CParameter* px = api.FindPraameter(xid);
-            CParameter* py = api.FindParameter(yid);
+            CParameter* px = api->FindParameter(xid);
+            CParameter* py = api->FindParameter(yid);
             if (px == nullptr || py == nullptr) {
                 throw std::invalid_argument("gateParameters - gate as non-existent parameters");
             }
@@ -263,36 +299,36 @@ gateParameters(std::vector<std::string>& names, GateType_t gtype, CGate* pGate) 
         break;
     case kgGammaCut1d:
         {
-            CGammaCut& rCut = dynamic_cast<CGammaaCut&>(*pGate);
+            const CGammaCut& rCut = dynamic_cast<const CGammaCut&>(*pGate);
             auto ids = rCut.getParameters();
             for (auto id: ids) {
-                CParameter* p = api.FindParameter(id);
+                CParameter* p = api->FindParameter(id);
                 if (!p) {
                     throw std::invalid_argument("gateParameters - gate as non-existent parameters");
                 }
-                names.push_back(p->getName();)
+                names.push_back(p->getName());
             }
         }
     case kgGammaContour2d: {
-        CGammaContour& rC = dynamic_cast<CGammaContour&>(*pGate);
+        const CGammaContour& rC = dynamic_cast<const CGammaContour&>(*pGate);
         auto ids  = rC.getParameters();
         for (auto id: ids) {
-            CParameter* p = api.FindParameter(id);
+            CParameter* p = api->FindParameter(id);
             if (!p) {
                 throw std::invalid_argument("gateParameters - gate as non-existent parameters");
             }
-            names.push_back(p->getName();)
+            names.push_back(p->getName());
         }
     }
     case kgGammaBand2d: {
-        CGammaBand& b = dynamic_cast<CGammaBand&>(*pGate);
-        auto ids  = rC.getParameters();
+        const CGammaBand& b = dynamic_cast<const CGammaBand&>(*pGate);
+        auto ids  = b.getParameters();
         for (auto id: ids) {
-            CParameter* p = api.FindParameter(id);
+            CParameter* p = api->FindParameter(id);
             if (!p) {
                 throw std::invalid_argument("gateParameters - gate as non-existent parameters");
             }
-            names.push_back(p->getName();)
+            names.push_back(p->getName());
         }
     }
     default: {
@@ -305,8 +341,47 @@ gateParameters(std::vector<std::string>& names, GateType_t gtype, CGate* pGate) 
 /**
  *  gatePoints
  *    Retrieves the points that define a gates acceptance region.
+ *    Again, this is all problematic and gate type dependent because the CGate class is not
+ *    sufficiently generic and does not provide sufficient muscle just to ask for the points.
+ *
+ * @param pts - Reference to a vector of GatePoint that will be filled in with the points (if any).
+ * @param gtype - Gate type.
+ * @param pGate - Pointer to the gate.
+ * 
+ * @throw std::bad_cast - if the gate type is not consistent with the underlying gate object type.
  * 
 */
+static void
+gatePoints(std::vector<GatePoint>& pts, GateType_t gtype, const CGate* pGate) {
+    switch (gtype) {
+    case kgCut1d: 
+    case kgGammaCut1d:
+        {
+            // low -> point 1 and high -> point 2.
+
+            const CCut& gate = dynamic_cast<const CCut&>(*pGate);
+            GatePoint pt;
+            pt.y = 0;              // For both.
+            pt.x = gate.getLow();
+            pts.push_back(pt);
+            pt.x = gate.getHigh();
+            pts.push_back(pt);
+        }
+        break;
+    case kgContour2d:
+    case kgBand2d:             // These are all point list gates.mm
+    case kgGammaBand2d:
+    case kgGammaContour2d:
+        {
+            const CPointListGate& gate = dynamic_cast<const CPointListGate&>(*pGate);
+            std::vector<FPoint> fpts = gate.getPoints();
+            pts = convertFromFpoints(fpts);
+        }
+        break;
+    }
+
+}
+
 /**
  * receiveGate
  *    This is called to receive a broadcast gate.
@@ -339,11 +414,11 @@ receiveGate() {
     {
         char buffer[MAX_MULTI_STRING];
         if (MPI_Bcast(
-            buffer, MAX_MULTISTRING, MPI_CHAR, 
+            buffer, MAX_MULTI_STRING, MPI_CHAR, 
             MPI_EVENT_SINK_RANK, MPI_COMM_WORLD) != MPI_SUCCESS) {
                 throw std::runtime_error("Failed to read parameter names");
             }
-        stringsIntoVector(result->s_parameterNames, buffer);
+        stringsToVector(result->s_parameterNames, buffer);
     }
     // get the point count:
 
@@ -361,7 +436,7 @@ receiveGate() {
     for (int i = 0; i < numPoints; i++) {
         GatePoint buffer;
         if (MPI_Bcast(
-            &buffer, 1, pointType(), MPI_EVENT_SINK_RANK, MPI_COMM_WORLD) != MPI SUCCESS
+            &buffer, 1, pointType(), MPI_EVENT_SINK_RANK, MPI_COMM_WORLD) != MPI_SUCCESS
         ) {
             throw std::runtime_error("Failed to read an event point");
         }
@@ -387,12 +462,12 @@ receiveGate() {
 static int
 gateEventHandler(Tcl_Event* pRawEvent, int flags) {
     pGateEvent pEvent = reinterpret_cast<pGateEvent>(pRawEvent);
-    pSerializedGates pGateInfo = pEvent->s_pGate;
+    pSerializedGate pGateInfo = pEvent->s_pGate;
     // We really can only get geometric gates:
 
     CGate* pNewGate(nullptr);
-    pApi = SpecTcl::getInstance();
-    switch pgateInfo->s_type {
+    auto pApi = SpecTcl::getInstance();
+    switch (pGateInfo->s_type) {
     case kgCut1d:
         pNewGate = pApi->CreateCut(
             pGateInfo->s_parameterNames[0], 
@@ -402,13 +477,13 @@ gateEventHandler(Tcl_Event* pRawEvent, int flags) {
     case kgContour2d:
         pNewGate = pApi->CreateContour(
             pGateInfo->s_parameterNames[0], pGateInfo->s_parameterNames[1],
-            pGateInfo->s_points
+            convertToFpoints(pGateInfo->s_points)
         );
         break;
     case kgBand2d:
-        pNewGate = pApi->CreateBandContour(
+        pNewGate = pApi->CreateBand(
             pGateInfo->s_parameterNames[0], pGateInfo->s_parameterNames[1],
-            pGateInfo->s_points
+            convertToFpoints(pGateInfo->s_points)
         );
         break;
     case kgGammaCut1d:
@@ -419,19 +494,20 @@ gateEventHandler(Tcl_Event* pRawEvent, int flags) {
         break;
     case kgGammaBand2d:
         pNewGate = pApi->CreateGammaBand(
-            pGateInfo->s_points, pGateInfo->s_parameterNames
+            convertToFpoints(pGateInfo->s_points), pGateInfo->s_parameterNames
         );
         break;
-    case kgGammaContour:
+    case kgGammaContour2d:
         pNewGate = pApi->CreateGammaContour(
-            pGateInfo->s_points, pGateInfo->s_parameterNames
+            convertToFpoints(pGateInfo->s_points), pGateInfo->s_parameterNames
         );
         break;
     default:    
         // pNewGate is already initialized to nullptr.
+        break;
     }
     if (pNewGate) {
-        pApi->addGate(pGateInfo->s_name, pNewGate);
+        pApi->AddGate(pGateInfo->s_name, pNewGate);
 
         // pNewGate was cloned into the container so:
 
@@ -461,7 +537,7 @@ gateThread (ClientData cd) {
     // Runs forever 
 
     while (true) {
-        pGateEvent p = reinterpret_cast<pGateEvent>Tcl_Alloc(sizeof(GateEvent));
+        pGateEvent p = reinterpret_cast<pGateEvent>(Tcl_Alloc(sizeof(GateEvent)));
         if (!p) {
             throw std::runtime_error("gateThread - failed to allocate a GateEvent object.");
         }
@@ -484,7 +560,7 @@ gateThread (ClientData cd) {
 void startGatePump() {
 #ifdef WITH_MPI
     if (gMPIParallel) {
-        Tcl_CreateThread(&interpThread, gateThread, nullptr, TCL_THREAD_DEFAULT, TCL_THREAD_NOFLAGS);
+        Tcl_CreateThread(&interpThread, gateThread, nullptr, TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS);
     }
 #endif
 }
@@ -506,7 +582,7 @@ broadcastGate(std::string name, CGate* pGate) {
         // Translate the gate type string to a gate type.
 
         GateNameAndType firstMsg;
-        firstMsg.s_gateType = s_gateType: gateType(pGate);
+        firstMsg.s_gateType = gateType(pGate);
         strncpy(firstMsg.s_gateName, name.c_str(), MAX_GATENAME);
         if (MPI_Bcast(
             &firstMsg, 1, nameAndType(), 
@@ -515,10 +591,10 @@ broadcastGate(std::string name, CGate* pGate) {
         }
         // Next the parameters:    
 
-        std::string parameters;
-        gateParameters(parameters, firstMsg.s_gateType, pGate);
+        std::vector<std::string> parameters;
+        gateParameters(parameters, static_cast<GateType_t>(firstMsg.s_gateType), pGate);
         char params[MAX_MULTI_STRING];
-        stringVecToSTring(params, parameters);
+        stringVectorToString(params, parameters);
         if(MPI_Bcast(
             params, MAX_MULTI_STRING, MPI_CHAR, 
             MPI_EVENT_SINK_RANK, MPI_COMM_WORLD
@@ -528,7 +604,7 @@ broadcastGate(std::string name, CGate* pGate) {
         // Next the number of parameters and the parameters themselves:
 
         std::vector<GatePoint> points;
-        GatePoints(points, firsMsg.s_gateType, pGate);
+        gatePoints(points, static_cast<GateType_t>(firstMsg.s_gateType), pGate);
         int npts = points.size();
         if (MPI_Bcast(
             &npts, 1, MPI_INT,
