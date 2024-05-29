@@ -545,6 +545,7 @@ gateThread (ClientData cd) {
         p->s_base.nextPtr = nullptr;
         p->s_pGate = receiveGate();
         Tcl_ThreadQueueEvent(interpThread, &(p->s_base), TCL_QUEUE_TAIL);
+        Tcl_ThreadAlert(interpThread);
     }
 }
 
