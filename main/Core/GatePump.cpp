@@ -188,8 +188,8 @@ convertFromFpoints(const std::vector<FPoint>& in) {
 static void
 stringsToVector(std::vector<std::string>& vec, const char* src) {
     auto p = src;
-    while (strlen(src) != 0){
-        vec.push_back(std::string(src));
+    while (strlen(p) != 0){
+        vec.push_back(std::string(p));
         p += strlen(src) +1;                      // +1 for the null terminator.
         if ((p - src) > MAX_MULTI_STRING) {
             return;                               // no more space.
@@ -218,6 +218,11 @@ stringVectorToString(char* buffer, const std::vector<std::string>& strings) {
         strncpy(p, s.c_str(), remaining);
         p += s.size() + 1;                         // + 1 the null.
         remaining -= (s.size() + 1);
+    }
+    // put in a null if we can to end the buffer:
+
+    if (remaining > 0) {
+        *p = '\0';
     }
 }
 /**
