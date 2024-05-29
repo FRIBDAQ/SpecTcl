@@ -561,7 +561,9 @@ gateThread (ClientData cd) {
 void startGatePump() {
 #ifdef WITH_MPI
     if (gMPIParallel) {
-        Tcl_CreateThread(&interpThread, gateThread, nullptr, TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS);
+        interpThread = Tcl_GetCurrentThread();
+        Tcl_ThreadId listener;
+        Tcl_CreateThread(&listener, gateThread, nullptr, TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS);
     }
 #endif
 }
