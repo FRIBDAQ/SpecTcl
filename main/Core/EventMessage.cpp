@@ -27,7 +27,7 @@
 #ifdef WITH_MPI
 #include <mpi.h>
 #else
-typedef int MPI_Type;               // Helps to minimze the #ifdefery.
+typedef int MPI_Datatype;               // Helps to minimze the #ifdefery.
 #endif
 
 #define HISTOGRAMER_RANK 1         // Histogramer runs rank 1.

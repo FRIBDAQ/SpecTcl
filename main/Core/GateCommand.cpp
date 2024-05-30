@@ -126,11 +126,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
-#ifdef WITH_MPI
+
 #include <TclPump.h>
 #include <Globals.h>
 #include <stdexcept>
-#endif
 
 
 static const  char* pCopyrightNotice = 
