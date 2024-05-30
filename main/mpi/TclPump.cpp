@@ -581,7 +581,7 @@ void stopCommandPump() {
             throw std::runtime_error("stopCommandPump could not stop the pump");
         }
         int pumpResult;
-        Tcl_JoinThread(pumpThread, &pumpResult);
+    
     }
 #endif
 }

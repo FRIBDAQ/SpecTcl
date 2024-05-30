@@ -1504,6 +1504,14 @@ MpiExitHandler() {
       exitCommand.commandChunk[exitCommand.commandLength - 1] = '\0';
 
       MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
+      stopCommandPump();     // Broadcasts the dummy exit thing
+    } 
+    if (myRank() == MPI_EVENT_SINK_RANK) {
+      // Stop the histogram pump:
+      stopHistogramPump();
+      stopGatePump();            // We broadcast the stop message.
+    } else {
+      stopRingItemPump();
     }
   
     MPI_Finalize();   // Ignore status - might have already been called.

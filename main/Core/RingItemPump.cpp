@@ -27,9 +27,10 @@
 #include <mpi.h>
 #endif
 #include <tcl.h>
-
+#include <TclPump.h>
 #include "CRingBufferDecoder.h"
 #include "Globals.h"
+#include "DataFormat.h"
 
 static const size_t MAX_MESSAGE_SIZE = 16*1024;
 
@@ -204,6 +205,12 @@ assembleTargetedData(pRingItemEvent pEvent) {
     
     // How much data shoulid we get (assume we got at least the first long)
     uint32_t* pSize = reinterpret_cast<uint32_t*>(pEvent->s_pData);
+    if (pSize == 0) {
+        // end marker.
+        Tcl_Free(reinterpret_cast<char*>(pEvent->s_pData));
+        pEvent->s_pData = nullptr;
+        return;
+    }
     pEvent->s_dataSize = *pSize;
     uint32_t remainingSize = *pSize - receivedBytes;
 
@@ -244,7 +251,7 @@ receiveBroadcastEvent(pRingItemEvent pEvent) {
     
     BroadcastData buffer;
 
-    if (MPI_Bcast(&buffer, 1, broadCastDataType(), 0, gRingItemComm) != MPI_SUCCESS) {
+    if (MPI_Bcast(&buffer, 1, broadCastDataType(), MPI_ROOT_RANK, gRingItemComm) != MPI_SUCCESS) {
         throw std::runtime_error("Could not receive the first broadcasted chunk");
     }
     pEvent->s_dataSize = buffer.s_payloadSize;
@@ -253,6 +260,13 @@ receiveBroadcastEvent(pRingItemEvent pEvent) {
         throw std::runtime_error("receiveBroadcastEvent failed initial buffer allocation");
     }
     memcpy(pEvent->s_pData, buffer.s_payload, buffer.s_payloadSize);
+    pRingItemHeader pHdr = reinterpret_cast<pRingItemHeader>(pEvent->s_pData);
+    // End marker
+    if (pHdr->s_size == 0) {
+        Tcl_Free(reinterpret_cast<char*>(pEvent->s_pData));
+        pEvent->s_pData = nullptr;
+        return;
+    }
     uint32_t* pSize = reinterpret_cast<uint32_t*>(buffer.s_payload);
     uint32_t totalsize = *pSize;
     
@@ -265,7 +279,7 @@ receiveBroadcastEvent(pRingItemEvent pEvent) {
     p += buffer.s_payloadSize;
     
     while (pEvent->s_dataSize < totalsize) {
-        if (MPI_Bcast(&buffer, 1, broadCastDataType(), 0, gRingItemComm) != MPI_SUCCESS) {
+        if (MPI_Bcast(&buffer, 1, broadCastDataType(), MPI_ROOT_RANK, gRingItemComm) != MPI_SUCCESS) {
             throw std::runtime_error("receiveBroadcastEvent failed to receive subsequent broadcast chunk");
         }
         memcpy(p, buffer.s_payload, buffer.s_payloadSize);
@@ -313,9 +327,10 @@ physicsThread(ClientData parent) {
         }
         
         assembleTargetedData(pE); // Fills in all of pE.
-
+        if (!pE->s_pData) break;  // End marker.
         Tcl_ThreadQueueEvent(targetThread, &(pE->s_base), TCL_QUEUE_TAIL);
     }
+    TCL_THREAD_CREATE_RETURN;
 }
 
 
@@ -338,8 +353,12 @@ nonPhysicsThread(ClientData parent) {
         }
         initEvent(pE);
         receiveBroadcastEvent(pE);
+        if (!pE->s_pData) {
+            break;
+        }
         Tcl_ThreadQueueEvent(target, &(pE->s_base), TCL_QUEUE_TAIL);
     }
+    TCL_THREAD_CREATE_RETURN;
 }
 #endif
 
@@ -417,7 +436,7 @@ broadcastRingItem(const void* pItem, size_t size) {
         buffer.s_payloadSize = chunksize;
         memcpy(buffer.s_payload, p, chunksize);
 
-        if (MPI_Bcast(&buffer, 1, bcType, 0, gRingItemComm) != MPI_SUCCESS) { 
+        if (MPI_Bcast(&buffer, 1, bcType, MPI_ROOT_RANK, gRingItemComm) != MPI_SUCCESS) { 
             throw std::runtime_error("broadcastRingItem: Failed to broadast a ring item chunk");
         }
 
@@ -427,7 +446,7 @@ broadcastRingItem(const void* pItem, size_t size) {
 #endif
 }
 /**
- * startItemPump
+ * startRingItemPump
  *    This actually starts two threads.  A thread which 
  * requests ring items sent to it via sendRingItem and a
  * thread which is alerted to broadcasts sent via broadcastRingitem
@@ -451,5 +470,31 @@ startRingItemPump()
         nonPhysicsThread, reinterpret_cast<ClientData>(targetThread), 
         TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS
     );
+#endif
+}
+/**
+ *  stopRingItemPump
+ *    How this behaves depends on the rank:
+ *    -  Workers send their physicsThread a ring item header with length zero.
+ *      assembledTargeted data will cause this to insert a null in the pointer to he
+ *      data which the thread notices and uses to exit.
+ *    - The Root thread does the same sort of thing but invokes broadcastRingItem to send it.
+ * @note the communicator only has the root thread and the workers.
+*/
+void
+stopRingItemPump() {
+#ifdef WITH_MPI
+    if (isMpiApp()) {
+        RingItemHeader dummyEvent = {s_size: 0, s_type: 0};
+        int rank;
+        MPI_Comm_rank(gRingItemComm, &rank);
+        if (rank == 0) {  
+            broadcastRingItem(&dummyEvent, sizeof(RingItemHeader));
+        } else {
+            MPI_Send(&dummyEvent, sizeof(RingItemHeader), MPI_UINT8_T, 
+                rank, MPI_RING_ITEM_TAG, gRingItemComm
+            );
+        }
+    }
 #endif
 }

@@ -39,5 +39,6 @@ class CGate;
 
 
 void startGatePump();
+void stopGatePump();
 void broadcastGate(std::string name, CGate* pGate);
 #endif
