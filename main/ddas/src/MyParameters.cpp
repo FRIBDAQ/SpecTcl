@@ -1,35 +1,29 @@
-
 #include "MyParameters.h"
 
-using namespace std;
-
-////
+//________________________________________________________________________
+// Initialize the ChannelData
 //
-// 
-void ChannelData::Initialize(string name) {
-  // energy : 4096 channels between 0 and 4096
-  energy.Initialize(name + ".energy", 4096, 0, 4095, "a.u.");
+void ChannelData::Initialize(std::string name) {
+    // Energy: 32768 channels between 0 and 32767
+    energy.Initialize(name + ".energy", 32768, 0, 32767, "a.u.");
 
-  // timestamp : 
-  timestamp.Initialize(name + ".timestamp", 48, 0, pow(2., 48)-1, 
-                       "ns",true);
+    // Timestamp: 64 bits with 2^64-1 ns per bin starting at 0
+    timestamp.Initialize(
+	name + ".timestamp", 64, 0, std::pow(2,64)-1, "ns", true
+	);
 }
 
-////
+//________________________________________________________________________
+// Initialize MyParameters. Calls ChannelData::Initialize() to initialize
+// ChannelData for each channel in the system.
 //
-//
-MyParameters::MyParameters(string name) 
+MyParameters::MyParameters(std::string name) 
 {
-  // create the 48 channels 
-  for (size_t i=0; i<48; ++i) {
-    chan[i].Initialize(name + to_string(i));
-  }
+    // Create the 16 channels 
+    for (size_t i = 0; i < 16; i++) {
+	chan[i].Initialize(name + std::to_string(i));
+    }
 
-  // initialize the multiplicity
-  //  - 32 bins between -0.5 to 31.5.
-  multiplicity.Initialize(name + ".mult", 32, -0.5, 30.5, "a.u.");
+    // Initialize the multiplicity: 32 bins between 0 and 31
+    multiplicity.Initialize(name + ".mult", 32, 0, 31, "a.u.");
 }
-
-
-
-

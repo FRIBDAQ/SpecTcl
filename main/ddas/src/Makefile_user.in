@@ -1,32 +1,29 @@
-INSTDIR=@prefix@
-# Skeleton makefile for 3.1
+# Skeleton Makefile for SpecTcl 5.xx
 
+INSTDIR=/usr/opt/spectcl/5.14-000
 include $(INSTDIR)/etc/SpecTcl_Makefile.include
 
-#  If you have any switches that need to be added to the default c++ compilation
+# If you have any switches that need to be added to the default c++ compilation
 # rules, add them to the definition below:
 
-USERCXXFLAGS=-std=c++11 
+USERCXXFLAGS=-std=c++14
 
-#  If you have any switches you need to add to the default c compilation rules,
-#  add them to the defintion below:
+# If you have any switches you need to add to the default c compilation rules,
+# add them to the defintion below:
 
 USERCCFLAGS=$(USERCXXFLAGS)
 
-#  If you have any switches you need to add to the link add them below:
+# If you have any switches you need to add to the link add them below:
 
 USERLDFLAGS=-lDDASUnpacker 
 
-#
-#   Append your objects to the definitions below:
-#
+# Append your objects to the definitions below:
 
-OBJECTS=MySpecTclApp.o MyParameters.o MyParameterMapper.o
+OBJECTS=MySpecTclApp.o MyParameters.o MyParameterMapper.o MyCalibrator.o
 
 #
-#  Finally the makefile targets.
+# Finally the Makefile targets:
 #
-
 
 SpecTcl: $(OBJECTS)
 	$(CXXLD)  -o SpecTcl $(OBJECTS) $(USERLDFLAGS) \
