@@ -51,7 +51,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "UnbindCommand.h"                               
 #include "TCLInterpreter.h"
 #include "TCLCommandPackage.h"
-#include "TCLResult.h"
+#include "TCLObject.h"
 #include "SpectrumPackage.h"
 
 #include <histotypes.h>
@@ -83,6 +83,15 @@ static const TCLPLUS::UInt_t SwitchTableSize =
 
 // Functions for class CUnbindCommand
 
+/** 
+ * constructor
+ *     @param pInterp - Pointer to the interpreter on which this command will be registered.
+ * 
+*/
+CUnbindCommand::CUnbindCommand(CTCLInterpreter* pInterp) :
+  CTCLPackagedObjectProcessor(*pInterp, "unbind", true) 
+  {}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -92,8 +101,7 @@ static const TCLPLUS::UInt_t SwitchTableSize =
 //     Command processor
 //
 int 
-CUnbindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			   int nArgs, char* pArgs[]) 
+CUnbindCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) 
 {
 // Processes the Unbind command.
 // This involves parsing the command options,
@@ -103,16 +111,28 @@ CUnbindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 // Formal Paramters:
 //    CTCLInterpreter&  rInterp:
 //        References the interpreter on which the command runs.
-//     CTCLResult&  rResult:
-//        References the resutl associated with rInterp.
-//      int nArgs:
-//        Number of command line parameters.
-//     char* pArgs[]:
-//        Array of pointers to command line parameters.
+//    std::vector<CTCLObject>& objv 
+//        References the vector of object encapsulated command words.
 // Returns:
 //     TCL_OK         - All spectra were unbound.
 //     TCL_ERROR - Some or all spectra could not be unbound.
 //
+
+  // Reconstruct pArgs and nArgs in order to reduce the port coding.
+  // Note that we need a loop to construct the args and a second loop
+  // to construct the const char pointers because of lifetie issues and c_str
+  // now rust would not have let me make an implicit lifetime error :-P
+
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+  int nArgs = objv.size();
+  for (auto& word: objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word: words) {
+    pWords.push_back(word.c_str());
+  }
+  auto pArgs = pWords.data();
 
   nArgs--;
   pArgs++;			// Skip the command name.
@@ -123,55 +143,53 @@ CUnbindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   
   if(nArgs <= 0) {
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
 
   switch(MatchSwitch(pArgs[0])) {
   case keId:			// -id switch:
     nArgs--;
     pArgs++;
     if(nArgs <= 0) {		// Must unbind at least one id.
-      Usage(rResult);
+      Usage(rInterp);
       return TCL_ERROR;
     }
-    return UnbindById(rInterp, rResult, nArgs, pArgs);
+    return UnbindById(rInterp,  nArgs, pArgs);
 
   case keAll:			// -all switch.
     rPack.UnbindAll();
     return TCL_OK;
 	case keTrace:
-		return Trace(rInterp, rResult, nArgs, pArgs);
+		return Trace(rInterp, nArgs, pArgs);
 	case keUntrace:
-		return Untrace(rInterp, rResult, nArgs, pArgs);
+		return Untrace(rInterp, nArgs, pArgs);
   case keNotSwitch:		// Must be a spectrum name..
-    return UnbindByName(rInterp, rResult, nArgs, pArgs);
+    return UnbindByName(rInterp, nArgs, pArgs);
     
   default:
-    Usage(rResult);
+    Usage(rInterp);
     return TCL_ERROR;
   }
 }
 /////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//    Int_t UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+//    Int_t UnbindByName(CTCLInterpreter& rInterp, 
 //		         int nArgs, char* pArgs[])
 // Operation Type:
 //    Utility Function
 //
 TCLPLUS::Int_t
-CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			     int nArgs, char* pArgs[])
+CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, 
+			     int nArgs, const char* pArgs[])
 {
   // Unbinds a set of spectra from the display given their names.
   // 
   // Formal Paramters:
   //    CTCLInterpreter&  rInterp:
   //        References the interpreter on which the command runs.
-  //     CTCLResult&  rResult:
-  //        References the resutl associated with rInterp.
   //      int nArgs:
   //        Number of command line parameters.
   //     char* pArgs[]:
@@ -184,29 +202,26 @@ CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
   std::vector<std::string> vNames;
   CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
 
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-  return rPack.UnbindList(rResult, vNames);
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
+  return rPack.UnbindList(rInterp, vNames);
 
 }
 ////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//      Int_t UnbindById(CTCLInterpreter& rInerp, CTCLResult& rResult, 
+//      Int_t UnbindById(CTCLInterpreter& rInerp,
 //		          int nArgs, char* pArgs[])
 // Operation Type:
 //    Utility.
 //
 TCLPLUS::Int_t
-CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			   int nArgs, char* pArgs[])
+CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])
 {
   // Unbinds a set of spectra from the display given their ids.
   //
   // Formal Paramters:
   //    CTCLInterpreter&  rInterp:
   //        References the interpreter on which the command runs.
-  //     CTCLResult&  rResult:
-  //        References the resutl associated with rInterp.
   //      int nArgs:
   //        Number of command line parameters.
   //     char* pArgs[]:
@@ -217,13 +232,13 @@ CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //     TCL_ERROR - Some or all spectra could not be unbound.
   //
   std::vector<TCLPLUS::UInt_t> vIds;
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+  CSpectrumPackage& rPack(*(CSpectrumPackage*)getPackage());
 
-  if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) {
+  if(rPack.GetNumberList(rInterp, vIds, nArgs, pArgs)) {
     return TCL_ERROR;
   }
 
-  return rPack.UnbindList(rResult, vIds);
+  return rPack.UnbindList(rInterp, vIds);
 }
 /**
  * Trace
@@ -235,14 +250,13 @@ CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult,
  */
 TCLPLUS::Int_t
 CUnbindCommand::Trace(
-	CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	int nArgs, char* pArgs[]
+	CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
 )
 {
 	// Check the parameter count.
 	
 	if (nArgs != 2) {
-		Usage(rResult);
+		Usage(rInterp);
 		return TCL_ERROR;
 	}
 	// Object wrap the script.
@@ -270,14 +284,13 @@ CUnbindCommand::Trace(
  */
 TCLPLUS::Int_t
 CUnbindCommand::Untrace(
-	CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	int nArgs, char* pArgs[]
+	CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]
 )
 {
 	// Check the parameter count:
 	
 	if (nArgs != 2) {
-		Usage(rResult);
+		Usage(rInterp);
 		return TCL_ERROR;
 	}
 	// Object wrap the script:
@@ -293,7 +306,7 @@ CUnbindCommand::Untrace(
 		wrapper.removeUnbindTrace(scriptStem);
 	}
 	catch (std::exception& e) {
-		rResult = e.what();
+		rInterp.setResult(e.what());
 		return TCL_ERROR;
 	}
 	return TCL_OK;
@@ -306,14 +319,16 @@ CUnbindCommand::Untrace(
 //      Protected Utility.
 //
 void
-CUnbindCommand::Usage(CTCLResult& rResult)
+CUnbindCommand::Usage(CTCLInterpreter& rInterp)
 {
+  std::string rResult;
   rResult += "Usage: \n";
   rResult += "   unbind name1 [name2...]\n";
   rResult += "   unbind -id id1 [id2...]\n";
   rResult += "   unbind -all\n";
   rResult += "\n unbind removes an association between a spectrum and a \n";
   rResult += " displayer slot.";
+  rInterp.setResult(rResult);
 }
 /////////////////////////////////////////////////////////////////////////
 //

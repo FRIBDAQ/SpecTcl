@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.14-000, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl,7.0-000, daqhelp@frib.msu.edu)
 
 # These are default version/tag for unifiedfmt, tcl++ and qtpi
 # If the bulder has not explicitly run the incorporation 
@@ -23,7 +23,61 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_EXEEXT
 AC_OBJEXT
 
+
+##
+#  SpecTcl 7  - the point of this version is to support 
+#               MPI parallelism.
+#  we add two new flags to configure for this:
+#    --enable-mpi  - Defines WITH_MPI in config.h
+#    --with-mpicxx - Defines a location out of path for the mpicxx compiler driver.
+#
+AC_ARG_ENABLE([mpi], 
+  [AS_HELP_STRING([--enable-mpi],[Enable MPI parallel SpecTcl, see the --with-mpicxx, --with-mpicc flags as well])],
+  [mpi_enabled=1], [mpi_enabled=0])
+AC_ARG_WITH([mpicxx], 
+  [AS_HELP_STRING([--with-mpicxx],[Provide the path to the MPI C++ driver (defaults to 'mpicxx')])], 
+  [mpicxx=${withval}], [mpicxx="mpicxx"])
+AC_ARG_WITH([mpicc],
+  [AS_HELP_STRING([--with-mpicc], [Provide the path to the MPI C driver (defaults to 'mpicc')])],
+  [mpicc=${withval}], [mpicc="mpicc"])
+
+# Establish the C++ compiler dependingon MPI or not.
+
+if test "${mpi_enabled}" = "1" 
+then
+  CC=${mpicc}
+  CXX=${mpicxx}
+  AC_DEFINE(WITH_MPI, 1, [MPI Parallel SpecTcl])
+  AC_MSG_NOTICE([Building MPI enabled SpecTcl using ${mpicc} and ${mpicxx} as compiler drivers])
+else 
+  AC_MSG_NOTICE([Building Serial SpecTcl])
+fi
+
+AC_PROG_CC([${CC} gcc cc])
+AC_PROG_CXX([${CXX} g++ c++])
+
+# Be sure we found the mpi compiler drivers if necessary:
+
+if test "${mpi_enabled}" = "1"
+then
+  mpi_ctail=`basename ${mpicc}`
+  actual_ctail=`basename ${CC}`
+  if test ${mpi_ctail} != ${actual_ctail}
+  then
+    AC_MSG_ERROR([Got C compiler ${CC} instead of ${mpicc} check your --with-mpicc value])
+  fi
+  mpi_cxxtail=`basenme ${mpicxx}`
+  actual_cxxtail=`basename ${CXX}`
+  if test ${mpi_cxxtail} != ${actual_cxxtail}
+  then
+    AC_MSG_ERROR([Got C++ compiler ${CXX} instead of ${mpicxx} check your --with-mpicxx value])
+  fi
+fi
+
+# Require C++11 support:
+
 AX_CXX_COMPILE_STDCXX_11([noext])
+
 
 # we use libtool, thus we need to include it
 LT_INIT
@@ -40,8 +94,6 @@ SOVERSION="4:0"
 
 
 AC_PROG_AWK
-AC_PROG_CXX
-AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -499,18 +551,7 @@ int main(int argc, char **argv) {
 }  
 ], [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
 
-# Determine the particular platform we are running on. Specifically,
-# we need to know if we are running on a SPARC processor, so that we
-# can do the tape reading appropriately.
 
-AC_MSG_CHECKING([for SPARC processor type])
-case $host in
-  *sparc*)
-	AC_DEFINE(SPARC, 1, [Set to 1 if SPARC Processor])
-	echo "yes"
-	;;
-  *) echo "no" ;;
-esac
 
 # Determine what OS we are running so we know whether or not to 
 # declare some things extern "C". Also helpful for some Cygwin
@@ -782,6 +823,9 @@ fi
 
 AX_GENGETOPT
 
+
+
+
 ##
 # Check for zlib for the zip/unzip commands.
 
@@ -1013,6 +1057,7 @@ AC_OUTPUT(Makefile
           contrib/Grace/Makefile
           contrib/multiread/Makefile
           contrib/treeparam/Makefile
+          mpi/Makefile
           compress/Makefile
 	  RootInterface/Makefile
           Core/Makefile 

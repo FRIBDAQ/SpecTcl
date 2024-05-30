@@ -24,10 +24,11 @@
 #include <vector>
 #include <iostream>
 #include <unistd.h>
-
+#include <TclPump.h>
+#include <Globals.h>
 //
 //
-CSharedMemorySizeCommand::CSharedMemorySizeCommand(CTCLInterpreter& rInterp)
+CSharedMemorySizeCommandActual::CSharedMemorySizeCommandActual(CTCLInterpreter& rInterp)
     : CTCLObjectProcessor(rInterp, "shmemsize", true)
 {
 }
@@ -41,9 +42,15 @@ CSharedMemorySizeCommand::CSharedMemorySizeCommand(CTCLInterpreter& rInterp)
  * \param rInterp   the interpreter
  * \param objv      a list containing "shmemsize" as its sole element
  */
-int CSharedMemorySizeCommand::operator()(CTCLInterpreter& rInterp,
+int CSharedMemorySizeCommandActual::operator()(CTCLInterpreter& rInterp,
                                         std::vector<CTCLObject>& objv)
 {
+    // Do this in the MPI_EVENT_SINK_RANK only if parallel:
+
+    if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+        return TCL_OK;
+    }
+
     bindAll(rInterp, objv);
     requireAtMost(objv, 1, "Usage\n shmemsize");
     requireAtLeast(objv, 1, "Usage\n shmemsize");
@@ -57,3 +64,7 @@ int CSharedMemorySizeCommand::operator()(CTCLInterpreter& rInterp,
     
     return TCL_OK;
 }
+// constructor for the MPI wrapper:
+
+CSharedMemorySizeCommand::CSharedMemorySizeCommand(CTCLInterpreter& rInterp) :
+    CMPITclCommand(rInterp, "shmemsize", new CSharedMemorySizeCommandActual(rInterp)) {}

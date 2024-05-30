@@ -158,7 +158,7 @@ snit::widget spectrumGui {
 
         set type   [lindex $info 2]
 
-        set gateinfo [apply -list $name]
+        set gateinfo [applygate -list $name]
         set gateinfo [lindex $gateinfo 0]
         set gate     [lindex $gateinfo 1]
         set gatename [lindex $gate     0]
@@ -881,7 +881,7 @@ proc addSpectrum widget {
         # If there's a gate apply it.
 
         if {$gate != ""} {
-            apply $gate $name
+            applygate $gate $name
         }
     } else {
         # Can only be one parameter:
@@ -909,7 +909,7 @@ proc addSpectrum widget {
 		error spectrumerror
 	    }
             if {$gate != ""} {
-                apply $gate $name
+                applygate $gate $name
             }
 	    set stat [catch {sbind $name.$index} msg]
 	    if {$stat} {

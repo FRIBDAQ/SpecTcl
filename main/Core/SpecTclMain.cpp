@@ -39,7 +39,7 @@ extern char** SpecTclArgv;
  *
  * \param argc
  * \param argv
- * \return
+ * \return status
  */
 int main(int argc, char* argv[]) {
     SpecTclArgc = argc;

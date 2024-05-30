@@ -96,11 +96,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <MaskAndGate.h>
 #include <MaskEqualGate.h>
 #include <MaskNotGate.h>
-
 #include <histotypes.h>
 #include <Parameter.h>
-#include <Histogrammer.h>
-
 
 #include <assert.h>
 #include <list>
@@ -807,8 +804,8 @@ CGateFactory::ParameterToId(const string& rName, GateType eType,
   //       Type of gate being created (used in constructing exceptions).
   //    const char* pWhich:
   //       Text associated with exception.
-  assert(m_pHistogrammer != (CHistogrammer*)kpNULL);
-  CParameter *p = m_pHistogrammer->FindParameter(rName);
+  
+  CParameter *p = SpecTcl::getInstance()->FindParameter(rName);
   if(!p) {
     throw CGateFactoryException(CGateFactoryException::NoSuchParameter,
 				eType,
@@ -840,8 +837,8 @@ CSpectrum*
 CGateFactory::NameToSpec(const string& rName, GateType eType,
 			 const char* pWhich) const
 {
-  assert(m_pHistogrammer != (CHistogrammer*)kpNULL);
-  CSpectrum* pS = m_pHistogrammer->FindSpectrum(rName);
+  
+  CSpectrum* pS = SpecTcl::getInstance()->FindSpectrum(rName);
   if(!pS) {
     throw CGateFactoryException(CGateFactoryException::NoSuchSpectrum,
 				eType, pWhich);
@@ -873,8 +870,8 @@ CGateFactory::NameToGate(const string& rName, GateType eType,
   //    const char* pWhich:
   //         String used in constructing exceptions.
   //
-  assert(m_pHistogrammer != (CHistogrammer*)kpNULL);
-  CGateContainer* pGateC = m_pHistogrammer->FindGate(rName);
+  
+  CGateContainer* pGateC = SpecTcl::getInstance()->FindGate(rName);
   if(! pGateC) {
     throw CGateFactoryException(CGateFactoryException::NoSuchGate,
 				eType, pWhich);

@@ -26,6 +26,9 @@
 #include "RingFormatHelperFactory.h"
 #include "DataFormat.h"
 #include "DataFormatPre11.h"
+#include "RingItemPump.h"
+#include "TclPump.h"
+#include "Globals.h"
 
 #include <Analyzer.h>
 #include <BufferTranslator.h>
@@ -109,7 +112,7 @@ CRingBufferDecoder::CRingBufferDecoder() :
   m_pPartialEvent(0),
   m_nPartialEventSize(0),
   m_nPartialEventBytes(0),
-  m_pTranslator(0),
+  m_pTranslator(0),   // Default to non-swapping translator.
   m_runNumber(0),
   m_pBody(0),
   m_nBodySize(0),
@@ -573,12 +576,19 @@ CRingBufferDecoder::OnEndFile()
 ** m_pBuffer points to the beginning of an item.
 ** The buffer translator that currently exists is destroyed.
 **
-**
+**  @param p - optiona ring item to compute the translator from.
+**   If not supplie3d, m_pBuffer is used.
 */
 void
-CRingBufferDecoder::createTranslator()
+CRingBufferDecoder::createTranslator(void* p)
 {
-  pRingItem pItem = reinterpret_cast<pRingItem>(m_pBuffer);
+  pRingItem pItem;
+  if (!p) {
+    pItem = reinterpret_cast<pRingItem>(m_pBuffer);
+  } else {
+    pItem = reinterpret_cast<pRingItem>(p);
+  }
+  
 
   delete m_pTranslator;
   if (pItem->s_header.s_type & 0xffff0000) {
@@ -749,6 +759,11 @@ CRingBufferDecoder::dispatchPartialEvent()
 void
 CRingBufferDecoder::dispatchEvent(void* pEvent)
 {
+  // If there's no translator then create one from the item (e.g. worker).
+
+  if (!m_pTranslator) {
+    createTranslator(pEvent);
+  }
   // extract the type of the event and the total size:
 
   pRingItem        pItem = reinterpret_cast<pRingItem>(pEvent);
@@ -757,7 +772,7 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   uint32_t         type  = m_pTranslator->TranslateLong(pItem->s_header.s_type);
   m_pTranslator->newBuffer(pItem);
 
-
+  
   
   // If we have a ring format item that gives us the current helper:
   
@@ -778,9 +793,31 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
     size
     - (reinterpret_cast<uint8_t*>(m_pBody) - reinterpret_cast<uint8_t*>(pItem));
   
-  // The remainder of this is item type dependent:
-
+  // The remainder of this is item type dependent;
+  
   m_nCurrentItemType     = mapType(type);
+
+  // If we are an MPI application and rank 0, our job is just to distribute the
+  // ring items;  If the itmem is a PHYSICS_EVENT, we do targeted
+  // transmission using sendRingItem.  All other items get broadcast to all
+  // workers via broadcastRingitem.  Note that within the worker we will be called
+  // and the standard Serial code takes over from here.  Note as well that
+  // our rank in both the WORLD and events communicator is 0 if we are
+  // the main process:
+
+  if (gMPIParallel && (myRank() == MPI_ROOT_RANK)) {
+    if (type == PHYSICS_EVENT) {
+      sendRingItem(pEvent, size);
+    } else {
+      broadcastRingItem(pEvent, size);
+    }
+    return;
+  }
+
+
+  // Serial and workers continue here.
+
+
   switch (type) {
   case BEGIN_RUN:
     m_nTriggerCount = 0;                  // No events yet.
@@ -836,6 +873,16 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   }
   m_pCurrentRingItem = 0;                    // NO longer have a current item.
 
+}
+/**
+ *  setAnalyzer
+ *     mpi workers need this to ensure m_pAnalyzer is not null.
+ * 
+ * @param analyzer  - pointer to the current analyzer
+*/
+void
+CRingBufferDecoder::setAnalyzer(CAnalyzer* pAnalyzer) { 
+  m_pAnalyzer = pAnalyzer;
 }
 
 /*

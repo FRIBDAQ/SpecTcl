@@ -33,6 +33,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "XamineEventHandler.h"    				
 #include "GateFactory.h"
 #include "GatePackage.h"	// need to assign gate ids.
+#include "GatePump.h"
 
 #include <Exception.h>
 #include <DictionaryException.h>
@@ -44,6 +45,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <SpecTcl.h>
 #include <XamineEvent.h>
 #include <CM2Projection.h>
+#include <Globals.h>
 
 #include <Gamma2DW.h>
 
@@ -219,6 +221,7 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
 
 
   CGateFactory Factory(m_pSorter); // We'll use this to create the
+  auto api = SpecTcl::getInstance();
 				          // Gate itself.
 
   // Before invoking the factory creation method, we must 
@@ -442,7 +445,7 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
                          // GateFactory on gamma gates
 
   for(pid = pIds.begin(); pid != pIds.end(); pid++) {
-    CParameter* pParam = m_pSorter->FindParameter(*pid);
+    CParameter* pParam = api->FindParameter(*pid);
     if(!pParam) {
       cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
       return;
@@ -499,14 +502,15 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
   //
   
   try {
-    if(m_pSorter->FindGate(strGateName)) { // Replace existing gate.
+    if(api->FindGate(strGateName)) { // Replace existing gate.
       cerr << "Replacing exisiting gate: " << strGateName << endl;
-      m_pSorter->ReplaceGate(strGateName, *pSpecTclGate);
+      api->ReplaceGate(strGateName, *pSpecTclGate);
     } 
     else {			// Add new gate.
-      m_pSorter->AddGate(strGateName,CGatePackage::AssignId(),
-			       *pSpecTclGate);
+      api->AddGate(strGateName, pSpecTclGate);
     }
+    sprayGate(strGateName, pSpecTclGate);
+
   }
   catch (CException& rExcept) {
     cerr << "Could not enter gate into SpecTcl: \n";
@@ -769,4 +773,17 @@ CXamineEventHandler::scaleSumSpectrumPoints(CSpectrum* pSpectrum,
   }
   return result;
 
+}
+/** 
+ * sprayGate
+ *     Only used in MPI SpecTcl in parallel mode.  In that case, Xamine gates come in through the  
+ * event sink rank and must be propagated to all ranks (as they are with the gate command in the
+ * root rank).   This method takes care of that.
+ * 
+ * @param name - name of the gate.
+ * @param pGate - Pointer to the CGate that describes the gate.
+ * 
+*/
+void CXamineEventHandler::sprayGate(std::string name, CGate* pGate) {
+  broadcastGate(name, pGate);
 }

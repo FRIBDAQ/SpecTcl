@@ -37,7 +37,7 @@
  *
  * @param interp - interpreter on which the command is registered.
  */
-CUnpackEvbCommand::CUnpackEvbCommand(CTCLInterpreter& interp) :
+CUnpackEvbCommandActual::CUnpackEvbCommandActual(CTCLInterpreter& interp) :
     CTCLObjectProcessor(interp, "evbunpack", true)
 {}
 
@@ -46,7 +46,7 @@ CUnpackEvbCommand::CUnpackEvbCommand(CTCLInterpreter& interp) :
  *    We can't own the event processors we made so we let then live.
  *    The map will autodestruct.
  */
-CUnpackEvbCommand::~CUnpackEvbCommand() {}
+CUnpackEvbCommandActual::~CUnpackEvbCommandActual() {}
 
 /**
  * operator()
@@ -62,13 +62,13 @@ CUnpackEvbCommand::~CUnpackEvbCommand() {}
  *       error management.
  */
 int
-CUnpackEvbCommand::operator()(
+CUnpackEvbCommandActual::operator()(
     CTCLInterpreter& interp, std::vector<CTCLObject>& objv
 )
 {
     try {
         bindAll(interp, objv);
-        requireAtLeast(objv, 2, "Insufficient parameters");
+        requireAtLeast(objv, 2, "Insufficient parameters 'evbunpack help' will give usage.");
         std::string subcommand = objv[1];
         
         if (subcommand == "create") {
@@ -77,6 +77,8 @@ CUnpackEvbCommand::operator()(
             addprocessor(interp, objv);
         } else if (subcommand == "list") {
             list(interp, objv);
+        } else if (subcommand == "help") {
+            Usage(interp, objv, "");
         } else {
             Usage(interp, objv, "Invalid subcommand keyword");
         }
@@ -114,7 +116,7 @@ CUnpackEvbCommand::operator()(
  * @throw std::logic_error, std::string.
  */
 void
-CUnpackEvbCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CUnpackEvbCommandActual::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     requireExactly(objv, 5, "Incorrect number of parameters for create");
     
@@ -156,7 +158,7 @@ CUnpackEvbCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
  * @param objv   - Vector of command parameters.
  */
 void
-CUnpackEvbCommand::addprocessor(
+CUnpackEvbCommandActual::addprocessor(
     CTCLInterpreter& interp, std::vector<CTCLObject>& objv
 )
 {
@@ -227,7 +229,7 @@ CUnpackEvbCommand::addprocessor(
  * Sets the result to a list of the matching parameters.
  */
 void
-CUnpackEvbCommand::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CUnpackEvbCommandActual::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     std::string pattern = "*";                // Default match pattern.
     requireAtMost(objv, 3, "Too many command line parameters");
@@ -257,7 +259,7 @@ CUnpackEvbCommand::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
  *   
  */
 void
-CUnpackEvbCommand::Usage(
+CUnpackEvbCommandActual::Usage(
     CTCLInterpreter& interp, std::vector<CTCLObject>& objv, std::string msg
 )
 {
@@ -266,10 +268,12 @@ CUnpackEvbCommand::Usage(
     
     smsg <<  msg << std::endl;
     smsg << "Usage\n";
+    smsg << "  " << cmd << " help\n";
     smsg << "  " << cmd << " create name mhz basename\n";
     smsg << "  " << cmd << " addprocessor name sid pipe-name\n";
     smsg << "  " << cmd << " list ?pattern?\n";
     smsg << "Subcommands:\n";
+    smsg << "   help   - Get this usage message\n";
     smsg << "   create - creates a new processor:\n";
     smsg << "      name - is the name under which to register the processor\n";
     smsg << "      mhz  - is the timestamp clockspeed in MHz\n";
@@ -288,3 +292,8 @@ CUnpackEvbCommand::Usage(
     
     throw smsg.str();
 }
+
+// Wrapper for MPI
+
+CUnpackEvbCommand::CUnpackEvbCommand(CTCLInterpreter& rInterp) :
+    CMPITclCommand(rInterp, "evbunpack", new CUnpackEvbCommandActual(rInterp)) {}

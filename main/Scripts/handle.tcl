@@ -294,7 +294,7 @@ proc handle {command} {
 	switch $what {
 	    parameter {set action $poverwrite}
 	    spectrum {set action $soverwrite}
-	    apply -
+	    applygate -
 	    gate {
 		puts stderr "Can't complete command: $command /n $result"
 		return -1

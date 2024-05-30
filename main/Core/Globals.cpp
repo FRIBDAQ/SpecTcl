@@ -80,7 +80,9 @@ static const char* pCopyright=
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
-
+#ifdef WITH_MPI
+#include <mpi.h>
+#endif
 
 
 //  The following points to the current event unpacker.
@@ -142,3 +144,22 @@ CDisplayInterface* gpDisplayInterface = (CDisplayInterface*)kpNULL;
 // Shared display memory pointer.
 
 volatile void* gpDisplayMemory = kpNULL;    // Gets filled in by TclGrammerApp.
+
+// This variable is true if SpecTcl was built for MPI and is run under MPI
+
+bool          gMPIParallel(false);
+
+// This variable holds the communicator used to send ring items from 
+// the root process to the worker processes.
+//
+#ifdef WITH_MPI
+MPI_Comm  gRingItemComm;
+#endif
+
+// This variable holds the communicator used to broadcast
+// gates received from Xamine.  It's needed to
+// keep broadcasts for commands distinct from gates.
+//
+#ifdef WITH_MPI
+MPI_Comm                  gXamineGateComm;
+#endif

@@ -7,8 +7,9 @@
 #include <tcl.h>
 #include <SpecTcl.h>
 #include <CPipelineManager.h>
+#include "SpecTcl.h"
 
-CPipelineCommand::CPipelineCommand(CTCLInterpreter& interp) :
+CPipelineCommandActual::CPipelineCommandActual(CTCLInterpreter& interp) :
   CTCLObjectProcessor(interp, "pman" , true),
   m_manager(CPipelineManager::getInstance())
 {
@@ -16,8 +17,13 @@ CPipelineCommand::CPipelineCommand(CTCLInterpreter& interp) :
 }
 
 int
-CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
+  // Only run if there is an analyzer whose pipeline can be manipulated:
+
+  if (!SpecTcl::getInstance()->GetAnalyzer()) {
+    return TCL_OK;
+  }
   bindAll(interp, objv);
 
   int nArgs = objv.size();
@@ -76,7 +82,7 @@ CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
 }
 
 void
-CPipelineCommand::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   std::stringstream sCmds;
   sCmds << "pman mk pipe-name       : Create a new pipeline\n";
@@ -103,7 +109,7 @@ CPipelineCommand::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>&
  *
  */
 void
-CPipelineCommand::createPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::createPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   requireExactly(objv, 3, "Missing Pipeline Name");
   std::string pipeName = objv[2];
@@ -117,7 +123,7 @@ CPipelineCommand::createPipeline(CTCLInterpreter& interp, std::vector<CTCLObject
  *    '*' is used when no pattern is supplied.
  */
 void
-CPipelineCommand::listPipelines(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::listPipelines(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   std::string pattern = "*";            // Default.
   requireAtMost(objv, 3, "Too many command parameters");
@@ -147,7 +153,7 @@ CPipelineCommand::listPipelines(CTCLInterpreter& interp, std::vector<CTCLObject>
  *    Lists the names of the event processors in the current pipeline.
  */
 void
-CPipelineCommand::listCurrentPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::listCurrentPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   requireExactly(objv, 2, "Too many command parameters");
   CTCLObject result;
@@ -168,7 +174,7 @@ CPipelineCommand::listCurrentPipeline(CTCLInterpreter& interp, std::vector<CTCLO
  *    pipeline. The second a list of the event processors in that list.
  */
 void
-CPipelineCommand::listAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::listAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   std::string pattern = "*";
   requireAtMost(objv, 3, "Too many command parameters");
@@ -206,7 +212,7 @@ CPipelineCommand::listAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
  *    Specify the current pipeline name.
  */
 void
-CPipelineCommand::usePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::usePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   requireExactly(objv, 3, "Missing pipeline name");
   std::string pipeName = objv[2];
@@ -218,7 +224,7 @@ CPipelineCommand::usePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& 
  *    Adds a processor to a pipeline.
  */
 void
-CPipelineCommand::addProcessor(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::addProcessor(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   requireExactly(objv, 4,"Need a pipe and event processor name");
   std::string pipe = objv[2];
@@ -230,7 +236,7 @@ CPipelineCommand::addProcessor(CTCLInterpreter& interp, std::vector<CTCLObject>&
  * removeProcessor - remove a processor from a pipeline.
 */
 void
-CPipelineCommand::removeProcessor(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::removeProcessor(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   requireExactly(objv, 4, "Need a pipe and event processor name");
   std::string pipe = objv[2];
@@ -243,7 +249,7 @@ CPipelineCommand::removeProcessor(CTCLInterpreter& interp, std::vector<CTCLObjec
  *    Remove all elements from the named pipeline.
  */
 void
-CPipelineCommand::clearPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::clearPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   requireExactly(objv, 3, "Need a pipeline name");
   std::string pipe = objv[2];
@@ -255,7 +261,7 @@ CPipelineCommand::clearPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>
  *     Create a copy of an existing pipeline.
  */
 void
-CPipelineCommand::clonePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::clonePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   requireExactly(objv, 4, "Need an old pipeline name and a new pipeline name");
   std::string oldName =  objv[2];
@@ -268,7 +274,7 @@ CPipelineCommand::clonePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>
  *    Lists the available event processors.
  */
 void
-CPipelineCommand::listEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::listEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   std::string pattern="*";
   requireAtMost(objv, 3, "Too many parameters for listEvp");
@@ -294,7 +300,7 @@ CPipelineCommand::listEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
  *    The processor must first be removed from all piplines it belongs to.
  */
 void
-CPipelineCommand::rmEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CPipelineCommandActual::rmEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
   requireExactly(
     objv, 3, "rmevp subcommand only requires an event processor name"
@@ -334,7 +340,7 @@ CPipelineCommand::rmEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
  *  @param[in] pipename - Name of the pipeline to list.
  */
 void
-CPipelineCommand::listPipeline(CTCLObject& list, std::string pipename)
+CPipelineCommandActual::listPipeline(CTCLObject& list, std::string pipename)
 {
   std::vector<std::string> evpNames =
     CPipelineManager::getInstance()->getEventProcessorsInPipeline(pipename);
@@ -343,3 +349,9 @@ CPipelineCommand::listPipeline(CTCLObject& list, std::string pipename)
     list += evpNames[i];
   }
 }
+
+
+/// Construct the MPI wrapper.
+
+CPipelineCommand::CPipelineCommand(CTCLInterpreter& rInterp) :
+  CMPITclCommandAll(rInterp, "pman", new CPipelineCommandActual(rInterp)) {}

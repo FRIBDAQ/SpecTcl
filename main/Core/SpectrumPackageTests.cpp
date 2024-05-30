@@ -4,11 +4,13 @@
 
 #include <config.h>
 
+#include "CParameterDictionarySingleton.h"
+#include "CSpectrumDictionarySingleton.h"
 #include <SpectrumPackage.h>
 #include <DisplayInterface.h>
 #include <Histogrammer.h>
 #include <SpecTcl.h>
-#include <TCLResult.h>
+
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 
@@ -67,7 +69,6 @@ public:
     }
 
     void createSpectra() {
-        CTCLResult result(m_pInterp, true);
 
         CParameter* pParam = m_pSorter->AddParameter("test.0", 0, 1, 0, 100., "arb");
 
@@ -96,20 +97,25 @@ public:
         delete m_pDM;
         delete m_pSpec1;
         delete m_pSpec2;
+
+        // Clean the dictionaries:
+
+        CParameterDictionarySingleton::getInstance()->clear();
+        CSpectrumDictionarySingleton::getInstance()->clear();
     }
 
 
     void create_0 () {
-        CTCLResult result(m_pInterp, true);
+        
 
         vector<string> params(1); params[0] = "test.0";
         vector<UInt_t> nbins(1); nbins[0] = 100;
         vector<Float_t> lows(1); lows[0] = 0;
         vector<Float_t> highs(1); highs[0] = 100;
 
-        m_pPkg->CreateSpectrum(result, "unique", "1",
+        m_pPkg->CreateSpectrum(*m_pInterp, "unique", "1",
                                params, nbins, lows, highs, "long");
-        EQMSG("Spectrum creation succeeded", string("unique"), result.getString());
+        EQMSG("Spectrum creation succeeded", string("unique"),m_pInterp->GetResultString());
 
         SpecTcl*    pApi = SpecTcl::getInstance();
         CSpectrum* pSpec = pApi->FindSpectrum("unique");
@@ -125,10 +131,10 @@ public:
     }
 
     void bindAll_0 () {
-        CTCLResult result(m_pInterp);
+        
 
 
-        m_pPkg->BindAll(result);
+        m_pPkg->BindAll(*m_pInterp);
 
         CDisplay* pDisplay = m_pDM->getCurrentDisplay();
 
@@ -142,11 +148,11 @@ public:
 
     void bindList_0 () {
 
-        CTCLResult result(m_pInterp);
+        
 
         std::vector<string> names(1);
         names[0] = "test1";
-        m_pPkg->BindList(result, names);
+        m_pPkg->BindList(*m_pInterp, names);
 
         CDisplay* pDisplay = m_pDM->getCurrentDisplay();
 
@@ -159,47 +165,27 @@ public:
 
     void bindList_1 () {
 
-        CTCLResult result(m_pInterp);
+        
 
         std::vector<string> names(1);
         names[0] = "spectrumDoesNotExist";
-        auto status = m_pPkg->BindList(result, names);
+        auto status = m_pPkg->BindList(*m_pInterp, names);
 
         EQMSG("BindList(name) should return TCL_ERROR when spectrum doesn't exist",
               TCL_ERROR, status);
 
     }
 
-//    void bindList_1 () {
-
-//        CTCLResult result(m_pInterp);
-
-//        CSpectrum* pSpec1 = m_pSorter->FindSpectrum("test1");
-//        if (pSpec1 == NULL) {
-//            CPPUNIT_FAIL("Unable to find test1 spectrum");
-//        }
-//        std::vector<UInt_t> ids(1);
-//        ids[0] = pSpec1->getNumber();
-//        m_pPkg->BindList(result, ids);
-
-//        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
-
-//        EQMSG("BindList(id) should bind spectra listed",
-//              true, pDisplay->spectrumBound(*m_pSpec1));
-//        EQMSG("BindList(id) should not bind spectra that are not listed",
-//              false, pDisplay->spectrumBound(*m_pSpec2));
-
-//    }
 
     void unBindList_0 () {
-        CTCLResult result(m_pInterp);
+        
 
-        m_pPkg->BindAll(result);
+        m_pPkg->BindAll(*m_pInterp);
 
         std::vector<string> names(1);
         names[0] = "test1";
 
-        m_pPkg->UnbindList(result, names);
+        m_pPkg->UnbindList(*m_pInterp, names);
 
         CDisplay* pDisplay = m_pDM->getCurrentDisplay();
 
@@ -210,14 +196,14 @@ public:
     }
 
     void unBindList_1 () {
-        CTCLResult result(m_pInterp);
+        
 
-        m_pPkg->BindAll(result);
+        m_pPkg->BindAll(*m_pInterp);
 
         std::vector<string> names(1);
         names[0] = "doesn't exist";
 
-        auto status = m_pPkg->UnbindList(result, names);
+        auto status = m_pPkg->UnbindList(*m_pInterp, names);
 
         EQMSG("unBindList(name) should not return TCL_ERROR if spectrum doesn't exist",
               TCL_ERROR, status);
@@ -227,9 +213,9 @@ public:
 
     void deleteAll_0 () {
 
-        CTCLResult result(m_pInterp);
+        
 
-        m_pPkg->BindAll(result);
+        m_pPkg->BindAll(*m_pInterp);
 
         m_pPkg->DeleteAll();
 
@@ -248,9 +234,9 @@ public:
 
     void deleteAll_1 () {
 
-        CTCLResult result(m_pInterp);
+        
 
-        m_pPkg->BindAll(result);
+        m_pPkg->BindAll(*m_pInterp);
 
         m_pPkg->DeleteAll();
 
@@ -268,14 +254,14 @@ public:
 
     void deleteList_0 () {
 
-        CTCLResult result(m_pInterp);
+        
 
-        m_pPkg->BindAll(result);
+        m_pPkg->BindAll(*m_pInterp);
 
         std::vector<string> names(1);
         names[0] = "test1";
 
-        m_pPkg->DeleteList(result, names);
+        m_pPkg->DeleteList(*m_pInterp, names);
 
         CDisplay* pDisplay = m_pDM->getCurrentDisplay();
 
@@ -290,22 +276,22 @@ public:
 
     void getChannel_0() {
 
-        CTCLResult result(m_pInterp);
+        
 
         vector<UInt_t> indices = {0};
-        m_pPkg->GetChannel(result, "test1", indices);
+        m_pPkg->GetChannel(*m_pInterp, "test1", indices);
 
         EQMSG("GetChannel returns the correct value for a bin",
-              int(23), int(result));
+              int(23), atoi(m_pInterp->GetResultString().c_str()));
 
     }
 
     void setChannel_0() {
-        CTCLResult result(m_pInterp);
+        
 
         vector<UInt_t> indices = {0};
         ULong_t value = 25;
-        Bool_t success = m_pPkg->SetChannel(result, "test1", indices, value);
+        Bool_t success = m_pPkg->SetChannel(*m_pInterp, "test1", indices, value);
 
         EQMSG("SetChannel must succeed for valid input", kfTRUE, success);
         EQMSG("SetChannel sets the correct value for specified bin",

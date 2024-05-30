@@ -27,6 +27,8 @@
 class CTCLInterpreter;
 class CTCLObject;
 
+// IN MPI SpecTcl this is only registered/run in the MPI_ROOT_RANK.
+
 /**
  * @class CRemoteCommand
  *     This is a simple command that always sets the result to 0.

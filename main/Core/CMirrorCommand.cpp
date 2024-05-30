@@ -23,23 +23,26 @@
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <Exception.h>
+#include <TCLException.h>
 #include <stdexcept>
-
+#include <SpecTcl.h>
+#include <Globals.h>
+#include <TclPump.h>
 #include <tcl.h>
 
 /**
- * CMirrorCommand - constructor.
+ * CMirrorCommandActual - constructor.
  *
  * @param interp - interpreter on which the command is being registered.
  */
-CMirrorCommand::CMirrorCommand(CTCLInterpreter& interp) :
+CMirrorCommandActual::CMirrorCommandActual(CTCLInterpreter& interp) :
     CTCLObjectProcessor(interp, "mirror", TCLPLUS::kfTRUE)
 {}
 
 /**
- * CMirrorCommand - destructor.
+ * CMirrorCommandActual - destructor.
  */
-CMirrorCommand::~CMirrorCommand()
+CMirrorCommandActual::~CMirrorCommandActual()
 {}
 
 /**
@@ -50,8 +53,14 @@ CMirrorCommand::~CMirrorCommand()
  * @return int   - TCL_OK on success, TCL_ERROR if not.
  */
 int
-CMirrorCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>&objv)
+CMirrorCommandActual::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>&objv)
 {
+    // If we're not in the event sink pipeline just return TCL_OK:
+
+    
+    if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+        return TCL_OK;
+    }
     bindAll(interp, objv);
     try {
         requireAtLeast(objv, 2, "Usage: mirror subcommand ...");
@@ -59,7 +68,7 @@ CMirrorCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>&objv
         if (subcommand == "list") {
             list(interp, objv);
         } else {
-            throw "mirror - invalid subcommand.";
+            throw CTCLException(interp, TCL_ERROR, "mirror - invalid subcommand.");
         }
     }
     catch (CException& e) {
@@ -95,7 +104,7 @@ CMirrorCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>&objv
  * @param objv   - The command words (including the 'mirror' command)
 */
 void
-CMirrorCommand::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+CMirrorCommandActual::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     requireAtMost(objv, 3, "Usage: mirror list ?pattern?");
     std::string pattern = "*";    // Default pattern
@@ -125,7 +134,7 @@ CMirrorCommand::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 // Utilities (private)
 
 void
-CMirrorCommand::addToDict(
+CMirrorCommandActual::addToDict(
     CTCLObject& dict, CTCLInterpreter& interp,
     const char* key, const char* value
 )
@@ -136,3 +145,8 @@ CMirrorCommand::addToDict(
     
     Tcl_DictObjPut(interp.getInterpreter(), pObj, keyObj, valObj);
 }
+
+// MPI Wrapper:
+
+CMirrorCommand::CMirrorCommand(CTCLInterpreter& rInterp) :
+    CMPITclCommand(rInterp, "mirror", new CMirrorCommandActual(rInterp)) {}

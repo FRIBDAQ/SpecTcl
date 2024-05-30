@@ -15,7 +15,6 @@
 #include "ListVisitor.h"
 #include <tcl.h>
 #include <TCLInterpreter.h>
-#include <TCLResult.h>
 #include <TCLList.h>
 #include <vector>
 #include <string>
@@ -38,17 +37,16 @@ class ListTests : public CppUnit::TestFixture {
 private:
   Tcl_Interp*       m_pRawInterp;
   CTCLInterpreter*  m_pInterp;
-  CTCLResult*      m_pResult;
 public:
   void setUp() {
     
     m_pRawInterp = Tcl_CreateInterp();
     m_pInterp    = new CTCLInterpreter(m_pRawInterp);
-    m_pResult    = new CTCLResult(m_pInterp);
+
   }
   void tearDown() {
     
-    delete m_pResult;
+
     delete m_pInterp;
     Tcl_DeleteInterp(m_pRawInterp);
     TreeTestSupport::ClearMap();
@@ -64,10 +62,10 @@ void ListTests::ListAll() {
   CTreeParameterArray   george("george", 10, 0);
   CTreeParameter::BindParameters();
 
-  ListVisitor listAll("*", *m_pResult);
+  ListVisitor listAll("*", *m_pInterp);
   std::for_each(CTreeParameter::begin(), CTreeParameter::end(), listAll);
 
-  CTCLList List(m_pInterp, string((*m_pResult)));
+  CTCLList List(m_pInterp, m_pInterp->GetResultString());
   StringArray list;
   List.Split(list);
 
@@ -80,10 +78,10 @@ ListTests::ListOne()
   CTreeParameterArray   george("george", 10, 0);
   CTreeParameter::BindParameters();
 
-  ListVisitor listAll("*.00", *m_pResult);
+  ListVisitor listAll("*.00", *m_pInterp);
   std::for_each(CTreeParameter::begin(), CTreeParameter::end(), listAll);
 
-  CTCLList List(m_pInterp, string((*m_pResult)));
+  CTCLList List(m_pInterp, m_pInterp->GetResultString());
   StringArray list;
   List.Split(list);
 

@@ -27,6 +27,7 @@ CCFLAGS=$(CXXFLAGS)
 
 
 LDFLAGS=-L$(SPECLIBS) -lSpecTclMain -lTclGrammerApp \
+	-lMPIUtilities \
 	$(LIBTCLPLUS_LDFLAGS) \
 	-lXamine      \
 	-lgsl -lgslcblas	\

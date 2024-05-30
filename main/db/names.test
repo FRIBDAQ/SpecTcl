@@ -61,7 +61,7 @@ set channelSetHistory [list]
 
 set applications [list]
 
-proc apply {op args} {
+proc applygate {op args} {
     if {$op eq "-list"} {
         return $::applications
     } else {

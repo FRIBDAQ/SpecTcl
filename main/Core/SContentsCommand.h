@@ -23,12 +23,17 @@
 #define SCONTENTSCOMMAND_H
 
 #include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>
+
+
 
 class CTCLInterpreter;
 class CTCLObject;
 
+// Of necessity scontents must run in the event sink rank in mpiSpecTcl.
+
 /**
- * @class CSContentsCommand
+ * @class CSContentsCommandActual
  *
  *    This class  will implement the scontents command;  The form of this
  *    command is:
@@ -61,12 +66,18 @@ class CTCLObject;
  * -  ychan - The Y channel coordinate (only if 2d).
  * -  value - The number of counts at that channel.
  */
-class CSContentsCommand : public CTCLObjectProcessor
+class CSContentsCommandActual : public CTCLObjectProcessor
 {
 public:
-    CSContentsCommand(CTCLInterpreter& interp, const char* command = "scontents");
-    virtual ~CSContentsCommand();
+    CSContentsCommandActual(CTCLInterpreter& interp, const char* command = "scontents");
+    virtual ~CSContentsCommandActual();
     
     int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+};
+
+class CSContentsCommand : public CMPITclCommand {
+public:
+    CSContentsCommand(CTCLInterpreter& rInterp, const char* command = "scontents");
+    ~CSContentsCommand() {}
 };
 #endif

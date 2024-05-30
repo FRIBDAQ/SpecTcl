@@ -66,7 +66,7 @@ proc SpecTcl::spectable {} {
     # Build an array of gate applications keyed by spectrum:
 
     array set appliedGates [list]
-    foreach application [apply -list] {
+    foreach application [applygate -list] {
 	set spectrum [lindex $application 0]
 	set gate     [lindex $application 1]
 	set appliedGates($spectrum) $gate

@@ -1,13 +1,15 @@
 lib_LTLIBRARIES = libSpecTclTcp.la libTclGrammerApp.la libSpecTclMain.la 
 
 libSpecTclMain_la_SOURCES=SpecTclMain.cpp
-libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la
+libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la @top_builddir@/mpi/libMPIUtilities.la
 libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
-	-I@top_srcdir@/Utility
+	-I@top_srcdir@/Utility -I@top_srcdir@/mpi
 
 
 
-COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@
+COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' \
+-DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@ \
+-I@top_srcdir@/mpi
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
@@ -95,13 +97,16 @@ DisplayInterface_INCLUDES =  Display.h \
 Events_SRC = Analyzer.cpp BufferDecoder.cpp BufferTranslator.cpp \
 	Event.cpp EventFormatError.cpp EventList.cpp NSCLBufferDecoder.cpp \
 	RunControl.cpp TCLRunFileHandler.cpp TKRunControl.cpp EventSink.cpp \
-	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp DopeVector.cpp 
+	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp DopeVector.cpp \
+	EventMessage.cpp
 
 Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	EventFormatError.h EventList.h EventSink.h EventUnpacker.h \
 	NSCLBufferDecoder.h RunControl.h TCLRunFileHandler.h TKRunControl.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
 	NSCLJumboBufferDecoder.h DopeVector.h 
+
+Event_noinst_INCULDES = EventMessage.h;
 
 # Removed TapeException.cpp, Tapefile
 
@@ -197,7 +202,8 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp \
 	Gamma2DD.cpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
 	CGammaSummarySpectrum.cpp \
-	GatingObserver.cpp 
+	GatingObserver.cpp CParameterDictionarySingleton.cpp \
+	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp
 
 Sorter_INCLUDES = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h Gamma1DW.h Gamma2DB.h Gamma2DW.h \
@@ -211,7 +217,9 @@ Sorter_INCLUDES = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	CSpectrum2Dm.h CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
 	Gamma2DD.h DynamicList.h DynamicList.cpp \
 	CFlattenedGateList.h CSpectrumByParameter.h CGammaSummarySpectrum.h \
-	GatingObserver.h CM2Projection.h CM2Projection.hpp
+	GatingObserver.h CM2Projection.h CM2Projection.hpp \
+	CParameterDictionarySingleton.h CSpectrumDictionarySingleton.h \
+	CGateDictionarySingleton.h
 
 # TapeCommand.cc removed.
 
@@ -238,7 +246,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	CAENEventProcessor.cpp CRemoteCommand.cpp CRemoteCommand.h \
 	BindTraceSingleton.cpp BindTraceSingleton.h \
 	VX2750EventBuiltEventProcessor.cpp VX2750ModuleUnpacker.cpp \
-	VX2750EventProcessor.cpp
+	VX2750EventProcessor.cpp RingItemPump.cpp GatePump.cpp
 
 # TapeCommand.h removed
 
@@ -261,7 +269,7 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	CUnpackEvbCommand.h CAENHit.h CAENModuleHits.h CAENParser.h \
 	CAENParameterMap.h CAENEventProcessor.h \
 	VX2750EventBuiltEventProcessor.h VX2750EventProcessor.h \
-	VX2750ModuleUnpacker.h
+	VX2750ModuleUnpacker.h RingItemPump.h GatePump.h
 
 
 
@@ -379,6 +387,8 @@ libTclGrammerApp_la_SOURCES = $(DecoderRing_SRC) \
 # Removed -I@top_srcdir@/Tape
 
 libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
+			-I@top_srcdir@/mpi \
+			-I/mnt/misc/sw/x86_64/Debian/8/root/gnu/6.08.00/include \
 				-I@top_srcdir@/Display \
 				 -I@top_srcdir@/factories \
 				 -I@top_srcdir@/Tape \
@@ -391,6 +401,7 @@ libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			@builddir@/libSpecTclTcp.la \
+			@top_builddir@/mpi/libMPIUtilities.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
 			@JSONCPP_LIBS@ \
 			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@
@@ -416,7 +427,7 @@ include_HEADERS = 		$(DecoderRing_INCLUDES) \
 				$(Mirror_Includes) \
 				$(NewAnalysis_INCLUDES)
 
-noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) 
+noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) $(Event_noinst_INCULDES)
 
 
 noinst_PROGRAMS =    spectrumPkgTests \
@@ -434,6 +445,7 @@ commonTestCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
 				  -I@top_srcdir@/factories \
 				  -I@top_srcdir@/Display \
+				  -I@top_srcdir@/mpi \
 	  			@LIBTCLPLUS_CFLAGS@ \
 				@TCL_CPPFLAGS@ \
 				@CPPUNIT_CFLAGS@ \
@@ -443,6 +455,7 @@ commonTestCXXFLAGS = -I@top_srcdir@/Core \
 
 commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@builddir@/libSpecTclTcp.la \
+		@top_builddir@/mpi/libMPIUtilities.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
@@ -467,7 +480,7 @@ gateTests_SOURCES  = TestRunner.cpp gateTests.cpp
 
 spectrumPkgTests_CXXFLAGS = $(commonTestCXXFLAGS)
 spectrumPkgTests_LDADD    = $(commonTestLdFlags)
-spectrumPkgTests_SOURCES  = TestRunner.cpp SpectrumPackageTests.cpp
+spectrumPkgTests_SOURCES  = TestRunner.cpp SpectrumPackageTests.cpp 
 
 displayInterfaceTests_CXXFLAGS = $(commonTestCXXFLAGS)
 displayInterfaceTests_LDADD = $(commonTestLdFlags)
@@ -515,7 +528,7 @@ spectraDisplayTests_SOURCES = TestRunner.cpp \
 			SpectraLocalDisplayTests.cpp SpectraProcessTests.cpp
 
 spectclCmdTests_CXXFLAGS = $(commonTestCXXFLAGS)
-spectclCmdTests_LDADD    = $(commonTestLdFlags)
+spectclCmdTests_LDADD    = $(commonTestLdFlags) 
 spectclCmdTests_SOURCES  = TestRunner.cpp \
 			SharedMemoryKeyCommandTest.cpp \
 			SharedMemorySizeCommandTest.cpp

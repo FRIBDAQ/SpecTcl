@@ -34,6 +34,7 @@ CCUSBSpecTcl_LDFLAGS = 	@top_builddir@/Core/libSpecTclMain.la \
 	@top_builddir@/Replace/libreplace.la \
 	@top_builddir@/calibratedparams/libCalibrations.la \
 	@top_builddir@/Display/libXamine.la          \
+	@top_builddir@/mpi/libMPIUtilities.la \
 	@LIBTCLPLUS_LDFLAGS@	@ROOT_LDFLAGS@ \
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\

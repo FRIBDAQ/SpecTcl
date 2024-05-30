@@ -46,6 +46,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpecTcl.h"
 
 #include <TCLInterpreter.h>
+#include <TCLObject.h>
 #include <TCLString.h>
 #include <TCLResult.h>
 
@@ -63,23 +64,30 @@ static const char* pCopyrightNotice =
 
 // Functions for class CApplyCommand
 
+/**
+ *  constructor:
+ *    @param pInterp - pointer to the interpreter on which to register.
+ *    @param pCmd    - Pointer to the command string word that invokes us.
+ * 
+ * @note  The package will associate our package to us.
+ * 
+*/
+CApplyCommand::CApplyCommand(CTCLInterpreter* pInterp,  const char* pCmd) :
+  CTCLPackagedObjectProcessor(*pInterp, pCmd, true)
+{
+  
+}
+CApplyCommand::~CApplyCommand() {}
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
-//     operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-//                int nParams, char* pParams[])
+//     operator()(CTCLInterpreter& rInterp,std::vector<CTCLObject>& objv)
 //  Operation Type: 
 //      evaluation
 //.
-int CApplyCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			      int nParams, char* pParams[])  
+int CApplyCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  
 {
-	// daqdev/SpecTcl#379 Don't run if we're not initialized:
 	
-	if (!SpecTcl::getInstance()->isInitialized()) {
-		rResult = "apply command attempted before SpecTcl fully initialized";
-		return TCL_ERROR;
-	}
   // Called to implement the apply command.
   // This command both applies gates and lists
   //  the applications.
@@ -87,13 +95,34 @@ int CApplyCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // Formal Parameters:
   //       CTCLInterpreter& rInterp:
   //          Refers to the Tcl Interpreter which invoked us.
-  //       CTCLResult& rResult:
-  //           Refers to the result string.
-  //      int nParam:
-  //           Number of parameters which are in the command string.
-  //      char* pArgs[]:
-  //         pointer to array of null terminated parameter strings.
-  // 
+  //      std::vector<CTCLObject>& objv 
+  //          The command words.
+  //
+
+  // daqdev/SpecTcl#379 Don't run if we're not initialized:
+	
+	if (!SpecTcl::getInstance()->isInitialized()) {
+		rInterp.setResult("apply command attempted before SpecTcl fully initialized");
+		return TCL_ERROR;
+	}
+  // Marshall the command words into argc/argv form to minimize the effort of porting the command to an
+  // object processor:
+  UInt_t nParams = objv.size();
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+  std::string rResult;                     // Make the port easier.
+
+  // Must do this in two loops due to lifetime issues on c_str().
+
+  for (auto& word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (int i =0; i < words.size(); i++) {
+    pWords.push_back(words[i].c_str());
+  }
+  auto pParams = pWords.data();
+
+
   nParams--;
   pParams++;
   //
@@ -102,6 +131,7 @@ int CApplyCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if(nParams < 1) {
     rResult = Usage();
     rResult += "\n Insufficient parameters";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Distinguish between a -list and application of gates:
@@ -109,11 +139,11 @@ int CApplyCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if(strcmp(pParams[0], "-list") == 0) {// List gates.
     nParams--;
     pParams++;
-    return ListApplications(rInterp, rResult, nParams, pParams);
+    return ListApplications(rInterp, nParams, pParams);
   }
   else {			        // Apply gates to spectra.
 
-    return ApplyGate(rInterp, rResult, nParams, pParams);
+    return ApplyGate(rInterp,  nParams, pParams);
   }
 
 }
@@ -125,8 +155,7 @@ int CApplyCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //  Operation Type: 
 //      Subfunction.
 //
-TCLPLUS::Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			       TCLPLUS::UInt_t nArgs, char*  pArgs[])  
+TCLPLUS::Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char*  pArgs[])  
 {
   // Processes the  apply gate spectrum_list
   // SpecTcl command. 
@@ -134,8 +163,7 @@ TCLPLUS::Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rR
   //  Formal Parameters:
   //        CTCLIntepreter& rInterp:
   //            The interpreter which is running the command.
-  //        CTCLResult& rResult:
-  //             The result string for the command/interpreter.
+  //             The result string will be set via rInterp.setResult()
   //             This will be empty on success.  On failure, it will
   //             contain a list of 2 element sublists.  Each 
   //             sublist will contain
@@ -151,7 +179,7 @@ TCLPLUS::Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rR
   //    TCL_OK  - Success.
   //    TCL_ERROR - failure.
   //
-
+  std::string rResult;
   if(nArgs < 2) {		// Must have gate and at least one spectrum.
     rResult = Usage();
     rResult += "\n Unsufficient command parameters";
@@ -162,7 +190,7 @@ TCLPLUS::Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rR
   TCLPLUS::Bool_t AnyFailed = TCLPLUS::kfFALSE;
   CTCLString         ResultString;
   string GateName(*pArgs);
-  CGatePackage& Package((CGatePackage&)getMyPackage());
+  CGatePackage& Package(*(CGatePackage*)getPackage());
 
   pArgs++;
   nArgs--;
@@ -181,6 +209,7 @@ TCLPLUS::Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rR
   }
   if(AnyFailed) {
     rResult = (const char*)ResultString;
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   else {
@@ -196,8 +225,7 @@ TCLPLUS::Int_t CApplyCommand::ApplyGate(CTCLInterpreter& rInterp, CTCLResult& rR
 //     Subfunction.
 //
 TCLPLUS::Int_t 
-CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				TCLPLUS::UInt_t nArgs, char* pArgs[])  
+CApplyCommand::ListApplications(CTCLInterpreter& rInterp, TCLPLUS::UInt_t nArgs, const char* pArgs[])  
 {
   // Processes the apply -list command which 
   // lists gates applied to spectra.
@@ -210,9 +238,7 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //     CTCLInterpreter& rInterp:
   //         Reference to an interpreter object which
   //         is running the command.
-  //      CTCLResult& rResult:
-  //         Reference to the result string of which
-  //         contains the following:
+  //         rInterp.setREsult is used to set the result string which is:
   //         On Success:
   //             A list of 2 item sublists.  Each sublist
   //             contains:
@@ -230,7 +256,7 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //     TCL_ERROR - Failure.
   
   vector<string> Spectra;
-  CGatePackage& Package((CGatePackage&)getMyPackage());
+  CGatePackage& Package(*(CGatePackage*)getPackage());
 
   // The only difference between no more parameters and parameters
   // is how the Spectra vector is filled:
@@ -241,6 +267,12 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
     }
 
   CHistogrammer* pHist = Package.getHistogrammer();
+  // If this is null, just return an empty list success...this could be that we're in 
+  // MPI Mode but not in the event sink pipeline. 
+
+  if (!pHist) {
+    return TCL_OK;
+  }
   SpectrumDictionaryIterator p = pHist->SpectrumBegin();
   while(p != pHist->SpectrumEnd()) {
     const char* name = (((*p).second)->getName()).c_str();
@@ -278,15 +310,18 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
     p2++;
   }
   if(SomeFailed) {
-    rResult = (const char*)Failures;
+    rInterp.setResult((const char*)Failures);
+    
     return TCL_ERROR;
   }
   else {
-    rResult = (const char*)Successes;
+   rInterp.setResult((const char*)Successes);
+    
     return TCL_OK;
   }
   assert(0);
 }
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Function:

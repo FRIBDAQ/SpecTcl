@@ -77,6 +77,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CompoundGate.h"
 
 #include "Histogrammer.h"
+#include "SpecTcl.h"
 #include <TH2I.h>
 #include <TH2S.h>
 #include <TH2C.h>
@@ -1625,7 +1626,7 @@ CSpectrumFactory::ParameterArray(vector<std::string>& rParameters)
 // Throws:
 //     CDictionaryException if any names are bad.
 //
-  CHistogrammer*     pSorter = (CHistogrammer*)gpEventSink;
+  auto api = SpecTcl::getInstance();
   vector<CParameter> vParams;
 
   // For each element in the rParmeter vector, look up and construct the
@@ -1633,7 +1634,7 @@ CSpectrumFactory::ParameterArray(vector<std::string>& rParameters)
   //
 
   for(int i = 0; i < rParameters.size(); i++) {
-    CParameter* pParam = pSorter->FindParameter(rParameters[i]);
+    CParameter* pParam = api->FindParameter(rParameters[i]);
     if(pParam) {
       vParams.push_back(CParameter(*pParam));
     }

@@ -130,6 +130,7 @@ private:
   std::vector<FPoint> scaleSumSpectrumPoints(CSpectrum*          pSpectrum,
 					     UInt_t              firstAxis,
 					     std::vector<CPoint> rawPoints);
+  void sprayGate(std::string name, CGate* pGate);  // Make other ranks know about the gate (MPI).
 		     
 };
 

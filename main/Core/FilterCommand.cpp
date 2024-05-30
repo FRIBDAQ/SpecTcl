@@ -31,13 +31,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <TCLList.h>
 #include <TCLString.h>
-#include <TCLResult.h>
+#include <TCLObject.h>
 #include <TclGrammerApp.h>
 
 #include "Globals.h"
 #include "Histogrammer.h"
 #include "GateCommand.h"
 #include "EventSinkPipeline.h"
+
+#include <TclPump.h>
 
 #include <assert.h>
 
@@ -49,18 +51,18 @@ using namespace std;
 // Static Data:
 struct SwitchTableEntry {
   const char* pSwitchText;
-  CFilterCommand::eSwitches Switch;
+  CFilterCommandActual::eSwitches Switch;
 };
 
 static const SwitchTableEntry Switches[] = {
-  {"-new", CFilterCommand::keNew},
-  {"-delete", CFilterCommand::keDelete},
-  {"-enable", CFilterCommand::keEnable},
-  {"-disable", CFilterCommand::keDisable},
-  {"-regate", CFilterCommand::keRegate},
-  {"-file", CFilterCommand::keFile},
-  {"-list", CFilterCommand::keList},
-  {"-format", CFilterCommand::keFormat}
+  {"-new", CFilterCommandActual::keNew},
+  {"-delete", CFilterCommandActual::keDelete},
+  {"-enable", CFilterCommandActual::keEnable},
+  {"-disable", CFilterCommandActual::keDisable},
+  {"-regate", CFilterCommandActual::keRegate},
+  {"-file", CFilterCommandActual::keFile},
+  {"-list", CFilterCommandActual::keList},
+  {"-format", CFilterCommandActual::keFormat}
 };
 
 static const string defaultOutputFormat("xdr");
@@ -72,7 +74,7 @@ static const UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
 // Constructors.
 
 /*!
-   Construct the filter.  The command is registered
+   Construct the filter command.  The command is registered
    as the command "filter".  The client constructing us must
    register the command on the interpreter.
 
@@ -80,13 +82,13 @@ static const UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
       The interpreter the command will be registered on.
      
 */
-CFilterCommand::CFilterCommand(CTCLInterpreter& rInterp) : 
-  CTCLProcessor("filter", &rInterp) 
+CFilterCommandActual::CFilterCommandActual(CTCLInterpreter& rInterp) : 
+  CTCLObjectProcessor(rInterp, "filter", true)
 {
 }
 
 
-CFilterCommand::~CFilterCommand() {
+CFilterCommandActual::~CFilterCommandActual() {
 }
 
 // Operators.
@@ -104,23 +106,40 @@ CFilterCommand::~CFilterCommand() {
     
     \param rInterp (in):
         The interpreter that's executing the command.
-    \param rResult (out):
-        The result string the command returns.
-    \param nArgs (in):
-        The number of command parameters (counting the keyword).
-    \param pArgs (in):
-        The list of command keywords.
+    \param objv 
+       Object ncapsulated  command words.
 
     \return  one of:
     - TCL_OK - everything worked fine.
     - TCL_ERROR - The command failed.
 */
-int CFilterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			       int nArgs, char* pArgs[]) {
+int CFilterCommandActual::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  // If we're not the event sink rank just return TCL_Ok.
+
+  if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+    return TCL_OK;
+  }
+
+  // Buid nArgs and pArgs to make the port to an object processor easier.
+
+  int nArgs = objv.size();
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+  std::string rResult;                  // Allows results to be built up then set.
+
+  for (auto& word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word : words) {
+    pWords.push_back(word.c_str());
+  }
+  auto pArgs = pWords.data();
+
   nArgs--; pArgs++; // Don't care about command name.
 
   if(nArgs <= 0) { // Need at least one parameter.
     rResult = Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -130,41 +149,41 @@ int CFilterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   case keDelete:
     nArgs--;
     pArgs++;
-    return Delete(rInterp, rResult, nArgs, pArgs);
+    return Delete(rInterp, nArgs, pArgs);
 
   case keEnable:
     nArgs--;
     pArgs++;
-    return Enable(rInterp, rResult, nArgs, pArgs);
+    return Enable(rInterp, nArgs, pArgs);
 
   case keDisable:
     nArgs--;
     pArgs++;
-    return Disable(rInterp, rResult, nArgs, pArgs);
+    return Disable(rInterp, nArgs, pArgs);
 
   case keRegate:
     nArgs--;
     pArgs++;
-    return Regate(rInterp, rResult, nArgs, pArgs);
+    return Regate(rInterp, nArgs, pArgs);
 
   case keFile:
     nArgs--;
     pArgs++;
-    return File(rInterp, rResult, nArgs, pArgs);
+    return File(rInterp, nArgs, pArgs);
 
   case keList:
     nArgs--;
     pArgs++;
-    return List(rInterp, rResult, nArgs, pArgs);
+    return List(rInterp, nArgs, pArgs);
 
     // Both --new and no switch create a filter:
   case keNew:
     nArgs--;
     pArgs++;
   case keNotSwitch:		//  Create a new filter.
-    return Create(rInterp, rResult, nArgs, pArgs);
+    return Create(rInterp, nArgs, pArgs);
   case keFormat:
-    return Format(rInterp, rResult, nArgs, pArgs);
+    return Format(rInterp, nArgs, pArgs);
 
   default:                     // Bug to get here:
     assert(0);
@@ -182,11 +201,11 @@ int CFilterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
    \param pSwitch (in):
       The string to recognize.
     
-   \return (CFilterCommand::eSwitches):
+   \return (CFilterCommandActual::eSwitches):
       The encoded value of the recognized switch or keNotSwitch instead.
 */
-CFilterCommand::eSwitches
-CFilterCommand::MatchSwitch(const char* pSwitch) {
+CFilterCommandActual::eSwitches
+CFilterCommandActual::MatchSwitch(const char* pSwitch) {
   for(UInt_t i = 0; i < nSwitches; i++) {
     if(strcmp(pSwitch, Switches[i].pSwitchText) == 0) {
       return Switches[i].Switch;
@@ -202,7 +221,7 @@ CFilterCommand::MatchSwitch(const char* pSwitch) {
        Mini-help on the filter command.
 */
 
-std::string CFilterCommand::Usage() {
+std::string CFilterCommandActual::Usage() {
   std::string Use;
   Use  = "Usage:\n";
   Use += " filter [-new] filtername gatename {par1 par2 ...}\n";
@@ -226,9 +245,9 @@ std::string CFilterCommand::Usage() {
     The filter is created and added to the filter dictionary.
     \param rInterp (in):
        The interpreter that's executing this command.
-    \param rResult (out):
-       The command result string.  If the filter was succesfully created
-       a TCL list will be returned whose elements are:
+       the Result will be set as follows:
+       If the filter was succesfully created, a TCL list will be the result. The result
+       will be a list containing, in order:
        - The name of the filter.
        - The name of the gate that defines the filter criterion.
        - The list of parameter names that are output by the filter.
@@ -243,13 +262,14 @@ std::string CFilterCommand::Usage() {
  */
 
 Int_t 
-CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		       int nArgs, char* pArgs[]) 
+CFilterCommandActual::Create(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) 
 {
+  std::string rResult;
   SpecTcl& Api(*(SpecTcl::getInstance()));
 
   if(nArgs != 3) {
     rResult = Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Parse the filter description.
@@ -268,6 +288,7 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if(ParameterList.Split(Description) != TCL_OK) { // Bust the list apart.
     rResult = Usage();
     rResult += "Incorrect parameter description list format.";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   //  Transform  the TCL list into a vector of names:
@@ -319,11 +340,13 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
       Api.AddEventSink(*pGatedEventFilter, SinkName(pFilterName).c_str());
     } else {
       rResult += "Error: Invalid gate (" + std::string(pGateName) + ").";
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   } else {
     rResult += "Error: Filter (" + 
       std::string(pFilterName) + ") already present.";
+      rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -332,7 +355,7 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   rResult +=  ListFilter(string(pFilterName), 
 			 pGatedEventFilter); // Return filter name string in
 				// std format.
-
+  rInterp.setResult(rResult);
   return TCL_OK;
 }
 
@@ -341,8 +364,6 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   otherwise it is an informative error message.
   \param rInterp (in):
      The interpreter running this command.
-  \param rResult (in):
-     The command result string (what is captured by e.g. [filter -delete xx].
   \param nArgs (in):
      Number of remaining command line parameters (must be 1 [name of the
      filter to delete]).
@@ -352,10 +373,11 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   \return an integer status (see operator()).
 
 */
-Int_t CFilterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			     int nArgs, char* pArgs[]) {
+Int_t CFilterCommandActual::Delete(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) {
+  std::string rResult;
   if(nArgs != 1) {
     rResult = Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -365,6 +387,7 @@ Int_t CFilterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
   if(pFilterDictionary->Lookup(pFilterName) == pFilterDictionary->end()) {
     rResult = "No such filter (" + std::string(pFilterName) + ").";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Remove from event sink pipeline, dictionary and destroy the filter.
@@ -377,7 +400,9 @@ Int_t CFilterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // If the filter is enabled, disable it so that it flushes
   // etc.
   if (!pFilter) {
-    rResult = "Name is not a filter";
+    rResult = pFilterName;
+    rResult = " is not a filter";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   if (pFilter->CheckEnabled()) {
@@ -396,8 +421,6 @@ Int_t CFilterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
    
    \param rInterp (in):
       The interpreter that is running this command.
-   \param rResult (out):
-      The result string that is produced by this command.
    \param nArgs   (in):
       Number of remaining parameters (must be 1 the name of the filter).
    \param pArgs   (in)
@@ -405,9 +428,11 @@ Int_t CFilterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
    \return an integer TCL status (see operator()).
 */
-Int_t CFilterCommand::Enable(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]) {
+Int_t CFilterCommandActual::Enable(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) {
+  std::string rResult;
   if(nArgs != 1) {
     rResult = Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Parse the filter description.
@@ -421,15 +446,18 @@ Int_t CFilterCommand::Enable(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
     pEventFilter->Enable();
     if(pEventFilter->CheckEnabled()) {
       rResult += ListFilter(p->first,pEventFilter);
+      rInterp.setResult(rResult);
       return TCL_OK;
     } else {
       rResult = "Error: Filter (" 
 	      + std::string(pFilterName) + ") could not be enabled.";
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   } else {
 
     rResult = "Error: Invalid filter (" + std::string(pFilterName) + ").";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // It's a bug to land here:
@@ -446,8 +474,6 @@ For a filter to function (to create output),
    
    \param rInterp (in):
       The interpreter that is running this command.
-   \param rResult (out):
-      The result string that is produced by this command.
    \param nArgs   (in):
       Number of remaining parameters (must be 1 the name of the filter).
    \param pArgs   (in)
@@ -455,10 +481,11 @@ For a filter to function (to create output),
 
    \return an integer TCL status (see operator()).
  */
-Int_t CFilterCommand::Disable(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			      int nArgs, char* pArgs[]) {
+Int_t CFilterCommandActual::Disable(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) {
+  std::string rResult;
   if(nArgs != 1) {
     rResult = Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Parse the filter description.
@@ -473,13 +500,16 @@ Int_t CFilterCommand::Disable(CTCLInterpreter& rInterp, CTCLResult& rResult,
     pEventFilter->Disable();
     if(!(pEventFilter->CheckEnabled())) {
       rResult += ListFilter(p->first,pEventFilter);
+      rInterp.setResult(rResult);
       return TCL_OK;
     } else {
       rResult = "Error: Filter (" + std::string(pFilterName) + ") could not be disabled.";
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   } else {
     rResult = "Error: Invalid filter (" + std::string(pFilterName) + ").";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Should not wind up here:
@@ -491,8 +521,6 @@ Int_t CFilterCommand::Disable(CTCLInterpreter& rInterp, CTCLResult& rResult,
     replaced with a new one.
     \param rInterp (in):
        The interpreter that is running this command.
-    \param rResult (out):
-       On return will contain the text string the command returns.
     \param nArgs   (in):
        Number of parameters in the remaining command.  Sould be two:
        - Filter name
@@ -500,12 +528,13 @@ Int_t CFilterCommand::Disable(CTCLInterpreter& rInterp, CTCLResult& rResult,
     \param pArgs   (in):
        The remaining command line parameters.
 
-    \result integer status (see operator()).
+    \return integer status (see operator()).
 */
-Int_t CFilterCommand::Regate(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			     int nArgs, char* pArgs[]) {
+Int_t CFilterCommandActual::Regate(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) {
+  std::string rResult;
   if(nArgs != 2) {
     rResult = Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // Parse the filter description.
@@ -537,10 +566,12 @@ Int_t CFilterCommand::Regate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_OK;
     } else {
       rResult += "Error: Invalid gate (" + std::string(pGateName) + ").";
+      rInterp.setResult(rResult);
       return TCL_ERROR;
     }
   } else {
     rResult += "Error: Invalid filter (" + std::string(pFilterName) + ").";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // it's a bug to get here:
@@ -552,9 +583,6 @@ Int_t CFilterCommand::Regate(CTCLInterpreter& rInterp, CTCLResult& rResult,
    the filtered event data in filterdata format. 
    \param rInterp (in):
       The interpreter on which this command is running.
-   \param rResult (out):
-      The result string for the command.  On success this will be the output
-      of ListFilter... otherwise an error message.
    \param nArgs   (in):
       The number of remaining command line parameters.  This should be 2:
       - The filter name
@@ -562,15 +590,16 @@ Int_t CFilterCommand::Regate(CTCLInterpreter& rInterp, CTCLResult& rResult,
    \param pArgs   (in):
       The list of remaining command line parameters.
 
-   \result an integer status value (See operator()).
+   \return an integer status value (See operator()).
 
    \note a side effect of changing the filename is that the filter is
          disabled...why is this???
 */
-Int_t CFilterCommand::File(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			   int nArgs, char* pArgs[]) {
+Int_t CFilterCommandActual::File(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) {
+  std::string rResult;
   if(nArgs != 2) {
     rResult = Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -598,9 +627,11 @@ Int_t CFilterCommand::File(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
     rResult += ListFilter(FilterDictionaryIterator->first,
 			  pGatedEventFilter);
+    rInterp.setResult(rResult);
     return TCL_OK;
   } else {
     rResult += "Error: Invalid filter (" + std::string(pFilterName) + ").";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   assert(0);
@@ -616,9 +647,6 @@ Int_t CFilterCommand::File(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
    \param rInterp (in):
        The interpreter the command is running on.
-   \param rResult (out):
-       The string the command returns.  This will be the set of filters
-       that matches the pattern.
    \param nArgs   (in):
        The number of remaining command line parameters. (should be 0 or 1).
    \param pArgs   (in):
@@ -626,15 +654,16 @@ Int_t CFilterCommand::File(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
    \return  An integer status (see operator()).
 */
-Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			   int nArgs, char* pArgs[]) 
+Int_t CFilterCommandActual::List(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[]) 
 {
+  std::string rResult;
   const char* pPattern = "*";		// Default pattern is just *.
   if(nArgs == 1) {
     pPattern = *pArgs;
   }
   if(nArgs > 1) {
     rResult = Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -655,7 +684,7 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     i++;
   }
   rResult = string((const char*)OutputList);
-
+  rInterp.setResult(rResult);
   return TCL_OK;
 }
 /*!
@@ -666,7 +695,6 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     factory.
 
     \param rInterp - Reference to the interpreter running this command.
-    \param rResult - Reference to the interpreter result object.
     \param nArgs   - Number of command words, should be exactly 3.
                      as the caller has sliced off the command verb.
     \param pArgs   - Pointers to the command words.
@@ -676,17 +704,19 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     \retval TCL_ERROR - The command failed, the result will be an error message.
 */
 Int_t
-CFilterCommand::Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[])
+CFilterCommandActual::Format(CTCLInterpreter& rInterp, int nArgs, const char* pArgs[])
 {
+  std::string rResult;
   if (nArgs != 3) {
     rResult = "In correct number of parameters in filter -format: \n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
   // Pull out the filter name and the output type and validate them:
 
-  char*  name    = pArgs[1];
+  const char*  name    = pArgs[1];
   string format  = pArgs[2];
 
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
@@ -700,6 +730,7 @@ CFilterCommand::Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs,
     rResult += name;
     rResult += " does not exist in filter -format command\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   // It's an error to do any of this if the filter is enabled:
@@ -710,6 +741,7 @@ CFilterCommand::Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs,
     rResult += name;
     rResult += " is enabled, and filter -format can only be used on disabled filters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -722,6 +754,7 @@ CFilterCommand::Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs,
     rResult += format;
     rResult += " does not exist in filter -format command";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -729,6 +762,7 @@ CFilterCommand::Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs,
 
   pFilter->setOutputFormat(pOutputStage);
   rResult = name;
+  rInterp.setResult(rResult);
   return TCL_OK;
 }
 
@@ -749,7 +783,7 @@ CFilterCommand::Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs,
      - the names of the parameters  that are written by the filter.
      - The enable status of the filter.
 */
-string CFilterCommand::ListFilter(const string& rName,
+string CFilterCommandActual::ListFilter(const string& rName,
 				  CGatedEventFilter* pFilter) 
 {
   CTCLString List;
@@ -781,7 +815,7 @@ string CFilterCommand::ListFilter(const string& rName,
      exist.
 */
 string
-CFilterCommand::ListFilter(const string& name)
+CFilterCommandActual::ListFilter(const string& name)
 {
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
   CFilterDictionaryIterator i          = pFilterDictionary->Lookup(name);
@@ -797,10 +831,15 @@ CFilterCommand::ListFilter(const string& name)
    Create the event sink name given the filter name:
 */
 string
-CFilterCommand::SinkName(string filterName)
+CFilterCommandActual::SinkName(string filterName)
 {
   string result("Filter::");
   result += filterName;
 
   return result;
 }
+
+// The MPI wrapper:
+
+CFilterCommand::CFilterCommand(CTCLInterpreter& rInterp) :
+  CMPITclCommand(rInterp, "filter", new CFilterCommandActual(rInterp)) {}

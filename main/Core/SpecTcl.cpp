@@ -58,6 +58,8 @@
 #include <DictionaryException.h>
 
 #include <TCLInterpreter.h>
+#include <CParameterDictionarySingleton.h>
+#include <CGateDictionarySingleton.h>
 
 #include <TCLAnalyzer.h>
 #include <DisplayInterface.h>
@@ -161,7 +163,30 @@ SpecTcl::AssignParameterId()
   return id;			// If a tight block starting @ 0 return next int
 }
 
-
+void 
+SpecTcl::throwIfDuplicateParameterId(UInt_t id) {
+  if (FindParameter(id)) {
+    std::stringstream msg;
+    msg << "Duplicate parameter id: " << id;
+    std::string smsg = msg.str();
+    std::string empty;
+    CDictionaryException e(CDictionaryException::knDuplicateId, smsg, empty);
+    e.setID(id);
+    throw e;
+  }
+}
+void
+SpecTcl::throwIfDuplicateParameterName(std::string name) {
+  if (FindParameter(name)) {
+    std::stringstream msg;
+    msg << "Duplicate parameter name: " << name;
+    std::string smsg = msg.str();
+    std::string empty;
+    CDictionaryException e(CDictionaryException::knDuplicateKey, smsg, empty);
+    e.setName(name);
+    throw e;
+  }
+}
 /*!
   Create a new parameter that is a floating point parameter, and add it to the
   parameter dictionary.  Note that AssignParameterId can be used to get an unused
@@ -189,9 +214,14 @@ SpecTcl::AssignParameterId()
 CParameter* 
 SpecTcl::AddParameter(string name, UInt_t Id, string Units)
 {
-  CHistogrammer* pHistogrammer  = GetHistogrammer();
-  CParameter*    pParameter    = pHistogrammer->AddParameter(name, Id, 
-	 						    Units.c_str());
+  throwIfDuplicateParameterName(name);
+  throwIfDuplicateParameterId(Id);
+
+
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  CParameter* pParameter =   new CParameter(name, Id, 
+                  Units.c_str());
+  pDict->Enter(name, *pParameter);
   return pParameter;
 
 }
@@ -221,9 +251,12 @@ SpecTcl::AddParameter(string name, UInt_t Id, string Units)
 CParameter* 
 SpecTcl::AddParameter(string name, UInt_t id, UInt_t scale)
 {
-  CHistogrammer* pHistogrammer   = GetHistogrammer();
-  CParameter*    pParameter      = pHistogrammer->AddParameter(name, id,
-							       scale);
+  throwIfDuplicateParameterName(name);
+  throwIfDuplicateParameterId(id);
+
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  CParameter*    pParameter      = new CParameter(scale, name, id);
+  pDict->Enter(name, *pParameter);
   return pParameter;
 }
 
@@ -263,10 +296,14 @@ SpecTcl::AddParameter(string name, UInt_t id,
 				  UInt_t scale, Float_t low, Float_t high, 
 				  string units)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  CParameter*    pParameter    = pHistogrammer->AddParameter(name, id, 
-							     scale, low, high,
+  throwIfDuplicateParameterName(name);
+  throwIfDuplicateParameterId(id);
+
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  CParameter*    pParameter    = new CParameter(scale, name, id, 
+							     low, high,
 							     units);
+  pDict->Enter(name, *pParameter);
   return pParameter;
 }
 
@@ -286,8 +323,12 @@ SpecTcl::AddParameter(string name, UInt_t id,
 CParameter* 
 SpecTcl::RemoveParameter(string name)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->RemoveParameter(name);
+  CParameter* result = FindParameter(name);
+  if (result) {
+    auto pDict = CParameterDictionarySingleton::getInstance();
+    pDict->Remove(name);
+  }
+  return result;
 }
 
 
@@ -303,9 +344,14 @@ SpecTcl::RemoveParameter(string name)
 */
 CParameter* 
 SpecTcl::FindParameter(string name)
-{  
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->FindParameter(name);
+{    
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  auto p = pDict->Lookup(name);
+  CParameter* pResult = nullptr;
+  if (p != pDict->end()) {
+    pResult = &(p->second);
+  }
+  return pResult;
 }
 
 
@@ -321,11 +367,29 @@ SpecTcl::FindParameter(string name)
   
   
 */
+namespace SpecTclUtil {
+  class MatchParameterId {
+    private:
+      UInt_t m_id;
+    public:
+      MatchParameterId(UInt_t id) : m_id(id) {}
+      bool operator()(const std::pair<std::string, CParameter>& p) {
+        return (m_id == p.second.getNumber());
+      }
+  };
+};
 CParameter* 
 SpecTcl::FindParameter(UInt_t Id)
 {
-  CHistogrammer*   pHistogrammer = GetHistogrammer();
-  return           pHistogrammer->FindParameter(Id);
+  auto pDict = CParameterDictionarySingleton::getInstance();
+  SpecTclUtil::MatchParameterId pred(Id);
+  auto p = pDict->FindMatch(pred);
+  CParameter* result(nullptr);
+  if (p != pDict->end()) {
+    result = &(p->second);
+  }
+
+  return result;
 }
 
 
@@ -335,8 +399,8 @@ SpecTcl::FindParameter(UInt_t Id)
 ParameterDictionaryIterator
 SpecTcl::BeginParameters()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->ParameterBegin();
+  return CParameterDictionarySingleton::getInstance()->begin();
+  
 }
 
 
@@ -346,8 +410,7 @@ SpecTcl::BeginParameters()
 ParameterDictionaryIterator 
 SpecTcl::EndParameters()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->ParameterEnd();
+  return CParameterDictionarySingleton::getInstance()->end();
 }
 
 
@@ -357,8 +420,7 @@ SpecTcl::EndParameters()
 UInt_t 
 SpecTcl::ParameterCount()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->ParameterCount();
+  return CParameterDictionarySingleton::getInstance()->size();
 }
 
 
@@ -1177,8 +1239,15 @@ SpecTcl::CreateM2Projection(
 void 
 SpecTcl::AddSpectrum(CSpectrum& spectrum)
 {
+  // If there's a histogramer we should use that to ensure that
+  // all internals are satisfied, otherwise just enter it in the dict.
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->AddSpectrum(spectrum);
+  if (pHistogrammer) {
+    pHistogrammer->AddSpectrum(spectrum);
+  } else {
+    CSpectrum* p = &spectrum;
+    CSpectrumDictionarySingleton::getInstance()->Enter(spectrum.getName(), p);
+  }
 }
 
 
@@ -1194,7 +1263,19 @@ CSpectrum*
 SpecTcl::RemoveSpectrum(string name)
 {
   CHistogrammer*  pHistogrammer = GetHistogrammer();
-  return          pHistogrammer->RemoveSpectrum(name);
+  if (pHistogrammer) {
+    return          pHistogrammer->RemoveSpectrum(name);
+  } else {
+    auto dict = CSpectrumDictionarySingleton::getInstance();
+    auto p = dict->Lookup(name);
+    if (p == dict->end()) { 
+      return nullptr;
+    } else {
+      CSpectrum* pResult = p->second;
+      dict->Remove(name);
+      return pResult;
+    }
+  }
 }
 
 
@@ -1211,7 +1292,17 @@ CSpectrum*
 SpecTcl::FindSpectrum(string name)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->FindSpectrum(name);
+  if (pHistogrammer) {
+    return         pHistogrammer->FindSpectrum(name);
+  } else {
+    auto dict = CSpectrumDictionarySingleton::getInstance();
+    auto p = dict->Lookup(name);
+    if (p == dict->end()) {
+      return nullptr;
+    } else {
+      return p->second;
+    }
+  }
 }
 /*!
   Locates the named spectrum in the spectrum dictionary.
@@ -1222,11 +1313,36 @@ SpecTcl::FindSpectrum(string name)
   \retval  NULL No spectrum by that name to delete.
  
  */
+// Helper class to match by id:
+
+namespace SpecTclUtil {
+  class MatchSpectrumId {
+    private:
+      UInt_t m_id;
+    public:
+      MatchSpectrumId(UInt_t id) : m_id(id) {}
+      bool operator()(const std::pair<std::string, CSpectrum*>& p) {
+        return (m_id = p.second->getNumber());
+      }
+  };
+}
+
 CSpectrum*
 SpecTcl::FindSpectrum(UInt_t nid)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  return pHistogrammer->FindSpectrum(nid);
+  if (pHistogrammer) {
+    return pHistogrammer->FindSpectrum(nid);
+  } else {
+    SpecTclUtil::MatchSpectrumId pred(nid);
+    auto dict = CSpectrumDictionarySingleton::getInstance();
+    auto p = dict->FindMatch(pred);
+    if (p == dict->end()) {
+      return nullptr;
+    } else{
+      return p->second;
+    }
+  }
 }
 
 /*!
@@ -1235,8 +1351,9 @@ SpecTcl::FindSpectrum(UInt_t nid)
 SpectrumDictionaryIterator 
 SpecTcl::SpectrumBegin()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->SpectrumBegin();
+  // Note if there's no histogrammer the dictionary is empty.
+  return CSpectrumDictionarySingleton::getInstance()->begin();
+  
 }
 
 
@@ -1246,8 +1363,8 @@ SpecTcl::SpectrumBegin()
 SpectrumDictionaryIterator 
 SpecTcl::SpectrumEnd()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->SpectrumEnd();
+  return CSpectrumDictionarySingleton::getInstance()->end();
+  
 }
 
 /*!
@@ -1261,7 +1378,9 @@ void
 SpecTcl::addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->addSpectrumDictionaryObserver(observer);
+  if (pHistogrammer) {
+    pHistogrammer->addSpectrumDictionaryObserver(observer);
+  } 
 }
 /*!
   Remove an observer from the spectrum dictionary.
@@ -1271,7 +1390,9 @@ void
 SpecTcl::removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->removeSpectrumDictionaryObserver(observer);
+  if (pHistogrammer) {
+    pHistogrammer->removeSpectrumDictionaryObserver(observer);
+  }
 
 }
 /*!
@@ -1280,8 +1401,8 @@ SpecTcl::removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
 UInt_t 
 SpecTcl::SpectrumCount()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->SpectrumCount();  
+  
+  return CSpectrumDictionarySingleton::getInstance()->size();  // 0 if there's no hisogrammer.
 }
 
 
@@ -1297,7 +1418,9 @@ void
 SpecTcl::ClearSpectrum(string name)
 {
   CHistogrammer* pHistogram = GetHistogrammer();
-  pHistogram->ClearSpectrum(name);
+  if (pHistogram) {
+    pHistogram->ClearSpectrum(name);
+  }
 }
 
 
@@ -1310,7 +1433,9 @@ void
 SpecTcl::ClearAllSpectra()
 {
   CHistogrammer* pHistogram = GetHistogrammer();
-  return         pHistogram->ClearAllSpectra();
+  if (pHistogram) {
+    pHistogram->ClearAllSpectra();
+  }
 }
 
 
@@ -1836,6 +1961,28 @@ SpecTcl::CreateMaskNotGate(vector<string> parameters,
   CGateFactory factory(GetHistogrammer());
   return       factory.CreateMaskNotGate(parameters, Compare);
 }
+//// Gate dictionary items:
+
+/// Throw if agate by this name already exists.
+void SpecTcl::throwIfGateExists(std::string& name) {
+    auto& dict = *CGateDictionarySingleton::getInstance();
+    if (dict.Lookup(name) != dict.end()) {
+      throw CDictionaryException(CDictionaryException::knDuplicateKey, "Disallowing duplicate gate", name);
+    }
+}
+// throw if a gate by ths name does not exist:
+
+void SpecTcl::throwIfNoSuchGate(std::string& name) {
+  auto& dict = *CGateDictionarySingleton::getInstance();
+  if (dict.Lookup(name) == dict.end()) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey, "Checking gate existence", name);
+  }
+}
+// How we handle the gate dict depends on our environment.
+// If there's a histogramer, in order to ensure the correct traces
+// get fired we must do this stuff via the histogramer.
+// If not, we just do it via the gate dict singleton.
+
 
 /*!
   Adds a gate to the gate dictionary.  The gate dictionary does not manage
@@ -1852,25 +1999,36 @@ SpecTcl::CreateMaskNotGate(vector<string> parameters,
 void 
 SpecTcl::AddGate(string name, CGate* gate)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  CGateFactory   factory(pHistogrammer);
+  throwIfGateExists(name);
+  UInt_t id = CGateFactory::AssignId();
 
-  pHistogrammer->AddGate(name, CGateFactory::AssignId(), *gate);
+  // Wrap the gate in a container and add the container to the dictionary.
+
+  
+  auto pHisto = GetHistogrammer();
+  if (pHisto) {
+    pHisto->AddGate(name, id, *gate);
+  } else {
+
+    CGateContainer& container(*new CGateContainer(name, id, *gate));
+    auto& dict = *CGateDictionarySingleton::getInstance();
+    dict.Enter(name, container);
+  }
 }
 
 
 /*!
   Deletes the named gate from the gate dictionary.   This only removes the gate
   from the  dictionary.  If the gate was dynamically created, you must delete the
-  gate object.
+  gate object.  Note this actually replaces the exiting gate with a false gate.
   @param gateName
     Name of the gate to delete.
   \throw CDictionaryException - if the gate does not exist.
 */
 void SpecTcl::DeleteGate(string gateName)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();;
-  pHistogrammer->DeleteGate(gateName);
+  static CFalseGate falseGate;              // The false gate used to replace the existing gate.
+  ReplaceGate(gateName, falseGate);
 }
 
 
@@ -1894,10 +2052,24 @@ void SpecTcl::DeleteGate(string gateName)
 void 
 SpecTcl::ReplaceGate(string gateName, CGate& newGate)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->ReplaceGate(gateName, newGate);
+  throwIfNoSuchGate(gateName);            // Note that if there's a histogramer it too uses the gate singleton.
+  
+  // If there's a histogramer we need to use it so the correct trace fires:
+  //
+
+  auto pHisto = GetHistogrammer();
+  if (pHisto) {
+    pHisto->ReplaceGate(gateName, newGate);
+  } else {
+    auto& dict = *CGateDictionarySingleton::getInstance();
+    auto p = dict.Lookup(gateName); 
+    CGateContainer* pContainer = &(p->second);        // Cannot be null as p cannot be end().
+    pContainer->setGate(&newGate);                     // Replace the gate in the container.
+  }
 }
 
+// Iteration etc. can use the gate dictionary singleton since that's the underlying
+// storage for gates in the histogramer.
 
 /*!
   Locates a gate in the gate dictionary.  Note that a pointer to a gate container
@@ -1917,10 +2089,23 @@ SpecTcl::ReplaceGate(string gateName, CGate& newGate)
 CGateContainer* 
 SpecTcl::FindGate(string gateName)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return pHistogrammer->FindGate(gateName);
+  auto& dict = *CGateDictionarySingleton::getInstance();
+  auto p = dict.Lookup(gateName);
+  return (p != dict.end()) ? (&(p->second)) : nullptr;
 }
+/*
+  Same as above but by gate id.
 
+*/
+CGateContainer*
+SpecTcl::FindGate(unsigned id) {
+  auto& dict = *CGateDictionarySingleton::getInstance();
+  for (auto p = dict.begin(); p != dict.end(); p++) {
+        if(p->second.getNumber() == id) return &(p->second);
+  }
+
+  return nullptr;
+}
 
 /*!
   Returns a begin iterator into the gate dictionary.  GateDictionaryIterators are
@@ -1935,8 +2120,7 @@ SpecTcl::FindGate(string gateName)
 CGateDictionaryIterator 
 SpecTcl::GateBegin()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->GateBegin();
+  return CGateDictionarySingleton::getInstance()->begin();
 }
 
 /*!
@@ -1949,8 +2133,7 @@ SpecTcl::GateBegin()
 CGateDictionaryIterator 
 SpecTcl::GateEnd()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->GateEnd();
+  return CGateDictionarySingleton::getInstance()->end();
 }
 
 
@@ -1961,8 +2144,7 @@ SpecTcl::GateEnd()
 UInt_t 
 SpecTcl::GateCount()
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  return         pHistogrammer->GateCount();
+  return CGateDictionarySingleton::getInstance()->size();
 
 }
 /*!
@@ -1972,8 +2154,7 @@ SpecTcl::GateCount()
 void
 SpecTcl::addGateDictionaryObserver(CGateObserver* observer)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->addGateObserver(observer);
+  CGateDictionarySingleton::getInstance()->addObserver(observer);
 }
 
 /*!
@@ -1982,8 +2163,7 @@ SpecTcl::addGateDictionaryObserver(CGateObserver* observer)
 void
 SpecTcl::removeGateDictionaryObserver(CGateObserver* observer)
 {
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->removeGateObserver(observer);
+  CGateDictionarySingleton::getInstance()->removeObserver(observer);
 }
 
 /*!
@@ -1994,6 +2174,10 @@ SpecTcl::removeGateDictionaryObserver(CGateObserver* observer)
   @param spectrumName
     Name of the spectrum to which to apply the gate.
   
+  @note  that in the mpiSpecTcl, the gate application is only possible in the event sink pipline
+  process as that's the only one with a histogramer hence the defense against a non-null histogramer:
+  @note in SpecTcl ungating a spectrum is just gating it with a True gate.
+  
   \throw CDictionaryException if the gate or spectrum do not exist.
  
 */
@@ -2001,9 +2185,47 @@ void
 SpecTcl::ApplyGate(string gateName, string spectrumName)
 {
   CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->ApplyGate(gateName, spectrumName);
-}
 
+  if (pHistogrammer) {
+    pHistogrammer->ApplyGate(gateName, spectrumName);
+  } else {
+    throwIfNoSuchGate(gateName);
+    auto spec = FindSpectrum(spectrumName);
+    if (!spec) {
+      throw CDictionaryException(CDictionaryException::knNoSuchKey, "Checking spectrum existence", spectrumName);
+    }
+    auto gc   = FindGate(gateName);   // will exist.
+    spec->ApplyGate(gc);
+  }
+}
+/**
+ * ungate a spectrum.
+ * IF there is a histogrammer it's useed otherwise this is done in the local gate/spectrum dict.
+ * we do it this way because the histogramer has traces it must fire but in mpiSpecTcl where
+ * we are in ranks other than MPI_EVENT_SINK_RANK there won't be a histogramer.
+ * 
+ * @param name - name of the spectrum to ungate.
+ * @note ungating a spectrum really means gating with a true gate See ungated below; stolen from 
+ *    Histogammer.cpp.
+ * @note the -Ungated- gate is not in the dictionary so we duplicate the code.
+*/
+static string U("-Ungated-");
+static CTrueGate   AlwaysTrue;
+static CGateContainer NoGate(U, 0,      AlwaysTrue);
+
+void
+SpecTcl::UnGate(std::string name) {
+  auto pHistogrammer = GetHistogrammer();
+  if (pHistogrammer) {
+    pHistogrammer->UnGate(name);
+  } else {
+    auto pSpec = FindSpectrum(name);
+    if (!pSpec) {
+      CDictionaryException(CDictionaryException::knNoSuchKey, "Checking spectrum existence", name);
+    } 
+    pSpec->ApplyGate(&NoGate);
+  }
+}
 
 /**
  * getEventPipeline
@@ -2865,14 +3087,19 @@ SpecTcl::getDisplayMemory()
  *   determine if they are running in SpecTclInit.tcl where they're
  *   really not allowed to run - and raise an appropriate error
  *   if so. See e.g. daqdev/SpecTcl#379
- *
+ *   MPI - in the MPI case, the only thing we carea bout is the interpreter
+ *        as that's all that's common to all of the ranks.
  * @return bool - true if all the bits and pieces are initialized.
  */
 bool
 SpecTcl::isInitialized()
 {
-  return (
-      getInterpreter() && GetHistogrammer() && GetAnalyzer() &&
-      GetEventSinkPipeline() && GetDisplayInterface()
-  );
+  if (gMPIParallel) {
+    return getInterpreter();
+  } else {
+    return (
+        getInterpreter() && GetHistogrammer() && GetAnalyzer() &&
+        GetEventSinkPipeline() && GetDisplayInterface()
+    );
+  }
 }

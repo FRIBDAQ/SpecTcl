@@ -24,12 +24,14 @@
 
 
 #include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>
 class CTCLInterpreter;
 class CTCLObject;
 class CSpectrum;
 
+// In mpiSpecTcl, this must run in the MPI_EVENT_SINK_RANK only.
 /**
- * @class CSpectrumStatsCommand
+ * @class CSpectrumStatsCommandActual
  *     Command that produces statistics for spectra.  Command syntax:
  * \verbatim
  *    specstats ?pattern?
@@ -47,11 +49,11 @@ class CSpectrum;
  *   -  underflows - List of underflows countersm, one element for each axis.
  *                   see 'overflows' above for a discussion about this list.
  */
-class CSpectrumStatsCommand : public CTCLObjectProcessor
+class CSpectrumStatsCommandActual : public CTCLObjectProcessor
 {
 public:
-    CSpectrumStatsCommand(CTCLInterpreter& interp, const char* command="specstats");
-    virtual ~CSpectrumStatsCommand();
+    CSpectrumStatsCommandActual(CTCLInterpreter& interp, const char* command="specstats");
+    virtual ~CSpectrumStatsCommandActual();
     
 public:
     virtual int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
@@ -62,4 +64,12 @@ private:
     );
 };
 
+
+// Encapsulates the specstats command:
+
+class CSpectrumStatsCommand : public CMPITclCommand {
+public:
+    CSpectrumStatsCommand(CTCLInterpreter& rInterp);
+    ~CSpectrumStatsCommand() {}
+};
 #endif

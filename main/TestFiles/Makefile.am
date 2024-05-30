@@ -9,6 +9,7 @@ commonCPPFLAGS= -I@top_srcdir@/Core \
 # Removed 		@top_builddir@/Tape/libtape.la 
 
 commonLDADD = @top_builddir@/Core/libTclGrammerApp.la \
+	@top_builddir@/mpi/libMPIUtilities.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@TCL_LIBS@ @ROOT_LDFLAGS@
 
