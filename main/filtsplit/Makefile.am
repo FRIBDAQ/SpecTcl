@@ -16,6 +16,7 @@ filtsplit_CFLAGS =-I@top_srcdir@/Core
 filtsplit_CXXFLAGS =-I@top_srcdir@/Core
 
 filtsplit_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
+		@top_builddir@/mpi/libMPIUtilities.la \
 		  @LIBTCLPLUS_LDFLAGS@ \
 		  @TCL_LIBS@ @ROOT_LDFLAGS@ \
 		  -lgsl -lgslcblas

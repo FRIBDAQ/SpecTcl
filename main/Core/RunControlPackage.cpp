@@ -32,7 +32,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
-//
 // Header Files:
 //
 #include <config.h>
@@ -43,7 +42,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLInterpreter.h"
 #include "TCLVariable.h"
 #include <string>
-
+#include "TclPump.h"
+//=
 
 
 #ifdef HAVE_STD_NAMESPACE
@@ -58,6 +58,8 @@ using namespace std;
 
 
 // Functions for class CRunControlPackage
+// Note in parallel/MPI SpecTcl, the run control package is entirely
+// in rank 0.  This is because that's where we read the data.
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -69,11 +71,22 @@ using namespace std;
 CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
   CTCLCommandPackage(pInterp,
 		     std::string(Copyright)),
-  m_pStartRun(new CStartRun(pInterp, *this)),
-  m_pStopRun(new CStopRun(pInterp, *this)),
-  m_pRunState(new CTCLVariable(pInterp,
-			       std::string("RunState"), TCLPLUS::kfFALSE))
+  m_pStartRun(0),
+  m_pStopRun(0),
+  m_pRunState(0)
 {
+  // Create the commands:
+  // TODO: modify the commands so that in non-root processe they just
+  // set the variables...and are wrapped in CMPITclCommandAll commands.
+
+  m_pStartRun = (new CStartRun(pInterp, *this));
+  m_pStartRun->Bind(pInterp);
+  m_pStopRun = (new CStopRun(pInterp, *this));
+  m_pStopRun->Bind(pInterp);
+  m_pRunState = (new CTCLVariable(pInterp,
+            std::string("RunState"), TCLPLUS::kfFALSE));
+  m_pRunState->Bind(pInterp);
+
   // Add commands to the package table:
 
   AddProcessor(m_pStartRun);
@@ -83,7 +96,6 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
   //
 
   InitializeRunState();
-
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -94,7 +106,8 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
 //    Destructor.
 //
 CRunControlPackage::~CRunControlPackage()
-{
+{ 
+  // Can do this b/c of the initializers
   delete m_pStartRun;
   delete m_pStopRun;
   delete m_pRunState;
@@ -155,13 +168,13 @@ CRunControlPackage::StartRun()
 //
 
   if(!gpRunControl) {
-    InitializeRunState();
+    m_pRunState->Set("1", TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);    // Assume we started
     return TCLPLUS::kfFALSE;
   }
   if(!gpRunControl->getRunning()) {
     gpRunControl->Start();
   }
-  InitializeRunState();
+  InitializeRunState();                                  // Get the actual state.
   return TCLPLUS::kfTRUE;
   
 
@@ -192,7 +205,7 @@ CRunControlPackage::StopRun()
 // Exceptions:  
 
   if(!gpRunControl) {
-    InitializeRunState();
+    m_pRunState->Set("0", TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);   // Assume we stopped.
     return TCLPLUS::kfFALSE;
   }
   if(gpRunControl->getRunning()) {

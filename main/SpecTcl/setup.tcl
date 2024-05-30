@@ -355,7 +355,7 @@ gate NotGate - Slice
 gate OrGate  + { Slice NotGate }
 gate TRUE    T {}
 gate FALSE   F {}
-apply Band ad1vsd2
+applygate Band ad1vsd2
 gate Contour c {Distribution1 Distribution2 { {200 200} {300 300} {200 300} {300 200}}}
 gate Contour2 c2band { Band1 Band2 }
 gate RightEye gc { { {188 712} {192 668} {236 660} {228 716}} gam3}
@@ -365,7 +365,7 @@ gate Mouth gb { { {176 328} {208 224} {256 172} {340 132} {436 144} {516 164} {5
 gate REyeBrow gb { { {148 752} {240 784} {272 760}} gam3}
 gate LEyeBrow gb { { {568 752} {604 764} {716 736}} gam3}
 gate GSlice gs { {400 500} gam1}
-apply GSlice gam1
+applygate GSlice gam1
 
 
 sbind -all

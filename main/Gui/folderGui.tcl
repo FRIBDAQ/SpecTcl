@@ -553,7 +553,7 @@ Please correct your input on the form}
 #     The dialog created is modal.
 #
 proc applyGate name {
-    set application [apply -list $name]
+    set application [applygate -list $name]
     set application [lindex $application 0]
     set gateinfo    [lindex $application 1]
     set gatename    [lindex $gateinfo    0]
@@ -569,7 +569,7 @@ proc applyGate name {
         destroy .gateselection
 
         if {$gname != ""} {
-            apply $gname $name
+            applygate $gname $name
             failsafeWrite
         }
         $::FolderGui::folderGuiBrowser update
@@ -586,7 +586,7 @@ proc applyGateToSpectra gatename {
     #  Build up the list of spectra this gate is already
     #  applied to:
 
-    set applications [apply -list]
+    set applications [applygate -list]
     set appliedTo  [list]
     foreach application $applications {
         set spectrum [lindex $application 0]
@@ -603,7 +603,7 @@ proc applyGateToSpectra gatename {
         set appliedTo [.gatedialog cget -applications]
         if {[llength $appliedTo] > 0} {
 	    foreach spectrum $appliedTo {
-		apply $gatename $spectrum
+		applygate $gatename $spectrum
 	    }
         }
         destroy .gatedialog

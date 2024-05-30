@@ -31,10 +31,11 @@
 #include "ListVisitor.h"
 
 #include "CTreeParameter.h"
-#include <TCLResult.h>
+#include <TCLInterpreter.h>
 
 #include <stdio.h>
 #include <TCLString.h>
+#include <TCLObject.h>
 #include <string>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -58,9 +59,9 @@ ListVisitor::~ListVisitor()
  *        Result into which to fill in the list.
  * 
  */
-ListVisitor::ListVisitor(string pattern, CTCLResult& rResult) :
+ListVisitor::ListVisitor(string pattern, CTCLInterpreter& rInterp) :
   CMatchingVisitor(pattern),
-  m_OutputList(rResult)
+  m_OutputList(rInterp)
 {
 
 }
@@ -99,7 +100,13 @@ ListVisitor::OnMatch(CTreeParameter* parameter)
   
     item.AppendElement(parameter->getUnit());
   
-    m_OutputList.AppendElement((const char*)item);
+    std::string partial = m_OutputList.GetResultString();
+    CTCLObject oPartial;
+    oPartial.Bind(m_OutputList);
+    oPartial = partial;
+    oPartial += (const char*)(item);
+
+    m_OutputList.setResult(oPartial);
   }
 }
 

@@ -39,13 +39,13 @@
 #define WRITECOMMAND_H
 
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 
 
 
 class CSpectrumFormatter;
                                
-class CWriteCommand  : public CTCLPackagedCommand        
+class CWriteCommand  : public CTCLPackagedObjectProcessor
 {                       
 			
 protected:
@@ -54,8 +54,8 @@ public:
 
    // Constructors and other cannonical operations:
 
-  CWriteCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack)  :
-    CTCLPackagedCommand("swrite", pInterp, rPack)
+  CWriteCommand (CTCLInterpreter* pInterp) :
+    CTCLPackagedObjectProcessor(*pInterp, "swrite", true)
   { 
   } 
   ~ CWriteCommand ( )  // Destructor 
@@ -64,27 +64,17 @@ public:
    //Copy constructor (Illegal)
 private:
   CWriteCommand (const CWriteCommand& aCWriteCommand );
-public:
-
-   // Operator= Assignment Operator  (illegal)
-private:
   CWriteCommand& operator= (const CWriteCommand& aCWriteCommand);
-public:
- 
-   //Operator== Equality Operator 
-
   int operator== (const CWriteCommand& aCWriteCommand) const;
-	
-  // operations
+
 
 public:
   virtual
-  int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				int nArgs, char* pArgs[])  ;
+  int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)  ;
 protected:
-  int    CountValidSpectra(char** pSpectrum, int nSpectra);
+  int    CountValidSpectra(const char** pSpectrum, int nSpectra);
   static CSpectrumFormatter*  GetFormatter(const char* pFormatter);
-  static void                 Usage(CTCLResult& rResult);
+  static void                 Usage(CTCLInterpreter& rInterp);
 
   friend class CReadCommand;
 };

@@ -19,7 +19,7 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-// This implementation of TreeParameter is based on the ideas and original code of::
+// This implementation of TreeParameter is based on the ideas and original code of:
 //    Daniel Bazin
 //    National Superconducting Cyclotron Lab
 //    Michigan State University
@@ -30,15 +30,26 @@
 #ifndef CTREEPARAMETERCOMMAND_H
 #define CTREEPARAMETERCOMMAND_H
 
-#include <TCLProcessor.h>
+#include <TCLObjectProcessor.h>  // Modernize.
+#include <MPITclCommandAll.h>
 #include <string>
 #include <map>
 
 // Forward Definitions:
 
 class CTCLInterpreter;
-class CTCLResult;
+class CTCLObject;
 
+
+/* For MPI SpecTcl, we do the trick of changing the class name
+  to CTreeVariableCommandActual and then encapsulating it in a
+  CMPITclCommandAll.  In order to maintain some sense of
+  order, only rank 0 (in parallel mode) will do perform the
+  -list operation. Alll other ranks, including rank 0 will
+  do everything else so that tree parameters can be interrogated everywhere
+  It's really critical these be available to the worker ranks so user
+  code can access metadata.
+*/
 
 /**
  * Provides a command that interrogates the tree parameter set.  This only
@@ -53,54 +64,49 @@ class CTCLResult;
  * - -check     - true if the tree parameter has changed definition.
  * - -uncheck   - unsets the parameter definition change flag.
  * - -version   - returns the version number string of the package.
- * @author Ron Fox
- * @version 1.0
- * @created 30-Mar-2005 11:03:51 AM
+ * - -create    - Dynamically create a new parameter - e.g. prior to 
+ *                loading a new event processor, or defniing a pseudo.
+ * - -listnew  -  List the tree parameters that were created this session via
+ *                the -create operation.
  */
-class CTreeParameterCommand : public CTCLProcessor
+class CTreeParameterCommandActual : public CTCLObjectProcessor
 {
 private:
   static std::map<std::string, std::string> m_createdParameters;
 
 public:
-  virtual ~CTreeParameterCommand();
-  CTreeParameterCommand(CTCLInterpreter* pInterp = 0);
-  virtual int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			 int argc, char** argv);
+  virtual ~CTreeParameterCommandActual();
+  CTreeParameterCommandActual(CTCLInterpreter* pInterp = 0);
+  virtual int operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
 protected:
   friend class TreeCommandTest;
   std::string Usage();
-  int List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	   char argc, char** argv);
-  int SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		    int argc, char** argv);
-  int SetIncrement(CTCLInterpreter& rInterpreter, CTCLResult& rResult, 
-		   int argc, char** argv);
-  int SetChannelCount(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		      int argc, char** argv);
-  int SetUnit(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	      int argc, char** argv);
-  int SetLimits(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		int argc, char** argv);
-  int Check(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	    int argc, char** argv);
-  int UnCheck(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	      int argc, char** argv);
-  int Version(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-	      int argc, char** argv);
-  int Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
-	     int argc, char** argv);
+  int List(CTCLInterpreter& rInterp, char argc, const char** argv);
+  int SetDefinition(CTCLInterpreter& rInterp, int argc, const char** argv);
+  int SetIncrement(CTCLInterpreter& rInterpreter, int argc, const char** argv);
+  int SetChannelCount(CTCLInterpreter& rInterp, int argc, const char** argv);
+  int SetUnit(CTCLInterpreter& rInterp, int argc, const char** argv);
+  int SetLimits(CTCLInterpreter& rInterp, int argc, const char** argv);
+  int Check(CTCLInterpreter& rInterp, int argc, const char** argv);
+  int UnCheck(CTCLInterpreter& rInterp, int argc, const char** argv);
+  int Version(CTCLInterpreter& rInterp, int argc, const char** argv);
+  int Create(CTCLInterpreter& rInterp, int argc, const char** argv);
   
-  int listNew(CTCLInterpreter& rInterp, CTCLResult& rResult,
-	      int argc, char** argv);
+  int listNew(CTCLInterpreter& rInterp, int argc, const char** argv);
 	// Utility functions.
 private:
-	int TypeSafeParseFailed(CTCLResult& rResult,
+	int TypeSafeParseFailed(CTCLInterpreter& rInterp,
 				std::string parameter, std::string expectedType);
 
 };
 
 
+// The mpi wrapper class:
 
+class CTreeParameterCommand : public CMPITclCommandAll {
+public:
+  CTreeParameterCommand(CTCLInterpreter* pInterp);
+  ~CTreeParameterCommand() {}
+};
 
 #endif

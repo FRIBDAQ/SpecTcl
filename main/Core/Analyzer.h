@@ -54,7 +54,6 @@ class CAnalyzer {
   CEventList      m_EventList;
   CEventList      m_EventPool;
   CBufferDecoder* m_pDecoder;
-  CEventSink*     m_pSink;
   Bool_t          m_fAbort;
   Bool_t          m_fPartialEntity;
 
@@ -73,7 +72,6 @@ class CAnalyzer {
     m_EventList(CAnalyzer::m_nDefaultEventThreshold),
     m_EventPool(),
     m_pDecoder(0),
-    m_pSink(0),
     m_pFilterEventProcessor((CFilterEventProcessor*)kpNULL) // For event filtering.
     {};
 
@@ -81,14 +79,7 @@ class CAnalyzer {
 
   // Constructor with arguments
   CAnalyzer(UInt_t am_nParametersInEvent,
-	    UInt_t nThreshold = CAnalyzer::m_nDefaultEventThreshold) :
-  m_nEventThreshold(nThreshold),
-    m_nParametersInEvent(am_nParametersInEvent),
-    m_EventList(nThreshold),
-    m_pDecoder(0),
-    m_pSink(0),
-    m_pFilterEventProcessor((CFilterEventProcessor*)kpNULL) // For event filtering.
-    {};
+	    UInt_t nThreshold = CAnalyzer::m_nDefaultEventThreshold);
 
   // Copy constructor
   CAnalyzer(const CAnalyzer& aCAnalyzer) {
@@ -99,9 +90,7 @@ class CAnalyzer {
     m_pDecoder           = aCAnalyzer.m_pDecoder;
     if(m_pDecoder)
       m_pDecoder->OnAttach(*this);
-    m_pSink              = aCAnalyzer.m_pSink;
-    if(m_pSink)
-      m_pSink->OnAttach(*this);
+  
   };
 
   // Operator= Assignment Operator
@@ -118,10 +107,7 @@ class CAnalyzer {
     m_pDecoder           = aCAnalyzer.m_pDecoder;
     if(m_pDecoder)
       m_pDecoder->OnAttach(*this);
-    m_pSink              = aCAnalyzer.m_pSink;
-    if(m_pSink)
-      m_pSink->OnAttach(*this);
-
+    
     return *this;
   };
 
@@ -131,8 +117,7 @@ class CAnalyzer {
 	    (m_nEventThreshold    == aCAnalyzer.m_nEventThreshold)    &&
 	    (m_nParametersInEvent == aCAnalyzer.m_nParametersInEvent) &&
 	    (m_EventList          == aCAnalyzer.m_EventList)          &&
-	    (m_pDecoder           == aCAnalyzer.m_pDecoder)           &&
-	    (m_pSink              == aCAnalyzer.m_pSink)
+	    (m_pDecoder           == aCAnalyzer.m_pDecoder)   
 	    );
   };
 
@@ -154,9 +139,7 @@ class CAnalyzer {
     return m_pDecoder;
   }
 
-  CEventSink* getSink() {
-    return m_pSink;
-  }
+  CEventSink* getSink();
 
   // Mutators -- available only to derived objects:
  protected:
@@ -180,13 +163,7 @@ class CAnalyzer {
       m_pDecoder->OnAttach(*this);
   }
 
-  void setEventSink(CEventSink* aSink) {
-    if(m_pSink)
-      m_pSink->OnDetach(*this);
-    m_pSink = aSink;
-    if(m_pSink)
-      m_pSink->OnAttach(*this);
-  }
+  void setEventSink(CEventSink* aSink);
 
   //  Public interface:
  public:
@@ -200,8 +177,6 @@ class CAnalyzer {
   
   CBufferDecoder* AttachDecoder(CBufferDecoder& rDecoder);
   CBufferDecoder* DetachDecoder();
-  CEventSink*     AttachSink(CEventSink& rSink);
-  CEventSink*     DetachSink();
   void            entityNotDone();
 
   // Utility functions.

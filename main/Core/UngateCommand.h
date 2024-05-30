@@ -39,19 +39,19 @@
 #define UNGATECOMMAND_H
 
                                //Required for base classes
-#include "TCLPackagedCommand.h"
+#include "TCLPackagedObjectProcessor.h"
 
 class CTCLInterpreter;
-class CTCLResult;
+class CTCLObject;
 class CTCLCommandPackage;
                                
-class CUngateCommand  : public CTCLPackagedCommand        
+class CUngateCommand  : public CTCLPackagedObjectProcessor        
 {                       
 public:			
   // Constructor:
 
-  CUngateCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack) : 
-    CTCLPackagedCommand("ungate", pInterp, rPack)
+  CUngateCommand (CTCLInterpreter* pInterp) : 
+    CTCLPackagedObjectProcessor(*pInterp, "ungate", true)
   {     
   } 
    ~ CUngateCommand ( ) { }  //Destructor
@@ -72,8 +72,7 @@ public:
   // Class operations.
 public:
 
- virtual   int operator() (CTCLInterpreter& rInterpreter, CTCLResult& rResult,
-			   int nArgs, char* pArgs[])    ;
+ virtual   int operator() (CTCLInterpreter& rInterpreter, std::vector<CTCLObject>& objv)    ;
  
 protected:
   static std::string Usage();

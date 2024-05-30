@@ -255,7 +255,7 @@ proc _saveGateDefinitions {saveset} {
 # @param saveset -the saveset instance command
 #
 proc _saveGateApplications {saveset} {
-    set applications [apply -list]
+    set applications [applygate -list]
     
     #  Now run through the applications. Note that if the gate is named -TRUE-
     # the spectrum is ungated and we won't list an application for it:
@@ -708,7 +708,7 @@ proc _restoreGateApplications {saveset} {
     foreach application [$saveset listApplications] {
         set gate [dict get $application gate]
         set spec [dict get $application spectrum]
-        apply $gate $spec
+        applygate $gate $spec
     }
 }
 ##

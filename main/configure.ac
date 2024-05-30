@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.14-000, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl,7.0-000, daqhelp@frib.msu.edu)
 
 # These are default version/tag for unifiedfmt, tcl++ and qtpi
 # If the bulder has not explicitly run the incorporation 
@@ -551,18 +551,7 @@ int main(int argc, char **argv) {
 }  
 ], [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
 
-# Determine the particular platform we are running on. Specifically,
-# we need to know if we are running on a SPARC processor, so that we
-# can do the tape reading appropriately.
 
-AC_MSG_CHECKING([for SPARC processor type])
-case $host in
-  *sparc*)
-	AC_DEFINE(SPARC, 1, [Set to 1 if SPARC Processor])
-	echo "yes"
-	;;
-  *) echo "no" ;;
-esac
 
 # Determine what OS we are running so we know whether or not to 
 # declare some things extern "C". Also helpful for some Cygwin
@@ -1068,6 +1057,7 @@ AC_OUTPUT(Makefile
           contrib/Grace/Makefile
           contrib/multiread/Makefile
           contrib/treeparam/Makefile
+          mpi/Makefile
           compress/Makefile
 	  RootInterface/Makefile
           Core/Makefile 

@@ -8,6 +8,8 @@
 #include "CPipelineManager.h"
 #undef private
 #include "CPipelineCommand.h"
+#include "TCLAnalyzer.h"
+#include "Globals.h"
 
 #include <TCLInterpreter.h>
 #include <TCLException.h>
@@ -85,12 +87,15 @@ public:
   void setUp() {
     m_pInterp  = new CTCLInterpreter;
     m_pCommand = new CPipelineCommand(*m_pInterp);
+    gpAnalyzer = new CTclAnalyzer(*m_pInterp, 1,1);
     CPipelineManager::getInstance();
   }
   void tearDown() {
     delete CPipelineManager::m_pInstance;
     delete m_pCommand;
+    //delete gpAnalyzer;     /// Delete does not play well in testsing/recreation :-()
     delete m_pInterp;
+    
   }
 private:
   void lsSetup();

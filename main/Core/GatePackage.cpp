@@ -19,6 +19,7 @@
 #include "GateCommand.h"
 #include "ApplyCommand.h"
 #include "UngateCommand.h"
+
 #include "SpecTcl.h"
 
 #include <TCLInterpreter.h>    				
@@ -40,6 +41,9 @@
 #include <Parameter.h>
 #include <Exception.h>
 
+#include <MPITclPackagedCommandAll.h>
+#include <MPITclPackagedCommand.h>
+
 #include <string>
 #include <algorithm>
 #include <stdio.h>
@@ -50,7 +54,7 @@ using namespace std;
 #endif
 
 static const  char* pCopyrightNotice = 
-"(C) Copyright 1999 NSCL, All rights reserved GatePackage.cpp \n";
+"(C) Copyright 1999, 2024 NSCL, All rights reserved GatePackage.cpp \n";
 
 UInt_t CGatePackage::m_nNextId(1);
 
@@ -76,22 +80,33 @@ Bool_t IdCompare(CGateContainer* e1,
 // Operation Type:
 //    Constructor.
 //
-CGatePackage::CGatePackage(CTCLInterpreter* pInterp, 
-			   CHistogrammer* pHistogrammer) :
-  CTCLCommandPackage(pInterp, pCopyrightNotice),
+CGatePackage::CGatePackage(CTCLInterpreter* pInterp, CHistogrammer* pHistogrammer) :
   m_pHistogrammer(pHistogrammer),
-  m_pGateCommand(new CGateCommand(pInterp, *this)),
-  m_pApplyCommand(new CApplyCommand(pInterp, *this)),
-  m_pApplyGateCommand(new CApplyCommand(pInterp, *this, "applygate")),
-  m_pUngateCommand(new CUngateCommand(pInterp, *this))
-  
+  m_pGateCommand(0),
+  m_pApplyCommand(0),
+  m_pUngateCommand(0) 
 {
+  /*
+  m_pUngateCommand(new CUngateCommand(pInterp, *this))  // MPI Packaged (only runs in histogramer).
+  */
   // Add the commands to the list which are registered:
 
-  AddProcessor(m_pGateCommand);
-  AddProcessor(m_pApplyCommand);
-  AddProcessor(m_pUngateCommand);
-  AddProcessor(m_pApplyGateCommand);
+  // The gate command.
+
+  auto pGateInner = new CGateCommand(pInterp);
+  addCommand(pGateInner);
+  m_pGateCommand = new CMPITclPackagedCommandAll(*pInterp, "gate", pGateInner);
+  addCommand(m_pGateCommand);
+
+  auto pApplyInner = new CApplyCommand(pInterp);
+  addCommand(pApplyInner);
+  m_pApplyCommand = new CMPITclPackagedCommand(*pInterp, "applygate", pApplyInner);
+  addCommand(m_pApplyCommand);
+  
+  auto pUngateInner = new CUngateCommand(pInterp);
+  addCommand(pUngateInner);
+  m_pUngateCommand = new CMPITclPackagedCommand(*pInterp, "ungate", pUngateInner);
+  addCommand(m_pUngateCommand);
   
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -109,13 +124,15 @@ CGatePackage::~CGatePackage( )
 }
 //////////////////////////////////////////////////////////////////////////////
 //
-//  Function:       AddGate(CTCLResult& rResult, 
+//  Function:       AddGate(CTCLInterpreter& rInterp,
 //                          const std::string& rGateName, 
 //                          const CGate* pGate)
+//
+// Add a gate to the system.  
 //  Operation Type: Mutator.
 
 Bool_t 
-CGatePackage::AddGate(CTCLResult& rResult, const std::string& rGateName, 
+CGatePackage::AddGate(CTCLInterpreter& rInterp, const std::string& rGateName, 
 		      const CGate* pGate)  
 {
   // Adds a gate to a spectrum.
@@ -151,7 +168,7 @@ CGatePackage::AddGate(CTCLResult& rResult, const std::string& rGateName,
       return kfTRUE;		// Success.
     }
     catch (CException& rException) {
-      rResult += rException.ReasonText();
+      rInterp.setResult(rException.ReasonText());
       return kfFALSE;
     }
   }
@@ -261,8 +278,8 @@ CTCLString CGatePackage::ListGatesById(const char* pattern)
         {gate_name failure_reason} ...<BR>
   
     \para Formal Parameters:
-          \param <TT>rResult (CTCLResult& [out]):</TT>
-            The result string as described above.
+          \param <TT>rInterp (CTCLInterpreter& [inout])):</TT>
+            The interpreter running the command, used to set the operation's result
           \param <TT>rNames (const vector<string>& [in]):</TT>
                Set of names of gates to delete.
     \para Returns:
@@ -272,9 +289,11 @@ CTCLString CGatePackage::ListGatesById(const char* pattern)
    \note <CENTER><B>NOTE:</B></CENTER>
        The deleted gates are actually replaced by a 
         CFalseGate.
+    \note The method is built so that an interpreter command can e.g.
+        return packagef.DeleteGates(rInterp, vectorOfGates) ? TCL_OK : TCL_ERROR;
 */
 Bool_t 
-CGatePackage::DeleteGates(CTCLResult& rResult, 
+CGatePackage::DeleteGates(CTCLInterpreter& rInterp,
 			  const vector<string>& rGateNames)  
 {
   SpecTcl& api(*(SpecTcl::getInstance()));
@@ -295,7 +314,7 @@ CGatePackage::DeleteGates(CTCLResult& rResult,
       nFailed++;
     }
   }
-  rResult += (const char*)ResultString;
+  rInterp.setResult((const char*)(ResultString));
   return (nFailed == 0);
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -303,8 +322,10 @@ CGatePackage::DeleteGates(CTCLResult& rResult,
 //  Function:       DeleteGates(CTCLResult& rResult, 
 //                              const vector<string>& rIds)
 //  Operation Type: Mutator.
-Bool_t CGatePackage::DeleteGates(CTCLResult& rResult, 
-				 const vector<UInt_t>& rIds)  
+Bool_t CGatePackage::DeleteGates(
+  CTCLInterpreter& rInterp,
+	const vector<UInt_t>& rIds
+)  
 {
   // Deletes a set of gates given their Ids.
   // The return result string is either empty or
@@ -316,26 +337,30 @@ Bool_t CGatePackage::DeleteGates(CTCLResult& rResult,
   //    Reason - Why the gate could not be deleted.
   //
   // Formal Parameters:
-  //     CTCLResult&                            rResult
-  ///       Result string as described above. Note that the result is appended
-  //        to any existing text in the result.
+  //     CTCLInterpreter& rInterp
+  //         Interpreter running the command that called us.  This is used
+  //         to set the result string of the command.
   //     const std::vector<std::string>&   rIds
   //         Ids of gates which will be deleted.
   // Returns:
   //     Bool_t:
   //               kfTRUE   - All gates were deleted.
   //               kfFALSE  - At least one gate could not be deleted.
-  
+  // Note:
+  //    The method is written so that Tcl command handlers can just:
+  //      return pkg.DelteGates(interp, vectorOfGateIds) ? TCL_OK : TCL_ERROR;
+  //
   vector<string> Names;
   CTCLString     LookupResult;
   UInt_t         nFailed = 0;
+  std::string    result;
 
   // The gates are looked up.  Those which exist are then passed
   // to the delete by name function.
   //
 
   for(UInt_t nGate = 0; nGate < rIds.size(); nGate++) {
-    CGateContainer* pG = m_pHistogrammer->FindGate(rIds[nGate]);
+    CGateContainer* pG = SpecTcl::getInstance()->FindGate(rIds[nGate]);
     if(pG) {
       Names.push_back(pG->getName());
     }
@@ -348,14 +373,14 @@ Bool_t CGatePackage::DeleteGates(CTCLResult& rResult,
       Failure.AppendElement(Id);
       Failure.AppendElement(" No gate with this Id exists");
       Failure.EndSublist();
-      rResult += (const char*)Failure;
+      result += (const char*)Failure;
       nFailed++;
     }
   }
   // Now Delete the gates we got:
 
-
-  Bool_t AllDeleted = DeleteGates(rResult, Names);
+  rInterp.setResult(result);
+  Bool_t AllDeleted = DeleteGates(rInterp, Names);
   return ((AllDeleted) && (nFailed == 0));
   
   
@@ -423,7 +448,7 @@ Bool_t CGatePackage::ListAppliedGate(CTCLString& rApplication,
   //     kfTRUE  - Able to get gate information.
   //    kfFALSE   - Unable to get gate information.
   
-  CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(rName);
+  CSpectrum* pSpec = SpecTcl::getInstance()->FindSpectrum(rName);
   if(!pSpec) {
     rApplication += "Spectrum not in dictionary";
     return kfFALSE;
@@ -457,15 +482,15 @@ CGatePackage::Ungate(CTCLString& rResult, const string& rName)
   //   Bool_t kfTRUE on success, kfFALSE on failure.
   //
 
-  try {
-    m_pHistogrammer->UnGate(rName);
-    return kfTRUE;
-  }
-  catch(CException& rExcept) {
-    rResult = rExcept.ReasonText();
-    return kfFALSE;
-  }
-  assert(0);
+    try {
+      SpecTcl::getInstance()->UnGate(rName);
+      return kfTRUE;
+    }
+    catch(CException& rExcept) {
+      rResult = rExcept.ReasonText();
+      return kfFALSE;
+    }
+    assert(0);
 } 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -525,11 +550,11 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   Result.StartSublist();
 
   string type = rGate->Type();
- 
+  auto api = SpecTcl::getInstance();
   if(type == "s" ) {		// Cut.
     CCut& rCut((CCut&)*rGate);
     UInt_t nPid = rCut.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    CParameter* Param = api->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -541,14 +566,14 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
 	   (type == "c")) {	// Band or contour, C2Band
     CPointListGate& rPlist((CPointListGate&)(*rGate));
     Result.StartSublist();
-    CParameter* Param = m_pHistogrammer->FindParameter(rPlist.getxId());
+    CParameter* Param = api->FindParameter(rPlist.getxId());
     if(Param) {
       Result.AppendElement(Param->getName());
     }
     else {
       Result.AppendElement("-Deleted Parameter-");
     }
-    Param = m_pHistogrammer->FindParameter(rPlist.getyId());
+    Param = api->FindParameter(rPlist.getyId());
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -561,7 +586,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   else if (type == "em") {
     CMaskEqualGate& rMask((CMaskEqualGate&)*rGate);  
     UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    CParameter* Param = api->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -576,7 +601,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
  else if (type == "am") {
     CMaskAndGate& rMask((CMaskAndGate&)*rGate);  
     UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    CParameter* Param = api->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -591,7 +616,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
  else if (type == "nm") {
     CMaskNotGate& rMask((CMaskNotGate&)*rGate);  
     UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    CParameter* Param = api->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
     }
@@ -686,7 +711,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     for(pIds = paramIds.begin(); pIds != paramIds.end(); pIds++) {
       UInt_t id;
       id =*pIds;
-      CParameter* pParam = m_pHistogrammer->FindParameter(id);
+      CParameter* pParam = api->FindParameter(id);
       if(pParam) {
 	Result.AppendElement(pParam->getName());
       } 
@@ -715,4 +740,9 @@ CGatePackage::AssignId()
   // Returns a unique gate identifier.
   
   return CGateFactory::AssignId();
+}
+
+std::string
+CGatePackage::getSignon() const {
+  return std::string(pCopyrightNotice);
 }

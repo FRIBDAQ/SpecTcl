@@ -30,9 +30,11 @@
 #include "CTreeVariableCommand.h"
 #include "CTreeVariable.h"
 #include <TCLInterpreter.h>
-#include <TCLResult.h>
+#include <TCLObject.h>
 #include <TCLString.h>
 #include <SpecTcl.h>
+#include <Globals.h>
+#include <TclPump.h>
 #include "CTreeVariableProperties.h"
 
 #ifdef HAVE_STD_NAMESPACE
@@ -40,7 +42,7 @@ using namespace std;
 #endif
 
 
-CTreeVariableCommand::~CTreeVariableCommand()
+CTreeVariableCommandActual::~CTreeVariableCommandActual()
 {
 
 }
@@ -54,8 +56,8 @@ CTreeVariableCommand::~CTreeVariableCommand()
  *        installed.
  * 
  */
-CTreeVariableCommand::CTreeVariableCommand(CTCLInterpreter* pInterp) :
-  CTCLProcessor("treevariable", pInterp)
+CTreeVariableCommandActual::CTreeVariableCommandActual(CTCLInterpreter* pInterp) :
+  CTCLObjectProcessor(*pInterp, "treevariable", false)
 {
   // Allow a default interpreter to be the SpecTcl interpreter.
 
@@ -84,13 +86,7 @@ CTreeVariableCommand::CTreeVariableCommand(CTCLInterpreter* pInterp) :
  *
  * @param rInterp
  *        Interpreter that is executing this command.
- * @param rResult
- *        Result object that is supposed to contain the text returned
- *        by this command.
- * @param argc
- *        Number of command line parameters.
- * @param argv
- *        Array of pointers to the command line arguments.
+ * @param objv - object encapsulated command words.
  *
  * \return int
  * \retval TCL_OK   - The function completed normally.
@@ -98,18 +94,34 @@ CTreeVariableCommand::CTreeVariableCommand(CTCLInterpreter* pInterp) :
  * 
  */
 int 
-CTreeVariableCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				 int argc, char** argv)
+CTreeVariableCommandActual::operator()(
+  CTCLInterpreter& rInterp, 
+  std::vector<CTCLObject>& objv)
 {
-  
+  // Marshall objv -> argc, argv to make port simpler.
+
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+
+  int argc = objv.size();
+  for (auto& word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word : words) {
+    pWords.push_back(word.c_str());
+  }
+  auto argv = pWords.data();
+
   // There must be a subcommand:
   
   argc--;
   argv++;
-  
+  std::string rResult;
   if(!argc) {
+    
     rResult = "Missing the treevariable subcommand.\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -123,25 +135,30 @@ CTreeVariableCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   
   
   if(subcommand == "-list") {
-    return List(rInterp, rResult, argc, argv);
+    if (gMPIParallel && (myRank() != MPI_ROOT_RANK)) {
+      return TCL_OK;                // Let root rank take care of it
+    }
+    // Serial or MPI but root rank.
+    return List(rInterp, argc, argv);
   }
   else if (subcommand == "-set") {
-    return SetProperties(rInterp, rResult, argc, argv);
+    return SetProperties(rInterp, argc, argv);
   }
   else if (subcommand == "-check") {
-    return CheckChanged(rInterp, rResult, argc, argv);
+    return CheckChanged(rInterp, argc, argv);
   }
   else if (subcommand == "-setchanged") {
-    return SetChanged(rInterp, rResult, argc, argv);
+    return SetChanged(rInterp, argc, argv);
   }
   else if (subcommand == "-firetraces") {
-    return FireTraces(rInterp, rResult, argc, argv);
+    return FireTraces(rInterp, argc, argv);
   }
   else {
     rResult   = "Unrecognized subcommand";
     rResult += subcommand;
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -160,10 +177,6 @@ CTreeVariableCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * - The units of the treevariable.
  * @param rInterp
  *        The interpreter on which this command is executing.
- * @param rResult
- *        The result string that this command is supposed to return to
- *        the invoking script.  See the function description for what this 
- *        will contain.
  * @param argc
  *        Number of command line parameters that are remaining in the
  *        command line.  This will be either empty or a glob pattern that specifies 
@@ -174,9 +187,10 @@ CTreeVariableCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CTreeVariableCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			   int argc, char** argv)
+CTreeVariableCommandActual::List(CTCLInterpreter& rInterp,
+			   int argc, const char** argv)
 {
+  std::string rResult;
   
   // Figure out the search pattern and whether or not there are any errors.
   
@@ -195,6 +209,7 @@ CTreeVariableCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += argv[0];
     rResult += " ...\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -202,15 +217,17 @@ CTreeVariableCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // Since we're only doing one visitation in this class, we don't bother
   // with the extra work of building a visitor object and just iterate here:
   //
-  
+  CTCLObject result;
+  result.Bind(rInterp);
   map<string, CTreeVariableProperties*>::iterator i = CTreeVariable::begin();
   while(i != CTreeVariable::end()) {
       if(Tcl_StringMatch(i->first.c_str(),pattern.c_str())) {
-	rResult.AppendElement(FormatVariable(i->second));
+	result += (FormatVariable(i->second));
       }
       
       i++;
   }
+  rInterp.setResult(result);
   return TCL_OK;
   
   
@@ -242,15 +259,17 @@ CTreeVariableCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				    int argc, char** argv)
+CTreeVariableCommandActual::SetProperties(CTCLInterpreter& rInterp,
+				    int argc, const char** argv)
 {
+  std::string rResult;
 
   // Check the number of parameters is ok...
   
   if (argc < 2) {
     rResult = "Incorrect number of command line parameters in treevariable -set\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -268,6 +287,7 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
      rResult += argv[1];
      rResult += "\n";
      rResult += Usage();
+     rInterp.setResult(rResult);
      return TCL_ERROR;
   }
   // Get the units ("" if not supplied).
@@ -283,6 +303,7 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
   if(argc) {
     rResult = "Incorrect number of command line parameters in treevariable -set\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -296,6 +317,7 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
     rResult += name;
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   //   Now modify the property object associated with that name:
@@ -304,7 +326,7 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
   (*pProps)  = value;
   pProps->setUnits(units);
   pProps->fireTraces();
-  
+  rInterp.setResult(rResult);   // Probalby an empty string.
   return TCL_OK;
   
 }
@@ -326,11 +348,12 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
  * 
  */
 int 
-CTreeVariableCommand::CheckChanged(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				   int argc, char** argv)
+CTreeVariableCommandActual::CheckChanged(CTCLInterpreter& rInterp,
+				   int argc, const char** argv)
 {
   // Check for the right number of  parameters.
-  
+
+  std::string rResult;
   if (argc != 1) {
     rResult  = "Incorrect number of arguments in treevariable -check command\n";
     rResult += Usage();
@@ -356,6 +379,7 @@ CTreeVariableCommand::CheckChanged(CTCLInterpreter& rInterp, CTCLResult& rResult
   else {
     rResult = "0";
   }
+  rInterp.setResult(rResult);
   return TCL_OK;
 }
 
@@ -373,12 +397,12 @@ CTreeVariableCommand::CheckChanged(CTCLInterpreter& rInterp, CTCLResult& rResult
  * 
  */
 int 
-CTreeVariableCommand::SetChanged(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				 int argc, char** argv)
+CTreeVariableCommandActual::SetChanged(CTCLInterpreter& rInterp,
+				 int argc, const char** argv)
 {
 
   //  Check the number of command line parameters:
-  
+  std::string rResult;
   if (argc != 1) {
     rResult = "treevariable -setchanged - incorrect number of command line parameters\n";
     rResult += Usage();
@@ -425,15 +449,15 @@ CTreeVariableCommand::SetChanged(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CTreeVariableCommand::FireTraces(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				 int argc, char** argv)
+CTreeVariableCommandActual::FireTraces(CTCLInterpreter& rInterp, 
+				 int argc, const char** argv)
 {
 
   // Figure out what the name match pattern should be
   // and if there an appropriate number of command line parameters.
   
   string pattern("*");       // The default pattern * matches all.
-  
+  std::string rResult;
   if(argc) {
     pattern = argv[0];
     argc--;
@@ -446,6 +470,7 @@ CTreeVariableCommand::FireTraces(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult  += pattern;
     rResult  += "\n";
     rResult  += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
  
@@ -463,7 +488,7 @@ CTreeVariableCommand::FireTraces(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
   
   // Return ok:
-  
+  rInterp.setResult(rResult);   // probably empty.
   return TCL_OK;
 }
 
@@ -473,7 +498,7 @@ CTreeVariableCommand::FireTraces(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * produced by the command executors.
  */
 string 
-CTreeVariableCommand::Usage()
+CTreeVariableCommandActual::Usage()
 {
 
   string result;
@@ -497,7 +522,7 @@ CTreeVariableCommand::Usage()
  * 
  */
 string 
-CTreeVariableCommand::FormatVariable(CTreeVariableProperties* pProperties)
+CTreeVariableCommandActual::FormatVariable(CTreeVariableProperties* pProperties)
 {
   
   char        buffer[100];
@@ -518,3 +543,14 @@ CTreeVariableCommand::FormatVariable(CTreeVariableProperties* pProperties)
 
 
 
+/// The MPI wrapper class implementation:
+// There is a bit of wonkiness since for reasons I can't fathom,
+// CTreeVariableCommand(Actual) allows pInterp ==nullptr.
+
+CTreeVariableCommand::CTreeVariableCommand(CTCLInterpreter* pInterp) :
+  CMPITclCommandAll(
+    pInterp ? *pInterp : *SpecTcl::getInstance()->getInterpreter(),
+     "treevariable", 
+     new CTreeVariableCommandActual(pInterp))
+{
+}

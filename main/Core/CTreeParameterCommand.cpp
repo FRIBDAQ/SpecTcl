@@ -41,7 +41,7 @@
 #include "UncheckVisitor.h"
 #include <SpecTcl.h>
 #include <histotypes.h>
-#include <TCLResult.h>
+#include <TCLObject.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -59,11 +59,11 @@ static const DFloat_t tolerance(0.01);
 
 // Class data:
 
-map<string, string> CTreeParameterCommand::m_createdParameters;
+map<string, string> CTreeParameterCommandActual::m_createdParameters;
 
 //!  Destructor: Nothing really to do.
 
-CTreeParameterCommand::~CTreeParameterCommand()
+CTreeParameterCommandActual::~CTreeParameterCommandActual()
 {
 
 }
@@ -76,23 +76,9 @@ CTreeParameterCommand::~CTreeParameterCommand()
  *        registered.
  * 
  */
-CTreeParameterCommand::CTreeParameterCommand(CTCLInterpreter* pInterp) :
-  CTCLProcessor("treeparameter", pInterp)
-{
-  // If the interpreter is not supplied (NULL), then locate it using
-  // the SpecTcl API.
-  //
-  if(!pInterp) {
-    SpecTcl& api(*(SpecTcl::getInstance()));
-    Bind(api.getInterpreter());
-  
-  }
-
-  // Register the command.
-  
-  Register();
-  
-  
+CTreeParameterCommandActual::CTreeParameterCommandActual(CTCLInterpreter* pInterp) :
+  CTCLObjectProcessor(*pInterp, "treeparameter", true)
+{  
 }
 
 
@@ -100,18 +86,28 @@ CTreeParameterCommand::CTreeParameterCommand(CTCLInterpreter* pInterp) :
  * Dispatches to the appropriate subcommand processor.
  * @param rInterp
  *        Reference to the interpreter that is executing this command.
- * @param rResult
- *        The result of the command.
- * @param argc
- *        Number of command line 'words' .
- * @param argv
- *        Array of pointers to the words. Note that argv[0] points to the
- *        command that got us here.
+ * @param objv
+ *    Vector of object encapsulated command words.  These will be marshalled
+ *    int an arg/argv pair to make it simpler to do this port to a CTCLObjectProcessor
+ *    from a CTCLProcessor.
  * 
  */
-int CTreeParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				      int argc, char** argv)
+int CTreeParameterCommandActual::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 {
+  // Make argc/argvi
+
+  int argc = objv.size();
+  std::string rResult;
+  std::vector<std::string> words;
+  std::vector<const char*> pWords;
+  for (auto& word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (auto& word: words) {
+    pWords.push_back(word.c_str());
+  }
+  auto argv = pWords.data();
+
 
   argc--; argv++;		// Skip our command verb.
   //
@@ -121,6 +117,7 @@ int CTreeParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rRes
     rResult = "Insufficient parameters\n";
     
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   //
@@ -132,37 +129,37 @@ int CTreeParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rRes
   argc--;
   //
   if(subcommand == "-list") {
-    status = List(rInterp, rResult, argc, argv);
+    status = List(rInterp,  argc, argv);
   }
   else if (subcommand == "-set") {
-    status = SetDefinition(rInterp, rResult, argc, argv);
+    status = SetDefinition(rInterp, argc, argv);
   }
   else if (subcommand == "-setinc") {
-    status = SetIncrement(rInterp, rResult, argc, argv);
+    status = SetIncrement(rInterp, argc, argv);
   }
   else if (subcommand == "-setbins") {
-    status = SetChannelCount(rInterp, rResult, argc, argv);
+    status = SetChannelCount(rInterp, argc, argv);
   }
   else if (subcommand == "-setunit") {
-    status = SetUnit(rInterp, rResult, argc, argv);
+    status = SetUnit(rInterp, argc, argv);
   }
   else if (subcommand == "-setlimits") {
-    status = SetLimits(rInterp, rResult, argc, argv);
+    status = SetLimits(rInterp, argc, argv);
   }
   else if (subcommand == "-check") {
-    status = Check(rInterp, rResult, argc, argv);
+    status = Check(rInterp, argc, argv);
   }
   else if (subcommand == "-uncheck") {
-     status = UnCheck(rInterp, rResult, argc, argv);
+     status = UnCheck(rInterp, argc, argv);
   }
   else if (subcommand == "-version") {
-    status = Version(rInterp, rResult, argc, argv);
+    status = Version(rInterp, argc, argv);
   }
   else if (subcommand == "-create") {
-    status = Create(rInterp, rResult, argc, argv);
+    status = Create(rInterp, argc, argv);
   }
   else if (subcommand == "-listnew") {
-    status = listNew(rInterp, rResult, argc, argv);
+    status = listNew(rInterp, argc, argv);
   }
   else {
     // Invalid ensemble subcommand:
@@ -171,6 +168,7 @@ int CTreeParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rRes
     rResult += subcommand;
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     status = TCL_ERROR;
   }
   //
@@ -185,7 +183,7 @@ int CTreeParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rRes
  * Returns the usage string information for the command.
  */
 string 
-CTreeParameterCommand::Usage()
+CTreeParameterCommandActual::Usage()
 {
 
   string usage;
@@ -201,6 +199,7 @@ CTreeParameterCommand::Usage()
   usage += "     treeparameter -check name\n";
   usage += "     treeparameter -uncheck name\n";
   usage += "     treeparameter -create  name low high bins units\n";
+  usage += "     treeparameter -listnew\n";
   usage += "     treeparameter -version";
   //
   return usage;
@@ -214,9 +213,6 @@ CTreeParameterCommand::Usage()
  * @param rInterp
  *        Reference to the interpreter object on which this command is
  *        executing.
- * @param rResult
- *        Reference to the object wrapped TCL result string that we are
- *        supposed to create and return to the caller.
  * @param argc
  *        Number of remaining un-processed command parameters (should be 0
  *        or 1 only).
@@ -224,10 +220,10 @@ CTreeParameterCommand::Usage()
  *        Should be an array of pointers to the command parameters.
  * 
  */
-int CTreeParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				char argc, char** argv)
+int CTreeParameterCommandActual::List(CTCLInterpreter& rInterp, char argc, const char** argv)
 {
 
+  std::string rResult;
   string pattern ="*";		// Default matching pattern matches all of them.
   if(argc) {
     pattern = argv[0];		// Override if the user supplied it
@@ -240,15 +236,16 @@ int CTreeParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += argv[0];
     rResult += " ...\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
   // We use the for_each generic algorithm with a ListVisitor to construct the
   // listing directly into Result:
   
-  ListVisitor visitor(pattern, rResult);
+  ListVisitor visitor(pattern, rInterp);
   
-  for_each (CTreeParameter::begin(), CTreeParameter::end(), visitor);
+  for_each (CTreeParameter::begin(), CTreeParameter::end(), visitor);   // Accumulates the result.
   
   return TCL_OK;
   
@@ -274,9 +271,6 @@ int CTreeParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  * @param rInterp
  *        The interpreter on which this command is executing.
- * @param rResult
- *        The result string the command returns that is the return
- *        value of the command at script level.
  * @param argc
  *        Number of remaining words on the command line.  This should
  *        consist of
@@ -292,15 +286,16 @@ int CTreeParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CTreeParameterCommand::SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				     int argc, char** argv)
+CTreeParameterCommandActual::SetDefinition(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
+  std::string rResult;
   //
   // Require the correct number of parameters:
   //
   if(argc != 6) {
     rResult   = "Incorrect number of command parameters";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }  
   //
@@ -336,7 +331,7 @@ CTreeParameterCommand::SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResu
     
   }
   catch (...) {
-    return TypeSafeParseFailed(rResult, argv[Index], "correct data type");
+    return TypeSafeParseFailed(rInterp, argv[Index], "correct data type");
     
   }
 
@@ -347,6 +342,7 @@ CTreeParameterCommand::SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResu
     rResult += argv[1];
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -359,6 +355,7 @@ CTreeParameterCommand::SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResu
     rResult += argv[3];
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -369,6 +366,7 @@ CTreeParameterCommand::SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResu
     rResult += argv[4];
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -378,6 +376,7 @@ CTreeParameterCommand::SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResu
   if (fabs(correctWidth - width) >  tolerance*correctWidth) {
     rResult = "Width supplied is not consistent with other parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -395,9 +394,6 @@ CTreeParameterCommand::SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResu
  * TCL_ERROR
  * @param rInterpreter
  *        Reference to the interpreter executing this command.
- * @param rResult
- *        Reference to the result string that this function returns
- *        (The command result).
  * @param argc
  *        Number of command line parameters remaining.  There shoulid be two:
  *        - Name pattern.
@@ -407,15 +403,15 @@ CTreeParameterCommand::SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResu
  * 
  */
 int 
-CTreeParameterCommand::SetIncrement(CTCLInterpreter& rInterpreter, 
-				    CTCLResult& rResult, int argc, char** argv)
-{
-
+CTreeParameterCommandActual::SetIncrement(CTCLInterpreter& rInterpreter, int argc, const char** argv)
+{ 
+  std::string rResult;
   // Require 2 parameters:
   //
   if(argc !=2) {
     rResult   = "Invalid number of #endifparameters\n";
     rResult += Usage();
+    rInterpreter.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -427,7 +423,7 @@ CTreeParameterCommand::SetIncrement(CTCLInterpreter& rInterpreter,
     width = rInterpreter.ExprDouble(argv[1]);
   }
   catch (...) {
-    return TypeSafeParseFailed(rResult, argv[1], "double");
+    return TypeSafeParseFailed(rInterpreter, argv[1], "double");
   }
 
   // Validate the width:
@@ -437,6 +433,7 @@ CTreeParameterCommand::SetIncrement(CTCLInterpreter& rInterpreter,
     rResult += argv[1];
     rResult += "\n";
     rResult += Usage();
+    rInterpreter.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -453,7 +450,6 @@ CTreeParameterCommand::SetIncrement(CTCLInterpreter& rInterpreter,
  * Returns either TCL_OK or TCL_ERROR
  * @param rInterp
  *        The interpreter that is executing this command.
- * @param rResult
  *        The result string the command returns as the command value.
  * @param argc
  *        Number of remaining unprocessed command parameters.  This should
@@ -466,16 +462,15 @@ CTreeParameterCommand::SetIncrement(CTCLInterpreter& rInterpreter,
  * 
  */
 int 
-CTreeParameterCommand::SetChannelCount(CTCLInterpreter& rInterp, 
-					   CTCLResult& rResult, 
-					   int argc, char** argv)
+CTreeParameterCommandActual::SetChannelCount(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
-
+  std::string rResult;
   // Require 2 parameters:
   
   if(argc !=2) {
     rResult   = "Invalid number of parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -487,13 +482,14 @@ CTreeParameterCommand::SetChannelCount(CTCLInterpreter& rInterp,
     channels = rInterp.ExprLong(argv[1]);
   }
   catch (...) {
-    return TypeSafeParseFailed(rResult, argv[1], "integer");
+    return TypeSafeParseFailed(rInterp, argv[1], "integer");
   }
   if (channels <= 0) {
     rResult = "Channel count must be > 0  was : ";
     rResult += argv[1];
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -512,8 +508,6 @@ CTreeParameterCommand::SetChannelCount(CTCLInterpreter& rInterp,
  * op.
  * @param rInterp
  *        The interpreter on which this command is executing.
- * @param rResult
- *        The result string that is returned by this object.
  * @param argc
  *        count of remaining command line parameters.  Should be 2:
  *        - pattern - specifies the set of parameters that are affected.
@@ -523,15 +517,15 @@ CTreeParameterCommand::SetChannelCount(CTCLInterpreter& rInterp,
  * 
  */
 int 
-CTreeParameterCommand::SetUnit(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				   int argc, char** argv)
+CTreeParameterCommandActual::SetUnit(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
-  
+  std::string rResult;
   // Validate the parameters:
   
   if(argc != 2) {
     rResult = "Incorrect number of parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -554,8 +548,6 @@ CTreeParameterCommand::SetUnit(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * created by the GUI.
  * @param rInterp
  *        Interpreter on which the command is running.
- * @param rResult
- *        Result string the command returns as its value.
  * @param argc
  *        Count of command line parameters.  Should be 3:
  *        - pattern  - Set of paramters that should be modified.
@@ -566,13 +558,13 @@ CTreeParameterCommand::SetUnit(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CTreeParameterCommand::SetLimits(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				     int argc, char** argv)
+CTreeParameterCommandActual::SetLimits(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
-
+  std::string rResult;
   if(argc != 3) {
      rResult = "Incorrect number of parameters on command line\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -589,7 +581,7 @@ CTreeParameterCommand::SetLimits(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
   catch (...) {
   
-     return TypeSafeParseFailed(rResult, argv[index], "double");
+     return TypeSafeParseFailed(rInterp, argv[index], "double");
   }
 
   if (low > high) {
@@ -599,6 +591,7 @@ CTreeParameterCommand::SetLimits(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += argv[2];
     rResult += "\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -614,9 +607,6 @@ CTreeParameterCommand::SetLimits(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * Returns true if the first matching parameter has been  modified
  * @param rInterp
  *        Interpreter that's running this command.
- * @param rResult
- *        The result string that is returned by the command as the
- *        command value.
  * @param argc
  *        The count of remaining command line parameters.  This must be 1
  *        and is expected to be the name of a parameter to check.  The assumption is that
@@ -627,15 +617,15 @@ CTreeParameterCommand::SetLimits(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CTreeParameterCommand::Check(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			     int argc, char** argv)
+CTreeParameterCommandActual::Check(CTCLInterpreter& rInterp,int argc, const char** argv)
 {
-
+  std::string rResult;
   //// Validate parameter count
   //
   if(argc != 1) {
     rResult    = "Incorrect number of command line parameters\n";
     rResult   += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   //
@@ -648,6 +638,7 @@ CTreeParameterCommand::Check(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult = "Could not find parameter ";
     
     rResult += name;
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -655,6 +646,7 @@ CTreeParameterCommand::Check(CTCLInterpreter& rInterp, CTCLResult& rResult,
   
   CTreeParameter* pParam = p->second;
   rResult = pParam->hasChanged() ? "1" : "0";
+  rInterp.setResult(rResult);
   return TCL_OK;
 
 
@@ -665,8 +657,6 @@ CTreeParameterCommand::Check(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * Resets the modified flag of all matching parameters.
  * @param rInterp   
  *        Interpreter that's executing this command.
- * @param rResult
- *        Result string.
  * @param argc
  *        Count of remaining command psrameters.
  * @param argv
@@ -674,13 +664,13 @@ CTreeParameterCommand::Check(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CTreeParameterCommand::UnCheck(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			       int argc, char** argv)
+CTreeParameterCommandActual::UnCheck(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
-  
+  std::string rResult;
   if (argc != 1) {
     rResult   = "Incorrect number of parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
@@ -693,23 +683,23 @@ CTreeParameterCommand::UnCheck(CTCLInterpreter& rInterp, CTCLResult& rResult,
 /**
  * Sets the result string to the tree parameter version string, at present
  * @param rInterp
- * @param rResult
- *        Result string that this command returns.
  * @param argc
  * @param argv
  * 
  */
 int 
-CTreeParameterCommand::Version(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			       int argc, char** argv)
+CTreeParameterCommandActual::Version(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
+  std::string rResult;
   if(argc != 0) {
     rResult = "Incorrect number of command paramters";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   
   rResult = CTreeParameter::TreeParameterVersion;
+  rInterp.setResult(rResult);
   return TCL_OK;
 }
 /**
@@ -725,8 +715,6 @@ CTreeParameterCommand::Version(CTCLInterpreter& rInterp, CTCLResult& rResult,
  *   - units   - The units of measure of the parameter. 
  *
  * @param rInterp  - The interprereter on which the command is executing
- * @param rResult  - The result to be returned; on success, this is the
- *                   name of the new parameter.  On failure, an error  message.
  * @param argc     - Number of parameters remaining on the command line
  *                   following the -create switch.
  * @param argv     - The remaining command parameters (see above).
@@ -736,12 +724,13 @@ CTreeParameterCommand::Version(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * \retval TCL_ERROR - if the command failed.
  */
 int
-CTreeParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			      int argc, char** argv)
+CTreeParameterCommandActual::Create(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
+  std::string rResult;
   if (argc != 5) {
     rResult = "Insufficient command parameters for -create\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -756,6 +745,7 @@ CTreeParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   if (CTreeParameter::find(name) != CTreeParameter::end()) {
     rResult = name;
     rResult += " is already a treeparameter.  Duplicates are not allowed";
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
 
@@ -767,7 +757,7 @@ CTreeParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     high = rInterp.ExprDouble(argv[index]); 
   }
   catch (...) {
-    return TypeSafeParseFailed(rResult, argv[index], "double");
+    return TypeSafeParseFailed(rInterp, argv[index], "double");
   }
   // Parse the long (channel count).
 
@@ -775,7 +765,7 @@ CTreeParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     bins = rInterp.ExprLong(argv[3]);
   } 
   catch (...) {
-    return TypeSafeParseFailed(rResult, argv[3], "long");
+    return TypeSafeParseFailed(rInterp, argv[3], "long");
   }
   // get the unts:
 
@@ -793,6 +783,7 @@ CTreeParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   m_createdParameters[name] = name;
 
   rResult = name;
+  rInterp.setResult(rResult);
   return TCL_OK;
 
 }
@@ -807,19 +798,23 @@ CTreeParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
    @param argv    - Pointers to the comand line parameters.
 */
 int
-CTreeParameterCommand::listNew(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			       int argc, char** argv)
+CTreeParameterCommandActual::listNew(CTCLInterpreter& rInterp, int argc, const char** argv)
 {
+  std::string rResult;
   if (argc) {
     rResult = "Too many command parameters\n";
     rResult += Usage();
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   map<string, string>::iterator    i = m_createdParameters.begin();
+  CTCLObject result;
+  result.Bind(rInterp);
   while (i != m_createdParameters.end()) {
-    rResult.AppendElement(i->first);
+    result += i->first;
     i++;
   }
+  rInterp.setResult(result);
   return TCL_OK;
 
 }
@@ -834,20 +829,26 @@ CTreeParameterCommand::listNew(CTCLInterpreter& rInterp, CTCLResult& rResult,
  * 
  */
 int 
-CTreeParameterCommand::TypeSafeParseFailed(CTCLResult& rResult,
+CTreeParameterCommandActual::TypeSafeParseFailed(CTCLInterpreter& rInterp,
 					   std::string parameter, 
 					   std::string expectedType)
 {
-
+  std::string rResult;
   rResult += "Could not parse ";
   rResult +=   parameter;
   rResult += " as type ";
   rResult += expectedType;
   rResult += "\n";
   rResult += Usage();
+  rInterp.setResult(rResult);
   return TCL_ERROR;
   
 }
 
+
+// Wrapper:
+
+CTreeParameterCommand::CTreeParameterCommand(CTCLInterpreter* pInterp) :
+  CMPITclCommandAll(*pInterp, "treeparameter", new CTreeParameterCommandActual(pInterp)) {}
 
 

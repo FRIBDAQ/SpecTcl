@@ -474,7 +474,7 @@ itcl::class spectrumTabActions {
     # @retval possibly empty string of the applied gate.
     #
     private method AppliedGate name {
-	set list [apply -list $name]
+	set list [applygate -list $name]
 	if {[llength $list] != 0} {
 	    set applied [lindex $list 0]
 	    return [lindex [lindex $applied 1] 0]; # gate name.
@@ -491,7 +491,7 @@ itcl::class spectrumTabActions {
     #
     private method ApplyGate {specName gate} {
 	if {[llength [gate -list $gate]] > 0} {
-	    apply $gate $specName
+	    applygate $gate $specName
 	}
     }
 
@@ -513,7 +513,7 @@ itcl::class spectrumTabActions {
         set spectra [getSelectedSpectra]
         set gate    [$widget cget -gate]
         if {[llength $spectra] != 0} {
-            apply $gate {*}$spectra
+            applygate $gate {*}$spectra
             LoadSpectra [$widget cget -mask];     # Show who's gated.
             [autoSave::getInstance]  failsafeSave; # Make a new failsafe.
         } else {

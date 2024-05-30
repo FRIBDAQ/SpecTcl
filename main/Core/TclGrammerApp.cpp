@@ -92,10 +92,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include "AbstractThreadedServer.h"
 #include "MirrorServer.h"
+#include "EventMessage.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,7 +113,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdexcept>
 #include <memory>
 #include <stdint.h>
+#include <tcl.h>
 
+
+#include <TclPump.h>
+#include "RingItemPump.h"
+#include "GatePump.h"
+
+#include <TError.h>
 
 
 #if defined(Darwin)
@@ -129,6 +138,8 @@ void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
+
+
 
 // TCL Script to print the program version.
 
@@ -716,11 +727,6 @@ void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink) {
 				 m_nListSize);
   gpAnalyzer  = m_pAnalyzer;
 
-  // The histogrammer is hooked to the analyzer as an event sink:
-  //m_pAnalyzer->AttachSink(*gpEventSink);
-
-
-  m_pAnalyzer->AttachSink(*gpEventSinkPipeline);
 }  
 
 //  Function:
@@ -800,88 +806,125 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   // of related commands.  These packages are not Tcl packages but are just
   // groups of commands which share a common set of services provided
   // by a containing class.
+
+  // Commands get registered everywhere as they are built to run in the
+  // correct rank(s) when parallel, but the signons need to be 
+  // only output in the root process.
+  
   m_pRunControlPackage = new CRunControlPackage(&rInterp);
   m_pRunControlPackage->Register();
   m_pRunControlPackage->InitializeRunState();
-  cerr << m_pRunControlPackage->getSignon() << endl;
-  cerr << "Tabbed widget (xmTabWidgetClass) used in Xamine thanks to Pralay Dakua \n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pRunControlPackage->getSignon() << endl;
+    cerr << "Tabbed widget (xmTabWidgetClass) used in Xamine thanks to Pralay Dakua \n";
+  }
+
   
   // Tacit assumption that the event sink is a histogrammer
   m_pParameterPackage = new CParameterPackage(&rInterp, 
 					      (CTCLHistogrammer*)gpEventSink);
-  m_pParameterPackage->Register();
-  cerr << m_pParameterPackage->getSignon() << endl;
+
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pParameterPackage->getSignon() << endl;
+  }
 
   m_pSpectrumPackage  = new CSpectrumPackage(&rInterp, 
                          (CHistogrammer*)gpEventSink,
                          gpDisplayInterface);
-  m_pSpectrumPackage->Register();
-  cerr << m_pSpectrumPackage->getSignon() << endl;
 
-  m_pDataSourcePackage = new CDataSourcePackage(&rInterp);
-  m_pDataSourcePackage->Register();
-  cerr << m_pDataSourcePackage->getSignon() << endl;
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pSpectrumPackage->getSignon() << endl;
+  }
+  if (!gMPIParallel || m_mpiRank == MPI_ROOT_RANK) {    // attach/ringformat are only in root.
+    m_pDataSourcePackage = new CDataSourcePackage(&rInterp);
+    m_pDataSourcePackage->Register();
+  }
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pDataSourcePackage->getSignon() << endl;
+  }
 
   m_pGatePackage = new CGatePackage(&rInterp, 
 				    (CHistogrammer*)gpEventSink);
-  m_pGatePackage->Register();
-  cerr << m_pGatePackage->getSignon() << endl;
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << m_pGatePackage->getSignon() << endl;
+  }
 
   // For Filter command.
   CFilterCommand* pFilterCommand = new CFilterCommand(rInterp);
-  pFilterCommand->Bind(rInterp);
-  pFilterCommand->Register();
-  cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
+
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
+  }
 
   // Create the tree parameter package commands and bind any variables
   // that have been defined:
 
 
-  CTreeParameterCommand* pTreeParamCommand = new CTreeParameterCommand;
+  CTreeParameterCommand* pTreeParamCommand = new CTreeParameterCommand(&rInterp);
   CTreeVariableCommand*  pTreeVariableCommand = new CTreeVariableCommand;
   CTreeVariable::BindVariables(*(getInterpreter()));
 
-  cerr << "Tree parameter/variable  command " << CTreeParameter::TreeParameterVersion;
-  cerr << " (c) Copyright 2005 NSCL written by Daniel Bazin, Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "Tree parameter/variable  command " << CTreeParameter::TreeParameterVersion;
+    cerr << " (c) Copyright 2005 NSCL written by Daniel Bazin, Ron Fox\n";
+  }
 
   CFoldCommand* pFold = new CFoldCommand(&rInterp);
 
-  cerr << "fold command (c) 2005 NSCL Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "fold command (c) 2005 NSCL Written by Ron Fox\n";
+  }
 
   CProjectionCommand* pProjection = new CProjectionCommand(rInterp);
 
-
-  cerr << "project command (c) 2005 NSCL Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "project command (c) 2005 NSCL Written by Ron Fox\n";
+  }
 
   CFitCommand *Fit  = new CFitCommand(rInterp);
-  cerr << "fit command (c) 2006 NSCL Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "fit command (c) 2006 NSCL Written by Ron Fox\n";
+  }
 
   CIntegrateCommand* pIntegrate = new CIntegrateCommand(rInterp);
   
-  cerr << "integrate command (c) 2007 Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "integrate command (c) 2007 Written by Ron Fox\n";
+  }
   
   CVersionCommand* pVersion = new CVersionCommand(rInterp);
   CSContentsCommand* pContents = new CSContentsCommand(rInterp);
-  
-  cerr << "version, scontents command (c) 2015 Written by Ron Fox\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "version, scontents command (c) 2015 Written by Ron Fox\n";
+  }
   
   new CSpectrumStatsCommand(rInterp);
   
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
+  }
   
-  cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
-
   new CSharedMemoryKeyCommand(rInterp, *SpecTcl::getInstance());
-  cerr << "shmemkey - shared memory key command (c) 2016 Written by Jeromy Tompkins\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "shmemkey - shared memory key command (c) 2016 Written by Jeromy Tompkins\n";
+  }
 
   new CSharedMemorySizeCommand(rInterp);
-  cerr << "shmemsize - shared memory size command (c) 2016 Written by Jeromy Tompkins\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "shmemsize - shared memory size command (c) 2016 Written by Jeromy Tompkins\n";
+  }
 
   new CPipelineCommand(rInterp);
-  cerr << "pman - analysis pipeline manager (c) 2018 Written by Giordano Cerizza\n";
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "pman - analysis pipeline manager (c) 2018 Written by Giordano Cerizza\n";
+  }
   new CUnpackEvbCommand(rInterp);
-  cerr << "evbunpack - Event built data unpacking manager (c) 2018 written by Ron Fox\n";
-  
-  new CRemoteCommand(rInterp);
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    cerr << "evbunpack - Event built data unpacking manager (c) 2018 written by Ron Fox\n";
+  }
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    new CRemoteCommand(rInterp);
+  }
   new CMirrorCommand(rInterp);
   
   cerr.flush();
@@ -967,146 +1010,209 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
 int CTclGrammerApp::operator()() {
   try {
   // Fetch and setup the interpreter member/global pointer.
+  // All ranks get an interpreter and source these scripts:
+
   gpInterpreter = getInterpreter();
   
 
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);
 
-  // Source limit setting scripts:
+  // Source limit setting scripts; done everywhere.
   SourceLimitScripts(*gpInterpreter);
 
   // Based on all of this set the final startup limits/values:
   SetLimits();
 
   // Create the histogrammer event sink:
-  CreateHistogrammer();
 
-  // Create the available displays
-  CreateDisplays();
+  // Histogramer is only created if:
+  // ! mpi or mpi but rank1 (the event sink pipeline).  Same for the displays:
+  // 
 
-  // Setup the histogram displayer.. note here's where we also
-  // handle the case where a use has specified
-  // HTTDPort in their init file:
-  
-  CTCLVariable http(gpInterpreter, "HTTPDPort", false);
-  const char* httpdPort = http.Get();
-  if (httpdPort) {
-    // This must be an integer in the non privileged port range:
-    
-    int nPort = atoi(httpdPort);
-    if (nPort < 1024) {
-        std::cerr << "The HTTPDPort SpecTclInit.tcl variable must be an integer > 1023"
-            << " it was: '" << httpdPort << "'\n";
-        exit(EXIT_FAILURE);
+  if (!gMPIParallel || (m_mpiRank == MPI_EVENT_SINK_RANK)) {
+    CreateHistogrammer();
+
+    // Create the available displays
+    CreateDisplays();
+
+    // If we are mpi parallel we need to start the histogram pump too:
+
+    if (gMPIParallel) {
+      startHistogramPump();
     }
-    CHttpdServer server(gpInterpreter);
-    try {
-        if(!server.isRunning()) server.start(nPort);
-        char hostbuffer[256];
-        int hostname;
-        hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-        std::string host(hostbuffer);
-        //host += ".nscl.msu.edu";
-      
-        std::cout << "hostname: " << host << std::endl;
-        std::cout << "port: " << atoi(httpdPort) << std::endl;  
-      
-        int p = atoi(httpdPort);
-        std::string port = std::to_string(p);
-        ::setenv("RESThost", host.c_str(), 1);
-        ::setenv("RESTport", port.c_str(), 1);
-    }
-    catch (std::exception& e) {
-        std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
-        exit(EXIT_FAILURE);
-    }
-  } else {
-    ::setenv("RESThost", "host", 1);   /// local no mirror may be needed
-    ::setenv("RESTport", "0", 1);   /// local no mirror may be needed
+  }
+  // All ranks but the event sink must start the pump to get them
+  // xamine gates if Xamine is the displayer:
+
+  if (gMPIParallel && (m_mpiRank != MPI_EVENT_SINK_RANK)) {
+    startGatePump();
   }
 
+  // The servers run in RANK 0 in the MPI:
+
+  if(!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) { 
+    // Setup the histogram displayer.. note here's where we also
+    // handle the case where a use has specified
+    // HTTDPort in their init file:
+    // We'll run this in the 
+    CTCLVariable http(gpInterpreter, "HTTPDPort", false);
+    const char* httpdPort = http.Get();
+    if (httpdPort) {
+      // This must be an integer in the non privileged port range:
+      
+      int nPort = atoi(httpdPort);
+      if (nPort < 1024) {
+          std::cerr << "The HTTPDPort SpecTclInit.tcl variable must be an integer > 1023"
+              << " it was: '" << httpdPort << "'\n";
+          exit(EXIT_FAILURE);
+      }
+      CHttpdServer server(gpInterpreter);
+      try {
+          if(!server.isRunning()) server.start(nPort);
+          char hostbuffer[256];
+          int hostname;
+          hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+          std::string host(hostbuffer);
+          //host += ".nscl.msu.edu";
+        
+          std::cout << "hostname: " << host << std::endl;
+          std::cout << "port: " << atoi(httpdPort) << std::endl;  
+        
+          int p = atoi(httpdPort);
+          std::string port = std::to_string(p);
+          ::setenv("RESThost", host.c_str(), 1);
+          ::setenv("RESTport", port.c_str(), 1);
+      }
+      catch (std::exception& e) {
+          std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
+          exit(EXIT_FAILURE);
+      }
+    } else {
+      ::setenv("RESThost", "host", 1);   /// local no mirror may be needed
+      ::setenv("RESTport", "0", 1);   /// local no mirror may be needed
+    }
+  }
 
   
-  SelectDisplayer();
+  // Displayer is  run in the EVENT sink rank.
 
-  // Set up the display that was picked
-  SetUpDisplay();
+  if (!gMPIParallel || (m_mpiRank == MPI_EVENT_SINK_RANK)) {
+    SelectDisplayer();
 
-  // Setup the test data source:
-  SetupTestDataSource(); // No longer done. By default, no source is to be set so that users aren't mistakenly fooled by test data.
+    // Set up the display that was picked
+    SetUpDisplay();
+  }
 
-  // Create an analyzer and hook the histogrammer to it.
-  //CreateAnalyzer(gpEventSink);
-  CreateAnalyzer(gpEventSinkPipeline);
+  // Setup the test data source: - in the root rank.
+  // The analyzer and decoder are done here as when we are analyzing data
+  // it's the root process that ships it off to the workers.
+  //  These are also needed in the workers.
 
-  //  Setup the buffer decoder:
-  SelectDecoder(*gpAnalyzer);
-
-  // Setup the command packages:
+  if (!gMPIParallel ||(m_mpiRank == MPI_ROOT_RANK)) {
+    SetupTestDataSource(); // No longer done. By default, no source is to be set so that users aren't mistakenly fooled by test data.
+  }
+  if (!gMPIParallel || 
+    (gMPIParallel && ((m_mpiRank == MPI_ROOT_RANK) || (m_mpiRank >= MPI_FIRST_WORKER_RANK)))
+  ) {
+    // Create an analyzer and hook the histogrammer to it.
+    //CreateAnalyzer(gpEventSink);
+    CreateAnalyzer(gpEventSinkPipeline);
+    
+      //  Setup the buffer decoder:
+    SelectDecoder(*gpAnalyzer);
+  
+  }
+  
+  // Setup the command packages: -- all ranks do this.
   AddCommands(*gpInterpreter);
 
-  // the run control objects.
-  SetupRunControl();
+  // the run control objects. -- Root rank for now.
 
-  //  Setup the user's analysis pipeline:
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    SetupRunControl();
+  }
+  //  Setup the user's analysis pipeline worker ranks -- and if, mpi start the ring item pumps:
+  //
+  if (!gMPIParallel || (m_mpiRank >= MPI_FIRST_WORKER_RANK)) {
+    CreateAnalysisPipeline(*gpAnalyzer);
+    if (gMPIParallel) {
+      startRingItemPump();
+    }
 
-
-  CreateAnalysisPipeline(*gpAnalyzer);
-  CTreeParameter::BindParameters();           // Needed by treeparameter.
-
-  
+  }
+  // User's code may have created statically defined tree parameters.  
+  // These need to bound in all ranks.
+  // So that the parameter dicts are consistent
+  // TODO - figure out what to do if the user creates them at runtime.
+  // CraeteAnalysisPipeline.
+  // 
+  CTreeParameter::BindParameters();           // Needed by treeparameter in all ranks
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
-  // set up.
-  SourceFunctionalScripts(*gpInterpreter);
+  // set up... done in the root with appropriate e.g. broadcasts
+  //
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+    SourceFunctionalScripts(*gpInterpreter);
   
-  // Now that SpecTcl is essentially set up, we can initialize the analyzer
+    // Now that SpecTcl is essentially set up, we can initialize the analyzer
+    
+    SpecTcl*      pApi      = SpecTcl::getInstance();
+    CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
+    pAnalyzer->OnInitialize();
+  }  
+  // Set up the first incantaion of TimedUpdates.  This has to do with display shared memory
+  // and only the event sink pipe knows that:
+
+  if (!gMPIParallel || (m_mpiRank == MPI_EVENT_SINK_RANK)) {
   
-  SpecTcl*      pApi      = SpecTcl::getInstance();
-  CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
-  pAnalyzer->OnInitialize();
-  
-  // Set up the first incantaion of TimedUpdates.
-  
-  Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
-
-
-  
-  // Additional credits.
-
-  cerr << "SpecTcl and its GUI would not be possible without the following open source software: \n";
-  cerr << "    - Gri  by Dan Kelley and Peter Galbraith.\n";
-  cerr << "    - TkCon by Jeff Hobbs\n";
-  cerr << "    - BWidgets by Jeff Hobbs\n";
-  cerr << "    - BLT by George Howlett\n";
-  cerr << "    - Snit by Will Duquette\n";
-  cerr << "    - TkTable by Eric Melski, Jeff Hobbs, Joe English and Pat Thoyts\n";
-  cerr << "    - IWidgets by David Gravereaux, Don Porter, Jeff Hobbs, Mark Harrison,\n";
-  cerr << "                  Marty Backe, Michael McLennan, Chad Smith, and Brent B. Welch\n";
-  cerr << "    - Tcl/Tk originally by John K. Ousterhout embellished and extended by the Tcl Core Team\n";
-  cerr << "    - Daniel Bazin for the concept of TreeParameter and its original GUI\n";
-  cerr << "    - Leilehau Maly and Tony Denault of the NASA IRTF Telescope\n";
-  cerr << "      for the  gaussian fit harnesses to the gsl: fitgsl.{c,h}\n";
-  cerr << "    - Emmanuel Frecon Swedish Institute of Computer Science for the splash package\n";
-  cerr << "    - Kevin Carnes James R. Macdonald Laboratory Kansas State University\n";
-  cerr << "      for many good functionality suggestions and for catching some of my stupidities\n";
-  cerr << "    - Dirk Weisshaar NSCL for many suggestions for performance and functional improvements\n";
-  cerr << "    - Dave Caussyn at Florida State University for comments and defect fixes\n";
-  cerr << " If your name should be on this list and is not, my apologies, please contact\n";
-  cerr << " fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
-  cerr << " the list of credits.\n";
-
-  // Finally run the version script:
-
-  try {
-    gpInterpreter->GlobalEval(printVersionScript);
-  }
-  catch (...) {
-    cerr << "SpecTcl Version: " << gpVersion << endl;
+    Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
   }
 
+
+  // Credits only go out in root rank:
+
+  if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+
+    // Additional credits.
+
+    cerr << "SpecTcl and its GUI would not be possible without the following open source software: \n";
+    cerr << "    - Gri  by Dan Kelley and Peter Galbraith.\n";
+    cerr << "    - TkCon by Jeff Hobbs\n";
+    cerr << "    - BWidgets by Jeff Hobbs\n";
+    cerr << "    - BLT by George Howlett\n";
+    cerr << "    - Snit by Will Duquette\n";
+    cerr << "    - TkTable by Eric Melski, Jeff Hobbs, Joe English and Pat Thoyts\n";
+    cerr << "    - IWidgets by David Gravereaux, Don Porter, Jeff Hobbs, Mark Harrison,\n";
+    cerr << "                  Marty Backe, Michael McLennan, Chad Smith, and Brent B. Welch\n";
+    cerr << "    - Tcl/Tk originally by John K. Ousterhout embellished and extended by the Tcl Core Team\n";
+    cerr << "    - Daniel Bazin for the concept of TreeParameter and its original GUI\n";
+    cerr << "    - Leilehau Maly and Tony Denault of the NASA IRTF Telescope\n";
+    cerr << "      for the  gaussian fit harnesses to the gsl: fitgsl.{c,h}\n";
+    cerr << "    - Emmanuel Frecon Swedish Institute of Computer Science for the splash package\n";
+    cerr << "    - Kevin Carnes James R. Macdonald Laboratory Kansas State University\n";
+    cerr << "      for many good functionality suggestions and for catching some of my stupidities\n";
+    cerr << "    - Dirk Weisshaar NSCL for many suggestions for performance and functional improvements\n";
+    cerr << "    - Dave Caussyn at Florida State University for comments and defect fixes\n";
+    cerr << " If your name should be on this list and is not, my apologies, please contact\n";
+    cerr << " fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
+    cerr << " the list of credits.\n";
+
+    // Finally run the version script:
+
+      try {
+        gpInterpreter->GlobalEval(printVersionScript);
+      }
+      catch (...) {
+        cerr << "SpecTcl Version: " << gpVersion << endl;
+      }
+    }  
+    gErrorIgnoreLevel = kFatal;
   }
+  // Turn off all those root warnings about x11 crap (I hope).
+
+  
+
   catch (std::string msg) {
     std::cerr << "Caught string exception in init: " << msg << std::endl;
   }
@@ -1120,7 +1226,7 @@ int CTclGrammerApp::operator()() {
     std::cerr << "Caught std:exception in init: " << e.what() << std::endl;
   }
   
-  return TCL_OK;
+  return TCL_OK;                        // If we got here return TCL_OK.
 }
 
 CTCLInterpreter* CTclGrammerApp::getInterpreter() {
@@ -1305,7 +1411,36 @@ CTclGrammerApp::protectVariable(CTCLInterpreter* pInterp, const char* pVarName)
 {
   new CSpecTclInitVar(pInterp, pVarName);
 }
+// Set up Tcl command processing for non rank 0.
+// - start the command pump.
+// - Enter an event loop suitable for the slave:
+//
+static void setupSlaveInterpreter(CTCLInterpreter* pInterp) {
 
+  // Close stdin as we're just going to get
+  // commands via the pump and event loop.
+
+  int mode;
+  auto tclstdin = Tcl_GetChannel(pInterp->getInterpreter(), "stdin", &mode);
+  Tcl_UnregisterChannel(pInterp->getInterpreter(), tclstdin);
+
+  // Start the pump/notifier and run a prompt-less event loop:
+
+  startCommandPump(*pInterp);
+ 
+  while (true) {
+    Tcl_ReapDetachedProcs();
+    struct Tcl_Time timeout;
+    timeout.sec = 1000;
+    timeout.usec = 0;
+    if (Tcl_WaitForEvent(&timeout)) {
+        std::cerr << "Event loop exiting\n";
+        Tcl_Exit(-1);
+    }
+    while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
+        ;
+}
+}
 
 /*!
  * \brief CTclGrammerApp::AppInit
@@ -1335,20 +1470,39 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
 
     // This is the virtual method that sets up all of SpecTcl.
     pInstance->operator()();
+    if (gMPIParallel && (pInstance->m_mpiRank != 0)) {
+      // Slave process in MPI env.
 
-    CTCLLiveEventLoop* pEventLoop = CTCLLiveEventLoop::getInstance();
-    pEventLoop->start(gpInterpreter);
-
+      setupSlaveInterpreter(gpInterpreter);
+    } else {
+      // Serial or master process in MPI env.
+      CTCLLiveEventLoop* pEventLoop = CTCLLiveEventLoop::getInstance();
+      pEventLoop->start(gpInterpreter);
+    }
     return TCL_OK;
 }
 
 /**
  * mpiExitHandler calles MPI_Finalize on Tcl exit:
+ *    Tcl has already killed off the stdout/err so we can't really do any error handling.
  */
 static void
-MpiExitHandler(ClientData ignoreMe) {
+MpiExitHandler() {
 #ifdef WITH_MPI
-  MPI_Finalize();
+  // Note that if we are rank 0 we spray the exit command to all of the
+  // other ranks.  Sincde exit won't make a status, we don't get replies.
+  if (gMPIParallel) {
+    if (myRank() == MPI_ROOT_RANK) {
+      MpiTclCommandChunk exitCommand;
+      exitCommand.commandLength = strlen("exit") + 1;
+      strcpy(exitCommand.commandChunk, "exit");
+      exitCommand.commandChunk[exitCommand.commandLength - 1] = '\0';
+
+      MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
+    }
+  
+    MPI_Finalize();   // Ignore status - might have already been called.
+  }
 #endif
 }
 
@@ -1362,34 +1516,68 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
 #ifdef WITH_MPI
   std::cerr << "Starting parallel SpecTcl\n";
   auto me = CTclGrammerApp::getInstance();
-
-  int stat = MPI_Init(&me->m_argc, &me->m_pArgV);
+  int actualModel;
+  int stat = MPI_Init_thread(&me->m_argc, &me->m_pArgV, MPI_THREAD_MULTIPLE, &actualModel);
   if (stat != MPI_SUCCESS) {
-    Tcl_Obj* result = Tcl_NewStringObj("BUG : MPI_InitFailed", -1);
-    Tcl_SetObjResult(pInterp, result);
-    return TCL_ERROR;
+    std::cerr << "BUG : MPI_InitFailed" << std::endl;
+    exit(EXIT_FAILURE);
   }
   // Let's make sure that MPI_Finalize is called by setting a Tcl exit handler:
 
-   Tcl_CreateExitHandler(MpiExitHandler, nullptr);
-  // For now exit if my rank is not zero:
+   atexit(MpiExitHandler);
 
-  int rank;
-  stat = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  if (stat != MPI_SUCCESS) {
-    Tcl_Obj* result = Tcl_NewStringObj("BUG: Could not get my rank in the world", -1);
-    Tcl_SetObjResult(pInterp, result);
+  // The app must be at least big enough for one worker:
+
+  int appSize;
+  if (MPI_Comm_size(MPI_COMM_WORLD, &appSize) != MPI_SUCCESS) {
+    std::cerr << "Could not determine the number of processes in the MPI app" << std::endl;
+    exit(EXIT_FAILURE);
   }
-  me->m_mpiRank = rank;
-  if (rank == 0) {
-    return CTclGrammerApp::AppInit(pInterp);   // For now start up as serial.
-  } else {
-    // Just exit for now:
 
-    MPI_Finalize();
-    Tcl_Exit(0);
+  // Save the current rank.
+
+  me->m_mpiRank = myRank();
+
+  // Be sure we have at least one worker:
+
+  if ((appSize <= MPI_FIRST_WORKER_RANK)) {
+    if (me->m_mpiRank == 0) {
+      std::stringstream msgStream;
+      std::cerr << "The -n parameter to mpirun must be at least " 
+        << MPI_FIRST_WORKER_RANK + 1 << " but was " << appSize << std::endl;
+    }
+    exit(EXIT_FAILURE);
+  }
+
+
+  
+  // Create a communicator/group for sending around the ring items from root
+  // to the workers. 
+  // There's only one 'color' ranks will retain the same ordering so the
+  // world rank 0 is rank 0 for gRingItemComm.
+  // It includes the root rank and all workers:
+
+  // We just need this, realy to distinguish broadcasts intended for the 
+  // ring items and for commands.
+
+
+  int mycolor = ((me->m_mpiRank == 0) || (me->m_mpiRank >= MPI_FIRST_WORKER_RANK)) ? 
+     1 :  MPI_UNDEFINED;
+  if (MPI_Comm_split(MPI_COMM_WORLD, mycolor, me->m_mpiRank, &gRingItemComm) != MPI_SUCCESS)  {
+    std::cerr << "BUG - could not create the ring item group" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  // We also need a separate communicator to send gate broadcasts around so they don't get
+  // with command broadcasts.  Again there's only one color
+
+  mycolor = 1;          // All in the same group.
+
+  if(MPI_Comm_split(MPI_COMM_WORLD, mycolor, me->m_mpiRank, &gXamineGateComm) != MPI_SUCCESS) {
+    std::cerr << "BUg - could not create the Xamine gate communicator\n";
+    exit(EXIT_FAILURE);
   }
   
+  CTclGrammerApp::AppInit(pInterp); 
 #else
   // Should not have been called so error out of Tcl:
 
@@ -1406,39 +1594,27 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
 void CTclGrammerApp::run()
 {
     // Figure out how to set gMPIParallel
-#ifdef WITH_MPI
-  // Ok We are built with mpi support but were we run with it?
-  // mpirun from open mpi defines OMPI_COMM_WORLD_SIZE while
-  // mipch mipexec defines MPI_RANK as env vars. 
-
+    
   std::cerr << "Checking if run under MPIrun\n";
-  if (getenv("OMPI_COMM_WORLD_SIZE") || getenv("PMI_RANK")) {
-    std::cerr << "Yes\n";
-    gMPIParallel = true;
-  } else {
-    std::cerr << "Nope\n";
-    gMPIParallel = false;              // Not run by mpirun/mpiexec.
-  }
-#else
-    std::cerr << "Not built with parallel SpecTcl\n";
-    gMPIParallel = false;        // Not even compiled to support it.
+  gMPIParallel = isMpiApp();
+  
+
+
+  if (gMPIParallel) {
+    std::cerr << "MPIAppinit starting\n";
+    Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::MPIAppInit);
+    
+    // Teardown MPI:
+#ifdef WITH_MPI
+    MPI_Finalize();
 #endif
+  } else {
+    // init start with the Serial
+    std::cerr << "Serial Appinit starting\n";
+    Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::AppInit);
+    
 
-    if (gMPIParallel) {
-      std::cerr << "MPIAppinit starting\n";
-      Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::MPIAppInit);
-      
-      // Teardown MPI:
-
-      MPI_Finalize();
-
-    } else {
-      // init start with the Serial
-      std::cerr << "Serial Appinit starting\n";
-      Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::AppInit);
-      
-
-    }
+  }
 }
 
 

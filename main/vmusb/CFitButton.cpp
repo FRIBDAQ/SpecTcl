@@ -177,7 +177,7 @@ CFitButton::operator()(CButtonEvent& event)
     
     // Now we can create the fit:
     
-    CGaussianFit*  pFit  = new CGaussianFit(fitName, CFitCommand::id());
+    CGaussianFit*  pFit  = new CGaussianFit(fitName, CFitCommandActual::id());
     int            low   = pts[0].X();
     int            high  = pts[1].X();
 

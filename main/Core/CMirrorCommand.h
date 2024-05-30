@@ -20,11 +20,14 @@
  */
 #ifndef _CMIRRORCOMMAND_H
 #define _CMIRRORCOMMAND_H
-
+#include <MPITclCommand.h>
 #include <TCLObjectProcessor.h>
 
 class CTCLInterpreter;
 class CTCLObject;
+
+// In MPI SpecTcl, the mirror server and, therefore the
+// mirror command runs in the event sink pipeline.
 
 /**
  * @class CMirrorCommand
@@ -40,11 +43,11 @@ class CTCLObject;
  *          *  host  - the host on which the mirror is being maintained.
  *          *  shmkey - The shared memory key in which the mirror is maintained.
  */
-class CMirrorCommand : public CTCLObjectProcessor
+class CMirrorCommandActual : public CTCLObjectProcessor
 {
 public:
-    CMirrorCommand(CTCLInterpreter& interp);
-    virtual ~CMirrorCommand();
+    CMirrorCommandActual(CTCLInterpreter& interp);
+    virtual ~CMirrorCommandActual();
     
     virtual int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>&objv);
     
@@ -60,6 +63,15 @@ private:
         const char* key, const char* value
     );
     
+};
+
+
+// MPI wrapper of the mirror command.
+
+class CMirrorCommand : public CMPITclCommand {
+public:
+    CMirrorCommand(CTCLInterpreter& interp);
+    ~CMirrorCommand() {}
 };
 
 

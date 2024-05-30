@@ -18,8 +18,11 @@
 #define SHAREDMEMORYKEYCOMMAND_H
 
 #include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>
 
 class SpecTcl;
+// In mpiSpecTcl, this runs in the event sink pipeline as that's where the
+// shared memory is created and is the parent of any displayer.
 
 /*! Provides the shmemkey command
  *
@@ -29,17 +32,23 @@ class SpecTcl;
  * histogram content retrieval.
  *
  */
-class CSharedMemoryKeyCommand : CTCLObjectProcessor
+class CSharedMemoryKeyCommandActual : public CTCLObjectProcessor
 {
 private:
     SpecTcl& m_rSpecTcl;
 
 public:
-    CSharedMemoryKeyCommand(CTCLInterpreter& rInterp, SpecTcl& rSpecTcl);
-    CSharedMemoryKeyCommand(const CSharedMemoryKeyCommand& obj) = delete;
-    virtual ~CSharedMemoryKeyCommand();
+    CSharedMemoryKeyCommandActual(CTCLInterpreter& rInterp, SpecTcl& rSpecTcl);
+    CSharedMemoryKeyCommandActual(const CSharedMemoryKeyCommandActual& obj) = delete;
+    virtual ~CSharedMemoryKeyCommandActual();
 
     int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+};
+
+class CSharedMemoryKeyCommand : public CMPITclCommand {
+public:
+    CSharedMemoryKeyCommand(CTCLInterpreter& rInterp, SpecTcl& rSpecTcl);
+    ~CSharedMemoryKeyCommand() {}
 };
 
 #endif // SHAREDMEMORYKEYCOMMAND_H

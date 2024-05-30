@@ -45,28 +45,28 @@ class TreeVarCommandTest : public CppUnit::TestFixture {
 
 
 private:
-  CTreeVariableCommand*   m_pCommand;
+  CTreeVariableCommandActual*   m_pCommand;
   CTreeVariable*          m_pIndividual;
   CTreeVariableArray*     m_pArray;
 
   CTCLInterpreter*        m_pInterp;
-  CTCLResult*             m_pResult;
+  
 public:
   void setUp() {
     TreeTestSupport::InitTestInterpreter();
-    m_pCommand   = new CTreeVariableCommand(TreeTestSupport::getInterpreter());
+    
+    
+    m_pInterp    = TreeTestSupport::getInterpreter();
+    m_pCommand   = new CTreeVariableCommandActual(m_pInterp);
     m_pIndividual= new CTreeVariable("indiv", 1.234, "cm");
     m_pArray     = new CTreeVariableArray("multi", 5.432,  "in", 10, 10);
-    m_pInterp    = TreeTestSupport::getInterpreter();
-    m_pResult    = new CTCLResult(m_pInterp);
-
   }
   void tearDown() {
-    delete m_pResult;
+    
     delete m_pArray;
     delete m_pIndividual;
     TreeTestSupport::ClearVariableMap();
-    m_pCommand->Unregister();
+    //m_pCommand->unregister();
     delete m_pCommand;
     TreeTestSupport::TeardownTestInterpreter();
   }
@@ -137,17 +137,17 @@ TreeVarCommandTest::StringToList(string list)
   return result;
 }
 
-// Turn the current value of *m_pResult into a string vector that
+// Turn the current value of *the result string into a string vector that
 // is the result of separating the result into its component list
 // elements.
 vector<string>
 TreeVarCommandTest::ResultToList()
 {
-  string result = (string)(*m_pResult);
+  string result = m_pInterp->GetResultString();
   return StringToList(result);
 }
 
-// Ensures that *m_pResult contains a string that is
+// Ensures that *the result string contains a string that is
 // consistent with a listing of all the variables we defined.
 //
 
@@ -162,7 +162,7 @@ TreeVarCommandTest::ListAllCheck(const char* comment)
   }
 }
 
-// Ensures that *m_pResult contains a string that is consistent with
+// Ensures that *the result string contains a string that is consistent with
 // a listing of the "inidiv" variable.
 //
 void
@@ -173,7 +173,7 @@ TreeVarCommandTest::ListIndivCheck(const char* comment)
   vector<string> item   = StringToList(result[0]);
   ConsistentDescription(comment, item);      // Check consistency.
 }
-// Ensures that *m_pResult contains a string that is consistent with 
+// Ensures that *the result string contains a string that is consistent with 
 // a listing of the multi array.
 //
 void
@@ -203,41 +203,41 @@ void TreeVarCommandTest::ListFunc()
 
   char const* argv[2] = {"*", "extra"};
 
-  int status = m_pCommand->List(*m_pInterp, *m_pResult, 
-				2, const_cast<char**>(argv));
+  int status = m_pCommand->List(*m_pInterp,
+				2, (argv));
   EQMSG("2 parameters", TCL_ERROR, status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   // Calling the function with no parameters should be the same
   // as calling it with "*"
   //
 
-  status = m_pCommand->List(*m_pInterp, *m_pResult, 0, (char**)NULL);
+  status = m_pCommand->List(*m_pInterp,  0, (const char**)NULL);
   EQMSG("0 parameters ok", TCL_OK,  status);
   ListAllCheck("Listing all implicitly via direct list call");
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
-  status = m_pCommand->List(*m_pInterp, *m_pResult, 1, const_cast<char**>(argv));
+  status = m_pCommand->List(*m_pInterp,  1, (argv));
   EQMSG("1 parameter '*' ok", TCL_OK,  status);
   ListAllCheck("Listing all explicitly via direct list call");  
-  m_pResult->Clear();
+  m_pInterp->setResult("");
   
 
   // Now look for "indiv" and list it:
 
   argv[0] = "indiv";
-  status  = m_pCommand->List(*m_pInterp, *m_pResult, 1, const_cast<char**>(argv));
+  status  = m_pCommand->List(*m_pInterp,  1, (argv));
   EQMSG("1 parameter 'indiv' ok", TCL_OK, status);
   ListIndivCheck("Listing 'indiv' via direct list call");
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   // Look for all elements of the array:
 
   argv[0] = "multi*";
-  status  = m_pCommand->List(*m_pInterp, *m_pResult, 1, const_cast<char**>(argv));
+  status  = m_pCommand->List(*m_pInterp,  1, (argv));
   EQMSG("1 parameter 'multi*'", TCL_OK, status);
   ListArrayCheck("Listing 'multi.*' via direct list call");
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
 }
 
@@ -247,43 +247,60 @@ void
 TreeVarCommandTest::ListDispat()
 {
   char const* argv[4] = {"treevariable", "-list", "[]", "extra"};
-
+  std::vector<CTCLObject> objv;
+  for (int i = 0; i < 4; i++) {
+    CTCLObject o;
+    o  = argv[i];
+    objv.push_back(o);
+  }
   // Bad parameter count:
   
-  int status = (*m_pCommand)(*m_pInterp, *m_pResult, 4, const_cast<char**>(argv));
+  int status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("bad parameters dispatch", TCL_ERROR, status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   // Implicit "*":
 
-  status = (*m_pCommand)(*m_pInterp, *m_pResult, 2, const_cast<char**>(argv));
+  objv.pop_back();
+  objv.pop_back();
+  status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("Implicit *", TCL_OK, status);
   ListAllCheck("Implicit * via dispatch");
-  m_pResult->Clear();
+
 
   // explicit *:
 
-  argv[2] = "*";
-  status = (*m_pCommand)(*m_pInterp, *m_pResult, 3, const_cast<char**>(argv));
+  // This seems odd but the push_back does a copy of o so it
+  // should be ok.
+  objv.clear();
+  CTCLObject o;
+  o = argv[0];
+  objv.push_back(o);
+  o = argv[1];
+  objv.push_back(o);
+  o = "*";
+  objv.push_back(o);
+  
+  status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("explicit *", TCL_OK, status);
   ListAllCheck("Explicit* via dispatch");
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   //  Single element:
 
-  argv[2] = "indiv";
-  status = (*m_pCommand)(*m_pInterp, *m_pResult, 3, const_cast<char**>(argv));
+  objv[2] = "indiv";
+  status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("individ", TCL_OK, status);
   ListIndivCheck("individ via dispatch");
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   // All array elements.
   
-  argv[2] = "multi*";
-  status  = (*m_pCommand)(*m_pInterp, *m_pResult, 3, const_cast<char**>(argv));
+  objv[2] = "multi*";
+  status  = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("Multi", TCL_OK, status);
   ListArrayCheck("multi via dispatch");
-  m_pResult->Clear();
+  m_pInterp->setResult("");
   
 }
 
@@ -302,17 +319,17 @@ TreeVarCommandTest::SetChanged()
 
   // Too few parameters:
 
-  int status = m_pCommand->SetChanged(*m_pInterp, *m_pResult, 0, const_cast<char**>(argv));
+  int status = m_pCommand->SetChanged(*m_pInterp,  0, (argv));
   EQMSG("Too few params", TCL_ERROR, status);
 
   // Too many params.
 
-  status = m_pCommand->SetChanged(*m_pInterp, *m_pResult, 2, const_cast<char**>(argv));
+  status = m_pCommand->SetChanged(*m_pInterp, 2, (argv));
   EQMSG("Too many parameters", TCL_ERROR, status);
 
   // Correct functionality.
   
-  status = m_pCommand->SetChanged(*m_pInterp, *m_pResult, 1, const_cast<char**>(argv));
+  status = m_pCommand->SetChanged(*m_pInterp, 1, (argv));
   EQMSG("Just right parameter count", TCL_OK, status);
   ASSERT(m_pIndividual->hasChanged());
   m_pIndividual->resetChanged();
@@ -322,12 +339,18 @@ TreeVarCommandTest::SetChanged()
   // Fails correctly when nonexistent parameter.
 
   argv[0] = "nonexist";
-  status  = m_pCommand->SetChanged(*m_pInterp, *m_pResult, 1, const_cast<char**>(argv));
+  status  = m_pCommand->SetChanged(*m_pInterp, 1, (argv));
   EQMSG("nonexistent parameter", TCL_ERROR, status);
 
   // Works correctly via command dispatch.
   
-  status = (*m_pCommand)(*m_pInterp, *m_pResult, 3, const_cast<char**>(cmdargv));
+  std::vector<CTCLObject> objv;
+  for (int i = 0; i < 3; i++) {
+    CTCLObject o;
+    o = cmdargv[i];
+    objv.push_back(o);
+  }
+  status = (*m_pCommand)(*m_pInterp,  objv);
   EQMSG("Dispatch", TCL_OK, status);
   ASSERT(m_pIndividual->hasChanged());
 
@@ -349,45 +372,51 @@ TreeVarCommandTest::SetProperties()
 {
   char const* argv[4] = {"nosuch", "aaaa", "mm", "extra"};
 
-  int status = m_pCommand->SetProperties(*m_pInterp, *m_pResult,
-					 1, const_cast<char**>(argv));
+  int status = m_pCommand->SetProperties(*m_pInterp,
+					 1, (argv));
   EQMSG("too few params", TCL_ERROR, status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
-  status = m_pCommand->SetProperties(*m_pInterp, *m_pResult, 4, const_cast<char**>(argv));
+  status = m_pCommand->SetProperties(*m_pInterp, 4, (argv));
   EQMSG("too many parameters", TCL_ERROR, status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
 
   argv[0] = "indiv";
-  status = m_pCommand->SetProperties(*m_pInterp, *m_pResult, 3, const_cast<char**>(argv));
+  status = m_pCommand->SetProperties(*m_pInterp, 3, (argv));
   EQMSG("Invalid fp value", TCL_ERROR , status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
 
   argv[0] = "nosuch";
   argv[1] = "55.55";
-  status = m_pCommand->SetProperties(*m_pInterp, *m_pResult, 3, const_cast<char**>(argv));
+  status = m_pCommand->SetProperties(*m_pInterp, 3, (argv));
   EQMSG("Invalid variable name", TCL_ERROR, status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   argv[0] = "indiv";
-  status = m_pCommand->SetProperties(*m_pInterp, *m_pResult, 3, const_cast<char**>(argv));
+  status = m_pCommand->SetProperties(*m_pInterp, 3, (argv));
   EQMSG("indiv good set via function", TCL_OK, status);
   EQMSG("indiv value", 55.55, m_pIndividual->getValue());
   EQMSG("indiv units", string("mm"), m_pIndividual->getUnit());
-  m_pResult->Clear();
+  
 
 
   // Set via command dispatch:
 
   char const* cmdargv[5] = {"treevariable", "-set", "indiv",  "2.22", "in"};
-  status = (*m_pCommand)(*m_pInterp, *m_pResult, 5, const_cast<char**>(cmdargv));
+  std::vector<CTCLObject> objv;
+  for (int i =0; i < 5; i++) {
+    CTCLObject o;
+    o = cmdargv[i];
+    objv.push_back(o);
+  }
+  status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("indiv good set via dispatch", TCL_OK, status);
   EQMSG("Indiv value", 2.22, m_pIndividual->getValue());
   EQMSG("Indiv units", string("in"),  m_pIndividual->getUnit());
 
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   
 
@@ -400,8 +429,13 @@ void
 TreeVarCommandTest::SetNoUnits()
 {
   char const* argv[4] = {"treevariable", "-set", "indiv", "2.22"};
-
-  int status = (*m_pCommand)(*m_pInterp, *m_pResult, 4, const_cast<char**>(argv));
+  std::vector<CTCLObject> objv;
+  for (int i =0; i < 4; i++) {
+    CTCLObject o;
+    o = argv[i];
+    objv.push_back(o);
+  }
+  int status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("Nounits set status", TCL_OK, status);
   EQMSG("Nounits set value",  2.22, m_pIndividual->getValue());
   EQMSG("Nounits set units", string(""), m_pIndividual->getUnit());
@@ -423,48 +457,54 @@ TreeVarCommandTest::CheckChanged()
 
   // parameter count errors.
 
-  status = m_pCommand->CheckChanged(*m_pInterp, *m_pResult, 0, const_cast<char**>(argv));
+  status = m_pCommand->CheckChanged(*m_pInterp, 0, (argv));
   EQMSG("too few params", TCL_ERROR, status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
-  status = m_pCommand->CheckChanged(*m_pInterp, *m_pResult, 2, const_cast<char**>(argv));
+  status = m_pCommand->CheckChanged(*m_pInterp, 2, (argv));
   EQMSG("Too many params", TCL_ERROR, status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   // No such variable:
 
-  status = m_pCommand->CheckChanged(*m_pInterp, *m_pResult, 1, const_cast<char**>(argv));
+  status = m_pCommand->CheckChanged(*m_pInterp, 1, (argv));
   EQMSG("bad name", TCL_ERROR, status);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
   // unmodified:
 
   argv[0]= "indiv";
-  status = m_pCommand->CheckChanged(*m_pInterp, *m_pResult, 1, const_cast<char**>(argv));
+  status = m_pCommand->CheckChanged(*m_pInterp, 1, (argv));
   EQMSG("good", TCL_OK, status);
-  string result((string)(*m_pResult));
+  string result(m_pInterp->GetResultString());
   EQMSG("good -unchanged", string("0"), result);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
 
   // Modify "inidiv" and check that CheckChanged reflects this:
 
   (*m_pIndividual) = 3.1416;
-  status = m_pCommand->CheckChanged(*m_pInterp, *m_pResult, 1, const_cast<char**>(argv));
+  status = m_pCommand->CheckChanged(*m_pInterp, 1, (argv));
   EQMSG("good[mod]", TCL_OK, status);
-  result = (string)(*m_pResult);
+  result = (m_pInterp->GetResultString());
   EQMSG("good[modified]", string("1"), result);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
 
 
   // Check that command dispatch also gives us the same thing:
 
   char const* cmdargv[3] = {"treevariable", "-check", "indiv"};
-  status = (*m_pCommand)(*m_pInterp, *m_pResult, 3, const_cast<char**>(cmdargv));
+  std::vector<CTCLObject> objv;
+  for (int i=0; i < 3; i++) {
+    CTCLObject o;
+    o = cmdargv[i];
+    objv.push_back(o);
+  }
+  status = (*m_pCommand)(*m_pInterp,objv); 
   EQMSG("good[mod]dispatch", TCL_OK, status);
-  result = (string)(*m_pResult);
+  result = m_pInterp->GetResultString();
   EQMSG("good[modified]dispatch", string("1"), result);
-  m_pResult->Clear();
+  m_pInterp->setResult("");
   
 }
 //
@@ -507,14 +547,26 @@ TreeVarCommandTest::Traces()
   // Just modifying the values now fires traces.
 
   char const* setargv[5] = {"treevariable", "-set", "indiv", "2.22", "in", };
-  int status = (*m_pCommand)(*m_pInterp, *m_pResult, 5, const_cast<char**>(setargv));
+  std::vector<CTCLObject> objv;
+  for (int i = 0; i < 5; i++) {
+    CTCLObject o;
+    o = setargv[i];
+    objv.push_back(o);
+  }
+  int status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("set status", TCL_OK, status);
   EQMSG("set trace count", 1, traces);
 
   // Now fire the traces:
 
   char const* traceargv[2] = {"treevariable", "-firetraces"};
-  status = (*m_pCommand)(*m_pInterp, *m_pResult, 2, const_cast<char**>(traceargv));
+  objv.clear();
+  for (int i =0; i < 2; i++) {
+    CTCLObject o;
+    o = traceargv[i];
+    objv.push_back(o);
+  }
+  status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("trace status", TCL_OK, status);
   EQMSG("trace trace count", 1, traces);
 }

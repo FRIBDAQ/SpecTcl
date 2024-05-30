@@ -21,6 +21,7 @@
  *          for inclusion into other processing pipelines.
  */
 
+// THe actual command must run everywhere there is a 
 /**
  * The base command is evbunpack.  This is an ensemble with the following
  * subcommands:
@@ -37,20 +38,21 @@
 #ifndef CUNPACKEVBCOMMAND_H
 #define CUNPACKEVBCOMMAND_H
 #include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>
 #include <map>
 #include <string>
 
 class CEventBuilderEventProcessor;
 
-class CUnpackEvbCommand : public CTCLObjectProcessor
+class CUnpackEvbCommandActual : public CTCLObjectProcessor
 {
 private:
     typedef std::map<std::string, CEventBuilderEventProcessor*> ProcessorMap;
     ProcessorMap m_Processors;
     
 public:
-    CUnpackEvbCommand(CTCLInterpreter& interp);
-    virtual ~CUnpackEvbCommand();
+    CUnpackEvbCommandActual(CTCLInterpreter& interp);
+    virtual ~CUnpackEvbCommandActual();
     
     int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 private:
@@ -61,4 +63,9 @@ private:
 
 };
 
+class CUnpackEvbCommand : public CMPITclCommand {
+public:
+    CUnpackEvbCommand(CTCLInterpreter& interp);
+    ~CUnpackEvbCommand() {}
+};
 #endif

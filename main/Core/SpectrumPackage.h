@@ -21,7 +21,7 @@
 #define SPECTRUMPACKAGE_H
 
                                //Required for base classes
-#include <TCLCommandPackage.h>
+#include <TCLObjectPackage.h>
 #include <Histogrammer.h>
 #include <histotypes.h>
 #include <string>
@@ -46,8 +46,9 @@ class ChannelCommand;
 class CWriteCommand;
 class CReadCommand;
 class CDisplayInterface;
+class CMPITclPackagedCommand;
                                                                
-class CSpectrumPackage  : public CTCLCommandPackage        
+class CSpectrumPackage  : public CTCLObjectPackage
 {
   // Data types
 public:
@@ -61,14 +62,16 @@ public:
 protected:
   static UInt_t      m_nNextId;	  // Next spectrum ident.
   CHistogrammer*     m_pHistogrammer; // Histogrammer with spectra.
-  CSpectrumCommand*  m_pSpectrum; // Executes spectrum cmd.
-  CClearCommand*     m_pClear;	// Executes clear command.
-  CBindCommand*      m_pBind;	// Executes bind command.
-  CUnbindCommand*    m_pUnbind;	// Executes the unbind command.
-  ChannelCommand*    m_pChannel; // Executes the channel command.
-  CWriteCommand*     m_pWrite;	// Executes the swrite command.
-  CReadCommand*      m_pRead;
   CDisplayInterface*   m_pDisplay;
+
+  CMPITclPackagedCommand*  m_pSpectrum; // Executes spectrum cmd.
+  CMPITclPackagedCommand*     m_pClear;	// Executes clear command.
+  CMPITclPackagedCommand*      m_pBind;	// Executes bind command.
+  CMPITclPackagedCommand*    m_pUnbind;	// Executes the unbind command.
+  CMPITclPackagedCommand*    m_pChannel; // Executes the channel command.
+  CMPITclPackagedCommand*     m_pWrite;	// Executes the swrite command.
+  CMPITclPackagedCommand*      m_pRead;
+  
 
 public:
 			//Constructor with arguments
@@ -80,22 +83,9 @@ public:
 			//Copy constructor [illegal]
 private:
   CSpectrumPackage (const CSpectrumPackage& aCSpectrumPackage );
-public:
-
-			//Operator= Assignment Operator [illegal]
-private:
   CSpectrumPackage& operator= (const CSpectrumPackage& aCSpectrumPackage);
-public:
-
-			//Operator== Equality Operator [allowed but...]
-
-  int operator== (const CSpectrumPackage& aCSpectrumPackage)
-  { return (
-	    (CTCLCommandPackage::operator== (aCSpectrumPackage)) &&
-	    (m_pHistogrammer == m_pHistogrammer)
-	    );
-  }         
-  // Selectors:                    
+  int operator== (const CSpectrumPackage& aCSpectrumPackage);
+// Selectors:                    
 
 public:
   static UInt_t getNextId()
@@ -108,6 +98,7 @@ public:
   }
   // Mutators:
 
+  std::string getSignon() const;
 protected:               
 
   void setHistogrammer (CHistogrammer* am_pHistogrammer)
@@ -124,7 +115,7 @@ protected:
   //
 public:
   
-  int CreateSpectrum(CTCLResult& rResult, const char* pName, 
+  int CreateSpectrum(CTCLInterpreter& rInterp, const char* pName, 
 		     const char* pSpecType,
 		     std::vector<std::string>& rvParameterNames,
 		     std::vector<UInt_t>&      nChannels,
@@ -132,7 +123,7 @@ public:
 		     std::vector<Float_t>&     fHighs,
 		     const char*               pDataType);
 
-  int CreateSpectrum(CTCLResult& rResult, const char* pName,
+  int CreateSpectrum(CTCLInterpreter& rInterp, const char* pName,
 		     const char* pSpecType,
 		     std::vector<std::string> xParameterNames,
 		     std::vector<std::string> yParameterNames,
@@ -141,7 +132,7 @@ public:
 		     std::vector<Float_t>     fHighs,
 		     const char*              pDataType);
 
-  int CreateSpectrum(CTCLResult&                            rResult, 
+  int CreateSpectrum(CTCLInterpreter&           rInterp,
 		     const char*                            pName,
 		     const char*                            pSpecType,
 		     std::vector<std::vector<std::string> > parameterNames,
@@ -151,7 +142,7 @@ public:
 		     const char*                            pDataType);
 
   int CreateSpectrum(
-    CTCLResult& result, const char* pName, const char* pType,
+    CTCLInterpreter& rInterp, const char* pName, const char* pType,
     const std::vector<std::string>& parameters, bool inX,
     const std::vector<CGateContainer*>& roi,
     const std::vector<UInt_t>&  nchans,
@@ -163,45 +154,44 @@ public:
   void ListSpectra (std::vector<std::string>& rvProperties, const char* pattern,
 		    bool showGates=false)  ;
   //Int_t ListSpectrum (CTCLResult& rResult, const char* pName)  ;
-  Int_t ListSpectrum (CTCLResult& rResult, UInt_t nId,
+  Int_t ListSpectrum (CTCLInterpreter& rInterp, UInt_t nId,
 		      bool showGate=false)  ;
 
   // Clear Spectra:
 
   void ClearAll ()  ;
-  Int_t ClearSubset (CTCLResult& rResult, 
+  Int_t ClearSubset (CTCLInterpreter& rInterp, 
 		     std::vector<std::string>& rvSpectra) ;
-  Int_t ClearSubset (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
+  Int_t ClearSubset (CTCLInterpreter& rInterp, std::vector<UInt_t>& rvIds)  ;
 
   // Bind spectra to display:
 
-  Int_t BindAll (CTCLResult& rResult)  ;
-  Int_t BindList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
-  Int_t BindList (CTCLResult& rResult, std::vector<UInt_t>& rIds)  ;
+  Int_t BindAll (CTCLInterpreter& rInterp)  ;
+  Int_t BindList (CTCLInterpreter& rInterp, std::vector<std::string>& rvNames)  ;
+  Int_t BindList (CTCLInterpreter& rInterp, std::vector<UInt_t>& rIds)  ;
 
   // Remove spectrum bindings:
 
-  Int_t UnbindList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
-  Int_t UnbindList (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
-//  Int_t UnbindXidList (CTCLResult& rResult, std::vector<UInt_t>& rvXids)  ;
+  Int_t UnbindList (CTCLInterpreter& rInterp, std::vector<std::string>& rvNames)  ;
+  Int_t UnbindList (CTCLInterpreter& rInterp, std::vector<UInt_t>& rvIds)  ;
   void UnbindAll ()  ;
 
   // Spectrum deletion:
 
-  Int_t DeleteList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
-  Int_t DeleteList (CTCLResult& rResult, std::vector<UInt_t>& rvnIds)  ;
+  Int_t DeleteList (CTCLInterpreter& rInterp, std::vector<std::string>& rvNames)  ;
+  Int_t DeleteList (CTCLInterpreter& rInterp, std::vector<UInt_t>& rvnIds)  ;
   void DeleteAll ()  ;
 
   // Inquire about spectrum bindings.
   //
 
-  Int_t ListBindings (CTCLResult& rResult, std::vector<std::string>& rvNames);
-  Int_t ListBindings (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
-  void ListAllBindings (CTCLResult& rResult, const char* pattern)  ;
+  Int_t ListBindings (CTCLInterpreter& rInterp, std::vector<std::string>& rvNames);
+  Int_t ListBindings (CTCLInterpreter& rInterp, std::vector<UInt_t>& rvIds)  ;
+  void ListAllBindings (CTCLInterpreter& rInterp, const char* pattern="*")  ;
 
-  Bool_t GetChannel (CTCLResult& rResult, const std::string& rName, 
+  Bool_t GetChannel (CTCLInterpreter& rInterp, const std::string& rName, 
 		     const std::vector<UInt_t>& pIndices)    ;
-  Bool_t SetChannel (CTCLResult& rResult, const std::string& rName, 
+  Bool_t SetChannel (CTCLInterpreter& rInterp, const std::string& rName, 
 		     const std::vector<UInt_t>& rIndices, ULong_t nValue)    ;
   Int_t  Write(std::string& rResult, const std::string& rSpectrum, STD(ostream)& rOut,
 	       CSpectrumFormatter* pFormat);
@@ -218,14 +208,13 @@ protected:
   void        makeBinding(CSpectrum& spec, CHistogrammer& hist);
   void        removeBinding(CSpectrum& spec, CHistogrammer& hist);
 public:
-  Bool_t      GetNumberList(CTCLResult& rResult, 
+  Bool_t      GetNumberList(CTCLInterpreter& rInterp, 
 			    std::vector<UInt_t>& rvIds,
-			    int nArgs, char* pArgs[]);
+			    int nArgs, const char* pArgs[]);
   static void      GetNameList(std::vector<std::string>& rvNames,
-			       CTCLResult& rResult,
-			       char* pattern);
+			              char* pattern);
   static void      GetNameList(std::vector<std::string>& rvNames,
-			       int nArgs, char* pArgs[]);
+			       int nArgs, const char* pArgs[]);
   static const char*     SpecTypeToText(SpectrumType_t sType);
   static const char*     DataTypeToText(DataType_t dType);
   static SpectrumType_t  SpectrumType(const char* pType);

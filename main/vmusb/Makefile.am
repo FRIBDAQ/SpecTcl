@@ -5,7 +5,7 @@ COMMON_cppflags = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Display \
 	-I@top_srcdir@/factories    \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
+	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/mpi
 
 libVMUSBSpecTcl_la_SOURCES=CFitButton.cpp \
 CHINP.cpp \
@@ -80,7 +80,7 @@ VMUSBSpecTcl_LDADD =@builddir@/libVMUSBSpecTcl.la @top_builddir@/Core/libSpecTcl
 		@top_builddir@/Core/libTclGrammerApp.la \
 		    @top_builddir@/calibratedparams/libCalibrations.la \
 		    @top_builddir@/Display/libXamine.la \
-	@LIBTCLPLUS_LDFLAGS@	\
+			@top_builddir@/mpi/libMPIUtilities.la \
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ @ROOT_LDFLAGS@ \
 	-lgsl -lgslcblas	\
 	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@

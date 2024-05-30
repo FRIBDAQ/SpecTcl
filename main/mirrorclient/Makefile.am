@@ -41,6 +41,7 @@ libMirrorClient_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display \
 	@JSONCPP_CFLAGS@ -DSPECTCL_BIN="\"@bindir@\""
 libMirrorClient_la_LIBADD= @top_builddir@/Core/libSpecTclTcp.la \
 	@top_builddir@/Display/libXamine.la \
+	@top_builddir@/mpi/libMPIUtilities.la \
 	@LIBEXCEPTION_LDFLAGS@ @TCL_LIBS@ @JSONCPP_LIBS@
 
 libMirrorClient_la_LDFLAGS=	@RESTCLIENT_LDFLAGS@ 

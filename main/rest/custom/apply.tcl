@@ -49,9 +49,9 @@ proc SpecTcl_Apply/apply {{gate ""}  {spectrum ""} } {
 
     }
     
-    set status [catch {apply $gate $spectrum} msg]
+    set status [catch {applygate $gate $spectrum} msg]
     if {$status} {
-        return [::SpecTcl::_returnObject "'apply' command failed" [json::write string $msg]]
+        return [::SpecTcl::_returnObject "'applygate' command failed" [json::write string $msg]]
     } else {
         return [SpecTcl::_returnObject]
     }
@@ -75,7 +75,7 @@ proc SpecTcl_Apply/apply {{gate ""}  {spectrum ""} } {
 #
 proc SpecTcl_Apply/list {{pattern *}} {
     set ::SpecTcl_Apply/list application/json
-    set applications [apply -list $pattern]
+    set applications [applygate -list $pattern]
     set elements [list]
     foreach application $applications {
         set spectrum [lindex $application 0]

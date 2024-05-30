@@ -96,6 +96,9 @@ public:
       i++;
     }  
   }
+  void clear() {
+    m_observers.clear();
+  }
 
 
 };
@@ -183,6 +186,13 @@ class CDictionary
 
   ConstDictionaryIterator end() const {
     return m_Map.end();
+  }
+  void clear() {
+    clearObservers();
+    m_Map.clear();
+  }
+  void clearObservers() {
+    m_observers.clear();
   }
 
   UInt_t size() const {

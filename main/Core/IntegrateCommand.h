@@ -17,6 +17,7 @@
 	     East Lansing, MI 48824-1321
 */
 #include <TCLObjectProcessor.h>
+#include <MPITclCommand.h>
 #include <Point.h>
 #include <string>
 
@@ -24,6 +25,9 @@
 class CTCLInterpreter;
 class CGateContainer;
 class CSpectrum;
+
+// mpiSpecTcl runs this in the event sink pipeline since
+// that's where the histograms live.
 
 /*!
    This file defines the class interface to a command processor
@@ -45,7 +49,7 @@ integrate spectrum2d   [list [list x1 y1] [list x2 y2] ...]
    \endverbatim
   
 */
-class CIntegrateCommand : public CTCLObjectProcessor
+class CIntegrateCommandActual : public CTCLObjectProcessor
 {
 public:
     typedef struct _integration1d {
@@ -62,15 +66,15 @@ public:
     } Integration2d, *pIntegration2d;
 public:
 
-  CIntegrateCommand(CTCLInterpreter& interp);
-  virtual ~CIntegrateCommand();
+  CIntegrateCommandActual(CTCLInterpreter& interp);
+  virtual ~CIntegrateCommandActual();
   
   // Disallowed canonicals:
 private:
-  CIntegrateCommand(const CIntegrateCommand&);
-  CIntegrateCommand& operator=(const CIntegrateCommand&);
-  int operator==(const CIntegrateCommand&);
-  int operator!=(const CIntegrateCommand&);
+  CIntegrateCommandActual(const CIntegrateCommandActual&);
+  CIntegrateCommandActual& operator=(const CIntegrateCommandActual&);
+  int operator==(const CIntegrateCommandActual&);
+  int operator!=(const CIntegrateCommandActual&);
   
 public:
   
@@ -104,5 +108,10 @@ protected:
  
 };
 
+class CIntegrateCommand : public CMPITclCommand {
+public:
+  CIntegrateCommand(CTCLInterpreter& interp);
+  ~CIntegrateCommand() {}
+};
 
 #endif

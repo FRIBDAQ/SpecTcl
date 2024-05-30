@@ -16,7 +16,7 @@
 
 ##
 # @file   SpectrumStatsCommand.cpp
-# @brief  Implementation of CSpectrumStatsCommand
+# @brief  Implementation of CSpectrumStatsCommandActual
 # @author <fox@nscl.msu.edu>
 */
 #include "CSpectrumStatsCommand.h"
@@ -25,6 +25,8 @@
 #include <TCLObject.h>
 #include <tcl.h>
 #include <stdexcept>
+#include <Globals.h>
+#include <TclPump.h>
 
 /**
  * constructor
@@ -32,7 +34,7 @@
  * @param interp - interpreter on wich the command will be registered.
  * @param command - word that will execute the command.
  */
-CSpectrumStatsCommand::CSpectrumStatsCommand(
+CSpectrumStatsCommandActual::CSpectrumStatsCommandActual(
     CTCLInterpreter& interp, const char* command
 ) :
     CTCLObjectProcessor(interp, command, true)
@@ -40,7 +42,7 @@ CSpectrumStatsCommand::CSpectrumStatsCommand(
 /**
  * destructor
  */
-CSpectrumStatsCommand::~CSpectrumStatsCommand()
+CSpectrumStatsCommandActual::~CSpectrumStatsCommandActual()
 {}
 
 /**
@@ -55,8 +57,15 @@ CSpectrumStatsCommand::~CSpectrumStatsCommand()
  * @retval TCL_OK - Successful completion.
  * @retval TCL_ERROR - Failure.
 */
-int CSpectrumStatsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+int CSpectrumStatsCommandActual::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
+
+    // If we are running parallel but are not the MPI_EVENT_SINK_RANK 
+    // Just return TCL_OK - the return value used in the root rank will be the
+    // longest string which will be the one in MPI_EVENT_SINK_RANK.
+    if (gMPIParallel && (myRank() != MPI_EVENT_SINK_RANK)) {
+        return TCL_OK;
+    }
     bindAll(interp, objv);
     
     // We use exception handling to deal with errors:
@@ -113,7 +122,7 @@ int CSpectrumStatsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLO
  *  @return std::string - Command usage:
  */
 std::string
-CSpectrumStatsCommand::Usage(std::string command)
+CSpectrumStatsCommandActual::Usage(std::string command)
 {
     std::string message = "Usage\n   ";
     message += command;
@@ -136,7 +145,7 @@ CSpectrumStatsCommand::Usage(std::string command)
  *            such is Tcl.
  */
 CTCLObject*
-CSpectrumStatsCommand::makeStatsDict(
+CSpectrumStatsCommandActual::makeStatsDict(
     CTCLInterpreter& interp, std::string name, CSpectrum* pSpectrum
 )
 {
@@ -173,3 +182,8 @@ CSpectrumStatsCommand::makeStatsDict(
     
     return pObj;
 }
+
+// The MPI wrapper:
+
+CSpectrumStatsCommand::CSpectrumStatsCommand(CTCLInterpreter& rInterp) :
+    CMPITclCommand(rInterp, "specstats", new CSpectrumStatsCommandActual(rInterp)) {}
