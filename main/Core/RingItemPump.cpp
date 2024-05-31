@@ -191,10 +191,12 @@ assembleTargetedData(pRingItemEvent pEvent) {
     if (!pEvent->s_pData) {
         throw std::runtime_error("Tcl_Alloc failed in assembleTargetedData");
     }
+    // Note this recv must allow sends from anywhere as we may send ourselves
+    // a message to stop.
     MPI_Status status;
     if (MPI_Recv
         (pEvent->s_pData, MAX_MESSAGE_SIZE, MPI_UINT8_T,
-         0, MPI_RING_ITEM_TAG, gRingItemComm, &status
+         MPI_ANY_SOURCE, MPI_RING_ITEM_TAG, gRingItemComm, &status
         ) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to receive a chunk in assembleTargetedData");
     }
@@ -226,7 +228,7 @@ assembleTargetedData(pRingItemEvent pEvent) {
         while (remainingSize) {
             if (MPI_Recv(
                 p, remainingSize, MPI_UINT8_T, 
-                0, MPI_RING_ITEM_TAG, gRingItemComm, &status
+                MPI_ANY_SOURCE, MPI_RING_ITEM_TAG, gRingItemComm, &status
             ) != MPI_SUCCESS) {
                 throw std::runtime_error("Failed to receive a chunk in assembleTargetedData");
             }

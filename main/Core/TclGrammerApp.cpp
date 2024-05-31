@@ -1506,15 +1506,19 @@ MpiExitHandler() {
 
       MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
       stopCommandPump();     // Broadcasts the dummy exit thing
+      
     } 
     if (myRank() == MPI_EVENT_SINK_RANK) {
       // Stop the histogram pump:
       stopHistogramPump();
       stopGatePump();            // We broadcast the stop message.
       CGateCommand::stopTracePump();
-    } else {
-      stopRingItemPump();
-    }
+    }  else {
+      // Root or worker can call this:
+      //    - Root will broadcast a dummy event to kill the broadcast recieve thread and
+      //    - Workers will send themselves a dummy event to kill the MPI_Recv thread.
+      stopRingItemPump(); 
+    } 
     sleep(2);         // Let all the thread exit before pulling the MPI  rug out.
     MPI_Finalize();   // Ignore status - might have already been called.
   }
