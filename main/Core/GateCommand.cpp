@@ -1071,6 +1071,9 @@ CGateCommand::mpiTraceRelayCatchThread(ClientData command) {
       != MPI_SUCCESS) {
         throw std::runtime_error("Failed to read a trace notifiation");
     }
+    if (message.s_traceType == TRACE_EXIT_THREAD) {
+      break;
+    }
     auto pEvent = reinterpret_cast<GateTraceEvent*>(Tcl_Alloc(sizeof(GateTraceEvent)));
     if (!pEvent) {
       throw std::runtime_error("Failed to allocate a gate trace Tcl event");
@@ -1083,7 +1086,7 @@ CGateCommand::mpiTraceRelayCatchThread(ClientData command) {
     Tcl_ThreadQueueEvent(pCommand->m_id, &pEvent->s_event, TCL_QUEUE_TAIL);
     Tcl_ThreadAlert(pCommand->m_id);
   }
-
+  TCL_THREAD_CREATE_RETURN;
 }
 // The event handler - we just invoke the appropriate trace script method.
 //
@@ -1120,4 +1123,26 @@ CGateCommand::startTracePump() {
     );
   }
 }
+// Called by the event sink rank to stop the gate pump by sending it a TRACE_EXIT_THREAD
+// type message.  This is static so it can be called without reference to the object.
+
+void
+CGateCommand::stopTracePump() {
+#ifdef WITH_MPI
+  if (myRank() == MPI_EVENT_SINK_RANK) {
+    // Only we can send it:
+
+    TraceRelay message;
+    message.s_traceType = TRACE_EXIT_THREAD;
+    message.s_gateName[0] = '\0';
+
+    MPI_Send(
+      &message, 1, getTraceRelayType(),
+       MPI_ROOT_RANK, MPI_TRACE_RELAY_TAG, MPI_COMM_WORLD
+    );
+  }
+#endif
+}
+
+
 #endif

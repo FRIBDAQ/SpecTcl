@@ -48,6 +48,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CSpectrumStatsCommand.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "GateBinderObserver.h"
+#include "GateCommand.h"
 #include "GatingDisplayObserver.h"
 #include "CHistogrammerFitObserver.h"
 
@@ -1510,10 +1511,11 @@ MpiExitHandler() {
       // Stop the histogram pump:
       stopHistogramPump();
       stopGatePump();            // We broadcast the stop message.
+      CGateCommand::stopTracePump();
     } else {
       stopRingItemPump();
     }
-  
+    sleep(2);         // Let all the thread exit before pulling the MPI  rug out.
     MPI_Finalize();   // Ignore status - might have already been called.
   }
 #endif

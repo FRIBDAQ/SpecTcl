@@ -141,6 +141,7 @@ public:
   void   invokeAScript(CTCLObject* pScript, std::string parameter);
 
 
+  static void stopTracePump();
 
 protected:
 
@@ -158,6 +159,7 @@ private:
   static Tcl_ThreadCreateType mpiTraceRelayCatchThread(ClientData command);
   static int traceRelayEventHandler(Tcl_Event* pEvent, int flags);
   void startTracePump();
+  
 #endif
 
 };
