@@ -53,12 +53,18 @@ jobs:
           ssh-add -D
           
           eval `ssh-agent -k`
+      - name: Incorporate DDAS format
+        working-directory: ./main
+        shell: bash
+        run: |
+          git config --global --add safe.directory '*'
+          if test -e ddasfmt-incorp.sh ; then ./ddasfmt-incorp.sh 1.1; fi
       - name: Incorporate CutiePie
         working-directory: ./main
         shell: bash
         run: |
           git config --global --add safe.directory '*'
-          if test -e qtpi-incorp.sh ; then ./qtpi-incorp.sh  v1.4; fi
+          if test -e qtpi-incorp.sh ; then ./qtpi-incorp.sh v1.5; fi
       - name: Creating build directory
         run: mkdir main/oot
       - name: Configuring
@@ -77,6 +83,8 @@ jobs:
           cd ../libtcl
           make clean
           cd ../unifiedformat
+          rm -rf build
+          cd ../ddasformat
           rm -rf build
           cd ../oot
           make -j2 dist
