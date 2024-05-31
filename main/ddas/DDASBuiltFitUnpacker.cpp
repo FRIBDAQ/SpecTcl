@@ -3,7 +3,7 @@
 #include "DDASBuiltFitUnpacker.h"
 #include "FitParameterMapper.h"
 
-#include "DDASHit.h"
+#include <DDASHit.h>
 #include "FitHitUnpacker.h"
 
 #include "Globals.h"
