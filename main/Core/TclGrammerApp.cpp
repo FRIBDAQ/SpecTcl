@@ -1503,8 +1503,11 @@ MpiExitHandler() {
       exitCommand.commandLength = strlen("exit") + 1;
       strcpy(exitCommand.commandChunk, "exit");
       exitCommand.commandChunk[exitCommand.commandLength - 1] = '\0';
-
+      std::cerr << "Exit handler sending: \n";
+      std::cerr << "size: " << exitCommand.commandLength << std::endl;
+      std::cerr << "String: " << exitCommand.commandChunk << std::endl;
       MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
+      std::cerr << "Stopping the pump\n";
       stopCommandPump();     // Broadcasts the dummy exit thing
       
     } 

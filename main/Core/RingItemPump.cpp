@@ -226,8 +226,9 @@ assembleTargetedData(pRingItemEvent pEvent) {
         }
         uint8_t* p = reinterpret_cast<uint8_t*>(pEvent->s_pData) + receivedBytes;
         while (remainingSize) {
+            int chunksize = remainingSize > MAX_MESSAGE_SIZE ? MAX_MESSAGE_SIZE : remainingSize;
             if (MPI_Recv(
-                p, remainingSize, MPI_UINT8_T, 
+                p, chunksize, MPI_UINT8_T, 
                 MPI_ANY_SOURCE, MPI_RING_ITEM_TAG, gRingItemComm, &status
             ) != MPI_SUCCESS) {
                 throw std::runtime_error("Failed to receive a chunk in assembleTargetedData");
@@ -329,7 +330,9 @@ physicsThread(ClientData parent) {
         }
         
         assembleTargetedData(pE); // Fills in all of pE.
-        if (!pE->s_pData) break;  // End marker.
+        if (!pE->s_pData) {
+             break;  // End marker.
+        }
         Tcl_ThreadQueueEvent(targetThread, &(pE->s_base), TCL_QUEUE_TAIL);
     }
     TCL_THREAD_CREATE_RETURN;
@@ -493,7 +496,7 @@ stopRingItemPump() {
         if (rank == 0) {  
             broadcastRingItem(&dummyEvent, sizeof(RingItemHeader));
         } else {
-            MPI_Send(&dummyEvent, sizeof(RingItemHeader), MPI_UINT8_T, 
+            MPI_Send(&dummyEvent, static_cast<int>(sizeof(RingItemHeader)), MPI_UINT8_T, 
                 rank, MPI_RING_ITEM_TAG, gRingItemComm
             );
         }

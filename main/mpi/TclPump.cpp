@@ -331,7 +331,10 @@ static int MPIExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& word
 
         MpiTclCommandChunk chunk;
         chunk.commandLength = len + 1;           // Null terminator.
+        std::cerr << "Length: " << chunk.commandLength << std::endl;
+        memset(chunk.commandChunk, 0, MAX_TCL_CHUNKSIZE);
         memcpy(chunk.commandChunk, command.substr(chunkstart, thisChunk).data(), thisChunk);
+        std::cerr << " string: " << chunk.commandChunk << std::endl;
         if (MPI_Bcast(&chunk, 1, getTclCommandChunkType(), myRank(), MPI_COMM_WORLD) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to send command to slaves");
         }
@@ -497,13 +500,18 @@ static Tcl_ThreadCreateType CommandPumpThread(ClientData pData) {
     pCommandEvent event = createCommandEvent();
     while (runPump) {
         MpiTclCommandChunk chunk;
-        MPI_Status         status;
         if (MPI_Bcast(
                 &chunk, 1, getTclCommandChunkType(), MPI_TCL_SOURCE, 
                 MPI_COMM_WORLD
             ) != MPI_SUCCESS) {
             std::cerr << "Failed to receive a tcl command chunk in command pump thread\n";
             Tcl_Exit(-1);
+        }
+        std::cerr << "got a command chunk for " << chunk.commandLength << std::endl;
+        std::cerr << "Chunk: "  << chunk.commandChunk << std::endl;
+        if (chunk.commandLength == 0) {
+            std::cerr << "Stopping command chunk thread\n";
+            break;
         }
         appendCommandChunk(event, chunk);
         if (event->command->size() == chunk.commandLength) {
@@ -569,7 +577,8 @@ void stopCommandPump() {
         // ensures that we won't queue an event.
 
         MpiTclCommandChunk dummyChunk;
-        dummyChunk.commandLength = MAX_TCL_CHUNKSIZE + 100;
+        dummyChunk.commandLength = 0;
+        memset(dummyChunk.commandChunk, 0, MAX_TCL_CHUNKSIZE);
 
         // Need to send to self:
 
