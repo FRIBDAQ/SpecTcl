@@ -3,8 +3,8 @@
 #include "DDASBuiltUnpacker.h"
 #include "ParameterMapper.h"
 
-#include "DDASHit.h"
-#include "DDASHitUnpacker.h"
+#include <DDASHit.h>
+#include <DDASHitUnpacker.h>
 
 #include "Globals.h"
 #include <TCLAnalyzer.h>

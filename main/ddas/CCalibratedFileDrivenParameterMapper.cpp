@@ -89,9 +89,9 @@ CCalibratedFileDrivenParameterMapper::mapToParameters(
 {
     for (auto h = 0; h < hits.size(); h++) {
         const DAQ::DDAS::DDASHit& hit(hits[h]);
-        unsigned c = hit.GetCrateID();
-        unsigned s = hit.GetSlotID();
-        unsigned ch= hit.GetChannelID();
+        unsigned c = hit.getCrateID();
+        unsigned s = hit.getSlotID();
+        unsigned ch= hit.getChannelID();
         
         const ParameterInfo& info(getParameterInfo(c, s, ch));  // Can throw
         unpackRaw(hit, info);
@@ -365,7 +365,7 @@ CCalibratedFileDrivenParameterMapper::unpackRaw(
 )
 {
     if (info.s_raw) {
-        *(info.s_raw) = hit.GetEnergy();
+        *(info.s_raw) = hit.getEnergy();
     }
 }
 /**
@@ -384,7 +384,7 @@ CCalibratedFileDrivenParameterMapper::unpackCalibration(
         double l = getCoefficient(info.s_calibration.s_linear);
         double q = getCoefficient(info.s_calibration.s_quadratic);
         
-        double e = hit.GetEnergy();
+        double e = hit.getEnergy();
         double calib = c + e*(l + q * e);  // Avoids squaring etc.
         *(info.s_calibrated) = calib;
     }

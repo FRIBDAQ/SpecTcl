@@ -41,8 +41,8 @@ void MyParameterMapper::mapToParameters(const std::vector<DDASHit>& channelData,
 	int globalChanIdx = computeGlobalIndex(hit);
     
 	// Assign values to appropriate channel:
-	m_params.chan[globalChanIdx].energy    = hit.GetEnergy();
-	m_params.chan[globalChanIdx].timestamp = hit.GetTime();
+	m_params.chan[globalChanIdx].energy    = hit.getEnergy();
+	m_params.chan[globalChanIdx].timestamp = hit.getTime();
     }
   
 }
@@ -51,9 +51,9 @@ void MyParameterMapper::mapToParameters(const std::vector<DDASHit>& channelData,
 // 
 int MyParameterMapper::computeGlobalIndex(const DDASHit& hit) 
 {
-    int crateId = hit.GetCrateID();
-    int slotIdx = hit.GetSlotID() - 2; // First module is in slot 2.
-    int chanIdx = hit.GetChannelID();
+    int crateId = hit.getCrateID();
+    int slotIdx = hit.getSlotID() - 2; // First module is in slot 2.
+    int chanIdx = hit.getChannelID();
 
     const int nChanPerSlot = 16;
 

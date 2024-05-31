@@ -1,14 +1,14 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.14-000, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl, 5.14-000, daqhelp@frib.msu.edu)
 
 # These are default version/tag for unifiedfmt, tcl++ and qtpi
 # If the bulder has not explicitly run the incorporation 
 # scripts, the versions below will be used to incorporate for you:
 # Update as the 'good' version updates:
 
-
 UNIFIED_FMT_VERSION="1.2"
+DDAS_FMT_VERSION="1.1"
 TCLPLUS_VERSION="libtclplus-v4.3-002"
 CUTIEPIE_VERSION="v1.5"
 
@@ -806,19 +806,46 @@ AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [UFMT_USER="1"], [UFMT_U
 
 if test "${UFMT_USER}" = "0"
 then
-   AC_MSG_NOTICE([Incorporating version ${UNIFIED_FMT_VERSION} for you])
-   ${srcdir}/unifiedfmt-incorp.sh ${UNIFIED_FMT_VERSION}
+   AC_MSG_NOTICE([Incorporating unified format version ${UNIFIED_FMT_VERSION} for you])
+   {srcdir}/unifiedfmt-incorp.sh ${UNIFIED_FMT_VERSION}
 fi
 
 rm -rf unifiedformat/build
 mkdir -p unifiedformat/build
 sourcedir="`realpath ${srcdir}`"
 AC_MSG_NOTICE([Building unified format at ${sourcedir}])
+
 (cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all install)
 UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
 UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
 AC_SUBST(UFMT_CPPFLAGS)
 AC_SUBST(UFMT_LDFLAGS)
+
+#
+#  If the user has not yet incorporated DDAS format
+#  version try incorporating it for them then building regardless.
+#  This won't work on an out of tree initial build without the 
+#  Source tree already having done one and a readonly source tree.
+#
+#  Note that DDAS format also depends on cmake but we check for that above.
+#
+AC_CHECK_FILE([${srcdir}/ddasformat/CMakeLists.txt], [DDASFMT_USER="1"], [DDASFMT_USER="0"])
+
+if test "${DDASFMT_USER}" = "0"
+then
+   AC_MSG_NOTICE([Incorporating DDAS format version ${DDAS_FMT_VERSION} for you])
+   ${srcdir}/ddasfmt-incorp.sh ${DDAS_FMT_VERSION}
+fi
+
+rm -rf ddasformat/build
+mkdir -p ddasformat/build
+sourcedir="`realpath ${srcdir}`"
+AC_MSG_NOTICE([Building DDAS format at ${sourcedir}])
+(cd ddasformat/build;  cmake ${sourcedir}/ddasformat -DCMAKE_INSTALL_PREFIX=${prefix}/ddasformat; make all install)
+DDASFMT_CPPFLAGS="-I${prefix}/ddasformat/include"
+DDASFMT_LDFLAGS="-L${prefix}/ddasformat/lib -lDDASFormat -Wl,-rpath=${prefix}/ddasformat/lib"
+AC_SUBST(DDASFMT_CPPFLAGS)
+AC_SUBST(DDASFMT_LDFLAGS)
 
 #
 #   libTclPlus and libException could have been installed from 

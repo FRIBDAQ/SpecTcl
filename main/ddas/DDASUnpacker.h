@@ -21,8 +21,8 @@
 #define DAQ_DDAS_DDASUNPACKER_H
 
 #include <config.h>
-#include "DDASHit.h"
-#include "DDASHitUnpacker.h"
+#include <DDASHit.h>
+#include <DDASHitUnpacker.h>
 
 #include <EventProcessor.h>
 #include <TranslatorPointer.h>

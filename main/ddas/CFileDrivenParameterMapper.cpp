@@ -78,10 +78,10 @@ CFileDrivenParameterMapper::mapToParameters(
         
         // Fetch out the stuff we need:
         
-        unsigned crate = hit.GetCrateID();
-        unsigned slot  = hit.GetSlotID();
-        unsigned chan  = hit.GetChannelID();
-        unsigned energy= hit.GetEnergy();
+        unsigned crate = hit.getCrateID();
+        unsigned slot  = hit.getSlotID();
+        unsigned chan  = hit.getChannelID();
+        unsigned energy= hit.getEnergy();
         
         // Now probe our way down the vectors to see if there's a mapping to
         // a parameter:
