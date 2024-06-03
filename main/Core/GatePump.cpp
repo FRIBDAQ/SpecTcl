@@ -413,7 +413,6 @@ receiveGate() {
             throw std::runtime_error("receiveGate failed to get name and type");
         }
         if (buffer.s_gateType == -1) {
-            std::cerr << "Got an end gate marker " << myRank() << std::endl;
             delete result;
             return nullptr;
         }
@@ -651,13 +650,11 @@ broadcastGate(std::string name, CGate* pGate) {
  * results in the thread exiting.
 */
 void stopGatePump() {
-    std::cerr << "Stop gate Pump " << myRank() << std::endl;
     GateNameAndType msg;
     msg.s_gateType = -1;
     strncpy(msg.s_gateName, "dummy", MAX_GATENAME);
 
     MPI_Bcast(&msg, 1, nameAndType(), MPI_EVENT_SINK_RANK, gXamineGateComm);
-    std::cerr << " Sent\n";
 
 }
 

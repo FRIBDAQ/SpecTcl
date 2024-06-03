@@ -55,7 +55,6 @@ CFilterDictionary* CFilterDictionary::GetInstance() {
 void
 CFilterDictionary::onExit()
 {
-  std::cerr << "Filter dict exit handler\n";
   // Don't need to do anything if no filters
 
   cerr << "closing off filters\n";
@@ -65,11 +64,11 @@ CFilterDictionary::onExit()
     while(p != m_pInstance->end()) {
       CGatedEventFilter* pFilter = p->second;
       if(pFilter->CheckEnabled()) {
-	pFilter->Disable();
-	cerr << "Closed filter: " << p->first << endl;
+        pFilter->Disable();
+        cerr << "Closed filter: " << p->first << endl;
       }
       p++;
     }
   }
-  std::cerr << "Filter dict exit handler done\n";
 }
+ 

@@ -1505,7 +1505,7 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
 static void
 MpiExitHandler() {
 #ifdef WITH_MPI
-  std::cerr << "MPI exit handler for " << myRank() << std::endl;
+
   // Note that if we are rank 0 we spray the exit command to all of the
   // other ranks.  Sincde exit won't make a status, we don't get replies.
   if (gMPIParallel) {
@@ -1514,23 +1514,15 @@ MpiExitHandler() {
       exitCommand.commandLength = strlen("exit") + 1;
       strcpy(exitCommand.commandChunk, "exit");
       exitCommand.commandChunk[exitCommand.commandLength - 1] = '\0';
-      std::cerr << "Exit handler sending: \n";
-      std::cerr << "size: " << exitCommand.commandLength << std::endl;
-      std::cerr << "String: " << exitCommand.commandChunk << std::endl;
       MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
-      std::cerr << "Stopping the pump\n";
       stopCommandPump();     // Broadcasts the dummy exit thing
       
     } 
     if (myRank() == MPI_EVENT_SINK_RANK) {
       // Stop the histogram pump:
       stopHistogramPump();
-      std::cerr << " stopping gate pump for " << myRank() << std::endl;
       stopGatePump();            // We broadcast the stop message.
-      std::cerr << "Stopped\n";
-      std::cerr << "Stopping trace pump\n";
       CGateCommand::stopTracePump();
-      std::cerr << "Stopped\n";
     }  else {
       // Root or worker can call this:
       //    - Root will broadcast a dummy event to kill the broadcast recieve thread and
@@ -1539,7 +1531,6 @@ MpiExitHandler() {
     } 
     sleep(2);         // Let all the thread exit before pulling the MPI  rug out.
 
-    std::cerr << "Rank " << myRank() << " Entering MPI_RINALIZE\n";
     MPI_Finalize();   // Ignore status - might have already been called.
   }
 #endif
