@@ -55,6 +55,7 @@ CFilterDictionary* CFilterDictionary::GetInstance() {
 void
 CFilterDictionary::onExit()
 {
+  std::cerr << "Filter dict exit handler\n";
   // Don't need to do anything if no filters
 
   cerr << "closing off filters\n";
@@ -70,4 +71,5 @@ CFilterDictionary::onExit()
       p++;
     }
   }
+  std::cerr << "Filter dict exit handler done\n";
 }

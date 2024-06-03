@@ -545,7 +545,9 @@ void startCommandPump(CTCLInterpreter& rInterp) {
 #ifdef WITH_MPI
     pReceiverInterp = &rInterp;
     mainThread = Tcl_GetCurrentThread();
-    int status = Tcl_CreateThread(&pumpThread, CommandPumpThread, nullptr, TCL_THREAD_STACK_DEFAULT, TCL_THREAD_JOINABLE);
+    int status = Tcl_CreateThread(
+        &pumpThread, CommandPumpThread, nullptr, 
+        TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS);
     if (status != TCL_OK) {
         throw std::runtime_error("Could not start command pump thread!");
     }

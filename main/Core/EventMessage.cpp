@@ -287,5 +287,6 @@ stopHistogramPump() {
         fakeEvents[0] = new CEvent;
         HistogramEvents(fakeEvents);
         Tcl_JoinThread(pumpThread, &exitStatus);  // Don't carea aboput the exit status.
+        std::cerr << "Histogram pump thread joined\n";
     }
 }
