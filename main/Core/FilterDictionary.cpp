@@ -64,10 +64,11 @@ CFilterDictionary::onExit()
     while(p != m_pInstance->end()) {
       CGatedEventFilter* pFilter = p->second;
       if(pFilter->CheckEnabled()) {
-	pFilter->Disable();
-	cerr << "Closed filter: " << p->first << endl;
+        pFilter->Disable();
+        cerr << "Closed filter: " << p->first << endl;
       }
       p++;
     }
   }
 }
+ 

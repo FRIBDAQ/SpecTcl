@@ -24,6 +24,7 @@
 #include <string.h>
 #include <vector>
 #include <Globals.h>
+#include <iostream>
 
 #include "Cut.h"
 #include "PointlistGate.h"
@@ -32,6 +33,7 @@
 #include "CGammaContour.h"
 #ifdef WITH_MPI
 #include <mpi.h>
+#include <TclPump.h>
 #endif
 #include <tcl.h>
 
@@ -410,6 +412,10 @@ receiveGate() {
             ) != MPI_SUCCESS) {
             throw std::runtime_error("receiveGate failed to get name and type");
         }
+        if (buffer.s_gateType == -1) {
+            delete result;
+            return nullptr;
+        }
         result->s_type = static_cast<GateType_t>(buffer.s_gateType);
         result->s_name = buffer.s_gateName;
     }
@@ -549,9 +555,11 @@ gateThread (ClientData cd) {
         p->s_base.proc = gateEventHandler;
         p->s_base.nextPtr = nullptr;
         p->s_pGate = receiveGate();
+        if (!p->s_pGate) break;             // Exit msg.
         Tcl_ThreadQueueEvent(interpThread, &(p->s_base), TCL_QUEUE_TAIL);
         Tcl_ThreadAlert(interpThread);
     }
+     TCL_THREAD_CREATE_RETURN;
 }
 
 
@@ -565,6 +573,7 @@ gateThread (ClientData cd) {
 */
 void startGatePump() {
 #ifdef WITH_MPI
+    RegisterTypes();
     if (gMPIParallel) {
         interpThread = Tcl_GetCurrentThread();
         Tcl_ThreadId listener;
@@ -630,10 +639,24 @@ broadcastGate(std::string name, CGate* pGate) {
         }
 
     }
+
+
     
 #endif
 }
+/**
+ * stop the gate pump thread...we send a dummy gate with a type of -1
+ * When receive gate gets that it will return a null gate which 
+ * results in the thread exiting.
+*/
+void stopGatePump() {
+    GateNameAndType msg;
+    msg.s_gateType = -1;
+    strncpy(msg.s_gateName, "dummy", MAX_GATENAME);
 
+    MPI_Bcast(&msg, 1, nameAndType(), MPI_EVENT_SINK_RANK, gXamineGateComm);
+
+}
 
 
 

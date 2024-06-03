@@ -48,6 +48,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CSpectrumStatsCommand.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "GateBinderObserver.h"
+#include "GateCommand.h"
 #include "GatingDisplayObserver.h"
 #include "CHistogrammerFitObserver.h"
 
@@ -191,7 +192,9 @@ CTclGrammerApp* CTclGrammerApp::m_pInstance = NULL;
 char** CTclGrammerApp::m_pArgV = NULL;
 int CTclGrammerApp::m_argc = 0;
 
+// Forward definitions:
 
+static void MpiExitHandler();
 
 /**
  * @class CSpecTclInitVar
@@ -649,6 +652,7 @@ void CTclGrammerApp::SelectDisplayer()
         std::string error("User specified display type does not exist.");
         throw std::runtime_error(error);
     }
+    
 }
 /**
  *  SelectDisplayer
@@ -1108,6 +1112,13 @@ int CTclGrammerApp::operator()() {
     // Set up the display that was picked
     SetUpDisplay();
   }
+  if (gMPIParallel) {
+    // We need to establish the exit handler here because
+    // If the displayer is Xamine, SpecTcl also forks of a copy of itself to monitor
+    // if it exits, that copy inherits our exit handler and thinks it's the event sink rank
+    // and tries to stop pumps the event sink rank stops; hanging.
+    atexit(MpiExitHandler);
+  }
 
   // Setup the test data source: - in the root rank.
   // The analyzer and decoder are done here as when we are analyzing data
@@ -1494,6 +1505,7 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
 static void
 MpiExitHandler() {
 #ifdef WITH_MPI
+
   // Note that if we are rank 0 we spray the exit command to all of the
   // other ranks.  Sincde exit won't make a status, we don't get replies.
   if (gMPIParallel) {
@@ -1502,10 +1514,23 @@ MpiExitHandler() {
       exitCommand.commandLength = strlen("exit") + 1;
       strcpy(exitCommand.commandChunk, "exit");
       exitCommand.commandChunk[exitCommand.commandLength - 1] = '\0';
-
       MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
-    }
-  
+      stopCommandPump();     // Broadcasts the dummy exit thing
+      
+    } 
+    if (myRank() == MPI_EVENT_SINK_RANK) {
+      // Stop the histogram pump:
+      stopHistogramPump();
+      stopGatePump();            // We broadcast the stop message.
+      CGateCommand::stopTracePump();
+    }  else {
+      // Root or worker can call this:
+      //    - Root will broadcast a dummy event to kill the broadcast recieve thread and
+      //    - Workers will send themselves a dummy event to kill the MPI_Recv thread.
+      stopRingItemPump(); 
+    } 
+    sleep(2);         // Let all the thread exit before pulling the MPI  rug out.
+
     MPI_Finalize();   // Ignore status - might have already been called.
   }
 #endif
@@ -1527,9 +1552,10 @@ int CTclGrammerApp::MPIAppInit(Tcl_Interp* pInterp) {
     std::cerr << "BUG : MPI_InitFailed" << std::endl;
     exit(EXIT_FAILURE);
   }
-  // Let's make sure that MPI_Finalize is called by setting a Tcl exit handler:
+  // Let's make sure that MPI_Finalize is called by setting an atexit handler
 
-   atexit(MpiExitHandler);
+  std::cerr << "Setting MpiExitHandler for rank: " << myRank() << std::endl; 
+  
 
   // The app must be at least big enough for one worker:
 

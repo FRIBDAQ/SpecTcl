@@ -29,7 +29,7 @@ class CTCLObject;
 #define MPI_TCL_TAG  1    // Tcl commands have this tag
 #define MAX_TCL_CHUNKSIZE 50
 typedef struct _MpiTclCommandChunk {
-    int long commandLength;                     // Length of the command.
+    int commandLength;                     // Length of the command.
     char commandChunk[MAX_TCL_CHUNKSIZE];  // command chunk.
 } MpiTclCommandChunk, *pMpiTclCommandChunk;
 

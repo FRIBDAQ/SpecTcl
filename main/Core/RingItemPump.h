@@ -36,4 +36,5 @@ void sendRingItem(const void* pItem, size_t size);
 void broadcastRingItem(const void* pItem, size_t size);
 
 void startRingItemPump();
+void stopRingItemPump();
 #endif

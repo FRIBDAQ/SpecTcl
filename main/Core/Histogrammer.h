@@ -213,6 +213,7 @@ class CHistogrammer : public CEventSink {
 static const int TRACE_ADD_GATE(1);
 static const int TRACE_REMOVE_GATE(2);
 static const int TRACE_MODIFY_GATE(3);
+static const int TRACE_EXIT_THREAD(4);
 #define MAX_GATE_NAME 256     // Hopefully enough.
 struct TraceRelay {            // trace message body.
   int s_traceType;             // Type of trace -see above.

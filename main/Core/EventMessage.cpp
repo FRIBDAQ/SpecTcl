@@ -257,7 +257,7 @@ void HistogramEvents(CEventList& events) {
  * 
 */
 void startHistogramPump() {
-    
+    RegisterTypes();
     mainThread = Tcl_GetCurrentThread();
     if (pumping) {
         stopHistogramPump();
@@ -284,6 +284,7 @@ stopHistogramPump() {
         int exitStatus;
         pumping = false;          // Stop on next message.
         CEventList fakeEvents(1);
+        fakeEvents[0] = new CEvent;
         HistogramEvents(fakeEvents);
         Tcl_JoinThread(pumpThread, &exitStatus);  // Don't carea aboput the exit status.
     }

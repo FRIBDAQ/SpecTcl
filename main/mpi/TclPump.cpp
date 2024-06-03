@@ -331,6 +331,7 @@ static int MPIExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& word
 
         MpiTclCommandChunk chunk;
         chunk.commandLength = len + 1;           // Null terminator.
+        memset(chunk.commandChunk, 0, MAX_TCL_CHUNKSIZE);
         memcpy(chunk.commandChunk, command.substr(chunkstart, thisChunk).data(), thisChunk);
         if (MPI_Bcast(&chunk, 1, getTclCommandChunkType(), myRank(), MPI_COMM_WORLD) != MPI_SUCCESS) {
             throw std::runtime_error("Failed to send command to slaves");
@@ -377,7 +378,6 @@ int ExecCommand(CTCLInterpreter& interp, std::vector<CTCLObject>& words) {
 // queues an event for the main thread which is handled by executing the command and returning the
 // status and result to the rank0 sender.
 
-static bool runPump(false);    // If false, don't run.
 static Tcl_ThreadId mainThread;  // Thread running the interp.
 static Tcl_ThreadId pumpThread;  // Thread running the pump.
 static CTCLInterpreter* pReceiverInterp(0); // Interp we're pumping to.
@@ -495,15 +495,17 @@ createCommandEvent() {
 static Tcl_ThreadCreateType CommandPumpThread(ClientData pData) {
 #ifdef WITH_MPI
     pCommandEvent event = createCommandEvent();
-    while (runPump) {
-        MpiTclCommandChunk chunk;
-        MPI_Status         status;
+    MpiTclCommandChunk chunk;
+    while (true) {
         if (MPI_Bcast(
                 &chunk, 1, getTclCommandChunkType(), MPI_TCL_SOURCE, 
                 MPI_COMM_WORLD
             ) != MPI_SUCCESS) {
             std::cerr << "Failed to receive a tcl command chunk in command pump thread\n";
             Tcl_Exit(-1);
+        }
+        if (chunk.commandLength == 0) {
+            break;
         }
         appendCommandChunk(event, chunk);
         if (event->command->size() == chunk.commandLength) {
@@ -536,52 +538,43 @@ static Tcl_ThreadCreateType CommandPumpThread(ClientData pData) {
 */
 void startCommandPump(CTCLInterpreter& rInterp) {
 #ifdef WITH_MPI
-    if (runPump) {
-        // Stop running pump:
-
-        stopCommandPump();
-    }
-    
-    // Start the pump:
-
-    runPump = true;          // Should pump.
     pReceiverInterp = &rInterp;
     mainThread = Tcl_GetCurrentThread();
-    int status = Tcl_CreateThread(&pumpThread, CommandPumpThread, nullptr, TCL_THREAD_STACK_DEFAULT, TCL_THREAD_JOINABLE);
+    int status = Tcl_CreateThread(
+        &pumpThread, CommandPumpThread, nullptr, 
+        TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS);
     if (status != TCL_OK) {
-        runPump = false;
         throw std::runtime_error("Could not start command pump thread!");
     }
 #endif
 }
 /** 
- * If the command pump thread is running, stop it
- * This is done by setting runPump false and 
+ * stop the command pump in all ranks by sending a null message.
+ * THe pump thread will see that and return.
  * sending a null command pump message to ourselves to ensure that
  * we stop...then  joining the thread.
  * 
 */
 void stopCommandPump() {
 #ifdef WITH_MPI
-    if (runPump) {
-        runPump = false;
-        // Note that initializing the length to bigger than maxchunk
-        // ensures that we won't queue an event.
+    // Note that initializing the length to bigger than maxchunk
+    // ensures that we won't queue an event.
 
-        MpiTclCommandChunk dummyChunk;
-        dummyChunk.commandLength = MAX_TCL_CHUNKSIZE + 100;
+    MpiTclCommandChunk dummyChunk;
+    dummyChunk.commandLength = 0;
+    memset(dummyChunk.commandChunk, 0, MAX_TCL_CHUNKSIZE);
 
-        // Need to send to self:
+    // Need to send to self:
 
-        int rank;
-        if (MPI_Comm_rank(MPI_COMM_WORLD, &rank) != MPI_SUCCESS) {
-            throw std::runtime_error("stopCommandPump could not get MPI Ranks");
-        }
+    int rank;
+    if (MPI_Comm_rank(MPI_COMM_WORLD, &rank) != MPI_SUCCESS) {
+        throw std::runtime_error("stopCommandPump could not get MPI Ranks");
+    }
+    if (rank == MPI_TCL_SOURCE) {
         if (MPI_Bcast(&dummyChunk, 1, getTclCommandChunkType(), rank, MPI_COMM_WORLD) != MPI_SUCCESS) {
             throw std::runtime_error("stopCommandPump could not stop the pump");
         }
-        int pumpResult;
-        Tcl_JoinThread(pumpThread, &pumpResult);
     }
+
 #endif
 }
