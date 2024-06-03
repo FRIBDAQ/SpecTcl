@@ -1,8 +1,8 @@
 #!/bin/bash
 
-## Incorporate the DDAS format library:
+##  Incorporate the DDAS format library:
 
-# Most recently used version: 1.0
+# Most recently used version: 1.1
 
 REPOSITORY="https://github.com/FRIBDAQ/DDASFormat.git"
 TAG=$1
