@@ -207,7 +207,7 @@ assembleTargetedData(pRingItemEvent pEvent) {
     
     // How much data shoulid we get (assume we got at least the first long)
     uint32_t* pSize = reinterpret_cast<uint32_t*>(pEvent->s_pData);
-    if (pSize == 0) {
+    if (*pSize == 0) {
         // end marker.
         Tcl_Free(reinterpret_cast<char*>(pEvent->s_pData));
         pEvent->s_pData = nullptr;
@@ -325,7 +325,7 @@ physicsThread(ClientData parent) {
             0, MPI_RING_ITEM_TAG, gRingItemComm
         );
         if(status != MPI_SUCCESS) {
-            std::cerr << "MPI Stauts on send error in pump: " << status << std::endl;
+            std::cerr << "MPI Status on send error in pump: " << status << std::endl;
             throw std::runtime_error("Worker failed to request a work item");
         }
         
