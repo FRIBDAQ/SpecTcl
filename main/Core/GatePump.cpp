@@ -650,12 +650,13 @@ broadcastGate(std::string name, CGate* pGate) {
  * results in the thread exiting.
 */
 void stopGatePump() {
+#ifdef WITH_MPI
     GateNameAndType msg;
     msg.s_gateType = -1;
     strncpy(msg.s_gateName, "dummy", MAX_GATENAME);
 
     MPI_Bcast(&msg, 1, nameAndType(), MPI_EVENT_SINK_RANK, gXamineGateComm);
-
+#endif
 }
 
 
