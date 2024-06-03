@@ -219,6 +219,11 @@ void Xamine_clearStatistics(unsigned nSpetrum);
 
 int Xamine_genenv(const char* name, int specbytes);
 
+/*  This is added for mpi spectcl - we add a flag to indicate if this process */
+/* is the shmem monitor so atexits' can test for that */
+
+extern int is_xamine_shm_monitor;
+
 #if defined(__cplusplus) || defined(c_plusplus)
 }
 #endif

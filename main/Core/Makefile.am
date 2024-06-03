@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = libSpecTclTcp.la libTclGrammerApp.la libSpecTclMain.la 
 
 libSpecTclMain_la_SOURCES=SpecTclMain.cpp
-libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la @top_builddir@/mpi/libMPIUtilities.la
+libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la @top_builddir@/mpi/libMPIUtilities.la @top_builddir@/Display/libXamine.la
 libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 	-I@top_srcdir@/Utility -I@top_srcdir@/mpi
 
@@ -456,6 +456,7 @@ commonTestCXXFLAGS = -I@top_srcdir@/Core \
 commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@builddir@/libSpecTclTcp.la \
 		@top_builddir@/mpi/libMPIUtilities.la \
+		@top_builddir@/Display/libXamine.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \

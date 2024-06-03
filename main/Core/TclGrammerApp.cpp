@@ -1502,8 +1502,17 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
  * mpiExitHandler calles MPI_Finalize on Tcl exit:
  *    Tcl has already killed off the stdout/err so we can't really do any error handling.
  */
+
+extern int is_xamine_shm_monitor;  //it's magic... Xamine client is in C.
 static void
 MpiExitHandler() {
+  // This magic is because the Xamine client software forks us in order to
+  // clean up shared memory when there are no attaches.  forks inherit exit processors
+  // so the forked process sets is_xamine_shm_monitor true so we can 
+  // avoid doing things we really don't want to do.
+  if (is_xamine_shm_monitor) {
+    return;
+  }
 #ifdef WITH_MPI
 
   // Note that if we are rank 0 we spray the exit command to all of the
