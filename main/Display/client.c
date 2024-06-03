@@ -101,6 +101,8 @@
 volatile Xamine_shared *Xamine_memory;
 size_t            Xamine_memsize;
 arenaid        Xamine_memory_arena;
+
+int is_xamine_shm_monitor = FALSE;
 /*
 ** Local storage:
 */
@@ -230,6 +232,8 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   pid = fork();
   if (pid == 0) {
       struct shmid_ds stat;
+
+      is_xamine_shm_monitor = TRUE;
 
     /* child */
 
