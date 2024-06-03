@@ -7,9 +7,15 @@
 #    tag is the tag to incorporate.
 #
 #  last tag was v1.5
+
 REPOSITORY=https://github.com/FRIBDAQ/CutiePie.git
 TARGET=PyQtGUI
 VERSION=$1
+
+if [[ ! $VERSION ]]
+then
+  VERSION=`cat QTPY_VERSION`
+fi
 
 rm -rf ${TARGET}
 git clone ${REPOSITORY} ${TARGET}

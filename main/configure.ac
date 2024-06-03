@@ -787,61 +787,47 @@ AX_GENGETOPT
 
 AX_CHECK_ZLIB([AC_MSG_RESULT([Have zlib])], [AC_MSG_ERROR([zlib is a prerequisite for this version of SpecTcl])])
 
+# The unified format and DDAS format libraries have builds that
+# require cmake, so check for that:
+
+AC_CHECK_PROG([have_cmake], cmake, yes)
+AS_VAR_IF([have_cmake], [yes], [], AC_MSG_ERROR([cmake must be in the path to build DDAS support software]))
+
+# Sync source tree directories (if present) for DDAS format and
+# unified format to the build dir using rsync, so check for that too:
+
+AC_CHECK_PROG([have_rsync], rsync, yes)
+AS_VAR_IF([have_rsync], [yes], [], AC_MSG_ERROR([rsync is required to build DDAS support software]))
+
 # Check that the unified format library has been incorporated into
-# the source tree and configura/build it into $prefix/unifiedformat
-#
-AC_CHECK_PROG([havecmake], cmake, [1], [0])
-if test "${havcmake}" = "0"
-then
-	AC_MSG_ERROR([cmake must be in the path to build SpecTcl])
-fi
+# the source tree and configure/build it into $prefix/unifiedformat
 
-#
-#  If the user has not yet incorporated at unified format
-#  version try incorporating it for them then building regardless.
-#  This won't work on an out of tree initial build without the 
-#  Source tree already having done one and a readonly source tree.
-#
-AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [UFMT_USER="1"], [UFMT_USER="0"])
-
-if test "${UFMT_USER}" = "0"
-then
-   AC_MSG_NOTICE([Incorporating unified format version ${UNIFIED_FMT_VERSION} for you])
-   {srcdir}/unifiedfmt-incorp.sh ${UNIFIED_FMT_VERSION}
-fi
-
+AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt],
+	[AC_MSG_NOTICE([Unified format incorporated in the source tree at ${srcdir}/unifiedformat, using that version])
+	rsync -avz --exclude=".git" ${srcdir}/unifiedformat/ unifiedformat],
+	[AC_MSG_NOTICE([Incorporating unified format version ${UNIFIED_FMT_VERSION} for you])
+	${srcdir}/unifiedfmt-incorp.sh ${UNIFIED_FMT_VERSION}])
 rm -rf unifiedformat/build
-mkdir -p unifiedformat/build
-sourcedir="`realpath ${srcdir}`"
-AC_MSG_NOTICE([Building unified format at ${sourcedir}])
-
-(cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all install)
+AS_MKDIR_P(unifiedformat/build)
+AC_MSG_NOTICE([Building unified format])
+(cd unifiedformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
 UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
 UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
 AC_SUBST(UFMT_CPPFLAGS)
 AC_SUBST(UFMT_LDFLAGS)
 
-#
-#  If the user has not yet incorporated DDAS format
-#  version try incorporating it for them then building regardless.
-#  This won't work on an out of tree initial build without the 
-#  Source tree already having done one and a readonly source tree.
-#
-#  Note that DDAS format also depends on cmake but we check for that above.
-#
-AC_CHECK_FILE([${srcdir}/ddasformat/CMakeLists.txt], [DDASFMT_USER="1"], [DDASFMT_USER="0"])
-
-if test "${DDASFMT_USER}" = "0"
-then
-   AC_MSG_NOTICE([Incorporating DDAS format version ${DDAS_FMT_VERSION} for you])
-   ${srcdir}/ddasfmt-incorp.sh ${DDAS_FMT_VERSION}
-fi
-
+# Check that the DDAS format library has been incorporated into the
+# source tree and configure/build it into $prefix/ddasformat.
+		
+AC_CHECK_FILE([${srcdir}/ddasformat/CMakeLists.txt],
+	[AC_MSG_NOTICE([DDAS format incorporated in the source tree at ${srcdir}/ddasformat, using that version])
+	rsync -avz --exclude=".git" ${srcdir}/ddasformat/ ddasformat],
+	[AC_MSG_NOTICE([Incorporating DDAS format version ${DDAS_FMT_VERSION} for you])
+	${srcdir}/ddasfmt-incorp.sh ${DDAS_FMT_VERSION}])
 rm -rf ddasformat/build
-mkdir -p ddasformat/build
-sourcedir="`realpath ${srcdir}`"
-AC_MSG_NOTICE([Building DDAS format at ${sourcedir}])
-(cd ddasformat/build;  cmake ${sourcedir}/ddasformat -DCMAKE_INSTALL_PREFIX=${prefix}/ddasformat; make all install)
+AS_MKDIR_P(ddasformat/build)
+AC_MSG_NOTICE([Building DDAS format])
+(cd ddasformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/ddasformat; make all test install)
 DDASFMT_CPPFLAGS="-I${prefix}/ddasformat/include"
 DDASFMT_LDFLAGS="-L${prefix}/ddasformat/lib -lDDASFormat -Wl,-rpath=${prefix}/ddasformat/lib"
 AC_SUBST(DDASFMT_CPPFLAGS)
@@ -880,20 +866,20 @@ AC_SUBST(LIBEXCEPTION_LDFLAGS)
 
 
 # If PyQtGui/main/configure.ac is not present the user must first run.
-# qtpi-incorp.sh to pull in a version:
+# qtpy-incorp.sh to pull in a version:
 
 AC_MSG_CHECKING([Ensuring a version of CutiePie has been included])
-QTPIDIR="${srcdir}/PyQtGUI"
-QTPIBUILDDIR="${QTPIDIR}/main"
-AC_CHECK_FILE([${QTPIBUILDDIR}/configure.ac],[qtpi=1],[qtpi=0])
-if test ${qtpi}  = 0
+QTPYDIR="${srcdir}/PyQtGUI"
+QTPYBUILDDIR="${QTPYDIR}/main"
+AC_CHECK_FILE([${QTPYBUILDDIR}/configure.ac],[qtpy=1],[qtpy=0])
+if test ${qtpy}  = 0
 then
   AC_MSG_NOTICE([Incorporating version ${CUTIEPIE_VERSION} for you])
-  ${srcdir}/qtpi-incorp.sh ${CUTIEPIE_VERSION}
+  ${srcdir}/qtpy-incorp.sh ${CUTIEPIE_VERSION}
 else
   AC_MSG_RESULT([incorporated previously])
 fi
-(cd ${QTPIBUILDDIR}; ./configure --prefix=${prefix}; make clean all install)
+(cd ${QTPYBUILDDIR}; ./configure --prefix=${prefix}; make clean all install)
 
 
 ######################################## Checks for ZMQ
