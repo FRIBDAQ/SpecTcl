@@ -286,6 +286,7 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
   for (auto& word: objv) {
     words.push_back(std::string(word));
   }
+
   for (int i =0; i < words.size(); i++) {
     pWords.push_back(words[i].c_str());
   }
@@ -824,6 +825,7 @@ CGateCommand::traceGates(CTCLInterpreter& rInterp, UInt_t nArgs,const char* args
     rInterp.setResult(rResult);
     return TCL_ERROR;
   }
+ 
   // The first parameter will fetch determine which pointer we're
   // playing with.
 
@@ -865,7 +867,7 @@ CGateCommand::traceGates(CTCLInterpreter& rInterp, UInt_t nArgs,const char* args
     if (newScript != string("")) {
       CTCLObject* pNewObject = new CTCLObject();
       pNewObject->Bind(rInterp);
-      (*pNewObject) = newScript;
+      (*pNewObject) = newScript;    // The script is one list element.
       *ppScript = pNewObject;
     }
   }
@@ -927,22 +929,27 @@ CGateCommand::invokeAScript(CTCLObject* pScript,
     fullScript.Bind(getInterpreter());
     fullScript += parameter;
 
-    try {
-      fullScript();
-    }
-    catch (CException& e) {
-      cerr << "Gate trace script failed: " << e.ReasonText() << endl;
-    }
-    catch (string msg) {
-      cerr << "Gate trace script faield: " << msg << endl;
-    }
-    catch (const char* msg) {
-      cerr << "Gate trace script failed: " << msg << endl;
-    }
-    catch (...) {
-      cerr << "Gate trace script failed with an un-anticipated exception type\n";
-    }
+    // Only invoke traces in root rank:
 
+    if (!isMpiApp() || (myRank == MPI_ROOT_RANK)) {
+
+      try {
+        fullScript();
+      }
+      catch (CException& e) {
+        cerr << "Gate trace script failed: " << e.ReasonText() << endl;
+      }
+      catch (string msg) {
+        cerr << "Gate trace script faield: " << msg << endl;
+      }
+      catch (const char* msg) {
+        cerr << "Gate trace script failed: " << msg << endl;
+      }
+      catch (...) {
+        cerr << "Gate trace script failed with an un-anticipated exception type\n";
+      }
+
+    }
   }
 }
 
