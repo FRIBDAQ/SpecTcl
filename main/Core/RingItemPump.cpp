@@ -535,10 +535,14 @@ sendRingItem(const void* pItem, size_t size) {
 void
 broadcastRingItem(const void* pItem, size_t size) {
 #ifdef WITH_MPI
-    updateStatistics(pItem, size);       // Per issue #131 do here as size -> 0.
+  
+
     MPI_Datatype bcType = broadCastDataType();
     BroadcastData buffer;                             // Chunk buffer.
     const uint8_t* p = reinterpret_cast<const uint8_t*>(pItem);
+    if (*p != 0) {   // *p==0 on end request.
+          updateStatistics(pItem, size);       // Per issue #131 do here as size -> 0.
+    }
     while (size) {
         int chunksize = MAX_MESSAGE_SIZE;
         if (size < chunksize) chunksize = size;
