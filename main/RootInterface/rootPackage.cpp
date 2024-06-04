@@ -65,6 +65,7 @@ public:
   
   virtual void operator()() {
     extern TSystem* gSystem;
+    if (!gSystem) return;             // Getting killed off.
     gSystem->ProcessEvents();         // Process root events.
     Set();                            // Reschedule
   }
