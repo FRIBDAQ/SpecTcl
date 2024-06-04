@@ -134,6 +134,14 @@ public:
   void IncrementCounter(Counter eSelect, UInt_t incr = 1);
   void ClearCounter(Counter eSelect);
 
+  void setBuffersAnalyzed(UInt_t n);
+  void incrementBuffersAnalyzed(UInt_t n = 1);
+  void setLastSequence(UInt_t n);
+  void setRunNumber(UInt_t n);
+  void setTitle(const char* s);
+  void setRunState(bool isActive);
+
+
   // Handling object tuning parameters:
 
   void SetEventSize(UInt_t nSize) {m_nEventSize = nSize; }

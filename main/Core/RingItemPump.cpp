@@ -31,6 +31,7 @@
 #include "CRingBufferDecoder.h"
 #include "Globals.h"
 #include "DataFormat.h"
+#include "TCLAnalyzer.h"
 
 static const size_t MAX_MESSAGE_SIZE = 16*1024;
 
@@ -367,6 +368,107 @@ nonPhysicsThread(ClientData parent) {
 }
 #endif
 
+
+////////////////////////// Sender side code  ////////////////////////////////
+
+/**
+ * countPhysicsItems  (static)
+ *    Per issue #131 - count the number of items in a block of physics
+ * items and increment the buffers analyzed counter maintained by the 
+ * analyzer which mus be a TclAnalyzer or we are going to just do nothing.
+ * 
+ * @param pItems  - Pointer to what could be a block of physics items.
+ * @param nBytes  - Number of bytes in the block;
+ * 
+ *
+*/
+static void 
+countPhysicsItems(const void* pItems, size_t nBytes) {
+    CTclAnalyzer* pAnalyzer = dynamic_cast<CTclAnalyzer*>(gpAnalyzer);
+    if (pAnalyzer) {
+        // Count the items:
+
+        typedef union _Ptr
+        {
+            const RingItemHeader* u_pItem;
+            const uint8_t*        u_p8;
+        } Ptr;
+        Ptr itemPtr;
+        itemPtr.u_p8 = reinterpret_cast<const uint8_t*>(pItems);
+        UInt_t numItems(0);
+        while (nBytes) {
+            numItems++;
+            nBytes -= itemPtr.u_pItem->s_size;
+            itemPtr.u_p8 += itemPtr.u_pItem->s_size;
+        }
+        // Count them:
+
+        pAnalyzer->IncrementCounter(EventsAnalyzed, numItems);
+        pAnalyzer->IncrementCounter(EventsAnalyzedThisRun, numItems);
+        pAnalyzer->IncrementCounter(EventsAccepted, numItems);
+        pAnalyzer->incrementBuffersAnalyzed(numItems);
+    }
+}
+/**
+ * updateStatistics (static)
+ *    Called when a non physics item is about to be broadcast
+ * to the workers.  We care about statistics when we get any of:
+ * 
+ * -   BEGIN_RUN - set title, run number, state
+ *                 and clear statistics.; increment runs analyzed
+ * -   END_RUN - Set state
+ * -   PHYSICS_EVENT_COUNT - set the last sequence number.
+ *
+ * The assumption is that there is only one ring item:
+ * 
+ * @param pItem - Pointer to the ring item.
+ * @param size  - Number of bytes in the item.
+*/
+static void
+updateStatistics(const void* pItem, size_t size) {
+    CTclAnalyzer* pAnalyzer = dynamic_cast<CTclAnalyzer*>(gpAnalyzer);
+    CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(gpBufferDecoder);
+    if (pAnalyzer && pDecoder) {
+        // Must be a TCL Analyzer and a decoder...
+
+        typedef union _Ptr {
+            const RingItemHeader* u_pItem;
+            const uint8_t*   u_p8;
+        } Ptr;
+        Ptr itemPtr;
+        itemPtr.u_p8 = reinterpret_cast<const uint8_t*>(pItem);
+        if (size != itemPtr.u_pItem->s_size) {
+            throw std::logic_error("Mismatch between sizes in updateStatistics");
+        }
+        // What we do next depends on the type:
+
+        switch (itemPtr.u_pItem->s_type) {
+        case BEGIN_RUN:
+            pAnalyzer->setTitle(pDecoder->getTitle().c_str());
+            pAnalyzer->setRunNumber(pDecoder->getRun());
+            pAnalyzer->setBuffersAnalyzed(0);
+            pAnalyzer->setLastSequence(0);
+            pAnalyzer->setRunState(true);
+
+            // Statitics counters:
+
+            pAnalyzer->IncrementCounter(RunsAnalyzed);
+            pAnalyzer->ClearCounter(EventsAnalyzedThisRun);
+            pAnalyzer->ClearCounter(EventsAcceptedThisRun);
+            pAnalyzer->ClearCounter(EventsRejectedThisRun);
+            break;
+        case END_RUN:
+            pAnalyzer->setRunState(false);
+            break;
+        case PHYSICS_EVENT_COUNT:
+            pAnalyzer->setLastSequence(pDecoder->getSequenceNo());
+            break;
+        }
+    }
+
+}
+
+
 // implement the public entries:
 // Note for now, sendRingItem does not try to block up more than one 
 // item.   
@@ -408,6 +510,7 @@ sendRingItem(const void* pItem, size_t size) {
         throw std::runtime_error("sendRingItem - failed to get request from worker");
     }
     transmitChunks(pItem, size, status.MPI_SOURCE);
+    countPhysicsItems(pItem, size);           // Update item count per issue #131
 #endif
 }
 /**
@@ -432,6 +535,7 @@ sendRingItem(const void* pItem, size_t size) {
 void
 broadcastRingItem(const void* pItem, size_t size) {
 #ifdef WITH_MPI
+    updateStatistics(pItem, size);       // Per issue #131 do here as size -> 0.
     MPI_Datatype bcType = broadCastDataType();
     BroadcastData buffer;                             // Chunk buffer.
     const uint8_t* p = reinterpret_cast<const uint8_t*>(pItem);
@@ -450,6 +554,7 @@ broadcastRingItem(const void* pItem, size_t size) {
     }
 #endif
 }
+////////////////////////// Pump management ///////////////////////////////
 /**
  * startRingItemPump
  *    This actually starts two threads.  A thread which 

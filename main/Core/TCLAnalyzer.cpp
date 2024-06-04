@@ -35,11 +35,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <buftypes.h>
 #include <CTreeParameter.h>
 #include <iostream>
+#include <sstream>
 
 #include <algorithm>
 #include <stdio.h>
 #include "CPipelineManager.h"
 #include <set>
+#include <tcl.h>
 
 
 #ifdef HAVE_STD_NAMESPACE
@@ -392,6 +394,84 @@ void CTclAnalyzer::ClearCounter(Counter eSelect) {
   *(m_vStatisticsInts[(Int_t)eSelect]) = 0;
 }
 
+
+//// Access to variables to support mpiSpectcl (Issue #131).
+/** 
+ * setBuffersAnalyzed
+ *    Sets the number of buffers analyzed.
+ * 
+ * @param n - number of bufferes analyzed.
+ * 
+*/
+void
+CTclAnalyzer::setBuffersAnalyzed(UInt_t n) {
+  m_nBuffersAnalyzed = n;
+  Tcl_UpdateLinkedVar(
+    m_rInterpreter.getInterpreter(), 
+    m_pBuffersAnalyzed->getVariableName().c_str()
+  );
+}
+/**
+ * incrementBuffersAnalyzed
+ * 
+ * @param n (defaults to 1) number by which to increment
+*/
+void 
+CTclAnalyzer::incrementBuffersAnalyzed(UInt_t n) {
+  m_nBuffersAnalyzed += n;
+  Tcl_UpdateLinkedVar(
+    m_rInterpreter.getInterpreter(),
+    m_pBuffersAnalyzed->getVariableName().c_str()
+  );
+}
+/**
+ * setLastSequence
+ *     Set the highest sequence number seen
+ * 
+ * @param n
+ * 
+*/
+void
+CTclAnalyzer::setLastSequence(UInt_t n) {
+  m_nLastSequence = n;
+  Tcl_UpdateLinkedVar(
+    m_rInterpreter.getInterpreter(),
+    m_pLastSequence->getVariableName().c_str()
+  );
+}
+/**
+ * setRunNumber
+ *   Set the run number variable.
+ * @param run
+*/
+void 
+CTclAnalyzer::setRunNumber(UInt_t n) {
+  std::stringstream run;
+  run << n;
+  auto runString = run.str();
+  m_pRunNumber->Set(runString.c_str());
+}
+/**
+ * setTitle
+ *    Set the run title.
+ * 
+ * @param title - the new title.
+*/
+void 
+CTclAnalyzer::setTitle(const char* title) {
+  m_pRunTitle->Set(title);
+}
+/**
+ * setRunState
+ *    Set the state of a run:
+ * 
+ * @param active - If true the state will be set "Active" otherwise "Halted"
+ * 
+*/
+void
+CTclAnalyzer::setRunState(bool active) {
+  m_pRunState->Set(active ? "Active" : "Halted");
+}
 /*!
    Called when an unrecognized buffer is received.
    Iterate through the event pipeline calling event processor
