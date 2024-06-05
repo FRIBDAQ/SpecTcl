@@ -805,18 +805,21 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   // our rank in both the WORLD and events communicator is 0 if we are
   // the main process:
 
+  bool processLocally = true;
   if (gMPIParallel && (myRank() == MPI_ROOT_RANK)) {
     if (type == PHYSICS_EVENT) {
       sendRingItem(pEvent, size);
     } else {
       broadcastRingItem(pEvent, size);
     }
-    return;
+    processLocally = false;
   }
 
 
   // Serial and workers continue here.
-
+  // We do need to get the helpers in on the action to set member
+  // variables which can be fetched for the sake of statistics
+  // (Issue #131).
 
   switch (type) {
   case BEGIN_RUN:
@@ -829,7 +832,9 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
       m_title        = pHelper->getTitle(pItem);
       m_runNumber    = pHelper->getRunNumber(pItem, m_pTranslator);
       m_nEntityCount = 0;
-      m_pAnalyzer->OnStateChange(m_nCurrentItemType, *this);
+      if (processLocally) {
+        m_pAnalyzer->OnStateChange(m_nCurrentItemType, *this);
+      }
     }
     break;
 
@@ -837,36 +842,44 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   case MONITORED_VARIABLES:
     {
       m_nEntityCount = pHelper->getStringCount(pItem, m_pTranslator);
-      m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
+      if (processLocally) {
+        m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
+      }
     }
     break;
   case PERIODIC_SCALERS:
     {
       
       m_nEntityCount = pHelper->getScalerCount(pItem, m_pTranslator);
-      m_pAnalyzer->OnScaler(*this);
+      if (processLocally) {
+        m_pAnalyzer->OnScaler(*this);
+      }
     }
     break;
   case PHYSICS_EVENT:
     {
       m_nEntityCount = 1;
       m_nTriggerCount++;	// The system has had at least one more trigger.
-      m_pAnalyzer->OnPhysics(*this);
+      if (processLocally) {
+        m_pAnalyzer->OnPhysics(*this);
+      }
     }
     break;
   case PHYSICS_EVENT_COUNT:
 
     {
-     
+      
       m_nTriggerCount = pHelper->getTriggerCount(pItem, m_pTranslator);
-      m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
+      if (processLocally) {
+        m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
+      }
     }
     break;
 
     // The default is just a call to onOther - if the unrecognized type handler
     // can't deal with it:
   default:
-    if (!m_UnrecognizedTypeHandler(pEvent)) {
+    if (!m_UnrecognizedTypeHandler(pEvent) && processLocally) {
         m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
     }
     break;
