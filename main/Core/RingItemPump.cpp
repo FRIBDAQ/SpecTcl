@@ -53,7 +53,7 @@ static const size_t MAX_MESSAGE_SIZE = 16*1024;
  static MPI_Datatype
  broadCastDataType() {
     static bool initialized = false;
-    MPI_Datatype result;
+    static MPI_Datatype result;
     if (!initialized) {
         // Define and register the data type.
 
