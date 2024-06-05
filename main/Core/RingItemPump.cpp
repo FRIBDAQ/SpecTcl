@@ -406,6 +406,7 @@ countPhysicsItems(const void* pItems, size_t nBytes) {
         pAnalyzer->IncrementCounter(EventsAnalyzed, numItems);
         pAnalyzer->IncrementCounter(EventsAnalyzedThisRun, numItems);
         pAnalyzer->IncrementCounter(EventsAccepted, numItems);
+        pAnalyzer->IncrementCounter(EventsAcceptedThisRun, numItems);
         pAnalyzer->incrementBuffersAnalyzed(numItems);
     }
 }
