@@ -2,7 +2,7 @@
 
 #  Incorporate CutiePie into SpecTcl's build.
 #
-# Usage: qtpi-incorp.sh tag
+# Usage: qtpy-incorp.sh tag
 # Where:
 #    tag is the tag to incorporate.
 #
@@ -14,7 +14,7 @@ VERSION=$1
 
 if [[ ! $VERSION ]]
 then
-  VERSION=`cat QTPY_VERSION`
+  VERSION="v1.5"
 fi
 
 rm -rf ${TARGET}
@@ -22,5 +22,5 @@ git clone ${REPOSITORY} ${TARGET}
 (cd ${TARGET}; git checkout ${VERSION})
 (cd ${TARGET}/main; autoreconf -if)
 (cd ${TARGET}/main; ./tcl++incorp libtclplus-v4.3-001)
-echo Cutie PI ${VERSION} ready to build with SpecTcl
+echo CutiePie ${VERSION} ready to build with SpecTcl
 

@@ -7,10 +7,10 @@ AC_INIT(SpecTcl, 5.14-000, daqhelp@frib.msu.edu)
 # scripts, the versions below will be used to incorporate for you:
 # Update as the 'good' version updates:
 
-UNIFIED_FMT_VERSION="1.2"
-DDAS_FMT_VERSION="1.1"
-TCLPLUS_VERSION="libtclplus-v4.3-002"
-CUTIEPIE_VERSION="v1.5"
+#UNIFIED_FMT_VERSION="1.2"
+#DDAS_FMT_VERSION="1.1"
+#TCLPLUS_VERSION="libtclplus-v4.3-002"
+#CUTIEPIE_VERSION="v1.5"
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
@@ -793,24 +793,20 @@ AX_CHECK_ZLIB([AC_MSG_RESULT([Have zlib])], [AC_MSG_ERROR([zlib is a prerequisit
 AC_CHECK_PROG([have_cmake], cmake, yes)
 AS_VAR_IF([have_cmake], [yes], [], AC_MSG_ERROR([cmake must be in the path to build DDAS support software]))
 
-# Sync source tree directories (if present) for DDAS format and
-# unified format to the build dir using rsync, so check for that too:
-
-AC_CHECK_PROG([have_rsync], rsync, yes)
-AS_VAR_IF([have_rsync], [yes], [], AC_MSG_ERROR([rsync is required to build DDAS support software]))
-
 # Check that the unified format library has been incorporated into
 # the source tree and configure/build it into $prefix/unifiedformat
 
 AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt],
-	[AC_MSG_NOTICE([Unified format incorporated in the source tree at ${srcdir}/unifiedformat, using that version])
-	rsync -avz --exclude=".git" ${srcdir}/unifiedformat/ unifiedformat],
-	[AC_MSG_NOTICE([Incorporating unified format version ${UNIFIED_FMT_VERSION} for you])
-	${srcdir}/unifiedfmt-incorp.sh ${UNIFIED_FMT_VERSION}])
+	[AC_MSG_NOTICE([Using previously incorporated unified format library at ${srcdir}/unifiedformat])
+	cp -r ${srcdir}/unifiedformat .],
+	[AC_MSG_NOTICE([Incorporating unified format for you])
+	${srcdir}/unifiedfmt-incorp.sh])
 rm -rf unifiedformat/build
-AS_MKDIR_P(unifiedformat/build)
+AS_MKDIR_P(unifiedformat/build)	
 AC_MSG_NOTICE([Building unified format])
-(cd unifiedformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all test install)
+(cd unifiedformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make clean install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install unified format library with result: ${result}]))
 UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
 UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
 AC_SUBST(UFMT_CPPFLAGS)
@@ -820,14 +816,16 @@ AC_SUBST(UFMT_LDFLAGS)
 # source tree and configure/build it into $prefix/ddasformat.
 		
 AC_CHECK_FILE([${srcdir}/ddasformat/CMakeLists.txt],
-	[AC_MSG_NOTICE([DDAS format incorporated in the source tree at ${srcdir}/ddasformat, using that version])
-	rsync -avz --exclude=".git" ${srcdir}/ddasformat/ ddasformat],
-	[AC_MSG_NOTICE([Incorporating DDAS format version ${DDAS_FMT_VERSION} for you])
-	${srcdir}/ddasfmt-incorp.sh ${DDAS_FMT_VERSION}])
+	[AC_MSG_NOTICE([Using previously incorprated ddasformat from the source tree at ${srcdir}/ddasformat])
+	cp -r ${srcdir}/ddasformat .],
+	[AC_MSG_NOTICE([Incorporating ddasformat for you])
+	${srcdir}/ddasfmt-incorp.sh])
 rm -rf ddasformat/build
 AS_MKDIR_P(ddasformat/build)
 AC_MSG_NOTICE([Building DDAS format])
-(cd ddasformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/ddasformat; make all test install)
+(cd ddasformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/ddasformat; make clean install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install ddasformat with result: ${result}]))
 DDASFMT_CPPFLAGS="-I${prefix}/ddasformat/include"
 DDASFMT_LDFLAGS="-L${prefix}/ddasformat/lib -lDDASFormat -Wl,-rpath=${prefix}/ddasformat/lib"
 AC_SUBST(DDASFMT_CPPFLAGS)
@@ -849,14 +847,15 @@ AC_SUBST(DDASFMT_LDFLAGS)
 # We no longer look for Ryan's deb to be installed as that ship sailed
 # a long time ago:
 
-AC_CHECK_FILE([${srcdir}/libtcl/configure.ac], [TCLPLUS_INCORP="1"], [TCLPLUS_INCORP="0"])
-if test "${TCLPLUS_INCORP}" = "0"
-then
-  AC_MSG_NOTICE([Incorporating tcl++ version ${TCLPLUS_VERSION} for you])
-  ${srcdir}/tcl++incorp ${TCLPLUS_VERSION}
-fi
-AC_MSG_NOTICE([Building/installing tcl++])
-(cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
+AC_CHECK_FILE([${srcdir}/libtcl/configure.ac],
+		[AC_MSG_NOTICE([Using previously incorprated tcl++ from the source tree at ${srcdir}/libtcl])
+		cp -r ${srcdir}/libtcl .],
+		[AC_MSG_NOTICE([Incorporating tcl++ for you])
+		${srcdir}/tcl++incorp])
+AC_MSG_NOTICE([Building and installing tcl++])
+(cd libtcl; ./configure --prefix=${prefix}; make clean install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install tcl++ with result: ${result}]))
 LIBTCLPLUS_CFLAGS="-I${prefix}/include"
 LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefix}/lib\""
 LIBTCLPLUS_LDFLAGS="-L${prefix}/lib -ltclPlus ${LIBEXCEPTION_LDFLAGS}"
@@ -864,22 +863,19 @@ AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
 AC_SUBST(LIBEXCEPTION_LDFLAGS)
 
+# Incorporate and build PyQt GUI:
 
-# If PyQtGui/main/configure.ac is not present the user must first run.
-# qtpy-incorp.sh to pull in a version:
-
-AC_MSG_CHECKING([Ensuring a version of CutiePie has been included])
-QTPYDIR="${srcdir}/PyQtGUI"
+QTPYDIR="PyQtGUI"
 QTPYBUILDDIR="${QTPYDIR}/main"
-AC_CHECK_FILE([${QTPYBUILDDIR}/configure.ac],[qtpy=1],[qtpy=0])
-if test ${qtpy}  = 0
-then
-  AC_MSG_NOTICE([Incorporating version ${CUTIEPIE_VERSION} for you])
-  ${srcdir}/qtpy-incorp.sh ${CUTIEPIE_VERSION}
-else
-  AC_MSG_RESULT([incorporated previously])
-fi
+AC_CHECK_FILE([${srcdir}/${QTPYBUILDDIR}/configure.ac],
+	[AC_MSG_NOTICE([Using previously incorprated tcl++ from the source tree at ${srcdir}/${QTPYDIR}])
+	cp -r ${srcdir}/${QTPYDIR} .],
+	[AC_MSG_NOTICE([Incorporating CutiePie for you])
+	${srcdir}/qtpy-incorp.sh])
+AC_MSG_NOTICE([Building and installing CutiePie])
 (cd ${QTPYBUILDDIR}; ./configure --prefix=${prefix}; make clean all install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install CutiePie with result: ${result}]))
 
 
 ######################################## Checks for ZMQ

@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# Incorporate a tag of libtcl++
-# Most recent good tag:  libtclplus-v4.3-002
+##  Incorporate tcl++:
 
-tag=$1
+# Most recently used version libtclplus-v4.3-002
+
 REPOSITORY="https://github.com/FRIBDAQ/libtclplus"
+TAG=$1
 TARGET="libtcl"
 
-rm -rf ${TARGET}
-
-# if not argument is provided, use default value
-if [[ ! $tag ]];
+if [[ ! $TAG ]]
 then
-  tag=`cat LIBTCL_VERSION`
+  TAG="libtclplus-v4.3-002"
 fi
-git clone ${REPOSITORY} ${TARGET}
-(cd ${TARGET}; git checkout $tag)
-(cd ${TARGET}; autoreconf -if)
+
+rm -rf $TARGET
+git clone $REPOSITORY $TARGET
+(cd $TARGET; git checkout $TAG)
+(cd $TARGET; autoreconf -if)
