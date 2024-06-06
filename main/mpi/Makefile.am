@@ -6,7 +6,7 @@ libMPIUtilities_la_SOURCES= TclPump.cpp TclPump.h MPITclCommand.cpp MPITclComman
     MPITclPackagedCommand.cpp MPITclPackagedCommandAll.cpp
 
 include_HEADERS = MPITclCommand.h MPITclCommandAll.h MPITclPackagedCommand.h \
-    MPITclPackagedCommandAll.h
+    MPITclPackagedCommandAll.h TclPump.h
 
 noinst_PROGRAMS= testApp
 
