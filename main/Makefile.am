@@ -100,7 +100,8 @@ install-exec-local:
 	echo LIBTCLPLUS_LDFLAGS=@LIBTCLPLUS_LDFLAGS@ >> CompilationRules.temp
 	cat  @srcdir@/CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) @builddir@/CompilationRules.temp $(sysconfdir)/CompilationRules.include
-	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` by `whoami` >VERSION
+	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` by `whoami` >VERSION MPI @MPI@
+	echo "Compiled with $(CXX) and $(CC)" >> VERSION
 	echo The CERN Root installation used  was: `@ROOTCONFIG@ --prefix` >> VERSION
 	echo configured as shown below: >> VERSION
 	head @top_builddir@/config.log >>VERSION

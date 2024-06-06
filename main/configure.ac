@@ -49,9 +49,13 @@ then
   CXX=${mpicxx}
   AC_DEFINE(WITH_MPI, 1, [MPI Parallel SpecTcl])
   AC_MSG_NOTICE([Building MPI enabled SpecTcl using ${mpicc} and ${mpicxx} as compiler drivers])
+  MPI="Enabled"
 else 
+  MPI="Disabled"
   AC_MSG_NOTICE([Building Serial SpecTcl])
 fi
+
+AC_SUBST(MPI)
 
 AC_PROG_CC([${CC} gcc cc])
 AC_PROG_CXX([${CXX} g++ c++])
