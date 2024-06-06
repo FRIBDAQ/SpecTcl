@@ -17,10 +17,12 @@
 #include<config.h>
 #include "CStackMapCommand.h"
 #include "CParamMapCommand.h"
+#include <Globals.h>
 
 #include <TCLObject.h>
 #include <TCLInterpreter.h>
 #include <RangeError.h>
+#include <TclPump.h>
 
 using namespace std;
 
@@ -86,6 +88,11 @@ int
 CStackMapCommand::operator()(CTCLInterpreter& interp,
 			     std::vector<CTCLObject>& objv)
 {
+  // In mpiSpecTcl we must only run in worker ranks:
+
+  if (isMpiApp()  && (myRank() < MPI_FIRST_WORKER_RANK) ) {
+    return TCL_OK;
+  }
   // We need exactly 3 command words including the command:
 
   if (objv.size() != 3) {

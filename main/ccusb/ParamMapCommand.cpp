@@ -19,6 +19,8 @@
 #include <TCLInterpreter.h>
 #include <TreeParameter.h>
 #include <TCLObject.h>
+#include <Globals.h>
+#include <TclPump.h>
 
 using namespace std;
 
@@ -104,6 +106,12 @@ int
 CParamMapCommand::operator()(CTCLInterpreter& interp,
 			     std::vector<CTCLObject>& objv)
 {
+  // mpiSpecTcl - we run only if: we are not in the MPI environment
+  // or we are a worker:
+
+  if (isMpiApp()  && (myRank() < MPI_FIRST_WORKER_RANK)) {
+    return TCL_OK;                  // Inappropriate to run.
+  }
   // Validate the number of command parameters:
 
   if (objv.size() < 2) {

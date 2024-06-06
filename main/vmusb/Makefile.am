@@ -4,6 +4,7 @@ COMMON_cppflags = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core  \
 	-I@top_srcdir@/Display \
 	-I@top_srcdir@/factories    \
+	-I@top_srcdir@/mpi \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/mpi
 

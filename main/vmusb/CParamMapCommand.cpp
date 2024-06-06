@@ -16,9 +16,11 @@
 
 #include <config.h>
 #include "CParamMapCommand.h"
+#include <Globals.h>
 #include <TCLObject.h>
 #include <TCLInterpreter.h>
 #include <Exception.h>
+#include <TclPump.h>
 
 #include <tcl.h>
 #include <SpecTcl.h>
@@ -61,6 +63,12 @@ int
 CParamMapCommand::operator()(CTCLInterpreter& interp,
 			     vector<CTCLObject>& objv)
 {
+
+  // MPI SpecTcl only runs this in worker ranks:
+
+  if (isMpiApp() && (myRank() < MPI_FIRST_WORKER_RANK)) {
+    return TCL_OK;
+  }
   // We need to have all the parameters (5 counting the command):
 
   if (objv.size() != 5) {

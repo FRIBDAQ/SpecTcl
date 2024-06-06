@@ -35,6 +35,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CRateCommand.h"
 #include "CRateEventProcessor.h"
 #include "CFitButton.h"
+#include <MPITclCommand.h>
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -269,8 +271,8 @@ void
 CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)  
 { 
   CTclGrammerApp::AddCommands(rInterp);
-  new CParamMapCommand(rInterp);
-  new CStackMapCommand(rInterp);
+  new CMPITclCommand(rInterp, "parammap", new CParamMapCommand(rInterp));
+  new CMPITclCommand(rInterp, "stackMap",  new CStackMapCommand(rInterp));
 
 }  
 
