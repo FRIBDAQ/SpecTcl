@@ -23,6 +23,7 @@ noinst_HEADERS = CC1205Unpacker.h \
 AM_CPPFLAGS = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core \
 	-I@top_srcdir@/Display \
+	-I@top_srcdir@/mpi \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
 
