@@ -48,12 +48,12 @@
             </listitem>
             <listitem>
                 <para>
-                    How to debug MPISpecTcl both in serial mode and parallel mode.
+                    Debugging mpiSpecTcl tailored code.
                 </para>
             </listitem>
         </itemizedlist>
         <section>
-            <title>What mpiSpecTcl is</title>
+            <title>What is mpiSpecTcl</title>
             <para>
                 mpiSpecTcl can be used with SpecTcl version 7.0 or later.  It supports
                 scalable performance by parallelizing the event processing pipeline.
@@ -71,6 +71,150 @@
             <para>
                 For a more detailed description of how mpiSpecTcl works, see:
                 <link linkend='chap.howitworks' endterm='chap.howitworks.title' />
+            </para>
+        </section>
+        <section>
+            <title>Checking for support of MPI parallelism.</title>
+            <para>
+                Support for MPI parallelism in SpecTcl is an option selectable when SpecTcl is built and
+                installed.  You can see if MPI parallelism is enabled by looking at the <literal>VERSION</literal>
+                file that is installed in the top level directory of the SpecTcl installtion (the INSTDIR directory
+                in your tailored Makefile).
+            </para>
+            <para>
+                Below are the first two lines of this file for SpecTcl built with MPI support:
+            </para>
+            <example id='ex.version'>
+                <title id='ex.version.title'>VERSION file for SpecTcls with MPI support</title>
+                <programlisting>
+Version:  SpecTcl-7.0-000 build on RonDell Thu 06 Jun 2024 01:48:15 PM EDT by ron MPI Enabled
+Compiled with /usr/opt/mpi/openmpi-4.0.1/bin/mpicxx and /usr/opt/mpi/openmpi-4.0.1/bin/mpicc               
+                </programlisting>
+            </example>
+            <para>
+                Towards the end of the first line you can see the text <literal>MPI Enabled</literal>.
+                This indicates the installed SpecTcl was built with MPI support enabled.  
+                If MPI support was disabled, this will read <literal>MPI Disabled</literal>.
+            </para>
+            <para>
+                THe second line shows the compiler command used to build SpecTcl.
+                Building software with MPI requires specific include directories and link libraries
+                to be added to the compiler and linker flags.  For convenience, MPI distributions such
+                as OpenMPI and MPICH provide compiler drivers that define these flags for the user.
+                Note that <literal>mpicxx</literal> is the MPI C++ compiler and <literal>mpicc</literal>
+                the MPI C compiler.  Mostly, take not of the path to the compiler.
+                That will be needed both when you run SpecTcl in parallel mode and you may also
+                need to define an environment variable to use SpecTcl in parallel mode.
+            </para>
+        </section>
+        <section>
+            <title>Environment variables you will need</title>
+            <para>
+                In <link linkend='ex.version' endterm='ex.version.title' />, if the compilation commands
+                have directory paths on them you will probably need to tell OpenMPI where to find its
+                runtime.  This is done by setting the environment variable <literal>OPAL_PREFIX</literal>
+                to the top level of the OpenMPI installation.  In the example, this is
+                <filename>/usr/opt/mpi/openmpi-4.0.1</filename>.  For example:
+                <informalexample>
+                    <programlisting>
+OPAL_PREFIX=/usr/opt/mpi/openmpi-4.0.1
+export OPAL_PREFIX
+                    </programlisting>
+                </informalexample>
+            </para>
+        </section>
+        <section>
+            <title>Running mpiSpecTcl in parallel mode</title>
+            <para>
+                Running an MPI application requires using the <literal>mpirun</literal> command.  
+                The mpirun command allows you to, among other things, specify the number of processes
+                that should be started in the application. mpirun then sets up the MPI communication
+                infrastructure and starts the processes in a way that the MPI API knows how to communicate.
+            </para>
+            <para>
+                If you had to set the <literal>OPAL_PREFIX</literal> environment variable, you can use
+                it.  Here's a sample invocation of the mpirun command that starts 5 processes for the
+                SpecTcl that you built in the current working directory:
+            </para>
+            <example>
+                <title>mpirun exmaple</title>
+                <programlisting>
+$OPAL_PREFIX/bin/mpirun -n 5 SpecTcl
+                </programlisting>
+            </example>
+            <para>
+                the value given to the <option>-n</option> option specifies the number of processes mpirun
+                should start.  As will be described more completely in 
+                <link linkend='chap.howitworks' endterm='chap.howitworks.title' />, you must use at least 3 processes.
+                Two processes are non-worker processes, the remaining processes are workers that run the event processing
+                pipeline in parallel on events.  The number actual value of <option>-n</option> that makes sense,
+                depdends on the computational complexity of your event processing pipeline. 
+            </para>
+            <para>
+                If you use this simple invocation of the miprun command your processes will all run
+                in the computer that runs the <command>mpirun</command> command. In that case,
+                a value for <option>-n</option> larger than the number of cores in that system
+                makes no sense.  More complex invocations of <command>mpirun</command> are possible and
+                can allow the application to spread across more than one system.  This is complicated for
+                the containerized environment and beyond the scope of this document.
+            </para>
+        </section>
+        <section>
+            <title>Debugging mpiSpecTcl</title>
+            <para>
+                It is a sad fact of life that you will need to find errors in your software.
+                In a parallel process, print statements can be confusing as they may step on 
+                top of each other.   There are a couple of tricks you can use.
+            </para>
+            <para>
+                If you just run your SpecTcl (not mpirun it), it will run fully serially.  You can
+                use output and even gdb to ferret out the bugs.  If your event processing pipeline
+                truly has no historical knowledge of prior events, finding and fixing the bugs with
+                SpecTcl run serially, should, normally, be sufficient.  
+            </para>
+            <para>
+                If your event processing
+                pipeline requires knowledge of prior events, you will, most likely
+                need to run mpiSpecTcl either serially or with <option>n 3</option>. 3 processes
+                ensures that there is one worker process which, therefore gets all events.  This worker process
+                runs in pipeline parallelism with the SpecTcl code that takes the parameters unpacked from events and
+                histograms them so you might get some modest speed-up.
+            </para>
+            <para>
+                A second technique you can use is to use <command>mpirun</command> in a way that binds a 
+                separate terminal window (e.g. xterm) so that the output from each process is separated
+                from all other processes.  You can also use this technique to run gdb in all processes.
+            </para>
+            <para>
+                The example below shows two invocations of <command>mpirun</command>  THe first one
+                just runs SpecTcl with a separate <command>xterm</command> window for each process.
+                The second command does the same thing but runs  each of the SpecTcl processes under the 
+                control of <command>gdb</command>
+            </para>
+            <example>
+                <title>Xterm per process and gdb per process</title>
+                <programlisting>
+$OPAL_PREFIX/bin/mpirun -n 5 xterm -e SpecTcl      #Each process has a terminal
+$OPAL_PREFIX/bin/mpirun -n 5 xterm -e gdb SpecTcl  #Each process under gdb in its terminal
+                </programlisting>
+            </example>
+            <para>
+                The point is that the <option>-e</option> to the <command>xterm</command> commande
+                means that the remainder of the command should be run inside the xterm.  In the first case,
+                that's just SpecTcl, in the second that's gdb being told to control SpecTcl.
+            </para>
+            <para>
+                Under <command>mpirun</command> using the technique above to run the processes under the
+                control of gdb, in general you'll want to know which processes are workers and set breakpoints in 
+                one or more of them.   You can do this for open MPI via the gdb command 
+                <command>show environment OMPI_COMM_WORLD_RANK</command>. For MPICH, 
+                <command>show environment PMI_RANK</command> should be used instead.
+                The value of this environment variabl can be thought of as a process number or 
+                <firstterm>rank</firstterm> used to
+                identify the function of a given process.  Workers have a rank of 2 or higher.
+                Rank 0 is the base process which runs the interactive Tcl interpreter and distributes
+                events to workers.  Rank 1 is the event sink pipeline (histogramer) and also starts any
+                displayer (e.g. Xamine or CutiePie).
             </para>
         </section>
     </chapter>
