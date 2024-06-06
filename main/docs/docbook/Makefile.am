@@ -1,40 +1,42 @@
 
 install-exec-local: 
-	$(mkinstalldirs) @prefix@/share @prefix@/share/analysis
-	$(mkinstalldirs) @prefix@/share/images
-	$(mkinstalldirs) @prefix@/share/UserGuide
-	$(mkinstalldirs) @prefix@/share/cmdref
-	$(mkinstalldirs) @prefix@/share/pgmguide
-	$(mkinstalldirs) @prefix@/share/pgmref
-	$(mkinstalldirs) @prefix@/share/DDAS
-	$(mkinstalldirs) @prefix@/share/parallel
-	$(mkinstalldirs) @prefix@/share/qtpy
-	$(mkinstalldirs) @prefix@/share/batch
-	$(mkinstalldirs) @prefix@/share/caendpp
-	$(mkinstalldirs) @prefix@/share/examples
-	$(mkinstalldirs) @prefix@/share/examples/caendpp
-	$(mkinstalldirs) @prefix@/share/remote
-	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
-	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
-	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
-	$(INSTALL_DATA) @builddir@/cmdref/* @srcdir@/cmdrefimages/*  @prefix@/share/cmdref
-	$(INSTALL_DATA) @builddir@/pgmguide/* @srcdir@/pgmguideimages/* @prefix@/share/pgmguide
-	$(INSTALL_DATA) @builddir@/pgmref/*   @prefix@/share/pgmref
-	$(INSTALL_DATA) @builddir@/parallel/*      @prefix@/share/parallel
-	$(INSTALL_DATA) @builddir@/qtpy/*      @prefix@/share/qtpy
-	$(INSTALL_DATA) @builddir@/DDAS/*      @prefix@/share/DDAS
-	$(INSTALL_DATA) @builddir@/batch/*    @prefix@/share/batch
-	$(INSTALL_DATA) @builddir@/caendpp/*  @prefix@/share/caendpp
-	$(INSTALL_DATA) @srcdir@/dppexample/*.cpp @prefix@/share/examples/caendpp
-	$(INSTALL_DATA) @srcdir@/dppexample/*.h @prefix@/share/examples/caendpp
-	$(INSTALL_DATA) @srcdir@/dppexample/Makefile @prefix@/share/examples/caendpp
-	$(INSTALL_DATA) @builddir@/remote/*   @prefix@/share/remote
+	$(mkinstalldirs) @datarootdir@ @datarootdir@/analysis
+	$(mkinstalldirs) @datarootdir@/images
+	$(mkinstalldirs) @datarootdir@/UserGuide
+	$(mkinstalldirs) @datarootdir@/cmdref
+	$(mkinstalldirs) @datarootdir@/pgmguide
+	$(mkinstalldirs) @datarootdir@/pgmref
+	$(mkinstalldirs) @datarootdir@/DDAS
+	$(mkinstalldirs) @datarootdir@/parallel
+	$(mkinstalldirs) @datarootdir@/qtpy
+	$(mkinstalldirs) @datarootdir@/batch
+	$(mkinstalldirs) @datarootdir@/caendpp
+	$(mkinstalldirs) @datarootdir@/examples
+	$(mkinstalldirs) @datarootdir@/examples/caendpp
+	$(mkinstalldirs) @datarootdir@/remote
+	$(mkinstalldirs) @datarootdir@/mpispectcl
+	$(INSTALL_DATA) @builddir@/*.html @datarootdir@/analysis
+	cat @srcdir@/images.tar.gz | (cd @datarootdir@/images; tar xzf -)
+	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @datarootdir@/UserGuide
+	$(INSTALL_DATA) @builddir@/cmdref/* @srcdir@/cmdrefimages/*  @datarootdir@/cmdref
+	$(INSTALL_DATA) @builddir@/pgmguide/* @srcdir@/pgmguideimages/* @datarootdir@/pgmguide
+	$(INSTALL_DATA) @builddir@/pgmref/*   @datarootdir@/pgmref
+	$(INSTALL_DATA) @builddir@/parallel/*      @datarootdir@/parallel
+	$(INSTALL_DATA) @builddir@/qtpy/*      @datarootdir@/qtpy
+	$(INSTALL_DATA) @builddir@/DDAS/*      @datarootdir@/DDAS
+	$(INSTALL_DATA) @builddir@/batch/*    @datarootdir@/batch
+	$(INSTALL_DATA) @builddir@/caendpp/*  @datarootdir@/caendpp
+	$(INSTALL_DATA) @srcdir@/dppexample/*.cpp @datarootdir@/examples/caendpp
+	$(INSTALL_DATA) @srcdir@/dppexample/*.h @datarootdir@/examples/caendpp
+	$(INSTALL_DATA) @srcdir@/dppexample/Makefile @datarootdir@/examples/caendpp
+	$(INSTALL_DATA) @builddir@/remote/*   @datarootdir@/remote
+	$(INSTALL_DATA) @builddir@/mpispectcl/* @datarootdir@/mpispectcl
 
 
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
 	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml \
-	 parallel.xml qtpy.xml batch.xml CAENDPP.xml dppexample remote.xml
+	 parallel.xml qtpy.xml batch.xml CAENDPP.xml dppexample remote.xml mpiSpecTcl.xml
 
 BUILT_SOURCES = @builddir@/docs_built
 
@@ -51,3 +53,4 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/batch.xml	    -o @builddir@/batch
 	@HTMLDOCBOOK@ @srcdir@/CAENDPP.xml          -o @builddir@/caendpp
 	@HTMLDOCBOOK@ @srcdir@/remote.xml           -o @builddir@/remote
+	@HTMLDOCBOOK@ @srcdir@/mpiSpecTcl.xml       -o @builddir@/mpispectcl
