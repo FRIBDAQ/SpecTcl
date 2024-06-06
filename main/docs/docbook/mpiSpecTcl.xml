@@ -7,7 +7,7 @@
 >
 <book>
     <bookinfo>
-      <title>SpecTcl DDAS Unpackers Guide.</title>
+      <title>mpiSpecTcl.</title>
       <author><firstname>Ron</firstname><surname>Fox</surname></author>
       <revhistory>
           <revision>
@@ -18,6 +18,75 @@
           </revision>
       </revhistory>
     </bookinfo>
-
-
+    <chapter>
+        <title>Quick Start</title>
+        <para>
+            This chapter is intended to get you up and running with XXUSBSpecTcl and 
+            custom configured SpecTcl's that don't extend the SpecTcl command set.
+            I'll describe:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    What mp;iSpecTcl is.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    How to know if your version of SpecTcl supports MPI Parallelism
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Environment variables you will need to set to run MPI mpiSpecTcl
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    How to run mpiSpecTcl with parallel event processing pipelines
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    How to debug MPISpecTcl both in serial mode and parallel mode.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <section>
+            <title>What mpiSpecTcl is</title>
+            <para>
+                mpiSpecTcl can be used with SpecTcl version 7.0 or later.  It supports
+                scalable performance by parallelizing the event processing pipeline.
+                When you run mpiSpecTcl, events from the data source are distributed
+                between one or more <firstterm>worker processes</firstterm>. Each of these
+                processes passes events through its copy of the event processing pipeline and
+                sends the parameters it produces to another process running the event sink
+                pipline (histogramer).
+            </para>
+            <para>
+                Since in many nuclear science experminents, each event can be analyzed independently 
+                of all other events, running more than one worker process will scale up the rate at which
+                events can be processed until data transfer limits this scaling.
+            </para>
+            <para>
+                For a more detailed description of how mpiSpecTcl works, see:
+                <link linkend='chap.howitworks' endterm='chap.howitworks.title' />
+            </para>
+        </section>
+    </chapter>
+    <chapter>
+        <title>Porting custom commands</title>
+        <para>
+        </para>
+    </chapter>
+    <chapter id='chap.howitworks'>
+        <title id='chap.howitworks.title'>How mpiSpecTcl works in parallel mode.</title>
+        <para>
+        </para>
+    </chapter>
+    <appendix>
+        <title>mpiSpecTcl class references</title>
+        <para>
+        </para>
+    </appendix>
 </book>
