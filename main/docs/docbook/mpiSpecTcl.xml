@@ -751,10 +751,56 @@ CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
     <chapter id='chap.howitworks'>
         <title id='chap.howitworks.title'>How mpiSpecTcl works in parallel mode.</title>
         <para>
+            This chapter describes how MPI SpecTcl works.  Knowledge of the theory of operation can help
+            to sort out errors you can encounter at run-time that might appear, at first glance, to be mysterious.
+            (for example segfaulting when accessing the histogrammer object in workers).
+        </para>
+        <para>
+            The chapter will be rather long and is organized as follows:
+        </para>
+        <itemizedlist>
+            <listitem><para>
+                A high level description of the MPI process environment and messaging is provided
+            </para></listitem>
+            <listitem><para>
+                The process roles used by mpiSpecTcl are described.
+            </para></listitem>
+            <listitem><para>
+                The concept of <firstterm>MPI Pumps</firstterm> are introduced in a general sense. You will see several 
+                MPI Pumps described in more detail in other sections.
+            </para></listitem>
+            <listitem><para>
+                SpecTcl initialization as an MPI application is described for each role.
+            </para></listitem>
+            <listitem><para>
+                The MPI command wrappers are described along with the Tcl command pump and the MPI Pumps 
+                related to objects within SpecTcl that must be communicated between processes.
+            </para></listitem>
+            <listitem><para>
+                The scheme used to pass events to worker processes are described, and their associated MPI Pumps.
+            </para></listitem>
+            <listitem><para>
+                The sheme used to pass the results of the event processing pipelines running in the workers to  to the event sink pipeline
+                process is described along with the associated pump.
+            </para></listitem>
+            <listitem><para>
+                SpecTcl shutdown is described and specifically how we ensure that the MPI Pump threads get
+                terminated. 
+            </para></listitem>
+        </itemizedlist>
+        <para>
+            SpecTcl source code is availble online at github in the project
+            <ulink url='http://github.com/FRIBDAQ/SpecTcl' />
+            From time to time there may be references to where bits and pieces of code. If you are
+            interested in looking at that code; you can find it there.  The file paths in code references
+            will all be relative to the <filename>main</filename> directory so <filename>mpi/TclPump.cpp</filename>,
+            for example the docbook sourcde for this manual would be referred to as
+            <filename>docs/docbook/mpiSpecTcl.xml</filename> and can be found in the repository at
+            <filename>main/docs/docbook/mpiSpecTcl.xml</filename>.  This omission is done just for brevity.
         </para>
     </chapter>
     <appendix>
-        <title>mpiSpecTcl class references</title>
+        <title>mpiSpecTcl  reference material</title>
         <para>
         </para>
     </appendix>
