@@ -221,7 +221,287 @@ $OPAL_PREFIX/bin/mpirun -n 5 xterm -e gdb SpecTcl  #Each process under gdb in it
     <chapter>
         <title>Porting custom commands</title>
         <para>
+            One of the strengths of SpecTcl and the Tcl scripting language it uses is its extensibility.
+            Complex tailored SpecTcl programs have used this to extend the Tcl interpreter, adding
+            commands of their own to the base Tcl/Tk core and SpecTcl extensions to that core.
+            When SpecTcl is running as an MPI program, only one of the processes has an interactive
+            interpreter.  Therefore, your custom commands must be wrapped in appropriate classes
+            that will relay your command to the rest of the program from the interactive interpreter process.
+            For more about this, see <link linkend='chap.howitworks' endterm='chap.howitworks.title' />
         </para>
+        <para>
+            This chapter will introduce two classes which:
+        </para>
+        <itemizedlist>
+            <listitem><para>
+                Know when SpecTcl is running as an MPI application and when it is running serially.
+            </para></listitem>
+            <listitem><para>
+                When SpecTcl is running serially simply pass control of to an encapsulated commands.
+            </para></listitem>
+            <listitem><para>
+                When SpecTcl is running as an MPI application, either causes the wrapped command to 
+                be executed in all other processes or in all processes, depending on the wrapper
+                class chosen.
+            </para></listitem>
+            <listitem><para>
+                In MPI application mode, collects the statuses and the results from all of the
+                processes executing the command and does something <emphasis>sensible</emphasis>.
+                (I'll define sensible as well).
+            </para></listitem>
+        </itemizedlist>
+        <para>
+            I will also describe how your code can recognize if the application is running
+            serially or as an MPI application and how to know, in the latter case, the role of the
+            process it is executing in.
+        </para>
+        <para>
+            The techniques I will describe have been used withn the SpecTcl command extensions
+            and examples will be drawn from that code.
+        </para>
+        <section>
+            <title>The command wrapper classes</title>
+            <para>
+                In order to function in the MPI application environment, your commands must be
+                wrapped in one of two classes: <classname>CMPITclCommand</classname> defined in
+                <filename>CMPITclCommand.h</filename> or <classname>CMPITclCommandAll</classname>
+                defined in <filename>CMPITclCommandAll.h</filename>
+            </para>
+            <para>
+               Your command must still be created in <filename>MySpecTclApp.cpp</filename>'s 
+               <methodname>AddCommand</methodname> method.  The procedure is to first create an instanced of your
+               command then to wrap that instanced in the class you chose.
+            </para>
+            <para>
+                In most cases you won't need your command to run in the interactive interpreter process.
+                Again, see <link linkend='chap.howitworks' endterm='chap.howitworks.title' />.  If that is
+                the case you should wrap your command in <classname>CMPITclCommand</classname>.  If, on the other hand,
+                you need your command to run in the main interpreter, wrap it in <classname>CMPITclCommandAll</classname>
+            </para>
+            <para>
+                The example below is the <classname>CMySpecTclApp</classname>::<methodname>AddCommands</methodname> from 
+                CCUSBSpecTcl, howing how the <command>parammap</command> is wrapped in 
+                <classname>CMPITclCommand</classname>.  The procedures is identical for
+                <classname>CMPITclCommandAll</classname> as its constructor has the same argument
+                signature as <classname>CMPITclCommand</classname>'s constructor.
+            </para>
+            <example>
+                <title>Wrapping a command in <classname>CMPITclCommand</classname></title>
+                <programlisting>
+#include "MPITclCommand.h"
+
+...
+
+void 
+CMySpecTclApp::AddCommands(CTCLInterpreter&amp; rInterp)  
+{ 
+  CTclGrammerApp::AddCommands(rInterp);         <co id='ex.wrapcmd.base' />
+  CParamMapCommand::create(rInterp);            <co id='ex.wrapcmd.createwrapped' />
+  auto pParamMap = CParamMapCommand::getInstance(); <co id='ex.wrapcmd.getwrapped' />
+  new CMPITclCommand(rInterp, "parammap", pParamMap); <co id='ex.wrapcmd.wrap' />
+}  
+                </programlisting>
+            </example>
+            <para>
+                This example is made a bit more complicated than most of your commands will be because
+                CCUSB has a static creation method to create and store the instance of the command and
+                another static method to retrieve a pointer to that method. For a detailed description
+                of the sample code, see below where the numbers in the list correspond to numbered
+                callouts in the code itself.
+            </para>
+            <calloutlist>
+                <callout arearefs='ex.wrapcmd.base'>
+                    <para>
+                        As usual, <classname>TclGrammerApp</classname>::<methodname>AddCommands</methodname> is 
+                        called to define the standard SpecTcl commands (like e.g. <command>spectrum</command>).
+                    </para>
+                </callout>
+                <callout arearefs='ex.wrapcmd.createwrapped'>
+                    <para>
+                        This creates the <command>parammap</command> command handler and stores a
+                        pointer to is instance.  Note that it's just fine to register the command with
+                        the interpreter.   The wrapper will override that registration.
+                    </para>
+                </callout>
+                <callout arearefs='ex.wrapcmd.getwrapped'>
+                    <para>
+                        Retrieves a pointer to the command processor instance.  The
+                        processor instance must have been implemented as a class derived
+                        eventually from <classname>CTCLObjectProcessor</classname>.  For classes
+                        derived from the older, obsolete <classname>CTCLProcessor</classname>, see 
+                        <link linkend='sec.wrapoldcmds' endterm='sec.wrapoldcmds.title' /> for some simple
+                        techniques to convert those to <classname>CTCLObjectProcessor</classname>
+                        processors.
+                    </para>
+                </callout>
+                <callout arearefs='ex.wrapcmd.wrap'>
+                    <para>
+                        This is the magic that does the actual wrapping. The constructor for both
+                        <classname>CMPITclCommand.h</classname>
+                        takes three  parameters:
+                        <itemizedlist>
+                            <listitem><para>
+                                A reference to the <classname>CTCLInterpreter</classname> on which the
+                                command is defined.   This was passed in as <varname>rIterp</varname>
+                                to <methodname>AddCommands</methodname>
+                            </para></listitem>
+                            <listitem><para>
+                                The command name under which the wrapped command shoulid be invoked.
+                                Normally this shoulid be the same command name used to create your
+                                wrapped command.  In this case it is <literal>parammap</literal>
+                            </para></listitem>
+                            <listitem><para>
+                                The wrapped command itself, a pointer to an object from a class
+                                derived from <classname>CTCLObjectProcessor</classname>.
+                            </para></listitem>
+                        </itemizedlist>
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                The <command>pman</command> SpecTcl core command processor uses  an interesting trick that allows you
+                to leave the initialization code in <filename>MySpecTclApp.cpp</filename> unmodified.
+                It also is wrapped in a <classname>CMPITclCommandAll</classname>.
+            </para>
+            <para>
+                The original command processor class, <classname>CPipelineCommand</classname> is renamed to 
+                <classname>CPipelineCommandActual</classname>.  This just a simple global string replace for the
+                 most part.  A new class named <classname>CPipelineCommand</classname> derived, in this case,
+                 from <classname>CMPITclCommandAll</classname> with the same constructor signature as
+                 <classname>CPipelineCommandActual</classname> which constructs that actual command processor and wraps it.
+                 This method is suitable when the wrapped command processor is not exporting any services to the external code.
+            </para>
+            <para>
+                The example below shows excerpts from the header <filename>CPipelineCommand.h</filename>.
+            </para>
+            <example>
+                <title>Transparently wrapping commands by renaming the actual processor</title>
+                <programlisting>
+#include &lt;PITclCommandAll.h&gt;
+#include &lt;TCLObjectProcessor.h&gt;
+
+...
+class CPipelineCommandActual : public CTCLObjectProcess  <co id='ex.autowrap.actualdecl' />
+or
+{
+...
+public:
+
+    CPipelineCommandActual(CTCLInterpreter&amp; interp);
+    int operator()(
+        CTCLInterpreter&amp; interp, 
+        std::vector&lt;CTCLObject&gt;&amp;; objv
+    );
+
+...
+};
+
+class CPipelineCommand : public CMPITclCommandAll {  <co id='ex.autowrap.wrapperdecl' />
+public:
+    CPipelineCommand(CTCLInterpreter&amp; rInterp) ;
+    ~CPipelineCommand() {}
+};
+
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='ex.autowrap.actualdecl' >
+                <para>
+                    Here we see the renamed original class. Note that in the implementation you will want
+                    to replace <replaceable>OriginalClassName</replaceable><literal>::</literal> with
+                    <replaceable>OriginalClassName</replaceable><literal>Actual::</literal>
+                </para>
+                </callout>
+                <callout arearefs='ex.autowrap.wrapperdecl'>
+                    <para>
+                        Here is the definition of the replacement for the original class.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                where the implementation of <classname>CPipelineCommand</classname>, CPipelineCommand.cpp
+                is now:
+            </para>
+            <example>
+                <title>Implementing the replacement class </title>
+                <programlisting>
+CPipelineCommand::CPipelineCommand(CTCLInterpreter&amp; rInterp) : <co id='ex.autowrap.constructorimpl' />
+  CMPITclCommandAll(rInterp, "pman", new CPipelineCommandActual(rInterp)) {}
+                </programlisting>
+            </example>
+            <para> 
+                Doing this allows your wrapped command to be constructed in exactly the same way the
+                original command was.  If you have to wrap a lot of commands this can be conceptually simpler.
+            </para>
+            <calloutlist>
+                <callout arearefs='ex.autowrap.constructorimpl'>
+                    <para>
+                        Here you can see how we implement the constructor of the wrapper class
+                        so that it wraps the actual class.
+                    </para>
+                </callout>
+            </calloutlist>
+        </section>
+        <section>
+            <title>Knowing the execution evironment</title>
+            <para>
+                Your commands may need to know if you are running as an MPI application and, if so,
+                the sort of process you are.  mpiSpecTcl has three types of functionally distinct processes:
+                The Root process runs the interactive Tcl interpreter (and therefore any GUI), the
+                Event sink pipeline process and workers, which run the event processing pipline you write.
+                The organization of the MPI application is described in greater detail in 
+                <link linkend='chap.howitworks' endterm='chap.howitworks.title' />.
+            </para>
+            <para>
+                There is only one Root and one Event sink pipeline process.  There are as many Worker processes
+                as you implicitly specify in the <command>mpirun</command> command.  User command
+                extensions generally affect the operation of the event processing pipeline and, therefore
+                when running MPI should onhly actually do something in worker processes.
+            </para>
+            <para>
+                In MPI processes are grouped together in <firstterm>communicators</firstterm>.  Each 
+                process is assigned an unsigned integer number called a <firstterm>rank</firstterm> within
+                each communicator to which it belongs.  WHen an MPI application starts, an initial 
+                communicator called the <firstterm>world communicator</firstterm> is created by the
+                MPI run-time and processes are assigned a rank within the world communicator.
+                It is the world communicator rank that mpiSpecTcl uses to assign roles to each process.
+            </para>
+            <para>
+                The header <filename>Globals.h</filename> defines three preprocessor constants:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal>MPI_ROOT_RANK</literal></term>
+                    <listitem>
+                        <para>
+                            The rank of the root process.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>MPI_EVENT_SINK_RANK</literal></term>
+                    <listitem>
+                        <para>
+                            The rnak of the event sink pipline process.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>MPI_FIRST_WORKER_RANK</literal></term>
+                    <listitem>
+                        <para>
+                            The smallest rank assigned to a worker process.  All workers will
+                            have world communicator ranks that are this or larger.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section id='sec.wrapoldcmds'>
+            <title id='sec.wrapoldcmds.title'>Wrapping old argc, argv commands.</title>
+            <para>
+            </para>
+        </section>
     </chapter>
     <chapter id='chap.howitworks'>
         <title id='chap.howitworks.title'>How mpiSpecTcl works in parallel mode.</title>
