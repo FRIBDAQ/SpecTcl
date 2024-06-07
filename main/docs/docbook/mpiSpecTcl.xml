@@ -496,10 +496,255 @@ CPipelineCommand::CPipelineCommand(CTCLInterpreter&amp; rInterp) : <co id='ex.au
                     </listitem>
                 </varlistentry>
             </variablelist>
+            <para>
+                The header <filename>TclPump.h</filename> provides a pair of functions:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><type>bool</type> <function>isMpiApp</function><literal>()</literal></term>
+                    <listitem>
+                        <para>
+                            Returns <literal>true</literal> if SpecTcl is running as an MPI application.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>int</type> <function>myRank</function> <literal>()</literal></term>
+                    <listitem>
+                        <para>
+                            Returns the rank of the process in the current communicator.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Here is sample code for a command processor that only executes in worker processes
+                when the SpecTcl is an mpi application but executes as well if SpecTcl is run serially.
+            </para>
+            <example>
+                <title>Running commands only in workers</title>
+                <programlisting>
+#include &lt;TclPump.h&gt;
+...
+int SomCommandProcessor::operator()(
+    CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;& objv
+) {
+    if (isMpiApp() && (myRank() < MPI_FIRST_WORKER_RANK)) {
+        return TCL_OK;
+    }
+    // The actual stuff the command does...
+
+
+}
+                </programlisting>
+            </example>
         </section>
         <section id='sec.wrapoldcmds'>
             <title id='sec.wrapoldcmds.title'>Wrapping old argc, argv commands.</title>
             <para>
+                Commands written for today's SpecTcl <emphasis>should</emphasis> be writtena
+                as classes derived from <classname>CTCLObjectProcessor</classname>.  The MPI
+                wrapper classes are <emphasis>only</emphasis> able to wrap that sort of class.
+                
+            </para>
+            <para>
+                However, originally SpecTcl only had a 
+                <classname>CTCLProcessor</classname> base class for writing commands and,
+                naturally, there may still be commands out there derived from
+                <classname>CTCLProcessor</classname>.  This section describes how to
+                convert <classname>CTCLProcessor</classname> derived classes into
+                <classname>CTCLObjectProcesssor</classname> derived classes so they can be wrapped
+                in e.g. <classname>CMPITclCommand</classname>
+            </para>
+            <para>
+                Several SpecTcl commands were still <classname>CTCLProcessor</classname> derived
+                and this chapter provides lessons learned porting those.
+            </para>
+            <para>
+                Before staring let's look at the differences between the signatures for
+                <methodname>operator()</methodname> for the two classes.
+                For <classname>CTCLProcessor</classname>, <methodname>operator()</methodname>
+                looks like this:
+            </para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>int <function>operator()</function></funcdef>
+                    <paramdef>
+                        <parameter>CTCLINterpreter&amp; interp</parameter>
+                        <parameter>CTCLResult&amp; result</parameter>
+                        <parameter>int argc</parameter>
+                        <parameter>char** argv</parameter>
+                    </paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>
+                Where <parameter>argc</parameter> is the number of words in the command,
+                <parameter>argv</parameter> are pointers to the verb text,
+                and <parameter>result</parameter> is the result object for the result that will
+                be returned by the command.
+            </para>
+            <para>
+                On the other hand, for <classname>CTCLObjectProcesor</classname>, 
+                <methodname>operator()</methodname> looks like this:
+            </para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>int <function>operator()</function></funcdef>
+                    <paramdef>
+                        <parameter>CTCLINterpreter&amp; interp</parameter>
+                        <parameter>std::vector&lt;CTCLObject&gt;&amp; objv</parameter>
+                    </paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>
+                WHere <parameter>objv</parameter>
+                are the command words and the result should be set via 
+                <literal>interp.setResult</literal> which has a few different overloads.
+            </para>
+            <para>
+                In addition to the relatively simple problem of changing the inheritance, porting
+                requires deciding how to handle the parameterization of <methodname>operator()</methodname>
+                where access to the command words may be sprinkled throughout the code. 
+            </para>
+            <para>
+                The SpecTcl <command>spectrum</command> is an example of a command that had been
+                derived from <classname>CTCLProcessor</classname> but had to be ported to be derived
+                from <classname>CTCLObjectProcessor</classname> in order to be wrapped in 
+                <classname>CMPITclCommandAll</classname>.
+            </para>
+            <para>
+                The <command>spectrum</command> is a command ensemble.  Each of the options
+                <option>-new</option>, <option>-list</option>, <option>-delete</option> and 
+                <option>-trace</option> can be thought
+                of as a subcommand (if none of these options is present the command internally defaults to
+                <option>-new</option>).  In SpecTcl, such ensembles typically execute each subcommand in 
+                another method with <methodname>operator()</methodname> mostly just dispatching to the appropriate 
+                subcommand method.
+            </para>
+            <para>
+                First lests look at a fragment of the header (<filename>SpectrumCommand.h</filename>).
+            </para>
+            <example>
+                <title>Porting <classname>CTCLProcessor</classname> to 
+                    <classname>CTCLObjectProcessor</classname> <filename>SpectrumCommand.h</filename>
+                </title>
+                <programlisting>
+...
+class CSpectrumCommand  : public CTCLPackagedObjectProcessor       
+{
+...
+public:  
+  virtual   int operator() (CTCLInterpreter&amp; rInterpreter, 
+			    std::vector&lt;CTCLObject&gt;&amp; objv)  ;
+  Int_t New (CTCLInterpreter&amp; rInterpreter, 
+	     int nArgs, const char* pArgs[])  ;
+  Int_t List (CTCLInterpreter&amp; rInterp, 
+	      int nArgs, const char* Args[]);
+  Int_t Delete (CTCLInterpreter&amp; rInterp,
+		int nArgs, const char* pArgs[])  ;
+  Int_t Trace  (CTCLInterpreter&amp; rInterp, 
+		int nArgs, const char* pArgs[]);
+...
+};
+...
+                </programlisting>
+            </example>
+            <para>
+                This example shows that the <methodname>operator()</methodname> method will marshall
+                the <parameter>objv</parameter> array into an argc/argv and pass that to the 
+                subcommand processors.  The only modifications needed to the subcommand processors
+                then become removing the <parameter>result</parameter> from their signatures and
+                figuring out how, then, to handle returning results.
+            </para>
+            <para>
+                The next example shows a fragment of code from <methodname>operator()</methodname>
+                that recreates argc and argv from <parameter>objv</parameter>
+            </para>
+            <example>
+                <title>
+                    Porting <classname>CTCLProcessor</classname> to <classname>CTCLObjectProcessor</classname>
+                    Marshalling arguments.
+                </title>
+                <programlisting>
+int 
+CSpectrumCommand::operator()(CTCLInterpreter&amp; rInterpreter, std::vector&lt;CTCLObject&gt;&amp; objv)
+{
+
+  std::vector&lt;std::string&gt; words;
+  std::vector&lt;const char*&gt; pWords;
+
+  // Due to lifetimes and how c_str behaves we need two loops not one:
+
+  for (auto&amp; word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (int i =0; i &lt; words.size(); i++) {
+    pWords.push_back(words[i].c_str());
+  }
+  int nArgs = words.size();
+  auto pArgs = pWords.data();
+...
+}
+                </programlisting>
+            </example>
+            <para>
+                First <parameter>objv</parameter> is converted into a vector of std::string. Next, 
+                this is used to produce a vector of const char*.  This has to be done in two loops
+                due to lifetime issues.  Finally, nArgs (argc if you prefer) is just the  size of either
+                of those vectors and pArgs (argv if you prefer) is just the data in the vector of 
+                const char*s.
+            </para>
+            <para>
+                Each subcommand processor new needs to figure out how to deal with the "missing" 
+                result parameter and, instead use the interpreter's <methodname>setResult</methodname>
+                to set the result.  It's simplest to note that std::string has most of the methods that
+                <classname>CTCLResult</classname> has for building up contents.
+                Let's look at the <methodname>Usage</methodname> for the spectrum command.  It appends a 
+                summary of the syntax of the <command>spectrum</command> to the contents of result.
+                Originally, the result object was passed by reference to this method:
+            </para>
+            <example>
+                <title>Porting <classname>CTCLProcessor</classname> to <classname>CTCLObjectProcessor</classname>
+                    substituting std::string for the result
+                </title>
+                <programlisting>
+void 
+CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
+{
+  std::string rResult = rInterp.GetResultString();
+  if (prefix) rResult += prefix;
+  rResult += "Usage: \n";
+  rResult += "  spectrum [-new] name type { parameters... } {axisdefs... [datatype]y\n";
+  rResult += "  spectrum -list ?-byid? ?-showgate? [pattern]\n";
+  rResult += "  spectrum -list pattern\n";
+  rResult += "  spectrum -list -id ?-showgate? id\n";
+  rResult += "  spectrum -delete name1 [name2...]\n";
+  rResult += "  spectrum -delete -id id1 [id2...]\n";
+  rResult += "  spectrum -delete -all\n";
+  rResult += "  spectrum -trace add ?script?\n";
+  rResult += "  spectrum -trace delete ?script?\n";
+  rResult += "    In the above, an axsidef has one of the following formats:\n";
+  rResult += "         n           - n is the Log(2) the number of channels\n";
+  rResult += "         {low hi n}  - Full definition where:\n";
+  rResult += "                       low  - Parameter value represented by channel 0\n";
+  rResult += "                       hi   - Parameter value represented by channel n-1\n";
+  rResult += "                       n    - Number of channels on the axis.\n";
+  rResult += "\n  The spectrum command creates and deletes spectra as well\n";
+  rResult += "  as listing their properties.";
+  rResult += " The -trace switch allows the creation, inspection and removal\n";
+  rResult += " of traces on adding and deleting spectra\n";
+  rInterp.setResult(rResult);
+  }
+                </programlisting>
+            </example>
+            <para>
+                This technique can be used directly in command or subcommand processors:
+                create a local std::string named the same as the original result parameter,
+                and just prior to the <literal>return</literal> statement, invoked
+                the <methodname>setResult</methodname> method of the interpreter object to
+                set the command's result.  One of the overloads of 
+                <classname>CTCLInterpreter</classname>::<methodname>setResult</methodname> sets the result
+                from an std::string object.
             </para>
         </section>
     </chapter>
