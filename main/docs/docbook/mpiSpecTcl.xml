@@ -976,6 +976,177 @@ do until exit:
         <section>
             <title>MPI Pumps</title>
             <para>
+                This section first presents the motivation for MPI Pumps, describes them and describes
+                the pumps that mpSpecTcl has and which roles run which pumps.
+            </para>
+            <para>
+                All of the roles in mpiSpecTcl run a Tcl interpreter that implements an event loop.
+                Once the interpreter is started, control is turned over to that interpreter's main loop.
+                Nonetheless, while the interpreter main loop is running, the processes in mpiSpecTcl 
+                need to communicate;  Workers must receve event data, the Event sink pipeline must receive
+                event parameters from the workers and all but the root process need to get commands relayed
+                from the root.
+            </para>
+            <para>
+                Tcl's event loop provides two methods to be aware of activities outside of the interpreter itself,
+                Notifiers added to the event loop and threads posting events to the event loop.  The
+                Notifier interface is quite complex and not well documented.  Using threads to post events is,
+                assuming thread safe code can be written, simple.
+            </para>
+            <para>
+                An MPI Pump, therefore is a thread that blocks on receiving messages from an MPI process,
+                converts the message into a Tcl event and posts that event to the Tcl event loop where
+                it is processed by an event handling functions.  Event pumps can be based around
+                both <function>MPI_Recv</function> or <function>MPI_Bcast</function>. Note, however, that the
+                way that the lack of selectivity of <function>MPI_Bcast</function> requires that we create
+                a separate MPI communicator along which each type  of broadcast occurs.
+            </para>
+            <para>
+                MPI Pumps, in mpiSpecTcl are paired with an API for sending data to processes running the pump.
+                The pump code and API are usually located in the same compilation module in mpiSpecTcl.  Recall 
+                that all processes in MPI run the same executable image.
+            </para>
+            <para>
+                The example below shows pseudo code for a skeletal pump and its API.  The 
+                message sent to the pump is encapsulated in a custom MPI data type.
+            </para>
+            <example>
+                <title>Sample Pump and API pseudo code</title>
+                <programlisting>
+typedef MessageStruct {             <co id='pump.message' />
+    ...
+};
+static
+MPI_Datatype messageType() {       <co id='pump.messagetype' />
+    static MPI_Datatype MessageType;
+    static bool typeDefined = false;
+    if (!typeDefined) {
+        ...
+        MPI_Type_Createstruct( .... the message struct -&gt; MessageType)
+        MPI_Type_commit(&amp;MessageType)
+        typeDefined = true;
+    }
+    return MessageType;
+}
+
+void SendMessage(MessageStruct&amp; msg, int recevingRank, int tag) {  <co id='pump.sendapi' />
+    MPI_Send(msg, 1, messageType(), receivingRank, tag, MPI_COMM_WORLD);
+}
+
+
+struct Event {                     <co id='pump.tclevent' />
+    Tcl_Event event;
+    MessageStruct msg;
+};
+
+
+static int eventHandler(Tcl_Event* raw, int flags) { <co id='pump.eventhandler' />
+    Event* event = (Event*)raw;
+    processEvent(event.msg);
+    freeEvent(raw);
+
+    return 1;
+}
+
+static int eventPump(ClientData d) {         <co id='pump.pumpthread' />
+    Tcl_ThreadId mainThread = (Tcl_ThreadId)(d);
+    while (1) {
+        Event* pEvent = createEvent();
+        MPI_Status info;
+        MPI_Recv(&amp;pEvent-&gt;msg, 1, messageType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &amp;info);
+        Tcl_ThreadQueueEvent(mainthread, &amp;pEvent-&gt;event, TCL_QUEUE_TAIL);
+    }
+
+}
+
+void startEventPump() {                     <co id='pump.start' />
+    Tcl_ThreadId pumpId;
+    Tcl_CreateThread(
+        &amp;pumpId, eventPump, (ClientData)Tcl_GetCurrentThread(), 
+        TCL_THREAD_ST5ACK_DEFAULT, TCL_NOFLAGS
+    );
+}
+
+                </programlisting>
+            </example>
+            <para>
+                The numbers in th explanation below refer to the numbers in the example above.
+                Note that this is the generic structure of a pump and does not reflect any specific pump.
+            </para>
+            <calloutlist>
+                <callout arearefs='pump.message'>
+                    <para>
+                        Most event pumps involve custom message types that are structs.
+                        This is a placeholder for the actual message that is sent via e.g.
+                        <function>MPI_Send</function>
+                    </para>
+                </callout>
+                <callout arearefs='pump.messagetype'>
+                    <para>
+                        Since we send/receive a custom data type, we need to define and register that 
+                        data type with MPI so that it can be used as a message.
+                        <function>messageType</function> does that the first time its called and that time and all 
+                        subsequent times it returns the data type handle (MPI_Datatype) for that type.
+                        The sample code is a sketch and you should look at the man page for
+                        <function>MPI_Type_Createstrcut</function> for what needs to be done to 
+                        describe the struct to MPI.
+                    </para>
+                </callout>
+                <callout arearefs='pump.sendapi'>
+                    <para>
+                        This is the API senders use to send messages to processes running the pump.
+                        In general, this function is <emphasis>not</emphasis> called by processes
+                        running the pump.  It just uses <function>MPI_Send</function> to send the 
+                        data to the designated rank with the designated tag.  Note that 
+                        <function>MPI_Bcast</function> could just as easily be used as long
+                        as it was also used in <function>eventPump</function> to receive the pump data.
+                    </para>
+                </callout>
+                <callout arearefs='pump.tclevent'>
+                    <para>
+                        Eventually, received messages are queued as Tcl events to the Tcl event loop.
+                        Tcl events are represented by a <structname>Tcl_Event</structname> stucture.
+                        In our case we want to pass additional data, (the received message) to the 
+                        event handler.  This struct, <structname>Event</structname> encapsulates both a 
+                        <structname>Tcl_Event</structname> header and the additional data we want.
+                    </para>
+                </callout>
+                <callout arearefs='pump.eventhandler'>
+                    <para>
+                        When the event is queued to the Tcl event loop, a field in the 
+                        <structname>Tcl_Event</structname>  data structure specifies the function
+                        to call from the event loop.  In this case it's our <function>eventHandler</function>
+                        function.
+                        That simply establishes access to the entire struct, thus getting access to the
+                        message, does some messages specific processing (not shown) and frees
+                        any dynamic storage allocated in the message field.  Returning 1 causes the
+                        Tcl run time to delete the event struct itself using <function>Tcl_Free</function>.
+                    </para>
+                </callout>
+                <callout arearefs='pump.pumpthread'>
+                    <para>
+                        This function is the pump thread.  It just allocates events and initializes 
+                        them (not shown in <function>createEvent</function>).   <function>MPI_Recv</function>
+                        is then used to receive data from some sender and the resulting extended event is
+                        dispatched to the Tcl event loop with
+                        <function>Tcl_ThreadQueueEvent</function>
+                    </para>
+                </callout>
+                <callout arearefs='pump.start' >
+                    <para>
+                        Finally, this function is called in ranks that run the pump to start the
+                        pump thread in the first place.  The thread id of the calling thread 
+                        (assumed to be the main thread)
+                        is passed into the thread so that it knows which thread should be targeted
+                        by <function>Tcl_ThreadQueueEvent</function>
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Now that we've seen the general form of an MPI Pump, let's enumerate all of the pumps,
+                what they pump, from where they pump and what is done with the data they pump.  We'll also
+                describe which source file implements the pump in case you are interestsed in looking 
+                at source code.
             </para>
         </section>
         <section>
