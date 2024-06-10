@@ -780,7 +780,7 @@ CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
                 The scheme used to pass events to worker processes are described, and their associated MPI Pumps.
             </para></listitem>
             <listitem><para>
-                The sheme used to pass the results of the event processing pipelines running in the workers to  to the event sink pipeline
+                The scheme used to pass the results of the event processing pipelines running in the workers to  to the event sink pipeline
                 process is described along with the associated pump.
             </para></listitem>
             <listitem><para>
@@ -798,9 +798,219 @@ CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
             <filename>docs/docbook/mpiSpecTcl.xml</filename> and can be found in the repository at
             <filename>main/docs/docbook/mpiSpecTcl.xml</filename>.  This omission is done just for brevity.
         </para>
+        <section>
+            <title>The MPI Process environment</title>
+            <para>
+                This chapter will introduce the MPI process environment and the communcations
+                tools we use.  We'll start with a brief description of what it is that miprun (or mpiexec 
+                in MPICH) does, what a communicator is and how mpiSpecTcl uses communicators and the 
+                message passing support in MPI.
+            </para>
+            <para>
+                First of all, MPI is an acronym for <firstterm>Message Passing Interface</firstterm>.
+                Originally MPI was intended to provde a scheme for writing <firstterm>data parallel</firstterm>
+                programs.  An MPI application consists of the same program that is run in several
+                processes.  MPI then provides mechanisms to pass messages between processe both
+                via directed communication and multicast communication.
+            </para>
+            <para>
+                MPI implementations (the two most common are OpenMPI and MPICH), must provide a mechanism
+                to start MPI applications.  In OpenMPI this is the <command>mpirun</command> command and
+                in MPICH, the similar command is called <command>mpiexec</command>.  In the general sense, these
+                commands provide options that describe the number of desired processes and, optionally, how to 
+                bind those processors to processing resources (e.g. nodes in a cluster).  In running mpiSpecTcl,
+                typically, all processes run in the same node allowing for high speed, low latency
+                communication (in MPI internal communications are often implemented via shared memory mailboxes). 
+            </para>
+            <para>
+                MPI allows splitting the processes in an application into process groups that may 
+                intercommunication.  It does so via communicators.  When an MPI application starts, it has
+                a single <firstterm>world communicator</firstterm>.  At any point, that  communicator can be 
+                split into communicators that may contain a subset of the application or the entire application partitioned
+                in some way.
+            </para>
+            <para>
+                Within a communicator, processes are identified by their <firstterm>rank</firstterm>.  The
+                rank is an integer value.  Processes in the world communicator are assigned their ranks by
+                mpirun/mpiexec.   Processes in other communicators can be assigned their ranks at the time
+                that communicator is split off from its parent communicator; which might be the world communicator,
+                or a communicator split off from the world communicator etc.
+            </para>
+            <para>
+                Within a communicator, one can send messages from one processs to another.  The sender
+                uses <function>MPI_Send</function> specifying the communicator and  rank within the communicator
+                 of the desired receiver. The
+                receiver, at some point must receive the message using <function>MPI_Recv</function>.
+                The receiver can either specify the sender or accept a message from any rank (including another thread
+                its own process).  Messages are also associated with an integer tag by <function>MPI_Send</function>
+                and the receiver can either select specific tagged messages or accept messages with any tag.
+                Message payloads are strongly typed and the receiver must know what to expect from the sender.
+            </para>
+            <para>
+                Messages can also be broadcast from a known sender to all processes in a communicator. This is simplified
+                as a communicator itself can be split into process groups using <firstterm>colors</firstterm> and broadcasts
+                are really amongst processes with the same color.  We don't use colors in mpiSpecTcl.  To broadcast
+                a message to a communicator, all processes in the communictoar invokd <function>MPI_Bcast</function> 
+                specifyin the communicator and the sender rank within the communicator.   All processes executing
+                <function>MPI_Bcast</function> block until the sending process invokes <function>MPI_Bcast</function>
+                at which point the message it sent is available to all recdeivers.  Broadcast messages are not
+                tagged, unlike those sent with <function>MPI_Send</function> but  are strongly typed and all
+                participants in a broadcast must know the message type to receive it properly.
+            </para>
+            <para>
+                As we have seen, messages are strongly typed.  They are arrays of a type known to MPI.  MPI has
+                built in  data types for primitive types like integer, doubles and so on.  In addition, the type
+                system of MPI allows user defined types to be registered and used.  Naturally, all processes which
+                send or receive messages of a specific user defined type, must have made that type known to 
+                the MPI run-time.
+            </para>
+            <para>
+                If you want to learn more about MPI, the OpenMPI man pages are at <ulink url='https://docs.open-mpi.org/en/v5.0.x/man-openmpi/man3/index.html' />.
+                Tutorials on MPI are available at <ulink url='https://mpitutorial.com/tutorials/' />.
+            </para>
+        </section>
+        <section>
+            <title>mpiSpecTcl process roles</title>
+            <para>
+                In the previous section MPI was described.  Recall that the computing model in MPI is 
+                a data parallel model.  While in mpiSpecTcl, event processing is fully data parallel, there
+                are otherr things going on.  As such, mpiSpecTcl's computing model is a mix of functionally
+                distributed processing and data parallel processing.  Each process in mpiSpecTcl has a specific
+                role.  The world communicator rank is used by each process to select the code that actually runs.
+                Each process fulfils one of three roles:
+            </para>
+            <orderedlist>
+                <listitem><para>
+                    Main or root process
+                </para></listitem>
+                <listitem><para>
+                    Event sink pipeline
+                </para></listitem>
+                <listitem><para>
+                    Worker - event processing pipeline.
+                </para></listitem>
+            </orderedlist>
+            <para>
+                mpiSpecTcl has only one root process, and one event sink pipeline process but can have 
+                any number of worker processes.  As converting raw parameters is, for complex analyses,
+                the rate determining step, the data parallelism of the worker processes is where the
+                speed gains are.
+            </para>
+            <para>
+                Symbolic definitions for the MPI role ranks are in <filename>Core/Globals.h</filename> which
+                is also installed in the <filename>include</filename> subdirectory of the SpecTcl installation
+                tree.
+            </para>
+            <section>
+                <title>World communicator rank 0 (<literal>MPI_ROOT_RANK</literal>)- the Root process</title>
+                <para>
+                    The root process is responsible for:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        Running the interactive Tcl interpreter.  Note that all processes run a
+                        Tcl interpreter, however onlyi the root one actually takes input from stdin
+                        and runs GUIs.    In 
+                        <link linkend='sec.cmdwrappers' endterm='sec.cmdwrappers.title' /> we will see
+                        how the SpecTcl commands executed in the root process are also executed in other
+                        processes in the application.  
+                    </para></listitem>
+                    <listitem><para>
+                        Data sources are opened in this process role and ring items are distributed to the
+                        event processing pipeline (worker) )rocesses.  Ring items of type <literal>PHYSICS_EVENT</literal>
+                        are transmitted to idle workers and all other ring item types are broadcast to all workers.
+                        See the section <link linkend='sec.evprocessing' endterm='sec.evprocessing.title' /> for
+                        more about how ring items from the data source are handled.
+                        Note that mpiSpecTcl only supports ring item data sources.
+                    </para></listitem>
+                    <listitem><para>
+                        When SpecTcl has been told to run a ReST server, the root process runs that server.
+                    </para></listitem>
+                </itemizedlist>
+                <para>
+                    Note that the <filename>SpecTclInit.tcl</filename> is processed by all ranks
+                    and the <filename>SpecTclRC.tcl</filename> initialization file is only processed in the
+                    root process.  This means, however that SpecTcl commands in those scripts 
+                    <emphasis>will</emphasis> be processed in all processes.
+                </para>
+            </section>
+            <section>
+                <title>World communicator rank 1 (<literal>MPI_EVENT_SINK_RANK</literal>) - the event sink pipeline process</title>
+                <para>
+                    The event sink pipeline is sent the outputs of the event processing pipelines.
+                    Note that, since event processing times may vary from event to event, the order in
+                    which events are received by the event sink pipeline is non-deterministic. 
+                    See <link linkend='sec.paramprocessing' endterm='sec.paramprocessing.title' /> for
+                    more about how  parameter data gets to this process from the
+                    event procdessing pipeline workers.
+                </para>
+                <para>
+                    In addition any displayer program is started by the event sink pipeline and the
+                    shared memory  into which spectra can be bound is created by this process.
+                </para>
+                <para>
+                    The mirror server is also run by this process if mirroring is required.
+                </para>
+            </section>
+            <section>
+                <title>World communicator rank > 1 (<literal>MPI_FIRST_WORKER_RANK</literal>) - the event processing pipelines</title>
+                <para>
+                    This role runs the event processing pipeline.  Transparent to user code, the worker
+                    processe run a loop with a simplified structure that looks like:
+                </para>
+                <example>
+                    <title>Worker top level pseudo code</title>
+                    <programlisting>
+do until exit:
+    Get an event 
+    Process the event in the user event processing pipeline
+    Send resulting parameters to the event sink pipeline.
+                    </programlisting>
+                </example>
+                <para>
+                    The actual mechanics of event distribution to the workers is described in 
+                    <link  linkend='sec.evprocessing' endterm='sec.evprocessing.title' />
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>MPI Pumps</title>
+            <para>
+            </para>
+        </section>
+        <section>
+            <title>mpiSpecTcl initialization</title>
+            <para>
+            </para>
+        </section>
+        <section id='sec.cmdwrappers'>
+            <title id='sec.cmdwrappers.title'>Command wrappers and sharing SpecTcl state</title>
+            <para>
+            </para>
+        </section>
+        <section id='sec.evprocessing'>
+            <title id='sec.evprocessing.title'>Ring item distribution to workers</title>
+            <para>
+            </para>
+        </section>
+        <section id='sec.paramprocessing'>
+            <title id='sec.paramprocessing.title'>Transmitting output of the event processing pipeline to the event sink pipeline.</title>
+            <para>
+            </para>
+        </section>
+        <section>
+            <title>mipSpecTcl shutdown</title>
+            <para>
+            </para>
+        </section>
     </chapter>
     <appendix>
         <title>mpiSpecTcl  reference material</title>
+        <para>
+        </para>
+    </appendix>
+    <appendix id='app.commands'>
+        <title id='app.commands.title'>SpecTcl commands in the mpiSpecTcl environment</title>
         <para>
         </para>
     </appendix>
