@@ -911,17 +911,12 @@ CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
                         Running the interactive Tcl interpreter.  Note that all processes run a
                         Tcl interpreter, however onlyi the root one actually takes input from stdin
                         and runs GUIs.    In 
-                        <link linkend='sec.cmdwrappers' endterm='sec.cmdwrappers.title' /> we will see
-                        how the SpecTcl commands executed in the root process are also executed in other
-                        processes in the application.  
+                        
                     </para></listitem>
                     <listitem><para>
                         Data sources are opened in this process role and ring items are distributed to the
                         event processing pipeline (worker) )rocesses.  Ring items of type <literal>PHYSICS_EVENT</literal>
                         are transmitted to idle workers and all other ring item types are broadcast to all workers.
-                        See the section <link linkend='sec.evprocessing' endterm='sec.evprocessing.title' /> for
-                        more about how ring items from the data source are handled.
-                        Note that mpiSpecTcl only supports ring item data sources.
                     </para></listitem>
                     <listitem><para>
                         When SpecTcl has been told to run a ReST server, the root process runs that server.
@@ -940,9 +935,6 @@ CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
                     The event sink pipeline is sent the outputs of the event processing pipelines.
                     Note that, since event processing times may vary from event to event, the order in
                     which events are received by the event sink pipeline is non-deterministic. 
-                    See <link linkend='sec.paramprocessing' endterm='sec.paramprocessing.title' /> for
-                    more about how  parameter data gets to this process from the
-                    event procdessing pipeline workers.
                 </para>
                 <para>
                     In addition any displayer program is started by the event sink pipeline and the
@@ -969,7 +961,7 @@ do until exit:
                 </example>
                 <para>
                     The actual mechanics of event distribution to the workers is described in 
-                    <link  linkend='sec.evprocessing' endterm='sec.evprocessing.title' />
+                    <link  linkend='sec.ringpump' endterm='sec.ringpump.title' />
                 </para>
             </section>
         </section>
@@ -1214,8 +1206,8 @@ void startEventPump() {                     <co id='pump.start' />
                     parallel SpecTcl runs.
                 </para>
             </section>
-            <section>
-                <title>The ring item pump</title>
+            <section id='sec.ringpump'>
+                <title id='sec.ringpump.title'>The ring item pump</title>
                 <para>
                     A quick side note that in MPI mode, mpiSpecTcl only registers the BufferDecoder
                     for ring items and, therefore only supports analyzing data from NSCLDAQ 10.0 and later.
@@ -1348,24 +1340,42 @@ void startEventPump() {                     <co id='pump.start' />
                     which are queued to the event ander for processing by the event sink pipeline.
                 </para>
             </section>
+            <section>
+                <title>The Xamine gate pump</title>
+                <para>
+                    Gates which are created and modified by Tcl commands either interactively (through a
+                    GUI running in the root process) or via the ReST server (which also runs in the
+                    root process).  Are distributed to the application via the Tcl command pump described
+                    previously.  If, howver the display is Xamine, it can define gates by communicating
+                    with the SpecTcl xamine event handler, which runs in the Event sink pipeline process.
+                </para>
+                <para>
+                    It is the job of the API and pump in <filename>GatePump.{h,cpp}</filename> to distribute
+                    these gate definitions to the rest of the application.  These gates are sent by the
+                    event sink pipeline process via a series of 
+                    <function>MPI_Bcast</function> calls which send:
+                </para>
+                <orderedlist>
+                    <listitem><para>
+                        The gate name and type 
+                    </para></listitem>
+                    <listitem><para>
+                        The parameters the gate depends on.
+                    </para></listitem>
+                    <listitem><para>
+                        The points that make up geometric gates.
+                    </para></listitem>
+                </orderedlist>
+                 <para>
+                    Note that since Xamine can only create geometric gates, that is the only
+                    type of gate the pump and its API can handle.
+                    Once all messages that define a gate have been received, information about the
+                    gate is queued to the event loop where the gate is re-created.
+                </para>
+            </section>
         </section>
         <section>
             <title>mpiSpecTcl initialization</title>
-            <para>
-            </para>
-        </section>
-        <section id='sec.cmdwrappers'>
-            <title id='sec.cmdwrappers.title'>Command wrappers and sharing SpecTcl state</title>
-            <para>
-            </para>
-        </section>
-        <section id='sec.evprocessing'>
-            <title id='sec.evprocessing.title'>Ring item distribution to workers</title>
-            <para>
-            </para>
-        </section>
-        <section id='sec.paramprocessing'>
-            <title id='sec.paramprocessing.title'>Transmitting output of the event processing pipeline to the event sink pipeline.</title>
             <para>
             </para>
         </section>
