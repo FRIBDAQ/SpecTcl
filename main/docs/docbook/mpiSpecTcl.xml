@@ -1377,10 +1377,122 @@ void startEventPump() {                     <co id='pump.start' />
         <section>
             <title>mpiSpecTcl initialization</title>
             <para>
+                Note that the code described here is in the file <filename>Core/TclGrammerApp.cpp</filename>.
+                SpecTcl initialization in the MPI environment requires that the program:
             </para>
+            <itemizedlist>
+                <listitem><para>
+                    Verify that the program is runnig in paralle mode 
+                    (see <classname>CTclGrammerApp</classname>::<methodname>run</methodname>).
+                </para></listitem>
+                <listitem><para>
+                    Initialize MPI (<classname>CTclGrammerApp</classname>::<methodname>MPIAppInit</methodname>)
+                </para></listitem>
+                <listitem><para>
+                    Determine the world rank of the process (<classname>CTclGrammerApp</classname>::<methodname>MPIAppInit</methodname>)
+                    and verify there are sufficient processes in the application to fulfil all roles.
+                </para></listitem>
+                <listitem><para>
+                    Split the world communicator, creating the ring item communicator and the
+                    gate communicator, used by the pumps for those
+                    data (<classname>CTclGrammerApp</classname>::<methodname>MPIAppInit</methodname>).
+                </para></listitem>
+                <listitem><para>
+                    Do application common and role specific initialization
+                    (in <classname>CTclGrammerApp</classname>::<methodname>AppInit()</methodname>).
+                </para></listitem>
+            </itemizedlist>
+            <para>
+                The common and per-role initialization begins in 
+                <classname>CTclGrammerApp</classname>::<methodname>AppInit()</methodname>
+                which was the application initialization function in SpecTcl prior to version 7.0.
+                It creates a  Tcl interpreter,  invokes 
+                <classname>CTclGrammerApp</classname>::<methodname>operator()</methodname>, which does the
+                bulk of the initialiation and then, if the process is the root process, sets up a Tcl
+                event loop for the process which can take commands from <literal>stdin</literal>
+                If the process is not the root process, closes the <literal>stdin</literal>
+                Tcl channel, starts the command pump and runs an event loop.  This is done
+                in the static function <function>setupSlaveInterpreter</function>.
+            </para>
+            <para>
+                The bulk of initialization is driven by 
+                <classname>CTclGrammerApp</classname>::<methodname>operator()</methodname>.  This is the virtual 
+                method that is considered the entry point to the SpecTcl applicatikon.  It 
+                invokes a bunch of virtual methods which provide extension points for user code.  
+                Some of the methods are unconditionally invoked while others are invoked conditionally 
+                depending on the process world rank.  In the subsection that follows we'll delve into
+                the operations that are conditionally done on the basis of process role (world rank).
+            </para>
+            <para>
+                The emphasis is on initializations that are done in each process but not all
+                processes and intializations that are not done in this process.  The latter is
+                important in determining if you have specialized application specific code that
+                requires modification to run in mpiSpecTcl.
+            </para>
+            <section>
+                <title>Root process (<literal>MPI_ROOT_RANK</literal>)</title>
+                <para>
+                    The root process:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        Does not invoke <methodname>CreateHistogrammer</methodname>,
+                        Nor does it invoke <methodname>CreateDisplays</methodname>.  It does, therefore
+                        invoke <function>startGatePump</function> to receive information about gates
+                        transmitted to the event sink pipeline process by Xamine if it is chosen
+                        to visualize histograms.
+                    </para></listitem>
+                    <listitem><para>
+                        If the <filename>SpecTclInit.tcl</filename> script specified a <varname>HTTPDPort</varname>,
+                        The root process starts and runs the ReST server.
+                     </para></listitem>
+                     <listitem><para>
+                        The displayer is not selected, nor is it started by the Root process
+                    </para></listitem>
+                    <listitem><para>
+                        <function>atexit</function> is used to setup <function>MPIExitHandler</function>
+                        to run as the program is exiting in all process roles.  See
+                        <link linkend='sec.shutdown' endterm='sec.shutdown' /> for information
+                        about what this exit handler does.
+                    </para></listitem>
+                    <listitem><para>
+                        The test data source is only setup in the root process.  This allows test data to
+                        be generated and distributed.
+                    </para></listitem>
+                    <listitem><para>
+                        The analyzer is created and the ring item buffer decoder is selected. The analyzer is used
+                        both in processing events from the data source in the root process and in the dispatching of
+                        events to the event processing pipelines in the workers.
+                    </para></listitem>
+                    <listitem><para>
+                        The run control subsystem is setup.  This supports starting and stopping data 
+                        analysis.  The Root process manages data sources data distribution.  In
+                        the worker and event sink processors, data are pumped into the event loops
+                        of their interpreters.
+                    </para></listitem>
+                    <listitem><para>
+                        The <filename>SpecTclRC.tcl</filename> script(s) are sourced.  This is only 
+                        done in the root process as often these scripts build graphical user interfaces.
+                        by this time, the other processes are running the Tcl pump so any
+                        SpecTcl command extensions run in this script will be appropriately distributed
+                        to the other processes.
+                    </para></listitem>
+                    <listitem><para>
+                        The acknowledgements and the VERSION file are printed out.
+                    </para></listitem>
+                </itemizedlist>
+            </section>
+            <section>
+                <title>The event sink pipeline process (<literal>MPI_EVENT_SINK_RANK</literal>)</title>
+                <para></para>
+            </section>
+            <section>
+                <title>Worker processes (ranks at least <literal>MPI_FIRST_WORKER_RANK</literal>) </title>
+                <para></para>
+            </section>
         </section>
-        <section>
-            <title>mipSpecTcl shutdown</title>
+        <section id='sec.shutdown'>
+            <title id='sec.shutdown.title'>mipSpecTcl shutdown</title>
             <para>
             </para>
         </section>
