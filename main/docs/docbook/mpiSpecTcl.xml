@@ -1148,6 +1148,206 @@ void startEventPump() {                     <co id='pump.start' />
                 describe which source file implements the pump in case you are interestsed in looking 
                 at source code.
             </para>
+            <section>
+                <title>The Tcl command pump</title>
+                <para>
+                    mpiSpecTcl's root process runs an interactive Tcl interpreter.  SpecTcl command, however
+                    are wrapped in one of two wrapper classes:   <classname>CMPITCLCommand</classname> which executes
+                    the specified command in all but the Root process and <classname>CMPITclCommandAll</classname> which
+                    executes the command in all processes including the root process.
+                </para>
+                <para>
+                    As you might guess, the non-root processes run a pump; the Tcl command pump to receive commands
+                    from the root process, queue them into the event loop from which they are executed.  Note that
+                    all substitutions have been done by the time the command is dispatched by the root process, so
+                    the actual scope in which the command runs is not very important.
+                </para>
+                <para>
+                    The definitions and pump itself are implemented in <filename>/mip/TclPump.{h,cpp}</filename>.
+                    This file also provides utilities for determining if SpecTcl is running under mpirun and, 
+                    if so, the world rank of the process.
+                </para>
+                <para>
+                    Transmission and receipt of commands thus encapsulated is via
+                    <function>MPI_Bcast</function> on the world communicator.  Arbitrarily long commands are
+                    supported by chunking up the command in to more than one message if necessary.
+                </para>
+                <para>
+                    Tcl command execution results in a status (usually one of <literal>TCL_OK</literal> for 
+                    success and <literal>TCL_ERROR</literal> for errors), and a result.  The result is some
+                    arbitrary Tcl object that under nomral circumastances is set ultimately via
+                    <function>Tcl_SetObjResult</function> or some other related Tcl API function for
+                    manipulating the result.  When the status is <literal>TCL_ERROR</literal> typically
+                    the result is an error message string.  When <literal>TCL_OK</literal> the result may
+                    be information requested by the command (for example <command>spectrum -list</command>
+                    will produce a result that is a list containing spectrum definitions).)
+                </para>
+                <para>
+                    The status and result of aan MPI distributed command become a bit more complex.
+                    Commands executed by the Tcl Pump will use <function>MPI_Send</function> to send the 
+                    status and result to the root process.  Note that this round trip of <function>MPI_Bcast</function>
+                    to distribute the command and <function>MPI_Send</function>/<function>MPI_Recv</function> is 
+                    synchronous.  The root command blocks until all proceses have contributed a status and result.
+                </para>
+                <para>
+                    The root process constucts a single status from the worst of the statuses.  The result, in 
+                    the case where there is an error, is the result from the first process that produced an error.
+                    When all processes completed the command with a <literal>TCL_OK</literal> status, 
+                    the result is the longest result.  Note that typically on success, all results will be the
+                    same.
+                </para>
+                <para>
+                    I did say earlier that the Tcl result is an arbitrary Tcl object. This might seem difficult
+                    to return in an MPI Message.  However in Tcl every object has a string representation.  The
+                    <literal>Tcl_Obj</literal> object used to encapsulate an object supports <firstterm>shimmering</firstterm>
+                    an object into its string representation while simultaneously caching another representation or, if
+                    necessary, shimmering the string representation into another internal representation (e.g. a list or
+                    a dict).  Thus the result is converted to its string representation and it is that which is sent
+                    back to the root process.  Note as well that the result can  be arbitrarily long and, if needed 
+                    is chunked with result construction in the root process, properly handling the fact that the
+                    replies may be interleaved in an arbitrary way across the processes in mpiSpecTcl.
+                </para>
+                <para>
+                    Finally, these command wrappers are able to detect that they are not running
+                    in the MPI environment and, if so, simply execute the encapsulated command.  All
+                    encapsulated commands, therefore are transparently portable between serial and
+                    parallel SpecTcl runs.
+                </para>
+            </section>
+            <section>
+                <title>The ring item pump</title>
+                <para>
+                    A quick side note that in MPI mode, mpiSpecTcl only registers the BufferDecoder
+                    for ring items and, therefore only supports analyzing data from NSCLDAQ 10.0 and later.
+                    Earlier data may be analyzed by the same excutable but not with parallel workers (just
+                    run SpecTcl directly rather than with mpirun/mpiexec).)
+                </para>
+                <para>
+                    The ring item pump is the mechanism by which event data are distributed to the
+                    worker processes.   It is important to note that there are really two
+                    classes of ring items:  Ring items with type <literal>PHYSICS_EVENT</literal>, and 
+                    all other ring item types.
+                </para>
+                <para>
+                    The <literal>PHYSICS_EVENT</literal> items are distributed to individual workers,
+                    while all other event types are broadcast to all workers.  This allows
+                    the event processing pipeline to retrieve data such as the run number or the
+                    run title, and for e.g. <methodname>OnBegin</methodname> to execute in all 
+                    worker processes when a <literal>BEGIN_RUN</literal> state change item is
+                    received.
+                </para>
+                <para>
+                    The ring item pump is, therefore, actually a pair of pumps defined and implemented
+                    in <filename>Core/RingItemPump.{h,cpp}</filename>.  The function
+                    <function>startRingItemPump</function> called in all worker processes starts both pumps.
+                </para>
+                <para>
+                    Non physics ring items have a broadcast pump.  Those ring items are sent via 
+                    <function>broadcastRingItem</function> which uses as many <function>MPI_Bcast</function>
+                    calls as needed to send an arbitrary length ring item to all processes running the
+                    ring item pump.  The original ring item is reconstituted and queued to the
+                    worker process's event loop queue.  The broadcast pump thread function is
+                    <function>nonPhysicsThread</function>
+                </para>
+                <para>
+                    Physics ring items are sent to workers using <function>sendRingItem</function>.
+                    The distribution of Physics ring items is auto load levelling.
+                    The worker pumps send an initial request for data (<function>MPI_Send</function>).  On the sending side,
+                    when <function>sendRingItem</function> is called it first does a receive (<function>MPI_Recv</function>)
+                    and then sends the ring item to the sender of the request.  The request message is just an integer whose
+                    value is ignored.  In a later release, this could become the number of ring items to send.
+                </para>
+                <para>
+                    The ring item event handler, after processing a <literal>PHYSICS_EVENT</literal> will send a 
+                    request for the next physics item.
+                </para>
+                <para>
+                    Of all the pumps the ring item pump is the most complex.  It also maintains statistics Tcl
+                    variables in the sender process so that GUIs can correctly describe the number of items
+                    that have been processed and, with an online source, the fraction of data analyzed.
+                </para>
+                <para>
+                    To simplify communication, event distribution uses a communicator split off from world
+                    which only has the root process (rank 0 in the split communicator) and the worker processes
+                    (rank 1 and larger in the split communicator).  This is actually required since otherwise
+                    the <function>MPI_Bcast</function> calls used to send non-physics data can't be distinguished
+                    from other broadcasts.  The event sink pipeline is, naturally, not part of this communicator.
+                </para>
+            </section>
+            <section>
+                <title>The parameter pump</title>
+                <para>
+                    Workers in the event sink pipeline produce <classname>CEvent</classname> objects,
+                    normally indirectly by setting the values of <classname>CTreeParameter</classname>
+                    or elements in <classname>CTreeParameterArray</classname> objects.
+                    These objects must be analyzed by the event sink pipeline which runs in the
+                    world rank <literal>MPI_EVENT_SINK_RANK</literal> 
+                    (defined in <filename>Core/Globals.h</filename>).
+                </para>
+                <para>
+                    <classname>CEvent</classname> objects look like an extensible array.  If an index of that
+                    array is referenced that is out of bounds of the current size of the object, it is enlarged.
+                    Since <classname>CEvent</classname> objects are recycled, eventually they equilibrate in size.
+                </para>
+                <para>
+                    <classname>CEvent</classname> objects have two other features validity determination and a valid dope
+                    vector.
+                    First, Each element has
+                    last modified sequence and an overall sequence number indicates the current event number.
+                    This allows for two things:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        Using an item element in an expression other than assignment to it 
+                        allows a simple comparison between the item's sequence and the overall sequence
+                        to trap and throw exceptions for using uninitialized parameters in computations.
+                    </para></listitem>
+                    <listitem><para>
+                        This scheme provides for O(1) invalidation of all elements of the <classname>CEvent</classname>
+                        object.  Incrementing the overall sequence number invalidates all members of the <classname>CEvent</classname>
+                        preparing it for re-use in the next event.
+                    </para></listitem>
+                </itemizedlist>
+                <para>
+                    The valid dope vector consists of a vector of indices of valid values in the <classname>CEvent</classname>.
+                    It is used by the histograming engine to determine which histograms may be increemented.
+                    When a value is assigned to an element of a <classname>CEvent</classname>, if that
+                    element is not yet valid, after marking it valid, the index of that element is pushed
+                    into the dope vector.
+                </para>
+                <para>
+                    Now we have enough background to look at the parameter pump, which is used to send/receive
+                    events that workers have analyzed to the event sink pipeline for analysis and other processing.
+                </para>
+                <para>
+                    The definition and implementation of this pump and API are in 
+                    <filename>Core/EventMessage.{h,cpp}</filename>.  Each worker, upon processing a set of events into
+                    an <classname>CEventList</classname> (which is effectively a vector of <classname>CEvent</classname>
+                    objects), calls <function>HistogramEvents</function>.  This sends the event list to the 
+                    parameter pump in the event sink pipeline running in the <literal>MPI_EVENT_SINK_RANK</literal> world
+                    rank process.
+                </para>
+                <para>
+                    <function>HistogramEvents</function> is optimized for the relatively sparse events in 
+                    larger nuclear science experiments.  It uses the dope vector associated with each event to
+                    marshall the data into parameter number/parameter value pairs.  It is these pairs that are
+                    transmitted to the Event sink Pipeline which can trivially use these pairs to reconstruct the
+                    original <classname>CEvent</classname> object.
+                </para>
+                <para>
+                    The parameter pump is a fan in.  All workers send parameters to the same receiver process which has
+                    a pump thread that just receives messages.  The first message for any event's parameters 
+                    is an <function>MPI_Recv</function> from <literal>MPI_ANY_SOURCE</literal>  after that the remainder
+                    of the event, if any is received by specifying the source of the first
+                    chunk gotten as the source of the <function>MPI_Recv</function> message.  This deals with
+                    the possibility that several workers can be simultaneously sending processed events to the 
+                    event sink.
+                </para>
+                <para>
+                    Vectors of completed parameter index/value pairs converted to <classname>CEvent</classname>
+                    which are queued to the event ander for processing by the event sink pipeline.
+                </para>
+            </section>
         </section>
         <section>
             <title>mpiSpecTcl initialization</title>
