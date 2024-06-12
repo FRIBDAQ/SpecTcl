@@ -1646,11 +1646,233 @@ void startEventPump() {                     <co id='pump.start' />
     <appendix>
         <title>mpiSpecTcl  reference material</title>
         <para>
+            This chapter provides reference pages for things that are vunique to mpiSpecTcl. 
         </para>
+        <section>
+            <title>Utilities (3u)</title>
+            <para>
+                This section provides documentation for definitions and utility classes and functions.
+            </para>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>Globals.h</refentrytitle>
+                    <manvolnum>3u</manvolnum>
+                </refmeta>
+
+                <refnamediv>
+                    <refname>Globals.h</refname>
+                    <refpurpose>Describe MPI specific definitions in Globals.h</refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;config.h&gt;
+...
+#ifdef WITH_MPI
+#include &lt;mpi.h&gt;
+#endif
+...
+                    ...
+extern bool                gMPIParallel;      
+
+#ifdef WITH_MPI
+
+extern MPI_Comm                  gRingItemComm;  
+extern MPI_Comm                  gXamineGateComm;
+#endif
+
+
+#define MPI_ROOT_RANK   0
+#define MPI_EVENT_SINK_RANK 1
+#define MPI_FIRST_WORKER_RANK 2
+
+#ifndef MPI_TCL_TAG
+#define MPI_TCL_TAG 1                
+#endif
+#define MPI_TRACE_RELAY_TAG 2        
+#define MPI_RING_ITEM_TAG 3          
+                    ...
+                    </programlisting> 
+                </refsynopsisdiv>
+
+                <refsect1>
+                    <title>Description</title>
+                    <para>
+                        The SpecTcl header <filename>Globals.h</filename>, which is installed in the
+                        <filename>include</filename> of the SpecTcl installation tree, provides
+                        several definitions that are generally useful for SpecTcl in the MPI environment.
+                    </para>
+                    <para>
+                        The include for <filename>config.h</filename> is shown because, if 
+                        SpecTcl was built with MPI support the configure script will define
+                        the pre-processor symbol <literal>WITH_MPI</literal>.  This can be used
+                        to conditionalize the compilation of code and definitions that depend on 
+                        the installation of a version of MPI and the use of an MPI compiler driver.
+                    </para>
+                    <para>
+                        The items defined are:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><literal>gMPIParallel</literal></term>
+                            <listitem><para>
+                                This boolean is defined to be <literal>true</literal> at run time
+                                if the program has been built with MPI support <emphasis>and</emphasis>
+                                is running as an MPI parallel program.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>gRingItemComm</literal></term>
+                            <listitem><para>
+                                This item is only defined if SpecTcl was built with MPI parallel
+                                support.  It is the communicator used to send ring items
+                                to the ring item pump.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>gXamineGateCComm</literal></term>
+                            <listitem><para>
+                                This item is only defined if SpecTcl was built with MPI parallel
+                                support.  It is the communicator used to send gate definitions
+                                to the Xamine Gate pump.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_ROOT_RANK</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the world communicator rank
+                                of the root process.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_EVENT_SINK_RANK</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the world communicator rank of the
+                                process that runs the event sink pipeline.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_FIRST_WORKER_RANK</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the world communicator rank
+                                of the lowest ranked process that runs the analysis pipeline;
+                                that is worker processes.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_TCL_TAG</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the MPI tag used on messages
+                                sent to the Tcl pump.  It is also defined in <filename>TclPump.h</filename>
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_TRACE_RELAY_TAG</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the MPI tag used on gate trace messages sent 
+                                to the gate trace pump.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_RING_ITEM_TAG</literal></term>
+                            <listitem><para>
+                                This preprocessor defintion is the MPI tag used on Ring item messages sent to
+                                the ring item pump.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>TclPump.h</refentrytitle>
+                    <manvolnum>3u</manvolnum>
+                </refmeta>
+
+                <refnamediv>
+                    <refname>TclPump.h</refname>
+                    <refpurpose>Utility definitions in <filename>TclPump.h</filename></refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+ 
+#include &lt;config.h&gt;
+
+#ifndef MPI_TCL_TAG
+#define MPI_TCL_TAG  1    // Tcl commands have this tag
+#endif
+
+...
+
+bool isMpiApp();
+int  myRank();
+
+...
+                   </programlisting>
+                </refsynopsisdiv>
+                
+
+                <refsect1>
+                    <title>DESCRIPTON</title>
+                    <para>
+                        While the primary purpose of this header is to define the interfaces for the
+                        Tcl command pump, Several useful MPI query functions are defined here:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><literal>MPI_TCL_TAG</literal></term>
+                            <listitem><para>
+                                Defines the tag used to send messages to the Tcl command pump.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>
+                                <funcsynopsis><funcprototype>
+                                    <funcdef>bool <function>isMpiApp</function></funcdef>
+                                    <void />
+                                </funcprototype></funcsynopsis>
+                            </term>
+                            <listitem><para>
+                                This function returns <literal>true</literal> if the process is
+                                runn ing  in the MPI environment.  Otherwise it will return 
+                                <literal>false</literal>
+                            </para></listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>
+                                <funcsynopsis><funcprototype>
+                                    <funcdef>int <function>myRank</function></funcdef>
+                                    <void />
+                                </funcprototype></funcsynopsis>
+                            </term>
+                            <listitem><para>
+                                If <function>isMpiApp</function> would return <literal>true</literal>,
+                                this function will return the proccess's wold communicator rank.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+        </section>
+        <section>
+            <title>Command jackets (3tcl)</title>
+            <para>
+                This section provides reference information for command jacket classes. 
+                These classes are used to wrap objects derived from <classname>CTCLObjectProcesor</classname>.
+                They replace the wrapped command and, when invoked, broadcast the command string to
+                processes running the Tcl pump.  Note that if the program is not run in the
+                MPI environment, these wrappers simply delegate to the wrapped command.  
+            </para>
+            <para>
+                You should therefore wrap SpecTcl command extensiouns in these classes irregardless
+                of the environment and MPI support.
+            </para>
+        </section>
     </appendix>
     <appendix id='app.commands'>
         <title id='app.commands.title'>SpecTcl commands in the mpiSpecTcl environment</title>
         <para>
-        </para>
+         </para>
     </appendix>
 </book>
