@@ -35,7 +35,7 @@
 
 #ifndef GLOBALS_H
 #define GLOBALS_H
-
+#include <config.h>
 #include <EventUnpacker.h>
 #include <BufferDecoder.h>
 #include <EventSinkPipeline.h>
