@@ -1062,7 +1062,7 @@ void startEventPump() {                     <co id='pump.start' />
                 </programlisting>
             </example>
             <para>
-                The numbers in th explanation below refer to the numbers in the example above.
+                The numbers in the explanation below refer to the numbers in the example above.
                 Note that this is the generic structure of a pump and does not reflect any specific pump.
             </para>
             <calloutlist>
@@ -1350,7 +1350,7 @@ void startEventPump() {                     <co id='pump.start' />
                     with the SpecTcl xamine event handler, which runs in the Event sink pipeline process.
                 </para>
                 <para>
-                    It is the job of the API and pump in <filename>GatePump.{h,cpp}</filename> to distribute
+                    It is the job of the API and pump in <filename>Core/GatePump.{h,cpp}</filename> to distribute
                     these gate definitions to the rest of the application.  These gates are sent by the
                     event sink pipeline process via a series of 
                     <function>MPI_Bcast</function> calls which send:
@@ -1371,6 +1371,35 @@ void startEventPump() {                     <co id='pump.start' />
                     type of gate the pump and its API can handle.
                     Once all messages that define a gate have been received, information about the
                     gate is queued to the event loop where the gate is re-created.
+                </para>
+            </section>
+            <section>
+                <title>The gate trace pump</title>
+                <para>
+                    Gates that are accepted/modified by the event sink procesing pipeline should
+                     should fire traces if they have been
+                    set by application scripts in the root process.
+                    The gate trace pump provides the mechanism to distribute these
+                    messages across the application.  In <filename>Core/GateCommand.cpp</filename>, which 
+                    implements the SpecTcl gate command,  the class constructor starts the trace pump
+                    if the  process is running in the MPI environment.
+                </para>
+                <para>
+                    <methodname>startTracePump</methodname> only does anything if the process is the root process,
+                    in which case it starts the trace thread which is in the static method
+                    <classname>CGateCommand</classname>::<methodname>mpiTraceRelayCatchThread</methodname>.
+                </para>
+                <para>
+                    The histogrammer object coded in <filename>Core/Histogrammer.{h,cpp}</filename> establishes
+                    a trace handler <classname>CHistogrammerGateTraceRelay</classname> as a gate observer
+                    when it's constructed.  Traces it observes ultimately invoke
+                    <classname>CHistogrammerGateTraceRelay</classname>::<methodname>forwardTrace</methodname>
+                    which sends sufficient information to the trace pump to allow it to fire the trace.
+                    Note that <classname>Histogrammer</classname> only exists in the event sink pipeline thread.
+                </para>
+                <para>
+                    This collaboration between <classname>CGateCommand</classname> and 
+                    <classname>CHistogrammer</classname> is unique in the gate pump implementations.
                 </para>
             </section>
         </section>
