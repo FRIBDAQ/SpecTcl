@@ -1543,6 +1543,74 @@ void startEventPump() {                     <co id='pump.start' />
         <section id='sec.shutdown'>
             <title id='sec.shutdown.title'>mipSpecTcl shutdown</title>
             <para>
+                Normal shutdown of mpi SpecTcl ultimately happens either because the Tcl exit command is
+                executed or a Control-C was typed; which forces the root process to exit.
+                All ranks have used <function>atexit</function> to establish <function>MPIExitHandler</function>
+                to be called when the program exits.  This function is
+                implemented in <filename>Core/TclGrammerApp.cpp</filename>
+            </para>
+            <para>
+                It is this function that handles all of the shutdown tasks.
+            </para>
+            <para>
+                There is one bit of trickiness in the exit handler when Xamine is the displayer.
+                Under those circumstances, the spectrum shared memory region is created by Xamine and
+                the Xamine API therefore forks off a process to monitor the number of processes that are attached to that
+                SYSV shared memory region.  As forked processes inherit exit handlers established by
+                <function>atexit</function> that case must be properly  handled.
+            </para>
+            <para>
+                The Xamine API defines a global variable; <varname>is_xamine_shm_monitor</varname>
+                which is set nonzero in the forked process but 0 in all other processes.
+                <function>MPIExitHandler</function>  will just return without doing any SpecTcl
+                specific shutdown operations if that value is set.  It does this because
+                the shared memory monitor is not properly part of the MPI application that makes up
+                mpiSpecTcl.
+            </para>
+            <para>
+                If the process is the root process, one thing it must do is force the other processes
+                in the application to exit.  It does this by sending the <command>exit</command>
+                to all of the processes running the Tcl command pump.  This will start them exiting.
+                It does not look for the result/status of that command as, in theory there won't be any.
+            </para>
+            <para>
+                The root process also invokes <function>stopCommandPump</function> which broadcasts
+                a special message to all Tcl Command pumps imploring them to exit.  This and all pumps
+                must be shutdown to get a normal exit as thread blocked in MPI calls when 
+                <function>MPI_Finalize</function> is called witll, in general, segfault.
+            </para>
+            <para>
+                In fact, the remainder of <function>MPI_Finalize</function> is mostly concerned
+                with stopping the various pumps.
+            </para>
+            <para>
+                Pumps are stopped by sending 'special' messages to them that are easily recognized as
+                invalid.  For example, the Ring item pump is stopped by sending a ring item with 0 in
+                the header's length field.  On receiving a special message the pump threads exit.
+            </para>
+            <para>
+                The root rank, after broadcasting an <command>exit</command> to all of the
+                other processes, ssends an empty command to them to stop all of the Tcl command pumps.
+            </para>
+            <para>
+                The event sink pipeline process, stops the parameter pump it uses to receive
+                unpacked events from workers.   In MPI It's perfectly legal to send yourself
+                a message.  It is not possible, however to recdeive a broadcast from yourself.
+                It also stops the gate pump which broadcasts gates received by Xamine to 
+                all the other processes, and stops the gate trace pump used to fire
+                traces as a result of gate creations/modifications from Xamine.
+            </para>
+            <para>
+                The root process and the workers all stop the ring item pumps.  when
+                <function>stopRingItemPump</function> is called by the root process,
+                it broadcasts a special message to stop all of the non physics pump threads.
+                The workers, send a special message to their own Physics event pump threads
+                to stop them.
+            </para>
+            <para>
+                It can take some time for threads to exit.  Therefore all processes execute a 2 second
+                wait before invoking <function>MPI_Finalize</function> indicating to the MPI run-time
+                that the process is no longer going to communicate. 
             </para>
         </section>
     </chapter>
