@@ -941,7 +941,7 @@ CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
                     shared memory  into which spectra can be bound is created by this process.
                 </para>
                 <para>
-                    The mirror server is also run by this process if mirroring is required.
+                    The mirror server is also run by this process if mirroring is required.  
                 </para>
             </section>
             <section>
@@ -1481,14 +1481,63 @@ void startEventPump() {                     <co id='pump.start' />
                         The acknowledgements and the VERSION file are printed out.
                     </para></listitem>
                 </itemizedlist>
+                <para>
+                    Note that this implies there is not histogramer object in the root process.
+                    Nonetheless, dictionaries of parameter, spectrum, gates and treevariables are maintained
+                    and can be accessed via the API provided by the <classname>SpecTcl</classname>
+                    singleton class.
+                </para>
+    
             </section>
             <section>
                 <title>The event sink pipeline process (<literal>MPI_EVENT_SINK_RANK</literal>)</title>
-                <para></para>
+                <para>
+                    <classname>TclGrammerApp</classname>::<methodname>operator()</methodname>
+                    does the following for the event sink pipeline.
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        The histogramer is created as is the displayer.
+                    </para></listitem>
+                    <listitem><para>
+                        The mirror server is started.
+                        This is done
+                        in <classname>TclGrammerApp</classname>::<methodname>CreateDisplays</methodname>
+                        which is only called in the event sink rank.
+                    </para></listitem>
+                    <listitem><para>
+                        The parameter pump is started. Note that it is the call to 
+                        <function>startHistogramPump</function> that does this.
+                    </para></listitem>
+                    <listitem><para>
+                        <function>atexit</function> is used to establish <function>MPIExitHandler</function>
+                        to run at process exit to shutdown the pumps and perform other cleanup activities.
+                    </para></listitem>
+                </itemizedlist>
             </section>
             <section>
                 <title>Worker processes (ranks at least <literal>MPI_FIRST_WORKER_RANK</literal>) </title>
-                <para></para>
+                <para>
+                    <classname>TclGrammerApp</classname>::<methodname>operator()</methodname> does
+                    the following in processes that are workers. 
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        An analyzer is created to dispatch events received in its ring item pump
+                        to the analysis pipeline.  The analyzer created in this way, 
+                        forwards parameters unpacked and/or computed by physics event ring items
+                        to the event sink process for histograming etc.
+                    </para></listitem>
+                    <listitem><para>
+                        A buffer decoder is created (for ring items) which will be used to pick apart the
+                        ring items that are sent to the workers.
+                    </para></listitem>
+                    <listitem><para>
+                        The analysis pipeline is set up via user code in the <methodname>CreateAnalysisPipeline</methodname>
+                        and the ring item pump is started to pump events distributed to the worker to the event loop from 
+                        which they are dispatched to the analysis pipeline.
+                    </para></listitem>
+                </itemizedlist>
             </section>
         </section>
         <section id='sec.shutdown'>
