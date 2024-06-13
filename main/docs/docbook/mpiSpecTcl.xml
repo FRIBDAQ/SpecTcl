@@ -1899,8 +1899,9 @@ protected:
                         that must execute on all ranks.   In most cases, this is the correct
                         wrapper class.
                     </para>
-                    <para>METHODS</para>
+                    
                     <variablelist>
+                        <title>METHODS</title>
                         <varlistentry>
                             <term><constructorsynopsis><methodname>CMPITCLCOmmandAll</methodname>
                                 <methodparam>
@@ -1940,6 +1941,91 @@ protected:
                                 a vector of the command words.  Note that <literal>objv[0]</literal>
                                 is the command name.  This will typically be the same as the 
                                 <parameter>command</parameter> given to the constructor.
+                            </para>
+                            <para>
+                                The return value is the worst of the status values returned by all of
+                                the encapsulated objects <methodname>operator()</methodname>s. 
+                                The Tcl result will be one of the result from the first non 
+                                <literal>TCL_OK</literal> value or the longest string representation
+                                of the result returned by the various <methodname>operator()</methodname>
+                                executions.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CMPITclCommand</refentrytitle>
+                    <manvolnum>3tcl</manvolnum>
+                </refmeta>
+                
+                <refnamediv>
+                    <refname>CMPITclCommand</refname>
+                    <refpurpose>Jacket a command that runs in other ranks</refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;MPITclComamnd.h&gt;
+
+class CMPITclCommand : public CTCLObjectProcessor {
+public:
+    CMPITclCommand(CTCLInterpreter&amp; interp, const char* command, CTCLObjectProcessor* pActual);
+protected:
+    int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
+
+};          
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This wrapper when registered in all processes, and the command registered
+                        is to be executed in the root process executes the encapsulat4ed 
+                        command in all of
+                        the non-root processes. The command is <emphasis>not</emphasis>
+                        executed in the root process.
+                    </para>
+                    <variablelist>
+                        <title>METHODS</title>
+                        <varlistentry>
+                            <term><constructorsynopsis><methodname>CMPITclCommand</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type> <parameter>interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char*</type> <parameter>command</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CTCLObjectProcessor*</type> <parameter>pActual</parameter>
+                                </methodparam>
+                            </constructorsynopsis></term>
+                            <listitem><para>
+                                Wraps the command implemented by <parameter>pActual</parameter>
+                                so that it is executed in all but the root rank when the root interpreter
+                                executes the <parameter>command</parameter> command on the 
+                                <parameter>interp</parameter> interpreter.  In the remote processes, the
+                                command will be executed in that process's main thread's interpreter.
+                            </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                            <term><methodsynopsis>
+                                <type>int</type><methodname>operator()</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type><parameter>interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>std::vector&lt;CTCLObject&gt;&*amp;</type> <parameter>objv</parameter>
+                                </methodparam>
+                            </methodsynopsis></term>
+                            <listitem><para>
+                                This function is called when the command specified in the constructor is
+                                executed by the interpreter specified in the constructor.  That interpreter
+                                is passed as the <parameter>interp</parameter> parameter. <parameter>objv</parameter>
+                                are the command words.  <parameter>objv[0]</parameter> is the command name which,
+                                normally, is the value of <parameter>command</parameter> passed to the constructor.
                             </para></listitem>
                         </varlistentry>
                     </variablelist>
