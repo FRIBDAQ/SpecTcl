@@ -2047,13 +2047,11 @@ protected:
 #include &lt;MPITclPackagedCommandAll.h&gt;
 
 class CMPITclPackagedCommandAll : public CTCLPackagedObjectProcessor {
-private:
-    CTCLPackagedObjectProcessor* m_pActualCommand;
+
 public:
     CMPITclPackagedCommandAll(
         CTCLInterpreter&amp; interp, const char* command, CTCLPackagedObjectProcessor* pActual
     );
-    virtual ~CMPITclPackagedCommandAll();
     int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
 
 };
@@ -2117,7 +2115,77 @@ public:
                     </variablelist>
                 </refsect1>
             </refentry>
-            
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CMPITclPackagedCommand</refentrytitle>
+                    <manvolnum>3tcl</manvolnum>
+                </refmeta>
+
+                <refnamediv>
+                    <refname>CMPITclPackagedCommand</refname>
+                    <refpurpose>Jacket packagted commands to run in all but he root.</refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;MPITclPackagedCommand.h&gt;
+class CMPITclPackagedCommand : public CTCLPackagedObjectProcessor 
+{
+public:
+    CMPITclPackagedCommand(CTCLInterpreter&amp; interp, const char* command, CTCLPackagedObjectProcessor* pActual);
+ rotected:
+    virtual int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
+};
+                </programlisting>
+            </refsynopsisdiv>   
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Similar to <classname>CMPITclCommand</classname>, <classname>CTMPITclPackagedCommand</classname>
+                    wraps a packaged command that will be executed in all processes other than the root process.
+                </para>
+                <variablelist>
+                    <title>METHODS</title>
+                    <varlistentry>
+                        <term><constructorsynopsis>
+                            <methodname>CTCLPackagedObjectProcessor</methodname>
+                            <methodparam>
+                                <type>CTCLInterpreter&amp;</type><parameter>interp</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>const char*</type> <parameter>command</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>CTCLPackagedObjectProcessor*</type> <parameter>pActual</parameter>
+                            </methodparam>
+                        </constructorsynopsis></term>
+                        <listitem><para>
+                            Wraps the command processor <parameter>pActual</parameter> so that when
+                            <parameter>command</parameter> is invoked in the <parameter>interp</parameter>
+                            interpreter, it will be invoked in all but the root process.
+                        </para></listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><methodsynopsis>
+                            <type>int</type> <methodname>operator()</methodname>
+                            <methodparam>
+                                <type>CTCLInterpreter&amp;</type> <parameter>interp</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>std::vector&lt;CTCLObject&gt;&amp;</type> <parameter>objv</parameter>
+                            </methodparam>
+                        </methodsynopsis></term>
+                        <listitem><para>
+                            Called in when the command registered is invoked in <parameter>interp</parameter>
+                            If this is the root process, all other processe will be asked to execute this
+                            command.  If th is is a non-root process, the encapsulated command processor
+                            is asked to execute the command whose words are <parameter>objv</parameter>.
+                            Note that <literal>objv[0]</literal> is the command name that dispatched this command.
+                        </para></listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+        </refentry>
         </section>
     </appendix>
     <appendix id='app.commands'>
