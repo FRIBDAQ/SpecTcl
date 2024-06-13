@@ -2031,6 +2031,93 @@ protected:
                     </variablelist>
                 </refsect1>
             </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CMPITclPackagedCommandAll</refentrytitle>
+                    <manvolnum>3tcl</manvolnum>
+                </refmeta>
+
+                <refnamediv>
+                    <refname>CMPITclPackagedCommandAll</refname>
+                    <refpurpose>Wrap a packaged command that will execute in all processes</refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;MPITclPackagedCommandAll.h&gt;
+
+class CMPITclPackagedCommandAll : public CTCLPackagedObjectProcessor {
+private:
+    CTCLPackagedObjectProcessor* m_pActualCommand;
+public:
+    CMPITclPackagedCommandAll(
+        CTCLInterpreter&amp; interp, const char* command, CTCLPackagedObjectProcessor* pActual
+    );
+    virtual ~CMPITclPackagedCommandAll();
+    int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
+
+};
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        SpecTcl/TclPlus support grouping a set of commands into a package.
+                        A package of commands are a set of commands that shared some common
+                        services that are provided by a <classname>CTCLCommandPackage</classname>
+                        derived object. 
+                    </para>
+                    <para>
+                        Since packaged commands live one layer further down the class hierarchy
+                        from <classname>CTCLObjectProcessor</classname> it is necessary
+                        to provide a separate wrapper for these commands.
+                    </para>
+                    <para>
+                        <classname>CMPITclPackagtedCommandAll</classname> executes the 
+                        wrapped packaged command in all ranks of the MPI SpecTcl.
+                    </para>
+                    <variablelist>
+                        <title>METHODS</title>
+                        <varlistentry>
+                            <term><constructorsynopsis>
+                                <methodname>CMPITclPackagedCommandAll</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type><parameter> interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char*</type><parameter> command</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CTCLPackagedObjectProcessor*</type><parameter>pActual</parameter>
+                                </methodparam>
+                            </constructorsynopsis></term>
+                            <listitem><para>
+                                Constructs a packaged object procsssor that wraps <parameter>pActual</parameter>
+                                and registers it to run on the <parameter>interp</parameter> interpreter to execute 
+                                the <parameter>command</parameter> command.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><methodsynopsis>
+                                <type>int</type> <methodname>operator()</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type><parameter>interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>std::vector&lt;CTCLObject&gt;&amp;</type> <parameter>objv</parameter> 
+                                </methodparam>
+                            </methodsynopsis></term>
+                            <listitem><para>
+                                Called by <parameter>interp</parameter> when the <parameter>command</parameter>
+                                used to construct this object is invoked in that interpreter.  Causes all
+                                processes to run the encapsulated command.  <parameter>objv</parameter> are the
+                                command words.  <literal>objv[0]</literal> is the command name.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            
         </section>
     </appendix>
     <appendix id='app.commands'>
