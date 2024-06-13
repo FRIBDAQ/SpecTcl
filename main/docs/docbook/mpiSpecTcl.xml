@@ -1866,8 +1866,85 @@ int  myRank();
             </para>
             <para>
                 You should therefore wrap SpecTcl command extensiouns in these classes irregardless
-                of the environment and MPI support.
+                of the environment and MPI support.  
             </para>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CMPITclCommandAll</refentrytitle>
+                    <manvolnum>3tcl</manvolnum>
+                </refmeta>
+                
+                <refnamediv>
+                    <refname>CMPITclCommandAll</refname>
+                    <refpurpose>Jacket a command that runs in all ranks</refpurpose>
+                </refnamediv>
+                
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;MPITclCommandAll.h&gt;
+
+class CMPITclCommandAll : public CTCLObjectProcessor {
+public:
+    CMPITclCommandAll(CTCLInterpreter&amp; interp, const char* command, CTCLObjectProcessor* pActual);
+protected:
+    int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
+
+};
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        Instances of <classname>CMPITclCommandAll</classname> wrap commands
+                        that must execute on all ranks.   In most cases, this is the correct
+                        wrapper class.
+                    </para>
+                    <para>METHODS</para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><constructorsynopsis><methodname>CMPITCLCOmmandAll</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type> <parameter>interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char*</type> <parameter> command</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CTCLObjectProcessor&amp;</type> <parameter>pActual</parameter>
+                                </methodparam>
+                            </constructorsynopsis></term>
+                            <listitem><para>
+                                Constructs the wrapper for <parameter>pAction</parameter> to run
+                                that actual command processor when <parameter>command</parameter> is
+                                the command to be executed in the <parameter>interp</parameter>
+                                interpreter.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>
+                                <methodsynopsis>
+                                    <type>int</type>
+                                    <methodname>operator()</methodname>
+                                    <methodparam>
+                                        <type>CTCLInterpreter&amp;</type><parameter>rInterp</parameter>
+                                    </methodparam>
+                                    <methodparam>
+                                        <type>std::vector&lt;CTCLObject&gt;&amp;</type><parameter>objv</parameter>
+                                    </methodparam>
+                                </methodsynopsis>
+                            </term>
+                            <listitem><para>
+                                This is called by the interpreter; <parameter>rInterp</parameter> when
+                                the command on which the object was constructed should be executed by
+                                <parameter>rInterp</parameter>.  <parameter>objv</parameter> refers to 
+                                a vector of the command words.  Note that <literal>objv[0]</literal>
+                                is the command name.  This will typically be the same as the 
+                                <parameter>command</parameter> given to the constructor.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
         </section>
     </appendix>
     <appendix id='app.commands'>
