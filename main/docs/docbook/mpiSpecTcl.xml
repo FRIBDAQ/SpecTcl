@@ -1865,6 +1865,10 @@ int  myRank();
                 MPI environment, these wrappers simply delegate to the wrapped command.  
             </para>
             <para>
+                While command syntax summaries are given, the detailed description of each command is not.
+                Refer to the SpecTcl command reference for that information.
+            </para>
+            <para>
                 You should therefore wrap SpecTcl command extensiouns in these classes irregardless
                 of the environment and MPI support.  
             </para>
@@ -2379,7 +2383,8 @@ public:
             <refsect1>
                 <title>DESCRIPTION</title>
                 <para>
-                    The <command>clear</command> is wrapped in a <classname>CMPITclPackagedCommandK</classname>.
+                    The <command>clear</command> command which clears the contents of spectra, 
+                     is wrapped in a <classname>CMPITclPackagedCommandK</classname>.
                     While, for simplicity, it executes everywhere, only the spectra defined in the
                     <literal>MPI_EVENT_SINK_RANK</literal> process will actually have counts.  All other
                     proceses do define spectra which can be found by  the <classname>SpecTcl</classname>
@@ -2389,5 +2394,48 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>evbunpack</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>evbunpack</refname>
+                <refpurpose>mpiSpecTcl implementation of evbunpack</refpurpose>
+            </refnamediv>
+
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>evbunpack create</command>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>clock-MHz</replaceable></arg>
+                    <arg choice='plain'><replaceable>diagnostic-parameter-base-names</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>evbunpack addprocessor</command>
+                    <arg choice='plain'><replaceable>processor-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>source-id</replaceable></arg>
+                    <arg choice='plain'><replaceable>pipeline-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>evbunpack list</command>
+                    <arg choice='opt'><replaceable>pattern</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command controls the manipulation of event builder event processors.
+                    It is encapsulated in a <classname>CMPITclCommand</classname>.  In fact, however,
+                    only the analysis pipelines an event builder event processors defined in the
+                    worker processes (rank &gt;= <literal>MPI_FIRST_WORKER_RANK</literal>) matter 
+                    as those processes are the ones that run the event processing pipeline.
+                </para>
+            </refsect1>
+        </refentry>
+        
+
     </appendix>
 </book>
