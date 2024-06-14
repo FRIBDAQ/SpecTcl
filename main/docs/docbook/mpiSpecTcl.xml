@@ -2578,5 +2578,65 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>gate</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>gate</refname>
+                <refpurpose>Behavior of the gate command in mpiSpecTcl</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>gate <optional><option>-new</option></optional></command>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>type</replaceable></arg>
+                    <arg choice='plain'><replaceable>description</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>gate <option>-list</option></command>
+                    <arg choice='opt'><option>-byid</option></arg>
+                    <arg choice='plain'><replaceable><optional>glob-pattern</optional></replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>gate <option>-delete</option></command>
+                    <arg choice='opt'><option>-id</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>gate</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command> gate <option>-trace</option></command>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>add</arg>
+                            <arg choice='plain'>delete</arg>
+                            <arg choice='plain'>change</arg>
+                        </group>
+                    </arg>
+                    <arg choice='opt'><replaceable>script</replaceable></arg>
+                </cmdsynopsis>
+
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <command>gate</command> is wrapped in a <classname>CMPITclPackagedCommandAll</classname>
+                    which means that all ranks, including the root rank will execute it.  All operations on 
+                    gates are done via the <classname>SPecTcl</classname> singleton API. 
+                </para>
+                <para>
+                     The API takes into
+                    account the differences in tracing semantics;  When it detects a 
+                    <classname>CHistogrammer</classname>
+                    has been created (<literal>MPI_EVENT_SINK_RANK</literal>) it manipulates the gates
+                    via that object so that its ownt tracing mechanisms will fire.
+                    If, on the other hand, no <classname>CHistogrammer</classname> has been
+                    created, it operates via the gate dictionary and the gate commands own
+                    internal tracing scheme is used.  Note that one pre-established trace feeds the
+                    gate trace pump so that GUIs are appropriately notified of gate modifications.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
