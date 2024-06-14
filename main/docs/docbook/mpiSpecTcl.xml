@@ -2344,5 +2344,50 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>clear</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>clear</refname>
+                <refpurpose>MPI SpecTcl clear command</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>clear</command>
+                    <arg choice='plain'><option>-all</option></arg>
+                    <arg choice='opt'><option>-stats</option></arg>
+                    <arg choice='opt'><option>-channels</option></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>clear</command>
+                    <arg choice='opt'><option>-stats</option></arg>
+                    <arg choice='opt'><option>-channels</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>clear</command>
+                    <arg choice='plain'><option>-id</option></arg>
+                    <arg choice='opt'><option>-stats</option></arg>
+                    <arg choice='opt'><option>-channels</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-id</replaceable></arg>
+                </cmdsynopsis>
+
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <command>clear</command> is wrapped in a <classname>CMPITclPackagedCommandK</classname>.
+                    While, for simplicity, it executes everywhere, only the spectra defined in the
+                    <literal>MPI_EVENT_SINK_RANK</literal> process will actually have counts.  All other
+                    proceses do define spectra which can be found by  the <classname>SpecTcl</classname>
+                    API <emphasis>but</emphasis> they are not only internal (never bound to shared memory) but 
+                    also, only the event sink pipeline running in <literal>MPI_EVENT_SINK_RANK</literal>
+                    will ever increment those spectra.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
