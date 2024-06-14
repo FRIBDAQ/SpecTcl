@@ -2305,5 +2305,44 @@ public:
                 </itemizedlist>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>channel</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>channel</refname>
+                <refpurpose>Describe mpiSpecTcl implementation of the channel command.</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>channel</command>
+                    <arg choice='plain'><option>-set</option></arg>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>channel-indices</replaceable></arg>
+                    <arg choice='plain'><replaceable>new-value</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>channel</command>
+                    <arg choice='plain'><option>-get</option></arg>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>channel-indices</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1> 
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is encapsulated in a <classname>CMPITclPackagedCommand</classname>.
+                    It only actually does something if the process has a histogrammer, and that's
+                    currently only <literal>MPI_EVENT_SINK_RANK</literal>  In all other processes,
+                    this command is a no-op that does not set the result and returns 
+                    <literal>TCL_OK</literal> as its status.  Thus in the <option>-get</option>,
+                    since the non empty <literal>MPI_EVENT_SINK_RANK</literal> result will be the 
+                    longest, it will be the command result, which is correct.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
