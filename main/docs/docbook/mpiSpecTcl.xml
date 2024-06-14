@@ -2435,7 +2435,65 @@ public:
                 </para>
             </refsect1>
         </refentry>
-        
+        <refentry>
+            <refmeta>
+                <refentrytitle>filter</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
 
+            <refnamediv>
+                <refname>filter</refname>
+                <refpurpose>MPISpectcl Implementation of the filter command</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>filter <option>-new</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>gate-name</replaceable></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>parameter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-delete</option></command>
+                    <arg choice='plain'><replaceable>ilter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-enable</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-disable</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-regate</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>gate-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-file</option></command>
+                    <arg choice='plain'><replaceable>file-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-list</option></command>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command> filter <option>-format</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>format-specifier</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>    
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <command>filter</command> is wrapped in a <classname>CMPITclCommand</classname>. 
+                    In mpiSpecTcl, in only runs inthe <literal>MPI_EVENT_SINK_RANK</literal> as filters
+                    live in the event sink pipeline only.  In all other ranks, no result is set and
+                    a <literal>TCL_OK</literal> status is returned.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
