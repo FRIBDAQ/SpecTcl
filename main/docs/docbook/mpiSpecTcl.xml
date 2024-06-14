@@ -2194,9 +2194,116 @@ public:
             This appendix will document how each SpecTcl command executes in mpiSpecTcl.  The operation
             of a command not only depends on which class wrapped it but which resources are visible in each
             process.  For example, <command>gate</command> uses services provicded by
-            <class>CHistogrammer</class> in the Event SInk Pipeline process, while, in all other processes,
+            <classname>CHistogrammer</classname> in the Event SInk Pipeline process, while, in all other processes,
             it simply manipulates a gate dictionary that provides access to all of the gate definitions
             via the <classname>SpecTcl</classname> API singleton.
          </para>
+         <refentry>
+            <refmeta>
+                <refentrytitle>applygate</refentrytitle>
+                <manvolnum>(1SpecTcl)</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>applygate</refname>
+                <refpurpose>Apply a gate to one or more spectra</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>applygate</command> 
+                    <arg choice='plain'><replaceable>gate-name</replaceable></arg> 
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>applygate</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='plain'><replaceable><optional>pattern</optional></replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This commands replaces the <command>apply</command> command in prior
+                    versions of SpecTcl. This replacement was done because the 
+                    <command>apply</command> command was added to the Tcl core command
+                    set in version 8.5 and by now there are Tcl packages and scripts internal
+                    to the Tcl implementation that rely on that command and fail if SpecTcl
+                    overrides it.
+                </para>
+                <para>
+                    The implementation of the <command>applygate</command> command is wrapped in
+                    a <classname>CMPITclPackagedCommand</classname>.   
+                </para>
+                <para>
+                    Ultimately the SpecTcl
+                    API is used to perform gate applications.    If there is a histogrammer object, as there
+                    is in the <literal>MPI_EVENT_SINK_RANK</literal> it is used to apply the gate.  If not,
+                    the spectrum is looked up in the mirrored spectrum dictionary and asked to apply the gate.
+                </para>
+                <para>
+                    When listing gates;  this command only operates in the <literal>MPI_EVENT_SINK_RANK</literal>
+                    process.  It enumerates spectra that match the optional <replaceable>pattern</replaceable>
+                    (which defaults to <literal>*</literal> matching all spectra).  Each spectrum is asked
+                    about the gate applied to it and returns the list as the result with a status of 
+                    <literal>TCL_OK</literal>.  All other ranks return a status of <literal>TCL_OK</literal>
+                    but an empty result. Since the overall command result is the longest of all resuts, the
+                    gate application list is the ultimate result of the command.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>attach</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>attach</refname>
+                <refpurpose>Attach a data source to SpecTcl</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>attach</command>
+                    <arg choice='plain'>
+                        <group>
+                            <arg ><option>-file</option></arg>
+                            <arg ><option>-pipe</option></arg>
+                        </group>
+                    </arg>
+                    <arg choice='plain'><option>-format</option> <replaceable>format-spec</replaceable></arg>
+                    <arg choice='opt'><option>-size</option> <replaceable>num-bytes</replaceable></arg>
+                    <arg choice='plain'><replaceable>connection-specification</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>attach</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Attaches SpecTcl to the a data source or, if <option>-list</option> is specified
+                    provides information about the data source.  Note that once attached, analysis
+                    must still be started.
+                </para>
+                <para>
+                    In parallel operation:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        In mpiSpecTcl only the <literal>ring</literal> format specifier is registered. In serial
+                        SpecTcl, that and <literal>nscl</literal>, <literal>jumbo</literal> and
+                        <literal>filter</literal> are also registered as valid format types.
+                    </para></listitem>
+                    <listitem><para>
+                        This command only executes in the <literal>MPI_ROOT_RANK</literal> process as
+                        that is the one that manages the data source.
+                    </para></listitem>
+                </itemizedlist>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
