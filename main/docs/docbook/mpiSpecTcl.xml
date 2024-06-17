@@ -2623,7 +2623,7 @@ public:
                 <para>
                     The <command>gate</command> is wrapped in a <classname>CMPITclPackagedCommandAll</classname>
                     which means that all ranks, including the root rank will execute it.  All operations on 
-                    gates are done via the <classname>SPecTcl</classname> singleton API. 
+                    gates are done via the <classname>SpecTcl</classname> singleton API. 
                 </para>
                 <para>
                      The API takes into
@@ -2635,6 +2635,40 @@ public:
                     created, it operates via the gate dictionary and the gate commands own
                     internal tracing scheme is used.  Note that one pre-established trace feeds the
                     gate trace pump so that GUIs are appropriately notified of gate modifications.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>integrate</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>integrate</refname>
+                <refpurpose>Integrate an area of interest</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>integerate</command>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>area-of-interest</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRPTION</title>
+                <para>
+                    Integrates an area of interest within a specific spectrum named
+                    <replaceable>spectrum-name</replaceable> the <replaceable>area-of-interest</replaceable>
+                    can either be spectrum coordinates or a displayable gate.
+                </para>
+                <para>
+                    This command is only executed in the <literal>MPI_EVENT_SINK_RANK</literal> process,
+                    as it is the only one with access to spectrum channel values as well as definitions.
+                    In all other processes, a status of <literal>TCL_OK</literal> is returned and
+                    an empty result is produced.
                 </para>
             </refsect1>
         </refentry>
