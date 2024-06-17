@@ -3014,5 +3014,29 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>shmemkey</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>shmemkey</refname>
+                <refpurpose>Provide display shared memory identification</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>shmemkey</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRITPION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCOmmand</classname>.
+                    The display shared memory is created and maintained by <literal>MPI_EVENT_SINK_RANK</literal>.
+                    In all processes but that one, the command returns a status of <literal>TCL_OK</literal>
+                    and an empty result.  On the <literal>MPI_EVENT_SINK_RANK</literal>, the shared memory
+                    identification is set as the command result and <literal>TCL_OK</literal> returned as the
+                    status.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
