@@ -3178,10 +3178,10 @@ public:
                 <para>
                     This command is wrapped in a <classname>CMPITclPackagedCommand</classname> and is
                     part of the spectrum package family of commands.
-                    The applicatikon maniipulates spectra via the <classname>SpecTcl</classname> API.
+                    The application manipulates spectra via the <classname>SpecTcl</classname> API.
                     In the <literal>MPI_EVENT_SINK_RANK</literal> process, this manipulates the spectra
                     via the histogrammer object while in other processes, only the spectrum dictionary is 
-                    manipulated to retain a consistent view of spectrum definitions across the application
+                    manipulated to retain a consistent view of spectrum definitions across the application.
                 </para>
             </refsect1>
         </refentry>
