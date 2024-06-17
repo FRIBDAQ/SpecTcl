@@ -3090,5 +3090,100 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>version</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>version</refname>
+                <refpurpose>Provide the SpecTcl version</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>version</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCommandAll</classname>. 
+                    It returns <literal>Tcl_OK</literal> as the status when run in the <literal>MPI_ROOT_RANK</literal>
+                    with the result set to the version string, but in all other ranks, while returning
+                    <literal>TCL_OK</literal> as a status, it does not set he result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>spectrum</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>spectrum</refname>
+                <refpurpose>Create and manipulate spectrum definitions</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>spectrum</command><arg choice='opt'><option>-new</option></arg>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>parameters</replaceable></arg>
+                    <arg choice='plain'><replaceable>axis-speccifications</replaceable></arg>
+                    <arg choice='opt'><replaceable>datatype</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>spectrum</command><arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt'><option>-showgate</option></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>  <!-- specify name pattern  -->
+                                <arg choice='opt'><option>-byid</option></arg>
+                                <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                            </arg>
+                            <arg choice='plain'>  <!-- specify id -->
+                                <arg choice='plain'><option>-id</option></arg>
+                                <arg choice='plain'><replaceable>id</replaceable></arg>
+                            </arg>
+                        </group>
+                    </arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>spectrum</command><arg choice='plain'><option>-delete</option></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>   <!-- delete by names -->
+                                <arg choice='plain' rep='repeat'><replaceable>name</replaceable></arg>
+                            </arg>
+                            <arg choice='plain'>  <!-- delete by ids -->
+                                <arg choice='plain'><option>-id</option></arg>
+                                <arg choice='plain' rep='repeat'><replaceable>id</replaceable></arg>
+                            </arg>
+                            <arg choice='plain'> <!-- delete all -->
+                                <option>-all</option>
+                            </arg>
+                        </group>
+                    </arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>spectru</command><arg choice='plain'><option>-trace</option></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>add</arg>
+                            <arg choice='plain'>delete</arg>
+                        </group>
+                    </arg>
+                    <arg choice='opt'>script</arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclPackagedCommand</classname> and is
+                    part of the spectrum package family of commands.
+                    The applicatikon maniipulates spectra via the <classname>SpecTcl</classname> API.
+                    In the <literal>MPI_EVENT_SINK_RANK</literal> process, this manipulates the spectra
+                    via the histogrammer object while in other processes, only the spectrum dictionary is 
+                    manipulated to retain a consistent view of spectrum definitions across the application
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
