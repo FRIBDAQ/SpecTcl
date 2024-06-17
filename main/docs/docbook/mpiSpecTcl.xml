@@ -2703,6 +2703,145 @@ public:
                 </para>
             </refsect1>
         </refentry>
-        
+        <refentry>
+            <refmeta>
+                <refentrytitle>parameter</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>parameter</refname>
+                <refpurpose>Manipulate parametes.</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <note>
+                    <title>WARNING</title>
+                    <para>
+                        It is better to use the <command>treeparameter</command> 
+                        command than the <command>parameter</command>.  Future SpecTcl versions may deprecate
+                        or even eliminate the <command>parameter</command> command.
+                    </para>
+                </note>
+                <cmdsynopsis>
+                    <command>parameter</command>
+                    <arg choice='opt'><option>-new</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>id</replaceable></arg>
+                    <arg choice='opt'><replaceable>metdata</replaceable></arg>
+                
+                    <command>parameter</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt'><option>-byid</option></arg>
+                    <arg choice='plain'>
+                            <group>
+                                <arg choice='plain'><replaceable>glob-pattern</replaceable></arg>
+                                <arg choice='plain'><option>-id</option> <replaceable>id</replaceable></arg>
+                            </group>
+                        </arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>parameter</command>
+                    <arg choice='plain'><option>-delete</option></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'><replaceable>name</replaceable></arg>
+                            <arg choice='plain'><option>-id</option> <replaceable>id</replaceable></arg>
+                        </group>
+                    </arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Manipulates the parameter dictionary.  The parameter dictionary is maintained in 
+                    all ranks.  Therefore this command is encapsulated in a 
+                    <classname>CMPITclPackagedCommandAll</classname>.
+                    All operations work in all ranks.  Since the histogramer maintains a reference
+                    to the parameter dictionary singleton it is able to see all of the parameters 
+                    that are defined.
+                </para>
+            </refsect1>
+        </refentry>
+
+        <refentry>
+            <refmeta>
+                <refentrytitle>pman</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>pman</refname>
+                <refpurpose>Manipulate data analysis piplines</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>mk</arg>
+                    <arg choice='plain'><replaceable>pipe-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>ls</arg>
+                    <arg> choice='opt'>glob-pattern</arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>current</arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>ls-all</arg>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>ls-evp</arg>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>use</arg>
+                    <arg choice='plain'><replaceable>pipe-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>add</arg>
+                    <arg choice='plain'><replaceable>pipename</replaceable></arg>
+                    <arg choice='plain'><replaceable>evpname</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>rm</arg>
+                    <arg choice='plain'><replaceable>pipe-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>evp-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>clear</arg>
+                    <arg choice='plain'><replaceable>pipe-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>clone</arg>
+                    <arg choice='plain'><replaceable>existing-pipe</replaceable></arg>
+                    <arg choice='plain'><replaceable>new-pipe</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pmain</command>
+                    <arg choice='plain'>rmevp</arg>
+                    <arg choice='plain'><replaceable>evp-name</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Manipulate SpecTcl's dynamic event processing pipeilne.
+                    This command is wrappwed with  a <classname>CMPITclCommandAll</classname>.
+                    It manipulates the analyzer and, as such, in ranks that have no analyzers,
+                    it returns a status of <literal>TCL_OK</literal> and no result.;
+                </para>
+            </refsect1>
+        </refentry>
+
     </appendix>
 </book>
