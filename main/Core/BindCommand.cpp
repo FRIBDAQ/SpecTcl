@@ -433,7 +433,7 @@ CBindCommand::Usage(CTCLInterpreter& rInterp)
   rResult += "   sbind -list\n";
   rResult += "   sbind -list name1 [name2 ...]\n";
   rResult += "   sbind -trace script-stem\n";
-  rResult += "   sbing -untrace script-stem\n";
+  rResult += "   sbind -untrace script-stem\n";
   rResult += "\n sbind adds a spectrum or a list of spectra \n";
   rResult += " to the display. It also can be used to list bound\n";
   rResult += " spectra by name.";

@@ -2972,6 +2972,47 @@ public:
                 </para>
             </refsect1>
         </refentry>
-        
+        <refentry>
+            <refmeta>
+                <refentrytitle>sbind</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>sbind</refname>
+                <refpurpose>Bind spectra into the shared display memory</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>sbind</command>
+                    <arg choice='opt'><option>-new</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>sbind</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>sbind</command>
+                    <arg choice='plain'><option>-trace</option></arg>
+                    <arg choice='plain'><replaceable>tcl-script-stem</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>sbind</command>
+                    <arg choice='plain'><option>-untrace</option></arg>
+                    <arg  choice='plain'><replaceable>tcl-script-stem</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    <command>sbind</command> is part of the spectrum package and therefore
+                    wwrapped in a  <classname>CMPITclPackagedCommand</classname>.
+                    In all but the <literal>MPI_EVENT_SINK_RANK</literal>, this returns
+                    <literal>TCL_OK</literal> and does nolt set the result.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
