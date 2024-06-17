@@ -2838,10 +2838,55 @@ public:
                     Manipulate SpecTcl's dynamic event processing pipeilne.
                     This command is wrappwed with  a <classname>CMPITclCommandAll</classname>.
                     It manipulates the analyzer and, as such, in ranks that have no analyzers,
-                    it returns a status of <literal>TCL_OK</literal> and no result.;
+                    it returns a status of <literal>TCL_OK</literal> and no result.
                 </para>
             </refsect1>
         </refentry>
-
+        <refentry>
+            <refmeta>
+                <refentrytitle>project</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>project</refname>
+                <refpurpose>Create projection spectra</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>project</command>
+                    <arg choice='opt'><option><optional>no</optional>snapshot</option></arg>
+                    <arg choice='plain'><replaceable>sourcde-spectrum</replaceable></arg>
+                    <arg choice='plain'><replaceable>new-spectrum</replaceable></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>x</arg>
+                            <arg choice='plain'>y</arg>
+                        </group>
+                    </arg>
+                    <arg choice='opt'>displayable-contour</arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a 
+                    <classname>CMPITclCommand</classname>.  It can only be executed in the
+                    <literal>MPI_EVENT_SINK_RANK</literal> as that's the only rank that has, not only
+                    a spectrum  dictionary but access to spectrum channels.
+                </para>
+                <para>
+                    THe fact that projections only really live in the 
+                    <literal>MPI_EVENT_SINK_RANK</literal> has some consequences which, must be resolved
+                    in later versions of SpecTcl.  Specifically attempts to reference the spectrum
+                    (e.g. to delete it, to clear it, to gate it) will fail as there will be processes
+                    for which those commands will not locate the spectrum and, therefore will return
+                    <literal>TCL_ERROR</literal> while all the while, the operation will work and return
+                    <literal>TCL_OK</literal> in the event processing pipeline.  Thus, for example:
+                    <command>spectrum -delete4 some-projection-spectrum</command> will report an error, 
+                    specifically that the spectrum does not exist, while actually deleting the spectrum
+                    (in the event sink pipeline process). 
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
