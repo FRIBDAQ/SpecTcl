@@ -3062,5 +3062,33 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>specstats</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>specstats</refname>
+                <refpurpose>Fetch spectrum over/underlow statistics</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>specstats</command>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCommand</classname>.
+                    Since the spectrum contents needed to return these statistics are
+                    maintained by the  <literal>MPI_EVENT_SINK_RANK</literal>, this
+                    command, when run in any other process sets no result and returns
+                    <literal>TCL_OK</literal>.  When running in <literal>MPI_EVENT_SINK_RANK</literal>,
+                    the result is set with statitics information and <literal>TCL_OK</literal>
+                    is returned as the status.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
