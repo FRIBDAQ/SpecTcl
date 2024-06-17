@@ -2665,6 +2665,7 @@ public:
                     can either be spectrum coordinates or a displayable gate.
                 </para>
                 <para>
+                    The command is wrapped in a <classname>CMPITclCommand</classname>.
                     This command is only executed in the <literal>MPI_EVENT_SINK_RANK</literal> process,
                     as it is the only one with access to spectrum channel values as well as definitions.
                     In all other processes, a status of <literal>TCL_OK</literal> is returned and
@@ -2672,5 +2673,36 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>mirror</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>mirror</refname>
+                <refpurpose>List sthe mirrors being run</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>mirror</command>
+                    <arg choice='plain'>list</arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Presently there is only one subcommand, <literal>list</literal>.  It lists
+                    the currently active mirrors.  This command is only relevant if the
+                    mirror server was turned on.
+                </para>
+                <para>
+                    The <command>mirror</command> command is wrapeed in an <classname>CMPITclCommand</classname>
+                    and only executes in the <literal>MPI_EVENT_SINK_RANK</literal> process as it is the only 
+                    one with access to the spectrum channels.
+                </para>
+            </refsect1>
+        </refentry>
+        
     </appendix>
 </book>
