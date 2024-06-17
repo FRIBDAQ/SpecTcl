@@ -2916,5 +2916,34 @@ public:
                 </para>     
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>remote</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>remote</refname>
+                <refpurpose>Allow scripts to know if they are operating remot of SpecTcl</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis><command>remote</command></cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The purpose of this command is to let scripts know if they are incorporated into
+                    SpecTcl or are running over the ReST command simulation jackets.  The command
+                    unconditionally returns a status of <literal>TCL_OK</literal> and a 
+                    result of <literal>0</literal> indicating the script is not remote.
+                </para>
+                <para>
+                    This script is not enapsulated and, therefore, any rank that executes it executes it
+                    locally.  A typical use case, has this executed by a GUI running in the
+                    <literal>MPI_ROOT_RANK</literal>.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
