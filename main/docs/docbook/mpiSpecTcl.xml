@@ -2872,20 +2872,48 @@ public:
                     This command is wrapped in a 
                     <classname>CMPITclCommand</classname>.  It can only be executed in the
                     <literal>MPI_EVENT_SINK_RANK</literal> as that's the only rank that has, not only
-                    a spectrum  dictionary but access to spectrum channels.
+                    a spectrum  dictionary but access to spectrum channels.  All other processes
+                    return <literal>TCL_OK</literal> and no result.
                 </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>pseudo</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>pseudo</refname>
+                <refpurpose>Create and manipulate pseudo parameters</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>pseudo</command>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>dependent-parameter-tcl-list</replaceable></arg>
+                    <arg choice='plain'><replaceable>tcl-proc-body</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pseudo</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg> choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pseudo</command>
+                    <arg choice='plain'><option>-delete</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
                 <para>
-                    THe fact that projections only really live in the 
-                    <literal>MPI_EVENT_SINK_RANK</literal> has some consequences which, must be resolved
-                    in later versions of SpecTcl.  Specifically attempts to reference the spectrum
-                    (e.g. to delete it, to clear it, to gate it) will fail as there will be processes
-                    for which those commands will not locate the spectrum and, therefore will return
-                    <literal>TCL_ERROR</literal> while all the while, the operation will work and return
-                    <literal>TCL_OK</literal> in the event processing pipeline.  Thus, for example:
-                    <command>spectrum -delete4 some-projection-spectrum</command> will report an error, 
-                    specifically that the spectrum does not exist, while actually deleting the spectrum
-                    (in the event sink pipeline process). 
-                </para>
+                    This is encapsulated in a <classname>CMPITclPackagedCommand</classname>
+                    as it is part of the parameter package of commands.  It only executes in the
+                    event sink pipeline as pseudo parameters are computed when all ordinary
+                    parameters have been computed as a step in the event sink pipeline prior to 
+                    actual histograming.  All other processes return  <literal>TCL_OK</literal>
+                    and an empty result.
+                </para>     
             </refsect1>
         </refentry>
     </appendix>
