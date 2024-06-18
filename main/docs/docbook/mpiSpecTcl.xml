@@ -3197,7 +3197,7 @@ public:
             <refsynopsisdiv>
                 <cmdsynopsis>
                     <command>sread</command>
-                    <arg choice='opt'><option>-format</option> fmtname</arg>
+                    <arg choice='plain'><option>-format</option> fmtname</arg>
                     <arg choice='opt'><option>-<optional>no</optional>snapshot</option></arg>
                     <arg choice='opt'><option>-<optional>no</optional>replace</option></arg>
                     <arg choice='opt'><option>-<optional>no</optional>bind</option></arg>
@@ -3208,6 +3208,7 @@ public:
                 <title>DESCRIPTION</title>
                 <para>
                     This command is wrapped in a <classname>CMPITclPackagedCommand</classname>. 
+                    It is part of the spectrum package (<classname>CSpectrumPackage</classname>).
                     It only actually does something in the <literal>MPI_EVENT_SINK_RANK</literal>
                     process as it requires a histogramer and displayer into which to load
                     the spectrum and, if necessary, bind it to display memory.  Note
@@ -3238,6 +3239,64 @@ public:
                     and data distribution are all done in the
                     <literal>MPI_ROOT_RANK</literal> and that has the interactive
                     interpreter as well, this is normally fine.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>stop</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>stop</refname>
+                <refpurpose>Stop analyzing data from the data source</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>stop</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is not encapsulated.  It runs only on the
+                    process in which it's invoked.  Since data source managemnent
+                    and data distribution are all done in the
+                    <literal>MPI_ROOT_RANK</literal> and that runs the 
+                    interactive interpreter as well, this is normally fine.
+                    Note that if SpecTcl is taking data from an online data source,
+                    stopping without detaching (usually done by attaching to the file
+                    <filename>/def/null</filename>), will eventually, most likely
+                    cause data taking to stall or ring items you might care about to
+                    be dropped depending on the options passed to 
+                    <application>ringselector</application>
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>swrite</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>swrite</refname>
+                <refpurpose>Write spectra to file</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>swrite</command>
+                    <arg choice='plain'><option>-format</option> <replaceable>format-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>file-name</replaceable></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is a member of the spectrum package 
+                    (<classname>CSpectrumPackage</classname>) and is, wrapped in a 
+                    <classname>CMPITclPackagedCommand</classname>. 
+                    The package ensures that writes are only done on 
+                    <literal>MPI_EVENT_SINK_RANK</literal> where the spectrum
+                    channels are.
                 </para>
             </refsect1>
         </refentry>
