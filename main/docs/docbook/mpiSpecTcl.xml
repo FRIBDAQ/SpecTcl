@@ -3218,5 +3218,29 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>start</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>start</refname>
+                <refpurpose>start analysis from the current data source</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>start</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is not encapsulated.  It runs only in the
+                    process in which it is invoked.  Since data source management
+                    and data distribution are all done in the
+                    <literal>MPI_ROOT_RANK</literal> and that has the interactive
+                    interpreter as well, this is normally fine.
+                </para>
+            </refsect1>
+        </refentry>
+
     </appendix>
 </book>
