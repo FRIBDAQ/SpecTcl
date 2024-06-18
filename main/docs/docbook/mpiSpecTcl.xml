@@ -3185,5 +3185,38 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>sread</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>sread</refname>
+                <refpurpose>Read spectra from file</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>sread</command>
+                    <arg choice='opt'><option>-format</option> fmtname</arg>
+                    <arg choice='opt'><option>-<optional>no</optional>snapshot</option></arg>
+                    <arg choice='opt'><option>-<optional>no</optional>replace</option></arg>
+                    <arg choice='opt'><option>-<optional>no</optional>bind</option></arg>
+                    <arg choice='plain'><replaceable>file-or-fd</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclPackagedCommand</classname>. 
+                    It only actually does something in the <literal>MPI_EVENT_SINK_RANK</literal>
+                    process as it requires a histogramer and displayer into which to load
+                    the spectrum and, if necessary, bind it to display memory.  Note
+                    that spectra read in from file are only known to the 
+                    <literal>MPI_EVENT_SINK_RANK</literal> process though I believe that they
+                    will show up in the spectrum list and be handled properly by most
+                    commands.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
