@@ -3393,5 +3393,57 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>treevariable</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>treevariable</refname>
+                <refpurpose>Manipulate Tree variables</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt'><replaceable>glob-name-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-set</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>value</replaceable></arg>
+                    <arg choice='opt'><replaceable>units-of-measure</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-check</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-setchanged</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-firetraces</option></arg>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCommandAll</classname>.
+                    Tree variables, in practice, steer computations in the event processing
+                    pipeline. Furthermore, it is typically the event processing pipeline
+                    elements that construct a treevariable.  Therfore, if the rank of the
+                    process is less than <literal>MPI_FIRST_WORKER_RANK</literal> the command
+                    simply returns <literal>TCL_OK</literal> and no result.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
