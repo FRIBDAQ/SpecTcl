@@ -3219,7 +3219,7 @@ gate <replaceable>name type description</replaceable>
                             </para>
                             <para>
                                 When applied to a spectrum
-                                (<command>apply</command>):
+                                (<command>applygate</command>):
                                 This gate has identical meaning to the gamma
                                 band but parameter pairs must lie within the
                                 contour (according to the odd crossing rule)
@@ -5339,7 +5339,7 @@ spectrum <option>-trace</option></command>
                     <para>
                         All spectra have gates applied to them. When they are
                         created spectra have a <literal>True</literal> gate applied.
-                        The <command>apply</command> command changes which gate is
+                        The <command>applygate</command> command changes which gate is
                         applied to a spectrum.
                     </para>
                     <para>
