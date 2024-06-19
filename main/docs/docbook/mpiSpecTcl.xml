@@ -3482,5 +3482,34 @@ public:
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>ungate</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>ungate</refname>
+                <refpurpose>Remove gate conditions from spectra</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>ungate</command>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is part of the gate package of commands 
+                    <classname>CGatePackage</classname>.  It is encapsulated in a 
+                    <classname>CMPITclPackagedCommand</classname>.  The ungating of individual
+                    spectra is done via the <classname>SpecTcl</classname> API which, if a histogrammer
+                    object exists, as it does in <literal>MPI_EVENT_SINK_RANK</literal> 
+                    asks the histogramer to remove the gate so that all of the other histogrammer
+                    book keeping will be done.  In all other clasess, the spectrum  is located in
+                    the local spectrum dictionary and asked to ungate itself.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
