@@ -97,7 +97,7 @@ CTreeParameterCommandActual::CTreeParameterCommandActual(CTCLInterpreter* pInter
  */
 int CTreeParameterCommandActual::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 {
-  if (gMPIParallel && (myRank() < MPI_FIRST_WORKER_RANK) {
+  if (gMPIParallel && (myRank() < MPI_FIRST_WORKER_RANK)) {
     return TCL_OK;
   }
   // Make argc/argvi
