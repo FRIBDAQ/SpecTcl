@@ -3300,6 +3300,98 @@ public:
                 </para>
             </refsect1>
         </refentry>
-
+        <refentry>
+            <refmeta>
+                <refentrytitle>treeparameter</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>treeparameter</refname>
+                <refpurpose>Manipulate the metadatak of tree parameters</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-listnew</option></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-set</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>bins</replaceable></arg>
+                    <arg choice='plain'><replaceable>low</replaceable></arg>
+                    <arg choice='plain'><replaceable>high</replaceable></arg>
+                    <arg choice='plain'><replaceable>inc</replaceable></arg>
+                    <arg choice='plain'><replaceable>units</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-setinc</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>increment</replaceable></arg>
+                </cmdsynopsis>
+                 <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-setbins</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>bins</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-setunit</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>units-of-measure</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-setlimits</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>low</replaceable></arg>
+                    <arg choice='plain'><replaceable>high</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-check</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-uncheck</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-create</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>low</replaceable></arg>
+                    <arg choice='plain'><replaceable>high</replaceable></arg>
+                    <arg choice='plain'><replaceable>bins</replaceable></arg>
+                    <arg choice='plain'><replaceable>units</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-version</option></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                   This command is encapsulated in a <classname>CMPITclCommandAll</classname>.   It is possible
+                   for application specific code to 
+                   programmatically define tree parameters in the ranks at or above
+                   <literal>MPI_FIRST_WORKER_RANK</literal>.  
+                   Depending on how that's done, those tree parameter may or may not be visible to 
+                   the other processes in the mpiSpecTcl application.
+                   Therefore the only ranks that actually
+                   excute the <command>treeparameter</command> commands are the worker processes.  All other
+                   ranks return <literal>TCL_OK</literal> and and leave an empty result.
+                </para>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>
