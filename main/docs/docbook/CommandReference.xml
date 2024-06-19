@@ -32,24 +32,34 @@
 
 <refentry id='ref.applycommand'>
     <refmeta>
-        <refentrytitle id='ref.applycommand.title'>apply</refentrytitle>
+        <refentrytitle id='ref.applycommand.title'>applygate</refentrytitle>
         <manvolnum>1SpecTcl</manvolnum>
     </refmeta>
     
     <refnamediv>
-        <refname>apply</refname>
-        <refpurpose>Show which gates are applied to which spectra</refpurpose>
+        <refname>applygate</refname>
+        <refpurpose>Apply gates to spectra and show which are applied.</refpurpose>
     </refnamediv>
     
     <refsynopsisdiv>
+        <note>
+            <title>Note change in command</title>
+            <para>
+                Prior to SpecTcl version 7.0, this command was <command>apply</command>. 
+                That, however conflicted with a Tcl Core command of the same name that
+                was introduced in Tcl 8.5.  Therefore with SpecTcl 7.0 and later,
+                this command is named <command>applygate</command> to disambiguate it 
+                from the Tcl core <command>apply</command> command.
+            </para>
+        </note>
         <cmdsynopsis>
             <command>
-apply <replaceable>gatename spectrum1 ?spectrum2...?</replaceable>
+applygate <replaceable>gatename spectrum1 ?spectrum2...?</replaceable>
             </command>
         </cmdsynopsis>
         <cmdsynopsis>
             <command>
-apply <option>-list</option>  ?<replaceable>pattern</replaceable>
+applygate <option>-list</option>  ?<replaceable>pattern</replaceable>
             </command>
         </cmdsynopsis>
     </refsynopsisdiv>
@@ -57,7 +67,7 @@ apply <option>-list</option>  ?<replaceable>pattern</replaceable>
     <refsect1>
         <title>DESCRIPTION</title>
         <para>
-            The <command>apply</command> command applies a gate to one or more
+            The <command>applygate</command> command applies a gate to one or more
             spectra or, if given the <option>-list</option> option lists spectra
             and the gates applied to them.
         </para>
@@ -93,7 +103,7 @@ apply <option>-list</option>  ?<replaceable>pattern</replaceable>
     <refsect1>
         <title>OUTPUT</title>
         <para>
-            A successful <command>apply</command> command
+            A successful <command>applygate</command> command
             only produces meaningful output if the <option>-list</option> option
             is used.  In that case, the output is a
             list with a two element sublist for each defined spectrum that
@@ -112,7 +122,7 @@ apply <option>-list</option>  ?<replaceable>pattern</replaceable>
         <example>
             <title>Applying a gate to a single spectrum</title>
             <cmdsynopsis><command>
-apply neutrons pid
+applygate neutrons pid
             </command></cmdsynopsis>
         </example>
         <para>
@@ -122,7 +132,7 @@ apply neutrons pid
         <example>
             <title>Applying a gate to several spectra</title>
             <cmdsynopsis><command>
-apply alphas energy1 energy2 energy3 energy4
+applygate alphas energy1 energy2 energy3 energy4
             </command></cmdsynopsis>
         </example>
         <para>
@@ -135,7 +145,7 @@ apply alphas energy1 energy2 energy3 energy4
         <example>
             <title>Listing gates applied to all spectra</title>
             <cmdsynopsis><command>
-apply -list
+applygate -list
             </command></cmdsynopsis>
         </example>
         <para>
@@ -172,7 +182,7 @@ apply -list
             <title>Using a filter to list gate applications</title>
             <cmdsynopsis>
                 <command>
-apply -list e*                    
+applygate -list e*                    
                 </command>
             </cmdsynopsis>
         </example>
