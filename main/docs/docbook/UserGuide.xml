@@ -1000,7 +1000,7 @@ sbind <parameter>name1</parameter> ?<parameter>name2...</parameter>
             </para>
             <para>
                 The <command>gate</command> command allows you to create and modify
-                gates.  The <command>apply</command> command allows you to
+                gates.  The <command>applgate</command> command allows you to
                 apply a gate to one or more spectra, as well as to list the
                 gate applications.
             </para>
@@ -1249,13 +1249,13 @@ gate <option>-list</option> ?<replaceable>pattern</replaceable>>
                 </para>
             </formalpara>
             <para>
-                The <command>apply</command> command applies gates to
+                The <command>applygate</command> command applies gates to
                 spectra.  It looks like this:
             </para>
             <informalexample>
                 <cmdsynopsis>
                     <command>
-apply <replaceable>gatename spec1 ?spec2 ...?</replaceable>                        
+applygate<replaceable>gatename spec1 ?spec2 ...?</replaceable>                        
                     </command>
                 </cmdsynopsis>
             </informalexample>
@@ -3913,7 +3913,7 @@ proc ::MultiApply::_apply {}  {
         lappend spectrumNames [$listbox get $item]     <co id='mapply.selectedspectrumlist' />
     }
 
-    apply $selectedGate {*}$spectrumNames             <co id='mapply.applygate' />
+    applygate $selectedGate {*}$spectrumNames             <co id='mapply.applygate' />
 }
 
 ...
@@ -4130,16 +4130,16 @@ proc ::MultiApply::MultiApply widget {
                         The command:
                     </para>
                     <programlisting>
-apply somegate {*}{spec1 spec2}                       
+applygate somegate {*}{spec1 spec2}                       
                     </programlisting>
                     <para>
                         Becomes:
                     </para>
                     <programlisting>
-apply somegate spec1 spec2
+applygate somegate spec1 spec2
                     </programlisting>
                     <para>
-                        The <command>apply </command> command does not accept a
+                        The <command>applygate </command> command does not accept a
                         list of spectra as a single parameter but the latter form
                         where each spectrum name is a single parameter.
                     </para>

@@ -15104,7 +15104,7 @@ protected:
                                 provides services for commands that have to do
                                 with gates.  These commands include:
                                 <command>gate</command>,
-                                <command>apply</command> and
+                                <command>applygate</command> and
                                 <command>ungate</command>.
                             </para>
                             <para>

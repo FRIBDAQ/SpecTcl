@@ -288,7 +288,7 @@ tclsh
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term><command>apply</command></term>
+                    <term><command>applygate</command></term>
                     <listitem>
                         <para>
                             Allows you to apply gates to spectra.  When a gate

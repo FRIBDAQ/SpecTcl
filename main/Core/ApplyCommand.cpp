@@ -44,6 +44,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "ApplyCommand.h"    				
 #include "GatePackage.h"
 #include "SpecTcl.h"
+#include "Globals.h"
+#include <TclPump.h>
 
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
@@ -334,7 +336,7 @@ CApplyCommand::Usage()
 {
   string Use;
   Use +=   " Usage\n";
-  Use +=   "   apply gate spectrum1 [spectrum2 ...]\n";
-  Use +=   "   apply -list [pattern]\n";
+  Use +=   "   applygate gate spectrum1 [spectrum2 ...]\n";
+  Use +=   "   applygate -list [pattern]\n";
   return Use;
 }
