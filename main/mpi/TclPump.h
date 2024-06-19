@@ -19,14 +19,18 @@
 */
 #ifndef TCLPUMP_H
 #define TCLPUMP_H
+
 #include <vector>
 #include <tcl.h>
 
-
+#include <config.h>
 class CTCLInterpreter;
 class CTCLObject;
 
+#ifndef MPI_TCL_TAG
 #define MPI_TCL_TAG  1    // Tcl commands have this tag
+#endif
+
 #define MAX_TCL_CHUNKSIZE 50
 typedef struct _MpiTclCommandChunk {
     int commandLength;                     // Length of the command.

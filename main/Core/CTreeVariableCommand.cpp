@@ -98,6 +98,9 @@ CTreeVariableCommandActual::operator()(
   CTCLInterpreter& rInterp, 
   std::vector<CTCLObject>& objv)
 {
+  if (gMPIParallel && (myRank() < MPI_FIRST_WORKER_RANK)) {
+    return TCL_OK;
+  }
   // Marshall objv -> argc, argv to make port simpler.
 
   std::vector<std::string> words;
@@ -135,10 +138,6 @@ CTreeVariableCommandActual::operator()(
   
   
   if(subcommand == "-list") {
-    if (gMPIParallel && (myRank() != MPI_ROOT_RANK)) {
-      return TCL_OK;                // Let root rank take care of it
-    }
-    // Serial or MPI but root rank.
     return List(rInterp, argc, argv);
   }
   else if (subcommand == "-set") {

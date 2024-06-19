@@ -39,9 +39,12 @@
 #include "SetAllVisitor.h"
 #include "ListVisitor.h"
 #include "UncheckVisitor.h"
+#include "Globals.h"
 #include <SpecTcl.h>
 #include <histotypes.h>
 #include <TCLObject.h>
+#include <TclPump.h>
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -199,7 +202,6 @@ CTreeParameterCommandActual::Usage()
   usage += "     treeparameter -check name\n";
   usage += "     treeparameter -uncheck name\n";
   usage += "     treeparameter -create  name low high bins units\n";
-  usage += "     treeparameter -listnew\n";
   usage += "     treeparameter -version";
   //
   return usage;

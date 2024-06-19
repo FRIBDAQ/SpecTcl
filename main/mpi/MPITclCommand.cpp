@@ -64,7 +64,7 @@ CMPITclCommand::~CMPITclCommand() {
 int
 CMPITclCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
     if (isMpiApp() && (myRank() == 0)) {
-        // Mater in MPI Environment
+        // Master in MPI Environment
         return ExecCommand(interp, objv);
     } else {
         // Either not an MPI app or i'm a slave processor
