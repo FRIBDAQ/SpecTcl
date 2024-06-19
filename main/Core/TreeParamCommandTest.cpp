@@ -218,7 +218,6 @@ static string sbusage ="Usage:\n\
      treeparameter -check name\n\
      treeparameter -uncheck name\n\
      treeparameter -create  name low high bins units\n\
-     treeparameter -listnew\n\
      treeparameter -version";
 
 void TreeCommandTest::UsageTest() 
