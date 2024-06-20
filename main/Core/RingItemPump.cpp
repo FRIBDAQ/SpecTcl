@@ -116,6 +116,7 @@ typedef struct _RingItemEvent {
     Tcl_Event s_base;
     size_t    s_dataSize; // bytes in s_pData.
     void*     s_pData;    // allocated via Tcl_(Re)Alloc
+    bool      s_targeted; // Need to request the next event.
 } RingItemEvent, *pRingItemEvent;
 
 /**
@@ -134,7 +135,9 @@ typedef struct _RingItemEvent {
 */
 static int
 RingItemEventHandler(Tcl_Event* pEvent, int flags) {
+
     pRingItemEvent pInfo = reinterpret_cast<pRingItemEvent>(pEvent);
+    
     size_t nBytes = pInfo->s_dataSize;
     union {
         uint8_t* pBytes;
@@ -149,6 +152,21 @@ RingItemEventHandler(Tcl_Event* pEvent, int flags) {
 
         nBytes   -= *p.pLongs;   // Assume size is first.
         p.pBytes += *p.pLongs;
+    }
+    // If this item was targeted, wew need to request the next one:
+
+    if(pInfo->s_targeted) {
+    
+        uint8_t dummy;
+        int status =MPI_Send(
+                &dummy, 1, MPI_CHAR, 
+                0, MPI_RING_ITEM_TAG, gRingItemComm
+            );
+        
+        if(status != MPI_SUCCESS) {
+            std::cerr << "MPI Status on send error in pump: " << status << std::endl;
+            throw std::runtime_error("Worker failed to request a work item");
+        }
     }
 
     Tcl_Free(reinterpret_cast<char*>(pInfo->s_pData));
@@ -183,6 +201,7 @@ assembleTargetedData(pRingItemEvent pEvent) {
     // Fill in the header an init the data fields:
 
     initEvent(pEvent);
+    pEvent->s_targeted = true;     // Will need to request next event.
 
     // The first receive is a bit special as that gives us the size:
     // It may also be the only recieve -- if the event fits in 
@@ -309,6 +328,21 @@ static Tcl_ThreadCreateType
 physicsThread(ClientData parent) {
     Tcl_ThreadId targetThread = reinterpret_cast<Tcl_ThreadId>(parent);
 
+    // Send the request for the initial work item to the dealer.
+    // The event handler will send subsequent requsts  when we're done
+    // processing the previous request.  See 
+    // Issue #148
+
+    uint8_t dummy;
+    int status =MPI_Send(
+            &dummy, 1, MPI_CHAR, 
+            0, MPI_RING_ITEM_TAG, gRingItemComm
+        );
+
+    if(status != MPI_SUCCESS) {
+        std::cerr << "MPI Status on send error in pump: " << status << std::endl;
+        throw std::runtime_error("Worker failed to request a work item");
+    }
     // Our main loop is request data/get data.
     // where we defer the get data part to 
     // assembleTargetedData:
@@ -320,21 +354,14 @@ physicsThread(ClientData parent) {
         }
         // Send our request for data:
 
-        uint8_t dummy;
-        int status =MPI_Send(
-            &dummy, 1, MPI_CHAR, 
-            0, MPI_RING_ITEM_TAG, gRingItemComm
-        );
-        if(status != MPI_SUCCESS) {
-            std::cerr << "MPI Status on send error in pump: " << status << std::endl;
-            throw std::runtime_error("Worker failed to request a work item");
-        }
+        
         
         assembleTargetedData(pE); // Fills in all of pE.
         if (!pE->s_pData) {
              break;  // End marker.
         }
         Tcl_ThreadQueueEvent(targetThread, &(pE->s_base), TCL_QUEUE_TAIL);
+        Tcl_ThreadAlert(targetThread);
     }
     TCL_THREAD_CREATE_RETURN;
 }
@@ -358,11 +385,13 @@ nonPhysicsThread(ClientData parent) {
             throw std::runtime_error("nonPhysicsThread failed to allocate RingItemEvent");
         }
         initEvent(pE);
+        pE->s_targeted = false;    // Broadcast events don't need send requests.
         receiveBroadcastEvent(pE);
         if (!pE->s_pData) {
             break;
         }
         Tcl_ThreadQueueEvent(target, &(pE->s_base), TCL_QUEUE_TAIL);
+        Tcl_ThreadAlert(target);
     }
     TCL_THREAD_CREATE_RETURN;
 }
