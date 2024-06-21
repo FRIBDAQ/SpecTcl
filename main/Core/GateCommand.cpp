@@ -917,8 +917,7 @@ CGateCommand::invokeChangedScript(std::string name)
     Pointer to the script object.
     Parameter to append to the script.
 
-*/
-void
+*/void
 CGateCommand::invokeAScript(CTCLObject* pScript,
 			    string      parameter)
 {

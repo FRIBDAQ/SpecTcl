@@ -32,8 +32,10 @@
 #ifndef SPECTRUMCOMMAND_H  //Required for current class
 #define SPECTRUMCOMMAND_H
                                //Required for base classes
+#include <config.h>
 #include "TCLPackagedObjectProcessor.h"
 #include <TCLObject.h>
+#include <tcl.h>
 #include <histotypes.h>
 #include <vector>
 #include <string>
@@ -118,6 +120,15 @@ public:
   std::vector<CGateContainer*> getConstituents(CTCLInterpreter& rInterp, std::string gateName);
   std::vector<CGateContainer*> getGates(CTCLInterpreter& rInterp, CTCLObject& gates);
 
+private:
+#ifdef WITH_MPI
+  static Tcl_ThreadCreateType mpiTraceRelayCatchThread(ClientData pArg);
+  static int traceRelayEventHandler(Tcl_Event* pEvent, int flags);
+  static void forwardAddTrace(const std::string& name);
+  static void forwardDeleteTrace(const std::string& name);
+  void startTracePump();
+  static void stopTracePump();
+#endif
 };
 
 #endif
