@@ -1151,7 +1151,7 @@ void CHistogrammer::observeApplyGate(CGateContainer &rGate, CSpectrum &rSpectrum
 //   What we do:
 //   MPI applications will register a CHistogramerGateTraceRelay
 // gate observer. This is implemented here to marshall the trace
-// into a TrceRelay struct which is sent tagged with a MPI_TRACE_RELAY_TAG
+// into a TrceRelay struct which is sent tagged with a MPI_GATE_TRACE_RELAY_TAG
 // to MPI_ROOT_RANK.   CGateCommand, in the 
 // root process will set up a thread to pump those messages up into Tcl events
 // which, when handled, run the traces.   We can then allow gate -trace in the root
@@ -1222,7 +1222,7 @@ CHistogrammerGateTraceRelay::onChange(std::string name, CGateContainer& containe
   forwardTrace(TRACE_MODIFY_GATE, name);
 }
 
-//Marshall a TraceRelay object and send it to rank 0 with MPI_TRACE_RELAY_TAG.
+//Marshall a TraceRelay object and send it to rank 0 with MPI_GATE_TRACE_RELAY_TAG.
 
 void
 CHistogrammerGateTraceRelay::forwardTrace(int traceType, std::string name) {
@@ -1232,7 +1232,7 @@ CHistogrammerGateTraceRelay::forwardTrace(int traceType, std::string name) {
   strncpy(traceObj.s_gateName, name.c_str(), MAX_GATE_NAME);
   traceObj.s_gateName[MAX_GATE_NAME - 1] = '\0';    // Ensure null terminator.
   if (MPI_Send(
-    &traceObj, 1, getTraceRelayType(), MPI_ROOT_RANK, MPI_TRACE_RELAY_TAG, MPI_COMM_WORLD) 
+    &traceObj, 1, getTraceRelayType(), MPI_ROOT_RANK, MPI_GATE_TRACE_RELAY_TAG, MPI_COMM_WORLD) 
     != MPI_SUCCESS) {
       throw std::runtime_error("Failed to relay a trace to rank 0.");
     }

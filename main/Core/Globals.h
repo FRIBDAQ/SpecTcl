@@ -83,8 +83,10 @@ extern MPI_Comm                  gXamineGateComm;    // Defined in all processes
 #ifndef MPI_TCL_TAG
 #define MPI_TCL_TAG 1                   // Messages involving the TCL Pump.
 #endif
-#define MPI_TRACE_RELAY_TAG 2           // Trace relay messages.
-#define MPI_RING_ITEM_TAG 3             // Ring items -> workers e.g.
+#define MPI_GATE_TRACE_RELAY_TAG 2           // Gate Trace relay message tag.
+#define MPI_SPECTRUM_TRACE_RELAY_TAG 3   // Spectrum tracde relay message tag.
+#define MPI_BIND_TRACE_RELAY_TAG 4       // sbind trace relay message tag
+#define MPI_RING_ITEM_TAG 5             // Ring items -> workers e.g.
 
 #endif
 
