@@ -77,8 +77,8 @@ private:
 
 class CHistogrammerSpectrumTraceRelay : public SpectrumDictionaryObserver {
 public:
-  void onAdd(std::string name, CSpectrum* pSpectrum);
-  void onRemove(std::string name, CSpectrum* pSpectrum);
+  virtual void onAdd(std::string name, CSpectrum*& pSpectrum);
+  virtual void onRemove(std::string name, CSpectrum*& pSpectrum);
 };
 #endif
 
@@ -160,7 +160,8 @@ CHistogrammer::CHistogrammer() :
 #ifdef WITH_MPI
   if (isMpiApp() && (myRank() == MPI_EVENT_SINK_RANK)) {
     addGateObserver(new CHistogrammerGateTraceRelay);
-    m_SpectrumDictionary.addObserver(new CHistogrammerSpectrumTraceRelay);
+    std::cerr << " Added trace relay observer\n";
+    addSpectrumDictionaryObserver(new CHistogrammerSpectrumTraceRelay);
   }
 
 #endif
@@ -1249,10 +1250,10 @@ CHistogrammerGateTraceRelay::forwardTrace(int traceType, std::string name) {
 
 /** Relay spectrum traces: */
 
-void CHistogrammerSpectrumTraceRelay::onAdd(std::string name, CSpectrum* pSpec) {
+void CHistogrammerSpectrumTraceRelay::onAdd(std::string name, CSpectrum*& pSpec) {
   CSpectrumCommand::forwardAddTrace(name);
 }
-void CHistogrammerSpectrumTraceRelay::onRemove(std::string name, CSpectrum* pSpec) {
+void CHistogrammerSpectrumTraceRelay::onRemove(std::string name, CSpectrum*& pSpec) {
   CSpectrumCommand::forwardDeleteTrace(name);
 }
 #endif
