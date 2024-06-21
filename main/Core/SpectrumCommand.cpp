@@ -35,6 +35,8 @@
 #include <iostream>
 #include "GateContainer.h"
 #include "CompoundGate.h"
+#include "Globals.h"
+#include <TclPump.h>
 
 #include <tcl.h>
 #include <string.h>
@@ -1048,26 +1050,33 @@ void
 CSpectrumCommand::traceAdd(const string& name,
 			   const CSpectrum* pSpectrum)
 {
-  if (!m_fTracing) {
-    if (string(m_createTrace) != defaultTrace) {
-      m_fTracing = true;
-      m_createTrace.Bind(getInterpreter());
-      CTCLObject script(m_createTrace);
-      script.Bind(getInterpreter());
-      script += name;
-      CTCLObject result;
-      result.Bind(getInterpreter());
-      int status = TCL_OK;
-      try {
-	result = script();
+  // Traces only get invoked in the ROOt rank:
+
+  if (!isMpiApp() || myRank() == MPI_ROOT_RANK) {
+
+    if (!m_fTracing) {
+      if (string(m_createTrace) != defaultTrace) {
+        m_fTracing = true;
+        m_createTrace.Bind(getInterpreter());
+        CTCLObject script(m_createTrace);
+        script.Bind(getInterpreter());
+        script += name;
+        std::cerr << "tracing: '" << (std::string)(script) << "'\n";
+        std::cerr <<  script.llength() << " words\n";
+        CTCLObject result;
+        result.Bind(getInterpreter());
+        int status = TCL_OK;
+        try {
+          result = script();
+        }
+        catch (...) {
+          status = TCL_ERROR;
+        }
+        if (status == TCL_ERROR) {
+          cerr << "Error executing spectrum add trace on " << (string)(script) << endl;
+        }
+        m_fTracing = false;
       }
-      catch (...) {
-	status = TCL_ERROR;
-      }
-      if (status == TCL_ERROR) {
-	cerr << "Error executing spectrum add trace on " << (string)(script) << endl;
-      }
-      m_fTracing = false;
     }
   }
 }
@@ -1079,26 +1088,28 @@ void
 CSpectrumCommand::traceRemove(const string& name,
 			      const CSpectrum* pSpectrum)
 {
-  if (!m_fTracing) {
-    if (string(m_removeTrace) != defaultTrace) {
-      m_fTracing = true;
-      m_createTrace.Bind(getInterpreter());
-      CTCLObject script(m_removeTrace);
-      script.Bind(getInterpreter());
-      script += name;
-      CTCLObject result;
-      result.Bind(getInterpreter());
-      int status = TCL_OK;
-      try {
-	result = script();
+  if (!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
+    if (!m_fTracing) {
+      if (string(m_removeTrace) != defaultTrace) {
+        m_fTracing = true;
+        m_createTrace.Bind(getInterpreter());
+        CTCLObject script(m_removeTrace);
+        script.Bind(getInterpreter());
+        script += name;
+        CTCLObject result;
+        result.Bind(getInterpreter());
+        int status = TCL_OK;
+        try {
+          result = script();
+        }
+        catch (...) {
+          status = TCL_ERROR;
+        }
+        if (status == TCL_ERROR) {
+          cerr << "Error executing spectrum remove trace on " << (string)(script) << endl;
+        }
+        m_fTracing = false;
       }
-      catch (...) {
-	status = TCL_ERROR;
-      }
-      if (status == TCL_ERROR) {
-	cerr << "Error executing spectrum remove trace on " << (string)(script) << endl;
-      }
-      m_fTracing = false;
     }
   }
 }
