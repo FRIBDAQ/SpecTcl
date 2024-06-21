@@ -149,6 +149,15 @@ CSpectrumCommand::CSpectrumCommand (CTCLInterpreter* pInterp) :
   SpecTcl* pApi = SpecTcl::getInstance();
   pApi->addSpectrumDictionaryObserver(m_pObserver);
 
+#ifdef WITH_MPI
+  // Start the spectrum trace pump if we are root:
+
+  if (isMpiApp() && (myRank() == MPI_ROOT_RANK)) {
+    startTracePump();
+  }
+  
+#endif
+
 }
 
 /*
