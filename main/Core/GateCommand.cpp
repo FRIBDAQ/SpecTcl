@@ -931,7 +931,7 @@ CGateCommand::invokeAScript(CTCLObject* pScript,
 
     // Only invoke traces in root rank:
 
-    if (!isMpiApp() || (myRank == MPI_ROOT_RANK)) {
+    if (!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
 
       try {
         fullScript();
