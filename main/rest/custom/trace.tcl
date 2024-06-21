@@ -218,7 +218,7 @@ proc RestTrace::spectrumTrace {args} {
     set traceDict [dict create                                             \
         time [clock seconds] type spectrum parameters $args                \
     ]
-    puts "Spectrum trace adding:  $traceDict"
+    
     RestTrace::bufferTrace $traceDict
 }
 
@@ -321,7 +321,7 @@ proc SpecTcl_trace/establish {retention} {
     set ::SpecTcl_trace/establish application/json
     
     set token [RestTrace::allocateToken $retention]
-    puts "Established for $token"
+    
     return [SpecTcl::_returnObject OK $token];        # Tokens are integers.
 }
 ##
@@ -369,7 +369,7 @@ proc SpecTcl_trace/fetch {token} {
     dict set result gate      [json::write array {*}[dict get $result gate]]
     dict set result binding   [json::write array {*}[dict get $result binding]]
     
-    puts "Retreiveing for $token : $result"
+    
     return [SpecTcl::_returnObject OK                                     \
         [json::write object  {*}$result]                                  \
     ]

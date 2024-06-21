@@ -153,7 +153,6 @@ CSpectrumCommand::CSpectrumCommand (CTCLInterpreter* pInterp) :
   // Start the spectrum trace pump if we are root:
 
   if (isMpiApp() && (myRank() == MPI_ROOT_RANK)) {
-    std::cerr <<  "Starting spectrum trace pump!\n";
     startTracePump();
   }
   
@@ -834,11 +833,7 @@ Int_t
 CSpectrumCommand::Trace(CTCLInterpreter& rInterp, 
 			int argc, const char** argv)
 {
-  std::cerr <<"trace: ";
-  for (int i = 0; i < argc; i++) {
-    std::cerr << argv[i] << std::endl;;
-  }
-  std::cerr <<"----\n";
+  
   // Need at least one extra argument, the trace operation
   // which  must be add or delete and just selects the trace object:
 
@@ -1067,31 +1062,21 @@ CSpectrumCommand::traceAdd(const string& name,
 {
   // Traces only get invoked in the ROOt rank:
 
-  std::cerr << "trace add " << name << " " << m_fTracing << std::endl;
 
   if (!isMpiApp() || myRank() == MPI_ROOT_RANK) {
-    std::cerr << "Right rank\n";
     if (!m_fTracing) {
-      std::cerr << "Not a nested trace\n";
       if (string(m_createTrace) != defaultTrace) {
-        std::cerr << "Not default trace\n";
-        //m_fTracing = true;
         m_createTrace.Bind(getInterpreter());
         CTCLObject script(m_createTrace);
         script.Bind(getInterpreter());
         script += name;
-        std::cerr << "tracing: '" << (std::string)(script) << "'\n";
-        std::cerr <<  script.llength() << " words\n";
         CTCLObject result;
         result.Bind(getInterpreter());
         int status = TCL_OK;
         try {
-          std::cerr << "Running the trace\n";
           result = script();
-          std::cerr << "Trace command completed " << (std::string)result << std::endl;
         }
         catch (...) {
-          std::cerr <<"Trace command failed\n";
           status = TCL_ERROR;
         }
         if (status == TCL_ERROR) {
@@ -1099,11 +1084,9 @@ CSpectrumCommand::traceAdd(const string& name,
         }
         
       }
-      std::cerr << "Resetting the recursion flag.\n";
       m_fTracing = false;
     }
   }
-  std::cerr << "Exiting trace add  " << m_fTracing << std::endl;
 }
 
 /*!
@@ -1116,7 +1099,7 @@ CSpectrumCommand::traceRemove(const string& name,
   if (!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
     if (!m_fTracing) {
       if (string(m_removeTrace) != defaultTrace) {
-        m_fTracing = true;
+        // m_fTracing = true;
         m_createTrace.Bind(getInterpreter());
         CTCLObject script(m_removeTrace);
         script.Bind(getInterpreter());
@@ -1306,19 +1289,16 @@ static MPI_Datatype SpectrumTraceType() {
 int CSpectrumCommand::traceRelayEventHandler(Tcl_Event* pEvent, int flags) {
   pSpectrumTraceEvent pInfo = reinterpret_cast<pSpectrumTraceEvent>(pEvent);
 
-  std::cerr << "Trace relay handler fired\n";
+
 
   std::string name =   pInfo->s_info.s_name;
-  std:: cerr << " For " << pInfo->s_info.s_name << std::endl;
   CSpectrum* pSpectrum = SpecTcl::getInstance()->FindSpectrum(name);
   
   // Actually the traces don't use the spectrum and it might be deleted if this is a delete trace:
 
   if (pInfo->s_info.s_delete) {
-    std::cerr << "Fring remove\n";
     pInfo->s_command->traceRemove(name, pSpectrum);
   } else {
-    std::cerr << "Fring add\n";
     pInfo->s_command->traceAdd(name, pSpectrum);
   }
 
@@ -1337,7 +1317,7 @@ int CSpectrumCommand::traceRelayEventHandler(Tcl_Event* pEvent, int flags) {
  */
 Tcl_ThreadCreateType
 CSpectrumCommand::mpiTraceRelayCatchThread(ClientData pArg) {
-  std::cerr << "Trace pump started\n";
+  
   pThreadParameters pParams = reinterpret_cast<pThreadParameters>(pArg);
   Tcl_ThreadId target = pParams->s_mainThread;
   CSpectrumCommand* pCommand = pParams->s_pCommand;
@@ -1360,7 +1340,7 @@ CSpectrumCommand::mpiTraceRelayCatchThread(ClientData pArg) {
       ) != MPI_SUCCESS) {
         throw std::runtime_error("Receive for a gate trace relay failed");
     }
-    std::cerr << "Received " << pEvent->s_info.s_name << std::endl;
+  
     // Break of the size of the name is zero.
 
     if (strlen(pEvent->s_info.s_name) == 0) break;

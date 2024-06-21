@@ -160,7 +160,7 @@ CHistogrammer::CHistogrammer() :
 #ifdef WITH_MPI
   if (isMpiApp() && (myRank() == MPI_EVENT_SINK_RANK)) {
     addGateObserver(new CHistogrammerGateTraceRelay);
-    std::cerr << " Added trace relay observer\n";
+
     addSpectrumDictionaryObserver(new CHistogrammerSpectrumTraceRelay);
   }
 
