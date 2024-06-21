@@ -29,6 +29,7 @@
 #include <CSpectrumByParameter.h>
 #include <TrueGate.h>
 #include <DeletedGate.h>
+#include "SpectrumCommand.h"
 
 #include <iostream>
 #include <sstream>
@@ -72,6 +73,12 @@ public:
   void onChange(std::string name, CGateContainer& container);
 private:
   void forwardTrace(int type, std::string name);
+};
+
+class CHistogrammerSpectrumTraceRelay : public SpectrumDictionaryObserver {
+public:
+  void onAdd(std::string name, CSpectrum* pSpectrum);
+  void onRemove(std::string name, CSpectrum* pSpectrum);
 };
 #endif
 
@@ -153,7 +160,9 @@ CHistogrammer::CHistogrammer() :
 #ifdef WITH_MPI
   if (isMpiApp() && (myRank() == MPI_EVENT_SINK_RANK)) {
     addGateObserver(new CHistogrammerGateTraceRelay);
+    m_SpectrumDictionary.addObserver(new CHistogrammerSpectrumTraceRelay);
   }
+
 #endif
 }
 
@@ -1236,5 +1245,14 @@ CHistogrammerGateTraceRelay::forwardTrace(int traceType, std::string name) {
     != MPI_SUCCESS) {
       throw std::runtime_error("Failed to relay a trace to rank 0.");
     }
+}
+
+/** Relay spectrum traces: */
+
+void CHistogrammerSpectrumTraceRelay::onAdd(std::string name, CSpectrum* pSpec) {
+  CSpectrumCommand::forwardAddTrace(name);
+}
+void CHistogrammerSpectrumTraceRelay::onRemove(std::string name, CSpectrum* pSpec) {
+  CSpectrumCommand::forwardDeleteTrace(name);
 }
 #endif

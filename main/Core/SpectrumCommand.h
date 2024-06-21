@@ -119,13 +119,15 @@ public:
 		   const CSpectrum* pSpectrum);
   std::vector<CGateContainer*> getConstituents(CTCLInterpreter& rInterp, std::string gateName);
   std::vector<CGateContainer*> getGates(CTCLInterpreter& rInterp, CTCLObject& gates);
-
-private:
 #ifdef WITH_MPI
-  static Tcl_ThreadCreateType mpiTraceRelayCatchThread(ClientData pArg);
-  static int traceRelayEventHandler(Tcl_Event* pEvent, int flags);
+public:
   static void forwardAddTrace(const std::string& name);
   static void forwardDeleteTrace(const std::string& name);
+private:
+
+  static Tcl_ThreadCreateType mpiTraceRelayCatchThread(ClientData pArg);
+  static int traceRelayEventHandler(Tcl_Event* pEvent, int flags);
+  
   void startTracePump();
   static void stopTracePump();
 #endif
