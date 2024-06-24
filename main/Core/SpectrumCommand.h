@@ -123,13 +123,14 @@ public:
 public:
   static void forwardAddTrace(const std::string& name);
   static void forwardDeleteTrace(const std::string& name);
+  static void stopTracePump();
 private:
 
   static Tcl_ThreadCreateType mpiTraceRelayCatchThread(ClientData pArg);
   static int traceRelayEventHandler(Tcl_Event* pEvent, int flags);
   
   void startTracePump();
-  static void stopTracePump();
+  
 #endif
 };
 
