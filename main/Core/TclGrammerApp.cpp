@@ -71,6 +71,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLLiveEventLoop.h>
 #include <TCLTimer.h>
 
+
+#include "BindCommand.h"
+
 #include "CFoldCommand.h"
 #include "CFitCommand.h"
 
@@ -1546,6 +1549,7 @@ MpiExitHandler() {
       stopHistogramPump();
       stopGatePump();            // We broadcast the stop message.
       CGateCommand::stopTracePump();   // Send the stop message to the root thread .
+      CBindCommand::stopPump();
     }  else {
       // Root or worker can call this:
       //    - Root will broadcast a dummy event to kill the broadcast recieve thread and

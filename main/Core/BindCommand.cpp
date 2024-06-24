@@ -53,6 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLString.h"
 #include "TCLObject.h"
 #include "SpectrumPackage.h"
+#include "Globals.h"
 
 #include <histotypes.h>                               
 #include <string>
@@ -61,6 +62,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include "BindTraceSingleton.h"
 #include <TCLObject.h>
+#include <TclPump.h>
 #include <stdexcept>
 
 
@@ -93,7 +95,15 @@ static const TCLPLUS::UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntr
 */
 CBindCommand::CBindCommand(CTCLInterpreter* pInterp) :
   CTCLPackagedObjectProcessor(*pInterp, "sbind", true)
-{}
+{
+  // If we are MPI root rank we start the pump:
+
+#ifdef WITH_MPI
+  if (isMpiApp() && (myRank() == MPI_ROOT_RANK)) {
+    startPump(*pInterp);
+  }
+#endif
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -451,9 +461,7 @@ CBindCommand::Usage(CTCLInterpreter& rInterp)
 
 #ifdef WITH_MPI
 #include "BindTraceSingleton.h"
-#include "Globals.h"
 #include <mpi.h>
-#include <TclPump.h>
 #include <stdexcept>
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
