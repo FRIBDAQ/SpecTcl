@@ -2486,6 +2486,11 @@ CSpectrumPackage::makeBinding(CSpectrum& spec, CHistogrammer& hist)
   objId   = static_cast<int>(binding);
   try {
     traceContainer.invokeSbind(*pInterp, objName, objId);
+    // If  we are MPI we need to send the trace to the ROOT process (note we know already)
+    // we are in the event sink if we got here.
+    if (isMpiApp()) {
+      CBindCommand::forwardNewBinding(name, binding);
+    }
   }
   catch (CException & e) {
     std::string msg("Error in firing a trace for sbind: ");
@@ -2528,5 +2533,8 @@ CSpectrumPackage::removeBinding(CSpectrum& spec, CHistogrammer& hist)
     objId  = id;
     BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
     traceContainer.invokeUnbind(*pInterp, objName, objId);
+    if (isMpiApp()) {
+      CBindCommand::forwardUnbind(name, id);
+    }
   }
 }
