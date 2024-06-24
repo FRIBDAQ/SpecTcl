@@ -63,6 +63,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Display.h>
 
 #include <MPITclPackagedCommand.h>
+#include <MPITclPackagedCommandAll.h>
 #include <TclPump.h>
 
 #include <iostream>
@@ -156,7 +157,7 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
 {
   auto spectrumInner = new CSpectrumCommand(pInterp);
   addCommand(spectrumInner);
-  m_pSpectrum = new CMPITclPackagedCommand(*pInterp, "spectrum", spectrumInner);
+  m_pSpectrum = new CMPITclPackagedCommandAll(*pInterp, "spectrum", spectrumInner);
   addCommand(m_pSpectrum);
 
   auto clearInner = new CClearCommand(pInterp);
@@ -166,12 +167,12 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
 
   auto sbindInner = new CBindCommand(pInterp);
   addCommand(sbindInner);
-  m_pBind = new CMPITclPackagedCommand(*pInterp, "sbind", sbindInner);
+  m_pBind = new CMPITclPackagedCommandAll(*pInterp, "sbind", sbindInner);
   addCommand(m_pBind);
 
   auto unbindInner = new CUnbindCommand(pInterp);
   addCommand(unbindInner);
-  m_pUnbind = new CMPITclPackagedCommand(*pInterp, "unbind", unbindInner);
+  m_pUnbind = new CMPITclPackagedCommandAll(*pInterp, "unbind", unbindInner);
   addCommand(m_pUnbind);
 
   auto chanInner = new ChannelCommand(pInterp);
@@ -2485,6 +2486,11 @@ CSpectrumPackage::makeBinding(CSpectrum& spec, CHistogrammer& hist)
   objId   = static_cast<int>(binding);
   try {
     traceContainer.invokeSbind(*pInterp, objName, objId);
+    // If  we are MPI we need to send the trace to the ROOT process (note we know already)
+    // we are in the event sink if we got here.
+    if (isMpiApp()) {
+      CBindCommand::forwardNewBinding(name, binding);
+    }
   }
   catch (CException & e) {
     std::string msg("Error in firing a trace for sbind: ");
@@ -2527,5 +2533,8 @@ CSpectrumPackage::removeBinding(CSpectrum& spec, CHistogrammer& hist)
     objId  = id;
     BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
     traceContainer.invokeUnbind(*pInterp, objName, objId);
+    if (isMpiApp()) {
+      CBindCommand::forwardUnbind(name, id);
+    }
   }
 }

@@ -35,6 +35,8 @@
 #include <iostream>
 #include "GateContainer.h"
 #include "CompoundGate.h"
+#include "Globals.h"
+#include <TclPump.h>
 
 #include <tcl.h>
 #include <string.h>
@@ -146,6 +148,15 @@ CSpectrumCommand::CSpectrumCommand (CTCLInterpreter* pInterp) :
   
   SpecTcl* pApi = SpecTcl::getInstance();
   pApi->addSpectrumDictionaryObserver(m_pObserver);
+
+#ifdef WITH_MPI
+  // Start the spectrum trace pump if we are root:
+
+  if (isMpiApp() && (myRank() == MPI_ROOT_RANK)) {
+    startTracePump();
+  }
+  
+#endif
 
 }
 
@@ -822,6 +833,7 @@ Int_t
 CSpectrumCommand::Trace(CTCLInterpreter& rInterp, 
 			int argc, const char** argv)
 {
+  
   // Need at least one extra argument, the trace operation
   // which  must be add or delete and just selects the trace object:
 
@@ -1048,24 +1060,29 @@ void
 CSpectrumCommand::traceAdd(const string& name,
 			   const CSpectrum* pSpectrum)
 {
-  if (!m_fTracing) {
-    if (string(m_createTrace) != defaultTrace) {
-      m_fTracing = true;
-      m_createTrace.Bind(getInterpreter());
-      CTCLObject script(m_createTrace);
-      script.Bind(getInterpreter());
-      script += name;
-      CTCLObject result;
-      result.Bind(getInterpreter());
-      int status = TCL_OK;
-      try {
-	result = script();
-      }
-      catch (...) {
-	status = TCL_ERROR;
-      }
-      if (status == TCL_ERROR) {
-	cerr << "Error executing spectrum add trace on " << (string)(script) << endl;
+  // Traces only get invoked in the ROOt rank:
+
+
+  if (!isMpiApp() || myRank() == MPI_ROOT_RANK) {
+    if (!m_fTracing) {
+      if (string(m_createTrace) != defaultTrace) {
+        m_createTrace.Bind(getInterpreter());
+        CTCLObject script(m_createTrace);
+        script.Bind(getInterpreter());
+        script += name;
+        CTCLObject result;
+        result.Bind(getInterpreter());
+        int status = TCL_OK;
+        try {
+          result = script();
+        }
+        catch (...) {
+          status = TCL_ERROR;
+        }
+        if (status == TCL_ERROR) {
+          cerr << "Error executing spectrum add trace on " << (string)(script) << endl;
+        }
+        
       }
       m_fTracing = false;
     }
@@ -1079,24 +1096,27 @@ void
 CSpectrumCommand::traceRemove(const string& name,
 			      const CSpectrum* pSpectrum)
 {
-  if (!m_fTracing) {
-    if (string(m_removeTrace) != defaultTrace) {
-      m_fTracing = true;
-      m_createTrace.Bind(getInterpreter());
-      CTCLObject script(m_removeTrace);
-      script.Bind(getInterpreter());
-      script += name;
-      CTCLObject result;
-      result.Bind(getInterpreter());
-      int status = TCL_OK;
-      try {
-	result = script();
-      }
-      catch (...) {
-	status = TCL_ERROR;
-      }
-      if (status == TCL_ERROR) {
-	cerr << "Error executing spectrum remove trace on " << (string)(script) << endl;
+  if (!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
+    if (!m_fTracing) {
+      if (string(m_removeTrace) != defaultTrace) {
+        // m_fTracing = true;
+        m_createTrace.Bind(getInterpreter());
+        CTCLObject script(m_removeTrace);
+        script.Bind(getInterpreter());
+        script += name;
+        CTCLObject result;
+        result.Bind(getInterpreter());
+        int status = TCL_OK;
+        try {
+          result = script();
+        }
+        catch (...) {
+          status = TCL_ERROR;
+        }
+        if (status == TCL_ERROR) {
+          cerr << "Error executing spectrum remove trace on " << (string)(script) << endl;
+        }
+       
       }
       m_fTracing = false;
     }
@@ -1200,3 +1220,211 @@ CSpectrumCommand::getGates(CTCLInterpreter& rInterp, CTCLObject& gates)
     return result;
     
 }
+
+//////////////////////////// MPI spectrum trace pump code   /////////////////////////////////
+
+
+#ifdef WITH_MPI
+#include <mpi.h>
+#include <stdexcept>
+#include <new>
+// This is the structure of spectrum trace messages. 
+
+#define MAX_SPECTRUM_NAME 256       // define a longest allowed spectrum name.
+
+typedef struct _SpectrumTraceMessage {
+  char s_name[MAX_SPECTRUM_NAME];    // Name of spectrum being traced.
+  int  s_delete;                    // non-zero if it's a delete trace.
+} SpectrumTraceMessage, *pSpectrumTraceMessage;
+
+typedef struct _SpectrumTraceEvent {
+  Tcl_Event            s_base;
+  CSpectrumCommand*    s_command;
+  SpectrumTraceMessage s_info;
+} SpectrumTraceEvent, *pSpectrumTraceEvent;
+
+typedef struct _ThreadParameters {
+  Tcl_ThreadId      s_mainThread;    // Thread to signal
+  CSpectrumCommand* s_pCommand;      // Command to run.
+} ThreadParameters, *pThreadParameters;
+
+// Generate the data type if needed:
+
+static MPI_Datatype SpectrumTraceType() {
+  static bool created = false;
+  static MPI_Datatype dataType;;
+
+  if (!created) {
+    
+    MPI_Aint offsets[2] = {
+      offsetof(SpectrumTraceMessage, s_name),
+      offsetof(SpectrumTraceMessage, s_delete)
+    };
+    MPI_Datatype memberTypes[2] = {
+      MPI_CHAR, MPI_INT
+    };
+    int memberLengths[2] = {MAX_SPECTRUM_NAME, 1};
+
+    if (MPI_Type_create_struct(2, memberLengths, offsets, memberTypes, &dataType) != MPI_SUCCESS) {
+      throw std::runtime_error("Unable to define spectrum trace MPI data type");
+    }
+    if (MPI_Type_commit(&dataType) != MPI_SUCCESS) {
+      throw std::runtime_error("Unable to commit spectrum trace MPI data type");
+    }
+  }
+  created = true;   // If we get here it was created properly.
+  return dataType;
+}
+
+/** 
+ * traceRelayEventHandler
+ *    Scheduled from the pump thread.  It will 
+ *    - Locate the spectrum in the API
+ *    - Dispatch to the appropiate trace method: traceAdd or traceRemove.
+ * 
+ * @param pEvent - Pointer to what is actually a SpectrumTraceEvent.
+ * @param flags - Event handling flags, ignored.
+ * @return int  - 1 indicating we're done and the event storage can be deleted.
+ */
+int CSpectrumCommand::traceRelayEventHandler(Tcl_Event* pEvent, int flags) {
+  pSpectrumTraceEvent pInfo = reinterpret_cast<pSpectrumTraceEvent>(pEvent);
+
+
+
+  std::string name =   pInfo->s_info.s_name;
+  CSpectrum* pSpectrum = SpecTcl::getInstance()->FindSpectrum(name);
+  
+  // Actually the traces don't use the spectrum and it might be deleted if this is a delete trace:
+
+  if (pInfo->s_info.s_delete) {
+    pInfo->s_command->traceRemove(name, pSpectrum);
+  } else {
+    pInfo->s_command->traceAdd(name, pSpectrum);
+  }
+
+  return 1;
+}
+
+
+/**
+ * mpiTracRelayCatchThread
+ *    This is the thread that catches notifications  from the EVENT_SINK_THREAD that
+ *    a trace needs to be fired in this rank.
+ * 
+ * @param pArg - Actually a pointer to a pThreadParameters struct.
+ * @note if we get a message with a 0 length spectrum name, that's a special
+ * that says it's time to exit the thread.
+ */
+Tcl_ThreadCreateType
+CSpectrumCommand::mpiTraceRelayCatchThread(ClientData pArg) {
+  
+  pThreadParameters pParams = reinterpret_cast<pThreadParameters>(pArg);
+  Tcl_ThreadId target = pParams->s_mainThread;
+  CSpectrumCommand* pCommand = pParams->s_pCommand;
+  delete pParams;                         // Allocated in the start function.
+
+  pSpectrumTraceEvent pEvent;
+  while (true) {
+    pEvent = 0;
+    pEvent = reinterpret_cast<pSpectrumTraceEvent>(Tcl_Alloc(sizeof(SpectrumTraceEvent)));
+    if (!pEvent) {
+      throw std::bad_alloc();
+    }
+    pEvent->s_base.proc = traceRelayEventHandler;
+    pEvent->s_base.nextPtr= 0;
+    pEvent->s_command   = pCommand;
+    MPI_Status status;
+    if (MPI_Recv(
+      &pEvent->s_info, 1, SpectrumTraceType(), 
+      MPI_EVENT_SINK_RANK, MPI_SPECTRUM_TRACE_RELAY_TAG, MPI_COMM_WORLD, &status
+      ) != MPI_SUCCESS) {
+        throw std::runtime_error("Receive for a gate trace relay failed");
+    }
+  
+    // Break of the size of the name is zero.
+
+    if (strlen(pEvent->s_info.s_name) == 0) break;
+
+    Tcl_ThreadQueueEvent(target, reinterpret_cast<Tcl_Event*>(pEvent), TCL_QUEUE_TAIL);
+    Tcl_ThreadAlert(target);
+
+
+  }
+  Tcl_Free(reinterpret_cast<char*>(pEvent))
+
+  TCL_THREAD_CREATE_RETURN;
+}
+
+/** forwardAddTrace
+ *    Construct and send a message to the MPI_ROOT_RANK telling it to queue a trace
+ * for the spectrum command.
+ * 
+ * @param name - name of the trace to send. 
+ */
+void
+CSpectrumCommand::forwardAddTrace(const std::string& name) {
+  SpectrumTraceMessage msg;
+  if (name.size() > MAX_GATE_NAME) {
+    throw std::length_error("Spectrum name is longer than the max allowed>");
+  }
+  strncpy(msg.s_name, name.c_str(), MAX_SPECTRUM_NAME);
+  msg.s_delete = 0;
+
+  if (MPI_Send(
+      &msg, 1, SpectrumTraceType(), 
+      MPI_ROOT_RANK, MPI_SPECTRUM_TRACE_RELAY_TAG, MPI_COMM_WORLD
+    ) != MPI_SUCCESS) {
+      throw std::runtime_error("Send of spectrum add trace relay message failed");
+
+  }
+}
+
+/** Same as above gut for a delete trace */
+
+void
+CSpectrumCommand::forwardDeleteTrace(const std::string& name) {
+  SpectrumTraceMessage msg;
+  if (name.size() > MAX_GATE_NAME) {
+    throw std::length_error("Spectrum name is longer than the max allowed>");
+  }
+  strncpy(msg.s_name, name.c_str(), MAX_SPECTRUM_NAME);
+  msg.s_delete = 1;
+
+  if (MPI_Send(
+      &msg, 1, SpectrumTraceType(), 
+      MPI_ROOT_RANK, MPI_SPECTRUM_TRACE_RELAY_TAG, MPI_COMM_WORLD
+    ) != MPI_SUCCESS) {
+      throw std::runtime_error("Send of spectrum delete trace relay message failed");
+
+  }
+}
+
+/**
+ *  start the trace pump (traceRelayEventHandler) 
+ * 
+ * 
+ */
+void
+CSpectrumCommand::startTracePump() {
+  pThreadParameters pParams = new ThreadParameters;
+  
+  pParams->s_mainThread = Tcl_GetCurrentThread();
+  pParams->s_pCommand = this;
+
+  Tcl_ThreadId dummy;
+  Tcl_CreateThread(
+    &dummy, mpiTraceRelayCatchThread, pParams, 
+    TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS
+  );
+  
+}
+/**
+ *  stop the gate pump by sending a trace message with zero lenght name:
+ */
+
+void 
+CSpectrumCommand::stopTracePump() {
+  forwardAddTrace(std::string(""));
+}
+
+#endif      // WITH_MPI

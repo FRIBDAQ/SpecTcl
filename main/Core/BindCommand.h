@@ -39,7 +39,11 @@
 #ifndef BINDCOMMAND_H  //Required for current class
 #define BINDCOMMAND_H
                                //Required for base classes
+#include <config.h>
+#include <histotypes.h>
+#include <tcl.h>
 #include "TCLPackagedObjectProcessor.h"
+
 
 
 // Forward class definitions:
@@ -97,6 +101,25 @@ protected:
   static eSwitches MatchSwitch(const char* pSwitch);
   static void      Usage(CTCLInterpreter& rInterp);
 
+  // Bindings trace pump if MPI enabled:
+
+#ifdef WITH_MPI
+  // API to transmit traces
+public: 
+  static void forwardNewBinding(const std::string& spName, UInt_t bindIndex);
+  static void forwardUnbind(const std::string& spName, UInt_t bindIndex);
+
+  // The pump stuff;
+private:
+  static int BindTraceEventHandler(Tcl_Event* pEvent, int flags);
+  static Tcl_ThreadCreateType pumpThread(ClientData cd);
+  static void startPump(CTCLInterpreter& rInterp);
+public:
+  static void stopPump();
+
+
+  
+#endif
 };
 
 #endif

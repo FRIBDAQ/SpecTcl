@@ -53,6 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLString.h"
 #include "TCLObject.h"
 #include "SpectrumPackage.h"
+#include "Globals.h"
 
 #include <histotypes.h>                               
 #include <string>
@@ -61,6 +62,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include "BindTraceSingleton.h"
 #include <TCLObject.h>
+#include <TclPump.h>
 #include <stdexcept>
 
 
@@ -93,7 +95,15 @@ static const TCLPLUS::UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntr
 */
 CBindCommand::CBindCommand(CTCLInterpreter* pInterp) :
   CTCLPackagedObjectProcessor(*pInterp, "sbind", true)
-{}
+{
+  // If we are MPI root rank we start the pump:
+
+#ifdef WITH_MPI
+  if (isMpiApp() && (myRank() == MPI_ROOT_RANK)) {
+    startPump(*pInterp);
+  }
+#endif
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -444,3 +454,237 @@ CBindCommand::Usage(CTCLInterpreter& rInterp)
 
   rInterp.setResult(rResult);
 }
+
+// In the  MPI environment we need to forward traces from the event sink
+// rank -> main rank.  The code below implements that as a combination of static
+// and member functions.
+
+#ifdef WITH_MPI
+#include "BindTraceSingleton.h"
+#include <mpi.h>
+#include <stdexcept>
+#include <TCLInterpreter.h>
+#include <TCLObject.h>
+
+
+/**
+ *   The struct that is sent to forward an event: (MPI_Send, MPI_Recv)
+ * 
+ */
+
+#define MAX_SPECTRUM_NAME 256
+typedef struct _BindTraceMessage {
+  char s_spectrumName[MAX_SPECTRUM_NAME];
+  int  s_bindIndex;
+  int  s_unbind;                 // nonzero if the message is for an unbind else 0.
+} BindTraceMessage, *pBindTraceMessage;
+
+/**
+ *   The event we'll post to the event loop of the main thread
+ *   when we get a trace:
+ */
+typedef struct _BindTraceEvent {
+  Tcl_Event      s_base;                 // Base event struct.
+  BindTraceMessage s_msg;                 // Message sent via MPI
+  CTCLInterpreter* s_pInterp;            // Interpreter to execute the trace.
+}  BindTraceEvent, *pBindTraceEvent;
+
+/**
+ *   we need to be able to produce a data type for the BindTraceMessage.
+ */
+static MPI_Datatype 
+messageType() {
+  static bool created = false;
+  static MPI_Datatype dataType;
+
+  if (!created) {
+    MPI_Aint offsets[3] = {
+      offsetof(BindTraceMessage, s_spectrumName),
+      offsetof(BindTraceMessage, s_bindIndex),
+      offsetof(BindTraceMessage, s_unbind)
+    };
+    int sizes[3] = {MAX_SPECTRUM_NAME, 1, 1};
+    MPI_Datatype types[3] = {
+      MPI_CHAR, MPI_INT, MPI_INT
+    };
+
+
+    if (MPI_Type_create_struct(
+      3, sizes, offsets, types, &dataType
+    ) != MPI_SUCCESS) {
+      throw std::runtime_error("Unable to create the bind trace data type");
+    }
+    if (MPI_Type_commit(&dataType) != MPI_SUCCESS) {
+      throw std::runtime_error("Failed to commit the bind trace data type");
+    }
+    created = true;
+  }
+  return dataType;
+}
+
+
+static void 
+fillMessage(
+  BindTraceMessage& msg, const std::string& spName, UInt_t bindIndex, int remove
+  ) {
+  if (spName.size() >= MAX_SPECTRUM_NAME) {
+     throw std::length_error("Spectrum name too long");
+  }
+  strncpy(msg.s_spectrumName, spName.c_str(), MAX_SPECTRUM_NAME);
+  msg.s_bindIndex = bindIndex;
+  msg.s_unbind = remove;
+
+}
+
+/** 
+ *   forwardNewBinding (API):
+ *     Sned a message to the ROOT rank with the tag MPI_BIND_TRACE_RELAY_TAG describing
+ * a new trace.
+ *    @param spName - name of the spectrum being bound.
+ *    @param bindIndex - The binding index assigned to the spectrum.
+*/
+void
+CBindCommand::forwardNewBinding(const std::string& spName, UInt_t bindIndex) {
+  BindTraceMessage msg;
+  fillMessage(msg, spName, bindIndex, 0);
+
+  if (MPI_Send(
+    &msg, 1, messageType(), MPI_ROOT_RANK, MPI_BIND_TRACE_RELAY_TAG, MPI_COMM_WORLD
+  ) != MPI_SUCCESS) {
+    throw std::runtime_error("Failed to send bindings tracde create message");
+  }
+}
+/**
+ *  forwardUnbind
+ *    Same as above but the trace message indicates an ubinding:
+ *
+ *    @param spName - name of the spectrum being bound.
+ *    @param bindIndex - The binding index assigned to the spectrum.
+* 
+ */
+
+void
+CBindCommand::forwardUnbind(const std::string& spName, UInt_t bindIndex) {
+  BindTraceMessage msg;
+  fillMessage(msg, spName, bindIndex, 1);
+
+  if (MPI_Send(
+    &msg, 1, messageType(), MPI_ROOT_RANK, MPI_BIND_TRACE_RELAY_TAG, MPI_COMM_WORLD
+  ) != MPI_SUCCESS) {
+    throw std::runtime_error("Failed to send bindings tracde create message");
+  }
+}
+
+/**
+ * BindTraceEventHandler
+ *    Scheduled from the event loop when a trace must be dispatched.
+ * @param pEvent  - Pointer to the event struct -- actually a pBindTraceEvent.
+ * @param flags   - Event processing flags (Ignored).
+ * @return int : 1 indicating we're dont handling the event and Tcl can release its storage.
+ * 
+ */
+int
+CBindCommand::BindTraceEventHandler(Tcl_Event* pEvent, int flags) {
+  pBindTraceEvent pFullEvent = reinterpret_cast<pBindTraceEvent>(pEvent);
+
+  // Marshall the spectrum name an dbinding index into objects:
+
+  CTCLObject name;
+  name.Bind(pFullEvent->s_pInterp);
+  name = pFullEvent->s_msg.s_spectrumName;
+
+  CTCLObject index;
+  index.Bind(pFullEvent->s_pInterp);
+  index = pFullEvent->s_msg.s_bindIndex;
+
+  // Get the binding trace singleton and invoke the correct tracer depending 
+  // on pFullEvent->s_msg.s_unbind
+
+  BindTraceSingleton& rBinder = BindTraceSingleton::getInstance();
+  if (pFullEvent->s_msg.s_unbind) {
+    rBinder.invokeUnbind(*pFullEvent->s_pInterp, name, index);
+
+  } else {
+    rBinder.invokeSbind(*pFullEvent->s_pInterp, name, index);
+  }
+
+  return 1;
+}
+
+
+/**
+ * THe pump thread.  It needs the interpreter AND the thread of of the caller:
+ * 
+ */
+typedef struct  _PumpClientData {
+  CTCLInterpreter* s_pInterp;
+  Tcl_ThreadId     s_target;
+} PumpClientData, *pPumpClientData;
+
+
+/**
+ *  pumpThread
+ *     This is the thread started for the pump.  We accept messages
+ *  until given one with a zero length spectrum name, which is our signal
+ *  to exit.
+ *   @param cd - Actually a pPumpClientData struct pointer.,
+ */
+Tcl_ThreadCreateType
+CBindCommand::pumpThread(ClientData cd) {
+  auto pInfo = reinterpret_cast<pPumpClientData>(cd);
+
+  while(1) {
+    pBindTraceEvent pEvent = reinterpret_cast<pBindTraceEvent>(Tcl_Alloc(sizeof(BindTraceEvent)));
+    pEvent->s_base.proc = BindTraceEventHandler;
+    pEvent->s_base.nextPtr = nullptr;
+    pEvent->s_pInterp = pInfo->s_pInterp;
+
+    MPI_Status stat;
+    if(MPI_Recv(
+      &(pEvent->s_msg), 1, messageType(), 
+      MPI_EVENT_SINK_RANK, MPI_BIND_TRACE_RELAY_TAG, MPI_COMM_WORLD, 
+    &stat) != MPI_SUCCESS) {
+      throw std::runtime_error("Failed to receive a bind trace msg");
+    }
+    if (strlen(pEvent->s_msg.s_spectrumName) == 0) break;    // Special end message.
+    Tcl_ThreadQueueEvent(pInfo->s_target, &(pEvent->s_base), TCL_QUEUE_TAIL);
+    Tcl_ThreadAlert(pInfo->s_target);
+
+  }
+
+  delete pInfo;
+  TCL_THREAD_CREATE_RETURN;
+}
+
+/**
+ * startPump - must be called in the root rank.
+ *   start the pumpTHread
+ * 
+ * @param rInterp - Reference to the interpreter on which dispatched commands should run.
+ */
+void
+CBindCommand::startPump(CTCLInterpreter& interp) {
+  pPumpClientData pData  = new PumpClientData;
+  pData->s_pInterp = &interp;
+  pData->s_target = Tcl_GetCurrentThread();
+
+  Tcl_ThreadId id;
+  Tcl_CreateThread(
+    &id, pumpThread, reinterpret_cast<ClientData>(pData), 
+    TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS);
+}
+
+/**
+ *  stopPump
+ *     Should be called from MPI_EVENT_SINK_RANK _ sends a stop message to the pump thread.
+ * 
+ */
+void
+CBindCommand::stopPump() {
+  if (isMpiApp() && (myRank() == MPI_EVENT_SINK_RANK)) {
+    std::string emptyName;
+    forwardNewBinding(emptyName, 0);
+  }
+}
+
+#endif

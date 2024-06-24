@@ -47,6 +47,7 @@ class CWriteCommand;
 class CReadCommand;
 class CDisplayInterface;
 class CMPITclPackagedCommand;
+class CMPITclPackagedCommandAll;
                                                                
 class CSpectrumPackage  : public CTCLObjectPackage
 {
@@ -64,10 +65,10 @@ protected:
   CHistogrammer*     m_pHistogrammer; // Histogrammer with spectra.
   CDisplayInterface*   m_pDisplay;
 
-  CMPITclPackagedCommand*  m_pSpectrum; // Executes spectrum cmd.
+  CMPITclPackagedCommandAll*  m_pSpectrum; // Executes spectrum cmd.
   CMPITclPackagedCommand*     m_pClear;	// Executes clear command.
-  CMPITclPackagedCommand*      m_pBind;	// Executes bind command.
-  CMPITclPackagedCommand*    m_pUnbind;	// Executes the unbind command.
+  CMPITclPackagedCommandAll*      m_pBind;	// Executes bind command.
+  CMPITclPackagedCommandAll*    m_pUnbind;	// Executes the unbind command.
   CMPITclPackagedCommand*    m_pChannel; // Executes the channel command.
   CMPITclPackagedCommand*     m_pWrite;	// Executes the swrite command.
   CMPITclPackagedCommand*      m_pRead;

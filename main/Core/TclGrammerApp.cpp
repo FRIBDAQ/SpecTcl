@@ -71,6 +71,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLLiveEventLoop.h>
 #include <TCLTimer.h>
 
+
+#include "BindCommand.h"
+#include "SpectrumCommand.h"
+
 #include "CFoldCommand.h"
 #include "CFitCommand.h"
 
@@ -1061,7 +1065,7 @@ int CTclGrammerApp::operator()() {
 
   // The servers run in RANK 0 in the MPI:
 
-  if(!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) { 
+  if(!gMPIParallel || ((m_mpiRank == MPI_ROOT_RANK) || (m_mpiRank == MPI_EVENT_SINK_RANK))) { 
     // Setup the histogram displayer.. note here's where we also
     // handle the case where a use has specified
     // HTTDPort in their init file:
@@ -1077,27 +1081,39 @@ int CTclGrammerApp::operator()() {
               << " it was: '" << httpdPort << "'\n";
           exit(EXIT_FAILURE);
       }
-      CHttpdServer server(gpInterpreter);
-      try {
-          if(!server.isRunning()) server.start(nPort);
-          char hostbuffer[256];
-          int hostname;
-          hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-          std::string host(hostbuffer);
-          //host += ".nscl.msu.edu";
-        
-          std::cout << "hostname: " << host << std::endl;
-          std::cout << "port: " << atoi(httpdPort) << std::endl;  
-        
+
+      char hostbuffer[256];
+      int hostname;
+      hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+      std::string host(hostbuffer);
+      
+      if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
+        CHttpdServer server(gpInterpreter);
+        try {
+            if(!server.isRunning()) server.start(nPort);
+            
+            //host += ".nscl.msu.edu";
+          
+            std::cout << "hostname: " << host << std::endl;
+            std::cout << "port: " << atoi(httpdPort) << std::endl;  
+          
+            int p = atoi(httpdPort);
+            std::string port = std::to_string(p);
+            ::setenv("RESThost", host.c_str(), 1);
+            ::setenv("RESTport", port.c_str(), 1);
+        }
+        catch (std::exception& e) {
+            std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
+            exit(EXIT_FAILURE);
+        }
+      } else {
+        // Event sink rank needs to set the environment vars:
           int p = atoi(httpdPort);
           std::string port = std::to_string(p);
           ::setenv("RESThost", host.c_str(), 1);
           ::setenv("RESTport", port.c_str(), 1);
       }
-      catch (std::exception& e) {
-          std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
-          exit(EXIT_FAILURE);
-      }
+
     } else {
       ::setenv("RESThost", "host", 1);   /// local no mirror may be needed
       ::setenv("RESTport", "0", 1);   /// local no mirror may be needed
@@ -1526,13 +1542,16 @@ MpiExitHandler() {
       exitCommand.commandChunk[exitCommand.commandLength - 1] = '\0';
       MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
       stopCommandPump();     // Broadcasts the dummy exit thing
+      CGateCommand::stopTracePump();
       
     } 
     if (myRank() == MPI_EVENT_SINK_RANK) {
       // Stop the histogram pump:
       stopHistogramPump();
       stopGatePump();            // We broadcast the stop message.
-      CGateCommand::stopTracePump();
+      CGateCommand::stopTracePump();   // Send the stop message to the root thread .
+      CBindCommand::stopPump();
+      CSpectrumCommand::stopTracePump();
     }  else {
       // Root or worker can call this:
       //    - Root will broadcast a dummy event to kill the broadcast recieve thread and

@@ -917,8 +917,7 @@ CGateCommand::invokeChangedScript(std::string name)
     Pointer to the script object.
     Parameter to append to the script.
 
-*/
-void
+*/void
 CGateCommand::invokeAScript(CTCLObject* pScript,
 			    string      parameter)
 {
@@ -931,7 +930,7 @@ CGateCommand::invokeAScript(CTCLObject* pScript,
 
     // Only invoke traces in root rank:
 
-    if (!isMpiApp() || (myRank == MPI_ROOT_RANK)) {
+    if (!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
 
       try {
         fullScript();
@@ -1044,7 +1043,7 @@ CGateCommand::MatchGateType(const char* pGateType)
 //
 // We have three methods:
 //   -  mpiTraceRelayCatchThread - runs in MPI_ROOT_RANK  it accepts messgaes 
-//      tagged as MPI_TRACE_RELAY_TAG and queues them to the main thread via
+//      tagged as MPI_GATE_TRACE_RELAY_TAG and queues them to the main thread via
 //      Tcl_ThreadQueueEvent
 //   -  traceRelayHandler - handles the events queued in the main thread and just
 //      invokes the appropriate invoke...Script method.
@@ -1074,7 +1073,7 @@ CGateCommand::mpiTraceRelayCatchThread(ClientData command) {
     TraceRelay message;
     MPI_Status stat;
     if(MPI_Recv(
-      &message, 1, getTraceRelayType(), MPI_EVENT_SINK_RANK, MPI_TRACE_RELAY_TAG, MPI_COMM_WORLD, &stat) 
+      &message, 1, getTraceRelayType(), MPI_EVENT_SINK_RANK, MPI_GATE_TRACE_RELAY_TAG, MPI_COMM_WORLD, &stat) 
       != MPI_SUCCESS) {
         throw std::runtime_error("Failed to read a trace notifiation");
     }
@@ -1145,7 +1144,7 @@ CGateCommand::stopTracePump() {
 
     MPI_Send(
       &message, 1, getTraceRelayType(),
-       MPI_ROOT_RANK, MPI_TRACE_RELAY_TAG, MPI_COMM_WORLD
+       MPI_ROOT_RANK, MPI_GATE_TRACE_RELAY_TAG, MPI_COMM_WORLD
     );
   }
 #endif

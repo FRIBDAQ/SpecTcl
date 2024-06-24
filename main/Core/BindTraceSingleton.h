@@ -20,7 +20,7 @@
  */
 
 #ifndef BINDTRACES_H
-#define BINDTRACES_h
+#define BINDTRACES_H
 
 #include <list>
 

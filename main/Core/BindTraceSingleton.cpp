@@ -22,6 +22,9 @@
 #include "BindTraceSingleton.h"
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
+#include <TclPump.h>
+
+#include "Globals.h"
 
 #include <stdexcept>
 
@@ -116,7 +119,7 @@ BindTraceSingleton::invokeSbind(
    CTCLInterpreter& interp, CTCLObject& name, CTCLObject& id
 )
 {
-   
+
    invoke(m_sbindTraces, interp, name, id);    
 }
 /**
@@ -198,23 +201,26 @@ BindTraceSingleton::invoke(
     CTCLInterpreter& interp, CTCLObject& spectrumName, CTCLObject& xamineId
 )
 {
-    for (auto& stem : callbacks) {
-        CTCLObject script;
-        script.Bind(interp);
-   
-        // Build the script fromt he words in stem and the additional parameters:
-        
-        for (int i =0; i < stem->llength(); i++) {
-         CTCLObject word = stem->lindex(i);
-         word.Bind(interp);
-         script += word;
-        }
+    // Only run Tcl traces in the root rank.
+    if (!isMpiApp() || (myRank() == MPI_ROOT_RANK)) {
+        for (auto& stem : callbacks) {
+            CTCLObject script;
+            script.Bind(interp);
+    
+            // Build the script fromt he words in stem and the additional parameters:
+            
+            for (int i =0; i < stem->llength(); i++) {
+            CTCLObject word = stem->lindex(i);
+            word.Bind(interp);
+            script += word;
+            }
 
-        script += spectrumName;
-        script += xamineId;
-        
-        std::string strScript = script;
-        interp.GlobalEval(strScript);
+            script += spectrumName;
+            script += xamineId;
+            
+            std::string strScript = script;
+            interp.GlobalEval(strScript);
+        }
     }
     
 }
