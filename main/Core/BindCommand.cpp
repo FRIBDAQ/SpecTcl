@@ -495,7 +495,7 @@ typedef struct _BindTraceEvent {
 static MPI_Datatype 
 messageType() {
   static bool created = false;
-  MPI_Datatype dataType;
+  static MPI_Datatype dataType;
 
   if (!created) {
     MPI_Aint offsets[3] = {
@@ -641,7 +641,7 @@ CBindCommand::pumpThread(ClientData cd) {
 
     MPI_Status stat;
     if(MPI_Recv(
-      &pEvent->s_msg, 1, messageType(), 
+      &(pEvent->s_msg), 1, messageType(), 
       MPI_EVENT_SINK_RANK, MPI_BIND_TRACE_RELAY_TAG, MPI_COMM_WORLD, 
     &stat) != MPI_SUCCESS) {
       throw std::runtime_error("Failed to receive a bind trace msg");
