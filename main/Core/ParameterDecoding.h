@@ -106,7 +106,8 @@ namespace spectcl {                 // Long overdue to put SpecTcl classes in a 
         void processParameterDefs(const frib::analysis::ParameterDefinitions* defs);
         void processParameterItem(const frib::analysis::ParameterItem* params);
         void processVariableDefs(const frib::analysis::VariableItem*   pvars);
-    
+    private:
+        CTreeParameter* createParameter(const std::string& name);
     };
 }
 #endif

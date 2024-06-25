@@ -23,7 +23,8 @@
 #include <CTreeParameter.h>
 #include <SpecTcl.h>
 #include "EventMessage.h"
-
+#include <TCLInterpreter.h>
+#include <TCLObject.h>
 
 
 namespace spectcl {
@@ -154,7 +155,7 @@ ParameterDecoder::processParameterDefs(
         for (int i =0; i < n; i++) {
             auto id = p->s_parameterNumber;
             std::string name = p->s_parameterName;
-            CTreeParameter* par = new CTreeParameter(name);
+            CTreeParameter* par = createParameter(name);
             if (id >= m_parameterMap.size()) {
                 m_parameterMap.resize(id+1, nullptr);
             }
@@ -229,5 +230,38 @@ ParameterDecoder::processVariableDefs(const frib::analysis::VariableItem*   pvar
         );
     }
 }
+//// private method(s).
 
+
+/**
+ *  createParameter
+ *    In order to distribute the parameter definition through all ranks
+ * in the event we are MPI, we need to execute a parameter command:
+ * 
+ * @param name - name of the new parameter.
+ * @return CTreeParameter* - pointer to a tree parameter mapped to the new parameter.
+ */
+CTreeParameter*
+ParameterDecoder::createParameter(const std::string& name) {
+
+    // Do we need to make a new one:
+
+    auto api = SpecTcl::getInstance();
+    if(!api->FindParameter(name)) {
+        UInt_t id = api->AssignParameterId();
+
+        CTCLInterpreter* pInterp = api->getInterpreter();
+        CTCLObject       cmd;
+        cmd.Bind(pInterp);
+
+        cmd = "parameter";
+        cmd += name;
+        cmd += static_cast<int>(id);
+
+        std::string quotedCmd = (std::string)(cmd);
+        pInterp->GlobalEval(quotedCmd);
+    }
+    return new CTreeParameter(name);
 }
+
+}                   // spectcl ns.
