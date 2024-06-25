@@ -810,9 +810,11 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
     if (type == PHYSICS_EVENT) {
       sendRingItem(pEvent, size);
     } else {
-      broadcastRingItem(pEvent, size);
+      if(!m_UnrecognizedTypeHandler(pEvent)) {    // This allows parameter file processing.
+        broadcastRingItem(pEvent, size);
+      }
     }
-    processLocally = false;
+    processLocally = false;                     // Root does no more local processing.
   }
 
 
@@ -879,10 +881,13 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
     // The default is just a call to onOther - if the unrecognized type handler
     // can't deal with it:
   default:
-    if (!m_UnrecognizedTypeHandler(pEvent) && processLocally) {
-        m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
+
+    if (processLocally) {
+      if (!m_UnrecognizedTypeHandler(pEvent)) {
+          m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
+      }
+      break;
     }
-    break;
   }
   m_pCurrentRingItem = 0;                    // NO longer have a current item.
 

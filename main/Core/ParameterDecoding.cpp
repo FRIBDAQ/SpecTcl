@@ -22,6 +22,7 @@
 #include "ParameterDecoding.h"
 #include <CTreeParameter.h>
 #include <SpecTcl.h>
+#include "EventMessage.h"
 
 
 
@@ -194,8 +195,7 @@ ParameterDecoder::processParameterItem(const frib::analysis::ParameterItem* para
     // analysis pipeline and invoke the data sink pipeline so that
     // the event can be histogrammed.
     
-    auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
-    (*pipeline)(m_el);
+   HistogramEvents(m_el);              // This works for both MPI and non.
     
     // Invalidate all the parameters:
     
