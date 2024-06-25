@@ -47,6 +47,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, 20
 #include "TCLObject.h"
 #include "TCLObject.h"
 #include <Exception.h>
+#include "Globals.h"
+#include <TclPump.h>
 
 #include <tcl.h>
 #include <string.h>
@@ -592,6 +594,11 @@ CParameterCommand::addTrace(
     CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
 )
 {
+  // In mpi SpecTcl traces only get added in rank 0
+
+    if (isMpiApp() && (myRank() != MPI_ROOT_RANK)) {
+      return TCL_OK;
+    }
     if (objv.size() != 3) {
         Usage(rInterp, "Incorrect number of command parameters");
         return TCL_ERROR;
@@ -613,6 +620,12 @@ CParameterCommand::addTrace(
 UInt_t
 CParameterCommand::removeTrace(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv)
 {
+    
+    // In mpi SpecTcl traces only get added in rank 0
+
+    if (isMpiApp() && (myRank() != MPI_ROOT_RANK)) {
+      return TCL_OK;
+    }
     // There should be:  parameter -tracedel procname or something similar:
 
     if (objv.size() != 3) {
