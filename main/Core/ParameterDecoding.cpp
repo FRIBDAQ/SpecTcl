@@ -259,7 +259,9 @@ ParameterDecoder::createParameter(const std::string& name) {
         cmd += static_cast<int>(id);
 
         std::string quotedCmd = (std::string)(cmd);
-        pInterp->GlobalEval(quotedCmd);
+        try {
+            pInterp->GlobalEval(quotedCmd);
+        } catch (...) {}
     }
     return new CTreeParameter(name);
 }

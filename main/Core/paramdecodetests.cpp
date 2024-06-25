@@ -29,6 +29,7 @@
 #include <AnalysisRingItems.h>
 #include <string.h>
 #include <string>
+#include <TCLInterpreter.h>
 
 // Want to examine the internal of ParameterDecoding so this trick rather than
 // friendness:
@@ -105,6 +106,7 @@ private:
 public:
     void setUp() {
         gpEventSinkPipeline = new CEventSinkPipeline;
+        TreeTestSupport::InitTestInterpreter();
         m_pSink = new RecordingSink;
         gpEventSinkPipeline->AddEventSink(*m_pSink, "Recording");
         m_pDecoder = new spectcl::ParameterDecoder;
@@ -113,7 +115,7 @@ public:
         delete gpEventSinkPipeline;
         delete m_pSink;
         delete m_pDecoder;
-        
+        TreeTestSupport::TeardownTestInterpreter();
         TreeTestSupport::ClearMap();
     }
 
