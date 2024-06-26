@@ -32,9 +32,12 @@
  *   This code is the initialization code for that package.
  */
 
+#include <config.h>
 #include <tcl.h>
 #include <SpecTcl.h>
 #include <TCLInterpreter.h>
+#include <TCLObject.h>
+#include <TCLVariable.h>
 #include "TreeCommand.h"
 #include "CRootExec.h"
 #include "CRootExitCommand.h"
@@ -47,6 +50,11 @@
 #include <MPITclCommand.h>
 #include <Globals.h>
 #include "RootEventLoop.h"
+#include <iostream>
+#include <sstream>
+
+
+
 
 extern int SpecTclArgc;
 extern char** SpecTclArgv;
@@ -82,9 +90,68 @@ CRootEventLoop::stop() {
 CRootEventLoop* SpecTclRootEventLoop(0);
 
 static const char* version("1.0");
+
+
+ /**
+  * loadInOtherRanks
+  *   This is called by the root process in the MPI environment.
+  *   It loads the Root interface library and package in all of the other
+  *   ranks.
+  */
+static void loadInOtherRanks(CTCLInterpreter* pInterp) {
+#ifdef WITH_MPI
+      std::cerr << "Pushing root interface to the other ranks\n";
+    // load $SpecTclHome/lib/libRootInterface.so:
+
+    // Find SpecTclHome:
+
+    CTCLVariable home(pInterp, "SpecTclHome", false);
+    const char* pHome = home.Get();
+    if (!pHome) {
+      std::cerr << "Could not translate SpecTclHome variable\n";
+      return;
+    } else {
+      std::cerr << "SpecTclHome is " << pHome << std::endl;
+    }
+
+    {
+      std::stringstream s;
+      s << pHome << "/lib/libRootInterface.so";
+      std::string rootlib(s.str());
+      std::vector<CTCLObject> words;
+      CTCLObject loadCommand; loadCommand.Bind(pInterp);
+      loadCommand = "load";
+      words.push_back(loadCommand);
+      CTCLObject filename; filename.Bind(pInterp);
+      filename = rootlib;
+      words.push_back(filename);
+
+      ExecCommand(*pInterp, words);
+
+      std::cerr << "Sprayed the root library load command ok\n";
+    }
+    {
+      // The packasge require:
+
+      CTCLObject package; package.Bind(pInterp); package = "package";
+
+      CTCLObject require; require.Bind(pInterp); require="require";
+
+      CTCLObject pkgName; pkgName.Bind(pInterp); pkgName = "rootinterface";
+      
+      std::vector<CTCLObject> words = {package, require, pkgName};
+
+      ExecCommand(*pInterp, words);
+
+      std::cerr << "Sprayed package require for root.\n";
+    }
+#endif
+}
+
 extern "C" {
     int Rootinterface_Init(Tcl_Interp* interp)
     {
+        
         Tcl_PkgProvide(interp, "rootinterface", version);
         
         SpecTcl* api = SpecTcl::getInstance();
@@ -121,6 +188,14 @@ extern "C" {
         
         std::cerr << " SpecTcl Root interface loaded: \n";
         std::cerr << "    - Root is a product of CERN (http://root.cern.ch)\n";
+
+        // Ok here's the cool thing in order to work, we need to 
+        // require the package in all the other ranks since SpecTclRC only gets
+        // run in the root rank and that's where we recommend including it.
+
+        if (isMpiApp() && (myRank() == MPI_ROOT_RANK)) {
+          loadInOtherRanks(pInterp);
+        }
 
         return TCL_OK;
     }
