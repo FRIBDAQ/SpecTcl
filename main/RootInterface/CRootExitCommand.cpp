@@ -27,8 +27,14 @@
 #include <exception>
 #include <string>
 #include <SpecTcl.h>
+#include <tcl.h>
+#include <TclPump.h>
+#include <Globals.h>
+#include <TCLTimer.h>
+#include "RootEventLoop.h"
 
 
+extern CRootEventLoop* SpecTclRootEventLoop;
 
 /**
  * constructor
@@ -57,19 +63,30 @@ CRootExitCommand::~CRootExitCommand(){}
  * @return - while we formally return an int, the only way we can actually
  *           return is on an error (e.g. non integer error code).
  */
+
 int
 CRootExitCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
+    
+    int status(0);
     try {
+        // /FIgure out the exit status.
         bindAll(interp, objv);
         requireAtMost(objv, 2, "Incorrect number of parameters");
-        
-        int status = 0;                   // default value.
+
         if (objv.size() == 2) {
             status = objv[1];             // Overridden by user.
         }
-        killSpectra();
-        gApplication->Terminate(status);
+        // This stuff only happens in the event sink rank:
+
+        if (!isMpiApp() || (myRank() == MPI_EVENT_SINK_RANK)) {
+            SpecTclRootEventLoop->stop();
+            killSpectra();
+            gApplication->Terminate(status);
+        } else {
+            Tcl_Exit(status);
+            return TCL_ERROR;               // Should not return.
+        }
     }
     catch (CException& e) {
         interp.setResult(e.ReasonText());
@@ -95,6 +112,8 @@ CRootExitCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
     
     interp.setResult("Root didn't exit!!!");
     return TCL_ERROR;
+
+    
 }
 /**
  * killSpectra
