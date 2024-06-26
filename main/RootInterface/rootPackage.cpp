@@ -44,7 +44,11 @@
 #include <TCLTimer.h>
 #include <TApplication.h>
 #include <TRint.h>
+// Some dirt to make fNFd public:
+#define protected public
 #include <TSystem.h>
+#include <TUnixSystem.h>
+#undef protected
 #include <iostream>
 #include <TclPump.h>
 #include <MPITclCommand.h>
@@ -78,7 +82,19 @@ CRootEventLoop::operator()() {
     extern TSystem* gSystem;
     if (m_exit) return;               // Also don't reschedule if asked to exit.
     if (!gSystem) return;             // Getting killed off.
-    gSystem->ProcessEvents();         // Process root events.
+#ifdef WITH_MPI
+  // This is a bit of dirtiness:
+  // In mpiSpecTcl, the root event loop runs in a 
+  // process that has no stdin. This means that normally,
+  // A file event indicating the file was closed (or readable because well EOF is readable)
+  // will fire and Root will try to exit.
+  // this dirt tells ProcessEvents it has no file descriptor events (I think).
+    gSystem->fFileHandler = nullptr;
+    gSystem->fNfd = 0;
+#endif
+
+    gSystem->DispatchOneEvent(true);         // Process root events.
+
     Set();                            // Reschedule
 }
 void 
