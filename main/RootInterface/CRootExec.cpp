@@ -26,6 +26,8 @@
 #include <TInterpreter.h>
 #include <Exception.h>
 #include <sstream>
+#include "Globals.h"
+#include <TclPump.h>
 
 /**
  * constructor
@@ -52,6 +54,11 @@ CRootExec::~CRootExec()
 int
 CRootExec::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
+    // In the MPI World, only operates in MPI_EVENT_SINK_RANK:
+
+    if (isMpiApp() && (myRank() != MPI_EVENT_SINK_RANK)) {
+        return TCL_OK;
+    }
     // Use exception handling to simplify error handling
     
     try {
