@@ -87,6 +87,7 @@ extern MPI_Comm                  gXamineGateComm;    // Defined in all processes
 #define MPI_SPECTRUM_TRACE_RELAY_TAG 3   // Spectrum tracde relay message tag.
 #define MPI_BIND_TRACE_RELAY_TAG 4       // sbind trace relay message tag
 #define MPI_RING_ITEM_TAG 5             // Ring items -> workers e.g.
+#define MPI_STATE_CHANGE_TAG 6          // State changes -> event sink pipeline.
 
 #endif
 

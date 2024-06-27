@@ -18,6 +18,7 @@
 #include "EventMessage.h"
 #include "EventList.h"
 #include "Event.h"
+#include "Globals.h"
 #include <SpecTcl.h>
 
 #include <TclPump.h>
@@ -31,8 +32,8 @@
 typedef int MPI_Datatype;               // Helps to minimze the #ifdefery.
 #endif
 
-#define HISTOGRAMER_RANK 1         // Histogramer runs rank 1.
-#define EVENT_TAG 2                // Tag used for event messages.
+#define HISTOGRAMER_RANK MPI_EVENT_SINK_RANK         // Histogramer runs rank 1.
+#define EVENT_TAG MPI_RING_ITEM_TAG             // Tag used for event messages.
 #define RECEIVER_EVENTLIST_SIZE 1       // Size of the event list we receive from one sender.
 
 // Internal definitions:
@@ -279,6 +280,8 @@ StateChangeType() {
 }
 #endif
 
+
+
 /**
  * StateChangeEventHandler
  *     Scheduled from the state change pump thread when a state change message was received.
@@ -296,6 +299,40 @@ StateChangeEventHandler(Tcl_Event* pRaw, int flags) {
     }
     return 1;
 }
+
+/**
+ * StateChangePump - thread to loop on accepting messages for state changes from Root.
+ */
+static Tcl_ThreadCreateType
+StateChangePump(ClientData pData) {
+#ifdef WITH_MPI
+    Tcl_ThreadId mainThread = reinterpret_cast<Tcl_ThreadId>(pData);
+    while(1) {
+        pStateChangeEvent pEvent = reinterpret_cast<pStateChangeEvent>(Tcl_Alloc(sizeof(StateChangeEvent)));
+        if (!pEvent) {
+            std::cerr << "Tcl_Alloc  failed to allocate a state change event\n";
+            Tcl_Exit(-1);
+        }
+        pEvent->s_base.proc = StateChangeEventHandler;
+        pEvent->s_base.nextPtr = nullptr;
+        MPI_Status status;
+        if (MPI_Recv(
+            &pEvent->s_info, 1, StateChangeType(), 
+            MPI_ROOT_RANK, MPI_STATE_CHANGE_TAG, MPI_COMM_WORLD, 
+            &status) != MPI_SUCCESS) {
+            throw std::runtime_error("Failed to mpi_recv a state change item.");
+        }
+        // If the run number is 0xffffffff it's an end:
+
+        if(pEvent->s_info.s_runNumber == -1) break; 
+
+        Tcl_ThreadQueueEvent(mainThread, reinterpret_cast<Tcl_Event*>(pEvent), TCL_QUEUE_TAIL);
+        Tcl_ThreadAlert(mainThread);
+    }
+#endif
+    TCL_THREAD_CREATE_RETURN;
+}
+
 
 /**
  *  MPISendStateChange  
