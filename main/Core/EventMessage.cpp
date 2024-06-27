@@ -227,8 +227,10 @@ EventPumpThread(ClientData pData) {
     TCL_THREAD_CREATE_RETURN;
 }
 
-
-void MPISendStateChange(unsigned run, const char* title, bool begin) {
+//////////////////////// Internal functions to support passing state changes
+// to the event sink pipeline.
+//
+static void MPISendStateChange(unsigned run, const char* title, bool begin) {
 
 }
 ////////////////////////////////// API public functions ///////////////////////////////
