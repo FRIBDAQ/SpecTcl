@@ -227,6 +227,10 @@ EventPumpThread(ClientData pData) {
     TCL_THREAD_CREATE_RETURN;
 }
 
+
+void MPISendStateChange(unsigned run, const char* title, bool begin) {
+
+}
 ////////////////////////////////// API public functions ///////////////////////////////
 /**
  * HistogramEvents
@@ -246,6 +250,44 @@ void HistogramEvents(CEventList& events) {
         if (pipeline) {
             (*pipeline)(events);    
         }
+    }
+}
+/**
+ *  BeginRun
+ *    The decoder invokes this to send a begin run to the event sink pipeline.
+ *   In the MPI case, this  results in MPISendStateChange which sends a state change
+ *   message to the event sink. In non-MPI this just invokes the event sink pipeline's
+ *    OnBegin method.
+ * 
+ * @param run - run number
+ * @param title - Pointer to the title string.
+ * 
+ */
+void
+BeginRun(unsigned run, const char* title) { 
+    if (isMpiApp()) {
+        MPISendStateChange(run, title, true);
+    } else {
+         auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
+         pipeline->OnBegin(run, title);
+    }
+}
+
+/**
+ * EndRun
+ *    The decoder invokes this to send an end of run along the event sink pipeline.
+ *  Operation is similar to BeginRun above:
+ *  
+ * @param run - run number
+ * @param title - Pointer to the title string.
+ */
+void
+EndRun(unsigned run,const char* title) {
+    if (isMpiApp()) {
+        MPISendStateChange(run, title, false);
+    } else {
+         auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
+         pipeline->OnEnd(run, title);
     }
 }
 /**
