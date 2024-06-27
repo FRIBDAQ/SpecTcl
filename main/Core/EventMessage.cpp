@@ -240,6 +240,10 @@ typedef struct _StateChangeMessage {
     char     s_title[TITLE_MAXSIZE+1];
 } StateChangeMessage, *pStateChangeMessage;
 
+typedef struct _StateChangeEvent {
+    Tcl_Event s_base;
+    StateChangeMessage s_info;
+} StateChangeEvent, *pStateChangeEvent;
 /**
  *   Return the data type for the StateChangeMessage struct.
  * creates it if needed else returns it from its cache.
@@ -274,6 +278,24 @@ StateChangeType() {
     return result;
 }
 #endif
+
+/**
+ * StateChangeEventHandler
+ *     Scheduled from the state change pump thread when a state change message was received.
+ */
+
+int
+StateChangeEventHandler(Tcl_Event* pRaw, int flags) {
+    pStateChangeEvent pEvent = reinterpret_cast<pStateChangeEvent>(pRaw);
+    auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
+
+    if (pEvent->s_info.s_isBegin) {
+        pipeline->OnBegin(pEvent->s_info.s_runNumber, pEvent->s_info.s_title);
+    } else {
+        pipeline->OnEnd(pEvent->s_info.s_runNumber, pEvent->s_info.s_title);
+    }
+    return 1;
+}
 
 /**
  *  MPISendStateChange  
