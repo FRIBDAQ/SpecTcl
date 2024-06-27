@@ -343,7 +343,17 @@ StateChangePump(ClientData pData) {
  */
 static void MPISendStateChange(unsigned run, const char* title, bool begin) {
 #ifdef WITH_MPI
+    StateChangeMessage msg;
+    msg.s_runNumber = run;
+    msg.s_isBegin = begin;
+    strncpy(msg.s_title, title, TITLE_MAXSIZE +1);
 
+    if(MPI_Send(
+        &msg, 1, StateChangeType(), 
+        MPI_EVENT_SINK_RANK, MPI_STATE_CHANGE_TAG, MPI_COMM_WORLD
+        ) != MPI_SUCCESS) {
+        throw std::runtime_error("Failed to send a state change message to the event sink.");
+    }
 #endif
 }
 ////////////////////////////////// API public functions ///////////////////////////////
@@ -445,4 +455,27 @@ stopHistogramPump() {
         HistogramEvents(fakeEvents);
         Tcl_JoinThread(pumpThread, &exitStatus);  // Don't carea aboput the exit status.
     }
+}
+
+
+/** 
+ * startStateChangePump
+ *    Start the state change pump thread... should be called in the event sink.
+ */
+void
+startStateChangePump() {
+    auto target = Tcl_GetCurrentThread();
+    Tcl_ThreadId thePump;
+    Tcl_CreateThread(
+        &thePump, StateChangePump, reinterpret_cast<ClientData>(target), 
+        TCL_THREAD_STACK_DEFAULT, TCL_THREAD_NOFLAGS
+    );
+}
+/**
+ * stopStateChangePump
+ *     Stop the state change pump.  Must be called in MPI_ROOT_THREAD.
+ */
+void
+stopStateChangePump() {
+    BeginRun(-1, "");
 }
