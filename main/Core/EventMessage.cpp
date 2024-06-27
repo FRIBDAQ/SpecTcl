@@ -24,6 +24,7 @@
 #include <tcl.h>
 #include <stdexcept>
 #include <iostream>
+#include "DataFormat.h"
 #ifdef WITH_MPI
 #include <mpi.h>
 #else
@@ -230,8 +231,61 @@ EventPumpThread(ClientData pData) {
 //////////////////////// Internal functions to support passing state changes
 // to the event sink pipeline.
 //
-static void MPISendStateChange(unsigned run, const char* title, bool begin) {
 
+// This is the message sent for state change operations:
+
+typedef struct _StateChangeMessage {
+    unsigned s_runNumber;
+    int      s_isBegin;
+    char     s_title[TITLE_MAXSIZE+1];
+} StateChangeMessage, *pStateChangeMessage;
+
+/**
+ *   Return the data type for the StateChangeMessage struct.
+ * creates it if needed else returns it from its cache.
+ */
+#ifdef WITH_MPI
+static MPI_Datatype
+StateChangeType() {
+    static bool mustCreate(true);
+    static MPI_Datatype result;
+
+    if (mustCreate) {
+        MPI_Aint offsets[3] = {
+            offsetof(StateChangeMessage, s_runNumber),
+            offsetof(StateChangeMessage, s_isBegin),
+            offsetof(StateChangeMessage, s_title)
+        };
+        MPI_Datatype memberTypes[3] = {
+            MPI_UNSIGNED, MPI_INT, MPI_CHAR
+        };
+        int counts[3] = {
+            1, 1, TITLE_MAXSIZE+1
+        };
+        if (MPI_Type_create_struct(3, counts, offsets, memberTypes, &result) != MPI_SUCCESS) {
+            throw std::runtime_error("Unable to create the StateChange message type");
+        }
+        if (MPI_Type_commit(&result) != MPI_SUCCESS) {
+            throw std::runtime_error("Unable to commit the state change message type");
+        }
+
+        mustCreate = false;
+    }
+    return result;
+}
+#endif
+
+/**
+ *  MPISendStateChange  
+ *    Send a state change message to the pump for those messages in the event sink pipeline.
+ * @param run - run number.
+ * @param title - Title string (at most TITLE_MAXSIZE characters + null terminator).
+ * @param begin - True if this is a begin run item false if an end.
+ */
+static void MPISendStateChange(unsigned run, const char* title, bool begin) {
+#ifdef WITH_MPI
+
+#endif
 }
 ////////////////////////////////// API public functions ///////////////////////////////
 /**
