@@ -73,6 +73,11 @@ public:
     void OnOpen(TFile* pNewFile);
     void OnAboutToClose();
     virtual void operator()(CEventList& rEvents);
+
+    // As of 7.0, these are new event sink methods:
+
+    void OnBegin(unsigned runNumber, const char* title);
+    void OnEnd(unsigned runNumber, const char* title);
     
     // Selectors needed to do lists:
 public:
