@@ -61,6 +61,8 @@ public:
 
   // Operators.
   virtual void operator()(CEventList&);
+  virtual void OnBegin(unsigned runNumber, const char* title);
+  virtual void OnEnd(unsigned runNumber, const char* title);
 
   // Additional functions.
   void AddEventSink(CEventSink&, const char* name = 0); //!< Add an event sink.

@@ -56,6 +56,39 @@ void CEventSinkPipeline::operator()(CEventList& rEventList) {
     sink(rEventList);
   }
 }
+/**
+ * OnBegin
+ *    Called to let the pipeline elements know a begin run was encountered on the data source.
+ * @param runNumber - number of the run.
+ * @param title     - run title
+ * 
+ * @note see EventSink.cpp for suggestions on what to do if the source does not support run numbers
+ *     and/or titles.
+ * 
+ */
+void
+CEventSinkPipeline::OnBegin(unsigned runNumber, const char* title) {
+  for (auto& element : m_lSinks) {
+    element.second->OnBegin(runNumber, title);
+  }
+}
+/**
+ *  OnEnd
+ *    Called to let the pipeline elements know an end run was encountered in the data source. 
+ * @param runNumber - number of the run.
+ * @param title     - run title
+ * 
+ * @note see EventSink.cpp for suggestions on what to do if the source does not support run numbers
+ *     and/or titles.
+ * 
+ */
+void
+CEventSinkPipeline::OnEnd(unsigned runNumber, const char* title) {
+  for (auto& element : m_lSinks) {
+    element.second->OnEnd(runNumber, title);
+  }
+}
+
 
 // Class functions:
 
