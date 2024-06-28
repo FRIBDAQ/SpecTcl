@@ -449,6 +449,7 @@ SpecTclRootTree::~SpecTclRootTree()
 {
   delete m_pMarshaller;
   delete m_pTree;
+  
 }
 /**
  * Fill

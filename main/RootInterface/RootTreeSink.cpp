@@ -116,11 +116,11 @@ RootTreeSink::operator()(CEventList& rEvents)
         // Process the events one at a time.
         
         for (int i =0; i < rEvents.size(); i++) {
-	  if(rEvents[i]) {
-            (*this)(*(rEvents[i]));
-	  } else {
-	    break;               // Three aren't any more events in the list.
-	  }
+            if(rEvents[i]) {
+                    (*this)(*(rEvents[i]));
+            } else {
+                break;               // Three aren't any more events in the list.
+            }
         }
     }
 }
@@ -146,7 +146,7 @@ RootTreeSink::OnBegin(unsigned runNumber, const char* title) {
 
 
     char filename[1000];       // More than enough I think:
-    snprintf(filename, sizeof(filename), "run-%04u.root", runNumber);
+    snprintf(filename, sizeof(filename), "%s-run-%04u.root", m_treeName.c_str(), runNumber);
     TFile* pFile = new TFile(filename, "UPDATE", title);
     OnOpen(pFile);
 }
@@ -166,6 +166,7 @@ RootTreeSink::OnEnd(unsigned runNumbver, const char* title) {
     if (m_pFile) {
         auto pFile = m_pFile;
         OnAboutToClose();
+        pFile->Close();
         delete pFile;
     }
 }
