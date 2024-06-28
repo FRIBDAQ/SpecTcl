@@ -199,7 +199,7 @@ extern "C" {
         if (!isMpiApp() || (myRank() == MPI_EVENT_SINK_RANK)) {
           new CRootExitCommand(*pInterp, "exit"); 
         }
-        // new TreeCommand(*pInterp, "roottree");
+        new CMPITclCommand(*pInterp, "roottree", new TreeCommand(*pInterp, "roottree"));
         new CMPITclCommand(*pInterp, "rootexec", new CRootExec(*pInterp, "rootexec"));
         
         std::cerr << " SpecTcl Root interface loaded: \n";

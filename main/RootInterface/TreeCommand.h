@@ -24,7 +24,7 @@
 
 class CTCLInterpreter;
 class CTCLObject;
-class RootEventProcessor;
+class RootTreeSink;
 
 
 /**
@@ -51,7 +51,7 @@ class RootEventProcessor;
 class TreeCommand : public CTCLObjectProcessor
 {
 private:
-    RootEventProcessor*   m_pEventProcessor;
+
 public:
     TreeCommand(CTCLInterpreter& interp, const char* cmdName);
     virtual ~TreeCommand();
@@ -62,7 +62,7 @@ private:
     void destroy(CTCLInterpreter& interp, std::vector<CTCLObject>& objv); // delete is reserved.
     void list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     
-    RootEventProcessor* eventProcessor();
     std::string sinkName(std::string treeName) const;
+    RootTreeSink* findSink(const char* pName) const;
 };
 #endif
