@@ -29,6 +29,9 @@
 #include <TCLVariable.h>
 #include <Globals.h>
 #include <TclPump.h>
+
+
+static const char*  version="1.0";
 extern "C" {
 
     /**
@@ -77,6 +80,15 @@ extern "C" {
         }
         CTCLVariable roleVar(pInterp, "mpi::role", TCLPLUS::kfFALSE);
         roleVar.Set(role.c_str());
+
+
+        // IF all went well, publish the package:
+
+        status = Tcl_PkgProvide(pInterpreter, "mpi", version);
+        if (status != TCL_OK) {
+            pInterp->setResult("Failed to provide the 'mpi' package");
+            return status;
+        }
 
         return TCL_OK;
     }
