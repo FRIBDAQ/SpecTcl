@@ -116,7 +116,7 @@ static const char* version("1.0");
   */
 static void loadInOtherRanks(CTCLInterpreter* pInterp) {
 #ifdef WITH_MPI
-      std::cerr << "Pushing root interface to the other ranks\n";
+
     // load $SpecTclHome/lib/libRootInterface.so:
 
     // Find SpecTclHome:
@@ -144,7 +144,6 @@ static void loadInOtherRanks(CTCLInterpreter* pInterp) {
 
       ExecCommand(*pInterp, words);
 
-      std::cerr << "Sprayed the root library load command ok\n";
     }
     {
       // The packasge require:
@@ -159,7 +158,6 @@ static void loadInOtherRanks(CTCLInterpreter* pInterp) {
 
       ExecCommand(*pInterp, words);
 
-      std::cerr << "Sprayed package require for root.\n";
     }
 #endif
 }
