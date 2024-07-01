@@ -59,11 +59,17 @@ class CEventSink {
 
   // public interface:
  public:
-  virtual void OnAttach(CAnalyzer& rAnalyzer) {}
-  virtual void OnDetach(CAnalyzer& rAnalyzer) {}
+  // optional methods derived classes can override.
+  
+  virtual void OnAttach(CAnalyzer& rAnalyzer);
+  virtual void OnDetach(CAnalyzer& rAnalyzer);
+  virtual void OnBegin(unsigned runNumber, const char* title);
+  virtual void OnEnd(unsigned runNumber, const char* title);
+
 
   // This operator must be supplied by the sink.
   virtual void operator()(CEventList& rEvents) = 0;
+
 };
 
 #endif

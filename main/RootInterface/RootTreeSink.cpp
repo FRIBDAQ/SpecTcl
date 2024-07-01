@@ -29,6 +29,7 @@
 #include <TDirectory.h>
 #include <Event.h>
 #include <EventList.h>
+#include <stdio.h>
 
 
 #include <sstream>
@@ -115,14 +116,64 @@ RootTreeSink::operator()(CEventList& rEvents)
         // Process the events one at a time.
         
         for (int i =0; i < rEvents.size(); i++) {
-	  if(rEvents[i]) {
-            (*this)(*(rEvents[i]));
-	  } else {
-	    break;               // Three aren't any more events in the list.
-	  }
+            if(rEvents[i]) {
+                    (*this)(*(rEvents[i]));
+            } else {
+                break;               // Three aren't any more events in the list.
+            }
         }
     }
 }
+/**
+ *  OnBegin
+ *    A begin run has happened.. if the file is open, we teardown the tree, 
+ * close the file then create a  new file and invoke OnOpen to do the rest of the
+ * work.
+ *   @param runNumber - number of the new run.
+ *   @param title     - Title of the run Title s the root file.
+ *
+ * @note using UPDATE supports the case where we have multiple begin runs in a source
+ * as we do for event built data.
+ */
+void
+RootTreeSink::OnBegin(unsigned runNumber, const char* title) {
+    if (m_pFile) {
+        auto pFile = m_pFile;
+        OnAboutToClose();
+        delete pFile;
+    }
+    // A new filename of the form run-nnnn.root:
+
+
+    char filename[1000];       // More than enough I think:
+    snprintf(filename, sizeof(filename), "%s-run-%04u.root", m_treeName.c_str(), runNumber);
+    std::string oldDir = gDirectory->GetPath();
+    gDirectory->Cd("/");
+    TFile* pFile = new TFile(filename, "UPDATE", title);
+    OnOpen(pFile);
+    gDirectory->Cd(oldDir.c_str());
+}
+/**
+ * OnEnd
+ *   An end run was detected - the file, if opened is closed.
+ * 
+ * @param runNumber - number of the run being closed.
+ * @param title  - Title of the run.
+ * 
+ * @note - In this implementation if there multiple END run items, the event data
+ * that might be intermixed between them (if barrier synch is off) will be lost from
+ * the output file.
+ */
+void
+RootTreeSink::OnEnd(unsigned runNumbver, const char* title) {
+    if (m_pFile) {
+        auto pFile = m_pFile;
+        OnAboutToClose();
+        pFile->Write();
+        delete pFile;
+    }
+}
+
 /*----------------------------------------------------------------------------
  *  Private methods (utilities).
  */
@@ -172,12 +223,13 @@ RootTreeSink::createTree()
  *    If the file is open and the tree exists, flush everything out to file.
  *    destroy the tree and destroy the file object.
  *
- *    Note m_pFile is anaged externall so we don't do anything to it.
+ *    Note m_pFile is anaged externally so we don't do anything to it.
  */
 void
 RootTreeSink::tearDown()
 {
     if (m_pFile) {
+        m_pFile->Write();
         m_pFile->Flush();
         delete m_pTree; 
         

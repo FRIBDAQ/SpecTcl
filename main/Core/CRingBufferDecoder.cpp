@@ -27,6 +27,7 @@
 #include "DataFormat.h"
 #include "DataFormatPre11.h"
 #include "RingItemPump.h"
+#include "EventMessage.h"
 #include "TclPump.h"
 #include "Globals.h"
 
@@ -812,6 +813,19 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
     } else {
       if(!m_UnrecognizedTypeHandler(pEvent)) {    // This allows parameter file processing.
         broadcastRingItem(pEvent, size);
+
+        // If the type is BEGIN_RUN or END_RUN we need to send that stuff to the
+        // EventSink rank:
+
+        if (type == BEGIN_RUN) {
+          ::BeginRun(
+            pHelper->getRunNumber(pItem, m_pTranslator), pHelper->getTitle(pItem).c_str()
+          );
+        } else if (type == END_RUN) {
+          ::EndRun(
+            pHelper->getRunNumber(pItem, m_pTranslator), pHelper->getTitle(pItem).c_str()
+          );
+        }
       }
     }
     processLocally = false;                     // Root does no more local processing.
@@ -826,7 +840,17 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   switch (type) {
   case BEGIN_RUN:
     m_nTriggerCount = 0;                  // No events yet.
+    if (processLocally  && (type == BEGIN_RUN)) {  // && because the cases fall through.
+      ::BeginRun(
+            pHelper->getRunNumber(pItem, m_pTranslator), pHelper->getTitle(pItem).c_str()
+      );
+    }
   case END_RUN:
+    if (processLocally && (type == END_RUN)) {   // check end run due to fall through from begin
+      ::EndRun(
+            pHelper->getRunNumber(pItem, m_pTranslator), pHelper->getTitle(pItem).c_str()
+      );
+    }
   case PAUSE_RUN:
   case RESUME_RUN:
     {

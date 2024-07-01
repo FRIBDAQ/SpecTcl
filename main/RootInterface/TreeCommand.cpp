@@ -22,13 +22,16 @@
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <SpecTcl.h>
+#include <EventSinkPipeline.h>
 #include <Exception.h>
 #include <stdexcept>
 #include <Spectrum.h>
 #include <GateContainer.h>
+#include <TclPump.h>
 
-#include "RootEventProcessor.h"
+#include "Globals.h"
 #include "RootTreeSink.h"
+#include <sstream>
 
 
 /**
@@ -39,8 +42,7 @@
  *  @param cmdName - Command name string.
  */
 TreeCommand::TreeCommand(CTCLInterpreter& interp, const char* cmdName) :
-    CTCLObjectProcessor(interp, cmdName, true),
-    m_pEventProcessor(0)
+    CTCLObjectProcessor(interp, cmdName, true)
 {}
 
 /**
@@ -49,18 +51,7 @@ TreeCommand::TreeCommand(CTCLInterpreter& interp, const char* cmdName) :
  */
 TreeCommand::~TreeCommand()
 {
-    if (m_pEventProcessor) {
-        SpecTcl* api = SpecTcl::getInstance();
-        CTclAnalyzer::EventProcessorIterator p =
-            api->FindEventProcessor(*m_pEventProcessor);
-            
-        // Should be found:
-        
-        if (p != api->ProcessingPipelineEnd()) {
-            api->RemoveEventProcessor(p);    
-        }
-        delete m_pEventProcessor;
-    }
+    
 }
 /**
  *  operator()
@@ -79,6 +70,11 @@ TreeCommand::~TreeCommand()
 int
 TreeCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
+    // In the MPI app, we must run in the event sink rank:
+
+    if (isMpiApp() && (myRank() != MPI_EVENT_SINK_RANK)) {
+        return TCL_OK;               // Let the right rank handle it.
+    }
     bindAll(interp, objv);
     try {
         requireAtLeast(objv, 2, "roottree - needs a subcommand");
@@ -186,20 +182,10 @@ TreeCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     // Now we can start creating things and hooking them in:
     
     RootTreeSink* pSink = new RootTreeSink(treeName, patterns, pGate);
-    RootEventProcessor *pEp = eventProcessor();   // Creates/registers if needed.
     
     std::string sink = sinkName(treeName);
     pApi->AddEventSink(*pSink, sink.c_str());
-    try {
-        pEp->addTreeSink(treeName.c_str(), pSink);
-    }
-    catch (...) {
-        // Add failed,, remove and delete:
-        
-        pApi->RemoveEventSink(sink);
-        delete pSink;
-        throw;                         // This is an error.
-    }
+    
     // Falling here is success.
 }
 /**
@@ -215,15 +201,16 @@ TreeCommand::destroy(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     std::string treeName = objv[2];
     std::string sink = sinkName(treeName);
     
-    RootEventProcessor* pProcessor = eventProcessor(); // creates if user is perverse.
-    RootTreeSink*       pSink      = pProcessor->removeTreeSink(treeName.c_str());
-    
-    // The removeTreeSink method threw if there was no such sink.
-    
-    SpecTcl* pApi = SpecTcl::getInstance();
-    pApi->RemoveEventSink(sink);
+    // If there is no matching tree sink, we throw a message about that: 
+
+    if (!findSink(sink.c_str())) {
+        std::stringstream s;
+        s << "There is no Root tree event for " << treeName;
+        std::string msg(s.str());
+        throw msg;
+    }
+    auto pSink = SpecTcl::getInstance()->RemoveEventSink(sink);
     delete pSink;
-    
 }
 /**
  * list
@@ -247,23 +234,26 @@ TreeCommand::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     if (objv.size() ==3) {
         pattern = std::string(objv[2]);                 // if user provided one.
     }
-    RootEventProcessor* pProcessor = eventProcessor();
-    
-    CTCLObject          result;
-    result.Bind(interp);
-    
-    for(auto p =  pProcessor->begin(); p != pProcessor->end(); p++)
-    {
-        CTCLObject entry;         entry.Bind(interp);
-        CTCLObject parameterList; parameterList.Bind(interp);
-        
-        std::string name = p->first;
-        if (Tcl_StringMatch(name.c_str(), pattern.c_str())) {
-            const std::vector<std::string>& patterns(p->second->getParameterPatterns());
-            CGateContainer& gc (p->second->getGate());
+    auto api = SpecTcl::getInstance();
+
+
+    // We'll iterate over all of the event sinks that are RootEventSink objects:
+
+    CTCLObject result;
+    result.Bind(interp);    
+    for(auto p =  api->EventSinkPipelineBegin(); p != api->EventSinkPipelineEnd(); ++p) {
+        auto name = p->first;
+        CEventSink* pRawItem = p->second;
+        RootTreeSink* pSink = dynamic_cast<RootTreeSink*>(pRawItem);
+
+        if (pSink && Tcl_StringMatch(name.c_str(), name.c_str())) { // It's a matching tree sink.
+            CTCLObject entry;         entry.Bind(interp);
+            CTCLObject parameterList; parameterList.Bind(interp);
+            const std::vector<std::string>& patterns(pSink->getParameterPatterns());
+            CGateContainer& gc(pSink->getGate());
             std::string gateName = gc.getName();
-            
-            // Build list of patterns.
+
+            // Build list of  parameter patterns.
             
             for (int i = 0; i < patterns.size(); i++) {
                 parameterList += patterns[i];
@@ -276,34 +266,14 @@ TreeCommand::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             
             // Add it to the list.
             
-            result += entry;
+            result += entry;            
         }
     }
     
     
     interp.setResult(result);
 }
-/**
- * eventProcessor
- *    - If the event processor does not yet exist (m_pEventProcessor is null)
- *      it's created and hooked in.  Note that since event sinks run after
- *      all event processor pipeline elements, it's not necessary to
- *      put this event processor anywhere in particular in the pipeline.
- *      All it does is inform sinks of run state transitions.
- *    - Return m_pEventProcessor.
- *
- * @return RootEventProcessor*
- */
-RootEventProcessor*
-TreeCommand::eventProcessor()
-{
-    if (!m_pEventProcessor) {
-        m_pEventProcessor = new RootEventProcessor;
-        SpecTcl* pApi = SpecTcl::getInstance();
-        pApi->AddEventProcessor(*m_pEventProcessor, "RootTreeEventProcessor");
-    }
-    return m_pEventProcessor;
-}
+
 /**
  * sinkName
  *   @param treeName - name of the tree being created.
@@ -315,4 +285,29 @@ TreeCommand::sinkName(std::string treeName) const
     std::string result("root-tree:");
     result += treeName;
     return result;
+}
+/**
+ *  findSink 
+ *    Return a pointer to the RootTreeSink that coresponds to the given sink name.
+ *    Note that more than one sink can have the same name.  We return the first one we find
+ *    that has the right name and dynmamically casts to a RootTreeSink.
+ * 
+ * @param pName - name of the sink.
+ * @return RootTreeSink*
+ * @retval nullptr - if there's no match.
+ */
+RootTreeSink*
+TreeCommand::findSink(const char* pName) const {
+    auto api = SpecTcl::getInstance();
+    for (auto p = api->EventSinkPipelineBegin(); p != api->EventSinkPipelineEnd(); ++p) {
+        if (p->first == pName) {
+            // Name matches:
+
+            RootTreeSink* result = dynamic_cast<RootTreeSink*>(p->second);
+            if (result) return result;
+        }
+    }
+    // No matches of the right type:
+
+    return nullptr;
 }

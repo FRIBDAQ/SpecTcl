@@ -34,8 +34,13 @@ class CEventList;
 // The API:
 
 void HistogramEvents(CEventList& events);
+void BeginRun(unsigned run, const char* title);
+void EndRun(unsigned run, const char* title);
 void startHistogramPump();
 void stopHistogramPump();
+
+void startStateChangePump();
+void stopStateChangePump();
 
 
 #endif

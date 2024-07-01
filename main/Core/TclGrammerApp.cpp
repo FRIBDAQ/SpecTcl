@@ -1050,10 +1050,11 @@ int CTclGrammerApp::operator()() {
     // Create the available displays
     CreateDisplays();
 
-    // If we are mpi parallel we need to start the histogram pump too:
+    // If we are mpi parallel we need to start the histogram and state change pump too:
 
     if (gMPIParallel) {
       startHistogramPump();
+      startStateChangePump();
     }
   }
   // All ranks but the event sink must start the pump to get them
@@ -1543,6 +1544,7 @@ MpiExitHandler() {
       MPI_Bcast(&exitCommand, 1, getTclCommandChunkType(), MPI_ROOT_RANK, MPI_COMM_WORLD);
       stopCommandPump();     // Broadcasts the dummy exit thing
       CGateCommand::stopTracePump();
+      stopStateChangePump();
       
     } 
     if (myRank() == MPI_EVENT_SINK_RANK) {
