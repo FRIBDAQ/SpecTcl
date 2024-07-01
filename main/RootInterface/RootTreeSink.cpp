@@ -147,8 +147,11 @@ RootTreeSink::OnBegin(unsigned runNumber, const char* title) {
 
     char filename[1000];       // More than enough I think:
     snprintf(filename, sizeof(filename), "%s-run-%04u.root", m_treeName.c_str(), runNumber);
+    std::string oldDir = gDirectory->GetPath();
+    gDirectory->Cd("/");
     TFile* pFile = new TFile(filename, "UPDATE", title);
     OnOpen(pFile);
+    gDirectory->Cd(oldDir.c_str());
 }
 /**
  * OnEnd
@@ -166,7 +169,7 @@ RootTreeSink::OnEnd(unsigned runNumbver, const char* title) {
     if (m_pFile) {
         auto pFile = m_pFile;
         OnAboutToClose();
-        pFile->Close();
+        pFile->Write();
         delete pFile;
     }
 }
@@ -226,6 +229,7 @@ void
 RootTreeSink::tearDown()
 {
     if (m_pFile) {
+        m_pFile->Write();
         m_pFile->Flush();
         delete m_pTree; 
         
