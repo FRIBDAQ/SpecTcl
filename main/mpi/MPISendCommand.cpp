@@ -72,17 +72,25 @@ CMPISendCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& ob
         try {
             interp.GlobalEval(script);
         }
-        catch (CException& e) {   // TODO - add in usage.
-            interp.setResult(e.ReasonText());
+        catch (CException& e) {   
+            std::string msg = e.ReasonText();
+            msg += Usage();
+            interp.setResult(msg);
         }
         catch (std::string s) {
-            interp.setResult(s);
+            std::string msg = s;
+            msg += Usage();
+            interp.setResult(msg);
         }
         catch (std::exception& e) {
-            interp.setResult(e.what());
+            std::string msg = e.what();
+            msg += Usage();
+            interp.setResult(msg);
         }
         catch (...) {
-            interp.setResult("mpi::send - unanticipated exception type");
+            std::string msg = "mpi::send - unanticipated exception type";
+            msg += Usage();
+            interp.setResult(msg);
         }
 
         return TCL_ERROR;
@@ -204,7 +212,7 @@ CMPISendCommand::myRole() {
 std::string
 CMPISendCommand::Usage() {
     std::string usage;
-    usage += "Usage\n";
+    usage += "\nUsage\n";
     usage += "   mpi::send target-list script\n";
     usage += "Where:\n";
     usage += "   target-list is a Tcl list of who should run the command. This can be\n";
