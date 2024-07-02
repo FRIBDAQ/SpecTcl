@@ -22,3 +22,8 @@ set SpectrumOverwriteAction  query
 set splashImage $SpecTclHome/share/html/images/hh00706_.jpg;   # SpecTcl icon for splashscreen.
 #set DisplayType spectra
 set DisplayType xamine
+
+# Added for SpecTcl 7.0 and later:
+
+load [file join $SpecTclHome lib/libMPITclPackage.so]
+package require mpi
