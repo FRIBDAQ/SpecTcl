@@ -25,6 +25,7 @@
  */
 
 #include "TCLObjectProcessor.h"
+#include <set>
 
 /**
  * @class CMPISendCommand
@@ -47,7 +48,7 @@
  * @note - if the environment is _not_ mpi, the script _is_ executed.
  * 
  */
-class CMPISendCOmmand : public CTCLObjectProcessor {
+class CMPISendCommand : public CTCLObjectProcessor {
 public:
     CMPISendCommand(CTCLInterpreter& interp);
     virtual ~CMPISendCommand();
@@ -55,7 +56,11 @@ public:
     int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 private:
     bool executeScript(CTCLObject& roleList);
-    std::set<int> computeRoles(CTCLObject& roleList);
-}
+    std::set<unsigned> computeRanks(CTCLObject& roleList);
+    bool roleMyRank(const std::string& role);
+    std::string myRole();
+    std::string Usage();
+    
+};
 
 #endif
