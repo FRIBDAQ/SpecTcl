@@ -24,6 +24,8 @@
 
 
 #include <tcl.h>
+#include "MPISendCommand.h"
+#include "MPITclCommandAll.h"
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <TCLVariable.h>
@@ -81,6 +83,7 @@ extern "C" {
         CTCLVariable roleVar(pInterp, "mpi::role", TCLPLUS::kfFALSE);
         roleVar.Set(role.c_str());
 
+        new CMPITclCommandAll(*pInterp, "mpi::send", new CMPISendCommand(*pInterp));
 
         // IF all went well, publish the package:
 
