@@ -20,3 +20,9 @@ set EventListSize    1
 set ParameterOverwriteAction query
 set SpectrumOverwriteAction  query
 set splashImage $SpecTclHome/doc/hh00706_.jpg;   # SpecTcl icon for splashscreen.
+
+
+#  Load the mpi::Send stuff:
+
+load [file join $SpecTclHome lib libMPITclPackage.so]
+package require mpi

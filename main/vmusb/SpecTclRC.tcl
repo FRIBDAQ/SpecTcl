@@ -45,13 +45,18 @@ tk appname SpecTcl-[exec hostname]-[pid]
 # load the configuration file of your choice.
 #
 
-set daqconfig [file join daqconfig.tcl]; # default config file.
 
-lappend auto_path [file join $SpecTclHome TclLibs]
-package require vmusbsetup
 
-vmusbConfig $daqconfig
 
+# Need to run the configuration in all ranks.
+
+mpi::send all {
+	set daqconfig [file join daqconfig.tcl]; # default config file.
+	lappend auto_path [file join $SpecTclHome TclLibs]
+	package require vmusbsetup
+
+	vmusbConfig $daqconfig
+}
 
 ##
 # Start the main GUI.
