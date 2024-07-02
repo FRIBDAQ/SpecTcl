@@ -67,12 +67,16 @@ if {$tcl_platform(os) != "Windows NT"} {
 #  Figure out where the packages are and requrie the ccusbconfig
 #  package to get the configuration done:
 #
-lappend auto_path $SpecTclHome/TclLibs
-package require ccusbconfig 
-configureSpecTcl
+# This has to be done in all ranks:
 
-sbind -all
-puts "Configured"
+mpi::send all {
+	lappend auto_path $SpecTclHome/TclLibs
+	package require ccusbconfig 
+	configureSpecTcl
+
+	sbind -all
+	puts "Configured in $::mpi::rank"
+}
 
 splash::progress $splash {Loading SpecTcl Tree Gui} 1
 

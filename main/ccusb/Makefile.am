@@ -53,6 +53,7 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/CCUSBSkel @prefix@/share/ccusb 
 	$(INSTALL_DATA) @srcdir@/*.cpp @prefix@/CCUSBSkel
 	$(INSTALL_DATA) @srcdir@/*.h   @prefix@/CCUSBSkel
+	$(INSTALL_DATA) @srcdir@/SpecTclInit.tcl @prefix@/CCUSBSkel
 	$(INSTALL_DATA) @srcdir@/SpecTclRC.tcl @prefix@/CCUSBSkel
 	$(INSTALL_DATA) @builddir@/MakefileSkel @prefix@/CCUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/ccusb
@@ -64,7 +65,7 @@ install-exec-local:
 
 EXTRA_DIST=MakefileSkel.in \
 	spectclconfig.tcl  \
-	SpecTclRC.tcl ccusbSpecTcl.xml
+	SpecTclRC.tcl SpecTclInit.tcl ccusbSpecTcl.xml
 
 BUILT_SOURCES = @builddir@/docs_built
 
