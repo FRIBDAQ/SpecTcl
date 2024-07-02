@@ -3512,4 +3512,247 @@ public:
             </refsect1>
         </refentry>
     </appendix>
+    <appendix>
+        <title>The MPI Tcl package</title>
+        <para>
+            The MPI package provides variables and a  command that may be needed for some scripts
+            in mpiSpecTcl.  If you are using the 7.0 skeleton, it's <filename>SpecTclInit.tcl</filename>
+            automatically loads the package.  On the other hand, if you are porting from an earlier version
+            of SpecTcl and have customizd <filename>SpecTclInit.tcl</filename>; add the following lines
+            to your <filename>SpecTclInit.tcl</filename> file:
+        </para>
+        <example>
+            <title>Loading the mpi Tcl package</title>
+            <programlisting>
+load [file join $SpecTclHome lib/libMPITclPackage.so]
+package require mpi
+            </programlisting>
+        </example>
+        <para>
+            Note that we add these lines to <filename>SpecTclinit.tcl</filename> as it is run in all 
+            processes while <filename>SpecTclRC.tcl</filename> is only run in the root process.
+        </para>
+        <para>
+            The mpi Tcl package addressses the following concerns:
+        </para>
+        <itemizedlist>
+            <listitem><para>
+                Allowing scripts to know if they are running in parallel or serial SpecTcl.
+            </para></listitem>
+            <listitem><para>
+                Allowing scripts to determine which mpi rank they are running in.
+            </para></listitem>
+            <listitem><para>
+                Allowing scripts to determine under which role they are running.
+            </para></listitem>
+            <listitem><para>
+                Allowing scripts run in the root process to run in other processes of the job.
+            </para></listitem>
+        </itemizedlist>
+        <para>
+            The mpi Tcl package creates the <literal>::mpi::</literal> namespace and defines
+            the following variables:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><varname>mpi::environment</varname></term>
+                <listitem><para>
+                    Provides the environment under which the
+                    application is running.  This is
+                    <literal>mpi</literal> if running parallel and
+                    <literal>serial</literal> if not.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><varname>mpi::rank</varname></term>
+                <listitem><para>
+                    Provides the numeric rank of the process.  If
+                    <varname>mpi::environment</varname> is 
+                    <literal>serial</literal>, this will be <literal>0</literal>
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><varname>mpi::role</varname></term>
+                <listitem><para>
+                    Provides the textual process role.  This can be one of
+                    <literal>root</literal>, <literal>event-sink</literal> or 
+                    <literal>worker</literal>.  If <varname>mpi::environment</varname>
+                    is <literal>serial</literal>   This will be <literal>root</literal>
+                </para></listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The mpi package also provides the <command>mpi::send</command>
+            which submits a script to be executed in specified ranks/roles. 
+            Note that the script is broadcast to all ranks via the Tcl command pump
+            and the receiver determines if it should be run.
+            This implies that <command>mpi::send</command> should only 
+            be used in the root rank.  
+        </para>
+        <para>
+            Complete documentation of the <command>mpi::send</command>
+        </para>
+        <refentry>
+            <refmeta>
+                <refentrytitle>mpi::send</refentrytitle>
+                <manvolnum>3mpi-tcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>mpi::send</refname>
+                <refpurpose>Allow rank 0 to execute scripts in other ranks.
+                </refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+            <cmdsynopsis>
+                <command>mpi:send</command>
+                <arg choice='plain'><replaceable>target-list</replaceable></arg>
+                <arg choice='plain'><replaceable>script</replaceable></arg>
+            </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    When run in rank 0 (root process) requests that
+                    the script be run in the processes specified by
+                    <replaceable>target-list</replaceable>.  The
+                    worst status and the longest result are returned.
+                    The script is only run once in each host irregardless of
+                    the number of times it is specified by <replaceable>target-list</replaceable>
+                </para>
+                <para>
+                    The <replaceable>target-list</replaceable> parameter is
+                    a well formed Tcl list whose elements are any mixture of 
+                    the following:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        MPI Rank numbers (unsigned integers)
+                    </para></listitem>
+                    <listitem><para>
+                        Process role names which can be any of
+                        <literal>root</literal>, <literal>event-sink</literal>,
+                        or <literal>worker</literal>
+                    </para></listitem>
+                    <listitem><para>
+                        <literal>all</literal> which, as the text implies, all processes
+                    </para></listitem>
+                </itemizedlist>
+                <para>
+                    Using role names is the preferred way to target scripts.
+                </para>
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <example>
+                    <title>Output the rank in each worker</title>
+                    <programlisting>
+mpi::send all {puts "Hello from $mpi::rank"}
+                    </programlisting>
+                    <para>
+                        Note that if your SpecTclRC.tcl loads the TkCon
+                        console, the rank 0 output will go there and all other
+                        ranks output will go to its <literal>stdout</literal>
+                    </para>
+                </example>
+                <example>
+                    <title>Have workers output their roles and ranks</title>
+                    <programlisting>
+mpi::send worker {puts "Hello from $mpi::role at rank $mpi::rank"}
+                    </programlisting>
+                </example>
+            </refsect1>
+        </refentry>
+    </appendix>
+    <appendix>
+        <title>XXUSB SpecTcl with MPI parallelism</title>
+        <para>
+            XXUSB SpecTcls require that configuration support packages
+            and configuration scripts be loaded into all of the
+            processes of MPI SpecTcl.   This ensures that all parameters,
+            spectra and decode tables get loaded whereever they are needed.
+        </para>
+        <para>
+            If you are taking the skeletons for these versions of
+            SpecTcl from 7.0 or later everything should just work.
+            If, on the other hand you are moving to SpecTcl 7.0 from 
+            an earlier version, this appendix describes what you need to 
+            do to make the transition:
+        </para>
+        <orderedlist>
+            <listitem><para>
+                Ensure the MPI Tcl package is loaded in all ranks.
+            </para></listitem>
+            <listitem><para>
+                Edit <filename>SpecTclRC.tcl</filename> so that
+                the configuration part of that script is executed
+                 in all ranks.
+            </para></listitem>
+        </orderedlist>
+        <para>
+            Loading the MPI Tcl package in all ranks is accomplised by 
+            adding the following lines to your <filename>SpecTclInit.tcl</filename>
+        </para>
+        <informalexample>
+        <programlisting>
+load [file join $SpecTclHome lib/libMPITclPackage.so]
+package require mpi
+        </programlisting>
+        </informalexample>
+        <para>
+            Be sure to put these lines in <filename>SpecTclInit.tcl</filename>
+            <emphasis>not</emphasis> in 
+            <filename>SpecTclRC.tcl</filename>.
+        </para>
+        <section>
+            <title>VMUSBSpecTcl</title>
+            <para>
+                You must make sure that the section of VMUSBSpecTcl's 
+                <filename>SpecTclRC.tcl</filename> that reads the configuration
+                support and your configuration script is executed in all ranks:
+            </para>
+            <example>
+                <title>VMUSB configuration</title>
+                <programlisting>
+ mpi::send all {
+	set daqconfig [file join daqconfig.tcl]; # default config file.
+	lappend auto_path [file join $SpecTclHome TclLibs]
+	package require vmusbsetup
+
+	vmusbConfig $daqconfig
+}               </programlisting>
+            </example>
+            <para>
+                Note how the entire block of code that configures SpecTcl's
+                VMUSB support and its processing of the configuration file
+                are wrapped in a <command>mpi::send all ...</command>.
+            </para>
+        </section>
+        <section>
+            <title>CCUSBSpecTcl</title>
+            <para>
+                You must wrap the code in <filename>SpecTclRC.tcl</filename> 
+                that pulls in the CCUSB configuration support code and
+                the configuration itself so that it is executed in
+                all ranks:
+            </para>
+            <example>
+                <title>CCUSB Configuration</title>
+                <programlisting>
+mpi::send all {
+	lappend auto_path $SpecTclHome/TclLibs
+	package require ccusbconfig 
+	configureSpecTcl
+
+	
+	puts "Configured in $::mpi::rank"
+}
+                </programlisting>
+            </example>
+            <para>
+                Note how the package load and processing of
+                the configuration script are wrapped in a 
+                <command>mpi::send all ...</command> command.
+            </para>
+        </section>
+    </appendix>
 </book>

@@ -74,10 +74,10 @@ mpi::send all {
 	package require ccusbconfig 
 	configureSpecTcl
 
-	sbind -all
+	
 	puts "Configured in $::mpi::rank"
 }
-
+sbind -all
 splash::progress $splash {Loading SpecTcl Tree Gui} 1
 
 puts -nonewline "Starting treeparamgui..."
