@@ -27,4 +27,4 @@ check_PROGRAMS= testApp
 testApp_SOURCES= testApp.cpp TclPump.cpp MPITclCommand.cpp MPITclCommandAll.cpp
 testApp_CPPFLAGS=$(libMPIUtilities_la_CPPFLAGS)
 testApp_LDFLAGS= $(libMPIUtilities_la_LDFLAGS)
->>>>>>> rfoxkendo/issue132
+
