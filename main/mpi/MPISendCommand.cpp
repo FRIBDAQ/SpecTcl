@@ -183,12 +183,14 @@ bool
 CMPISendCommand::roleMyRank(const std::string& role) {
     // Validate the role string:
 
-    if (role != "root" && role != "event-sink" && role != "worker") {
+    if (role != "all" && role != "root" && 
+        role != "event-sink" && role != "worker") {
         std::stringstream msgStream;
         msgStream << role << " is not a valid role must be one of 'root', 'event-sink' or 'worker'";
         std::string msg = msgStream.str();
         throw std::invalid_argument(msg);
     }
+    if (role == "all") return true;         // Everyone!!
     return myRole() == role;
 }
 /**
@@ -217,7 +219,8 @@ CMPISendCommand::Usage() {
     usage += "Where:\n";
     usage += "   target-list is a Tcl list of who should run the command. This can be\n";
     usage += "         a mix of MPI ranks numbers and role names where the roles are\n";
-    usage += "         'root', 'event-sink' and 'worker'\n";
+    usage += "         'root', 'event-sink' and 'worker', 'all'\n";
+    usage += "         where 'all' means all ranks should run the script\n";
     usage += "    script - is a script that will be executed in the target-list.\n";
     usage += "       The script status will be the worst of the statuses and the result\n";
     usage += "       string will be the longest of them.\n";
