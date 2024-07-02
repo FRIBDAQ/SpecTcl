@@ -7,7 +7,7 @@
 >
 <book>
     <bookinfo>
-      <title>SpecTcl DDAS Unpackers Guide.</title>
+      <title>mpiSpecTcl.</title>
       <author><firstname>Ron</firstname><surname>Fox</surname></author>
       <revhistory>
           <revision>
@@ -18,6 +18,3498 @@
           </revision>
       </revhistory>
     </bookinfo>
+    <chapter>
+        <title>Quick Start</title>
+        <para>
+            This chapter is intended to get you up and running with XXUSBSpecTcl and 
+            custom configured SpecTcl's that don't extend the SpecTcl command set.
+            I'll describe:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    What mp;iSpecTcl is.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    How to know if your version of SpecTcl supports MPI Parallelism
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Environment variables you will need to set to run MPI mpiSpecTcl
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    How to run mpiSpecTcl with parallel event processing pipelines
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Debugging mpiSpecTcl tailored code.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <section>
+            <title>What is mpiSpecTcl</title>
+            <para>
+                mpiSpecTcl can be used with SpecTcl version 7.0 or later.  It supports
+                scalable performance by parallelizing the event processing pipeline.
+                When you run mpiSpecTcl, events from the data source are distributed
+                between one or more <firstterm>worker processes</firstterm>. Each of these
+                processes passes events through its copy of the event processing pipeline and
+                sends the parameters it produces to another process running the event sink
+                pipline (histogramer).
+            </para>
+            <para>
+                Since in many nuclear science experminents, each event can be analyzed independently 
+                of all other events, running more than one worker process will scale up the rate at which
+                events can be processed until data transfer limits this scaling.
+            </para>
+            <para>
+                For a more detailed description of how mpiSpecTcl works, see:
+                <link linkend='chap.howitworks' endterm='chap.howitworks.title' />
+            </para>
+        </section>
+        <section>
+            <title>Checking for support of MPI parallelism.</title>
+            <para>
+                Support for MPI parallelism in SpecTcl is an option selectable when SpecTcl is built and
+                installed.  You can see if MPI parallelism is enabled by looking at the <literal>VERSION</literal>
+                file that is installed in the top level directory of the SpecTcl installtion (the INSTDIR directory
+                in your tailored Makefile).
+            </para>
+            <para>
+                Below are the first two lines of this file for SpecTcl built with MPI support:
+            </para>
+            <example id='ex.version'>
+                <title id='ex.version.title'>VERSION file for SpecTcls with MPI support</title>
+                <programlisting>
+Version:  SpecTcl-7.0-000 build on RonDell Thu 06 Jun 2024 01:48:15 PM EDT by ron MPI Enabled
+Compiled with /usr/opt/mpi/openmpi-4.0.1/bin/mpicxx and /usr/opt/mpi/openmpi-4.0.1/bin/mpicc               
+                </programlisting>
+            </example>
+            <para>
+                Towards the end of the first line you can see the text <literal>MPI Enabled</literal>.
+                This indicates the installed SpecTcl was built with MPI support enabled.  
+                If MPI support was disabled, this will read <literal>MPI Disabled</literal>.
+            </para>
+            <para>
+                THe second line shows the compiler command used to build SpecTcl.
+                Building software with MPI requires specific include directories and link libraries
+                to be added to the compiler and linker flags.  For convenience, MPI distributions such
+                as OpenMPI and MPICH provide compiler drivers that define these flags for the user.
+                Note that <literal>mpicxx</literal> is the MPI C++ compiler and <literal>mpicc</literal>
+                the MPI C compiler.  Mostly, take not of the path to the compiler.
+                That will be needed both when you run SpecTcl in parallel mode and you may also
+                need to define an environment variable to use SpecTcl in parallel mode.
+            </para>
+        </section>
+        <section>
+            <title>Environment variables you will need</title>
+            <para>
+                In <link linkend='ex.version' endterm='ex.version.title' />, if the compilation commands
+                have directory paths on them you will probably need to tell OpenMPI where to find its
+                runtime.  This is done by setting the environment variable <literal>OPAL_PREFIX</literal>
+                to the top level of the OpenMPI installation.  In the example, this is
+                <filename>/usr/opt/mpi/openmpi-4.0.1</filename>.  For example:
+                <informalexample>
+                    <programlisting>
+OPAL_PREFIX=/usr/opt/mpi/openmpi-4.0.1
+export OPAL_PREFIX
+                    </programlisting>
+                </informalexample>
+            </para>
+        </section>
+        <section>
+            <title>Running mpiSpecTcl in parallel mode</title>
+            <para>
+                Running an MPI application requires using the <literal>mpirun</literal> command.  
+                The mpirun command allows you to, among other things, specify the number of processes
+                that should be started in the application. mpirun then sets up the MPI communication
+                infrastructure and starts the processes in a way that the MPI API knows how to communicate.
+            </para>
+            <para>
+                If you had to set the <literal>OPAL_PREFIX</literal> environment variable, you can use
+                it.  Here's a sample invocation of the mpirun command that starts 5 processes for the
+                SpecTcl that you built in the current working directory:
+            </para>
+            <example>
+                <title>mpirun exmaple</title>
+                <programlisting>
+$OPAL_PREFIX/bin/mpirun -n 5 SpecTcl
+                </programlisting>
+            </example>
+            <para>
+                the value given to the <option>-n</option> option specifies the number of processes mpirun
+                should start.  As will be described more completely in 
+                <link linkend='chap.howitworks' endterm='chap.howitworks.title' />, you must use at least 3 processes.
+                Two processes are non-worker processes, the remaining processes are workers that run the event processing
+                pipeline in parallel on events.  The number actual value of <option>-n</option> that makes sense,
+                depdends on the computational complexity of your event processing pipeline. 
+            </para>
+            <para>
+                If you use this simple invocation of the miprun command your processes will all run
+                in the computer that runs the <command>mpirun</command> command. In that case,
+                a value for <option>-n</option> larger than the number of cores in that system
+                makes no sense.  More complex invocations of <command>mpirun</command> are possible and
+                can allow the application to spread across more than one system.  This is complicated for
+                the containerized environment and beyond the scope of this document.
+            </para>
+        </section>
+        <section>
+            <title>Debugging mpiSpecTcl</title>
+            <para>
+                It is a sad fact of life that you will need to find errors in your software.
+                In a parallel process, print statements can be confusing as they may step on 
+                top of each other.   There are a couple of tricks you can use.
+            </para>
+            <para>
+                If you just run your SpecTcl (not mpirun it), it will run fully serially.  You can
+                use output and even gdb to ferret out the bugs.  If your event processing pipeline
+                truly has no historical knowledge of prior events, finding and fixing the bugs with
+                SpecTcl run serially, should, normally, be sufficient.  
+            </para>
+            <para>
+                If your event processing
+                pipeline requires knowledge of prior events, you will, most likely
+                need to run mpiSpecTcl either serially or with <option>n 3</option>. 3 processes
+                ensures that there is one worker process which, therefore gets all events.  This worker process
+                runs in pipeline parallelism with the SpecTcl code that takes the parameters unpacked from events and
+                histograms them so you might get some modest speed-up.
+            </para>
+            <para>
+                A second technique you can use is to use <command>mpirun</command> in a way that binds a 
+                separate terminal window (e.g. xterm) so that the output from each process is separated
+                from all other processes.  You can also use this technique to run gdb in all processes.
+            </para>
+            <para>
+                The example below shows two invocations of <command>mpirun</command>  THe first one
+                just runs SpecTcl with a separate <command>xterm</command> window for each process.
+                The second command does the same thing but runs  each of the SpecTcl processes under the 
+                control of <command>gdb</command>
+            </para>
+            <example>
+                <title>Xterm per process and gdb per process</title>
+                <programlisting>
+$OPAL_PREFIX/bin/mpirun -n 5 xterm -e SpecTcl      #Each process has a terminal
+$OPAL_PREFIX/bin/mpirun -n 5 xterm -e gdb SpecTcl  #Each process under gdb in its terminal
+                </programlisting>
+            </example>
+            <para>
+                The point is that the <option>-e</option> to the <command>xterm</command> commande
+                means that the remainder of the command should be run inside the xterm.  In the first case,
+                that's just SpecTcl, in the second that's gdb being told to control SpecTcl.
+            </para>
+            <para>
+                Under <command>mpirun</command> using the technique above to run the processes under the
+                control of gdb, in general you'll want to know which processes are workers and set breakpoints in 
+                one or more of them.   You can do this for open MPI via the gdb command 
+                <command>show environment OMPI_COMM_WORLD_RANK</command>. For MPICH, 
+                <command>show environment PMI_RANK</command> should be used instead.
+                The value of this environment variabl can be thought of as a process number or 
+                <firstterm>rank</firstterm> used to
+                identify the function of a given process.  Workers have a rank of 2 or higher.
+                Rank 0 is the base process which runs the interactive Tcl interpreter and distributes
+                events to workers.  Rank 1 is the event sink pipeline (histogramer) and also starts any
+                displayer (e.g. Xamine or CutiePie).
+            </para>
+        </section>
+    </chapter>
+    <chapter>
+        <title>Porting custom commands</title>
+        <para>
+            One of the strengths of SpecTcl and the Tcl scripting language it uses is its extensibility.
+            Complex tailored SpecTcl programs have used this to extend the Tcl interpreter, adding
+            commands of their own to the base Tcl/Tk core and SpecTcl extensions to that core.
+            When SpecTcl is running as an MPI program, only one of the processes has an interactive
+            interpreter.  Therefore, your custom commands must be wrapped in appropriate classes
+            that will relay your command to the rest of the program from the interactive interpreter process.
+            For more about this, see <link linkend='chap.howitworks' endterm='chap.howitworks.title' />
+        </para>
+        <para>
+            This chapter will introduce two classes which:
+        </para>
+        <itemizedlist>
+            <listitem><para>
+                Know when SpecTcl is running as an MPI application and when it is running serially.
+            </para></listitem>
+            <listitem><para>
+                When SpecTcl is running serially simply pass control of to an encapsulated commands.
+            </para></listitem>
+            <listitem><para>
+                When SpecTcl is running as an MPI application, either causes the wrapped command to 
+                be executed in all other processes or in all processes, depending on the wrapper
+                class chosen.
+            </para></listitem>
+            <listitem><para>
+                In MPI application mode, collects the statuses and the results from all of the
+                processes executing the command and does something <emphasis>sensible</emphasis>.
+                (I'll define sensible as well).
+            </para></listitem>
+        </itemizedlist>
+        <para>
+            I will also describe how your code can recognize if the application is running
+            serially or as an MPI application and how to know, in the latter case, the role of the
+            process it is executing in.
+        </para>
+        <para>
+            The techniques I will describe have been used withn the SpecTcl command extensions
+            and examples will be drawn from that code.
+        </para>
+        <section>
+            <title>The command wrapper classes</title>
+            <para>
+                In order to function in the MPI application environment, your commands must be
+                wrapped in one of two classes: <classname>CMPITclCommand</classname> defined in
+                <filename>CMPITclCommand.h</filename> or <classname>CMPITclCommandAll</classname>
+                defined in <filename>CMPITclCommandAll.h</filename>
+            </para>
+            <para>
+               Your command must still be created in <filename>MySpecTclApp.cpp</filename>'s 
+               <methodname>AddCommand</methodname> method.  The procedure is to first create an instanced of your
+               command then to wrap that instanced in the class you chose.
+            </para>
+            <para>
+                In most cases you won't need your command to run in the interactive interpreter process.
+                Again, see <link linkend='chap.howitworks' endterm='chap.howitworks.title' />.  If that is
+                the case you should wrap your command in <classname>CMPITclCommand</classname>.  If, on the other hand,
+                you need your command to run in the main interpreter, wrap it in <classname>CMPITclCommandAll</classname>
+            </para>
+            <para>
+                The example below is the <classname>CMySpecTclApp</classname>::<methodname>AddCommands</methodname> from 
+                CCUSBSpecTcl, howing how the <command>parammap</command> is wrapped in 
+                <classname>CMPITclCommand</classname>.  The procedures is identical for
+                <classname>CMPITclCommandAll</classname> as its constructor has the same argument
+                signature as <classname>CMPITclCommand</classname>'s constructor.
+            </para>
+            <example>
+                <title>Wrapping a command in <classname>CMPITclCommand</classname></title>
+                <programlisting>
+#include "MPITclCommand.h"
+
+...
+
+void 
+CMySpecTclApp::AddCommands(CTCLInterpreter&amp; rInterp)  
+{ 
+  CTclGrammerApp::AddCommands(rInterp);         <co id='ex.wrapcmd.base' />
+  CParamMapCommand::create(rInterp);            <co id='ex.wrapcmd.createwrapped' />
+  auto pParamMap = CParamMapCommand::getInstance(); <co id='ex.wrapcmd.getwrapped' />
+  new CMPITclCommand(rInterp, "parammap", pParamMap); <co id='ex.wrapcmd.wrap' />
+}  
+                </programlisting>
+            </example>
+            <para>
+                This example is made a bit more complicated than most of your commands will be because
+                CCUSB has a static creation method to create and store the instance of the command and
+                another static method to retrieve a pointer to that method. For a detailed description
+                of the sample code, see below where the numbers in the list correspond to numbered
+                callouts in the code itself.
+            </para>
+            <calloutlist>
+                <callout arearefs='ex.wrapcmd.base'>
+                    <para>
+                        As usual, <classname>TclGrammerApp</classname>::<methodname>AddCommands</methodname> is 
+                        called to define the standard SpecTcl commands (like e.g. <command>spectrum</command>).
+                    </para>
+                </callout>
+                <callout arearefs='ex.wrapcmd.createwrapped'>
+                    <para>
+                        This creates the <command>parammap</command> command handler and stores a
+                        pointer to is instance.  Note that it's just fine to register the command with
+                        the interpreter.   The wrapper will override that registration.
+                    </para>
+                </callout>
+                <callout arearefs='ex.wrapcmd.getwrapped'>
+                    <para>
+                        Retrieves a pointer to the command processor instance.  The
+                        processor instance must have been implemented as a class derived
+                        eventually from <classname>CTCLObjectProcessor</classname>.  For classes
+                        derived from the older, obsolete <classname>CTCLProcessor</classname>, see 
+                        <link linkend='sec.wrapoldcmds' endterm='sec.wrapoldcmds.title' /> for some simple
+                        techniques to convert those to <classname>CTCLObjectProcessor</classname>
+                        processors.
+                    </para>
+                </callout>
+                <callout arearefs='ex.wrapcmd.wrap'>
+                    <para>
+                        This is the magic that does the actual wrapping. The constructor for both
+                        <classname>CMPITclCommand.h</classname>
+                        takes three  parameters:
+                        <itemizedlist>
+                            <listitem><para>
+                                A reference to the <classname>CTCLInterpreter</classname> on which the
+                                command is defined.   This was passed in as <varname>rIterp</varname>
+                                to <methodname>AddCommands</methodname>
+                            </para></listitem>
+                            <listitem><para>
+                                The command name under which the wrapped command shoulid be invoked.
+                                Normally this shoulid be the same command name used to create your
+                                wrapped command.  In this case it is <literal>parammap</literal>
+                            </para></listitem>
+                            <listitem><para>
+                                The wrapped command itself, a pointer to an object from a class
+                                derived from <classname>CTCLObjectProcessor</classname>.
+                            </para></listitem>
+                        </itemizedlist>
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                The <command>pman</command> SpecTcl core command processor uses  an interesting trick that allows you
+                to leave the initialization code in <filename>MySpecTclApp.cpp</filename> unmodified.
+                It also is wrapped in a <classname>CMPITclCommandAll</classname>.
+            </para>
+            <para>
+                The original command processor class, <classname>CPipelineCommand</classname> is renamed to 
+                <classname>CPipelineCommandActual</classname>.  This just a simple global string replace for the
+                 most part.  A new class named <classname>CPipelineCommand</classname> derived, in this case,
+                 from <classname>CMPITclCommandAll</classname> with the same constructor signature as
+                 <classname>CPipelineCommandActual</classname> which constructs that actual command processor and wraps it.
+                 This method is suitable when the wrapped command processor is not exporting any services to the external code.
+            </para>
+            <para>
+                The example below shows excerpts from the header <filename>CPipelineCommand.h</filename>.
+            </para>
+            <example>
+                <title>Transparently wrapping commands by renaming the actual processor</title>
+                <programlisting>
+#include &lt;PITclCommandAll.h&gt;
+#include &lt;TCLObjectProcessor.h&gt;
+
+...
+class CPipelineCommandActual : public CTCLObjectProcess  <co id='ex.autowrap.actualdecl' />
+or
+{
+...
+public:
+
+    CPipelineCommandActual(CTCLInterpreter&amp; interp);
+    int operator()(
+        CTCLInterpreter&amp; interp, 
+        std::vector&lt;CTCLObject&gt;&amp;; objv
+    );
+
+...
+};
+
+class CPipelineCommand : public CMPITclCommandAll {  <co id='ex.autowrap.wrapperdecl' />
+public:
+    CPipelineCommand(CTCLInterpreter&amp; rInterp) ;
+    ~CPipelineCommand() {}
+};
+
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='ex.autowrap.actualdecl' >
+                <para>
+                    Here we see the renamed original class. Note that in the implementation you will want
+                    to replace <replaceable>OriginalClassName</replaceable><literal>::</literal> with
+                    <replaceable>OriginalClassName</replaceable><literal>Actual::</literal>
+                </para>
+                </callout>
+                <callout arearefs='ex.autowrap.wrapperdecl'>
+                    <para>
+                        Here is the definition of the replacement for the original class.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                where the implementation of <classname>CPipelineCommand</classname>, CPipelineCommand.cpp
+                is now:
+            </para>
+            <example>
+                <title>Implementing the replacement class </title>
+                <programlisting>
+CPipelineCommand::CPipelineCommand(CTCLInterpreter&amp; rInterp) : <co id='ex.autowrap.constructorimpl' />
+  CMPITclCommandAll(rInterp, "pman", new CPipelineCommandActual(rInterp)) {}
+                </programlisting>
+            </example>
+            <para> 
+                Doing this allows your wrapped command to be constructed in exactly the same way the
+                original command was.  If you have to wrap a lot of commands this can be conceptually simpler.
+            </para>
+            <calloutlist>
+                <callout arearefs='ex.autowrap.constructorimpl'>
+                    <para>
+                        Here you can see how we implement the constructor of the wrapper class
+                        so that it wraps the actual class.
+                    </para>
+                </callout>
+            </calloutlist>
+        </section>
+        <section>
+            <title>Knowing the execution evironment</title>
+            <para>
+                Your commands may need to know if you are running as an MPI application and, if so,
+                the sort of process you are.  mpiSpecTcl has three types of functionally distinct processes:
+                The Root process runs the interactive Tcl interpreter (and therefore any GUI), the
+                Event sink pipeline process and workers, which run the event processing pipline you write.
+                The organization of the MPI application is described in greater detail in 
+                <link linkend='chap.howitworks' endterm='chap.howitworks.title' />.
+            </para>
+            <para>
+                There is only one Root and one Event sink pipeline process.  There are as many Worker processes
+                as you implicitly specify in the <command>mpirun</command> command.  User command
+                extensions generally affect the operation of the event processing pipeline and, therefore
+                when running MPI should onhly actually do something in worker processes.
+            </para>
+            <para>
+                In MPI processes are grouped together in <firstterm>communicators</firstterm>.  Each 
+                process is assigned an unsigned integer number called a <firstterm>rank</firstterm> within
+                each communicator to which it belongs.  WHen an MPI application starts, an initial 
+                communicator called the <firstterm>world communicator</firstterm> is created by the
+                MPI run-time and processes are assigned a rank within the world communicator.
+                It is the world communicator rank that mpiSpecTcl uses to assign roles to each process.
+            </para>
+            <para>
+                The header <filename>Globals.h</filename> defines three preprocessor constants:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal>MPI_ROOT_RANK</literal></term>
+                    <listitem>
+                        <para>
+                            The rank of the root process.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>MPI_EVENT_SINK_RANK</literal></term>
+                    <listitem>
+                        <para>
+                            The rnak of the event sink pipline process.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>MPI_FIRST_WORKER_RANK</literal></term>
+                    <listitem>
+                        <para>
+                            The smallest rank assigned to a worker process.  All workers will
+                            have world communicator ranks that are this or larger.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The header <filename>TclPump.h</filename> provides a pair of functions:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><type>bool</type> <function>isMpiApp</function><literal>()</literal></term>
+                    <listitem>
+                        <para>
+                            Returns <literal>true</literal> if SpecTcl is running as an MPI application.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>int</type> <function>myRank</function> <literal>()</literal></term>
+                    <listitem>
+                        <para>
+                            Returns the rank of the process in the current communicator.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Here is sample code for a command processor that only executes in worker processes
+                when the SpecTcl is an mpi application but executes as well if SpecTcl is run serially.
+            </para>
+            <example>
+                <title>Running commands only in workers</title>
+                <programlisting>
+#include &lt;TclPump.h&gt;
+...
+int SomCommandProcessor::operator()(
+    CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;& objv
+) {
+    if (isMpiApp() && (myRank() < MPI_FIRST_WORKER_RANK)) {
+        return TCL_OK;
+    }
+    // The actual stuff the command does...
 
 
+}
+                </programlisting>
+            </example>
+        </section>
+        <section id='sec.wrapoldcmds'>
+            <title id='sec.wrapoldcmds.title'>Wrapping old argc, argv commands.</title>
+            <para>
+                Commands written for today's SpecTcl <emphasis>should</emphasis> be writtena
+                as classes derived from <classname>CTCLObjectProcessor</classname>.  The MPI
+                wrapper classes are <emphasis>only</emphasis> able to wrap that sort of class.
+                
+            </para>
+            <para>
+                However, originally SpecTcl only had a 
+                <classname>CTCLProcessor</classname> base class for writing commands and,
+                naturally, there may still be commands out there derived from
+                <classname>CTCLProcessor</classname>.  This section describes how to
+                convert <classname>CTCLProcessor</classname> derived classes into
+                <classname>CTCLObjectProcesssor</classname> derived classes so they can be wrapped
+                in e.g. <classname>CMPITclCommand</classname>
+            </para>
+            <para>
+                Several SpecTcl commands were still <classname>CTCLProcessor</classname> derived
+                and this chapter provides lessons learned porting those.
+            </para>
+            <para>
+                Before staring let's look at the differences between the signatures for
+                <methodname>operator()</methodname> for the two classes.
+                For <classname>CTCLProcessor</classname>, <methodname>operator()</methodname>
+                looks like this:
+            </para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>int <function>operator()</function></funcdef>
+                    <paramdef>
+                        <parameter>CTCLINterpreter&amp; interp</parameter>
+                        <parameter>CTCLResult&amp; result</parameter>
+                        <parameter>int argc</parameter>
+                        <parameter>char** argv</parameter>
+                    </paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>
+                Where <parameter>argc</parameter> is the number of words in the command,
+                <parameter>argv</parameter> are pointers to the verb text,
+                and <parameter>result</parameter> is the result object for the result that will
+                be returned by the command.
+            </para>
+            <para>
+                On the other hand, for <classname>CTCLObjectProcesor</classname>, 
+                <methodname>operator()</methodname> looks like this:
+            </para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>int <function>operator()</function></funcdef>
+                    <paramdef>
+                        <parameter>CTCLINterpreter&amp; interp</parameter>
+                        <parameter>std::vector&lt;CTCLObject&gt;&amp; objv</parameter>
+                    </paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>
+                WHere <parameter>objv</parameter>
+                are the command words and the result should be set via 
+                <literal>interp.setResult</literal> which has a few different overloads.
+            </para>
+            <para>
+                In addition to the relatively simple problem of changing the inheritance, porting
+                requires deciding how to handle the parameterization of <methodname>operator()</methodname>
+                where access to the command words may be sprinkled throughout the code. 
+            </para>
+            <para>
+                The SpecTcl <command>spectrum</command> is an example of a command that had been
+                derived from <classname>CTCLProcessor</classname> but had to be ported to be derived
+                from <classname>CTCLObjectProcessor</classname> in order to be wrapped in 
+                <classname>CMPITclCommandAll</classname>.
+            </para>
+            <para>
+                The <command>spectrum</command> is a command ensemble.  Each of the options
+                <option>-new</option>, <option>-list</option>, <option>-delete</option> and 
+                <option>-trace</option> can be thought
+                of as a subcommand (if none of these options is present the command internally defaults to
+                <option>-new</option>).  In SpecTcl, such ensembles typically execute each subcommand in 
+                another method with <methodname>operator()</methodname> mostly just dispatching to the appropriate 
+                subcommand method.
+            </para>
+            <para>
+                First lests look at a fragment of the header (<filename>SpectrumCommand.h</filename>).
+            </para>
+            <example>
+                <title>Porting <classname>CTCLProcessor</classname> to 
+                    <classname>CTCLObjectProcessor</classname> <filename>SpectrumCommand.h</filename>
+                </title>
+                <programlisting>
+...
+class CSpectrumCommand  : public CTCLPackagedObjectProcessor       
+{
+...
+public:  
+  virtual   int operator() (CTCLInterpreter&amp; rInterpreter, 
+			    std::vector&lt;CTCLObject&gt;&amp; objv)  ;
+  Int_t New (CTCLInterpreter&amp; rInterpreter, 
+	     int nArgs, const char* pArgs[])  ;
+  Int_t List (CTCLInterpreter&amp; rInterp, 
+	      int nArgs, const char* Args[]);
+  Int_t Delete (CTCLInterpreter&amp; rInterp,
+		int nArgs, const char* pArgs[])  ;
+  Int_t Trace  (CTCLInterpreter&amp; rInterp, 
+		int nArgs, const char* pArgs[]);
+...
+};
+...
+                </programlisting>
+            </example>
+            <para>
+                This example shows that the <methodname>operator()</methodname> method will marshall
+                the <parameter>objv</parameter> array into an argc/argv and pass that to the 
+                subcommand processors.  The only modifications needed to the subcommand processors
+                then become removing the <parameter>result</parameter> from their signatures and
+                figuring out how, then, to handle returning results.
+            </para>
+            <para>
+                The next example shows a fragment of code from <methodname>operator()</methodname>
+                that recreates argc and argv from <parameter>objv</parameter>
+            </para>
+            <example>
+                <title>
+                    Porting <classname>CTCLProcessor</classname> to <classname>CTCLObjectProcessor</classname>
+                    Marshalling arguments.
+                </title>
+                <programlisting>
+int 
+CSpectrumCommand::operator()(CTCLInterpreter&amp; rInterpreter, std::vector&lt;CTCLObject&gt;&amp; objv)
+{
+
+  std::vector&lt;std::string&gt; words;
+  std::vector&lt;const char*&gt; pWords;
+
+  // Due to lifetimes and how c_str behaves we need two loops not one:
+
+  for (auto&amp; word : objv) {
+    words.push_back(std::string(word));
+  }
+  for (int i =0; i &lt; words.size(); i++) {
+    pWords.push_back(words[i].c_str());
+  }
+  int nArgs = words.size();
+  auto pArgs = pWords.data();
+...
+}
+                </programlisting>
+            </example>
+            <para>
+                First <parameter>objv</parameter> is converted into a vector of std::string. Next, 
+                this is used to produce a vector of const char*.  This has to be done in two loops
+                due to lifetime issues.  Finally, nArgs (argc if you prefer) is just the  size of either
+                of those vectors and pArgs (argv if you prefer) is just the data in the vector of 
+                const char*s.
+            </para>
+            <para>
+                Each subcommand processor new needs to figure out how to deal with the "missing" 
+                result parameter and, instead use the interpreter's <methodname>setResult</methodname>
+                to set the result.  It's simplest to note that std::string has most of the methods that
+                <classname>CTCLResult</classname> has for building up contents.
+                Let's look at the <methodname>Usage</methodname> for the spectrum command.  It appends a 
+                summary of the syntax of the <command>spectrum</command> to the contents of result.
+                Originally, the result object was passed by reference to this method:
+            </para>
+            <example>
+                <title>Porting <classname>CTCLProcessor</classname> to <classname>CTCLObjectProcessor</classname>
+                    substituting std::string for the result
+                </title>
+                <programlisting>
+void 
+CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
+{
+  std::string rResult = rInterp.GetResultString();
+  if (prefix) rResult += prefix;
+  rResult += "Usage: \n";
+  rResult += "  spectrum [-new] name type { parameters... } {axisdefs... [datatype]y\n";
+  rResult += "  spectrum -list ?-byid? ?-showgate? [pattern]\n";
+  rResult += "  spectrum -list pattern\n";
+  rResult += "  spectrum -list -id ?-showgate? id\n";
+  rResult += "  spectrum -delete name1 [name2...]\n";
+  rResult += "  spectrum -delete -id id1 [id2...]\n";
+  rResult += "  spectrum -delete -all\n";
+  rResult += "  spectrum -trace add ?script?\n";
+  rResult += "  spectrum -trace delete ?script?\n";
+  rResult += "    In the above, an axsidef has one of the following formats:\n";
+  rResult += "         n           - n is the Log(2) the number of channels\n";
+  rResult += "         {low hi n}  - Full definition where:\n";
+  rResult += "                       low  - Parameter value represented by channel 0\n";
+  rResult += "                       hi   - Parameter value represented by channel n-1\n";
+  rResult += "                       n    - Number of channels on the axis.\n";
+  rResult += "\n  The spectrum command creates and deletes spectra as well\n";
+  rResult += "  as listing their properties.";
+  rResult += " The -trace switch allows the creation, inspection and removal\n";
+  rResult += " of traces on adding and deleting spectra\n";
+  rInterp.setResult(rResult);
+  }
+                </programlisting>
+            </example>
+            <para>
+                This technique can be used directly in command or subcommand processors:
+                create a local std::string named the same as the original result parameter,
+                and just prior to the <literal>return</literal> statement, invoked
+                the <methodname>setResult</methodname> method of the interpreter object to
+                set the command's result.  One of the overloads of 
+                <classname>CTCLInterpreter</classname>::<methodname>setResult</methodname> sets the result
+                from an std::string object.
+            </para>
+        </section>
+    </chapter>
+    <chapter id='chap.howitworks'>
+        <title id='chap.howitworks.title'>How mpiSpecTcl works in parallel mode.</title>
+        <para>
+            This chapter describes how MPI SpecTcl works.  Knowledge of the theory of operation can help
+            to sort out errors you can encounter at run-time that might appear, at first glance, to be mysterious.
+            (for example segfaulting when accessing the histogrammer object in workers).
+        </para>
+        <para>
+            The chapter will be rather long and is organized as follows:
+        </para>
+        <itemizedlist>
+            <listitem><para>
+                A high level description of the MPI process environment and messaging is provided
+            </para></listitem>
+            <listitem><para>
+                The process roles used by mpiSpecTcl are described.
+            </para></listitem>
+            <listitem><para>
+                The concept of <firstterm>MPI Pumps</firstterm> are introduced in a general sense. You will see several 
+                MPI Pumps described in more detail in other sections.
+            </para></listitem>
+            <listitem><para>
+                SpecTcl initialization as an MPI application is described for each role.
+            </para></listitem>
+            <listitem><para>
+                The MPI command wrappers are described along with the Tcl command pump and the MPI Pumps 
+                related to objects within SpecTcl that must be communicated between processes.
+            </para></listitem>
+            <listitem><para>
+                The scheme used to pass events to worker processes are described, and their associated MPI Pumps.
+            </para></listitem>
+            <listitem><para>
+                The scheme used to pass the results of the event processing pipelines running in the workers to  to the event sink pipeline
+                process is described along with the associated pump.
+            </para></listitem>
+            <listitem><para>
+                SpecTcl shutdown is described and specifically how we ensure that the MPI Pump threads get
+                terminated. 
+            </para></listitem>
+        </itemizedlist>
+        <para>
+            SpecTcl source code is availble online at github in the project
+            <ulink url='http://github.com/FRIBDAQ/SpecTcl' />
+            From time to time there may be references to where bits and pieces of code. If you are
+            interested in looking at that code; you can find it there.  The file paths in code references
+            will all be relative to the <filename>main</filename> directory so <filename>mpi/TclPump.cpp</filename>,
+            for example the docbook sourcde for this manual would be referred to as
+            <filename>docs/docbook/mpiSpecTcl.xml</filename> and can be found in the repository at
+            <filename>main/docs/docbook/mpiSpecTcl.xml</filename>.  This omission is done just for brevity.
+        </para>
+        <section>
+            <title>The MPI Process environment</title>
+            <para>
+                This chapter will introduce the MPI process environment and the communcations
+                tools we use.  We'll start with a brief description of what it is that miprun (or mpiexec 
+                in MPICH) does, what a communicator is and how mpiSpecTcl uses communicators and the 
+                message passing support in MPI.
+            </para>
+            <para>
+                First of all, MPI is an acronym for <firstterm>Message Passing Interface</firstterm>.
+                Originally MPI was intended to provde a scheme for writing <firstterm>data parallel</firstterm>
+                programs.  An MPI application consists of the same program that is run in several
+                processes.  MPI then provides mechanisms to pass messages between processe both
+                via directed communication and multicast communication.
+            </para>
+            <para>
+                MPI implementations (the two most common are OpenMPI and MPICH), must provide a mechanism
+                to start MPI applications.  In OpenMPI this is the <command>mpirun</command> command and
+                in MPICH, the similar command is called <command>mpiexec</command>.  In the general sense, these
+                commands provide options that describe the number of desired processes and, optionally, how to 
+                bind those processors to processing resources (e.g. nodes in a cluster).  In running mpiSpecTcl,
+                typically, all processes run in the same node allowing for high speed, low latency
+                communication (in MPI internal communications are often implemented via shared memory mailboxes). 
+            </para>
+            <para>
+                MPI allows splitting the processes in an application into process groups that may 
+                intercommunication.  It does so via communicators.  When an MPI application starts, it has
+                a single <firstterm>world communicator</firstterm>.  At any point, that  communicator can be 
+                split into communicators that may contain a subset of the application or the entire application partitioned
+                in some way.
+            </para>
+            <para>
+                Within a communicator, processes are identified by their <firstterm>rank</firstterm>.  The
+                rank is an integer value.  Processes in the world communicator are assigned their ranks by
+                mpirun/mpiexec.   Processes in other communicators can be assigned their ranks at the time
+                that communicator is split off from its parent communicator; which might be the world communicator,
+                or a communicator split off from the world communicator etc.
+            </para>
+            <para>
+                Within a communicator, one can send messages from one processs to another.  The sender
+                uses <function>MPI_Send</function> specifying the communicator and  rank within the communicator
+                 of the desired receiver. The
+                receiver, at some point must receive the message using <function>MPI_Recv</function>.
+                The receiver can either specify the sender or accept a message from any rank (including another thread
+                its own process).  Messages are also associated with an integer tag by <function>MPI_Send</function>
+                and the receiver can either select specific tagged messages or accept messages with any tag.
+                Message payloads are strongly typed and the receiver must know what to expect from the sender.
+            </para>
+            <para>
+                Messages can also be broadcast from a known sender to all processes in a communicator. This is simplified
+                as a communicator itself can be split into process groups using <firstterm>colors</firstterm> and broadcasts
+                are really amongst processes with the same color.  We don't use colors in mpiSpecTcl.  To broadcast
+                a message to a communicator, all processes in the communictoar invokd <function>MPI_Bcast</function> 
+                specifyin the communicator and the sender rank within the communicator.   All processes executing
+                <function>MPI_Bcast</function> block until the sending process invokes <function>MPI_Bcast</function>
+                at which point the message it sent is available to all recdeivers.  Broadcast messages are not
+                tagged, unlike those sent with <function>MPI_Send</function> but  are strongly typed and all
+                participants in a broadcast must know the message type to receive it properly.
+            </para>
+            <para>
+                As we have seen, messages are strongly typed.  They are arrays of a type known to MPI.  MPI has
+                built in  data types for primitive types like integer, doubles and so on.  In addition, the type
+                system of MPI allows user defined types to be registered and used.  Naturally, all processes which
+                send or receive messages of a specific user defined type, must have made that type known to 
+                the MPI run-time.
+            </para>
+            <para>
+                If you want to learn more about MPI, the OpenMPI man pages are at <ulink url='https://docs.open-mpi.org/en/v5.0.x/man-openmpi/man3/index.html' />.
+                Tutorials on MPI are available at <ulink url='https://mpitutorial.com/tutorials/' />.
+            </para>
+        </section>
+        <section>
+            <title>mpiSpecTcl process roles</title>
+            <para>
+                In the previous section MPI was described.  Recall that the computing model in MPI is 
+                a data parallel model.  While in mpiSpecTcl, event processing is fully data parallel, there
+                are otherr things going on.  As such, mpiSpecTcl's computing model is a mix of functionally
+                distributed processing and data parallel processing.  Each process in mpiSpecTcl has a specific
+                role.  The world communicator rank is used by each process to select the code that actually runs.
+                Each process fulfils one of three roles:
+            </para>
+            <orderedlist>
+                <listitem><para>
+                    Main or root process
+                </para></listitem>
+                <listitem><para>
+                    Event sink pipeline
+                </para></listitem>
+                <listitem><para>
+                    Worker - event processing pipeline.
+                </para></listitem>
+            </orderedlist>
+            <para>
+                mpiSpecTcl has only one root process, and one event sink pipeline process but can have 
+                any number of worker processes.  As converting raw parameters is, for complex analyses,
+                the rate determining step, the data parallelism of the worker processes is where the
+                speed gains are.
+            </para>
+            <para>
+                Symbolic definitions for the MPI role ranks are in <filename>Core/Globals.h</filename> which
+                is also installed in the <filename>include</filename> subdirectory of the SpecTcl installation
+                tree.
+            </para>
+            <section>
+                <title>World communicator rank 0 (<literal>MPI_ROOT_RANK</literal>)- the Root process</title>
+                <para>
+                    The root process is responsible for:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        Running the interactive Tcl interpreter.  Note that all processes run a
+                        Tcl interpreter, however onlyi the root one actually takes input from stdin
+                        and runs GUIs.    In 
+                        
+                    </para></listitem>
+                    <listitem><para>
+                        Data sources are opened in this process role and ring items are distributed to the
+                        event processing pipeline (worker) )rocesses.  Ring items of type <literal>PHYSICS_EVENT</literal>
+                        are transmitted to idle workers and all other ring item types are broadcast to all workers.
+                    </para></listitem>
+                    <listitem><para>
+                        When SpecTcl has been told to run a ReST server, the root process runs that server.
+                    </para></listitem>
+                </itemizedlist>
+                <para>
+                    Note that the <filename>SpecTclInit.tcl</filename> is processed by all ranks
+                    and the <filename>SpecTclRC.tcl</filename> initialization file is only processed in the
+                    root process.  This means, however that SpecTcl commands in those scripts 
+                    <emphasis>will</emphasis> be processed in all processes.
+                </para>
+            </section>
+            <section>
+                <title>World communicator rank 1 (<literal>MPI_EVENT_SINK_RANK</literal>) - the event sink pipeline process</title>
+                <para>
+                    The event sink pipeline is sent the outputs of the event processing pipelines.
+                    Note that, since event processing times may vary from event to event, the order in
+                    which events are received by the event sink pipeline is non-deterministic. 
+                </para>
+                <para>
+                    In addition any displayer program is started by the event sink pipeline and the
+                    shared memory  into which spectra can be bound is created by this process.
+                </para>
+                <para>
+                    The mirror server is also run by this process if mirroring is required.  
+                </para>
+            </section>
+            <section>
+                <title>World communicator rank > 1 (<literal>MPI_FIRST_WORKER_RANK</literal>) - the event processing pipelines</title>
+                <para>
+                    This role runs the event processing pipeline.  Transparent to user code, the worker
+                    processe run a loop with a simplified structure that looks like:
+                </para>
+                <example>
+                    <title>Worker top level pseudo code</title>
+                    <programlisting>
+do until exit:
+    Get an event 
+    Process the event in the user event processing pipeline
+    Send resulting parameters to the event sink pipeline.
+                    </programlisting>
+                </example>
+                <para>
+                    The actual mechanics of event distribution to the workers is described in 
+                    <link  linkend='sec.ringpump' endterm='sec.ringpump.title' />
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>MPI Pumps</title>
+            <para>
+                This section first presents the motivation for MPI Pumps, describes them and describes
+                the pumps that mpSpecTcl has and which roles run which pumps.
+            </para>
+            <para>
+                All of the roles in mpiSpecTcl run a Tcl interpreter that implements an event loop.
+                Once the interpreter is started, control is turned over to that interpreter's main loop.
+                Nonetheless, while the interpreter main loop is running, the processes in mpiSpecTcl 
+                need to communicate;  Workers must receve event data, the Event sink pipeline must receive
+                event parameters from the workers and all but the root process need to get commands relayed
+                from the root.
+            </para>
+            <para>
+                Tcl's event loop provides two methods to be aware of activities outside of the interpreter itself,
+                Notifiers added to the event loop and threads posting events to the event loop.  The
+                Notifier interface is quite complex and not well documented.  Using threads to post events is,
+                assuming thread safe code can be written, simple.
+            </para>
+            <para>
+                An MPI Pump, therefore is a thread that blocks on receiving messages from an MPI process,
+                converts the message into a Tcl event and posts that event to the Tcl event loop where
+                it is processed by an event handling functions.  Event pumps can be based around
+                both <function>MPI_Recv</function> or <function>MPI_Bcast</function>. Note, however, that the
+                way that the lack of selectivity of <function>MPI_Bcast</function> requires that we create
+                a separate MPI communicator along which each type  of broadcast occurs.
+            </para>
+            <para>
+                MPI Pumps, in mpiSpecTcl are paired with an API for sending data to processes running the pump.
+                The pump code and API are usually located in the same compilation module in mpiSpecTcl.  Recall 
+                that all processes in MPI run the same executable image.
+            </para>
+            <para>
+                The example below shows pseudo code for a skeletal pump and its API.  The 
+                message sent to the pump is encapsulated in a custom MPI data type.
+            </para>
+            <example>
+                <title>Sample Pump and API pseudo code</title>
+                <programlisting>
+typedef MessageStruct {             <co id='pump.message' />
+    ...
+};
+static
+MPI_Datatype messageType() {       <co id='pump.messagetype' />
+    static MPI_Datatype MessageType;
+    static bool typeDefined = false;
+    if (!typeDefined) {
+        ...
+        MPI_Type_Createstruct( .... the message struct -&gt; MessageType)
+        MPI_Type_commit(&amp;MessageType)
+        typeDefined = true;
+    }
+    return MessageType;
+}
+
+void SendMessage(MessageStruct&amp; msg, int recevingRank, int tag) {  <co id='pump.sendapi' />
+    MPI_Send(msg, 1, messageType(), receivingRank, tag, MPI_COMM_WORLD);
+}
+
+
+struct Event {                     <co id='pump.tclevent' />
+    Tcl_Event event;
+    MessageStruct msg;
+};
+
+
+static int eventHandler(Tcl_Event* raw, int flags) { <co id='pump.eventhandler' />
+    Event* event = (Event*)raw;
+    processEvent(event.msg);
+    freeEvent(raw);
+
+    return 1;
+}
+
+static int eventPump(ClientData d) {         <co id='pump.pumpthread' />
+    Tcl_ThreadId mainThread = (Tcl_ThreadId)(d);
+    while (1) {
+        Event* pEvent = createEvent();
+        MPI_Status info;
+        MPI_Recv(&amp;pEvent-&gt;msg, 1, messageType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &amp;info);
+        Tcl_ThreadQueueEvent(mainthread, &amp;pEvent-&gt;event, TCL_QUEUE_TAIL);
+    }
+
+}
+
+void startEventPump() {                     <co id='pump.start' />
+    Tcl_ThreadId pumpId;
+    Tcl_CreateThread(
+        &amp;pumpId, eventPump, (ClientData)Tcl_GetCurrentThread(), 
+        TCL_THREAD_ST5ACK_DEFAULT, TCL_NOFLAGS
+    );
+}
+
+                </programlisting>
+            </example>
+            <para>
+                The numbers in the explanation below refer to the numbers in the example above.
+                Note that this is the generic structure of a pump and does not reflect any specific pump.
+            </para>
+            <calloutlist>
+                <callout arearefs='pump.message'>
+                    <para>
+                        Most event pumps involve custom message types that are structs.
+                        This is a placeholder for the actual message that is sent via e.g.
+                        <function>MPI_Send</function>
+                    </para>
+                </callout>
+                <callout arearefs='pump.messagetype'>
+                    <para>
+                        Since we send/receive a custom data type, we need to define and register that 
+                        data type with MPI so that it can be used as a message.
+                        <function>messageType</function> does that the first time its called and that time and all 
+                        subsequent times it returns the data type handle (MPI_Datatype) for that type.
+                        The sample code is a sketch and you should look at the man page for
+                        <function>MPI_Type_Createstrcut</function> for what needs to be done to 
+                        describe the struct to MPI.
+                    </para>
+                </callout>
+                <callout arearefs='pump.sendapi'>
+                    <para>
+                        This is the API senders use to send messages to processes running the pump.
+                        In general, this function is <emphasis>not</emphasis> called by processes
+                        running the pump.  It just uses <function>MPI_Send</function> to send the 
+                        data to the designated rank with the designated tag.  Note that 
+                        <function>MPI_Bcast</function> could just as easily be used as long
+                        as it was also used in <function>eventPump</function> to receive the pump data.
+                    </para>
+                </callout>
+                <callout arearefs='pump.tclevent'>
+                    <para>
+                        Eventually, received messages are queued as Tcl events to the Tcl event loop.
+                        Tcl events are represented by a <structname>Tcl_Event</structname> stucture.
+                        In our case we want to pass additional data, (the received message) to the 
+                        event handler.  This struct, <structname>Event</structname> encapsulates both a 
+                        <structname>Tcl_Event</structname> header and the additional data we want.
+                    </para>
+                </callout>
+                <callout arearefs='pump.eventhandler'>
+                    <para>
+                        When the event is queued to the Tcl event loop, a field in the 
+                        <structname>Tcl_Event</structname>  data structure specifies the function
+                        to call from the event loop.  In this case it's our <function>eventHandler</function>
+                        function.
+                        That simply establishes access to the entire struct, thus getting access to the
+                        message, does some messages specific processing (not shown) and frees
+                        any dynamic storage allocated in the message field.  Returning 1 causes the
+                        Tcl run time to delete the event struct itself using <function>Tcl_Free</function>.
+                    </para>
+                </callout>
+                <callout arearefs='pump.pumpthread'>
+                    <para>
+                        This function is the pump thread.  It just allocates events and initializes 
+                        them (not shown in <function>createEvent</function>).   <function>MPI_Recv</function>
+                        is then used to receive data from some sender and the resulting extended event is
+                        dispatched to the Tcl event loop with
+                        <function>Tcl_ThreadQueueEvent</function>
+                    </para>
+                </callout>
+                <callout arearefs='pump.start' >
+                    <para>
+                        Finally, this function is called in ranks that run the pump to start the
+                        pump thread in the first place.  The thread id of the calling thread 
+                        (assumed to be the main thread)
+                        is passed into the thread so that it knows which thread should be targeted
+                        by <function>Tcl_ThreadQueueEvent</function>
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Now that we've seen the general form of an MPI Pump, let's enumerate all of the pumps,
+                what they pump, from where they pump and what is done with the data they pump.  We'll also
+                describe which source file implements the pump in case you are interestsed in looking 
+                at source code.
+            </para>
+            <section>
+                <title>The Tcl command pump</title>
+                <para>
+                    mpiSpecTcl's root process runs an interactive Tcl interpreter.  SpecTcl command, however
+                    are wrapped in one of two wrapper classes:   <classname>CMPITCLCommand</classname> which executes
+                    the specified command in all but the Root process and <classname>CMPITclCommandAll</classname> which
+                    executes the command in all processes including the root process.
+                </para>
+                <para>
+                    As you might guess, the non-root processes run a pump; the Tcl command pump to receive commands
+                    from the root process, queue them into the event loop from which they are executed.  Note that
+                    all substitutions have been done by the time the command is dispatched by the root process, so
+                    the actual scope in which the command runs is not very important.
+                </para>
+                <para>
+                    The definitions and pump itself are implemented in <filename>/mip/TclPump.{h,cpp}</filename>.
+                    This file also provides utilities for determining if SpecTcl is running under mpirun and, 
+                    if so, the world rank of the process.
+                </para>
+                <para>
+                    Transmission and receipt of commands thus encapsulated is via
+                    <function>MPI_Bcast</function> on the world communicator.  Arbitrarily long commands are
+                    supported by chunking up the command in to more than one message if necessary.
+                </para>
+                <para>
+                    Tcl command execution results in a status (usually one of <literal>TCL_OK</literal> for 
+                    success and <literal>TCL_ERROR</literal> for errors), and a result.  The result is some
+                    arbitrary Tcl object that under nomral circumastances is set ultimately via
+                    <function>Tcl_SetObjResult</function> or some other related Tcl API function for
+                    manipulating the result.  When the status is <literal>TCL_ERROR</literal> typically
+                    the result is an error message string.  When <literal>TCL_OK</literal> the result may
+                    be information requested by the command (for example <command>spectrum -list</command>
+                    will produce a result that is a list containing spectrum definitions).)
+                </para>
+                <para>
+                    The status and result of aan MPI distributed command become a bit more complex.
+                    Commands executed by the Tcl Pump will use <function>MPI_Send</function> to send the 
+                    status and result to the root process.  Note that this round trip of <function>MPI_Bcast</function>
+                    to distribute the command and <function>MPI_Send</function>/<function>MPI_Recv</function> is 
+                    synchronous.  The root command blocks until all proceses have contributed a status and result.
+                </para>
+                <para>
+                    The root process constucts a single status from the worst of the statuses.  The result, in 
+                    the case where there is an error, is the result from the first process that produced an error.
+                    When all processes completed the command with a <literal>TCL_OK</literal> status, 
+                    the result is the longest result.  Note that typically on success, all results will be the
+                    same.
+                </para>
+                <para>
+                    I did say earlier that the Tcl result is an arbitrary Tcl object. This might seem difficult
+                    to return in an MPI Message.  However in Tcl every object has a string representation.  The
+                    <literal>Tcl_Obj</literal> object used to encapsulate an object supports <firstterm>shimmering</firstterm>
+                    an object into its string representation while simultaneously caching another representation or, if
+                    necessary, shimmering the string representation into another internal representation (e.g. a list or
+                    a dict).  Thus the result is converted to its string representation and it is that which is sent
+                    back to the root process.  Note as well that the result can  be arbitrarily long and, if needed 
+                    is chunked with result construction in the root process, properly handling the fact that the
+                    replies may be interleaved in an arbitrary way across the processes in mpiSpecTcl.
+                </para>
+                <para>
+                    Finally, these command wrappers are able to detect that they are not running
+                    in the MPI environment and, if so, simply execute the encapsulated command.  All
+                    encapsulated commands, therefore are transparently portable between serial and
+                    parallel SpecTcl runs.
+                </para>
+            </section>
+            <section id='sec.ringpump'>
+                <title id='sec.ringpump.title'>The ring item pump</title>
+                <para>
+                    A quick side note that in MPI mode, mpiSpecTcl only registers the BufferDecoder
+                    for ring items and, therefore only supports analyzing data from NSCLDAQ 10.0 and later.
+                    Earlier data may be analyzed by the same excutable but not with parallel workers (just
+                    run SpecTcl directly rather than with mpirun/mpiexec).)
+                </para>
+                <para>
+                    The ring item pump is the mechanism by which event data are distributed to the
+                    worker processes.   It is important to note that there are really two
+                    classes of ring items:  Ring items with type <literal>PHYSICS_EVENT</literal>, and 
+                    all other ring item types.
+                </para>
+                <para>
+                    The <literal>PHYSICS_EVENT</literal> items are distributed to individual workers,
+                    while all other event types are broadcast to all workers.  This allows
+                    the event processing pipeline to retrieve data such as the run number or the
+                    run title, and for e.g. <methodname>OnBegin</methodname> to execute in all 
+                    worker processes when a <literal>BEGIN_RUN</literal> state change item is
+                    received.
+                </para>
+                <para>
+                    The ring item pump is, therefore, actually a pair of pumps defined and implemented
+                    in <filename>Core/RingItemPump.{h,cpp}</filename>.  The function
+                    <function>startRingItemPump</function> called in all worker processes starts both pumps.
+                </para>
+                <para>
+                    Non physics ring items have a broadcast pump.  Those ring items are sent via 
+                    <function>broadcastRingItem</function> which uses as many <function>MPI_Bcast</function>
+                    calls as needed to send an arbitrary length ring item to all processes running the
+                    ring item pump.  The original ring item is reconstituted and queued to the
+                    worker process's event loop queue.  The broadcast pump thread function is
+                    <function>nonPhysicsThread</function>
+                </para>
+                <para>
+                    Physics ring items are sent to workers using <function>sendRingItem</function>.
+                    The distribution of Physics ring items is auto load levelling.
+                    The worker pumps send an initial request for data (<function>MPI_Send</function>).  On the sending side,
+                    when <function>sendRingItem</function> is called it first does a receive (<function>MPI_Recv</function>)
+                    and then sends the ring item to the sender of the request.  The request message is just an integer whose
+                    value is ignored.  In a later release, this could become the number of ring items to send.
+                </para>
+                <para>
+                    The ring item event handler, after processing a <literal>PHYSICS_EVENT</literal> will send a 
+                    request for the next physics item.
+                </para>
+                <para>
+                    Of all the pumps the ring item pump is the most complex.  It also maintains statistics Tcl
+                    variables in the sender process so that GUIs can correctly describe the number of items
+                    that have been processed and, with an online source, the fraction of data analyzed.
+                </para>
+                <para>
+                    To simplify communication, event distribution uses a communicator split off from world
+                    which only has the root process (rank 0 in the split communicator) and the worker processes
+                    (rank 1 and larger in the split communicator).  This is actually required since otherwise
+                    the <function>MPI_Bcast</function> calls used to send non-physics data can't be distinguished
+                    from other broadcasts.  The event sink pipeline is, naturally, not part of this communicator.
+                </para>
+            </section>
+            <section>
+                <title>The parameter pump</title>
+                <para>
+                    Workers in the event sink pipeline produce <classname>CEvent</classname> objects,
+                    normally indirectly by setting the values of <classname>CTreeParameter</classname>
+                    or elements in <classname>CTreeParameterArray</classname> objects.
+                    These objects must be analyzed by the event sink pipeline which runs in the
+                    world rank <literal>MPI_EVENT_SINK_RANK</literal> 
+                    (defined in <filename>Core/Globals.h</filename>).
+                </para>
+                <para>
+                    <classname>CEvent</classname> objects look like an extensible array.  If an index of that
+                    array is referenced that is out of bounds of the current size of the object, it is enlarged.
+                    Since <classname>CEvent</classname> objects are recycled, eventually they equilibrate in size.
+                </para>
+                <para>
+                    <classname>CEvent</classname> objects have two other features validity determination and a valid dope
+                    vector.
+                    First, Each element has
+                    last modified sequence and an overall sequence number indicates the current event number.
+                    This allows for two things:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        Using an item element in an expression other than assignment to it 
+                        allows a simple comparison between the item's sequence and the overall sequence
+                        to trap and throw exceptions for using uninitialized parameters in computations.
+                    </para></listitem>
+                    <listitem><para>
+                        This scheme provides for O(1) invalidation of all elements of the <classname>CEvent</classname>
+                        object.  Incrementing the overall sequence number invalidates all members of the <classname>CEvent</classname>
+                        preparing it for re-use in the next event.
+                    </para></listitem>
+                </itemizedlist>
+                <para>
+                    The valid dope vector consists of a vector of indices of valid values in the <classname>CEvent</classname>.
+                    It is used by the histograming engine to determine which histograms may be increemented.
+                    When a value is assigned to an element of a <classname>CEvent</classname>, if that
+                    element is not yet valid, after marking it valid, the index of that element is pushed
+                    into the dope vector.
+                </para>
+                <para>
+                    Now we have enough background to look at the parameter pump, which is used to send/receive
+                    events that workers have analyzed to the event sink pipeline for analysis and other processing.
+                </para>
+                <para>
+                    The definition and implementation of this pump and API are in 
+                    <filename>Core/EventMessage.{h,cpp}</filename>.  Each worker, upon processing a set of events into
+                    an <classname>CEventList</classname> (which is effectively a vector of <classname>CEvent</classname>
+                    objects), calls <function>HistogramEvents</function>.  This sends the event list to the 
+                    parameter pump in the event sink pipeline running in the <literal>MPI_EVENT_SINK_RANK</literal> world
+                    rank process.
+                </para>
+                <para>
+                    <function>HistogramEvents</function> is optimized for the relatively sparse events in 
+                    larger nuclear science experiments.  It uses the dope vector associated with each event to
+                    marshall the data into parameter number/parameter value pairs.  It is these pairs that are
+                    transmitted to the Event sink Pipeline which can trivially use these pairs to reconstruct the
+                    original <classname>CEvent</classname> object.
+                </para>
+                <para>
+                    The parameter pump is a fan in.  All workers send parameters to the same receiver process which has
+                    a pump thread that just receives messages.  The first message for any event's parameters 
+                    is an <function>MPI_Recv</function> from <literal>MPI_ANY_SOURCE</literal>  after that the remainder
+                    of the event, if any is received by specifying the source of the first
+                    chunk gotten as the source of the <function>MPI_Recv</function> message.  This deals with
+                    the possibility that several workers can be simultaneously sending processed events to the 
+                    event sink.
+                </para>
+                <para>
+                    Vectors of completed parameter index/value pairs converted to <classname>CEvent</classname>
+                    which are queued to the event ander for processing by the event sink pipeline.
+                </para>
+            </section>
+            <section>
+                <title>The Xamine gate pump</title>
+                <para>
+                    Gates which are created and modified by Tcl commands either interactively (through a
+                    GUI running in the root process) or via the ReST server (which also runs in the
+                    root process).  Are distributed to the application via the Tcl command pump described
+                    previously.  If, howver the display is Xamine, it can define gates by communicating
+                    with the SpecTcl xamine event handler, which runs in the Event sink pipeline process.
+                </para>
+                <para>
+                    It is the job of the API and pump in <filename>Core/GatePump.{h,cpp}</filename> to distribute
+                    these gate definitions to the rest of the application.  These gates are sent by the
+                    event sink pipeline process via a series of 
+                    <function>MPI_Bcast</function> calls which send:
+                </para>
+                <orderedlist>
+                    <listitem><para>
+                        The gate name and type 
+                    </para></listitem>
+                    <listitem><para>
+                        The parameters the gate depends on.
+                    </para></listitem>
+                    <listitem><para>
+                        The points that make up geometric gates.
+                    </para></listitem>
+                </orderedlist>
+                 <para>
+                    Note that since Xamine can only create geometric gates, that is the only
+                    type of gate the pump and its API can handle.
+                    Once all messages that define a gate have been received, information about the
+                    gate is queued to the event loop where the gate is re-created.
+                </para>
+            </section>
+            <section>
+                <title>The gate trace pump</title>
+                <para>
+                    Gates that are accepted/modified by the event sink procesing pipeline should
+                     should fire traces if they have been
+                    set by application scripts in the root process.
+                    The gate trace pump provides the mechanism to distribute these
+                    messages across the application.  In <filename>Core/GateCommand.cpp</filename>, which 
+                    implements the SpecTcl gate command,  the class constructor starts the trace pump
+                    if the  process is running in the MPI environment.
+                </para>
+                <para>
+                    <methodname>startTracePump</methodname> only does anything if the process is the root process,
+                    in which case it starts the trace thread which is in the static method
+                    <classname>CGateCommand</classname>::<methodname>mpiTraceRelayCatchThread</methodname>.
+                </para>
+                <para>
+                    The histogrammer object coded in <filename>Core/Histogrammer.{h,cpp}</filename> establishes
+                    a trace handler <classname>CHistogrammerGateTraceRelay</classname> as a gate observer
+                    when it's constructed.  Traces it observes ultimately invoke
+                    <classname>CHistogrammerGateTraceRelay</classname>::<methodname>forwardTrace</methodname>
+                    which sends sufficient information to the trace pump to allow it to fire the trace.
+                    Note that <classname>Histogrammer</classname> only exists in the event sink pipeline thread.
+                </para>
+                <para>
+                    This collaboration between <classname>CGateCommand</classname> and 
+                    <classname>CHistogrammer</classname> is unique in the gate pump implementations.
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>mpiSpecTcl initialization</title>
+            <para>
+                Note that the code described here is in the file <filename>Core/TclGrammerApp.cpp</filename>.
+                SpecTcl initialization in the MPI environment requires that the program:
+            </para>
+            <itemizedlist>
+                <listitem><para>
+                    Verify that the program is runnig in paralle mode 
+                    (see <classname>CTclGrammerApp</classname>::<methodname>run</methodname>).
+                </para></listitem>
+                <listitem><para>
+                    Initialize MPI (<classname>CTclGrammerApp</classname>::<methodname>MPIAppInit</methodname>)
+                </para></listitem>
+                <listitem><para>
+                    Determine the world rank of the process (<classname>CTclGrammerApp</classname>::<methodname>MPIAppInit</methodname>)
+                    and verify there are sufficient processes in the application to fulfil all roles.
+                </para></listitem>
+                <listitem><para>
+                    Split the world communicator, creating the ring item communicator and the
+                    gate communicator, used by the pumps for those
+                    data (<classname>CTclGrammerApp</classname>::<methodname>MPIAppInit</methodname>).
+                </para></listitem>
+                <listitem><para>
+                    Do application common and role specific initialization
+                    (in <classname>CTclGrammerApp</classname>::<methodname>AppInit()</methodname>).
+                </para></listitem>
+            </itemizedlist>
+            <para>
+                The common and per-role initialization begins in 
+                <classname>CTclGrammerApp</classname>::<methodname>AppInit()</methodname>
+                which was the application initialization function in SpecTcl prior to version 7.0.
+                It creates a  Tcl interpreter,  invokes 
+                <classname>CTclGrammerApp</classname>::<methodname>operator()</methodname>, which does the
+                bulk of the initialiation and then, if the process is the root process, sets up a Tcl
+                event loop for the process which can take commands from <literal>stdin</literal>
+                If the process is not the root process, closes the <literal>stdin</literal>
+                Tcl channel, starts the command pump and runs an event loop.  This is done
+                in the static function <function>setupSlaveInterpreter</function>.
+            </para>
+            <para>
+                The bulk of initialization is driven by 
+                <classname>CTclGrammerApp</classname>::<methodname>operator()</methodname>.  This is the virtual 
+                method that is considered the entry point to the SpecTcl applicatikon.  It 
+                invokes a bunch of virtual methods which provide extension points for user code.  
+                Some of the methods are unconditionally invoked while others are invoked conditionally 
+                depending on the process world rank.  In the subsection that follows we'll delve into
+                the operations that are conditionally done on the basis of process role (world rank).
+            </para>
+            <para>
+                The emphasis is on initializations that are done in each process but not all
+                processes and intializations that are not done in this process.  The latter is
+                important in determining if you have specialized application specific code that
+                requires modification to run in mpiSpecTcl.
+            </para>
+            <section>
+                <title>Root process (<literal>MPI_ROOT_RANK</literal>)</title>
+                <para>
+                    The root process:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        Does not invoke <methodname>CreateHistogrammer</methodname>,
+                        Nor does it invoke <methodname>CreateDisplays</methodname>.  It does, therefore
+                        invoke <function>startGatePump</function> to receive information about gates
+                        transmitted to the event sink pipeline process by Xamine if it is chosen
+                        to visualize histograms.
+                    </para></listitem>
+                    <listitem><para>
+                        If the <filename>SpecTclInit.tcl</filename> script specified a <varname>HTTPDPort</varname>,
+                        The root process starts and runs the ReST server.
+                     </para></listitem>
+                     <listitem><para>
+                        The displayer is not selected, nor is it started by the Root process
+                    </para></listitem>
+                    <listitem><para>
+                        <function>atexit</function> is used to setup <function>MPIExitHandler</function>
+                        to run as the program is exiting in all process roles.  See
+                        <link linkend='sec.shutdown' endterm='sec.shutdown' /> for information
+                        about what this exit handler does.
+                    </para></listitem>
+                    <listitem><para>
+                        The test data source is only setup in the root process.  This allows test data to
+                        be generated and distributed.
+                    </para></listitem>
+                    <listitem><para>
+                        The analyzer is created and the ring item buffer decoder is selected. The analyzer is used
+                        both in processing events from the data source in the root process and in the dispatching of
+                        events to the event processing pipelines in the workers.
+                    </para></listitem>
+                    <listitem><para>
+                        The run control subsystem is setup.  This supports starting and stopping data 
+                        analysis.  The Root process manages data sources data distribution.  In
+                        the worker and event sink processors, data are pumped into the event loops
+                        of their interpreters.
+                    </para></listitem>
+                    <listitem><para>
+                        The <filename>SpecTclRC.tcl</filename> script(s) are sourced.  This is only 
+                        done in the root process as often these scripts build graphical user interfaces.
+                        by this time, the other processes are running the Tcl pump so any
+                        SpecTcl command extensions run in this script will be appropriately distributed
+                        to the other processes.
+                    </para></listitem>
+                    <listitem><para>
+                        The acknowledgements and the VERSION file are printed out.
+                    </para></listitem>
+                </itemizedlist>
+                <para>
+                    Note that this implies there is not histogramer object in the root process.
+                    Nonetheless, dictionaries of parameter, spectrum, gates and treevariables are maintained
+                    and can be accessed via the API provided by the <classname>SpecTcl</classname>
+                    singleton class.
+                </para>
+    
+            </section>
+            <section>
+                <title>The event sink pipeline process (<literal>MPI_EVENT_SINK_RANK</literal>)</title>
+                <para>
+                    <classname>TclGrammerApp</classname>::<methodname>operator()</methodname>
+                    does the following for the event sink pipeline.
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        The histogramer is created as is the displayer.
+                    </para></listitem>
+                    <listitem><para>
+                        The mirror server is started.
+                        This is done
+                        in <classname>TclGrammerApp</classname>::<methodname>CreateDisplays</methodname>
+                        which is only called in the event sink rank.
+                    </para></listitem>
+                    <listitem><para>
+                        The parameter pump is started. Note that it is the call to 
+                        <function>startHistogramPump</function> that does this.
+                    </para></listitem>
+                    <listitem><para>
+                        <function>atexit</function> is used to establish <function>MPIExitHandler</function>
+                        to run at process exit to shutdown the pumps and perform other cleanup activities.
+                    </para></listitem>
+                </itemizedlist>
+            </section>
+            <section>
+                <title>Worker processes (ranks at least <literal>MPI_FIRST_WORKER_RANK</literal>) </title>
+                <para>
+                    <classname>TclGrammerApp</classname>::<methodname>operator()</methodname> does
+                    the following in processes that are workers. 
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        An analyzer is created to dispatch events received in its ring item pump
+                        to the analysis pipeline.  The analyzer created in this way, 
+                        forwards parameters unpacked and/or computed by physics event ring items
+                        to the event sink process for histograming etc.
+                    </para></listitem>
+                    <listitem><para>
+                        A buffer decoder is created (for ring items) which will be used to pick apart the
+                        ring items that are sent to the workers.
+                    </para></listitem>
+                    <listitem><para>
+                        The analysis pipeline is set up via user code in the <methodname>CreateAnalysisPipeline</methodname>
+                        and the ring item pump is started to pump events distributed to the worker to the event loop from 
+                        which they are dispatched to the analysis pipeline.
+                    </para></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section id='sec.shutdown'>
+            <title id='sec.shutdown.title'>mipSpecTcl shutdown</title>
+            <para>
+                Normal shutdown of mpi SpecTcl ultimately happens either because the Tcl exit command is
+                executed or a Control-C was typed; which forces the root process to exit.
+                All ranks have used <function>atexit</function> to establish <function>MPIExitHandler</function>
+                to be called when the program exits.  This function is
+                implemented in <filename>Core/TclGrammerApp.cpp</filename>
+            </para>
+            <para>
+                It is this function that handles all of the shutdown tasks.
+            </para>
+            <para>
+                There is one bit of trickiness in the exit handler when Xamine is the displayer.
+                Under those circumstances, the spectrum shared memory region is created by Xamine and
+                the Xamine API therefore forks off a process to monitor the number of processes that are attached to that
+                SYSV shared memory region.  As forked processes inherit exit handlers established by
+                <function>atexit</function> that case must be properly  handled.
+            </para>
+            <para>
+                The Xamine API defines a global variable; <varname>is_xamine_shm_monitor</varname>
+                which is set nonzero in the forked process but 0 in all other processes.
+                <function>MPIExitHandler</function>  will just return without doing any SpecTcl
+                specific shutdown operations if that value is set.  It does this because
+                the shared memory monitor is not properly part of the MPI application that makes up
+                mpiSpecTcl.
+            </para>
+            <para>
+                If the process is the root process, one thing it must do is force the other processes
+                in the application to exit.  It does this by sending the <command>exit</command>
+                to all of the processes running the Tcl command pump.  This will start them exiting.
+                It does not look for the result/status of that command as, in theory there won't be any.
+            </para>
+            <para>
+                The root process also invokes <function>stopCommandPump</function> which broadcasts
+                a special message to all Tcl Command pumps imploring them to exit.  This and all pumps
+                must be shutdown to get a normal exit as thread blocked in MPI calls when 
+                <function>MPI_Finalize</function> is called witll, in general, segfault.
+            </para>
+            <para>
+                In fact, the remainder of <function>MPI_Finalize</function> is mostly concerned
+                with stopping the various pumps.
+            </para>
+            <para>
+                Pumps are stopped by sending 'special' messages to them that are easily recognized as
+                invalid.  For example, the Ring item pump is stopped by sending a ring item with 0 in
+                the header's length field.  On receiving a special message the pump threads exit.
+            </para>
+            <para>
+                The root rank, after broadcasting an <command>exit</command> to all of the
+                other processes, ssends an empty command to them to stop all of the Tcl command pumps.
+            </para>
+            <para>
+                The event sink pipeline process, stops the parameter pump it uses to receive
+                unpacked events from workers.   In MPI It's perfectly legal to send yourself
+                a message.  It is not possible, however to recdeive a broadcast from yourself.
+                It also stops the gate pump which broadcasts gates received by Xamine to 
+                all the other processes, and stops the gate trace pump used to fire
+                traces as a result of gate creations/modifications from Xamine.
+            </para>
+            <para>
+                The root process and the workers all stop the ring item pumps.  when
+                <function>stopRingItemPump</function> is called by the root process,
+                it broadcasts a special message to stop all of the non physics pump threads.
+                The workers, send a special message to their own Physics event pump threads
+                to stop them.
+            </para>
+            <para>
+                It can take some time for threads to exit.  Therefore all processes execute a 2 second
+                wait before invoking <function>MPI_Finalize</function> indicating to the MPI run-time
+                that the process is no longer going to communicate. 
+            </para>
+        </section>
+    </chapter>
+    <appendix>
+        <title>mpiSpecTcl  reference material</title>
+        <para>
+            This chapter provides reference pages for things that are vunique to mpiSpecTcl. 
+        </para>
+        <section>
+            <title>Utilities (3u)</title>
+            <para>
+                This section provides documentation for definitions and utility classes and functions.
+            </para>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>Globals.h</refentrytitle>
+                    <manvolnum>3u</manvolnum>
+                </refmeta>
+
+                <refnamediv>
+                    <refname>Globals.h</refname>
+                    <refpurpose>Describe MPI specific definitions in Globals.h</refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;config.h&gt;
+...
+#ifdef WITH_MPI
+#include &lt;mpi.h&gt;
+#endif
+...
+                    ...
+extern bool                gMPIParallel;      
+
+#ifdef WITH_MPI
+
+extern MPI_Comm                  gRingItemComm;  
+extern MPI_Comm                  gXamineGateComm;
+#endif
+
+
+#define MPI_ROOT_RANK   0
+#define MPI_EVENT_SINK_RANK 1
+#define MPI_FIRST_WORKER_RANK 2
+
+#ifndef MPI_TCL_TAG
+#define MPI_TCL_TAG 1                
+#endif
+#define MPI_TRACE_RELAY_TAG 2        
+#define MPI_RING_ITEM_TAG 3          
+                    ...
+                    </programlisting> 
+                </refsynopsisdiv>
+
+                <refsect1>
+                    <title>Description</title>
+                    <para>
+                        The SpecTcl header <filename>Globals.h</filename>, which is installed in the
+                        <filename>include</filename> of the SpecTcl installation tree, provides
+                        several definitions that are generally useful for SpecTcl in the MPI environment.
+                    </para>
+                    <para>
+                        The include for <filename>config.h</filename> is shown because, if 
+                        SpecTcl was built with MPI support the configure script will define
+                        the pre-processor symbol <literal>WITH_MPI</literal>.  This can be used
+                        to conditionalize the compilation of code and definitions that depend on 
+                        the installation of a version of MPI and the use of an MPI compiler driver.
+                    </para>
+                    <para>
+                        The items defined are:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><literal>gMPIParallel</literal></term>
+                            <listitem><para>
+                                This boolean is defined to be <literal>true</literal> at run time
+                                if the program has been built with MPI support <emphasis>and</emphasis>
+                                is running as an MPI parallel program.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>gRingItemComm</literal></term>
+                            <listitem><para>
+                                This item is only defined if SpecTcl was built with MPI parallel
+                                support.  It is the communicator used to send ring items
+                                to the ring item pump.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>gXamineGateCComm</literal></term>
+                            <listitem><para>
+                                This item is only defined if SpecTcl was built with MPI parallel
+                                support.  It is the communicator used to send gate definitions
+                                to the Xamine Gate pump.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_ROOT_RANK</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the world communicator rank
+                                of the root process.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_EVENT_SINK_RANK</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the world communicator rank of the
+                                process that runs the event sink pipeline.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_FIRST_WORKER_RANK</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the world communicator rank
+                                of the lowest ranked process that runs the analysis pipeline;
+                                that is worker processes.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_TCL_TAG</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the MPI tag used on messages
+                                sent to the Tcl pump.  It is also defined in <filename>TclPump.h</filename>
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_TRACE_RELAY_TAG</literal></term>
+                            <listitem><para>
+                                This preprocessor definition is the MPI tag used on gate trace messages sent 
+                                to the gate trace pump.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>MPI_RING_ITEM_TAG</literal></term>
+                            <listitem><para>
+                                This preprocessor defintion is the MPI tag used on Ring item messages sent to
+                                the ring item pump.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>TclPump.h</refentrytitle>
+                    <manvolnum>3u</manvolnum>
+                </refmeta>
+
+                <refnamediv>
+                    <refname>TclPump.h</refname>
+                    <refpurpose>Utility definitions in <filename>TclPump.h</filename></refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+ 
+#include &lt;config.h&gt;
+
+#ifndef MPI_TCL_TAG
+#define MPI_TCL_TAG  1    // Tcl commands have this tag
+#endif
+
+...
+
+bool isMpiApp();
+int  myRank();
+
+...
+                   </programlisting>
+                </refsynopsisdiv>
+                
+
+                <refsect1>
+                    <title>DESCRIPTON</title>
+                    <para>
+                        While the primary purpose of this header is to define the interfaces for the
+                        Tcl command pump, Several useful MPI query functions are defined here:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><literal>MPI_TCL_TAG</literal></term>
+                            <listitem><para>
+                                Defines the tag used to send messages to the Tcl command pump.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>
+                                <funcsynopsis><funcprototype>
+                                    <funcdef>bool <function>isMpiApp</function></funcdef>
+                                    <void />
+                                </funcprototype></funcsynopsis>
+                            </term>
+                            <listitem><para>
+                                This function returns <literal>true</literal> if the process is
+                                runn ing  in the MPI environment.  Otherwise it will return 
+                                <literal>false</literal>
+                            </para></listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>
+                                <funcsynopsis><funcprototype>
+                                    <funcdef>int <function>myRank</function></funcdef>
+                                    <void />
+                                </funcprototype></funcsynopsis>
+                            </term>
+                            <listitem><para>
+                                If <function>isMpiApp</function> would return <literal>true</literal>,
+                                this function will return the proccess's wold communicator rank.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+        </section>
+        <section>
+            <title>Command jackets (3tcl)</title>
+            <para>
+                This section provides reference information for command jacket classes. 
+                These classes are used to wrap objects derived from <classname>CTCLObjectProcesor</classname>.
+                They replace the wrapped command and, when invoked, broadcast the command string to
+                processes running the Tcl pump.  Note that if the program is not run in the
+                MPI environment, these wrappers simply delegate to the wrapped command.  
+            </para>
+            <para>
+                While command syntax summaries are given, the detailed description of each command is not.
+                Refer to the SpecTcl command reference for that information.
+            </para>
+            <para>
+                You should therefore wrap SpecTcl command extensiouns in these classes irregardless
+                of the environment and MPI support.  
+            </para>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CMPITclCommandAll</refentrytitle>
+                    <manvolnum>3tcl</manvolnum>
+                </refmeta>
+                
+                <refnamediv>
+                    <refname>CMPITclCommandAll</refname>
+                    <refpurpose>Jacket a command that runs in all ranks</refpurpose>
+                </refnamediv>
+                
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;MPITclCommandAll.h&gt;
+
+class CMPITclCommandAll : public CTCLObjectProcessor {
+public:
+    CMPITclCommandAll(CTCLInterpreter&amp; interp, const char* command, CTCLObjectProcessor* pActual);
+protected:
+    int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
+
+};
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        Instances of <classname>CMPITclCommandAll</classname> wrap commands
+                        that must execute on all ranks.   In most cases, this is the correct
+                        wrapper class.
+                    </para>
+                    
+                    <variablelist>
+                        <title>METHODS</title>
+                        <varlistentry>
+                            <term><constructorsynopsis><methodname>CMPITCLCOmmandAll</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type> <parameter>interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char*</type> <parameter> command</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CTCLObjectProcessor&amp;</type> <parameter>pActual</parameter>
+                                </methodparam>
+                            </constructorsynopsis></term>
+                            <listitem><para>
+                                Constructs the wrapper for <parameter>pAction</parameter> to run
+                                that actual command processor when <parameter>command</parameter> is
+                                the command to be executed in the <parameter>interp</parameter>
+                                interpreter.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>
+                                <methodsynopsis>
+                                    <type>int</type>
+                                    <methodname>operator()</methodname>
+                                    <methodparam>
+                                        <type>CTCLInterpreter&amp;</type><parameter>rInterp</parameter>
+                                    </methodparam>
+                                    <methodparam>
+                                        <type>std::vector&lt;CTCLObject&gt;&amp;</type><parameter>objv</parameter>
+                                    </methodparam>
+                                </methodsynopsis>
+                            </term>
+                            <listitem><para>
+                                This is called by the interpreter; <parameter>rInterp</parameter> when
+                                the command on which the object was constructed should be executed by
+                                <parameter>rInterp</parameter>.  <parameter>objv</parameter> refers to 
+                                a vector of the command words.  Note that <literal>objv[0]</literal>
+                                is the command name.  This will typically be the same as the 
+                                <parameter>command</parameter> given to the constructor.
+                            </para>
+                            <para>
+                                The return value is the worst of the status values returned by all of
+                                the encapsulated objects <methodname>operator()</methodname>s. 
+                                The Tcl result will be one of the result from the first non 
+                                <literal>TCL_OK</literal> value or the longest string representation
+                                of the result returned by the various <methodname>operator()</methodname>
+                                executions.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CMPITclCommand</refentrytitle>
+                    <manvolnum>3tcl</manvolnum>
+                </refmeta>
+                
+                <refnamediv>
+                    <refname>CMPITclCommand</refname>
+                    <refpurpose>Jacket a command that runs in other ranks</refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;MPITclComamnd.h&gt;
+
+class CMPITclCommand : public CTCLObjectProcessor {
+public:
+    CMPITclCommand(CTCLInterpreter&amp; interp, const char* command, CTCLObjectProcessor* pActual);
+protected:
+    int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
+
+};          
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This wrapper when registered in all processes, and the command registered
+                        is to be executed in the root process executes the encapsulat4ed 
+                        command in all of
+                        the non-root processes. The command is <emphasis>not</emphasis>
+                        executed in the root process.
+                    </para>
+                    <variablelist>
+                        <title>METHODS</title>
+                        <varlistentry>
+                            <term><constructorsynopsis><methodname>CMPITclCommand</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type> <parameter>interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char*</type> <parameter>command</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CTCLObjectProcessor*</type> <parameter>pActual</parameter>
+                                </methodparam>
+                            </constructorsynopsis></term>
+                            <listitem><para>
+                                Wraps the command implemented by <parameter>pActual</parameter>
+                                so that it is executed in all but the root rank when the root interpreter
+                                executes the <parameter>command</parameter> command on the 
+                                <parameter>interp</parameter> interpreter.  In the remote processes, the
+                                command will be executed in that process's main thread's interpreter.
+                            </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                            <term><methodsynopsis>
+                                <type>int</type><methodname>operator()</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type><parameter>interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>std::vector&lt;CTCLObject&gt;&*amp;</type> <parameter>objv</parameter>
+                                </methodparam>
+                            </methodsynopsis></term>
+                            <listitem><para>
+                                This function is called when the command specified in the constructor is
+                                executed by the interpreter specified in the constructor.  That interpreter
+                                is passed as the <parameter>interp</parameter> parameter. <parameter>objv</parameter>
+                                are the command words.  <parameter>objv[0]</parameter> is the command name which,
+                                normally, is the value of <parameter>command</parameter> passed to the constructor.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CMPITclPackagedCommandAll</refentrytitle>
+                    <manvolnum>3tcl</manvolnum>
+                </refmeta>
+
+                <refnamediv>
+                    <refname>CMPITclPackagedCommandAll</refname>
+                    <refpurpose>Wrap a packaged command that will execute in all processes</refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;MPITclPackagedCommandAll.h&gt;
+
+class CMPITclPackagedCommandAll : public CTCLPackagedObjectProcessor {
+
+public:
+    CMPITclPackagedCommandAll(
+        CTCLInterpreter&amp; interp, const char* command, CTCLPackagedObjectProcessor* pActual
+    );
+    int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
+
+};
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        SpecTcl/TclPlus support grouping a set of commands into a package.
+                        A package of commands are a set of commands that shared some common
+                        services that are provided by a <classname>CTCLCommandPackage</classname>
+                        derived object. 
+                    </para>
+                    <para>
+                        Since packaged commands live one layer further down the class hierarchy
+                        from <classname>CTCLObjectProcessor</classname> it is necessary
+                        to provide a separate wrapper for these commands.
+                    </para>
+                    <para>
+                        <classname>CMPITclPackagtedCommandAll</classname> executes the 
+                        wrapped packaged command in all ranks of the MPI SpecTcl.
+                    </para>
+                    <variablelist>
+                        <title>METHODS</title>
+                        <varlistentry>
+                            <term><constructorsynopsis>
+                                <methodname>CMPITclPackagedCommandAll</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type><parameter> interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char*</type><parameter> command</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CTCLPackagedObjectProcessor*</type><parameter>pActual</parameter>
+                                </methodparam>
+                            </constructorsynopsis></term>
+                            <listitem><para>
+                                Constructs a packaged object procsssor that wraps <parameter>pActual</parameter>
+                                and registers it to run on the <parameter>interp</parameter> interpreter to execute 
+                                the <parameter>command</parameter> command.
+                            </para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><methodsynopsis>
+                                <type>int</type> <methodname>operator()</methodname>
+                                <methodparam>
+                                    <type>CTCLInterpreter&amp;</type><parameter>interp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>std::vector&lt;CTCLObject&gt;&amp;</type> <parameter>objv</parameter> 
+                                </methodparam>
+                            </methodsynopsis></term>
+                            <listitem><para>
+                                Called by <parameter>interp</parameter> when the <parameter>command</parameter>
+                                used to construct this object is invoked in that interpreter.  Causes all
+                                processes to run the encapsulated command.  <parameter>objv</parameter> are the
+                                command words.  <literal>objv[0]</literal> is the command name.
+                            </para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CMPITclPackagedCommand</refentrytitle>
+                    <manvolnum>3tcl</manvolnum>
+                </refmeta>
+
+                <refnamediv>
+                    <refname>CMPITclPackagedCommand</refname>
+                    <refpurpose>Jacket packagted commands to run in all but he root.</refpurpose>
+                </refnamediv>
+
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;MPITclPackagedCommand.h&gt;
+class CMPITclPackagedCommand : public CTCLPackagedObjectProcessor 
+{
+public:
+    CMPITclPackagedCommand(CTCLInterpreter&amp; interp, const char* command, CTCLPackagedObjectProcessor* pActual);
+ rotected:
+    virtual int operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObject&gt;&amp; objv);
+};
+                </programlisting>
+            </refsynopsisdiv>   
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Similar to <classname>CMPITclCommand</classname>, <classname>CTMPITclPackagedCommand</classname>
+                    wraps a packaged command that will be executed in all processes other than the root process.
+                </para>
+                <variablelist>
+                    <title>METHODS</title>
+                    <varlistentry>
+                        <term><constructorsynopsis>
+                            <methodname>CTCLPackagedObjectProcessor</methodname>
+                            <methodparam>
+                                <type>CTCLInterpreter&amp;</type><parameter>interp</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>const char*</type> <parameter>command</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>CTCLPackagedObjectProcessor*</type> <parameter>pActual</parameter>
+                            </methodparam>
+                        </constructorsynopsis></term>
+                        <listitem><para>
+                            Wraps the command processor <parameter>pActual</parameter> so that when
+                            <parameter>command</parameter> is invoked in the <parameter>interp</parameter>
+                            interpreter, it will be invoked in all but the root process.
+                        </para></listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><methodsynopsis>
+                            <type>int</type> <methodname>operator()</methodname>
+                            <methodparam>
+                                <type>CTCLInterpreter&amp;</type> <parameter>interp</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>std::vector&lt;CTCLObject&gt;&amp;</type> <parameter>objv</parameter>
+                            </methodparam>
+                        </methodsynopsis></term>
+                        <listitem><para>
+                            Called in when the command registered is invoked in <parameter>interp</parameter>
+                            If this is the root process, all other processe will be asked to execute this
+                            command.  If th is is a non-root process, the encapsulated command processor
+                            is asked to execute the command whose words are <parameter>objv</parameter>.
+                            Note that <literal>objv[0]</literal> is the command name that dispatched this command.
+                        </para></listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+        </refentry>
+        </section>
+    </appendix>
+    <appendix id='app.commands'>
+        <title id='app.commands.title'>SpecTcl commands in the mpiSpecTcl environment</title>
+        <para>
+            This appendix will document how each SpecTcl command executes in mpiSpecTcl.  The operation
+            of a command not only depends on which class wrapped it but which resources are visible in each
+            process.  For example, <command>gate</command> uses services provicded by
+            <classname>CHistogrammer</classname> in the Event SInk Pipeline process, while, in all other processes,
+            it simply manipulates a gate dictionary that provides access to all of the gate definitions
+            via the <classname>SpecTcl</classname> API singleton.
+         </para>
+         <refentry>
+            <refmeta>
+                <refentrytitle>applygate</refentrytitle>
+                <manvolnum>(1SpecTcl)</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>applygate</refname>
+                <refpurpose>Apply a gate to one or more spectra</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>applygate</command> 
+                    <arg choice='plain'><replaceable>gate-name</replaceable></arg> 
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>applygate</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='plain'><replaceable><optional>pattern</optional></replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This commands replaces the <command>apply</command> command in prior
+                    versions of SpecTcl. This replacement was done because the 
+                    <command>apply</command> command was added to the Tcl core command
+                    set in version 8.5 and by now there are Tcl packages and scripts internal
+                    to the Tcl implementation that rely on that command and fail if SpecTcl
+                    overrides it.
+                </para>
+                <para>
+                    The implementation of the <command>applygate</command> command is wrapped in
+                    a <classname>CMPITclPackagedCommand</classname>.   
+                </para>
+                <para>
+                    Ultimately the SpecTcl
+                    API is used to perform gate applications.    If there is a histogrammer object, as there
+                    is in the <literal>MPI_EVENT_SINK_RANK</literal> it is used to apply the gate.  If not,
+                    the spectrum is looked up in the mirrored spectrum dictionary and asked to apply the gate.
+                </para>
+                <para>
+                    When listing gates;  this command only operates in the <literal>MPI_EVENT_SINK_RANK</literal>
+                    process.  It enumerates spectra that match the optional <replaceable>pattern</replaceable>
+                    (which defaults to <literal>*</literal> matching all spectra).  Each spectrum is asked
+                    about the gate applied to it and returns the list as the result with a status of 
+                    <literal>TCL_OK</literal>.  All other ranks return a status of <literal>TCL_OK</literal>
+                    but an empty result. Since the overall command result is the longest of all resuts, the
+                    gate application list is the ultimate result of the command.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>attach</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>attach</refname>
+                <refpurpose>Attach a data source to SpecTcl</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>attach</command>
+                    <arg choice='plain'>
+                        <group>
+                            <arg ><option>-file</option></arg>
+                            <arg ><option>-pipe</option></arg>
+                        </group>
+                    </arg>
+                    <arg choice='plain'><option>-format</option> <replaceable>format-spec</replaceable></arg>
+                    <arg choice='opt'><option>-size</option> <replaceable>num-bytes</replaceable></arg>
+                    <arg choice='plain'><replaceable>connection-specification</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>attach</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Attaches SpecTcl to the a data source or, if <option>-list</option> is specified
+                    provides information about the data source.  Note that once attached, analysis
+                    must still be started.
+                </para>
+                <para>
+                    In parallel operation:
+                </para>
+                <itemizedlist>
+                    <listitem><para>
+                        In mpiSpecTcl only the <literal>ring</literal> format specifier is registered. In serial
+                        SpecTcl, that and <literal>nscl</literal>, <literal>jumbo</literal> and
+                        <literal>filter</literal> are also registered as valid format types.
+                    </para></listitem>
+                    <listitem><para>
+                        This command only executes in the <literal>MPI_ROOT_RANK</literal> process as
+                        that is the one that manages the data source.
+                    </para></listitem>
+                </itemizedlist>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>channel</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>channel</refname>
+                <refpurpose>Describe mpiSpecTcl implementation of the channel command.</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>channel</command>
+                    <arg choice='plain'><option>-set</option></arg>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>channel-indices</replaceable></arg>
+                    <arg choice='plain'><replaceable>new-value</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>channel</command>
+                    <arg choice='plain'><option>-get</option></arg>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>channel-indices</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1> 
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is encapsulated in a <classname>CMPITclPackagedCommand</classname>.
+                    It only actually does something if the process has a histogrammer, and that's
+                    currently only <literal>MPI_EVENT_SINK_RANK</literal>  In all other processes,
+                    this command is a no-op that does not set the result and returns 
+                    <literal>TCL_OK</literal> as its status.  Thus in the <option>-get</option>,
+                    since the non empty <literal>MPI_EVENT_SINK_RANK</literal> result will be the 
+                    longest, it will be the command result, which is correct.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>clear</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>clear</refname>
+                <refpurpose>MPI SpecTcl clear command</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>clear</command>
+                    <arg choice='plain'><option>-all</option></arg>
+                    <arg choice='opt'><option>-stats</option></arg>
+                    <arg choice='opt'><option>-channels</option></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>clear</command>
+                    <arg choice='opt'><option>-stats</option></arg>
+                    <arg choice='opt'><option>-channels</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>clear</command>
+                    <arg choice='plain'><option>-id</option></arg>
+                    <arg choice='opt'><option>-stats</option></arg>
+                    <arg choice='opt'><option>-channels</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-id</replaceable></arg>
+                </cmdsynopsis>
+
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <command>clear</command> command which clears the contents of spectra, 
+                     is wrapped in a <classname>CMPITclPackagedCommandK</classname>.
+                    While, for simplicity, it executes everywhere, only the spectra defined in the
+                    <literal>MPI_EVENT_SINK_RANK</literal> process will actually have counts.  All other
+                    proceses do define spectra which can be found by  the <classname>SpecTcl</classname>
+                    API <emphasis>but</emphasis> they are not only internal (never bound to shared memory) but 
+                    also, only the event sink pipeline running in <literal>MPI_EVENT_SINK_RANK</literal>
+                    will ever increment those spectra.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>evbunpack</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>evbunpack</refname>
+                <refpurpose>mpiSpecTcl implementation of evbunpack</refpurpose>
+            </refnamediv>
+
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>evbunpack create</command>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>clock-MHz</replaceable></arg>
+                    <arg choice='plain'><replaceable>diagnostic-parameter-base-names</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>evbunpack addprocessor</command>
+                    <arg choice='plain'><replaceable>processor-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>source-id</replaceable></arg>
+                    <arg choice='plain'><replaceable>pipeline-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>evbunpack list</command>
+                    <arg choice='opt'><replaceable>pattern</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command controls the manipulation of event builder event processors.
+                    It is encapsulated in a <classname>CMPITclCommand</classname>.  In fact, however,
+                    only the analysis pipelines an event builder event processors defined in the
+                    worker processes (rank &gt;= <literal>MPI_FIRST_WORKER_RANK</literal>) matter 
+                    as those processes are the ones that run the event processing pipeline.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>filter</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>filter</refname>
+                <refpurpose>MPISpectcl Implementation of the filter command</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>filter <option>-new</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>gate-name</replaceable></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>parameter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-delete</option></command>
+                    <arg choice='plain'><replaceable>ilter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-enable</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-disable</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-regate</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>gate-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-file</option></command>
+                    <arg choice='plain'><replaceable>file-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>filter <option>-list</option></command>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command> filter <option>-format</option></command>
+                    <arg choice='plain'><replaceable>filter-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>format-specifier</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>    
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <command>filter</command> is wrapped in a <classname>CMPITclCommand</classname>. 
+                    In mpiSpecTcl, in only runs inthe <literal>MPI_EVENT_SINK_RANK</literal> as filters
+                    live in the event sink pipeline only.  In all other ranks, no result is set and
+                    a <literal>TCL_OK</literal> status is returned.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>fit</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>fit</refname>
+                <refpurpose>Operation of fit command in mpiSpecTcl</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>fit create</command>
+                    <arg choice='plain'><replaceable>fitname</replaceable></arg>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>low-channel</replaceable></arg>
+                    <arg choice='plain'><replaceable>high-channel</replaceable></arg>
+                    <arg choice='plain'><replaceable>fit-type</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>fit update</command>
+                    <arg choice='plain'><replaceable>pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>fit delete</command>
+                    <arg choice='plain'><replaceable>fit-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>fit list</command>
+                    <arg choice='plain'><replaceable>pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>fit proc</command>
+                    <arg choice='plain'><replaceable>fit-name</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <command>fit</command> is wrapped in a <classname>CMPITclCommand</classname>. 
+                    Other than in the <literal>MPI_EVENT_SINK_RANK</literal> it will just
+                    return a <literal>TCL_OK</literal> status with an empty result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>fold</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            
+            <refnamediv>
+                <refname>fold</refname>
+                <refpurpose>THe fold command on mpiSpecTcl</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>fold <option>-apply</option></command>
+                    <arg choice='plain'><replaceable>gate-name</replaceable></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>fold <option>-list</option></command>
+                    <arg choice='plain'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>fold <option>-remove</option></command>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRPTION</title>
+                <para>
+                    The <command>fold</command> implementation is wrapped in a 
+                    <classname>CMPITclCOmmand</classname>.  In all other ranks than 
+                    <literal>MPI_EVENT_SINK_RANK</literal>, the <command>fold</command>
+                    does nothing other than open return a <literal>TCL_OK</literal>
+                    status and not set the result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>gate</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>gate</refname>
+                <refpurpose>Behavior of the gate command in mpiSpecTcl</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>gate <optional><option>-new</option></optional></command>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>type</replaceable></arg>
+                    <arg choice='plain'><replaceable>description</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>gate <option>-list</option></command>
+                    <arg choice='opt'><option>-byid</option></arg>
+                    <arg choice='plain'><replaceable><optional>glob-pattern</optional></replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>gate <option>-delete</option></command>
+                    <arg choice='opt'><option>-id</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>gate</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command> gate <option>-trace</option></command>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>add</arg>
+                            <arg choice='plain'>delete</arg>
+                            <arg choice='plain'>change</arg>
+                        </group>
+                    </arg>
+                    <arg choice='opt'><replaceable>script</replaceable></arg>
+                </cmdsynopsis>
+
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <command>gate</command> is wrapped in a <classname>CMPITclPackagedCommandAll</classname>
+                    which means that all ranks, including the root rank will execute it.  All operations on 
+                    gates are done via the <classname>SpecTcl</classname> singleton API. 
+                </para>
+                <para>
+                     The API takes into
+                    account the differences in tracing semantics;  When it detects a 
+                    <classname>CHistogrammer</classname>
+                    has been created (<literal>MPI_EVENT_SINK_RANK</literal>) it manipulates the gates
+                    via that object so that its ownt tracing mechanisms will fire.
+                    If, on the other hand, no <classname>CHistogrammer</classname> has been
+                    created, it operates via the gate dictionary and the gate commands own
+                    internal tracing scheme is used.  Note that one pre-established trace feeds the
+                    gate trace pump so that GUIs are appropriately notified of gate modifications.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>integrate</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+
+            <refnamediv>
+                <refname>integrate</refname>
+                <refpurpose>Integrate an area of interest</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>integerate</command>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>area-of-interest</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRPTION</title>
+                <para>
+                    Integrates an area of interest within a specific spectrum named
+                    <replaceable>spectrum-name</replaceable> the <replaceable>area-of-interest</replaceable>
+                    can either be spectrum coordinates or a displayable gate.
+                </para>
+                <para>
+                    The command is wrapped in a <classname>CMPITclCommand</classname>.
+                    This command is only executed in the <literal>MPI_EVENT_SINK_RANK</literal> process,
+                    as it is the only one with access to spectrum channel values as well as definitions.
+                    In all other processes, a status of <literal>TCL_OK</literal> is returned and
+                    an empty result is produced.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>mirror</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>mirror</refname>
+                <refpurpose>List sthe mirrors being run</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>mirror</command>
+                    <arg choice='plain'>list</arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Presently there is only one subcommand, <literal>list</literal>.  It lists
+                    the currently active mirrors.  This command is only relevant if the
+                    mirror server was turned on.
+                </para>
+                <para>
+                    The <command>mirror</command> command is wrapeed in an <classname>CMPITclCommand</classname>
+                    and only executes in the <literal>MPI_EVENT_SINK_RANK</literal> process as it is the only 
+                    one with access to the spectrum channels.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>parameter</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>parameter</refname>
+                <refpurpose>Manipulate parametes.</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <note>
+                    <title>WARNING</title>
+                    <para>
+                        It is better to use the <command>treeparameter</command> 
+                        command than the <command>parameter</command>.  Future SpecTcl versions may deprecate
+                        or even eliminate the <command>parameter</command> command.
+                    </para>
+                </note>
+                <cmdsynopsis>
+                    <command>parameter</command>
+                    <arg choice='opt'><option>-new</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>id</replaceable></arg>
+                    <arg choice='opt'><replaceable>metdata</replaceable></arg>
+                
+                    <command>parameter</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt'><option>-byid</option></arg>
+                    <arg choice='plain'>
+                            <group>
+                                <arg choice='plain'><replaceable>glob-pattern</replaceable></arg>
+                                <arg choice='plain'><option>-id</option> <replaceable>id</replaceable></arg>
+                            </group>
+                        </arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>parameter</command>
+                    <arg choice='plain'><option>-delete</option></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'><replaceable>name</replaceable></arg>
+                            <arg choice='plain'><option>-id</option> <replaceable>id</replaceable></arg>
+                        </group>
+                    </arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Manipulates the parameter dictionary.  The parameter dictionary is maintained in 
+                    all ranks.  Therefore this command is encapsulated in a 
+                    <classname>CMPITclPackagedCommandAll</classname>.
+                    All operations work in all ranks.  Since the histogramer maintains a reference
+                    to the parameter dictionary singleton it is able to see all of the parameters 
+                    that are defined.
+                </para>
+            </refsect1>
+        </refentry>
+
+        <refentry>
+            <refmeta>
+                <refentrytitle>pman</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>pman</refname>
+                <refpurpose>Manipulate data analysis piplines</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>mk</arg>
+                    <arg choice='plain'><replaceable>pipe-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>ls</arg>
+                    <arg> choice='opt'>glob-pattern</arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>current</arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>ls-all</arg>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>ls-evp</arg>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>use</arg>
+                    <arg choice='plain'><replaceable>pipe-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>add</arg>
+                    <arg choice='plain'><replaceable>pipename</replaceable></arg>
+                    <arg choice='plain'><replaceable>evpname</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>rm</arg>
+                    <arg choice='plain'><replaceable>pipe-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>evp-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>clear</arg>
+                    <arg choice='plain'><replaceable>pipe-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pman</command>
+                    <arg choice='plain'>clone</arg>
+                    <arg choice='plain'><replaceable>existing-pipe</replaceable></arg>
+                    <arg choice='plain'><replaceable>new-pipe</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pmain</command>
+                    <arg choice='plain'>rmevp</arg>
+                    <arg choice='plain'><replaceable>evp-name</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Manipulate SpecTcl's dynamic event processing pipeilne.
+                    This command is wrappwed with  a <classname>CMPITclCommandAll</classname>.
+                    It manipulates the analyzer and, as such, in ranks that have no analyzers,
+                    it returns a status of <literal>TCL_OK</literal> and no result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>project</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>project</refname>
+                <refpurpose>Create projection spectra</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>project</command>
+                    <arg choice='opt'><option><optional>no</optional>snapshot</option></arg>
+                    <arg choice='plain'><replaceable>sourcde-spectrum</replaceable></arg>
+                    <arg choice='plain'><replaceable>new-spectrum</replaceable></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>x</arg>
+                            <arg choice='plain'>y</arg>
+                        </group>
+                    </arg>
+                    <arg choice='opt'>displayable-contour</arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a 
+                    <classname>CMPITclCommand</classname>.  It can only be executed in the
+                    <literal>MPI_EVENT_SINK_RANK</literal> as that's the only rank that has, not only
+                    a spectrum  dictionary but access to spectrum channels.  All other processes
+                    return <literal>TCL_OK</literal> and no result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>pseudo</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>pseudo</refname>
+                <refpurpose>Create and manipulate pseudo parameters</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>pseudo</command>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>dependent-parameter-tcl-list</replaceable></arg>
+                    <arg choice='plain'><replaceable>tcl-proc-body</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pseudo</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg> choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>pseudo</command>
+                    <arg choice='plain'><option>-delete</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This is encapsulated in a <classname>CMPITclPackagedCommand</classname>
+                    as it is part of the parameter package of commands.  It only executes in the
+                    event sink pipeline as pseudo parameters are computed when all ordinary
+                    parameters have been computed as a step in the event sink pipeline prior to 
+                    actual histograming.  All other processes return  <literal>TCL_OK</literal>
+                    and an empty result.
+                </para>     
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>remote</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>remote</refname>
+                <refpurpose>Allow scripts to know if they are operating remot of SpecTcl</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis><command>remote</command></cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The purpose of this command is to let scripts know if they are incorporated into
+                    SpecTcl or are running over the ReST command simulation jackets.  The command
+                    unconditionally returns a status of <literal>TCL_OK</literal> and a 
+                    result of <literal>0</literal> indicating the script is not remote.
+                </para>
+                <para>
+                    This script is not enapsulated and, therefore, any rank that executes it executes it
+                    locally.  A typical use case, has this executed by a GUI running in the
+                    <literal>MPI_ROOT_RANK</literal>.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>ringformat</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>ringformat</refname>
+                <refpurpose>Set the ring buffer fallback format version</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>ringformat</command>
+                    <arg choice='plain'><replaceable>major</replaceable>.<replaceable>minor</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Sets the ring format version to use in the event there is no ring version ring item
+                    in the data stream.  As this only matters for the data source, the command is not
+                    encapsulated and is only effective when used in <literal>MPI_ROOT_RANK</literal>.
+                    In practice, this is not a restriction as typically, this command is issued by
+                    scripts running in the <literal>MPI_ROOT_RANK</literal> process.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>sbind</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>sbind</refname>
+                <refpurpose>Bind spectra into the shared display memory</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>sbind</command>
+                    <arg choice='opt'><option>-new</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>sbind</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>sbind</command>
+                    <arg choice='plain'><option>-trace</option></arg>
+                    <arg choice='plain'><replaceable>tcl-script-stem</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>sbind</command>
+                    <arg choice='plain'><option>-untrace</option></arg>
+                    <arg  choice='plain'><replaceable>tcl-script-stem</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    <command>sbind</command> is part of the spectrum package and therefore
+                    wwrapped in a  <classname>CMPITclPackagedCommand</classname>.
+                    In all but the <literal>MPI_EVENT_SINK_RANK</literal>, this returns
+                    <literal>TCL_OK</literal> and does nolt set the result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>shmemkey</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>shmemkey</refname>
+                <refpurpose>Provide display shared memory identification</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>shmemkey</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRITPION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCOmmand</classname>.
+                    The display shared memory is created and maintained by <literal>MPI_EVENT_SINK_RANK</literal>.
+                    In all processes but that one, the command returns a status of <literal>TCL_OK</literal>
+                    and an empty result.  On the <literal>MPI_EVENT_SINK_RANK</literal>, the shared memory
+                    identification is set as the command result and <literal>TCL_OK</literal> returned as the
+                    status.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>shmemsize</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>shmemsize</refname>
+                <refpurpose>Get the size of the spectrum pool of display shared memory</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>shmemsize</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCommand</classname> Run in 
+                    <literal>MPI_EVENT_SINK_RANK</literal>, the result is set with the size in 
+                    bytes and a status of <literal>TCL_OK</literal>.  In all other processes,
+                    the status is still <literal>TCL_OK</literal> but no result is set.
+                    This is because the display shared memory region is created and managed
+                    by the <literal>MPI_EVENT_SINK_RANK</literal>.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>specstats</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>specstats</refname>
+                <refpurpose>Fetch spectrum over/underlow statistics</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>specstats</command>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCommand</classname>.
+                    Since the spectrum contents needed to return these statistics are
+                    maintained by the  <literal>MPI_EVENT_SINK_RANK</literal>, this
+                    command, when run in any other process sets no result and returns
+                    <literal>TCL_OK</literal>.  When running in <literal>MPI_EVENT_SINK_RANK</literal>,
+                    the result is set with statitics information and <literal>TCL_OK</literal>
+                    is returned as the status.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>version</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>version</refname>
+                <refpurpose>Provide the SpecTcl version</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>version</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCommandAll</classname>. 
+                    It returns <literal>Tcl_OK</literal> as the status when run in the <literal>MPI_ROOT_RANK</literal>
+                    with the result set to the version string, but in all other ranks, while returning
+                    <literal>TCL_OK</literal> as a status, it does not set he result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>spectrum</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>spectrum</refname>
+                <refpurpose>Create and manipulate spectrum definitions</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>spectrum</command><arg choice='opt'><option>-new</option></arg>
+                    <arg choice='plain'><replaceable>spectrum-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>parameters</replaceable></arg>
+                    <arg choice='plain'><replaceable>axis-speccifications</replaceable></arg>
+                    <arg choice='opt'><replaceable>datatype</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>spectrum</command><arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt'><option>-showgate</option></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>  <!-- specify name pattern  -->
+                                <arg choice='opt'><option>-byid</option></arg>
+                                <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                            </arg>
+                            <arg choice='plain'>  <!-- specify id -->
+                                <arg choice='plain'><option>-id</option></arg>
+                                <arg choice='plain'><replaceable>id</replaceable></arg>
+                            </arg>
+                        </group>
+                    </arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>spectrum</command><arg choice='plain'><option>-delete</option></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>   <!-- delete by names -->
+                                <arg choice='plain' rep='repeat'><replaceable>name</replaceable></arg>
+                            </arg>
+                            <arg choice='plain'>  <!-- delete by ids -->
+                                <arg choice='plain'><option>-id</option></arg>
+                                <arg choice='plain' rep='repeat'><replaceable>id</replaceable></arg>
+                            </arg>
+                            <arg choice='plain'> <!-- delete all -->
+                                <option>-all</option>
+                            </arg>
+                        </group>
+                    </arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>spectru</command><arg choice='plain'><option>-trace</option></arg>
+                    <arg choice='plain'>
+                        <group>
+                            <arg choice='plain'>add</arg>
+                            <arg choice='plain'>delete</arg>
+                        </group>
+                    </arg>
+                    <arg choice='opt'>script</arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclPackagedCommand</classname> and is
+                    part of the spectrum package family of commands.
+                    The application manipulates spectra via the <classname>SpecTcl</classname> API.
+                    In the <literal>MPI_EVENT_SINK_RANK</literal> process, this manipulates the spectra
+                    via the histogrammer object while in other processes, only the spectrum dictionary is 
+                    manipulated to retain a consistent view of spectrum definitions across the application.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>sread</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>sread</refname>
+                <refpurpose>Read spectra from file</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>sread</command>
+                    <arg choice='plain'><option>-format</option> fmtname</arg>
+                    <arg choice='opt'><option>-<optional>no</optional>snapshot</option></arg>
+                    <arg choice='opt'><option>-<optional>no</optional>replace</option></arg>
+                    <arg choice='opt'><option>-<optional>no</optional>bind</option></arg>
+                    <arg choice='plain'><replaceable>file-or-fd</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclPackagedCommand</classname>. 
+                    It is part of the spectrum package (<classname>CSpectrumPackage</classname>).
+                    It only actually does something in the <literal>MPI_EVENT_SINK_RANK</literal>
+                    process as it requires a histogramer and displayer into which to load
+                    the spectrum and, if necessary, bind it to display memory.  Note
+                    that spectra read in from file are only known to the 
+                    <literal>MPI_EVENT_SINK_RANK</literal> process though I believe that they
+                    will show up in the spectrum list and be handled properly by most
+                    commands.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>start</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>start</refname>
+                <refpurpose>start analysis from the current data source</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>start</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is not encapsulated.  It runs only in the
+                    process in which it is invoked.  Since data source management
+                    and data distribution are all done in the
+                    <literal>MPI_ROOT_RANK</literal> and that has the interactive
+                    interpreter as well, this is normally fine.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>stop</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>stop</refname>
+                <refpurpose>Stop analyzing data from the data source</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis><command>stop</command></cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is not encapsulated.  It runs only on the
+                    process in which it's invoked.  Since data source managemnent
+                    and data distribution are all done in the
+                    <literal>MPI_ROOT_RANK</literal> and that runs the 
+                    interactive interpreter as well, this is normally fine.
+                    Note that if SpecTcl is taking data from an online data source,
+                    stopping without detaching (usually done by attaching to the file
+                    <filename>/def/null</filename>), will eventually, most likely
+                    cause data taking to stall or ring items you might care about to
+                    be dropped depending on the options passed to 
+                    <application>ringselector</application>
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>swrite</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>swrite</refname>
+                <refpurpose>Write spectra to file</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>swrite</command>
+                    <arg choice='plain'><option>-format</option> <replaceable>format-name</replaceable></arg>
+                    <arg choice='plain'><replaceable>file-name</replaceable></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is a member of the spectrum package 
+                    (<classname>CSpectrumPackage</classname>) and is, wrapped in a 
+                    <classname>CMPITclPackagedCommand</classname>. 
+                    The package ensures that writes are only done on 
+                    <literal>MPI_EVENT_SINK_RANK</literal> where the spectrum
+                    channels are.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>treeparameter</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>treeparameter</refname>
+                <refpurpose>Manipulate the metadatak of tree parameters</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-listnew</option></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-set</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>bins</replaceable></arg>
+                    <arg choice='plain'><replaceable>low</replaceable></arg>
+                    <arg choice='plain'><replaceable>high</replaceable></arg>
+                    <arg choice='plain'><replaceable>inc</replaceable></arg>
+                    <arg choice='plain'><replaceable>units</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-setinc</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>increment</replaceable></arg>
+                </cmdsynopsis>
+                 <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-setbins</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>bins</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-setunit</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>units-of-measure</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-setlimits</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>low</replaceable></arg>
+                    <arg choice='plain'><replaceable>high</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-check</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-uncheck</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-create</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>low</replaceable></arg>
+                    <arg choice='plain'><replaceable>high</replaceable></arg>
+                    <arg choice='plain'><replaceable>bins</replaceable></arg>
+                    <arg choice='plain'><replaceable>units</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treeparameter</command>
+                    <arg choice='plain'><option>-version</option></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                   This command is encapsulated in a <classname>CMPITclCommandAll</classname>.   It is possible
+                   for application specific code to 
+                   programmatically define tree parameters in the ranks at or above
+                   <literal>MPI_FIRST_WORKER_RANK</literal>.  
+                   Depending on how that's done, those tree parameter may or may not be visible to 
+                   the other processes in the mpiSpecTcl application.
+                   Therefore the only ranks that actually
+                   excute the <command>treeparameter</command> commands are the worker processes.  All other
+                   ranks return <literal>TCL_OK</literal> and and leave an empty result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>treevariable</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>treevariable</refname>
+                <refpurpose>Manipulate Tree variables</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-list</option></arg>
+                    <arg choice='opt'><replaceable>glob-name-pattern</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-set</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                    <arg choice='plain'><replaceable>value</replaceable></arg>
+                    <arg choice='opt'><replaceable>units-of-measure</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-check</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-setchanged</option></arg>
+                    <arg choice='plain'><replaceable>name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>treevariable</command>
+                    <arg choice='plain'><option>-firetraces</option></arg>
+                    <arg choice='opt'><replaceable>glob-pattern</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is wrapped in a <classname>CMPITclCommandAll</classname>.
+                    Tree variables, in practice, steer computations in the event processing
+                    pipeline. Furthermore, it is typically the event processing pipeline
+                    elements that construct a treevariable.  Therfore, if the rank of the
+                    process is less than <literal>MPI_FIRST_WORKER_RANK</literal> the command
+                    simply returns <literal>TCL_OK</literal> and no result.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>unbind</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>unbind</refname>
+                <refpurpose>Unbind spectra from display shared memory</refpurpose>
+            </refnamediv>
+
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>unbind</command>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>unbind</command>
+                    <arg choice='plain'><option>-id</option></arg>
+                    <arg choice='plain' rep='repeat'><replaceable>id</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                    <command>unbind</command>
+                    <arg choice='plain'><option>-all</option></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is part of the spectrum command package 
+                    (<classname>CSpectrumPackage</classname>).  It is wrapped in a 
+                    <classname>CMPITclPackagedCommand</classname>.  It only runs in the 
+                    <literal>MPI_EVENT_SINK_RANK</literal>   since that is the rank that
+                    creates and maintains the display shared memory and histogram data 
+                    that are manipulated by <command>unbind</command>.
+                </para>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>ungate</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>ungate</refname>
+                <refpurpose>Remove gate conditions from spectra</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>ungate</command>
+                    <arg choice='plain' rep='repeat'><replaceable>spectrum-name</replaceable></arg>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command is part of the gate package of commands 
+                    <classname>CGatePackage</classname>.  It is encapsulated in a 
+                    <classname>CMPITclPackagedCommand</classname>.  The ungating of individual
+                    spectra is done via the <classname>SpecTcl</classname> API which, if a histogrammer
+                    object exists, as it does in <literal>MPI_EVENT_SINK_RANK</literal> 
+                    asks the histogramer to remove the gate so that all of the other histogrammer
+                    book keeping will be done.  In all other clasess, the spectrum  is located in
+                    the local spectrum dictionary and asked to ungate itself.
+                </para>
+            </refsect1>
+        </refentry>
+    </appendix>
 </book>

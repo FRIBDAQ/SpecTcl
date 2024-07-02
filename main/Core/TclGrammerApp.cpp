@@ -607,7 +607,8 @@ void CTclGrammerApp::CreateDisplays()
   // If SpecTclInit.tcl provided a MirrorPort variable,
   // We start a mirror server on that port, serving out the memory
   // pointed to by gpDisplayMemory.
-  
+  // in mpiSpecTcl, this is only started in the event sink as it has the memory to mirror.
+  //
   
   CTCLVariable mirrorPort(gpInterpreter, "MirrorPort", false);
   const char* mirrorPortNum = mirrorPort.Get();
@@ -618,14 +619,14 @@ void CTclGrammerApp::CreateDisplays()
       );
     auto mirrorServer = new ServerListener(mirrorPortNum, pFactory);
     mirrorServer->start();
-     // Mirror port for QtPy GUI
+    // Mirror port for QtPy GUI
     int mp = atoi(mirrorPortNum);
     std::string mport = std::to_string(mp);
     ::setenv("MIRRORport", mport.c_str(), 1);
   } else {
     ::setenv("MIRRORport", "0", 1);   /// local no mirror may be needed
   }
-
+  
  
 
 }

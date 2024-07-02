@@ -8,6 +8,7 @@ libMPIUtilities_la_SOURCES= TclPump.cpp TclPump.h MPITclCommand.cpp MPITclComman
 include_HEADERS = MPITclCommand.h MPITclCommandAll.h MPITclPackagedCommand.h \
     MPITclPackagedCommandAll.h TclPump.h
 
+
 libMPITclPackage_la_SOURCES= mpiTclPackage.cpp TclPump.h\
     MPISendCommand.cpp MPISendCommand.h
     
@@ -21,3 +22,9 @@ noinst_PROGRAMS= testApp
 testApp_SOURCES= testApp.cpp TclPump.cpp MPITclCommand.cpp MPITclCommandAll.cpp
 testApp_CPPFLAGS=$(libMPIUtilities_la_CPPFLAGS)
 testApp_LDFLAGS= $(libMPIUtilities_la_LDFLAGS)
+check_PROGRAMS= testApp
+
+testApp_SOURCES= testApp.cpp TclPump.cpp MPITclCommand.cpp MPITclCommandAll.cpp
+testApp_CPPFLAGS=$(libMPIUtilities_la_CPPFLAGS)
+testApp_LDFLAGS= $(libMPIUtilities_la_LDFLAGS)
+>>>>>>> rfoxkendo/issue132

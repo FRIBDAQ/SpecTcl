@@ -893,9 +893,8 @@ CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
   std::string rResult = rInterp.GetResultString();
   if (prefix) rResult += prefix;
   rResult += "Usage: \n";
-  rResult += "  spectrum [-new] name type { parameters... } {axisdefs... [datatype]y\n";
+  rResult += "  spectrum [-new] name type { parameters... } {axisdefs... [datatype]\n";
   rResult += "  spectrum -list ?-byid? ?-showgate? [pattern]\n";
-  rResult += "  spectrum -list pattern\n";
   rResult += "  spectrum -list -id ?-showgate? id\n";
   rResult += "  spectrum -delete name1 [name2...]\n";
   rResult += "  spectrum -delete -id id1 [id2...]\n";
