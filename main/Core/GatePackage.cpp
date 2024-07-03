@@ -98,7 +98,7 @@ CGatePackage::CGatePackage(CTCLInterpreter* pInterp, CHistogrammer* pHistogramme
   m_pGateCommand = new CMPITclPackagedCommandAll(*pInterp, "gate", pGateInner);
   addCommand(m_pGateCommand);
 
-  auto pApplyInner = new CApplyCommand(pInterp);
+  auto pApplyInner = new CApplyCommand(pInterp, "::spectcl::serial::");
   addCommand(pApplyInner);
   m_pApplyCommand = new CMPITclPackagedCommand(*pInterp, "applygate", pApplyInner);
   addCommand(m_pApplyCommand);

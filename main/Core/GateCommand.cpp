@@ -223,7 +223,7 @@ static const UInt_t nUsageLines = (sizeof(pUsage) / sizeof(char*));
   The package will be registered by the package itself when the command is added.
 */
 CGateCommand::CGateCommand(CTCLInterpreter*      pInterp) :
-  CTCLPackagedObjectProcessor(*pInterp, "gate", true),
+  CTCLPackagedObjectProcessor(*pInterp, "::spectcl::serial::gate", true),
   m_pAddScript(0),
   m_pDeleteScript(0),
   m_pChangeScript(0),

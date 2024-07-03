@@ -62,7 +62,7 @@ CFoldCommandActual::~CFoldCommandActual()
  * 
  */
 CFoldCommandActual::CFoldCommandActual(CTCLInterpreter* pInterp) :
-  CTCLObjectProcessor(*pInterp, "fold", true)
+  CTCLObjectProcessor(*pInterp, "::spectcl::serial::fold", true)
 {
 }
 

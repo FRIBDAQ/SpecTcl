@@ -36,7 +36,7 @@
  * @param interp - interpreter on which the command is being registered.
  */
 CMirrorCommandActual::CMirrorCommandActual(CTCLInterpreter& interp) :
-    CTCLObjectProcessor(interp, "mirror", TCLPLUS::kfTRUE)
+    CTCLObjectProcessor(interp, "::spectcl::serial::mirror", TCLPLUS::kfTRUE)
 {}
 
 /**

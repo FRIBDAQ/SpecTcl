@@ -52,7 +52,7 @@ class CSpectrum;
 class CSpectrumStatsCommandActual : public CTCLObjectProcessor
 {
 public:
-    CSpectrumStatsCommandActual(CTCLInterpreter& interp, const char* command="specstats");
+    CSpectrumStatsCommandActual(CTCLInterpreter& interp, const char* command="::spectcl::serial::specstats");
     virtual ~CSpectrumStatsCommandActual();
     
 public:

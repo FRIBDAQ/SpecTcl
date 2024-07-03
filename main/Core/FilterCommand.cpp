@@ -83,7 +83,7 @@ static const UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
      
 */
 CFilterCommandActual::CFilterCommandActual(CTCLInterpreter& rInterp) : 
-  CTCLObjectProcessor(rInterp, "filter", true)
+  CTCLObjectProcessor(rInterp, "::spectcl::serial::filter", true)
 {
 }
 

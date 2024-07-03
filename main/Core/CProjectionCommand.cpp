@@ -55,7 +55,7 @@ static  CGateContainer   truecontainer("-Ungated-", 0, truegate);
    Construction registers the command.
 */
 CProjectionCommandActual::CProjectionCommandActual(CTCLInterpreter& rInterp) :
-  CTCLObjectProcessor(rInterp, "project", true)
+  CTCLObjectProcessor(rInterp, "::spectcl::serial::project", true)
 {
   
 }
