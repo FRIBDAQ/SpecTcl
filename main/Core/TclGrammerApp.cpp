@@ -1476,6 +1476,13 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
         return TCL_ERROR;
     }
 
+    // Make two namespaces:
+    // ::spectcl - which will hold all spectcl commands in the future.
+    // ::spectcl::serial - which will hold the actual wrapped commands:
+
+    Tcl_CreateNamespace(pInterp, "::spectcl", nullptr, nullptr);
+    Tcl_CreateNamespace(pInterp, "::spectcl::serial", nullptr, nullptr);
+
     gpInterpreter = new CTCLInterpreter(pInterp);
     assert(gpInterpreter != NULL);
 
