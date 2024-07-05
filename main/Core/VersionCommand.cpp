@@ -72,4 +72,4 @@ int CVersionCommandActual::operator()(CTCLInterpreter& interp, std::vector<CTCLO
 // MPI Wrapper constructor:
 
 CVersionCommand::CVersionCommand(CTCLInterpreter& interp, const char* command) :
-    CMPITclCommandAll(interp, command, new CVersionCommandActual(interp, command)) {}
+    CMPITclCommandAll(interp, command, new CVersionCommandActual(interp, "::spectcl::serial::version")) {}
