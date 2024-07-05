@@ -3640,6 +3640,16 @@ package require mpi
                 <para>
                     Using role names is the preferred way to target scripts.
                 </para>
+                <note>
+                    <title>NOTE:</title>
+                    <para>
+                        If you use a SpecTcl command in the script you send,
+                        you should use the local version of the command to
+                        prevent SpecTcl from trying to retransmit it.  The
+                        local version of each SpecTcl command is in the namespace
+                        <literal>::spectcl::serial::</literal>.  See the examples.
+                    </para>
+                </note>
             </refsect1>
             <refsect1>
                 <title>EXAMPLES</title>
@@ -3660,6 +3670,19 @@ mpi::send all {puts "Hello from $mpi::rank"}
 mpi::send worker {puts "Hello from $mpi::role at rank $mpi::rank"}
                     </programlisting>
                 </example>
+                <example>
+                    <title>A send command that clears all spectra</title>
+                    <programlisting>
+mpi::send event_sink {
+    ::spectcl::serial::clear -all
+}
+                    </programlisting>
+                </example>
+                <para>
+                    Note this prior example is a bit silly as it can also
+                    be accomplished by <command>clear -all</command> in the root
+                    process.
+                </para>
             </refsect1>
         </refentry>
     </appendix>
