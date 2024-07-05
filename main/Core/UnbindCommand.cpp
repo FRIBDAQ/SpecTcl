@@ -88,8 +88,8 @@ static const TCLPLUS::UInt_t SwitchTableSize =
  *     @param pInterp - Pointer to the interpreter on which this command will be registered.
  * 
 */
-CUnbindCommand::CUnbindCommand(CTCLInterpreter* pInterp) :
-  CTCLPackagedObjectProcessor(*pInterp, "unbind", true) 
+CUnbindCommand::CUnbindCommand(CTCLInterpreter* pInterp, const char* cmd) :
+  CTCLPackagedObjectProcessor(*pInterp, cmd , true) 
   {}
 
 //////////////////////////////////////////////////////////////////////////

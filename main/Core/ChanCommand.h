@@ -62,8 +62,8 @@ public:
 
 // Constructors and other cannonical operations:
 
-   ChannelCommand (CTCLInterpreter* pInterp) :
-    CTCLPackagedObjectProcessor(*pInterp, "channel", true)
+   ChannelCommand (CTCLInterpreter* pInterp, const char* cmd = "channel") :
+    CTCLPackagedObjectProcessor(*pInterp, cmd, true)
   { }
   
   virtual ~ChannelCommand ( )  // Destructor 

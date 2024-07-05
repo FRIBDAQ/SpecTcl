@@ -91,8 +91,8 @@ static const TCLPLUS::UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntr
  *    @param pInterp - pointer to the interpreter on which this command will be
  *      registered
 */
-CBindCommand::CBindCommand(CTCLInterpreter* pInterp) :
-  CTCLPackagedObjectProcessor(*pInterp, "sbind", true)
+CBindCommand::CBindCommand(CTCLInterpreter* pInterp, const char* cmd) :
+  CTCLPackagedObjectProcessor(*pInterp, "cmd", true)
 {}
 
 //////////////////////////////////////////////////////////////////////////

@@ -131,9 +131,9 @@ public:
    and set up our member data.  We will also
    set up a trace observer on the histogrammer.
 */
-CSpectrumCommand::CSpectrumCommand (CTCLInterpreter* pInterp) :
+CSpectrumCommand::CSpectrumCommand (CTCLInterpreter* pInterp, const char* cmd) :
 
-  CTCLPackagedObjectProcessor(*pInterp, "spectrum", true),
+  CTCLPackagedObjectProcessor(*pInterp, cmd, true),
   m_fTracing(false),
   m_pObserver(new SpectrumTraceObserver(this))
   

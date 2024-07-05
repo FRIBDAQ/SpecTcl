@@ -54,8 +54,8 @@ public:
 
    // Constructors and other cannonical operations:
 
-  CWriteCommand (CTCLInterpreter* pInterp) :
-    CTCLPackagedObjectProcessor(*pInterp, "swrite", true)
+  CWriteCommand (CTCLInterpreter* pInterp, const char* cmd="swrite") :
+    CTCLPackagedObjectProcessor(*pInterp, cmd, true)
   { 
   } 
   ~ CWriteCommand ( )  // Destructor 

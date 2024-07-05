@@ -29,7 +29,7 @@
 //
 //
 CSharedMemorySizeCommandActual::CSharedMemorySizeCommandActual(CTCLInterpreter& rInterp)
-    : CTCLObjectProcessor(rInterp, "shmemsize", true)
+    : CTCLObjectProcessor(rInterp, "::spectcl::serial::shmemsize", true)
 {
 }
 

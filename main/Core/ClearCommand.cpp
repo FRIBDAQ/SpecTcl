@@ -75,8 +75,8 @@ static const UInt_t SwitchTableSize = sizeof(SwitchTable)/sizeof(SwitchEntry);
  *  Constructor
  *     pInterp - Pointer to the interpreter on which to register us:
 */
-CClearCommand::CClearCommand(CTCLInterpreter* pInterp) :
-  CTCLPackagedObjectProcessor(*pInterp, "clear", true)
+CClearCommand::CClearCommand(CTCLInterpreter* pInterp, const char* cmd) :
+  CTCLPackagedObjectProcessor(*pInterp,  cmd, true)
 {
 
 }

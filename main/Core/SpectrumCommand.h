@@ -70,7 +70,7 @@ private:
 
 public:
 			//Constructor with arguments
-  CSpectrumCommand (CTCLInterpreter* pInterp);
+  CSpectrumCommand (CTCLInterpreter* pInterp, const char* cmd = "spectrum");
   virtual ~CSpectrumCommand ( );
 
 			//Copy constructor - Illegal
