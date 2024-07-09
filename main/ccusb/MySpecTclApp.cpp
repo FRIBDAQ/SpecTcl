@@ -30,7 +30,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TreeParameter.h>
 #include "ParamMapCommand.h"
 #include "CCUSBUnpacker.h"
-#include "MPITclCommand.h"
+#include <TclPump.h>
+#include <CCommandAlias.h>
+#include <iostream>
+#include <stdlib.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -461,7 +464,9 @@ CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)
   CTclGrammerApp::AddCommands(rInterp);
   CParamMapCommand::create(rInterp);
   auto pParamMap = CParamMapCommand::getInstance();
-  new CMPITclCommand(rInterp, "parammap", pParamMap);
+  new CCommandAlias(&rInterp, "::spectcl::parammap", pParamMap);
+  new CCommandAlias(&rInterp, "::spectcl::serial::parammap", pParamMap);
+  
 }  
 
 //  Function: 	
@@ -520,6 +525,12 @@ to extend this functionality by adding code to this function.
 int 
 CMySpecTclApp::operator()()  
 { 
+  if (isMpiApp()) {
+    if (myRank() == 0) {
+      std::cerr << "****ERROR*** CCUSBSpecTcl does not support MPI Parallelism\n";
+    }
+    exit(EXIT_FAILURE);
+  }
   return CTclGrammerApp::operator()();
 }
 
