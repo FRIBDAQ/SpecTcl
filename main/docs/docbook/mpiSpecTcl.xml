@@ -21,7 +21,7 @@
     <chapter>
         <title>Quick Start</title>
         <para>
-            This chapter is intended to get you up and running with XXUSBSpecTcl and 
+            This chapter is intended to get you up and running with VMUSBSpecTcl and 
             custom configured SpecTcl's that don't extend the SpecTcl command set.
             I'll describe:
         </para>
@@ -3689,7 +3689,12 @@ mpi::send event_sink {
     <appendix>
         <title>XXUSB SpecTcl with MPI parallelism</title>
         <para>
-            XXUSB SpecTcls require that configuration support packages
+            Only VMUSBSpecTcl has been made to support MPI parallel
+            operation.  If CCUSBSpecTcl is run under <command>mpirun</command>
+            it will output an error message and exit immediately with an error status.
+        </para>
+        <para>
+            VMUSB SpecTcls require that configuration support packages
             and configuration scripts be loaded into all of the
             processes of MPI SpecTcl.   This ensures that all parameters,
             spectra and decode tables get loaded whereever they are needed.
@@ -3726,6 +3731,11 @@ package require mpi
             <emphasis>not</emphasis> in 
             <filename>SpecTclRC.tcl</filename>.
         </para>
+        <para>
+            This has been added to the <filename>SpecTclInit.tcl</filename> that
+            is now in the <filename>VMUSBSkel</filename> directory of the SpecTcl
+            insallation.
+        </para>
         <section>
             <title>VMUSBSpecTcl</title>
             <para>
@@ -3749,33 +3759,12 @@ package require mpi
                 VMUSB support and its processing of the configuration file
                 are wrapped in a <command>mpi::send all ...</command>.
             </para>
-        </section>
-        <section>
-            <title>CCUSBSpecTcl</title>
             <para>
-                You must wrap the code in <filename>SpecTclRC.tcl</filename> 
-                that pulls in the CCUSB configuration support code and
-                the configuration itself so that it is executed in
-                all ranks:
-            </para>
-            <example>
-                <title>CCUSB Configuration</title>
-                <programlisting>
-mpi::send all {
-	lappend auto_path $SpecTclHome/TclLibs
-	package require ccusbconfig 
-	configureSpecTcl
-
-	
-	puts "Configured in $::mpi::rank"
-}
-                </programlisting>
-            </example>
-            <para>
-                Note how the package load and processing of
-                the configuration script are wrapped in a 
-                <command>mpi::send all ...</command> command.
+                The <filename>SpecTclRC.tcl</filename> in the 
+                <filename>VMUSBSkel</filename> directory of the SpecTcl installation
+                is now like that.
             </para>
         </section>
+        
     </appendix>
 </book>
