@@ -12,7 +12,8 @@ include_HEADERS = MPITclCommand.h MPITclCommandAll.h MPITclPackagedCommand.h \
 libMPITclPackage_la_SOURCES= mpiTclPackage.cpp TclPump.h\
     MPISendCommand.cpp MPISendCommand.h
     
-libMPITclPackage_la_CPPFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@
+libMPITclPackage_la_CPPFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
+    -I@top_srcdir@/Core -I@top_srcdir@/Utility
 libMPITclPackage_la_LDFLAGS=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @LIBEXCEPTION_LDFLAGS@ 
 libMPITclPackage_la_LIBADD=libMPIUtilities.la
 

@@ -15,6 +15,7 @@
 #include <TCLException.h>
 #include <Histogrammer.h>
 #include <Globals.h>
+#include "CCommandAlias.h"
 
 
 class evbunpackCmdTests : public CppUnit::TestFixture {
@@ -43,12 +44,14 @@ private:
   CPipelineManager*  m_pMgr;
   CTCLInterpreter*   m_pInterp;
   CUnpackEvbCommandActual* m_pCmd;
+  CCommandAlias* m_pCmdAlias;
   CHistogrammer*     m_pHistogrammer;
 public:
   void setUp() {
     m_pMgr = CPipelineManager::getInstance();
     m_pInterp = new CTCLInterpreter;
     m_pCmd    = new CUnpackEvbCommandActual(*m_pInterp);
+    m_pCmdAlias = new CCommandAlias(m_pInterp, "evbunpack", m_pCmd);
     m_pHistogrammer = new CHistogrammer;
     gpEventSink     = m_pHistogrammer;
   }
@@ -57,7 +60,7 @@ public:
     delete CPipelineManager::m_pInstance;
     CPipelineManager::m_pInstance == 0;
     
-    delete m_pCmd;
+    delete m_pCmdAlias;
     delete m_pHistogrammer;
     gpEventSink = nullptr;
     delete m_pInterp;
