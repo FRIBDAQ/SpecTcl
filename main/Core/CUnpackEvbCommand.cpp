@@ -38,7 +38,7 @@
  * @param interp - interpreter on which the command is registered.
  */
 CUnpackEvbCommandActual::CUnpackEvbCommandActual(CTCLInterpreter& interp) :
-    CTCLObjectProcessor(interp, "evbunpack", true)
+    CTCLObjectProcessor(interp, "::spectcl::serial::evbunpack", true)
 {}
 
 /**

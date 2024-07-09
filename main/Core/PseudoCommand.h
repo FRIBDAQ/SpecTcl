@@ -88,7 +88,7 @@ public:
   // Constructors and other cannonical operations:
   
   CPseudoCommand (CTCLInterpreter* pInterp) :
-    CTCLPackagedObjectProcessor(*pInterp, "pseudo", true )
+    CTCLPackagedObjectProcessor(*pInterp, "::spectcl::serial::pseudo", true )
   { 
   } 
   virtual ~ CPseudoCommand ( )  // Destructor 

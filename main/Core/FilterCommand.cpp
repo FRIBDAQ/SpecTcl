@@ -82,8 +82,8 @@ static const UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
       The interpreter the command will be registered on.
      
 */
-CFilterCommandActual::CFilterCommandActual(CTCLInterpreter& rInterp) : 
-  CTCLObjectProcessor(rInterp, "filter", true)
+CFilterCommandActual::CFilterCommandActual(CTCLInterpreter& rInterp, const char* cmd) : 
+  CTCLObjectProcessor(rInterp, cmd, true)
 {
 }
 

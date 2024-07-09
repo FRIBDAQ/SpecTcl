@@ -10,7 +10,7 @@
 #include "SpecTcl.h"
 
 CPipelineCommandActual::CPipelineCommandActual(CTCLInterpreter& interp) :
-  CTCLObjectProcessor(interp, "pman" , true),
+  CTCLObjectProcessor(interp, "::spectcl::serial::pman" , true),
   m_manager(CPipelineManager::getInstance())
 {
 

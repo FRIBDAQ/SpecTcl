@@ -49,7 +49,7 @@ public:
   };
 public:
 			//Constructor with arguments
-  CUnbindCommand (CTCLInterpreter* pInterp);
+  CUnbindCommand (CTCLInterpreter* pInterp, const char* cmd = "unbindS");
             
   virtual ~ CUnbindCommand ( ) { }       //Destructor
   

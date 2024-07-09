@@ -93,7 +93,7 @@ static const TCLPLUS::UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntr
  *    @param pInterp - pointer to the interpreter on which this command will be
  *      registered
 */
-CBindCommand::CBindCommand(CTCLInterpreter* pInterp) :
+CBindCommand::CBindCommand(CTCLInterpreter* pInterp, const char* cmd) :
   CTCLPackagedObjectProcessor(*pInterp, "sbind", true)
 {
   // If we are MPI root rank we start the pump:

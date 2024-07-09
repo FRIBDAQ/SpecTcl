@@ -41,11 +41,15 @@ class CTCLInterpreter;
 class CStartRun;
 class CStopRun;  
 class CTCLVariable;
+class CPackagedCommandAlias;
                              
 class CRunControlPackage  : public CTCLCommandPackage        
 {
   CStartRun*     m_pStartRun;
+  CPackagedCommandAlias*   m_pStartAlias;
   CStopRun*      m_pStopRun;
+  CPackagedCommandAlias*   m_pStopAlias;
+
   CTCLVariable*  m_pRunState;
   
 public:

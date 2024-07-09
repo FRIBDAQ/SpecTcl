@@ -80,7 +80,7 @@ CTreeParameterCommandActual::~CTreeParameterCommandActual()
  * 
  */
 CTreeParameterCommandActual::CTreeParameterCommandActual(CTCLInterpreter* pInterp) :
-  CTCLObjectProcessor(*pInterp, "treeparameter", true)
+  CTCLObjectProcessor(*pInterp, "::spectcl::serial::treeparameter", true)
 {  
 }
 

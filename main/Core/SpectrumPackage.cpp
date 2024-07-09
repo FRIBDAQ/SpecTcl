@@ -155,37 +155,37 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   m_pRead(0),
   m_pDisplay(pDisplay)
 {
-  auto spectrumInner = new CSpectrumCommand(pInterp);
+  auto spectrumInner = new CSpectrumCommand(pInterp, "::spectcl::serial::spectrum");
   addCommand(spectrumInner);
   m_pSpectrum = new CMPITclPackagedCommandAll(*pInterp, "spectrum", spectrumInner);
   addCommand(m_pSpectrum);
 
-  auto clearInner = new CClearCommand(pInterp);
+  auto clearInner = new CClearCommand(pInterp, "::spectcl::serial::clear");
   addCommand(clearInner);
   m_pClear = new CMPITclPackagedCommand(*pInterp, "clear", clearInner);
   addCommand(m_pClear);
 
-  auto sbindInner = new CBindCommand(pInterp);
+  auto sbindInner = new CBindCommand(pInterp, "::spectcl::serial::sbind");
   addCommand(sbindInner);
   m_pBind = new CMPITclPackagedCommandAll(*pInterp, "sbind", sbindInner);
   addCommand(m_pBind);
 
-  auto unbindInner = new CUnbindCommand(pInterp);
+  auto unbindInner = new CUnbindCommand(pInterp, "::spectcl::serial::unbind");
   addCommand(unbindInner);
   m_pUnbind = new CMPITclPackagedCommandAll(*pInterp, "unbind", unbindInner);
   addCommand(m_pUnbind);
 
-  auto chanInner = new ChannelCommand(pInterp);
+  auto chanInner = new ChannelCommand(pInterp, "::spectcl::serial::channel");
   addCommand(chanInner);
   m_pChannel = new CMPITclPackagedCommand(*pInterp, "channel", chanInner);
   addCommand(m_pChannel);
 
-  auto writeInner = new CWriteCommand(pInterp);
+  auto writeInner = new CWriteCommand(pInterp, "::spectcl::serial::swrite");
   addCommand(writeInner);
   m_pWrite = new CMPITclPackagedCommand(*pInterp, "swrite", writeInner);
   addCommand(m_pWrite);
 
-  auto readInner = new CReadCommand(pInterp);
+  auto readInner = new CReadCommand(pInterp, "::spectcl::serial::sread");
   addCommand(readInner);
   m_pRead = new CMPITclPackagedCommand(*pInterp, "sread", readInner);
   addCommand(m_pRead);                 // In Event sink pipeline.

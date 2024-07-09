@@ -99,6 +99,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "MirrorServer.h"
 #include "EventMessage.h"
 
+
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
@@ -862,8 +863,8 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   }
 
   // For Filter command.
-  CFilterCommand* pFilterCommand = new CFilterCommand(rInterp);
-
+  auto pFilterCommand = new CFilterCommand(rInterp); //"filter"
+  
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
     cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
   }
@@ -1492,6 +1493,13 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
     if (Tcl_Init(pInterp) == TCL_ERROR) {
         return TCL_ERROR;
     }
+
+    // Make two namespaces:
+    // ::spectcl - which will hold all spectcl commands in the future.
+    // ::spectcl::serial - which will hold the actual wrapped commands:
+
+    Tcl_CreateNamespace(pInterp, "::spectcl", nullptr, nullptr);
+    Tcl_CreateNamespace(pInterp, "::spectcl::serial", nullptr, nullptr);
 
     gpInterpreter = new CTCLInterpreter(pInterp);
     assert(gpInterpreter != NULL);

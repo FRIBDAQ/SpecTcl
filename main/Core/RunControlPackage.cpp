@@ -43,6 +43,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLVariable.h"
 #include <string>
 #include "TclPump.h"
+#include "CCommandAlias.h"
 //=
 
 
@@ -72,7 +73,9 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
   CTCLCommandPackage(pInterp,
 		     std::string(Copyright)),
   m_pStartRun(0),
+  m_pStartAlias(0),
   m_pStopRun(0),
+  m_pStopAlias(0),
   m_pRunState(0)
 {
   // Create the commands:
@@ -92,6 +95,12 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
   AddProcessor(m_pStartRun);
   AddProcessor(m_pStopRun);
 
+  // Aliases for start stop: 
+
+  m_pStartAlias = new CPackagedCommandAlias(*pInterp, "spectcl::serial::start", m_pStartRun, *this);
+  m_pStopAlias  = new CPackagedCommandAlias(*pInterp, "spectcl::serial::stop", m_pStopRun, *this);
+  AddProcessor(m_pStartAlias);
+  AddProcessor(m_pStopAlias);
   // Initialize the state:
   //
 
@@ -108,8 +117,8 @@ CRunControlPackage::CRunControlPackage(CTCLInterpreter* pInterp) :
 CRunControlPackage::~CRunControlPackage()
 { 
   // Can do this b/c of the initializers
-  delete m_pStartRun;
-  delete m_pStopRun;
+  delete m_pStartAlias;              // Deletes m_pStartRun
+  delete m_pStopAlias;               // Deletes the stop run.
   delete m_pRunState;
   
 }  

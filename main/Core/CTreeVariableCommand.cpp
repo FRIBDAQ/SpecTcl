@@ -57,7 +57,7 @@ CTreeVariableCommandActual::~CTreeVariableCommandActual()
  * 
  */
 CTreeVariableCommandActual::CTreeVariableCommandActual(CTCLInterpreter* pInterp) :
-  CTCLObjectProcessor(*pInterp, "treevariable", false)
+  CTCLObjectProcessor(*pInterp, "::spectcl::serial::treevariable", false)
 {
   // Allow a default interpreter to be the SpecTcl interpreter.
 

@@ -73,8 +73,8 @@ proc makeSpectrum {paramname channels} {
     set low 0
     set high [expr $channels-1]
 
-    spectrum $paramname 1 $paramname  [list [list $low $high $channels]]
-    treeparameter -create $paramname $low $high $channels ""; #  we don't know the units.
+    ::spectcl::serial::spectrum $paramname 1 $paramname  [list [list $low $high $channels]]
+    ::spectcl::serial::treeparameter -create $paramname $low $high $channels ""; #  we don't know the units.
 }
 ##
 # createFreezeButton
@@ -151,14 +151,14 @@ proc buildV1x90Maps {baseparam name} {
     foreach basename $parameters  {
 	for {set i 0} {$i < $depth} {incr i} {
 	    set pname [format "$basename.%d" $i]
-	    parameter $pname $baseparam
+	    ::spectcl::serial::parameter $pname $baseparam
 	    incr baseparam
-	    spectrum $pname 1 $pname "{[list $low $hi $chans]}"
-	    treeparameter -create $pname $low $hi $chans ""
+	    ::spectcl::serial::spectrum $pname 1 $pname "{[list $low $hi $chans]}"
+	    ::spectcl::serial::treeparameter -create $pname $low $hi $chans ""
 	}
 	
     }
-    paramMap $name $::readoutDeviceType($name) $vsn [list]
+    ::spectcl::serial::paramMap $name $::readoutDeviceType($name) $vsn [list]
     return $baseparam
 }
 #---------------------------------------------------------------------------
@@ -179,19 +179,19 @@ proc buildv977Map {param module} {
     set channels $::adcChannels($module)
 
     set parameterName [lindex $channels 0]
-    parameter  $parameterName $param
+    ::spectcl::serial::parameter  $parameterName $param
     incr param
 
     # and it's mapping.
 
-    paramMap $module $::readoutDeviceType($module) 0  $channels
+    ::spectcl::serial::paramMap $module $::readoutDeviceType($module) 0  $channels
     echo "Parammap done"
 
 
     # and the spectrum , a 16 bit bitmask spectrum.
 
-    spectrum $parameterName b $parameterName {{0 15 16}}
-    treeparameter -create $parameterName 0 15 16 ""
+    ::spectcl::serial::spectrum $parameterName b $parameterName {{0 15 16}}
+    ::spectcl::serial::treeparameter -create $parameterName 0 15 16 ""
 
     return $param
 }
@@ -236,7 +236,7 @@ proc buildMaseMap {param module} {
 	for {set chb 0} {$chb < $chbcount} {incr chb} {
 	    for {set chan 0} {$chan < 32} {incr chan} {
 		set parameterName [format $basename.%02d.%02d.%02d $cob $chb $chan]
-		parameter $parameterName $param
+		spectcl::serial::parameter $parameterName $param
 		incr param
 		makeSpectrum $parameterName $channels
 
@@ -263,14 +263,14 @@ proc buildV1729Map {param name} {
     # Make a parameter and 2048 2K spectra for each parameter.
 
     foreach paramName $adcChannels($name) {
-	parameter $paramName $param
+    ::spectcl::serial::parameter $paramName $param
 	for {set i 0} {$i < 2048} {incr i} { 
 	    set spectrumName [format %04d.%s $i $paramName]
-	    spectrum $spectrumName 1 $paramName {{0 2047 2048}}
+	    ::spectcl::serial::spectrum $spectrumName 1 $paramName {{0 2047 2048}}
 	}
 	incr param
     }
-    paramMap $name $::typeV1729 $v1729postTriggers($name) $adcChannels($name)
+    ::spectcl::serial::paramMap $name $::typeV1729 $v1729postTriggers($name) $adcChannels($name)
     return $param
 }
 
@@ -286,20 +286,20 @@ proc buildHINPMap {param module} {
     incr chanSize -1
     set channels $::channelCount($::typeHINP)
 
-    paramMap $basename $::typeHINP 0 [list]
+    ::spectcl::serial::paramMap $basename $::typeHINP 0 [list]
     foreach chip $chipMap {
 	for {set i 0} {$i < 16} {incr i} {
 	    set EParamName \
 		[format "%s.e.%02d.%02d" $basename $chip $i]
 	    set TParamName \
 		[format "%s.t.%02d.%02d" $basename $chip $i]
-	    parameter $EParamName $param
+	    ::spectcl::serial::parameter $EParamName $param
 	    incr param
-	    parameter $TParamName $param
+	    ::spectcl::serial::parameter $TParamName $param
 	    incr param
 
-	    spectrum $EParamName 1 $EParamName "{0 $chanSize  $channels}"
-	    spectrum $TParamName 1 $TParamName "{0 $chanSize  $channels}"
+	    ::spectcl::serial::spectrum $EParamName 1 $EParamName "{0 $chanSize  $channels}"
+	    ::spectcl::serial::spectrum $TParamName 1 $TParamName "{0 $chanSize  $channels}"
 
 	}
     }
@@ -318,7 +318,7 @@ proc buildPSDMap {param module} {
     incr chanSize -1
     set channels $::channelCount($::typePSD)
 
-    paramMap $basename $::typePSD 0 [list]
+    ::spectcl::serial::paramMap $basename $::typePSD 0 [list]
     foreach chip $chipMap {
 	for {set i 0} {$i < 16} {incr i} {
 	    set AParamName \
@@ -329,19 +329,19 @@ proc buildPSDMap {param module} {
 		[format "%s.c.%02d.%02d" $basename $chip $i]
 	    set TParamName \
 		[format "%s.t.%02d.%02d" $basename $chip $i]
-	    parameter $AParamName $param
+	    ::spectcl::serial::parameter $AParamName $param
 	    incr param
-	    parameter $BParamName $param
+	    ::spectcl::serial::parameter $BParamName $param
 	    incr param
-	    parameter $CParamName $param
+	    ::spectcl::serial::parameter $CParamName $param
 	    incr param
-	    parameter $TParamName $param
+	    ::spectcl::serial::parameter $TParamName $param
 	    incr param
 
-	    spectrum $AParamName 1 $AParamName "{0 $chanSize  $channels}"
-	    spectrum $BParamName 1 $BParamName "{0 $chanSize  $channels}"
-	    spectrum $CParamName 1 $CParamName "{0 $chanSize  $channels}"
-	    spectrum $TParamName 1 $TParamName "{0 $chanSize  $channels}"
+	    ::spectcl::serial::spectrum $AParamName 1 $AParamName "{0 $chanSize  $channels}"
+	    ::spectcl::serial::spectrum $BParamName 1 $BParamName "{0 $chanSize  $channels}"
+	    ::spectcl::serial::spectrum $CParamName 1 $CParamName "{0 $chanSize  $channels}"
+	    ::spectcl::serial::spectrum $TParamName 1 $TParamName "{0 $chanSize  $channels}"
 
 	}
     }
@@ -368,17 +368,17 @@ proc buildCAENDualMap {param name} {
 
 
     foreach parameter $channels {
-	parameter $parameter.h $param
-	makeSpectrum $parameter.h $resolution
-	lappend parameterList $parameter.h
-	incr param
+        ::spectcl::serial::parameter $parameter.h $param
+        makeSpectrum $parameter.h $resolution
+        lappend parameterList $parameter.h
+        incr param
 
-	parameter $parameter.l $param
-	makeSpectrum $parameter.l $resolution
-	lappend parameterList $parameter.l
-	incr param
+        ::spectcl::serial::parameter $parameter.l $param
+        makeSpectrum $parameter.l $resolution
+        lappend parameterList $parameter.l
+        incr param
     }
-    paramMap $name $::typeCAEN $vsn $parameterList
+    ::spectcl::serial::paramMap $name $::typeCAEN $vsn $parameterList
 
     return $param
 }
@@ -497,12 +497,12 @@ proc makeParamsSpectraAndMap {param name type channels resolution} {
     
     foreach parameter $channels {
       if {$parameter != ""} {
-        parameter $parameter $param
+        ::spectcl::serial::parameter $parameter $param
         makeSpectrum $parameter $resolution
       }
       incr param
     }
-    paramMap $name $type $vsn $channels
+    ::spectcl::serial::paramMap $name $type $vsn $channels
     return $param
     
 }
@@ -620,7 +620,7 @@ proc buildStackMaps {} {
 
 	set stackno $::stackNumber($stack)
 	if {$stackno != 1} {
-	    stackMap $stackno  $::stackOrder($stack)
+	    ::spectcl::serial::stackMap $stackno  $::stackOrder($stack)
 	}
     }
 }

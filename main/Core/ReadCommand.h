@@ -71,8 +71,8 @@ public:
 
    // Constructors and other cannonical operations:
 
-  CReadCommand (CTCLInterpreter* pInterp)  :
-    CTCLPackagedObjectProcessor(*pInterp, "sread", true)
+  CReadCommand (CTCLInterpreter* pInterp, const char* cmd ="sread")  :
+    CTCLPackagedObjectProcessor(*pInterp, cmd, true)
   { 
   } 
   ~ CReadCommand ( )  // Destructor 

@@ -67,7 +67,7 @@ public:			// Internal class definitions:
 public:
 
 			//Constructor with arguments
-  CBindCommand (CTCLInterpreter* pInterp);
+  CBindCommand (CTCLInterpreter* pInterp, const char* cmd = "sbind");
    ~ CBindCommand ( ) { }       //Destructor
 	
 			//Copy constructor - illegal

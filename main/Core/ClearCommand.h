@@ -70,7 +70,7 @@ public:
 
 
 public:
-  CClearCommand (CTCLInterpreter* pInterp);   
+  CClearCommand (CTCLInterpreter* pInterp, const char* cmd = "clear");   
 		         
   virtual ~CClearCommand ( ) 
   { }				//Destructor	

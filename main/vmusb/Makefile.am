@@ -100,6 +100,7 @@ install-exec-local:
 	for f in $(noinst_HEADERS); do $(INSTALL_DATA) @srcdir@/$$f  @prefix@/VMUSBSkel ; done
 	$(INSTALL_DATA) MakefileSkel     @prefix@/VMUSBSkel/Makefile
 	$(INSTALL_SCRIPT) @srcdir@/SpecTclRC.tcl @prefix@/VMUSBSkel
+	$(INSTALL_SCRIPT) @srcdir@/SpecTclInit.tcl @prefix@/VMUSBSkel
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb
 	$(INSTALL_DATA) @srcdir@/spectclSetup.tcl @srcdir@/configFile.tcl @srcdir@/constants.tcl  @prefix@/TclLibs/vmusb
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH@

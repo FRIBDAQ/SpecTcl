@@ -608,5 +608,5 @@ CFitCommandActual::Usage()
 // The MPI wrapper:
 
 CFitCommand::CFitCommand(CTCLInterpreter& rInterp, std::string name) :
-  CMPITclCommand(rInterp, name.c_str(), new CFitCommandActual(rInterp, name)) 
+  CMPITclCommand(rInterp, name.c_str(), new CFitCommandActual(rInterp, "::spectcl::serial::fit")) 
 {}

@@ -94,7 +94,7 @@ static UInt_t nLookupTableSize = sizeof(LookupTable)/sizeof(LookupTableEntry);
 CParameterCommand::CParameterCommand(
     CTCLInterpreter* pInterp
 )  :
-     CTCLPackagedObjectProcessor(*pInterp, "parameter", true),
+     CTCLPackagedObjectProcessor(*pInterp, "::spectcl::serial::parameter", true),
      m_Observer(pInterp)
 {
     CParameterDictionarySingleton::getInstance()->addObserver(&m_Observer);

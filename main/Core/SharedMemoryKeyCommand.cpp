@@ -17,7 +17,7 @@
 // Constructor
 CSharedMemoryKeyCommandActual::CSharedMemoryKeyCommandActual(CTCLInterpreter &rInterp,
                                                  SpecTcl& rSpecTcl)
-    : CTCLObjectProcessor(rInterp, "shmemkey", true),
+    : CTCLObjectProcessor(rInterp, "::spectcl::serial::shmemkey", true),
       m_rSpecTcl(rSpecTcl)
 {
 }

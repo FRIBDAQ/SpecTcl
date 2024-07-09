@@ -186,4 +186,4 @@ CSpectrumStatsCommandActual::makeStatsDict(
 // The MPI wrapper:
 
 CSpectrumStatsCommand::CSpectrumStatsCommand(CTCLInterpreter& rInterp) :
-    CMPITclCommand(rInterp, "specstats", new CSpectrumStatsCommandActual(rInterp)) {}
+    CMPITclCommand(rInterp, "specstats", new CSpectrumStatsCommandActual(rInterp, "::spectcl::serial::specstats")) {}

@@ -54,7 +54,7 @@ static const double fwhmgamma(2.354); // sigma*fwhmgamma = fwhm for gaussians.
     \param interp   - Interpreter on which the command is being registered:
 */
 CIntegrateCommandActual::CIntegrateCommandActual(CTCLInterpreter& interp) :
-  CTCLObjectProcessor(interp, "integrate", true)
+  CTCLObjectProcessor(interp, "::spectcl::serial::integrate", true)
 {}
 
 ///////////////////////////////////////////////////////////////////////////

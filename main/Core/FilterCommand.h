@@ -77,7 +77,7 @@ class CFilterCommandActual : public CTCLObjectProcessor {
   // Constructors.
  public:
   //  CFilterCommandActual(CTCLInterpreter& rInterp) : CTCLProcessor("filter", &rInterp);
-  CFilterCommandActual(CTCLInterpreter& rInterp);
+  CFilterCommandActual(CTCLInterpreter& rInterp, const char* cmd = "::spectcl::serial::filter");
   ~CFilterCommandActual();
 
   // Unimplemented operations:

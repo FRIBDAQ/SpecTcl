@@ -51,7 +51,7 @@ public:
   // Constructor:
 
   CUngateCommand (CTCLInterpreter* pInterp) : 
-    CTCLPackagedObjectProcessor(*pInterp, "ungate", true)
+    CTCLPackagedObjectProcessor(*pInterp, "::spectcl::serial::ungate", true)
   {     
   } 
    ~ CUngateCommand ( ) { }  //Destructor

@@ -177,4 +177,4 @@ CSContentsCommandActual::operator()(CTCLInterpreter& interp, std::vector<CTCLObj
 /// MPI Wrapper constructor.
 
 CSContentsCommand::CSContentsCommand(CTCLInterpreter& rInterp, const char* command) :
-    CMPITclCommand(rInterp, command, new CSContentsCommandActual(rInterp, command)) {}
+    CMPITclCommand(rInterp, command, new CSContentsCommandActual(rInterp, "::spectcl::serial::scontents")) {}
