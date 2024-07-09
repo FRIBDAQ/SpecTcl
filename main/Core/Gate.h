@@ -41,6 +41,7 @@
 #include <string>
 #include <vector>
 
+class CGateConainer;
                                                                
 class CGate      
 {
@@ -138,6 +139,11 @@ public:
   virtual   Bool_t inGate (CEvent& rEvent, const std::vector<UInt_t>& Params) = 0;
   virtual   Bool_t inGate (CEvent& rEvent) = 0;
   virtual   Bool_t caches();
+  
+  // Common queries:
+
+  virtual vector<UInt_t> getParameters();
+  virtual vector<CGateContainer*> getDependentGates();
 };
 
 #endif
