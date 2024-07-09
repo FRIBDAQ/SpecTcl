@@ -26,19 +26,19 @@ foreach adc [lsort [array names adcConfiguration]] {
 	parameter $name1 [incr paramnum]
 	parameter $name2 [incr paramnum]
 
-	spectrum $name1 1 $name1 {{0 4095 4096}}
-	spectrum $name2 1 $name2 {{0 4095 4096}}
-	spectrum $basename.TvsE  2 [list $name1 $name2]  {{0 4095 512} {0 4095 515}}
+	::spectcl::serial::spectrum $name1 1 $name1 {{0 4095 4096}}
+	::spectcl::serial::spectrum $name2 1 $name2 {{0 4095 4096}}
+	::spectcl::serial::spectrum $basename.TvsE  2 [list $name1 $name2]  {{0 4095 512} {0 4095 515}}
 
 	# Add the parameter mapping for the decoder.
 
-	paramMap $slot $i $name1
-	paramMap $slot [expr $i + 1] $name2
+	::spectcl::serial::paramMap $slot $i $name1
+	::spectcl::serial::paramMap $slot [expr $i + 1] $name2
 
 	incr cnum
     }
 }
-sbind -all
+::spectcl::serial::sbind -all
 
 #  Add the rates gui ... integrate it with the SpecTcl GUI
 

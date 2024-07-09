@@ -273,7 +273,7 @@ CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)
 { 
   CTclGrammerApp::AddCommands(rInterp);
   auto pmapCmd = new CParamMapCommand(rInterp);
-  new CCommandAlias(&rInterp, "::spectcl::serial::parammap", pmapCmd); // Namespaced.
+  new CCommandAlias(&rInterp, "::spectcl::serial::paramMap", pmapCmd); // Namespaced.
   new CMPITclCommand(rInterp, "parammap", pmapCmd);
   auto smapCmd =  new CStackMapCommand(rInterp);
   new CCommandAlias(&rInterp, "::spectcl::serial::stackMap", smapCmd);

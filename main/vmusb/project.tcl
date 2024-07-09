@@ -29,9 +29,9 @@ namespace eval project2D {
 #  Return a list of the contours that are visible on this
 #  specturm.
 proc project2D::relevantContours spectrum {
-    set gates [gate -list]
+    set gates [::spectcl::serial::gate -list]
     set relevant [list]
-    set specinfo [lindex [spectrum -list $spectrum] 0]
+    set specinfo [lindex [::spectcl::serial::spectrum -list $spectrum] 0]
     set specparams [lindex $specinfo 3]
 
     foreach gate $gates {
@@ -103,13 +103,13 @@ proc project2D::ok top {
 	if {$answer eq "no"} {
 	    return
 	} else {
-	    spectrum -delete $name
+	    ::spectcl::serial::spectrum -delete $name
 	}
     }
     # now we have a clear shot to making the projection start constructing
     # the command:
 
-    set command "project $basename $name $project2D::direction"
+    set command "::spectcl::serial::project $basename $name $project2D::direction"
 
     # See if this is within a gate:
 

@@ -225,21 +225,21 @@ snit::widget editRatesDialog {
     # modal. We then wait for the hidden window to be destroyed.
     # Note that we also make every effort to ensure that the window is visible.
     method modal  {} {
-	set hiddenWindow [frame $win.hidden]
-	focus $win
-	wm deiconify $win
-	grab $win
-	tkwait window $hiddenWindow
-	grab release $win
-	catch {set hiddenWindow ""};		# no longer modal
-    }
-    ####
-    #  Update the browser can be called when new spectra are created or
-    #  when something requires the browser to refilter (e.g. a change in the
-    #  rates window.
-    #
-    method update {} {
-	$win.browser update
+		set hiddenWindow [frame $win.hidden]
+		focus $win
+		wm deiconify $win
+		grab $win
+		tkwait window $hiddenWindow
+		grab release $win
+		catch {set hiddenWindow ""};		# no longer modal
+	}
+	####
+	#  Update the browser can be called when new spectra are created or
+	#  when something requires the browser to refilter (e.g. a change in the
+	#  rates window.
+	#
+	method update {} {
+		$win.browser update
     }
 }
 

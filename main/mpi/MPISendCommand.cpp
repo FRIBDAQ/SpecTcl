@@ -71,6 +71,7 @@ CMPISendCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& ob
         std::string script = objv[2];
         try {
             interp.GlobalEval(script);
+            return TCL_OK;
         }
         catch (CException& e) {   
             std::string msg = e.ReasonText();
