@@ -92,7 +92,7 @@ static const TCLPLUS::UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntr
  *      registered
 */
 CBindCommand::CBindCommand(CTCLInterpreter* pInterp, const char* cmd) :
-  CTCLPackagedObjectProcessor(*pInterp, "cmd", true)
+  CTCLPackagedObjectProcessor(*pInterp, "sbind", true)
 {}
 
 //////////////////////////////////////////////////////////////////////////
