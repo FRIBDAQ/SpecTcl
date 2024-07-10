@@ -39,6 +39,8 @@
                                //Required for base classes
 #include "Gate.h"
 #include <histotypes.h>
+#include <vector>
+
                              
 class CMaskGate  : public CGate        
 {
@@ -97,6 +99,9 @@ public:
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
   virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
+  virtual std::vector<UInt_t>          getParameters();
+  virtual UInt_t                       getMask();
+
 };
 
 #endif
