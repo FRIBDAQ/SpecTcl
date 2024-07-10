@@ -552,84 +552,26 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   string type = rGate->Type();
   auto api = SpecTcl::getInstance();
   if(type == "s" ) {		// Cut.
-    CCut& rCut((CCut&)*rGate);
-    UInt_t nPid = rCut.getId();
-    CParameter* Param = api->FindParameter(nPid);
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }
+    UInt_t nPid = rGate->getParameters()[0];
+    Result.AppendElement(idToParameterName(nPid));
   }
   else if( (type == "b") ||
 	   (type == "c")) {	// Band or contour, C2Band
-    CPointListGate& rPlist((CPointListGate&)(*rGate));
+    
     Result.StartSublist();
-    CParameter* Param = api->FindParameter(rPlist.getxId());
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }
-    Param = api->FindParameter(rPlist.getyId());
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }
+    auto params = rGate->getParameters();
+    Result.AppendElement(idToParameterName(params[0]));
+    Result.AppendElement(idToParameterName(params[1]));
     Result.EndSublist();
   }
   
-  else if (type == "em") {
-    CMaskEqualGate& rMask((CMaskEqualGate&)*rGate);  
-    UInt_t nPid = rMask.getId();
-    CParameter* Param = api->FindParameter(nPid);
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }    
-    long value = rMask.getCompare();
-    Result.AppendElement(value ,"%#X");
+  else if (type == "em" || type == "am" || type == "nm") {
+    Result.AppendElement(idToParameterName(rGate->getParameters()[0]));
+    Result.AppendElement(static_cast<long>(rGate->getMask()), "%#X");    
     Result.EndSublist();
     return Result;
   }
- else if (type == "am") {
-    CMaskAndGate& rMask((CMaskAndGate&)*rGate);  
-    UInt_t nPid = rMask.getId();
-    CParameter* Param = api->FindParameter(nPid);
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }    
-    long value = rMask.getCompare();
-    Result.AppendElement(value ,"%#X");
-    Result.EndSublist();
-    return Result;
-  }
- else if (type == "nm") {
-    CMaskNotGate& rMask((CMaskNotGate&)*rGate);  
-    UInt_t nPid = rMask.getId();
-    CParameter* Param = api->FindParameter(nPid);
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }    
-    long value = rMask.getCompare();
-    Result.AppendElement(value ,"%#X");
-    Result.EndSublist();
-    return Result;
-  }
-
-  else if ((type == "gs") ||
+   else if ((type == "gs") ||
 	   (type == "gb") ||
 	   (type == "gc")) {
     ;
@@ -651,23 +593,23 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   }
   //  For all gates, we list the constituents as elements:
 
-  if(type == "gb" || type == "gc") {
+  if(type == "gb" || type == "gc") {   // Points: as { {x1 y1} {x2 y2} }
     Result.StartSublist();
-    CConstituentIterator Constituent = rGate->Begin();
-    CConstituentIterator end = rGate->End();
-    while(Constituent != end) {
-      Result.AppendElement(rGate->GetConstituent(Constituent));
-      Constituent++;
+    auto pts = rGate->getPoints();
+    for (auto pt : pts) {
+      Result.StartSublist();
+      Result.AppendElement(pt.X());
+      Result.AppendElement(pt.Y());
+      Result.EndSublist();
     }
     Result.EndSublist();
   }
   else if( (type == "s") || (type == "gs")) {
-    CConstituentIterator rIter = rGate->Begin();
-    string GateInfo = rGate->GetConstituent(rIter);
+    auto limits = rGate->getPoints();
     UInt_t id;
-    Float_t low, hi;		// because constituents have 'too much data'.
+    Float_t low = limits[0].X();
+    Float_t hi  = limits[1].X();		// because constituents have 'too much data'.
     char param[100];
-    sscanf(GateInfo.c_str(), "%u %f %f", &id, &low, &hi);
     sprintf(param,"%f %f", low, hi);
     Result.AppendElement(param);
 
@@ -691,34 +633,16 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   vector<UInt_t>::iterator pIds;
   Bool_t                   isGammaGate = kfFALSE;
 
-  if (type == "gs") {
-    CGammaCut& rCut = ((CGammaCut&)*rGate);
-    paramIds = rCut.getParameters();
+  if ((type == "gs") || (type == "gc") || (type == "gb")) {
+    
+    paramIds = rGate->getParameters();
     isGammaGate = kfTRUE;
   }
-  if (type == "gc") {
-    CGammaContour& rContour = ((CGammaContour&)*rGate);
-    paramIds = rContour.getParameters();
-    isGammaGate = kfTRUE;
-  }
-  if (type == "gb") {
-    CGammaBand& rBand = ((CGammaBand&)*rGate);
-    paramIds = rBand.getParameters();
-    isGammaGate =kfTRUE;
-  }
+  
   if(isGammaGate) {
     Result.StartSublist();
-    for(pIds = paramIds.begin(); pIds != paramIds.end(); pIds++) {
-      UInt_t id;
-      id =*pIds;
-      CParameter* pParam = api->FindParameter(id);
-      if(pParam) {
-	Result.AppendElement(pParam->getName());
-      } 
-      else {
-	Result.AppendElement("-Deleted Parameter-");
-      }
-
+    for (auto pid : paramIds) {
+      Result.AppendElement(idToParameterName(pid));
     }
     Result.EndSublist();
   }
@@ -745,4 +669,19 @@ CGatePackage::AssignId()
 std::string
 CGatePackage::getSignon() const {
   return std::string(pCopyrightNotice);
+}
+
+/**
+ *  idToParameterName
+ *    @return std::string - Appropriate string for parameter name - if the parameter id does not exist
+ *     "-Deleted Parameter-" is returned.
+ */
+std::string
+CGatePackage::idToParameterName(UInt_t id) {
+  auto p = SpecTcl::getInstance()->FindParameter(id);
+  if (p) {
+    return p->getName();
+  } else {
+    return std::string("-Deleted Parameter-");
+  }
 }

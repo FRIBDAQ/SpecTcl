@@ -269,3 +269,29 @@ CCut::inGate(Float_t x)
 {
   return ((x >= getLow()) && (x < getHigh()));
 }
+/**
+ *  getParameters
+ *  @return std::vector<UInt_t> - one element vector containing the id of the parameter we depend on.
+ * 
+ */
+std::vector<UInt_t>
+CCut::getParameters() {
+  std::vector<UInt_t> result;
+  result.push_back(getId());
+  return result;
+}
+/**
+ *  getPoints
+ *    @return std::vector<FPoint> - two element vector contaning, in the x coordinates of each point,
+ *      first the low and then the high limit of the cut
+ *     
+ */
+std::vector<FPoint> 
+CCut::getPoints() {
+  std::vector<FPoint> result;
+  
+  result.push_back(FPoint(m_nLow, 0.0));
+  result.push_back(FPoint(m_nHigh, 0.0));
+
+  return result;
+}

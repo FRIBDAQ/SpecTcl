@@ -104,6 +104,8 @@ public:
   void      AddGateFront(CGateContainer& rGate);
   void      AddGateBack(CGateContainer& rGate);
   void      AddGate(CConstituentIterator& rSpot, CGateContainer& rGate);
+
+  virtual std::vector<CGateContainer*> getDependentGates();
   //
   // Utilities.
   //

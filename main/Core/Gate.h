@@ -38,9 +38,11 @@
 
 #include <histotypes.h>   //Required for include files, eg <CList.h>
 #include <Event.h>        //Required for include files, eg <CList.h>
+#include <Point.h>
 #include <string>
 #include <vector>
 
+class CGateContainer;
                                                                
 class CGate      
 {
@@ -138,6 +140,15 @@ public:
   virtual   Bool_t inGate (CEvent& rEvent, const std::vector<UInt_t>& Params) = 0;
   virtual   Bool_t inGate (CEvent& rEvent) = 0;
   virtual   Bool_t caches();
+  
+  // Common queries;  These have default implementations
+  // but subclasses override (e.g. compounds implement getDependencies),
+
+  virtual std::vector<UInt_t>          getParameters();
+  virtual std::vector<CGateContainer*> getDependentGates();
+  virtual std::vector<FPoint>          getPoints();
+  virtual UInt_t                  getMask();
+
 };
 
 #endif

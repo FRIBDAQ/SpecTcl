@@ -60,8 +60,10 @@
 #define CUT_H
                                //Required for base classes
 #include "Gate.h"
+#include "Point.h"
 #include <vector>
 #include <string>
+
 
 /*! Encapsulates a cut on a parameter.
   The cut is described by a high and low limit 
@@ -171,6 +173,9 @@ public:
   virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
   virtual   Bool_t inGate (CEvent& rEvent);
   virtual   Bool_t inGate (Float_t x);
+  virtual std::vector<UInt_t>          getParameters();
+  virtual std::vector<FPoint>          getPoints();
+  
 };
 
 #endif

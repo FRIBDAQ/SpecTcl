@@ -109,3 +109,53 @@ CGate::caches()
 {
   return kfTRUE;
 }
+
+/**
+ * getParameters
+ *    Gates defined on parameters should override this and return a vector
+ * of the parameter ids they need.
+ * 
+ * @return std::vector<Uint_t> - vector of parameter ids the gate needs.
+ */
+std::vector<UInt_t>
+CGate::getParameters() {
+  std::vector<UInt_t> result;
+  return result;                   // Default - empty list.
+}
+
+/**
+ * getDependentGates
+ *    Compound gates should override this to return a vector of the pointers to gate
+ * containers for the gates they depend on.
+ * 
+ * @return std::vector<CGateContainer*> - the dependent gates.
+ */
+std::vector<CGateContainer*>
+CGate::getDependentGates() {
+  std::vector<CGateContainer*> result;
+  return result;
+}
+/**
+ *  getPoints 
+ *    Geometric gates should override this to  return a vector of the
+ * points that define the figure that determines 'in-ness'.
+ * 
+ * @return std::vector<FPoint> - the coordinates of the points of the figure.
+ * For 1-d points, only the X coordinate of the point is meaningful.
+ */
+std::vector<FPoint>
+CGate::getPoints() {
+  std::vector<FPoint> result;
+  return result;
+}
+/**
+ *  getMask
+ *    Bit mask gates should override this to return their bitmask.
+ * our default implementation returns 0.
+ * 
+ * @return UInt_t - the mask.
+ */
+UInt_t
+CGate::getMask() {
+  return 0;
+}
