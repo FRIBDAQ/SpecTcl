@@ -568,6 +568,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   else if (type == "em" || type == "am" || type == "nm") {
     Result.AppendElement(idToParameterName(rGate->getParameters()[0]));
     Result.AppendElement(static_cast<long>(rGate->getMask()), "%#X");    
+    Result.EndSublist();
     return Result;
   }
    else if ((type == "gs") ||
