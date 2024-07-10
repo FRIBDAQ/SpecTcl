@@ -150,6 +150,7 @@ public:
    std::string getSignon() const;
 protected:
    static  void SortGateListById (std::vector<CGateContainer*>& rpGates);
+   std::string idToParameterName(UInt_t id);
 private:
 
 };
