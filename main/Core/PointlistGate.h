@@ -192,6 +192,9 @@ public:
     {return inGate(rEvent); }
   
   virtual  Bool_t Inside(Float_t x, Float_t y) = 0;
+
+  virtual std::vector<UInt_t>          getParameters();
+  virtual std::vector<FPoint>          getPoints();
 protected:
   int       Crosses(Float_t x, Float_t y, 
 		    std::vector<FPoint>::iterator f,

@@ -224,6 +224,33 @@ CPointListGate::GetConstituent(CConstituentIterator& rIterator)
   return std::string(Formatted);
   
 }
+/**
+ * getParameters
+ *    @return std::vector<UInt_t> - two element array containing, in order, the x and y parameters of the
+ *      gate.
+ * 
+ */
+std::vector<UInt_t>
+CPointListGate::getParameters() {
+  std::vector<UInt_t> result;
+  
+  result.push_back(getxId());
+  result.push_back(getyId());
+
+  return result;
+}
+
+/**
+ * getPoints
+ *    @return std::vector<FPoint>  The points that make up the geometric figure
+ * that defines 'insidednesss' for the gate.
+ */
+std::vector<FPoint>
+CPointListGate::getPoints() {
+  std::vector<FPoint> result(getBegin(), getEnd());
+
+  return result;
+}
 /*!
    Utility function to determine if there was a line crossing between the
    horizontal ray extended to the left of the point (x,y), and the
