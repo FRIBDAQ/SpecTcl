@@ -151,6 +151,8 @@ CSpectrum:: CSpectrum(const std::string& rName, UInt_t nId,
 CSpectrum::~CSpectrum()
 {
   if (m_pRootSpectrum) {
+    m_pRootSpectrum->fArray=nullptr;    // If we own the storage we'll release it
+                                        // else it belongs to display memory.
     delete m_pRootSpectrum;
   }
   if(m_fOwnStorage) {
