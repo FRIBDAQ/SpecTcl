@@ -48,6 +48,10 @@
 
 #ifndef SPECTRUM1DW_H  //Required for current class
 #define SPECTRUM1DW_H
+
+#include "Spectrum1d.h"         // for compatiblity.
+
+#ifdef UNDEFINED
                                //Required for base classes
 #include "Spectrum.h"
 #include <string>
@@ -151,4 +155,5 @@ protected:
   void CreateChannels();	//!< Create storage.
 };
 
+#endif
 #endif

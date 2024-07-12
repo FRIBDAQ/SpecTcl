@@ -46,10 +46,17 @@
 #include <TDirectory.h>
 #include <TDirectory.h>                // We need to slosh the root 'wd' around.
 
-static const char* Copyright = 
-    "Spectrum1d.hpp - Copyright 2024 MSU Board of Trustees, All rights reserved \n";
+
     
 /////////////////////// Constructors:
+
+// notes on the this->method()s that you'll  see below.  If a 
+// template method function, does not have a parameter with that templated
+// type you must be explicit about which class the method comes from when
+// calling it els you get the error:
+//there are no arguments to ‘createRootSpectrum’ that depend on a 
+// template parameter, so a declaration of ‘createRootSpectrum’ must be available 
+// In our case the type itself is needed for std::is_same macros.
 
 /**
  *  construtor:
@@ -72,8 +79,8 @@ CSpectrum1D<T>::CSpectrum1D(const std::string& rName,
   m_nParameter(rParameter.getNumber())
 {
     AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
-	  rParameter.getUnits());
-    CreateRootSpectrum(rName.c_str(), 0.0, static_cast<Double_t>nChannels, nChannels);
+	    rParameter.getUnits());
+    this->CreateRootSpectrum(rName.c_str(), 0.0, static_cast<Double_t>(nChannels), nChannels);
 }
 
 /**
@@ -102,7 +109,7 @@ CSpectrum1D<T>::CSpectrum1D(const std::string&  rName,
   m_nParameter(rParameter.getNumber())
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
-  createRootSpectrum(rName.c_str(), fLow, fHigh, nChannels);
+  this->CreateRootSpectrum(rName.c_str(), fLow, fHigh, nChannels);
 }
 ///////////////////////////
 /**
@@ -157,7 +164,7 @@ CSpectrum1D<T>::UsesParameter(UInt_t nId) const
  */
 template <typename T>
 ULong_t
-CSPectrum1D<T>::operator[](const UInt_t* pIndices) const
+CSpectrum1D<T>::operator[](const UInt_t* pIndices) const
 {
   const TH1* pRootSpectrum = getRootSpectrum();
   return static_cast<ULong_t>(pRootSpectrum->GetBinContent(
@@ -192,12 +199,24 @@ CSpectrum1D<T>::set(const UInt_t* pIndices, ULong_t nValue)
  */
 template <typename T>
 void
-CSpectrum1D<T>::GetParameterIds(vector<UInt_t>& rvIds)
+CSpectrum1D<T>::GetParameterIds(std::vector<UInt_t>& rvIds)
 {
   
   rvIds.clear();
   rvIds.push_back(m_nParameter);
 }
+/**
+ *  GetResolutions
+ *    @param rvResolutions - will be output as a 1 element vector
+ *  of the number of channels in the axis.
+ */
+template <typename T>
+void
+CSpectrum1D<T>::GetResolutions(std::vector<UInt_t>& rvResolutions) {
+  rvResolutions.clear();
+  rvResolutions.push_back(m_nChannels);
+}
+
 /**
  *  CreateChannels 
  *    Creates the storage associated with the spectrum.
@@ -211,15 +230,15 @@ void
 CSpectrum1D<T>::CreateChannels()
 {
   Address_t pStorage;
-  if (std::is_same<T, uint32_t>) {
+  if (std::is_same<T, uint32_t>::value) {
 
     setStorageType(keLong);
     pStorage = new uint32_t[m_nChannels];   //  For root underlow/overflow.
-  else if (std::is_same<T, uint16_t>) {
+  } else if (std::is_same<T, uint16_t>::value) {
     setStorageType(keWord);
     pStorage = new uint16_t[m_nChannels];
   } else {
-    throw std::badtype_id;
+    throw std::bad_typeid();
   }
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
@@ -237,18 +256,20 @@ void
 CSpectrum1D<T>::setStorage(Address_t pStorage)
 {
   // This is type dependent:
+  // And the root array pointers have funky signed types rather than
+  // unsigned hence thd casts to Int_t* and Short_t*
 
-  TH1* pR = getRootSpectrum():
-  if (std::is_same<T, uint32_T>)  {
+  TH1* pR = getRootSpectrum();
+  if (std::is_same<T, uint32_t>::value)  {
     TH1I* pRootSpectrum = reinterpret_cast<TH1I*>(pR);
-    pRootSpectrum->fArray = reinterpret_cast<uint32_t*>(pStorage);
+    pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
     pRootSpectrum->fN     = m_nChannels;            // Number of cells.
-  } else if (std::is_same<T, uint16_t>) {
+  } else if (std::is_same<T, uint16_t>::value) {
     TH1S* pRootSpectrum = reinterpret_cast<TH1S*>(pR);
-    pRootSpectrum->fArray = reinterpret_cast<uint16_t*>(pStorage);
+    pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
     pRootSpectrum->fN     = m_nChannels;            // Number of cells.
   } else {
-    throw std::badtype_id;
+    throw std::bad_typeid();
   }
 }
 /**
@@ -256,7 +277,7 @@ CSpectrum1D<T>::setStorage(Address_t pStorage)
  */
 template <typename T>
 Size_t
-CSpectrum1D<T>StorageNeeded() const {
+CSpectrum1D<T>::StorageNeeded() const {
     // Assume the type is ok:
 
     return m_nChannels * sizeof(T);   // Includes over/underflows.
@@ -272,7 +293,7 @@ CSpectrum1D<T>StorageNeeded() const {
  */
 template <typename T>
 Size_t
-CSpectrum1D<T>::::Dimension(UInt_t nDim) const
+CSpectrum1D<T>::Dimension(UInt_t nDim) const
 {
     if (nDim == 0) return m_nChannels;
     return 1;
@@ -292,33 +313,59 @@ CSpectrum1D<T>::::Dimension(UInt_t nDim) const
  */
 template <typename T>
 void
-CSpectrum1D<T>::CreateRootSpectrum() {
+CSpectrum1D<T>::CreateRootSpectrum(const char* name, Double_t low, Double_t high, UInt_t bins) {
     std::string oldDir = gDirectory->GetPath();
     gDirectory->Cd("/");    //  Make spectra in the root.
     try {
         TH1* pRs;     // Fill this in the type specific parts.
-        if (std::is_same<T, uint32_t>) {
+        if (std::is_same<T, uint32_t>::value) {
             TH1I* pRootSpec = new TH1I(
                 name, name, bins, low, high 
             );
             pRootSpec->Adopt(0, nullptr);
             pRs = pRootSpec;
-        } else if (std::is_same<T, uint16_t>) {
+        } else if (std::is_same<T, uint16_t>::value) {
             TH1S* pRootSpec = new TH1S(
                 name, name, bins, low, high 
             );
             pRootSpec->Adopt(0, nullptr);
             pRs = pRootSpec;
         } else {
-            throw std::bad_typeid;
+            throw std::bad_typeid();
         }
         setRootSpectrum(pRs);
-        gDirecgtory->Cd(olddir.c_str);
+        gDirectory->Cd(oldDir.c_str());
         CreateChannels();
     }
     catch (...) {
         // if we threw, reset the wd:
 
-        gDirectory->Cd(olddir.c_str());
+        gDirectory->Cd(oldDir.c_str());
     }
+}
+/**
+ *  deleteRootSpectrum
+ *     Safely delete the root spectrum.   We'll assume the caller will
+ *   - Destroy the pointer on return.
+ *   - Release the spectrum storage if it's ours.
+ * 
+ * We need to do this because the 'fArray field only exists in concrete
+ * subclasses of TH1
+ * 
+ * 
+ */
+template <typename T>
+void
+CSpectrum1D<T>::deleteRootSpectrum() {
+  auto rs = getRootSpectrum();
+  if (std::is_same<T, uint32_t>::value) {
+    TH1I* rootSpec = reinterpret_cast<TH1I*>(rs);
+    rootSpec->fArray = nullptr;     // So root won't delete that.
+  } else if (std::is_same<T, uint16_t>::value) {
+    TH1S* rootSpec = reinterpret_cast<TH1S*>(rs);
+    rootSpec->fArray = nullptr;     // So root won't delete that.
+  } else {
+    throw std::bad_typeid();
+  }
+  delete rs; 
 }

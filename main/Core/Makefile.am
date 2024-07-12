@@ -191,7 +191,7 @@ Gates_INCLUDES = ActualIterator.h AndGate.h Band.h C2Bands.h CompoundGate.h \
 	CROI.h CEverywhereROI.h CContourROI.h
 
 Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
-	Spectrum1DL.cpp Spectrum2DW.cpp Spectrum1DW.cpp Spectrum2DB.cpp \
+	Spectrum1d.hpp Spectrum2DW.cpp Spectrum2DB.cpp \
 	BitSpectrumW.cpp BitSpectrumL.cpp SummarySpectrumW.cpp \
 	SummarySpectrumB.cpp SpectrumFactory.cpp SpectrumFactoryException.cpp \
 	SnapshotSpectrum.cpp Gamma1DW.cpp Gamma1DL.cpp Gamma2DW.cpp \
@@ -210,7 +210,7 @@ Sorter_INCLUDES = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	GateMediator.h Histogrammer.h \
 	Parameter.h SnapshotSpectrum.h Spectrum.h \
 	CGammaSpectrum.h \
-	Spectrum1DL.h Spectrum1DW.h Spectrum2DB.h Spectrum2DW.h \
+	Spectrum1DL.h Spectrum1DW.h Spectrum1d.h Spectrum2DB.h Spectrum2DW.h \
 	SpectrumFactory.h SpectrumFactoryException.h SummarySpectrumB.h \
 	SummarySpectrumW.h CAxis.h CParameterMapping.h SpectrumS.h \
 	Spectrum2DL.h  Gamma2DL.h SummarySpectrumL.h \

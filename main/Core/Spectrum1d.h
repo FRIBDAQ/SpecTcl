@@ -56,12 +56,12 @@ class CSpectrum1D  : public CSpectrum
   
 public:
 
-  CSpectrum1(const std::string&   rName, 
+  CSpectrum1D(const std::string&   rName, 
 	       UInt_t               nId,
 	       const CParameter&    rParameter,
 	       UInt_t               nChannels);
 
-  CSpectrum1(const std::string&   rName,
+  CSpectrum1D(const std::string&   rName,
 	       UInt_t               nId,
 	       const   CParameter&  rParameter,
 	       UInt_t               nChannels,
@@ -69,19 +69,19 @@ public:
 	       Float_t              fHigh);
 
 
-  virtual  ~ CSpectrum1( ) ;    //Destructor	
+  virtual  ~ CSpectrum1D( ) ;    //Destructor	
 private:
 			//Copy constructor [illegal]
 
-  CSpectrum1(const CSpectrum1& aCSpectrum1); 
+  CSpectrum1D(const CSpectrum1D& aCSpectrum1); 
 
 			//Operator= Assignment Operator [illegal] 
 
-  CSpectrum1 operator= (const CSpectrum1& aCSpectrum1D);
+  CSpectrum1D operator= (const CSpectrum1D& aCSpectrum1D);
 
 			//Operator== Equality Operator [Not too useful but:]
 public:
-  int operator== (const CSpectrum1& aCSpectrum1D)
+  int operator== (const CSpectrum1D& aCSpectrum1D)
   { return (
 	    (CSpectrum::operator== (aCSpectrum1D)) &&
 	    (m_nChannels == aCSpectrum1D.m_nChannels) &&
@@ -114,6 +114,7 @@ protected:
   
   virtual void setStorage(Address_t pStorage);
 
+
   //
   //  Operations:
   //   
@@ -133,7 +134,8 @@ public:
   // Utility functions:
 protected:
   void CreateChannels();	//!< Create storage.
-  void CreateRootSpectrum(const char* name, Double_t low, Double_t high, Uint_t bins);
+  void CreateRootSpectrum(const char* name, Double_t low, Double_t high, UInt_t bins);
+  void deleteRootSpectrum();
 };
 
 typedef CSpectrum1D<uint32_t> CSpectrum1DL;
