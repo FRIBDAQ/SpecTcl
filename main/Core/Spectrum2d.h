@@ -29,6 +29,12 @@
 #ifndef SPECTRUM2D_H
 #define SPECTRUM2D_H
 
+#include "Spectrum.h"
+#include <stdint.h>
+#include <string>
+#include <vector>
+#include <histotypes.h>
+#include "CAxis.h"
 
 class CParameter;
 class TH2I;
@@ -39,7 +45,8 @@ class TH2I;
  *    bottom of this file as required by most C++ systems for template classes.
  */
 template <typename T>
-class CSpectrum2D {
+class CSpectrum2D : public CSpectrum
+{
 
 
   UInt_t m_nXScale;		// Number of channels on  x axis.
@@ -166,7 +173,14 @@ protected:
   );
   void deleteRootSpectrum();
 };
- 
+
+// Typedefs for the original 2d spectrum classes.
+
+typedef CSpectrum2D<uint32_t> CSpectrum2DL;
+typedef CSpectrum2D<uint16_t> CSpectrum2DW;
+typedef CSpectrum2D<uint8_t>  CSpectrum2DB;
+
+#include "Spectrum2d.hpp"
 
 
 #endif
