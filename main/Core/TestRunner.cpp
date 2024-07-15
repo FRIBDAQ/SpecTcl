@@ -1,5 +1,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TextTestProgressListener.h>
 #include <string>
 #include <iostream>
 #include <TCLApplication.h>
@@ -7,14 +9,23 @@
 
 using namespace std;
 
+class TestLogStartListener : public CppUnit::TextTestProgressListener {
+ public:
+     virtual void startTest(CppUnit::Test *test) {
+        std::cerr << "Starting test " << test->getName() << std::endl;
+     }
+};
+
 int main(int argc, char** argv)
 {
+  TestLogStartListener l;
   CppUnit::TextUi::TestRunner   
                runner; // Control tests.
   CppUnit::TestFactoryRegistry& 
                registry(CppUnit::TestFactoryRegistry::getRegistry());
 
   runner.addTest(registry.makeTest());
+  runner.eventManager().addListener(&l);
 
   bool wasSucessful;
   try {
