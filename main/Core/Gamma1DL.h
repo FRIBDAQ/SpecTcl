@@ -32,11 +32,17 @@
 #ifndef GAMMA1DL_H  // Required for current class
 #define GAMMA1DL_H
 
+#include "Gamma1D.h"
+
+#ifdef UNDEFINED
+
 #include "CGammaSpectrum.h"
 #include "Spectrum.h"
 #include <string>
 #include <vector>
 #include <histotypes.h>
+
+
 
 class TH1I;             // Root 1d 32 bit spectrum.
 
@@ -123,4 +129,5 @@ protected:
   void   CreateStorage();
 };
 
+#endif
 #endif

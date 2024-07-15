@@ -61,6 +61,10 @@
 #ifndef GAMMA1DW_H  // Required for current class
 #define GAMMA1DW_H
 
+#include "Gamma1D.h"
+
+#ifdef UNDEFINED
+
 #include "CGammaSpectrum.h"
 #include "Spectrum.h"
 #include <string>
@@ -153,4 +157,5 @@ protected:
   void   CreateStorage();
 };
 
+#endif
 #endif
