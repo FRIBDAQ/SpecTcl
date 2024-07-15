@@ -130,9 +130,9 @@ CMDPP32SCPSROUnpacker::operator()(CEvent&                       rEvent,
 			  return offset;
 		}
 
-    // Timestamp is stored in 128th element
+    // Timestamp is stored in 33th element
     uint32_t timestamp = trailer & EOE_TIMESTAMPMASK;
-    id = pMap -> map[128];
+    id = pMap -> map[32];
     if (id != -1) {
         rEvent[id] = timestamp;
     } else {
