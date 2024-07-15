@@ -254,7 +254,7 @@ public:
   std::pair<Float_t, Float_t> adjustedLimits(UInt_t dim);
 protected:
   static Int_t Randomize(Float_t channel);
-  static void deleteRootSpectrum() {};    //! TODO Later will be pure virtual.
+  virtual void deleteRootSpectrum() {};    //! TODO Later will be pure virtual.
 
   void ReleaseStorage() {
     switch(StorageType()) {
