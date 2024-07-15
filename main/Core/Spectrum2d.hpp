@@ -127,7 +127,12 @@ CSpectrum2D<T>::CSpectrum2D(const std::string& rName, UInt_t nId,
  *  destructor 
 */
 template <typename T>
-CSpectrum2D<T>::~CSpectrum2D() {}
+CSpectrum2D<T>::~CSpectrum2D() {
+  if (getRootSpectrum()) {
+    deleteRootSpectrum();
+  }
+
+}
 
 /////  Object operations.
 

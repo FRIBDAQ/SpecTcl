@@ -151,7 +151,6 @@ CSpectrum:: CSpectrum(const std::string& rName, UInt_t nId,
 CSpectrum::~CSpectrum()
 {
   if (m_pRootSpectrum) {
-    deleteRootSpectrum();
     m_pRootSpectrum= nullptr;
   }
   if(m_fOwnStorage) {
@@ -946,3 +945,4 @@ CSpectrum::checkRange(int c, int n, int a)
     }
     return result;
 }
+

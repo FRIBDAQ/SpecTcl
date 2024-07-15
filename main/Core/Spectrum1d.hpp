@@ -118,7 +118,11 @@ CSpectrum1D<T>::CSpectrum1D(const std::string&  rName,
  * into the base class constructor and that should be fine.
  */
 template <typename T>
-CSpectrum1D<T>::~CSpectrum1D() {}
+CSpectrum1D<T>::~CSpectrum1D() {
+  if (getRootSpectrum()) {
+    deleteRootSpectrum();
+  }
+}
 
 //////////////////////////////// Object operations.
 /**

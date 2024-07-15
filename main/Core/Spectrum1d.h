@@ -135,7 +135,7 @@ public:
 protected:
   void CreateChannels();	//!< Create storage.
   void CreateRootSpectrum(const char* name, Double_t low, Double_t high, UInt_t bins);
-  void deleteRootSpectrum();
+  virtual void deleteRootSpectrum();
 };
 
 typedef CSpectrum1D<uint32_t> CSpectrum1DL;
