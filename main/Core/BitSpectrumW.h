@@ -47,8 +47,13 @@
 
 */
 
+
 #ifndef BITSPECTRUMW_H  //Required for current class
 #define BITSPECTRUMW_H
+                
+#include "BitSpectrum.h"
+
+#ifdef UNDEFINED
                                //Required for base classes
 #include "Spectrum.h"
 #include <string>
@@ -149,4 +154,5 @@ protected:
   void CreateStorage();		//!< Create spec storage
 };
 
+#endif
 #endif

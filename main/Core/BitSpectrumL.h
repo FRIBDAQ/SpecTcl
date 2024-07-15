@@ -50,6 +50,10 @@
 
 #ifndef BITSPECTRUML_H  //Required for current class
 #define BITSPECTRUML_H
+
+#include "BitSpectrum.h"
+
+#ifdef UNDEFINED
                                //Required for base classes
 #include "Spectrum.h"
 #include <string>
@@ -149,4 +153,5 @@ protected:
   void CreateStorage();		//!< Create spec storage
 };
 
+#endif
 #endif
