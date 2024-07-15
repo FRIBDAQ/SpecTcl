@@ -1,6 +1,7 @@
 == 5.13-015 ==
 * Fix <RootX11ErrorHandler> messages
 * Remove old ROOT compiler flags
+* Fix error when MDPP-32 QDC multievent=3
 == 5.13-015 ==
 
 == 5.13-014 ==
