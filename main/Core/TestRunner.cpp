@@ -14,6 +14,9 @@ class TestLogStartListener : public CppUnit::TextTestProgressListener {
      virtual void startTest(CppUnit::Test *test) {
         std::cerr << "Starting test " << test->getName() << std::endl;
      }
+     virtual void endTest(CppUnit::Test* test) {
+       std::cerr << "------------------------------------------\n";
+     }
 };
 
 int main(int argc, char** argv)
