@@ -48,6 +48,10 @@
 
 #ifndef SUMMARYSPECTRUMB_H  //Required for current class
 #define SUMMARYSPECTRUMB_H
+
+#include "SummarySpectrum.h"
+
+#ifdef UNDEFINED
                                //Required for base classes
 #include "Spectrum.h"
 #include <string>
@@ -176,4 +180,5 @@ protected:
   
 };
 
+#endif
 #endif

@@ -31,6 +31,10 @@
 
 #ifndef SUMMARYSPECTRUML_H  //Required for current class
 #define SUMMARYSPECTRUML_H
+
+
+#include "SummarySpectrum.h"
+#ifdef UNDEFINED
                                //Required for base classes
 #include "Spectrum.h"
 #include <string>
@@ -158,4 +162,5 @@ protected:
   
 };
 
+#endif
 #endif
