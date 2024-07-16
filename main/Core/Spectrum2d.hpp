@@ -415,21 +415,21 @@ CSpectrum2D<T>::CreateRootSpectrum(
         if (std::is_same<T, uint32_t>::value) {
             TH2I* pRootSpectrum = new TH2I(
                 name, name,
-                xbins, xlow, xhigh, ybins, xlow, xhigh
+                xbins, xlow, xhigh, ybins, ylow, yhigh
             );
             pRootSpectrum->Adopt(0, nullptr);
             pS = pRootSpectrum;
         } else if (std::is_same<T, uint16_t>::value) {
             TH2S* pRootSpectrum = new TH2S(
                 name, name,
-                xbins, xlow, xhigh, ybins, xlow, xhigh
+                xbins, xlow, xhigh, ybins, ylow, yhigh
             );
             pRootSpectrum->Adopt(0, nullptr);
             pS = pRootSpectrum;
         } else if (std::is_same<T, uint8_t>::value) {
             TH2C* pRootSpectrum = new TH2C(
                 name, name,
-                xbins, xlow, xhigh, ybins, xlow, xhigh
+                xbins, xlow, xhigh, ybins, ylow, yhigh
             );
             pRootSpectrum->Adopt(0, nullptr);
             pS = pRootSpectrum;
