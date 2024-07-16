@@ -874,7 +874,7 @@ CSpectrum::getOverflows() const
     const TAxis* pY = pSpec->GetYaxis();
     Int_t  ny = pY->GetNbins();
     
-    // Sum x underflows:
+    // Sum x overflows:
     // Omit y = 0 and y = ny+2 as those are corners.  Not clear what they mean.
     
     unsigned total  = 0;
@@ -884,7 +884,7 @@ CSpectrum::getOverflows() const
     }
     result.push_back(total);
     
-    // sum y underflows:
+    // sum y overflows
     
     total = 0;
     for (Int_t i = 1; i < nx+1; i++) {
