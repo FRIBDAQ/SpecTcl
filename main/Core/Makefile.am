@@ -191,32 +191,35 @@ Gates_INCLUDES = ActualIterator.h AndGate.h Band.h C2Bands.h CompoundGate.h \
 	CROI.h CEverywhereROI.h CContourROI.h
 
 Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
-	Spectrum1DL.cpp Spectrum2DW.cpp Spectrum1DW.cpp Spectrum2DB.cpp \
-	BitSpectrumW.cpp BitSpectrumL.cpp SummarySpectrumW.cpp \
-	SummarySpectrumB.cpp SpectrumFactory.cpp SpectrumFactoryException.cpp \
-	SnapshotSpectrum.cpp Gamma1DW.cpp Gamma1DL.cpp Gamma2DW.cpp \
+	Spectrum1d.hpp Spectrum2d.hpp Gamma1D.hpp BitSpectrum.hpp \
+	SummarySpectrum.hpp Gamma2D.hpp \
+	SpectrumFactory.cpp SpectrumFactoryException.cpp \
+	SnapshotSpectrum.cpp \
 	CGammaSpectrum.cpp \
-	Gamma2DB.cpp GateMediator.cpp CAxis.cpp CParameterMapping.cpp  \
-	 Parameter.cpp SpectrumS.cpp \
-	Spectrum2DL.cpp Gamma2DL.cpp  SummarySpectrumL.cpp \
-	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp \
-	Gamma2DD.cpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
-	CGammaSummarySpectrum.cpp \
+	GateMediator.cpp CAxis.cpp CParameterMapping.cpp  \
+	Parameter.cpp SpectrumS.cpp \
+	CSpectrum2Dm.cpp  \
+	Gamma2DD.hpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
+	CGammaSummarySpectrum.hpp \
 	GatingObserver.cpp CParameterDictionarySingleton.cpp \
 	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp
 
-Sorter_INCLUDES = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
-	DictionaryException.h Gamma1DL.h Gamma1DW.h Gamma2DB.h Gamma2DW.h \
+Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Dictionary.h \
+	DictionaryException.h Gamma1DL.h \
+	Gamma2D.h Gamma2D.hpp Gamma1DW.h Gamma2DB.h Gamma2DW.h \
 	GateMediator.h Histogrammer.h \
 	Parameter.h SnapshotSpectrum.h Spectrum.h \
 	CGammaSpectrum.h \
-	Spectrum1DL.h Spectrum1DW.h Spectrum2DB.h Spectrum2DW.h \
+	Spectrum1DL.h Spectrum1DW.h Spectrum1d.h Spectrum1d.hpp\
+	Spectrum2d.h Spectrum2d.hpp Gamma1D.h Gamma1D.hpp SummarySpectrum.hpp \
+	Spectrum2DB.h Spectrum2DW.h \
 	SpectrumFactory.h SpectrumFactoryException.h SummarySpectrumB.h \
 	SummarySpectrumW.h CAxis.h CParameterMapping.h SpectrumS.h \
 	Spectrum2DL.h  Gamma2DL.h SummarySpectrumL.h \
-	CSpectrum2Dm.h CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
-	Gamma2DD.h DynamicList.h DynamicList.cpp \
-	CFlattenedGateList.h CSpectrumByParameter.h CGammaSummarySpectrum.h \
+	CSpectrum2Dm.h CSpectrum2Dm.hpp CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
+	Gamma2DD.h Gamma2DD.hpp DynamicList.h DynamicList.cpp \
+	CFlattenedGateList.h CSpectrumByParameter.h \
+	CGammaSummarySpectrum.h CGammaSummarySpectrum.hpp \
 	GatingObserver.h CM2Projection.h CM2Projection.hpp \
 	CParameterDictionarySingleton.h CSpectrumDictionarySingleton.h \
 	CGateDictionarySingleton.h

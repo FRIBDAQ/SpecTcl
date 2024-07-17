@@ -144,7 +144,7 @@ typedef CGamma2DD<Char_t, TH2C>  CGamma2DDB;
 // templates.
 
 #ifndef __GAMMA2DD_CXX
-#include "Gamma2DD.cpp"
+#include "Gamma2DD.hpp"
 #endif
 
 #endif

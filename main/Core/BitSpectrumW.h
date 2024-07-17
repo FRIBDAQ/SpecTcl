@@ -47,106 +47,10 @@
 
 */
 
+
 #ifndef BITSPECTRUMW_H  //Required for current class
 #define BITSPECTRUMW_H
-                               //Required for base classes
-#include "Spectrum.h"
-#include <string>
-#include <vector>
-#include <histotypes.h>
-#include "Parameter.h"
-            
-class TH1S;             // I*2 spectrum for root.
                 
-/*!
-   Represents a spectrum of longword channels, each channel corresponds
-   to a bit in the integerized (mapped) parameter.  If the bit
-   is set in the parameter, the corresponding channel is  incremented.
-   this version supports low high axes to select from a subset of the bits.
-
-*/
-class CBitSpectrumW  : public CSpectrum
-{
-  UInt_t m_nChannels;		// Spectrum size in channels.
-  UInt_t m_nParameter;		// Number parameter which is histogrammed
-  CParameter m_PDescription;
-
-public:
-
-			//Constructor(s) with arguments
-
-  CBitSpectrumW(const std::string& rName, UInt_t nId,
-		const CParameter& rParameter,
-		UInt_t nChannels);	// Parameter is unmapped.
-  CBitSpectrumW(const std::string& rName, UInt_t nId,
-		const CParameter& rParameter,
-		UInt_t nLow,
-		UInt_t nHigh);	// Slice of the space... floats are no good.
-		
-
-  virtual  ~CBitSpectrumW( );
-private:
-			//Copy constructor [illegal]
-
-  CBitSpectrumW(const CBitSpectrumW& acspectrum1dl); 
-
-			//Operator= Assignment Operator [illegal] 
-
-  CBitSpectrumW operator= (const CBitSpectrumW& aCSpectrum1D);
-
-			//Operator== Equality Operator [Not too useful but:]
-public:
-  int operator== (const CBitSpectrumW& aCSpectrum1D)
-  { return (
-	    (CSpectrum::operator== (aCSpectrum1D)) &&
-	    (m_nChannels == aCSpectrum1D.m_nChannels) &&
-	    (m_nParameter == aCSpectrum1D.m_nParameter)
-	    );
-  }                             
-  // Selectors 
-
-public:
-  UInt_t getChannels() const
-  {
-    return m_nChannels;
-  }
-  UInt_t getParameter() const
-  {
-    return m_nParameter;
-  }
-  virtual SpectrumType_t getSpectrumType() {
-    return keBitmask;
-  }
-
-  // Mutators (available to derived classes:
-
-protected:
-  void setChannels (UInt_t am_nChans)
-  { 
-    m_nChannels = am_nChans;
-  }
-  void setParameter (UInt_t am_nParameter)
-  { 
-    m_nParameter = am_nParameter;
-  }
-  virtual void setStorage(Address_t pStorage);
-
-  //
-  //  Operations:
-  //   
-public:                 
-  virtual   void Increment (const CEvent& rEvent)  ;
-  virtual   ULong_t operator[](const UInt_t* pIndices) const;
-  virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
-  virtual   Bool_t UsesParameter (UInt_t nId) const;
-
-  virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
-  virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
-  virtual Size_t StorageNeeded() const;
-  
-  // Utility functions:
-protected:
-  void CreateStorage();		//!< Create spec storage
-};
+#include "BitSpectrum.h"
 
 #endif
