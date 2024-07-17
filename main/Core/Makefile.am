@@ -199,8 +199,8 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	GateMediator.cpp CAxis.cpp CParameterMapping.cpp  \
 	Parameter.cpp SpectrumS.cpp \
 	CSpectrum2Dm.cpp  \
-	Gamma2DD.cpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
-	CGammaSummarySpectrum.cpp \
+	Gamma2DD.hpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
+	CGammaSummarySpectrum.hpp \
 	GatingObserver.cpp CParameterDictionarySingleton.cpp \
 	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp
 
@@ -217,8 +217,9 @@ Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Di
 	SummarySpectrumW.h CAxis.h CParameterMapping.h SpectrumS.h \
 	Spectrum2DL.h  Gamma2DL.h SummarySpectrumL.h \
 	CSpectrum2Dm.h CSpectrum2Dm.hpp CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
-	Gamma2DD.h DynamicList.h DynamicList.cpp \
-	CFlattenedGateList.h CSpectrumByParameter.h CGammaSummarySpectrum.h \
+	Gamma2DD.h Gamma2DD.hpp DynamicList.h DynamicList.cpp \
+	CFlattenedGateList.h CSpectrumByParameter.h \
+	CGammaSummarySpectrum.h CGammaSummarySpectrum.hpp \
 	GatingObserver.h CM2Projection.h CM2Projection.hpp \
 	CParameterDictionarySingleton.h CSpectrumDictionarySingleton.h \
 	CGateDictionarySingleton.h

@@ -120,7 +120,7 @@ typedef CGammaSummarySpectrum<Short_t, TH2S> CGammaSummarySpectrumW;
 typedef CGammaSummarySpectrum<Char_t,  TH2C>  CGammaSummarySpectrumB;
 
 #ifndef __CGAMMASUMMARYSPECTRUM_CXX
-#include "CGammaSummarySpectrum.cpp"
+#include "CGammaSummarySpectrum.hpp"
 #endif
 
 #endif
