@@ -192,13 +192,12 @@ Gates_INCLUDES = ActualIterator.h AndGate.h Band.h C2Bands.h CompoundGate.h \
 
 Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Spectrum1d.hpp Spectrum2d.hpp Gamma1D.hpp BitSpectrum.hpp \
-	SummarySpectrum.hpp \
+	SummarySpectrum.hpp Gamma2D.hpp \
 	SpectrumFactory.cpp SpectrumFactoryException.cpp \
-	SnapshotSpectrum.cpp Gamma2DW.cpp \
+	SnapshotSpectrum.cpp \
 	CGammaSpectrum.cpp \
-	Gamma2DB.cpp GateMediator.cpp CAxis.cpp CParameterMapping.cpp  \
-	 Parameter.cpp SpectrumS.cpp \
-	Gamma2DL.cpp   \
+	GateMediator.cpp CAxis.cpp CParameterMapping.cpp  \
+	Parameter.cpp SpectrumS.cpp \
 	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp \
 	Gamma2DD.cpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
 	CGammaSummarySpectrum.cpp \
@@ -206,7 +205,8 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp
 
 Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Dictionary.h \
-	DictionaryException.h Gamma1DL.h Gamma1DW.h Gamma2DB.h Gamma2DW.h \
+	DictionaryException.h Gamma1DL.h \
+	Gamma2D.h Gamma2D.hpp Gamma1DW.h Gamma2DB.h Gamma2DW.h \
 	GateMediator.h Histogrammer.h \
 	Parameter.h SnapshotSpectrum.h Spectrum.h \
 	CGammaSpectrum.h \

@@ -60,6 +60,10 @@
 #ifndef GAMMA2DW_H  //Required for current class
 #define GAMMA2DW_H
 
+#include "Gamma2D.h"
+
+#ifdef UNDEFINED
+
 #include "CGammaSpectrum.h"
 #include <CAxis.h>
 #include "Spectrum.h"
@@ -172,4 +176,5 @@ public:
   void CreateStorage();
 };
 
+#endif
 #endif

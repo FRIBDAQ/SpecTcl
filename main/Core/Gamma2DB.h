@@ -63,6 +63,9 @@
 
 #ifndef GAMMA2DB_H  //Required for current class
 #define GAMMA2DB_H
+#include "Gamma2D.h"
+
+#ifdef UNDEFINED
 
 #include <CGammaSpectrum.h>
 #include <CAxis.h>
@@ -176,4 +179,5 @@ private:
   void SetParameterVector(std::vector<CParameter>& rParameters);
 };
 
+#endif
 #endif
