@@ -198,7 +198,7 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	CGammaSpectrum.cpp \
 	GateMediator.cpp CAxis.cpp CParameterMapping.cpp  \
 	Parameter.cpp SpectrumS.cpp \
-	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp \
+	CSpectrum2Dm.cpp  \
 	Gamma2DD.cpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
 	CGammaSummarySpectrum.cpp \
 	GatingObserver.cpp CParameterDictionarySingleton.cpp \
@@ -216,7 +216,7 @@ Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Di
 	SpectrumFactory.h SpectrumFactoryException.h SummarySpectrumB.h \
 	SummarySpectrumW.h CAxis.h CParameterMapping.h SpectrumS.h \
 	Spectrum2DL.h  Gamma2DL.h SummarySpectrumL.h \
-	CSpectrum2Dm.h CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
+	CSpectrum2Dm.h CSpectrum2Dm.hpp CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
 	Gamma2DD.h DynamicList.h DynamicList.cpp \
 	CFlattenedGateList.h CSpectrumByParameter.h CGammaSummarySpectrum.h \
 	GatingObserver.h CM2Projection.h CM2Projection.hpp \

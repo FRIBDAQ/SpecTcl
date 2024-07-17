@@ -19,6 +19,7 @@
 
 #include "CSpectrum2Dm.h"
 
+#ifdef UNDEFINED
 class CEvent;
 class TH2S;
 
@@ -67,4 +68,5 @@ private:
 };
 
 
+#endif
 #endif
