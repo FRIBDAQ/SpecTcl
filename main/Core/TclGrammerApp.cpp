@@ -40,7 +40,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Globals.h"
 #include "RunControlPackage.h"
 #include "ParameterPackage.h"
-#include "SpectrumPackage.h"
 #include "DataSourcePackage.h"
 #include "GatePackage.h"
 #include "FilterCommand.h"
@@ -480,6 +479,17 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
   */
   for (const char** pVarName = ProtectedVariables; *pVarName != 0; pVarName++) {
     protectVariable(getInterpreter(), *pVarName);
+  }
+  // We can do the WorkerChunkSize thing even if we are not in MPI
+  // It just gets ignored otherwise.  What we do:
+  // Create the TCL Variable.
+  // If it has a value we're done.
+  // IF not set it to "1" the default chunksize.
+  //
+
+  CTCLVariable maxChunkVar(&rInterpreter, "WorkerChunkSize", TCLPLUS::kfFALSE);
+  if (! maxChunkVar.Get()) {
+    maxChunkVar.Set(DEFAULT_MAX_CHUNK_SIZE);
   }
 }  
   
