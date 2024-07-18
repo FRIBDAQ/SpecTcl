@@ -60,6 +60,8 @@ private:                         // we use realloc not new.
 private:
     int getDestination();
     void updateMaxItems();
+    void initBuffer();
+    void setSize();
 };
 typedef BufferedItems *pBufferedItems;
 
@@ -72,6 +74,7 @@ typedef BufferedItems *pBufferedItems;
 BufferedItems::BufferedItems(CTCLInterpreter* pInterp) :
     m_maxItems(0), m_numItems(0), m_pInterp(pInterp) 
 {
+    initBuffer();
     updateMaxItems();
 }
 /**
@@ -88,10 +91,12 @@ BufferedItems::~BufferedItems() {
 void 
 BufferedItems::flush() {
     if (m_numItems) {
-        transmitChunks(m_buffer.data(), m_buffer.size(), getDestination());
+        setSize();
+        int dest = getDestination();
+        transmitChunks(m_buffer.data(), m_buffer.size(), dest);
 
         // Get ready for the next buffer.
-        m_buffer.clear();
+        initBuffer();
         m_numItems = 0;
     }
 }
@@ -157,6 +162,25 @@ BufferedItems::updateMaxItems() {
         result = atoi(DEFAULT_MAX_CHUNK_SIZE);
     }
     m_maxItems = result;
+}
+/**
+ *  initBuffer 
+ *    - Clear the buffer.
+ *    - reserve a uint32_t at the front of the buffer for the 
+ *      total size:
+ */
+void
+BufferedItems::initBuffer() {
+    m_buffer.clear();
+    m_buffer.insert(m_buffer.end(), sizeof(uint32_t), 0);    // Reserve the size long.
+}
+/**
+ *  set the total size longword at he front. Note that the size is self-inclusive.
+ */
+void
+BufferedItems::setSize() {
+    uint32_t* p = reinterpret_cast<uint32_t*>(m_buffer.data());
+    *p = m_buffer.size();
 }
 
 // The buffer pointer.
