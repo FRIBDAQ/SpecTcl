@@ -543,8 +543,12 @@ void
 CRingBufferDecoder::OnSourceAttach()
 {
     // A new data source invalidates the current helper:
-    
-   invalidateCurrentHelper();
+
+  
+    if (gMPIParallel && (myRank() == MPI_ROOT_RANK)) {
+       sendBufferedRingItems();
+    }
+    invalidateCurrentHelper();
 }
 /**
  * OnSourceDetach
@@ -564,6 +568,9 @@ CRingBufferDecoder::OnSourceDetach()
 void
 CRingBufferDecoder::OnEndFile()
 {
+    // If we are in MPI and the sender rank we need to flush the data.
+
+
     invalidateCurrentHelper();
 }
 

@@ -487,7 +487,7 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
   // IF not set it to "1" the default chunksize.
   //
 
-  CTCLVariable maxChunkVar(&rInterpreter, "WorkerChunkSize", TCLPLUS::kfFALSE);
+  CTCLVariable maxChunkVar(&rInterpreter, WORKER_CHUNKSIZE_VAR, TCLPLUS::kfFALSE);
   if (! maxChunkVar.Get()) {
     maxChunkVar.Set(DEFAULT_MAX_CHUNK_SIZE);
   }

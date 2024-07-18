@@ -88,6 +88,8 @@ extern MPI_Comm                  gXamineGateComm;    // Defined in all processes
 #define MPI_BIND_TRACE_RELAY_TAG 4       // sbind trace relay message tag
 #define MPI_RING_ITEM_TAG 5             // Ring items -> workers e.g.
 #define MPI_STATE_CHANGE_TAG 6          // State changes -> event sink pipeline.
+
+#define WORKER_CHUNKSIZE_VAR "WorkerChunkSize" // Name of TCL variable with the worker chunksize.
 #define DEFAULT_MAX_CHUNK_SIZE "1"      // Stringified maximum # of items in a worker chunk.
 
 #endif
