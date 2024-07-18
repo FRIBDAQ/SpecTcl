@@ -33,6 +33,7 @@
 // Event sending:
 
 void sendRingItem(const void* pItem, size_t size);
+void sendBufferedRingItems();
 void broadcastRingItem(const void* pItem, size_t size);
 
 void startRingItemPump();

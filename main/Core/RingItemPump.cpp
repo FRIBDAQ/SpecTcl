@@ -32,12 +32,168 @@
 #include "Globals.h"
 #include "DataFormat.h"
 #include "TCLAnalyzer.h"
+#include "SpecTcl.h"
+#include <vector>
+#include <stdlib.h>
+#include <TCLInterpreter.h>
+#include <TCLVariable.h>
 
 static const size_t MAX_MESSAGE_SIZE = 16*1024;
 
 
 // The internals are all not even compiled unless MPI is enabled:
 #ifdef WITH_MPI
+static void
+transmitChunks(const void* buf, size_t size, int dest);  // forward reference
+
+class BufferedItems {   // So that we can resize the buffer
+private:                         // we use realloc not new.
+    unsigned m_maxItems;         // Max item count
+    unsigned m_numItems;         // No. items now buffered.
+    CTCLInterpreter* m_pInterp;
+    std::vector<uint8_t> m_buffer; // the buffer.
+ public:
+    BufferedItems(CTCLInterpreter* pInterp);
+    ~BufferedItems();
+    void flush();
+    void buffer(const void* pData, size_t size);
+private:
+    int getDestination();
+    void updateMaxItems();
+    void initBuffer();
+    void setSize();
+};
+typedef BufferedItems *pBufferedItems;
+
+/// Implementation of the bufffered items class.
+
+/**
+ *  construct a BufferedItems object:
+ * @param pInterp - pointer to the interp used to update max items.
+ */
+BufferedItems::BufferedItems(CTCLInterpreter* pInterp) :
+    m_maxItems(0), m_numItems(0), m_pInterp(pInterp) 
+{
+    initBuffer();
+    updateMaxItems();
+}
+/**
+ * destructor - flush data first.
+ */
+BufferedItems::~BufferedItems() {
+    flush();
+}
+
+/**
+ * Flush the current items to a destination - this is a no-op if the buffer
+ * is empty.
+ */
+void 
+BufferedItems::flush() {
+    if (m_numItems) {
+        setSize();
+        int dest = getDestination();
+        transmitChunks(m_buffer.data(), m_buffer.size(), dest);
+
+        // Get ready for the next buffer.
+        initBuffer();
+        m_numItems = 0;
+    }
+}
+/** buffer
+ *    Buffer a ring item for transmission and, if that exceeds the 
+ * maximum number of items, flushes.
+ * 
+ * @param pData - Data to send
+ * @param size - number of bytes to buffer.
+ * @note if there are no items buffered, we update the maximum chunk count.
+ */
+void
+BufferedItems::buffer(const void* pData, size_t size) {
+    if (!m_numItems) {
+        updateMaxItems();
+    }
+    // Todo the insert we need a pair of iterator like thinks for uint8_t:
+
+    const uint8_t* pBegin = reinterpret_cast<const uint8_t*>(pData);
+    const uint8_t* pEnd = pBegin + size;
+    m_buffer.insert(m_buffer.end(), pBegin, pEnd);
+    m_numItems++;
+
+    // If we reached/exceded the threshold flush
+
+    if (m_numItems >= m_maxItems) {
+        flush();
+    }
+}
+/** getDestination
+ *      Read the next queued data request
+ * 
+ * @return int - Rank to which to send the next chunks:
+ */
+int
+BufferedItems::getDestination() {
+    uint8_t dummy_request_buffer;
+    MPI_Status status;
+    if  (MPI_Recv(
+        &dummy_request_buffer, 1, MPI_CHAR, 
+        MPI_ANY_SOURCE, MPI_RING_ITEM_TAG, gRingItemComm, 
+        &status
+    ) != MPI_SUCCESS) {
+        throw std::runtime_error("sendRingItem - failed to get request from worker");
+    }
+    return status.MPI_SOURCE;
+}
+/**
+ * updateMaxItems
+ *    Read the WORKER_CHUNKSIZE_VAR variable special cases:
+ * 
+ * *  There is no  variable (should not happen) use DEFAULT_MAX_CHUNK_SIZE instead.
+ * *  atoi() applied to the value <= 0, apply it to DEFAULT_MAX_CHUNK_SIZE.
+ */
+void 
+BufferedItems::updateMaxItems() {
+    CTCLVariable var(m_pInterp, WORKER_CHUNKSIZE_VAR, TCLPLUS::kfFALSE);
+    const char* pValue = var.Get();
+    if (!pValue) pValue = DEFAULT_MAX_CHUNK_SIZE;
+
+    int result = atoi(pValue);
+    if (result <= 0) {
+        result = atoi(DEFAULT_MAX_CHUNK_SIZE);
+    }
+    m_maxItems = result;
+}
+/**
+ *  initBuffer 
+ *    - Clear the buffer.
+ *    - reserve a uint32_t at the front of the buffer for the 
+ *      total size:
+ */
+void
+BufferedItems::initBuffer() {
+    m_buffer.clear();
+    m_buffer.insert(m_buffer.end(), sizeof(uint32_t), 0);    // Reserve the size long.
+}
+/**
+ *  set the total size longword at he front. Note that the size is self-inclusive.
+ */
+void
+BufferedItems::setSize() {
+    uint32_t* p = reinterpret_cast<uint32_t*>(m_buffer.data());
+    *p = m_buffer.size();
+}
+
+// The buffer pointer.
+static pBufferedItems pBuffer(0);
+
+// Funky singleton getter.
+
+static pBufferedItems getBuffer() {
+    if (!pBuffer) {
+        pBuffer = new BufferedItems(SpecTcl::getInstance()->getInterpreter());
+    }
+    return pBuffer;
+}
 
 
 // Internal methods. Only needed if MPI is included so:
@@ -147,12 +303,21 @@ RingItemEventHandler(Tcl_Event* pEvent, int flags) {
     // Throws if it's not a CRingBufferDecoder:
     CRingBufferDecoder& rDecoder = dynamic_cast<CRingBufferDecoder&>(*gpBufferDecoder);
     rDecoder.setAnalyzer(gpAnalyzer);
+    int num_items(0);
+    // for Targetd data the first uint32_t in the buffer is the size again:
+
+    if (pInfo->s_targeted) {
+        p.pLongs++;
+        nBytes -= sizeof(uint32_t);
+    }
     while (nBytes) {
         rDecoder.dispatchEvent(p.pBytes);
 
         nBytes   -= *p.pLongs;   // Assume size is first.
         p.pBytes += *p.pLongs;
+        num_items++;
     }
+
     // If this item was targeted, wew need to request the next one:
 
     if(pInfo->s_targeted) {
@@ -522,9 +687,11 @@ updateStatistics(const void* pItem, size_t size) {
  * 
  * @param pItem - pointer to the data to send.
  * @param size  - Size of the data to send.
-*/
-void
-sendRingItem(const void* pItem, size_t size) {
+ * 
+ * NOTE - this is dead code
+*/ 
+static void
+oldsendRingItem(const void* pItem, size_t size) {
 #ifdef WITH_MPI
     // Get the request.  This is just a single byte where we
     // really care about the source rank so that we know where
@@ -542,6 +709,21 @@ sendRingItem(const void* pItem, size_t size) {
     transmitChunks(pItem, size, status.MPI_SOURCE);
     countPhysicsItems(pItem, size);           // Update item count per issue #131
 #endif
+}
+
+/**
+ * sendRingItem
+ *   Actually, for Issue #130, this just get the buffer and 
+ * buffers the ring item.  The buffer will take care of transmitting
+ * a block of items when it has enough chunks or when flush() is invoked.
+ * 
+ */
+void sendRingItem(const void* pItem, size_t size) {
+    getBuffer()->buffer(pItem, size);
+    countPhysicsItems(pItem, size);           // Update item count per issue #131
+}
+void sendBufferedRingItems() {
+    getBuffer()->flush();
 }
 /**
  * broadcastRingItem
@@ -565,7 +747,8 @@ sendRingItem(const void* pItem, size_t size) {
 void
 broadcastRingItem(const void* pItem, size_t size) {
 #ifdef WITH_MPI
-  
+
+    getBuffer()->flush();
 
     MPI_Datatype bcType = broadCastDataType();
     BroadcastData buffer;                             // Chunk buffer.

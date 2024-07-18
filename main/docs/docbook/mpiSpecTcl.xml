@@ -28,7 +28,7 @@
         <itemizedlist>
             <listitem>
                 <para>
-                    What mp;iSpecTcl is.
+                    What mpiSpecTcl is.
                 </para>
             </listitem>
             <listitem>
@@ -157,6 +157,19 @@ $OPAL_PREFIX/bin/mpirun -n 5 SpecTcl
                 makes no sense.  More complex invocations of <command>mpirun</command> are possible and
                 can allow the application to spread across more than one system.  This is complicated for
                 the containerized environment and beyond the scope of this document.
+            </para>
+            <para>
+                Events read from the data source are dispatched to the worker processes. The number of
+                worker processes are 2-n where n is the value given to the <option>-n</option>
+                option of <command>mpirun</command>.
+            </para>
+            <para>
+                Events are dispatched to workers in chunks.  The number of ring items (events) in each chunk can
+                be controlled by setting the <literal>WorkerChunkSize</literal> Tcl variable
+                to the desired number of  ring items per chunk.  While this is normally set in 
+                <filename>SpecTclInit.tcl</filename>, after chunks are sent, SpecTcl dynamically 
+                updates the chunksize fromt he current value of that variable.  If this variable is not
+                set or is not a legal integer greater than 0, it defaults to <literal>1</literal>
             </para>
         </section>
         <section>
