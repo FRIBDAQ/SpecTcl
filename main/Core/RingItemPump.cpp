@@ -303,12 +303,21 @@ RingItemEventHandler(Tcl_Event* pEvent, int flags) {
     // Throws if it's not a CRingBufferDecoder:
     CRingBufferDecoder& rDecoder = dynamic_cast<CRingBufferDecoder&>(*gpBufferDecoder);
     rDecoder.setAnalyzer(gpAnalyzer);
+    int num_items(0);
+    // for Targetd data the first uint32_t in the buffer is the size again:
+
+    if (pInfo->s_targeted) {
+        p.pLongs++;
+        nBytes -= sizeof(uint32_t);
+    }
     while (nBytes) {
         rDecoder.dispatchEvent(p.pBytes);
 
         nBytes   -= *p.pLongs;   // Assume size is first.
         p.pBytes += *p.pLongs;
+        num_items++;
     }
+
     // If this item was targeted, wew need to request the next one:
 
     if(pInfo->s_targeted) {
