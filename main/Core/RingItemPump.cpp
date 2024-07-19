@@ -674,42 +674,7 @@ updateStatistics(const void* pItem, size_t size) {
 // In the future, we may allow several ring items to live in a single message
 // sent by sendRingItem.
 
-/**
- * sendRingItem:
- *    Get a sollicitation for data from a worker and
- * transmit the data passsed into us to the requestor.  The data are a ring
- * item in our case, though actually the buffer is quite
- * generic.  This, in general, is prefferable to a round-robbin
- * distribution of data because:
- * - The whole thing continues to run in the case a worker hangs.
- * - The system is auto-load-balancing with each worker getting
- * only as much data as it can handle.
- * 
- * @param pItem - pointer to the data to send.
- * @param size  - Size of the data to send.
- * 
- * NOTE - this is dead code
-*/ 
-static void
-oldsendRingItem(const void* pItem, size_t size) {
-#ifdef WITH_MPI
-    // Get the request.  This is just a single byte where we
-    // really care about the source rank so that we know where
-    // to send data:
 
-    uint8_t dummy_request_buffer;
-    MPI_Status status;
-    if  (MPI_Recv(
-        &dummy_request_buffer, 1, MPI_CHAR, 
-        MPI_ANY_SOURCE, MPI_RING_ITEM_TAG, gRingItemComm, 
-        &status
-    ) != MPI_SUCCESS) {
-        throw std::runtime_error("sendRingItem - failed to get request from worker");
-    }
-    transmitChunks(pItem, size, status.MPI_SOURCE);
-    countPhysicsItems(pItem, size);           // Update item count per issue #131
-#endif
-}
 
 /**
  * sendRingItem
@@ -719,11 +684,15 @@ oldsendRingItem(const void* pItem, size_t size) {
  * 
  */
 void sendRingItem(const void* pItem, size_t size) {
+#ifdef WITH_MPI
     getBuffer()->buffer(pItem, size);
     countPhysicsItems(pItem, size);           // Update item count per issue #131
+#endif
 }
 void sendBufferedRingItems() {
+#ifdef WITH_MPI
     getBuffer()->flush();
+#endif
 }
 /**
  * broadcastRingItem

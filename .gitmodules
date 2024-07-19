@@ -1,0 +1,3 @@
+[submodule "main/SpecTclPythonGUI"]
+	path = main/SpecTclPythonGUI
+	url = https://github.com/FRIBDAQ/SpecTclPythonGUI.git
