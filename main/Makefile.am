@@ -112,6 +112,10 @@ install-exec-local:
 	$(INSTALL_DATA) @srcdir@/CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/docs/man
 	$(INSTALL_DATA) @srcdir@/Porting.txt  @prefix@
+	echo Installing python tree gui
+	$(mkinstalldirs) @prefix@/pythontree
+	$(INSTALL_PROGRAM) @top_srcdir@/SpecTclPythonGUI/* @prefix@/pythontree
+	
 
 #check-TESTS:
 #	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done
