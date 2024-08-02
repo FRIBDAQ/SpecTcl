@@ -12,18 +12,6 @@ include_HEADERS = DDASUnpacker.h DDASBuiltUnpacker.h ParameterMapper.h 	\
 	DDASBuiltFitUnpacker.h FitParameterMapper.h
 
 
-libDDASUnpacker_la_CXXFLAGS = -I@top_srcdir@/Core \
-	-I@top_srcdir@/Utility	\
-	-I@top_srcdir@/Core    \
-	@LIBTCLPLUS_CFLAGS@	\
-	@TCL_CPPFLAGS@ @ROOT_CFLAGS@
-
-
-
-libDDASUnpacker_la_LIBADD = @top_builddir@/Core/libTclGrammerApp.la \
-	@top_builddir@/mpi/libMPIUtilities.la \
-	@ROOT_LDFLAGS@						\
-	-lgsl @LIBEXCEPTION_LDFLAGS@  @TCL_LIBS@ 
 
 noinst_HEADERS=FitExtender.h
 
