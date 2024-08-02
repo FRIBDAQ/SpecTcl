@@ -64,7 +64,14 @@ jobs:
         shell: bash
         run: |
           git config --global --add safe.directory '*'
-          if test -e qtpy-incorp.sh ; then ./qtpy-incorp.sh ; fi
+
+          if test -e qtpi-incorp.sh ; then ./qtpi-incorp.sh  v1.4; fi
+      - name: Initializing submodule
+        working-directory: ./main
+        shell: bash
+        run: |
+          git submodule init
+          git submodule update
       - name: Creating build directory
         run: mkdir main/oot
       - name: Configuring
