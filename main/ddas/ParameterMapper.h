@@ -19,7 +19,7 @@
 #ifndef DAQ_DDAS_CPARAMETERMAPPER_H
 #define DAQ_DDAS_CPARAMETERMAPPER_H
 
-#include "DDASHit.h"
+#include <DDASHit.h>
 #include <memory>
 #include <vector>
 

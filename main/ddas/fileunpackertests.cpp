@@ -9,7 +9,7 @@
 #include <Histogrammer.h>
 #include <Globals.h>
 
-#include "DDASHit.h"
+#include <DDASHit.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <vector>

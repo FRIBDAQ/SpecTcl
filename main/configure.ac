@@ -2,20 +2,8 @@
 
 AC_INIT(SpecTcl,7.0-000, daqhelp@frib.msu.edu)
 
-# These are default version/tag for unifiedfmt, tcl++ and qtpi
-# If the bulder has not explicitly run the incorporation 
-# scripts, the versions below will be used to incorporate for you:
-# Update as the 'good' version updates:
-
-
-UNIFIED_FMT_VERSION="1.2"
-TCLPLUS_VERSION="libtclplus-v4.3-002"
-CUTIEPIE_VERSION="v1.5"
-
-#AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
-
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([tar-ustar foreign])
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
@@ -835,38 +823,49 @@ AX_GENGETOPT
 
 AX_CHECK_ZLIB([AC_MSG_RESULT([Have zlib])], [AC_MSG_ERROR([zlib is a prerequisite for this version of SpecTcl])])
 
+# The unified format and DDAS format libraries have builds that
+# require cmake, so check for that:
+
+AC_CHECK_PROG([have_cmake], cmake, yes)
+AS_VAR_IF([have_cmake], [yes], [], AC_MSG_ERROR([cmake must be in the path to build DDAS support software]))
+
 # Check that the unified format library has been incorporated into
-# the source tree and configura/build it into $prefix/unifiedformat
-#
-AC_CHECK_PROG([havecmake], cmake, [1], [0])
-if test "${havcmake}" = "0"
-then
-	AC_MSG_ERROR([cmake must be in the path to build SpecTcl])
-fi
+# the source tree and configure/build it into $prefix/unifiedformat
 
-#
-#  If the user has not yet incorporated at unified format
-#  version try incorporating it for them then building regardless.
-#  This won't work on an out of tree initial build without the 
-#  Source tree already having done one and a readonly source tree.
-#
-AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt], [UFMT_USER="1"], [UFMT_USER="0"])
-
-if test "${UFMT_USER}" = "0"
-then
-   AC_MSG_NOTICE([Incorporating version ${UNIFIED_FMT_VERSION} for you])
-   ${srcdir}/unifiedfmt-incorp.sh ${UNIFIED_FMT_VERSION}
-fi
-
+AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt],
+	[AC_MSG_NOTICE([Using previously incorporated unified format library at ${srcdir}/unifiedformat])
+	cp -r ${srcdir}/unifiedformat .],
+	[AC_MSG_NOTICE([Incorporating unified format for you])
+	${srcdir}/unifiedfmt-incorp.sh])
 rm -rf unifiedformat/build
-mkdir -p unifiedformat/build
-sourcedir="`realpath ${srcdir}`"
-AC_MSG_NOTICE([Building unified format at ${sourcedir}])
-(cd unifiedformat/build;  cmake ${sourcedir}/unifiedformat -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make all install)
+AS_MKDIR_P(unifiedformat/build)	
+AC_MSG_NOTICE([Building unified format])
+(cd unifiedformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make clean install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install unified format library with result: ${result}]))
 UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
 UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
 AC_SUBST(UFMT_CPPFLAGS)
 AC_SUBST(UFMT_LDFLAGS)
+
+# Check that the DDAS format library has been incorporated into the
+# source tree and configure/build it into $prefix/ddasformat.
+		
+AC_CHECK_FILE([${srcdir}/ddasformat/CMakeLists.txt],
+	[AC_MSG_NOTICE([Using previously incorprated ddasformat from the source tree at ${srcdir}/ddasformat])
+	cp -r ${srcdir}/ddasformat .],
+	[AC_MSG_NOTICE([Incorporating ddasformat for you])
+	${srcdir}/ddasfmt-incorp.sh])
+rm -rf ddasformat/build
+AS_MKDIR_P(ddasformat/build)
+AC_MSG_NOTICE([Building DDAS format])
+(cd ddasformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/ddasformat; make clean install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install ddasformat with result: ${result}]))
+DDASFMT_CPPFLAGS="-I${prefix}/ddasformat/include"
+DDASFMT_LDFLAGS="-L${prefix}/ddasformat/lib -lDDASFormat -Wl,-rpath=${prefix}/ddasformat/lib"
+AC_SUBST(DDASFMT_CPPFLAGS)
+AC_SUBST(DDASFMT_LDFLAGS)
 
 #
 #   libTclPlus and libException could have been installed from 
@@ -884,14 +883,15 @@ AC_SUBST(UFMT_LDFLAGS)
 # We no longer look for Ryan's deb to be installed as that ship sailed
 # a long time ago:
 
-AC_CHECK_FILE([${srcdir}/libtcl/configure.ac], [TCLPLUS_INCORP="1"], [TCLPLUS_INCORP="0"])
-if test "${TCLPLUS_INCORP}" = "0"
-then
-  AC_MSG_NOTICE([Incorporating tcl++ version ${TCLPLUS_VERSION} for you])
-  ${srcdir}/tcl++incorp ${TCLPLUS_VERSION}
-fi
-AC_MSG_NOTICE([Building/installing tcl++])
-(cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
+AC_CHECK_FILE([${srcdir}/libtcl/configure.ac],
+		[AC_MSG_NOTICE([Using previously incorprated tcl++ from the source tree at ${srcdir}/libtcl])
+		cp -r ${srcdir}/libtcl .],
+		[AC_MSG_NOTICE([Incorporating tcl++ for you])
+		${srcdir}/tcl++incorp])
+AC_MSG_NOTICE([Building and installing tcl++])
+(cd libtcl; ./configure --prefix=${prefix}; make clean install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install tcl++ with result: ${result}]))
 LIBTCLPLUS_CFLAGS="-I${prefix}/include"
 LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefix}/lib\""
 LIBTCLPLUS_LDFLAGS="-L${prefix}/lib -ltclPlus ${LIBEXCEPTION_LDFLAGS}"
@@ -899,23 +899,19 @@ AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
 AC_SUBST(LIBEXCEPTION_LDFLAGS)
 
+# Incorporate and build PyQt GUI:
 
-# If PyQtGui/main/configure.ac is not present the user must first run.
-# qtpi-incorp.sh to pull in a version:
-
-AC_MSG_CHECKING([Ensuring a version of CutiePie has been included])
-QTPIDIR="${srcdir}/PyQtGUI"
-QTPIBUILDDIR="${QTPIDIR}/main"
-AC_CHECK_FILE([${QTPIBUILDDIR}/configure.ac],[qtpi=1],[qtpi=0])
-if test ${qtpi}  = 0
-then
-  AC_MSG_NOTICE([Incorporating version ${CUTIEPIE_VERSION} for you])
-  ${srcdir}/qtpi-incorp.sh ${CUTIEPIE_VERSION}
-else
-  AC_MSG_RESULT([incorporated previously])
-fi
-(cd ${QTPIBUILDDIR}; ./configure --prefix=${prefix}; make clean all install)
-
+QTPYDIR="PyQtGUI"
+QTPYBUILDDIR="${QTPYDIR}/main"
+AC_CHECK_FILE([${srcdir}/${QTPYBUILDDIR}/configure.ac],
+	[AC_MSG_NOTICE([Using previously incorprated tcl++ from the source tree at ${srcdir}/${QTPYDIR}])
+	cp -r ${srcdir}/${QTPYDIR} .],
+	[AC_MSG_NOTICE([Incorporating CutiePie for you])
+	${srcdir}/qtpy-incorp.sh])
+AC_MSG_NOTICE([Building and installing CutiePie])
+(cd ${QTPYBUILDDIR}; autoreconf -if; ./configure --prefix=${prefix}; make clean install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install CutiePie with result: ${result}]))
 
 ######################################## Checks for ZMQ
 AX_ZMQ

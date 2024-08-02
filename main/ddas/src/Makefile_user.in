@@ -1,12 +1,12 @@
 # Skeleton Makefile for SpecTcl 5.xx
 
-INSTDIR=/usr/opt/spectcl/5.14-000
+INSTDIR=@prefix@
 include $(INSTDIR)/etc/SpecTcl_Makefile.include
 
 # If you have any switches that need to be added to the default c++ compilation
 # rules, add them to the definition below:
 
-USERCXXFLAGS=-std=c++14
+USERCXXFLAGS=-std=c++14 @DDASFMT_CPPFLAGS@
 
 # If you have any switches you need to add to the default c compilation rules,
 # add them to the defintion below:
@@ -15,7 +15,7 @@ USERCCFLAGS=$(USERCXXFLAGS)
 
 # If you have any switches you need to add to the link add them below:
 
-USERLDFLAGS=-lDDASUnpacker 
+USERLDFLAGS=-lDDASUnpacker @DDASFMT_LDFLAGS@
 
 # Append your objects to the definitions below:
 

@@ -22,7 +22,7 @@
  *          end of a hit with traces.
  */
 
-#include "DDASHit.h"               // Base class
+#include <DDASHit.h>               // Base class
 #include "functions.h"              // Defines HitExtension.
 #include "lmfit.h"
 #include <stdexcept>
