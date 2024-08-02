@@ -53,7 +53,7 @@ EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	bootstrap $(MYGRIDIR) LICENSE  \
 	build.cygwin Directories.include CompilationRules.include \
 	libtcl \
-	CHANGELOG m4 Porting.txt rest unifiedformat PyQtGUI
+	CHANGELOG m4 Porting.txt rest unifiedformat PyQtGUI ddasformat
 
 dist-hook:
 	mkdir -p $(distdir)/config

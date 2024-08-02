@@ -97,6 +97,11 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
     uint32_t header = getLong(event, offset);
 
     if (header == 0xffffffff) {	// if no data, there will be just the two words of 0xffffffff
+        uint32_t ender = getLong(event, offset + 2);
+        if (ender == 0xffffffff) { // When multievent=3, there's another BERR
+									   return offset + 4;
+								}
+
         return offset + 2;
     }
 
@@ -147,6 +152,10 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
         return offset - 2; // Really should not happen!!
     }
 
+    uint32_t ender = getLong(event, offset + 2);
+    if (ender == 0xffffffff) { // When multievent=3, there's another BERR
+					   return offset + 4;
+				}
     // There will be a 0xffffffff longword for the BERR at the end of the
     // readout.
     return offset + 2;
