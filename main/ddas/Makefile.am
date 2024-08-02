@@ -67,15 +67,13 @@ unittests_LDADD = @builddir@/libDDASUnpacker.la 			\
 	@TCL_LIBS@							\
 	@DDASFMT_LDFLAGS@
 
-<<<<<<< HEAD
 unittests_CXXFLAGS = @CPPUNIT_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ 
 unittests_LDADD = @builddir@/libDDASUnpacker.la @top_builddir@/Core/libTclGrammerApp.la  \
 	@top_builddir@/mpi/libMPIUtilities.la \
 	@top_builddir@/Display/libXamine.la \
 	@ROOT_LDFLAGS@  @CPPUNIT_LIBS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ 
-=======
->>>>>>> 5.14-dev
+
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS = ./unittests
 
