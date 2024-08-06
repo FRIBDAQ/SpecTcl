@@ -53,7 +53,8 @@ EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	bootstrap $(MYGRIDIR) LICENSE  \
 	build.cygwin Directories.include CompilationRules.include \
 	libtcl \
-	CHANGELOG m4 Porting.txt rest unifiedformat PyQtGUI ddasformat
+	CHANGELOG m4 Porting.txt rest unifiedformat PyQtGUI ddasformat \
+	SpecTclPythonGUI
 
 dist-hook:
 	mkdir -p $(distdir)/config
@@ -115,7 +116,7 @@ install-exec-local:
 	echo Installing python tree gui
 	$(mkinstalldirs) @prefix@/pythontree
 	$(INSTALL_PROGRAM) @top_srcdir@/SpecTclPythonGUI/* @prefix@/pythontree
-	
+
 
 #check-TESTS:
 #	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done
