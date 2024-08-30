@@ -28,7 +28,7 @@
 #include "CAENModuleHits.h"
 #include "DataFormat.h"
 
-#include "fragment.h"
+#include <fragment.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -63,8 +63,8 @@ FakeEvent::putFragment(
     size_t nBytes, uint64_t timestamp, uint32_t sid, void* pData
 )
 {
-    EVB::pFragmentHeader p =
-        reinterpret_cast<EVB::pFragmentHeader>(m_pCursor);
+    ufmt::EVB::pFragmentHeader p =
+        reinterpret_cast<ufmt::EVB::pFragmentHeader>(m_pCursor);
     p->s_timestamp = timestamp;
     p->s_sourceId  = sid;
     p->s_size      = nBytes + sizeof(RingItemHeader) + sizeof(BodyHeader);

@@ -19,7 +19,7 @@
  *  @brief: Implement methods of parsing events with CAEN hits.
  */
 #include "CAENParser.h"
-#include "FragmentIndex.h"
+#include <FragmentIndex.h>
 #include <algorithm>
 #include <stdexcept>
 
@@ -50,9 +50,9 @@ CAENParser::~CAENParser()
 void
 CAENParser::operator()(void* pEventBody)
 {
-    FragmentIndex frags(static_cast<uint16_t*>(pEventBody));
+    ufmt::FragmentIndex frags(static_cast<uint16_t*>(pEventBody));
     for (int i =0; i < frags.getNumberFragments(); i++) {
-        FragmentInfo info = frags.getFragment(i);
+        ufmt::FragmentInfo info = frags.getFragment(i);
         
         int sid = info.s_sourceId;    // That's what we care about.
         
@@ -63,7 +63,7 @@ CAENParser::operator()(void* pEventBody)
         auto p = m_modules.find(sid);
         if (p != m_modules.end()) {
             CAENHit* pHit = makeHit(p->second);
-            pHit->unpack(info.s_itembody);
+            pHit->unpack(const_cast<uint16_t*>(info.s_itembody));
             if (p->second.s_module.getHits().size() == 0) {
                 // First hit:
                 

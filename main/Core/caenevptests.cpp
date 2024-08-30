@@ -145,8 +145,8 @@ caenevptest::makeFragment(void* pDest, void* pItem)
     pRingItemHeader pSrc = reinterpret_cast<pRingItemHeader>(pItem);
     pBodyHeader pBh = reinterpret_cast<pBodyHeader>(pSrc+1);
     
-    EVB::pFragmentHeader pFrag = reinterpret_cast<EVB::pFragmentHeader>(pDest);
-    EVB::pFragmentHeader pBody = pFrag+1;
+    ufmt::EVB::pFragmentHeader pFrag = reinterpret_cast<ufmt::EVB::pFragmentHeader>(pDest);
+    ufmt::EVB::pFragmentHeader pBody = pFrag+1;
     
     // Fill in the fragment header; we get the info from the body header
     // and ring item header.
@@ -157,7 +157,7 @@ caenevptest::makeFragment(void* pDest, void* pItem)
     pFrag->s_barrier   = pBh->s_barrier;
     memcpy(pBody, pSrc, pSrc->s_size);
 
-    return pSrc->s_size + sizeof(EVB::FragmentHeader);
+    return pSrc->s_size + sizeof(ufmt::EVB::FragmentHeader);
     
 }
 /**

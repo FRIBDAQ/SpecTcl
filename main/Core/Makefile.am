@@ -242,7 +242,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
 	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
 	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp \
-	 CPipelineManager.cpp FragmentIndex.cpp \
+	 CPipelineManager.cpp \
 	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp \
 	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp \
 	CAENHit.cpp CAENModuleHits.cpp CAENParser.cpp CAENParameterMap.cpp \
@@ -268,7 +268,7 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	IntegrateCommand.h RingFormatCommand.h VersionCommand.h SContentsCommand.h \
 	CSpectrumStatsCommand.h SpecTclDisplayManager.h \
 	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h \
-	CPipelineCommand.h CPipelineManager.h fragment.h FragmentIndex.h \
+	CPipelineCommand.h CPipelineManager.h \
 	CEventBuilderEventProcessor.h CPipelineEventProcessor.h \
 	CUnpackEvbCommand.h CAENHit.h CAENModuleHits.h CAENParser.h \
 	CAENParameterMap.h CAENEventProcessor.h \
@@ -440,7 +440,7 @@ noinst_PROGRAMS =    spectrumPkgTests \
 			sorterTests treeParamTests fitTests \
 			xamineTests spectraDisplayTests \
 			spectclCmdTests evbProcessorTests \
-			gateTests fragIndexTests caendpptests \
+			gateTests  caendpptests \
 			mirrortests \
 			helpertests newanalysistests  \
 			paramdecodetests fribfiltertests
@@ -475,8 +475,8 @@ newanalysistests_LDADD=$(commonTestLdFlags)
 caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp \
 	modulehittests.cpp parsertest.cpp caenpmaptests.cpp caenevptests.cpp
 
-caendpptests_CXXFLAGS= $(commonTestCXXFLAGS)
-caendpptests_LDADD   = $(commonTestLdFlags)
+caendpptests_CXXFLAGS= $(commonTestCXXFLAGS) @UFMT_CPPFLAGS@
+caendpptests_LDADD   = $(commonTestLdFlags) @UFMT_LDFLAGS@
 
 
 gateTests_CXXFLAGS = $(commonTestCXXFLAGS)
@@ -539,15 +539,11 @@ spectclCmdTests_SOURCES  = TestRunner.cpp \
 			SharedMemoryKeyCommandTest.cpp \
 			SharedMemorySizeCommandTest.cpp
 
-evbProcessorTests_CXXFLAGS = $(commonTestCXXFLAGS)
-evbProcessorTests_LDADD = $(commonTestLdFlags)
+evbProcessorTests_CXXFLAGS = $(commonTestCXXFLAGS) @UFMT_CPPFLAGS@
+evbProcessorTests_LDADD = $(commonTestLdFlags) @UFMT_LDFLAGS@
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
 	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp
 
-
-fragIndexTests_CXXFLAGS=$(commonTestCXXFLAGS)
-fragIndexTests_LDADD=$(commonTestLdFlags)
-fragIndexTests_SOURCES = TestRunner.cpp FragmentIndex.cpp FragmentIndex.h fragidxtests.cpp
 
 mirrortests_CXXFLAGS=$(commonTestCXXFLAGS)
 mirrortests_LDADD=$(commonTestLdFlags)
@@ -572,7 +568,7 @@ fribfiltertests_SOURCES=TestRunner.cpp fribfiltertests.cpp \
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
-		spectclCmdTests evbProcessorTests fragIndexTests caendpptests \
+		spectclCmdTests evbProcessorTests  caendpptests \
 	mirrortests newanalysistests paramdecodetests fribfiltertests
 
 
