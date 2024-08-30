@@ -140,11 +140,11 @@ CFRIBFilterFormat::operator()(CEvent& event) {
 
 
     size_t bodySize = sizeof(ParameterItem) + present.size()*(sizeof(ParameterValue));
-    v12::RingItemFactory fact; 
+    ufmt::v12::RingItemFactory fact; 
 
     // Allocate the item with my usual chicken size:
 
-    std::unique_ptr<CRingItem> pItem(fact.makeRingItem(PARAMETER_DATA, bodySize + 100));
+    std::unique_ptr<ufmt::CRingItem> pItem(fact.makeRingItem(PARAMETER_DATA, bodySize + 100));
 
     union cursor {
         std::uint64_t* p64;
@@ -213,8 +213,8 @@ CFRIBFilterFormat::writeParameterDescriptions(
     }
     // Have the factory give me a ring item I'm chicken on the size.:
 
-    v12::RingItemFactory fact;
-    std::unique_ptr<CRingItem> pItem(fact.makeRingItem(PARAMETER_DEFINITIONS, bodySize + 100));
+    ufmt::v12::RingItemFactory fact;
+    std::unique_ptr<ufmt::CRingItem> pItem(fact.makeRingItem(PARAMETER_DEFINITIONS, bodySize + 100));
 
     // Get my body cursor and have at it:
 
@@ -267,8 +267,8 @@ CFRIBFilterFormat::writeVariableDefs() {
     // Allocate the ring item and fill inthe body:
     // I'm chicken on my size computation:
 
-    v12::RingItemFactory fact;
-    std::unique_ptr<CRingItem> pItem(fact.makeRingItem(VARIABLE_VALUES, bodySize + 100));
+    ufmt::v12::RingItemFactory fact;
+    std::unique_ptr<ufmt::CRingItem> pItem(fact.makeRingItem(VARIABLE_VALUES, bodySize + 100));
 
     union cursor {
         std::uint32_t* p32;

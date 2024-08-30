@@ -23,7 +23,10 @@
  * @brief Defines ring format helper for NSCLDAQ verswion 11.x+ data.
  */
 #include "RingFormatHelper.h"
-class RingItemFactoryBase;
+
+namespace ufmt {
+    class RingItemFactoryBase;
+}
 /**
  * @class CRingFormatHelper11
  *
@@ -36,7 +39,7 @@ class CRingFormatHelper11 : public CRingFormatHelper
 protected:
     unsigned m_glomSourceId;
     uint64_t m_nLastEventCount;
-    RingItemFactoryBase* m_Factory;
+    ufmt::RingItemFactoryBase* m_Factory;
     // No data implies no need for canonicals.
 public:
     CRingFormatHelper11();
