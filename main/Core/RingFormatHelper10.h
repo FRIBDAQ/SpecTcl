@@ -23,7 +23,10 @@
  */
 
 #include "RingFormatHelper.h"
-class RingItemFactoryBase;
+
+namespace ufmt {
+    class RingItemFactoryBase;
+}
 
 
 /**
@@ -34,7 +37,7 @@ class RingItemFactoryBase;
  */
 class CRingFormatHelper10 : public CRingFormatHelper
 {
-    RingItemFactoryBase& m_Factory;
+    ufmt::RingItemFactoryBase& m_Factory;
     
 public:
     CRingFormatHelper10();

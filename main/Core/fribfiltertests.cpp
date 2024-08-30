@@ -133,9 +133,9 @@ void FribFilterTests::empty() {
     }
 
 
-    v12::RingItemFactory fact;
+    ufmt::v12::RingItemFactory fact;
     // Get and verify the parameter description item.
-    std::unique_ptr<CRingItem> pitem(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pitem(fact.getRingItem(m_fd));
     ASSERT(pitem.get() != 0);
     EQ(frib::analysis::PARAMETER_DEFINITIONS, pitem->type());
     const frib::analysis::ParameterDefinitions* ppItem = 
@@ -146,7 +146,7 @@ void FribFilterTests::empty() {
     // get and verify the variable description/value item:
 
 
-    std::unique_ptr<CRingItem> vitem(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> vitem(fact.getRingItem(m_fd));
     ASSERT(vitem.get() != 0);
     EQ(frib::analysis::VARIABLE_VALUES, vitem->type());
     const frib::analysis::VariableItem* pvItem = 
@@ -155,7 +155,7 @@ void FribFilterTests::empty() {
 
     // Should be at end of file:
 
-    std::unique_ptr<CRingItem> none(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> none(fact.getRingItem(m_fd));
     ASSERT(none.get() == 0);
 
 }
@@ -175,9 +175,9 @@ void FribFilterTests::params_1() {
         throw std::runtime_error("FribFilterTests::params_2 failed to rewind test file");
     }
 
-    v12::RingItemFactory fact;
+    ufmt::v12::RingItemFactory fact;
     // Get and verify the parameter description item.
-    std::unique_ptr<CRingItem> pitem(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pitem(fact.getRingItem(m_fd));
     ASSERT(pitem.get() != 0);
     EQ(frib::analysis::PARAMETER_DEFINITIONS, pitem->type());
     const frib::analysis::ParameterDefinitions* ppItem = 
@@ -228,13 +228,13 @@ void FribFilterTests::vars_1() {
         throw std::runtime_error("FribFilterTests::params_2 failed to rewind test file");
     }
 
-    v12::RingItemFactory fact;
+    ufmt::v12::RingItemFactory fact;
     // Skip the parameter def.
-    std::unique_ptr<CRingItem> pitem(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pitem(fact.getRingItem(m_fd));
 
     // Get/verify the variable values:
 
-    std::unique_ptr<CRingItem> vitem(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> vitem(fact.getRingItem(m_fd));
     ASSERT(vitem.get() != 0);
     EQ(frib::analysis::VARIABLE_VALUES, vitem->type());
     const frib::analysis::VariableItem* pvItem = 
@@ -277,13 +277,13 @@ void FribFilterTests::event_1() {
         throw std::runtime_error("FribFilterTests::event_1 - failed to rewind test file");
     }
 
-    v12::RingItemFactory fact;
-    std::unique_ptr<CRingItem> pdefs(fact.getRingItem(m_fd));
-    std::unique_ptr<CRingItem> pvars(fact.getRingItem(m_fd));
+    ufmt::v12::RingItemFactory fact;
+    std::unique_ptr<ufmt::CRingItem> pdefs(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pvars(fact.getRingItem(m_fd));
 
     // Get the parameter value item:
 
-    std::unique_ptr<CRingItem> pdata(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pdata(fact.getRingItem(m_fd));
     ASSERT(pdata.get() != 0);
     EQ(frib::analysis::PARAMETER_DATA, pdata->type());
 
@@ -314,13 +314,13 @@ void FribFilterTests::event_2() {
         throw std::runtime_error("FribFilterTests::event_1 - failed to rewind test file");
     }
 
-    v12::RingItemFactory fact;
-    std::unique_ptr<CRingItem> pdefs(fact.getRingItem(m_fd));
-    std::unique_ptr<CRingItem> pvars(fact.getRingItem(m_fd));
+    ufmt::v12::RingItemFactory fact;
+    std::unique_ptr<ufmt::CRingItem> pdefs(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pvars(fact.getRingItem(m_fd));
 
     // Get the parameter value item:
 
-    std::unique_ptr<CRingItem> pdata(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pdata(fact.getRingItem(m_fd));
     ASSERT(pdata.get() != 0);
     EQ(frib::analysis::PARAMETER_DATA, pdata->type());
 
@@ -353,13 +353,13 @@ void FribFilterTests::event_3() {
         throw std::runtime_error("FribFilterTests::event_1 - failed to rewind test file");
     }
 
-    v12::RingItemFactory fact;
-    std::unique_ptr<CRingItem> pdefs(fact.getRingItem(m_fd));
-    std::unique_ptr<CRingItem> pvars(fact.getRingItem(m_fd));
+    ufmt::v12::RingItemFactory fact;
+    std::unique_ptr<ufmt::CRingItem> pdefs(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pvars(fact.getRingItem(m_fd));
 
     // Get the parameter value item:
 
-    std::unique_ptr<CRingItem> pdata(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pdata(fact.getRingItem(m_fd));
     ASSERT(pdata.get() != 0);
     EQ(frib::analysis::PARAMETER_DATA, pdata->type());
 
@@ -397,13 +397,13 @@ void FribFilterTests::event_4() {
         throw std::runtime_error("FribFilterTests::event_1 - failed to rewind test file");
     }
 
-    v12::RingItemFactory fact;
-    std::unique_ptr<CRingItem> pdefs(fact.getRingItem(m_fd));
-    std::unique_ptr<CRingItem> pvars(fact.getRingItem(m_fd));
+    ufmt::v12::RingItemFactory fact;
+    std::unique_ptr<ufmt::CRingItem> pdefs(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pvars(fact.getRingItem(m_fd));
 
     // Get the parameter value item:
 
-    std::unique_ptr<CRingItem> pdata(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pdata(fact.getRingItem(m_fd));
     ASSERT(pdata.get() != 0);
     EQ(frib::analysis::PARAMETER_DATA, pdata->type());
 
@@ -448,13 +448,13 @@ void FribFilterTests::trigger_1() {
         throw std::runtime_error("FribFilterTests::event_1 - failed to rewind test file");
     }
 
-    v12::RingItemFactory fact;
-    std::unique_ptr<CRingItem> pdefs(fact.getRingItem(m_fd));
-    std::unique_ptr<CRingItem> pvars(fact.getRingItem(m_fd));
+    ufmt::v12::RingItemFactory fact;
+    std::unique_ptr<ufmt::CRingItem> pdefs(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pvars(fact.getRingItem(m_fd));
 
     // Get the parameter value item:
 
-    std::unique_ptr<CRingItem> pdata(fact.getRingItem(m_fd));
+    std::unique_ptr<ufmt::CRingItem> pdata(fact.getRingItem(m_fd));
     ASSERT(pdata.get() != 0);
     EQ(frib::analysis::PARAMETER_DATA, pdata->type());
 
@@ -463,7 +463,7 @@ void FribFilterTests::trigger_1() {
     EQ(std::uint64_t(0), pItem->s_triggerCount);
     EQ(std::uint32_t(4), pItem->s_parameterCount);
 
-    std::unique_ptr<CRingItem> psecond(fact.getRingItem(m_fd));
+    std::unique_ptr<::ufmt::CRingItem> psecond(fact.getRingItem(m_fd));
     ASSERT(psecond.get() != 0);
     EQ(frib::analysis::PARAMETER_DATA, psecond->type());
     const frib::analysis::ParameterItem* p = 

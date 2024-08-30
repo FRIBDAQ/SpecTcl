@@ -30,7 +30,7 @@
  */
 CRingFormatHelper12::CRingFormatHelper12() : CRingFormatHelper11()
 {
-    m_Factory = &FormatSelector::selectFactory(FormatSelector::v12);  // Replace with v12.
+    m_Factory = &ufmt::FormatSelector::selectFactory(ufmt::FormatSelector::v12);  // Replace with v12.
 }
 
 // destructor:
