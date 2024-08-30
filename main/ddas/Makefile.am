@@ -21,14 +21,14 @@ libDDASUnpacker_la_CXXFLAGS = -I@top_srcdir@/Core 	\
 	@LIBTCLPLUS_CFLAGS@                       	\
 	@TCL_CPPFLAGS@                            	\
 	@ROOT_CFLAGS@					\
-	@DDASFMT_CPPFLAGS@
+	@DDASFMT_CPPFLAGS@ @UFMT_CPPFLAGS@
 
 libDDASUnpacker_la_LIBADD = @top_builddir@/Core/libTclGrammerApp.la  	\
 	@ROOT_LDFLAGS@                                              	\
 	-lgsl  							    	\
 	@LIBEXCEPTION_LDFLAGS@ 				 	    	\
 	@TCL_LIBS@							\
-	@DDASFMT_LDFLAGS@
+	@DDASFMT_LDFLAGS@ @UFMT_LDFLAGS@
 
 ##
 # Unit tests

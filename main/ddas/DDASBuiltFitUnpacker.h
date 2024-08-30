@@ -20,7 +20,7 @@
 #define DAQ_DDAS_DDASBUILTUNPACKER_H
 
 #include <config.h>
-#include "FragmentIndex.h"
+#include <FragmentIndex.h>
 #include "DDASFitHit.h"
 
 #include <EventProcessor.h>
@@ -152,7 +152,7 @@ namespace DAQ {
 
         Bool_t selectivelyParseData(uint16_t* p16);
 
-        Bool_t parseAndStoreFragment(FragmentInfo& fragInfo);
+        Bool_t parseAndStoreFragment(::ufmt::FragmentInfo& fragInfo);
     };
 
   } // end DDAS namespace
