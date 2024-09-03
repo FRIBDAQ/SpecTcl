@@ -46,14 +46,19 @@ CAENParser::~CAENParser()
  *     The first long is the size of the event body.
  *     The event body is assumed to be, and better be,
  *     an event built event.
+ * 
+ * NOTE:  In ufmt s_itembody points to the body header.
  */
 void
 CAENParser::operator()(void* pEventBody)
 {
+    
     ufmt::FragmentIndex frags(static_cast<uint16_t*>(pEventBody));
     for (int i =0; i < frags.getNumberFragments(); i++) {
         ufmt::FragmentInfo info = frags.getFragment(i);
-        
+        const uint8_t* pBody = reinterpret_cast<const uint8_t*>(info.s_itembody);
+        const uint32_t* pBhSize = reinterpret_cast<const uint32_t*>(info.s_itembody);
+        pBody += *pBhSize;    // Skip the body headeer.
         int sid = info.s_sourceId;    // That's what we care about.
         
         // If there's a module in the map we ask it to
@@ -63,7 +68,7 @@ CAENParser::operator()(void* pEventBody)
         auto p = m_modules.find(sid);
         if (p != m_modules.end()) {
             CAENHit* pHit = makeHit(p->second);
-            pHit->unpack(const_cast<uint16_t*>(info.s_itembody));
+            pHit->unpack(const_cast<uint16_t*>(reinterpret_cast<const uint16_t*>(pBody)));
             if (p->second.s_module.getHits().size() == 0) {
                 // First hit:
                 

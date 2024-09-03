@@ -26,11 +26,14 @@
 #undef private
 #include "CAENHit.h"
 #include "CAENModuleHits.h"
-#include <DataFormat.h>
+#include <v11/DataFormat.h>
 
 #include <fragment.h>
 #include <stdint.h>
 #include <string.h>
+
+using namespace ufmt::v11;
+using namespace ufmt;
 
 /**
  *  The struct type below is used to compose 'events'.
@@ -63,17 +66,17 @@ FakeEvent::putFragment(
     size_t nBytes, uint64_t timestamp, uint32_t sid, void* pData
 )
 {
-    ufmt::EVB::pFragmentHeader p =
-        reinterpret_cast<ufmt::EVB::pFragmentHeader>(m_pCursor);
+    EVB::pFragmentHeader p =
+        reinterpret_cast<EVB::pFragmentHeader>(m_pCursor);
     p->s_timestamp = timestamp;
     p->s_sourceId  = sid;
-    p->s_size      = nBytes + sizeof(ufmt::RingItemHeader) + sizeof(ufmt::BodyHeader);
+    p->s_size      = nBytes + sizeof(RingItemHeader) + sizeof(BodyHeader);
     p->s_barrier   = 0;
-    ufmt::pRingItemHeader pRHeader = reinterpret_cast<ufmt::pRingItemHeader>(p+1);
+    pRingItemHeader pRHeader = reinterpret_cast<pRingItemHeader>(p+1);
     pRHeader->s_size = p->s_size;
-    pRHeader->s_type = ufmt::PHYSICS_EVENT;
-    ufmt::pBodyHeader pBHeader = reinterpret_cast<ufmt::pBodyHeader>(pRHeader+1);
-    pBHeader->s_size = sizeof(ufmt::BodyHeader);
+    pRHeader->s_type = PHYSICS_EVENT;
+    pBodyHeader pBHeader = reinterpret_cast<pBodyHeader>(pRHeader+1);
+    pBHeader->s_size = sizeof(BodyHeader);
     pBHeader->s_timestamp = timestamp;
     pBHeader->s_sourceId   = sid;
     pBHeader->s_barrier   = 0;
@@ -248,7 +251,7 @@ void parsertest::parse_2()
     
      uint16_t data[0x11] = {
         0x0011, 0x0000,                 // Word count.
-        0x001e, 0x0000,                 // Byte count.
+        32, 0x0000,                 // Byte count.
         0x1,    0x0000,                 // Channel #
         0x1234, 0x5678, 0x9abc, 0xef,   // timestamp.
         100,                            // energy.
