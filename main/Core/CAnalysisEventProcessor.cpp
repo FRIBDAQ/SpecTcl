@@ -34,12 +34,12 @@
 #include <RingFormatHelper10.h>
 #include <RingFormatHelper11.h>
 
-namespace DAQ11Format {
-#include <DataFormat.h>
-}
+
+#include <v11/DataFormat.h>
 
 
-#include <DataFormatPre11.h>
+
+#include <v10/DataFormat.h>
 
 
 #include <buffer.h>
@@ -50,6 +50,7 @@ namespace DAQ11Format {
 #include <stdlib.h>
 #include <iostream>
 
+using namespace ufmt;
 /*---------------------------------------------------------------------------
  *  Dispatch methods:
  */
@@ -313,7 +314,7 @@ CAnalysisEventProcessor::computeRingPayloadSize()
     unsigned size  = pDecoder->getBodySize();    // Already right for 10.x
     if (!p10) {                                  // 11.x
         if (pDecoder->hasBodyHeader()) {
-            size -= sizeof(DAQ11Format::BodyHeader);
+            size -= sizeof(v11::BodyHeader);
         } else {
             size -= sizeof(uint32_t);
         }
@@ -530,14 +531,14 @@ CAnalysisEventProcessor::getStateChangeAbsTime(CBufferDecoder& rDecoder)
         if (dynamic_cast<CRingFormatHelper10*>(pDecoder->getCurrentFormatHelper())) {
             // 10.x
             
-            NSCLDAQ10::pStateChangeItem pItem =
-                reinterpret_cast<NSCLDAQ10::pStateChangeItem>(pDecoder->getItemPointer());
+            v10::pStateChangeItem pItem =
+                reinterpret_cast<v10::pStateChangeItem>(pDecoder->getItemPointer());
             return pItem->s_Timestamp;
         
         } else {
 
-            DAQ11Format::pStateChangeItemBody pItem =
-                reinterpret_cast<DAQ11Format::pStateChangeItemBody>(pDecoder->getBody());
+            v11::pStateChangeItemBody pItem =
+                reinterpret_cast<v11::pStateChangeItemBody>(pDecoder->getBody());
             return pItem->s_Timestamp;
         }
     }
@@ -575,15 +576,15 @@ CAnalysisEventProcessor::getStateChangeRunTime(CBufferDecoder& rDecoder)
         if (dynamic_cast<CRingFormatHelper10*>(pDecoder->getCurrentFormatHelper())) {
             // 10
             
-            NSCLDAQ10::pStateChangeItem pItem =
-                reinterpret_cast<NSCLDAQ10::pStateChangeItem>(pDecoder->getItemPointer());
+            v10::pStateChangeItem pItem =
+                reinterpret_cast<v10::pStateChangeItem>(pDecoder->getItemPointer());
             return pItem->s_timeOffset;
             
         } else {
             // 11
             
-            DAQ11Format::pStateChangeItemBody pItem =
-                reinterpret_cast<DAQ11Format::pStateChangeItemBody>(pDecoder->getBody());
+            v11::pStateChangeItemBody pItem =
+                reinterpret_cast<v11::pStateChangeItemBody>(pDecoder->getBody());
             int divisor = pItem->s_offsetDivisor ? pItem->s_offsetDivisor : 1;
             
             return ((double)(pItem->s_timeOffset) )/ divisor;
@@ -639,8 +640,8 @@ void
 CAnalysisEventProcessor::StringBuffer10(CAnalysisBase::StringListType type)
 {
     CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
-    NSCLDAQ10::pTextItem pItem =
-        reinterpret_cast<NSCLDAQ10::pTextItem>(pDecoder->getItemPointer());
+    v10::pTextItem pItem =
+        reinterpret_cast<v10::pTextItem>(pDecoder->getItemPointer());
     
     // non string data:
     
@@ -666,8 +667,8 @@ void
 CAnalysisEventProcessor::StringBuffer11(CAnalysisBase::StringListType type)
 {
     CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
-    DAQ11Format::pTextItemBody pItem =
-        reinterpret_cast<DAQ11Format::pTextItemBody>(pDecoder->getBody());
+    v11::pTextItemBody pItem =
+        reinterpret_cast<v11::pTextItemBody>(pDecoder->getBody());
     
     // Non string data:
     
@@ -694,8 +695,8 @@ void
 CAnalysisEventProcessor::ScalerBuffer10()
 {
     CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
-    NSCLDAQ10::pScalerItem pItem =
-        reinterpret_cast<NSCLDAQ10::pScalerItem>(pDecoder->getItemPointer());
+    v10::pScalerItem pItem =
+        reinterpret_cast<v10::pScalerItem>(pDecoder->getItemPointer());
     auto pHelper = pDecoder->getCurrentFormatHelper();
     
     // Fish out non scaler info.
@@ -723,8 +724,8 @@ void
 CAnalysisEventProcessor::ScalerBuffer11()
 {
     CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
-    DAQ11Format::pScalerItemBody pItem =
-        static_cast<DAQ11Format::pScalerItemBody>(pDecoder->getBody());
+    v11::pScalerItemBody pItem =
+        static_cast<v11::pScalerItemBody>(pDecoder->getBody());
     auto pHelper = pDecoder->getCurrentFormatHelper();
     
     // Non scaler info:

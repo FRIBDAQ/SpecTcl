@@ -142,8 +142,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(caenevptest);
 size_t
 caenevptest::makeFragment(void* pDest, void* pItem)
 {
-    pRingItemHeader pSrc = reinterpret_cast<pRingItemHeader>(pItem);
-    pBodyHeader pBh = reinterpret_cast<pBodyHeader>(pSrc+1);
+    ufmt::pRingItemHeader pSrc = reinterpret_cast<ufmt::pRingItemHeader>(pItem);
+    ufmt::pBodyHeader pBh = reinterpret_cast<ufmt::pBodyHeader>(pSrc+1);
     
     ufmt::EVB::pFragmentHeader pFrag = reinterpret_cast<ufmt::EVB::pFragmentHeader>(pDest);
     ufmt::EVB::pFragmentHeader pBody = pFrag+1;
@@ -176,8 +176,8 @@ caenevptest::makeRingItem(
 {
     // Build pointers to the chunks of the ring item:
     
-    pRingItemHeader pItemHeader = reinterpret_cast<pRingItemHeader>(p);
-    pBodyHeader     pBHeader    = reinterpret_cast<pBodyHeader>(pItemHeader+1);
+    ufmt::pRingItemHeader pItemHeader = reinterpret_cast<ufmt::pRingItemHeader>(p);
+    ufmt::pBodyHeader     pBHeader    = reinterpret_cast<ufmt::pBodyHeader>(pItemHeader+1);
     uint32_t*       pBody       = reinterpret_cast<uint32_t*>(pBHeader+1);
     
     // Fill in the body header:
@@ -185,7 +185,7 @@ caenevptest::makeRingItem(
     pBHeader->s_timestamp = time;
     pBHeader->s_sourceId  = sid;
     pBHeader->s_barrier   = 0;
-    pBHeader->s_size      = sizeof(BodyHeader);
+    pBHeader->s_size      = sizeof(ufmt::BodyHeader);
     
     // Fill in the data:
     
@@ -194,9 +194,9 @@ caenevptest::makeRingItem(
     
     // Fill in the ring item header:
     
-    size_t totalSize = sizeof(uint32_t)+payloadSize + sizeof(BodyHeader) + sizeof(RingItemHeader);
+    size_t totalSize = sizeof(uint32_t)+payloadSize + sizeof(ufmt::BodyHeader) + sizeof(ufmt::RingItemHeader);
     pItemHeader->s_size = totalSize;
-    pItemHeader->s_type = PHYSICS_EVENT;
+    pItemHeader->s_type = ufmt::PHYSICS_EVENT;
     
     return totalSize;
 }

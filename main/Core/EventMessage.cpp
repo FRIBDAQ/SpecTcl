@@ -25,7 +25,9 @@
 #include <tcl.h>
 #include <stdexcept>
 #include <iostream>
-#include "DataFormat.h"
+#include <DataFormat.h>
+
+using namespace ufmt;
 #ifdef WITH_MPI
 #include <mpi.h>
 #else

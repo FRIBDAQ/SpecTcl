@@ -108,9 +108,9 @@ public:
     CDBEventWriter(const char* databaseFile, unsigned batchSize = 500);
     virtual ~CDBEventWriter();
     
-    void beginRun(const RingItem* pStateTransition);
-    void endRun(const RingItem*   pStateTransition);
-    void scaler(const RingItem*   pScaler);
+    void beginRun(const ufmt::RingItem* pStateTransition);
+    void endRun(const ufmt::RingItem*   pStateTransition);
+    void scaler(const ufmt::RingItem*   pScaler);
     void event(CEvent*      pEvent);
     
     //  For autosaving spectra at end of run.
@@ -128,8 +128,8 @@ public:
     std::string getDbPath() { return m_dbName; }
 private:
     
-    void requireItem(const RingItem* pItem, unsigned itemType);
-    const void* getBody(const RingItem* pItem);
+    void requireItem(const ufmt::RingItem* pItem, unsigned itemType);
+    const void* getBody(const ufmt::RingItem* pItem);
     void saveSpectra();
     
 };

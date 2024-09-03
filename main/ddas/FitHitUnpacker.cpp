@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdexcept>
 #include <FitExtender.h>
+using namespace ufmt;
 
 /**
  * decode

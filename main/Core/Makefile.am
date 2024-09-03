@@ -64,7 +64,7 @@ DecoderRing_INCLUDES = CRingBufferDecoder.h \
 			RingFormatHelper10Creator.h \
 			RingFormatHelper11Creator.h \
 			RingFormatHelper12Creator.h \
-			DataFormatPre11.h DataFormat.h	\
+			DataFormatPre11.h	\
 			DataFormat12.h AnalysisRingItems.h \
 			ParameterDecoding.h
 
@@ -475,7 +475,7 @@ newanalysistests_LDADD=$(commonTestLdFlags)
 caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp \
 	modulehittests.cpp parsertest.cpp caenpmaptests.cpp caenevptests.cpp
 
-caendpptests_CXXFLAGS= $(commonTestCXXFLAGS) @UFMT_CPPFLAGS@
+caendpptests_CXXFLAGS= @UFMT_CPPFLAGS@ $(commonTestCXXFLAGS)
 caendpptests_LDADD   = $(commonTestLdFlags) @UFMT_LDFLAGS@
 
 
@@ -550,8 +550,8 @@ mirrortests_LDADD=$(commonTestLdFlags)
 mirrortests_SOURCES = TestRunner.cpp mdirtests.cpp servertests.cpp \
 	mservertests.cpp mirrorcmdtests.cpp
 
-helpertests_CXXFLAGS=$(commonTestCXXFLAGS)
-helpertests_LDADD=$(commonTestLdFlags)
+helpertests_CXXFLAGS=@UFMT_CPPFLAGS@ $(commonTestCXXFLAGS)
+helpertests_LDADD=$(commonTestLdFlags) @UFMT_LDFLAGS@
 helpertests_SOURCES=TestRunner.cpp helper10tests.cpp helper11tests.cpp \
 	helper12tests.cpp
 

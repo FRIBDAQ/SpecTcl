@@ -22,7 +22,9 @@
 #include "RingFormatHelperFactory.h"
 #include "RingFormatHelper.h"
 #include "RingFormatHelperCreator.h"
-#include "DataFormat.h"
+#include <DataFormat.h>
+
+using namespace ufmt;
 
 /**
  * default constructor:

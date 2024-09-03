@@ -26,7 +26,7 @@
 #undef private
 #include "CAENHit.h"
 #include "CAENModuleHits.h"
-#include "DataFormat.h"
+#include <DataFormat.h>
 
 #include <fragment.h>
 #include <stdint.h>
@@ -67,13 +67,13 @@ FakeEvent::putFragment(
         reinterpret_cast<ufmt::EVB::pFragmentHeader>(m_pCursor);
     p->s_timestamp = timestamp;
     p->s_sourceId  = sid;
-    p->s_size      = nBytes + sizeof(RingItemHeader) + sizeof(BodyHeader);
+    p->s_size      = nBytes + sizeof(ufmt::RingItemHeader) + sizeof(ufmt::BodyHeader);
     p->s_barrier   = 0;
-    pRingItemHeader pRHeader = reinterpret_cast<pRingItemHeader>(p+1);
+    ufmt::pRingItemHeader pRHeader = reinterpret_cast<ufmt::pRingItemHeader>(p+1);
     pRHeader->s_size = p->s_size;
-    pRHeader->s_type = PHYSICS_EVENT;
-    pBodyHeader pBHeader = reinterpret_cast<pBodyHeader>(pRHeader+1);
-    pBHeader->s_size = sizeof(BodyHeader);
+    pRHeader->s_type = ufmt::PHYSICS_EVENT;
+    ufmt::pBodyHeader pBHeader = reinterpret_cast<ufmt::pBodyHeader>(pRHeader+1);
+    pBHeader->s_size = sizeof(ufmt::BodyHeader);
     pBHeader->s_timestamp = timestamp;
     pBHeader->s_sourceId   = sid;
     pBHeader->s_barrier   = 0;

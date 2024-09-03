@@ -44,6 +44,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <buftypes.h>
 #include <MultiTestSource.h>
 #include <DataFormat.h>
+
+using namespace ufmt;
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif

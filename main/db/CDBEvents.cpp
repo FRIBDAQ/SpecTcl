@@ -31,6 +31,7 @@
 #include <string.h>
 #include <sstream>
 #include <memory>
+using namespace ufmt;
 ///////////////////////////////////////////////////////////////////
 // CDBEventPlayer implementation.
 //
