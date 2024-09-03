@@ -22,13 +22,13 @@
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
 #include "RingFormatHelper11.h"
-#include <DataFormat.h>
+#include <v11/DataFormat.h>
 #include "BufferTranslator.h"
 #include <string>
 #include <string.h>
 #include <time.h>
 
-using namespace ufmt;
+using namespace ufmt::v11;
 class ring11test : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(ring11test);
     CPPUNIT_TEST(hasbodyhdr_1);

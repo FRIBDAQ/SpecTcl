@@ -831,6 +831,9 @@ AS_VAR_IF([have_cmake], [yes], [], AC_MSG_ERROR([cmake must be in the path to bu
 
 # Check that the unified format library has been incorporated into
 # the source tree and configure/build it into $prefix/unifiedformat
+#
+#  Note using -DCMAKE_BUILD_TYPE=Debug turns off optimization and
+#  allows gdb into the library.
 
 AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt],
 	[AC_MSG_NOTICE([Using previously incorporated unified format library at ${srcdir}/unifiedformat])
@@ -840,7 +843,7 @@ AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt],
 rm -rf unifiedformat/build
 AS_MKDIR_P(unifiedformat/build)	
 AC_MSG_NOTICE([Building unified format])
-(cd unifiedformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make clean install)
+(cd unifiedformat/build; cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make clean install)
 result=$?
 AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install unified format library with result: ${result}]))
 UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
