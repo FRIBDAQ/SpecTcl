@@ -609,7 +609,7 @@ void ring11test::scalers_2()
 #pragma pack(pop)
     item.s_item.s_header.s_type = PERIODIC_SCALERS;
     item.s_item.s_header.s_size =
-        sizeof(RingItemHeader) + sizeof(BodyHeader) + 31*sizeof(uint32_t) +
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + 32*sizeof(uint32_t) +
         sizeof(ScalerItemBody);
     fillBodyHeader(reinterpret_cast<pRingItem>(&(item.s_item)));
      std::vector<uint32_t> scalers;
