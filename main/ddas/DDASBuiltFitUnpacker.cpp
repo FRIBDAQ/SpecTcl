@@ -104,7 +104,7 @@ namespace DAQ {
     Bool_t CDDASBuiltFitUnpacker::selectivelyParseData(uint16_t* p16)
     {
       // index the fragments
-        FragmentIndex parsedFragments(p16);
+        ufmt::FragmentIndex parsedFragments(p16);
 
         // loop over the fragments
         for (auto& fragInfo : parsedFragments ) {
@@ -121,12 +121,12 @@ namespace DAQ {
 
     ////////
     ///
-    Bool_t CDDASBuiltFitUnpacker::parseAndStoreFragment(FragmentInfo& info) 
+    Bool_t CDDASBuiltFitUnpacker::parseAndStoreFragment(ufmt::FragmentInfo& info) 
     {
       DDASFitHit hit;
       FitHitUnpacker unpacker;
 
-      auto pBody      = reinterpret_cast<uint32_t*>(info.s_itemhdr);
+      auto pBody      = reinterpret_cast<const uint32_t*>(info.s_itemhdr);
       size_t bodySize = *pBody; // # of 16-bit words in body (inclusive)
 
       // parse the body of the ring item 

@@ -10,7 +10,7 @@
 #include "TreeParameter.h"
 #include "Asserts.h"
 #include "Event.h"
-#include "fragment.h"
+#include <fragment.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <vector>
@@ -260,7 +260,7 @@ makeEmptyFragments(const std::vector<std::pair<uint32_t, uint64_t> >& info)
     // Figure out how big the event will be... it'll lead with a size
     // and just be a list of FragmentHeader structs.
     
-    size_t nBytes = sizeof(uint32_t) + info.size() * sizeof(EVB::FragmentHeader);
+    size_t nBytes = sizeof(uint32_t) + info.size() * sizeof(ufmt::EVB::FragmentHeader);
     void* pResult = malloc(nBytes);
     ASSERT(pResult);                // just fail if we can't make an event.
     
@@ -271,7 +271,7 @@ makeEmptyFragments(const std::vector<std::pair<uint32_t, uint64_t> >& info)
     
     // Now the fragments:
     
-    EVB::pFragmentHeader pFrag = reinterpret_cast<EVB::pFragmentHeader>(pSize);
+    ufmt::EVB::pFragmentHeader pFrag = reinterpret_cast<ufmt::EVB::pFragmentHeader>(pSize);
     for (int i = 0; i < info.size(); i++) {
         pFrag->s_timestamp = info[i].second;
         pFrag->s_sourceId  = info[i].first;

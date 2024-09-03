@@ -48,6 +48,7 @@
 #include <stdexcept>
 
 using namespace std;
+using namespace ufmt;
 
 //  Constants:
 

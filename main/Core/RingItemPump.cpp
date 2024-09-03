@@ -30,13 +30,14 @@
 #include <TclPump.h>
 #include "CRingBufferDecoder.h"
 #include "Globals.h"
-#include "DataFormat.h"
+#include <DataFormat.h>
 #include "TCLAnalyzer.h"
 #include "SpecTcl.h"
 #include <vector>
 #include <stdlib.h>
 #include <TCLInterpreter.h>
 #include <TCLVariable.h>
+using namespace ufmt;
 
 static const size_t MAX_MESSAGE_SIZE = 16*1024;
 

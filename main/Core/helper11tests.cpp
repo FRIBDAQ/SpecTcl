@@ -22,13 +22,13 @@
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
 #include "RingFormatHelper11.h"
-#include "DataFormat.h"
+#include <v11/DataFormat.h>
 #include "BufferTranslator.h"
 #include <string>
 #include <string.h>
 #include <time.h>
 
-
+using namespace ufmt::v11;
 class ring11test : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(ring11test);
     CPPUNIT_TEST(hasbodyhdr_1);
@@ -609,7 +609,7 @@ void ring11test::scalers_2()
 #pragma pack(pop)
     item.s_item.s_header.s_type = PERIODIC_SCALERS;
     item.s_item.s_header.s_size =
-        sizeof(RingItemHeader) + sizeof(BodyHeader) + 31*sizeof(uint32_t) +
+        sizeof(RingItemHeader) + sizeof(BodyHeader) + 32*sizeof(uint32_t) +
         sizeof(ScalerItemBody);
     fillBodyHeader(reinterpret_cast<pRingItem>(&(item.s_item)));
      std::vector<uint32_t> scalers;

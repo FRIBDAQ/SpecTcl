@@ -22,6 +22,8 @@
  */
 #ifndef ANALYSISRINGITEMS_H
 #define ANALYSISRINGITEMS_H
+
+
 #include <cstdint>
 namespace frib {
     namespace analysis {

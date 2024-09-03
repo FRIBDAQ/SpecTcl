@@ -33,12 +33,12 @@
 #include <Histogrammer.h>
 #include <Globals.h>
 #include <stdint.h>
-#include <DataFormat.h>
+#include <v11/DataFormat.h>
 #include <fragment.h>
 #include <memory.h>
 #include <stdint.h>
-
-
+using namespace ufmt; 
+using namespace ufmt::v11;
 class CAnalyzer;
 class CBufferDecoder;
 

@@ -25,6 +25,7 @@
 #include <SpecTcl.h>
 #include <CRingBufferDecoder.h>
 #include <stdexcept>
+using namespace ufmt;
 
 /////////////////////////////////////////////////////////////////////////
 // CDBSink implementation:

@@ -23,7 +23,7 @@
 #include <config.h>
 #include "CEventBuilderEventProcessor.h"
 #include "CTreeParameter.h"
-#include "FragmentIndex.h"
+#include <FragmentIndex.h>
 
 #include <algorithm>
 #include <sstream>
@@ -128,7 +128,7 @@ CEventBuilderEventProcessor::operator()(
 )
 {
     *m_eventNumber = ++m_nEvents;
-    FragmentIndex frags(reinterpret_cast<uint16_t*>(pEvent));
+    ufmt::FragmentIndex frags(reinterpret_cast<uint16_t*>(pEvent));
     
     // Source cout will be the number of fragments -- note an event is allowed
     // to have more than one fragment from the same source id....this
@@ -153,7 +153,7 @@ CEventBuilderEventProcessor::operator()(
             if (info.s_processor) {           // in case we just made an empty.
                 (*info.s_SourcePresent) = 1;
                 Bool_t ok = (*info.s_processor)(
-                    pFrag->s_itembody, rEvent, rAnalyzer, rDecoder
+                    const_cast<uint16_t*>(pFrag->s_itembody), rEvent, rAnalyzer, rDecoder
                 );
                 if (!ok) throw ok;                    // Failure.
             } else {

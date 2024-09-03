@@ -26,11 +26,14 @@
 #undef private
 #include "CAENHit.h"
 #include "CAENModuleHits.h"
-#include "DataFormat.h"
+#include <v11/DataFormat.h>
 
-#include "fragment.h"
+#include <fragment.h>
 #include <stdint.h>
 #include <string.h>
+
+using namespace ufmt::v11;
+using namespace ufmt;
 
 /**
  *  The struct type below is used to compose 'events'.
@@ -248,7 +251,7 @@ void parsertest::parse_2()
     
      uint16_t data[0x11] = {
         0x0011, 0x0000,                 // Word count.
-        0x001e, 0x0000,                 // Byte count.
+        32, 0x0000,                 // Byte count.
         0x1,    0x0000,                 // Channel #
         0x1234, 0x5678, 0x9abc, 0xef,   // timestamp.
         100,                            // energy.
