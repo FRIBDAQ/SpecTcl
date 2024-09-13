@@ -6,7 +6,7 @@
 # Where:
 #    tag is the tag to incorporate.
 #
-#  last tag was v1.5-001
+#  last tag was v1.5-003
 
 REPOSITORY=https://github.com/FRIBDAQ/CutiePie.git
 TARGET=PyQtGUI
@@ -14,7 +14,7 @@ VERSION=$1
 
 if [[ ! $VERSION ]]
 then
-  VERSION="v1.5-001"
+  VERSION="v1.5-003"
 fi
 
 rm -rf ${TARGET}

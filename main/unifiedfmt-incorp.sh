@@ -2,7 +2,7 @@
 
 ##  Incorporate the unfied formatting library:
 
-# Most recently used version 2.2-003
+# Most recently used version 2.2-004
 #  2.2 allows us to use the FragmentIndex and fragment.{h,cpp}
 # in unified format rather than local maintenance headaches
 #  See issue#166
@@ -13,7 +13,7 @@ TARGET="unifiedformat"
 
 if [[ ! $TAG ]]
 then
-  TAG="2.2-003"
+  TAG="2.2-004"
 fi
 
 rm -rf $TARGET
