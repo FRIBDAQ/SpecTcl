@@ -113,9 +113,9 @@ DAQ::DDAS::DDASHit
 Calibunpacktests::makeHit(unsigned c, unsigned s, unsigned a, double e)
 {
     DAQ::DDAS::DDASHit result;
-    result.setCrate(c);
-    result.setSlot(s);
-    result.setChannel(a);
+    result.setCrateID(c);
+    result.setSlotID(s);
+    result.setChannelID(a);
     result.setEnergy(e);
     
     return result;

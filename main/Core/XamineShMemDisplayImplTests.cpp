@@ -43,7 +43,7 @@
 using namespace std;
 
 template<class T>
-ostream& operator<<(ostream& str, const vector<T>& vec) {
+ostream& std::operator<<(ostream& str, const vector<T>& vec) {
 
     str << "{";
     copy(vec.begin(), vec.end()-1, ostream_iterator<T>(str, ","));

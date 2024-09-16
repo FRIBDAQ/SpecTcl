@@ -219,7 +219,21 @@ DAQROOT=$daqroot
 
 AC_SUBST(DAQROOT)
 
+#  WE want to create XDR_CPPFLAGS and XDR_LDFLAGS  
+#  In deb bookworm, these were moved for buster the headers 
+#  are just in /usr/include/..../rpc and libc has the functions.:
+# Note tirpc means 'transport independent remote procedure calls'
 
+AC_CHECK_LIB([tirpc], [xdr_int], [
+  XDR_CPPFLAGS="-I/usr/include/tirpc"
+  XDR_LDFLAGS="-ltirpc"
+], [
+  XDR_CPPFLAGS=""
+  XDR_LDFLAGS=""
+])
+
+AC_SUBST(XDR_CPPFLAGS)
+AC_SUBST(XDR_LDFLAGS)
 
 # -------------------- X11 tests
 
@@ -273,6 +287,7 @@ then
 	               [motif_h_found="yes"],
 	               [motif_h_found="no"])
 fi
+
 
 #  Next search:
 #      /usr/include/X11

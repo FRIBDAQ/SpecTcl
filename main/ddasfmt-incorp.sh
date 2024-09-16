@@ -2,7 +2,7 @@
 
 ##  Incorporate the DDAS format library:
 
-# Most recently used version: 1.0-001
+# Most recently used version: 1.0-005
 
 REPOSITORY="https://github.com/FRIBDAQ/DDASFormat.git"
 TAG=$1
@@ -10,7 +10,7 @@ TARGET="ddasformat"
 
 if [[ ! $TAG ]]
 then
-  TAG="1.0-001"
+  TAG="1.0-005"
 fi
 
 rm -rf $TARGET

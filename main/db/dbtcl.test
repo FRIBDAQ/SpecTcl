@@ -32,6 +32,9 @@ package require sqlite3
 
 package require SpecTclDB
 
+
+tcltest::configure -verbose [list start pass error]
+
 ##################################################
 ## Basic dbtcl tests:
 

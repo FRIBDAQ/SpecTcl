@@ -78,7 +78,10 @@ DisplayBindings CTestXamineShMem::getDisplayBindings() const {
     return bindings;
 }
 
-CXamineSpectrum& CTestXamineShMem::operator[](UInt_t n) {}
+CXamineSpectrum& CTestXamineShMem::operator[](UInt_t n) {
+    CXamineSpectrum* pSpec = nullptr;
+    return reinterpret_cast<CXamineSpectrum&>(*pSpec);
+}
 
 Int_t CTestXamineShMem::findDisplayBinding(std::string name) {
     return 10;

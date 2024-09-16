@@ -107,7 +107,10 @@ void TransactionTest::ConstructBegin()
     // in the database while the transaction is active:
     
     CSqliteStatement::execute(*m_pDb1,
-        "CREATE TABLE g (   \
+        "DROP TABLE IF EXISTS g"
+    );
+    CSqliteStatement::execute(*m_pDb1,
+        "CREATE TABLE  g (   \
             id     INTEGER PRIMARY KEY NOT NULL, \
             text   VARCHAR(128)                  \
         )"
@@ -142,7 +145,7 @@ void TransactionTest::ConstructBegin()
 
 void TransactionTest::DestructCommit()
 {
-   
+    CSqliteStatement::execute(*m_pDb1, "DROP TABLE IF EXISTS g");
     CSqliteStatement::execute(*m_pDb1,
         "CREATE TABLE g (   \
             id     INTEGER PRIMARY KEY NOT NULL, \
@@ -167,6 +170,7 @@ void TransactionTest::DestructCommit()
 void TransactionTest::DestructRollback()
 {
 
+    CSqliteStatement::execute(*m_pDb1, "DROP TABLE IF EXISTS g");
     CSqliteStatement::execute(*m_pDb1,
         "CREATE TABLE g (   \
             id     INTEGER PRIMARY KEY NOT NULL, \
@@ -192,6 +196,7 @@ void TransactionTest::DestructRollback()
 }
 void TransactionTest::ImmediateCommit()
 {
+    CSqliteStatement::execute(*m_pDb1, "DROP TABLE IF EXISTS g");
     CSqliteStatement::execute(*m_pDb1,
         "CREATE TABLE g (   \
             id     INTEGER PRIMARY KEY NOT NULL, \
@@ -215,6 +220,7 @@ void TransactionTest::ImmediateCommit()
 }
 void TransactionTest::ImmediateRollback()
 {
+    CSqliteStatement::execute(*m_pDb1, "DROP TABLE IF EXISTS g");
     CSqliteStatement::execute(*m_pDb1,
         "CREATE TABLE g (   \
             id     INTEGER PRIMARY KEY NOT NULL, \
