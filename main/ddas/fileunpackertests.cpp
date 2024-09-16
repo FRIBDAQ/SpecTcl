@@ -129,9 +129,9 @@ static DAQ::DDAS::DDASHit
 makeHit(unsigned crate, unsigned slot, unsigned channel, unsigned energy)
 {
     DAQ::DDAS::DDASHit hit;
-    hit.setCrate(crate);
-    hit.setSlot(slot);
-    hit.setChannel(channel);
+    hit.setCrateID(crate);
+    hit.setSlotID(slot);
+    hit.setChannelID(channel);
     hit.setEnergy(energy);
     
 
