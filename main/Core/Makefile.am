@@ -9,7 +9,7 @@ libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 
 COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' \
 -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@ \
--I@top_srcdir@/mpi
+-I@top_srcdir@/mpi @XDR_CPPFLAGS@
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
@@ -412,7 +412,7 @@ libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@
 
 libTclGrammerApp_la_DEPENDENCIES=@builddir@/libSpecTclTcp.la
-libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 -lgsl -lgslcblas -lm
+libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 @XDR_LDFLAGS@ -lgsl -lgslcblas -lm 
 
 
 include_HEADERS = 		$(DecoderRing_INCLUDES) \
@@ -462,6 +462,7 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@builddir@/libSpecTclTcp.la \
 		@top_builddir@/mpi/libMPIUtilities.la \
 		@top_builddir@/Display/libXamine.la \
+		@XDR_LDFLAGS@ \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
