@@ -11,9 +11,9 @@ filtsplit_SOURCES = cmdline.c filtsplit.cpp
 
 noinst_HEADERS=cmdline.h
 
-filtsplit_CPPFLAGS =-I@top_srcdir@/Core
+filtsplit_CPPFLAGS =-I@top_srcdir@/Core @XDR_CPPFLAGS@
 filtsplit_CFLAGS =-I@top_srcdir@/Core
-filtsplit_CXXFLAGS =-I@top_srcdir@/Core
+filtsplit_CXXFLAGS =-I@top_srcdir@/Core @XDR_LDFLAGS@
 
 filtsplit_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		@top_builddir@/Display/libXamine.la \
