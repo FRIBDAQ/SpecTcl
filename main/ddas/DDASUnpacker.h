@@ -66,8 +66,8 @@ namespace DAQ {
 
       private:
         CParameterMapper*    m_pParameterMapper;  ///< the user's mapper
-        DDASHitUnpacker      m_unpacker;          ///< the unpacker
-        std::vector<DDASHit> m_channelList;       ///< reusable hit list
+	ddasfmt::DDASHitUnpacker      m_unpacker;          ///< the unpacker
+        std::vector<ddasfmt::DDASHit> m_channelList;       ///< reusable hit list
 
       public:
 

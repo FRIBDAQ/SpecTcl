@@ -20,6 +20,8 @@
 #include "CFileDrivenParameterMapper.h"
 #undef public
 
+using namespace ddasfmt;
+
 class fileupktests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(fileupktests);
   CPPUNIT_TEST(construction);
@@ -123,15 +125,15 @@ createConfigFile(const std::vector<std::string>& contents)
  *  @param slot  - Slot of the hit
  *  @param channel - Channel of hit.
  *  @param energy  - Energy of the hit
- *  @return DAQ::DDAS::DDASHit - the resulting hit.l
+ *  @return DDASHit - the resulting hit.l
  */
-static DAQ::DDAS::DDASHit
+static DDASHit
 makeHit(unsigned crate, unsigned slot, unsigned channel, unsigned energy)
 {
-    DAQ::DDAS::DDASHit hit;
-    hit.setCrate(crate);
-    hit.setSlot(slot);
-    hit.setChannel(channel);
+    DDASHit hit;
+    hit.setCrateID(crate);
+    hit.setSlotID(slot);
+    hit.setChannelID(channel);
     hit.setEnergy(energy);
     
 
@@ -277,7 +279,7 @@ void fileupktests::singleGoodHit()
     
     // Create a vector of single hits:
     
-    std::vector<DAQ::DDAS::DDASHit> hits;
+    std::vector<DDASHit> hits;
     hits.push_back(makeHit(0,2,1,1234));
     
     // Unpack the data and check that it wound up in the parameter named
@@ -302,7 +304,7 @@ void fileupktests::multiGoodHits()
     CFileDrivenParameterMapper mapper(m_fileName.c_str());
     CTreeParameter::BindParameters();
  
-    std::vector<DAQ::DDAS::DDASHit> hits;
+    std::vector<DDASHit> hits;
     hits.push_back(makeHit(0, 2, 0, 100));
     hits.push_back(makeHit(0, 2, 1, 200));
     hits.push_back(makeHit(0, 3, 0, 300));
@@ -331,7 +333,7 @@ void fileupktests::unmappedHit()
     CFileDrivenParameterMapper mapper(m_fileName.c_str());
     CTreeParameter::BindParameters();
  
-    std::vector<DAQ::DDAS::DDASHit> hits;
+    std::vector<DDASHit> hits;
     hits.push_back(makeHit(0, 2, 0, 100));
     hits.push_back(makeHit(0, 2, 1, 200));
     hits.push_back(makeHit(0, 3, 0, 300));

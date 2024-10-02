@@ -2,16 +2,11 @@ lib_LTLIBRARIES = libDDASUnpacker.la
 
 libDDASUnpacker_la_SOURCES = DDASUnpacker.cpp DDASBuiltUnpacker.cpp	\
 	CFileDrivenParameterMapper.cpp                              	\
-	CCalibratedFileDrivenParameterMapper.cpp                    	\
-	FitHitUnpacker.cpp functions.cpp lmfit.cpp DDASBuiltFitUnpacker.cpp
+	CCalibratedFileDrivenParameterMapper.cpp
 
 include_HEADERS = DDASUnpacker.h DDASBuiltUnpacker.h ParameterMapper.h 	\
 	CFileDrivenParameterMapper.h 					\
-	CCalibratedFileDrivenParameterMapper.h 				\
-	DDASFitHit.h FitHitUnpacker.h functions.h lmfit.h 		\
-	DDASBuiltFitUnpacker.h FitParameterMapper.h
-
-noinst_HEADERS=FitExtender.h
+	CCalibratedFileDrivenParameterMapper.h
 
 libDDASUnpacker_la_CXXFLAGS = -I@top_srcdir@/Core 	\
 	-I@top_srcdir@/Utility                    	\
