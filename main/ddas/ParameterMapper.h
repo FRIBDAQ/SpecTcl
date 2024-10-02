@@ -30,7 +30,7 @@ namespace DDAS {
 
   class CParameterMapper {
     public:
-      virtual void mapToParameters(const std::vector<DDASHit>& data, CEvent& rEvent) = 0;
+      virtual void mapToParameters(const std::vector<ddasfmt::DDASHit>& data, CEvent& rEvent) = 0;
   };
 
 } // end DDAS namespace

@@ -24,6 +24,8 @@
 #include <string.h>
 #include <unistd.h>
 
+using namespace ddasfmt;
+
 class Calibunpacktests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(Calibunpacktests);
   CPPUNIT_TEST(emptyconfig);             // Configuration file processing tests
@@ -79,7 +81,7 @@ protected:
   void missingMapError();
 private:
     void makeConfigFile(const std::vector<const char*>& cfg);
-    DAQ::DDAS::DDASHit makeHit(unsigned c, unsigned s, unsigned a, double e);
+    DDASHit makeHit(unsigned c, unsigned s, unsigned a, double e);
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(Calibunpacktests);
@@ -109,13 +111,13 @@ void Calibunpacktests::makeConfigFile(const std::vector<const char*>& cfg)
 
 // Make a hit given crate, slot, channel, energy
 
-DAQ::DDAS::DDASHit
+DDASHit
 Calibunpacktests::makeHit(unsigned c, unsigned s, unsigned a, double e)
 {
-    DAQ::DDAS::DDASHit result;
-    result.setCrate(c);
-    result.setSlot(s);
-    result.setChannel(a);
+    DDASHit result;
+    result.setCrateID(c);
+    result.setSlotID(s);
+    result.setChannelID(a);
     result.setEnergy(e);
     
     return result;
@@ -334,7 +336,7 @@ void Calibunpacktests::onehitOk()
     CCalibratedFileDrivenParameterMapper m (m_fileName.c_str());
     CTreeParameter::BindParameters();
     
-    std::vector<DAQ::DDAS::DDASHit> hits;
+    std::vector<DDASHit> hits;
     hits.push_back(makeHit(0, 2, 0, 100.0));
     
     m.mapToParameters(hits, *m_pEvent);
@@ -378,7 +380,7 @@ void Calibunpacktests::twohitsOk()
 
     // make the hits.
     
-    std::vector<DAQ::DDAS::DDASHit> hits;
+    std::vector<DDASHit> hits;
     hits.push_back(makeHit(0, 2, 0, 100.0));
     hits.push_back(makeHit(1, 3, 1, 150.0));
     
@@ -443,7 +445,7 @@ void Calibunpacktests::missingMapError()
 
     // make the hits.
     
-    std::vector<DAQ::DDAS::DDASHit> hits;
+    std::vector<DDASHit> hits;
     hits.push_back(makeHit(0, 2, 0, 100.0));
     hits.push_back(makeHit(0, 2, 1, 123.0));   // No map for this.
     hits.push_back(makeHit(1, 3, 1, 150.0));

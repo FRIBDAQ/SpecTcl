@@ -26,6 +26,8 @@
 #include <fstream>
 #include <sstream>
 
+using namespace ddasfmt;
+
 /**
  * constructor
  *    Save the filename for parsing, invoke makeMap to parse the map etc.
@@ -70,11 +72,11 @@ CFileDrivenParameterMapper::~CFileDrivenParameterMapper()
 
 void
 CFileDrivenParameterMapper::mapToParameters(
-    const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
+    const std::vector<DDASHit>& hits, CEvent& rEvent
 )
 {
     for (int h = 0; h < hits.size(); h++) {
-        const DAQ::DDAS::DDASHit& hit(hits[h]);
+        const DDASHit& hit(hits[h]);
         
         // Fetch out the stuff we need:
         
