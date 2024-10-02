@@ -31,9 +31,6 @@
 #include <TCLInterpreter.h>
 #include <unistd.h>
 
-#include <errno.h>
-#include <string.h>
-
 class mctest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(mctest);
     CPPUNIT_TEST(connect_1);
