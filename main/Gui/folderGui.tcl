@@ -1173,5 +1173,17 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     updateStatus 1000
     set ::SpecTclIODwellMax 100
 
+    # We can stock some preferences if there's not (yet) a preferences file:
+
+    setDefaultPrefs
     preferences::readPrefs
+}
+
+#
+#  setDefaultPrefs
+#     Set default values for preferences prior to reading the preferences from file:
+#
+proc setDefaultPrefs() {
+    set ::GuiPrefs::preferences(defaultRingName) $::tcl_platform(user)
+    set ::GuiPrefs::preferences(defaultRingHost) localhost
 }
