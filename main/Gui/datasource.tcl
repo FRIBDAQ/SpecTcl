@@ -27,8 +27,9 @@ package require segmentedrun
 #  Namespace to hold some of the configuration entries.
 #
 namespace eval datasource {
-    variable daqroot         [list $::daqdefs::daqroot /usr/opt/daq/current /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
-    variable lasthost        localhost;  # Most recent online host.
+    variable daqroot         [list $::daqdefs::daqroot \
+        ::GuiPrefs::preferences(defaultDaqRoot) /usr/opt/daq/current \
+        /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
     variable lastformat      ring11
     variable lasteventfile   {}
     variable lastpipecommand {}
@@ -38,7 +39,6 @@ namespace eval datasource {
     variable warnedFilters   0
     variable lastFilterFile {}
     variable actualSpecTclDaq {}
-    variable lastring      $::tcl_platform(user)
     variable clustersize   8192
     variable defaultFileBuffer [expr 128*1024];    # Better performance for files.
 
@@ -200,35 +200,36 @@ proc attachDataSource {format size sourcetype sourcespec} {
 #      We need to pop up a dialog to request the node from which we take data.
 #
 proc attachOnline {} {
-    hostprompt .hostprompt -host $::datasource::lasthost \
+    
+    hostprompt .hostprompt -host $::GuiPrefs::preferences(defaultRingHost) \
 	-format [defaultFormat]                          \
 	-buffersize $::GuiPrefs::preferences(defaultBuffersize)  \
-	-ringname   $::datasource::lastring
-    #after 1 .hostprompt configure -format [defaultFormat]
+	-ringname   $::GuiPrefs::preferences(defaultRingName)
+    .hostprompt configure -format [defaultFormat]
     .hostprompt modal
     if {[winfo exists .hostprompt]} {
         set host [.hostprompt cget -host]
 
         if {$host != ""} {            
-	    set format [.hostprompt cget -format]
-	    set additionalInfo {}
+            set format [.hostprompt cget -format]
+            set additionalInfo {}
 
-	    if {[string match ring* $format]} {
-		set additionalInfo [.hostprompt cget -ringname]
-                set ::datasource::lastring $additionalInfo
+            if {[string match ring* $format]} {
+                    set additionalInfo [.hostprompt cget -ringname]
+                    set ::GuiPrefs::preferences(defaultRingName) $additionalInfo
             }
             set size [.hostprompt cget -buffersize]
-    
-            set ::datasource::lasthost     $host
-	    set ::datasource::lastformat   $format            
-	    set ::GuiPrefs::preferences(defaultBuffersize) $size
-            
-	    set helper [.hostprompt onlinehelper $host $additionalInfo]
 
+            set ::GuiPrefs::preferences(defaultRingHost)     $host
+            set ::datasource::lastformat   $format            
+            set ::GuiPrefs::preferences(defaultBuffersize) $size
+                
+            set helper [.hostprompt onlinehelper $host $additionalInfo]
             attachDataSource $format $size -pipe $helper
         }
         destroy .hostprompt
     }
+    
 }
 # attachFile
 #       Prompts for an event file to attach to and does the deed.
