@@ -223,7 +223,13 @@ proc incrementalSource filename {
 #   We also save the new preferences for the user.
 proc editPrefs {} {
     preferences::editPrefs
-    preferences::savePrefs
+    if {[catch {preferences::savePrefs} msg] != 0} {
+        tk_messageBox \
+            -icon warning \
+            -message "Could not save preferences file $msg" \
+            -parent . -title "Preferences failed" -type ok
+    }
+    
 }
 
 
@@ -1182,8 +1188,8 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
 #
 #  setDefaultPrefs
 #     Set default values for preferences prior to reading the preferences from file:
-#
-proc setDefaultPrefs() {
+#     These are new values as of 7.0-001 - to resolve issue #15 which may not be in the file:
+proc setDefaultPrefs {} {
     set ::GuiPrefs::preferences(defaultRingName) $::tcl_platform(user)
     set ::GuiPrefs::preferences(defaultRingHost) localhost
 }

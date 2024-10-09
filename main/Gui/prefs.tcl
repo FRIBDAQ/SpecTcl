@@ -220,10 +220,11 @@ proc preferences::readPrefs {} {
     }
 }
 proc preferences::savePrefs {} {
-    set fd [open [file join ~ $::preferences::SpecTclDefaults] w]
+	set home ~$::tcl_platform(user)
+	set fd [open [file join $home $::preferences::SpecTclDefaults] w]
     puts $fd "# SpecTcl gui preferences written [clock format [clock seconds]]"
     foreach pref [array names GuiPrefs::preferences] {
-	puts $fd "set preferences($pref) $GuiPrefs::preferences($pref)"
+		puts $fd "set preferences($pref) $GuiPrefs::preferences($pref)"
     }
     close $fd
 }
