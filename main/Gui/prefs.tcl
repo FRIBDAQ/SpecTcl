@@ -33,6 +33,7 @@ package require guihelp
 #  | NSCL DAQ:                                   |
 #  | NSCL DAQ root: [           ]  [browse...]   |
 #  | Default Buffer Size [       ]               |
+#  | Default ring host  [    ] Default Ring [   ]|
 #  +---------------------------------------------+
 #  | [Ok]   [Cancel] [Help]                      |
 #  +---------------------------------------------+
@@ -42,11 +43,15 @@ package require guihelp
 #     -ydefault   - Value in the Y axis entry.
 #     -daqroot    - Value of location of nscldaq root.
 #     -buffersize - Default buffers size in bytes on attach dialogs.
+#  Added to resolve issue #15
+#     -defaultringhost - Default host for attach online
+#     -defaultringname - Default ring name for attach online.
+#  
 #
 #     -okscript   - Script to execute on click of ok.
 #     -cancelscript - Script to execute on click of cancel.
 #     -helpscript   - Script to execute on click of help.
-
+#
 #
 #    
 snit::widget prefsEditor {
@@ -55,6 +60,8 @@ snit::widget prefsEditor {
     option   -ydefault
     option   -daqroot
     option   -buffersize
+	option   -defaultringhost
+	option   -defaultringname
 
     option   -okscript
     option   -cancelscript
@@ -85,6 +92,11 @@ snit::widget prefsEditor {
 	entry $win.daqparams.bufsize    -textvariable ${selfns}::options(-buffersize) \
 	                                -width 15
 
+	label $win.daqparams.hostlabel -text {Online Host}
+	entry $win.daqparams.host -textvariable [myvar options(-defaultringhost)]
+	label $win.daqparams.ringlabel -text {Ring Name}
+	entry $win.daqparams.ring  -textvariable [myvar options(-defaultringname)]
+
 
 	frame $win.action -relief groove -borderwidth 3
 	button $win.action.ok     -text Ok -command       [mymethod dispatch -okscript]
@@ -100,6 +112,8 @@ snit::widget prefsEditor {
 	grid $win.daqparams.title       -                       -
 	grid $win.daqparams.rootlbl     $win.daqparams.root   $win.daqparams.browse
 	grid $win.daqparams.bufsizelbl  $win.daqparams.bufsize    x
+	grid $win.daqparams.hostlabel $win.daqparams.host \
+		 $win.daqparams.ringlabel $win.daqparams.ring
 	grid $win.daqparams        -columnspan 3 -sticky ew
 
 
@@ -170,6 +184,8 @@ proc preferences::ok {} {
     set ::GuiPrefs::preferences(defaultYChannels) [.prefs cget -ydefault]
     set ::GuiPrefs::preferences(defaultDaqRoot)   [.prefs cget -daqroot]
     set ::GuiPrefs::preferences(defaultBuffersize) [.prefs cget -buffersize]
+	set ::GuiPrefs::preferences(defaultRingHost)  [.prefs cget -defaultringhost]
+	set ::GuiPrefs::preferences(defaultRingName)  [.prefs cget -defaultringname]
     destroy .prefs
 }
 proc preferences::cancel {} {
@@ -184,6 +200,8 @@ proc preferences::editPrefs {} {
 	                -ydefault $::GuiPrefs::preferences(defaultYChannels) \
 	                -daqroot  $::GuiPrefs::preferences(defaultDaqRoot)   \
 	                -buffersize $::GuiPrefs::preferences(defaultBuffersize) \
+					-defaultringhost $::GuiPrefs::preferences(defaultRingHost) \
+					-defaultringname $::GuiPrefs::preferences(defaultRingName) \
 	-okscript     preferences::ok                                            \
 	-cancelscript preferences::cancel                                   \
         -helpscript   preferences::help
