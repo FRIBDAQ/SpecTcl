@@ -213,9 +213,11 @@ proc preferences::editPrefs {} {
     
 }
 proc preferences::readPrefs {} {
-    if {[file readable [file join ~ $::preferences::SpecTclDefaults]]} {
+	set home ~$::tcl_platform(user)
+	set prefFile [file join $home $::preferences::SpecTclDefaults]
+    if {[file readable $prefFile]} {
 	namespace eval ::GuiPrefs {
-	    source [file join ~ $::preferences::SpecTclDefaults]
+	    source [file $prefFile]
 	}
     }
 }
