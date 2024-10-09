@@ -200,35 +200,36 @@ proc attachDataSource {format size sourcetype sourcespec} {
 #      We need to pop up a dialog to request the node from which we take data.
 #
 proc attachOnline {} {
-    hostprompt .hostprompt -host $::GuiPrefs::preferences \
+    
+    hostprompt .hostprompt -host $::GuiPrefs::preferences(defaultRingHost) \
 	-format [defaultFormat]                          \
 	-buffersize $::GuiPrefs::preferences(defaultBuffersize)  \
-	-ringname   $::GuiPrefs::preferences(defaultRingName) \
-    #after 1 .hostprompt configure -format [defaultFormat]
+	-ringname   $::GuiPrefs::preferences(defaultRingName)
+    .hostprompt configure -format [defaultFormat]
     .hostprompt modal
     if {[winfo exists .hostprompt]} {
         set host [.hostprompt cget -host]
 
         if {$host != ""} {            
-	    set format [.hostprompt cget -format]
-	    set additionalInfo {}
+            set format [.hostprompt cget -format]
+            set additionalInfo {}
 
-	    if {[string match ring* $format]} {
-		set additionalInfo [.hostprompt cget -ringname]
-                set $::GuiPrefs::preferences(defaultRingName) $additionalInfo
+            if {[string match ring* $format]} {
+                    set additionalInfo [.hostprompt cget -ringname]
+                    set ::GuiPrefs::preferences(defaultRingName) $additionalInfo
             }
             set size [.hostprompt cget -buffersize]
-    
-            set $::GuiPrefs::preferences(defaultRingHost)     $host
-	    set ::datasource::lastformat   $format            
-	    set ::GuiPrefs::preferences(defaultBuffersize) $size
-            
-	    set helper [.hostprompt onlinehelper $host $additionalInfo]
 
+            set ::GuiPrefs::preferences(defaultRingHost)     $host
+            set ::datasource::lastformat   $format            
+            set ::GuiPrefs::preferences(defaultBuffersize) $size
+                
+            set helper [.hostprompt onlinehelper $host $additionalInfo]
             attachDataSource $format $size -pipe $helper
         }
         destroy .hostprompt
     }
+    
 }
 # attachFile
 #       Prompts for an event file to attach to and does the deed.
