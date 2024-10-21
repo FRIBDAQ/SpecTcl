@@ -53,6 +53,7 @@ package require vmusbconstants
 # geo address assigned to the adc.
 
 array set adcConfiguration [list]; # empty array.
+array set CAENNim [list];   # 1 if a caen ADC is NIM inputs else 0 if not.
 
 #-----------------------------------------------------------------
 #
@@ -106,7 +107,31 @@ proc adcConfig tail {
     }
 }
 
+#------------------------------------------------------------
+#  setCAENNim
+# 
+#   The 32 channel CAEN ADC's configured by the 'adc' command
+#  have NIM variants with 16 channels. 
+#   The tail of the command (after the command name and subcommand)
+#   Is passed in.
+# We assume a valid config file.
+#
+proc setCAENNim {tail} {
+    global CAENNim
+    set name [lindex $tail 0]
+    set inputsIndex [lsearch -exact $tail  -inputs]
 
+    # If it's there and the next element is 1 then set the array element.
+
+    if {$inputsIndex != -1} {
+        set inputStyle [lindex $tail $inputsIndex+1]
+        if {$inputStyle eq "nim"} {
+            set CAENNim($name) 1;   # 16 channels.
+        } else {
+            set CAENNim($name) 0;   # 32 channels
+        }
+    }
+}
 
 #----------------------------------------------------------------
 #
@@ -264,17 +289,28 @@ proc caenv965 args {
 #       commands.  All other subcommands are no-ops.
 #
 proc adc args {
+    global CAENNim
+
     puts "adc $args"
     set subcommand [lindex $args 0]
     set tail       [lrange $args 1 end]
+    set name       [lindex $args 1]
+
+    if {[array CAENNim $name] eq ""} {
+        # create the CAENNim element for this module:
+
+        set CAENNim($name) 0;   # Default to ribbon inputs (32 chans)
+    }
     puts "Subcommand $subcommand tail: $tail"
     if {$subcommand eq "create"} {
 	puts "Create"
 	adcCreate $tail
+    setCAENNim $tail
     }    
     if {$subcommand eq "config"} {
 	puts "config"
 	adcConfig $tail
+    setCAENNim $tail
     }
     puts "done"
 }
