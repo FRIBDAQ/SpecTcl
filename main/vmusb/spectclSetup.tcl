@@ -580,11 +580,11 @@ proc buildChannelMaps param {
 
             # If there is a CAENNim array element for the module and it is nonzero
             # We need to recognize the actual channels are at every other position:
-
-            if {[array names CAENNim $module)] eq $module && ($CAENNim($module) != 0)} {
+            
+            if {([array names ::CAENNim $module] eq $module) && ($CAENNim($module) != 0)} {
                 set channels [everyOther $channels]
             }
-
+            
             set param [makeParamsSpectraAndMap $param $module $type $channels $resolution]
         }
     }
@@ -656,13 +656,19 @@ proc vmusbConfig filename {
     configRead $filename
 
     puts "Building channel maps"
-    catch {buildChannelMaps 5000} msg
-    puts $msg
+    set error [catch {buildChannelMaps 5000} msg]
+    if {$error} {
+        puts $msg
+        puts $::errorInfo
+    } 
 
     puts "Building stack maps"
     
-    catch {buildStackMaps} msg
-    puts $msg
+    set error [catch {buildStackMaps} msg]
+    if {$error} {
+        puts $msg
+        puts $::errorInfo
+    }
 
     puts "Binding spectra to Xamine"
     

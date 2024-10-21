@@ -296,7 +296,7 @@ proc adc args {
     set tail       [lrange $args 1 end]
     set name       [lindex $args 1]
 
-    if {[array CAENNim $name] eq ""} {
+    if {[array names CAENNim $name] eq ""} {
         # create the CAENNim element for this module:
 
         set CAENNim($name) 0;   # Default to ribbon inputs (32 chans)
