@@ -63,6 +63,20 @@ if {[info globals SpecTclHome] eq ""} {
 configClear
 
 
+#--------------------------------------------------------------------------
+# everyOther
+#
+#   Takes a list of channel names and returns them with an empty channel name
+#   between each.  This suports the N series of CAEN digitizers which decode in 
+#   that way:
+
+proc everyOther {channels} {
+    set result [list]
+    foreach chan $channels {
+        lappend result $chan ""
+    }
+    return $result
+}
 
 
 #-----------------------------------------------------------------------------
@@ -516,55 +530,63 @@ proc makeParamsSpectraAndMap {param name type channels resolution} {
 #   param  - the number of the first parameter.
 
 proc buildChannelMaps param {
+    global CAENNim
     foreach module [array names ::adcChannels] {
-	## Null modules have nothing done with them:
-	
-	if {$::readoutDeviceType($module) eq "null"} {
-	    break
-	}
+        ## Null modules have nothing done with them:
+        
+        if {$::readoutDeviceType($module) eq "null"} {
+            break
+        }
 
-	
-	if {$::readoutDeviceType($module) eq $::typeTDC1x90} { 
-	    set param [buildV1x90Maps $param $module]
+        
+        if {$::readoutDeviceType($module) eq $::typeTDC1x90} { 
+            set param [buildV1x90Maps $param $module]
 
-	} elseif {$::readoutDeviceType($module) eq $::typeV977} {
+        } elseif {$::readoutDeviceType($module) eq $::typeV977} {
 
-	    set param [buildv977Map $param $module]
+            set param [buildv977Map $param $module]
 
-	    #  Give SpecTcl the parameter map for the module:
-	} elseif {$::readoutDeviceType($module) eq $::typeMase} {
+            #  Give SpecTcl the parameter map for the module:
+        } elseif {$::readoutDeviceType($module) eq $::typeMase} {
 
-	    set param [buildMaseMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeCAENDual} {
-	    set param [buildCAENDualMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeHINP} {
-	    set param [buildHINPMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typePSD} {
-	    set param [buildPSDMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeMADC32} {
-	    set param [buildMADC32Map $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeMTDC32} {
-	    set param [buildMTDC32Map $param $module]	    
-	} elseif {$::readoutDeviceType($module) eq $::typeMQDC32} {
-	    set param [buildMQDC32Map $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32QDC} {
-	    set param [buildMDPP32QDCMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32SCPSRO} {
-	    set param [buildMDPP32SCPSROMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeVMUSBSCALER} {
-	    set param [buildVMUSBSCALERMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
-	    set param [buildV1729Map $param $module]
-	    createFreezeButton
+            set param [buildMaseMap $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typeCAENDual} {
+            set param [buildCAENDualMap $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typeHINP} {
+            set param [buildHINPMap $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typePSD} {
+            set param [buildPSDMap $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typeMADC32} {
+            set param [buildMADC32Map $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typeMTDC32} {
+            set param [buildMTDC32Map $param $module]	    
+        } elseif {$::readoutDeviceType($module) eq $::typeMQDC32} {
+            set param [buildMQDC32Map $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typeMDPP32QDC} {
+            set param [buildMDPP32QDCMap $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typeMDPP32SCPSRO} {
+            set param [buildMDPP32SCPSROMap $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typeVMUSBSCALER} {
+            set param [buildVMUSBSCALERMap $param $module]
+        } elseif {$::readoutDeviceType($module) eq $::typeV1729} {
+            set param [buildV1729Map $param $module]
+            createFreezeButton
 
-	} else {
-	    set vsn        $::adcConfiguration($module)
-	    set type       $::readoutDeviceType($module)
-	    set resolution $::channelCount($type)
-	    set channels   $::adcChannels($module)
+        } else {
+            set vsn        $::adcConfiguration($module)
+            set type       $::readoutDeviceType($module)
+            set resolution $::channelCount($type)
+            set channels   $::adcChannels($module)
 
-	    set param [makeParamsSpectraAndMap $param $module $type $channels $resolution]
-	}
+            # If there is a CAENNim array element for the module and it is nonzero
+            # We need to recognize the actual channels are at every other position:
+            
+            if {([array names ::CAENNim $module] eq $module) && ($CAENNim($module) != 0)} {
+                set channels [everyOther $channels]
+            }
+            
+            set param [makeParamsSpectraAndMap $param $module $type $channels $resolution]
+        }
     }
 }
 #------------------------------------------------------------------------
@@ -611,17 +633,17 @@ proc buildStackMaps {} {
 
 
     foreach stack [array names ::stackNumber] {
-	#
-	#  If there arem odules in the stack with a null device type they are
-	#  removed since they contribute no data.
-	#
+        #
+        #  If there arem odules in the stack with a null device type they are
+        #  removed since they contribute no data.
+        #
 
-	set ::stackOrder($stack) [removeNullModules $::stackOrder($stack)]
+        set ::stackOrder($stack) [removeNullModules $::stackOrder($stack)]
 
-	set stackno $::stackNumber($stack)
-	if {$stackno != 1} {
-	    ::spectcl::serial::stackMap $stackno  $::stackOrder($stack)
-	}
+        set stackno $::stackNumber($stack)
+        if {$stackno != 1} {
+            ::spectcl::serial::stackMap $stackno  $::stackOrder($stack)
+        }
     }
 }
 
@@ -634,13 +656,19 @@ proc vmusbConfig filename {
     configRead $filename
 
     puts "Building channel maps"
-    catch {buildChannelMaps 5000} msg
-    puts $msg
+    set error [catch {buildChannelMaps 5000} msg]
+    if {$error} {
+        puts $msg
+        puts $::errorInfo
+    } 
 
     puts "Building stack maps"
     
-    catch {buildStackMaps} msg
-    puts $msg
+    set error [catch {buildStackMaps} msg]
+    if {$error} {
+        puts $msg
+        puts $::errorInfo
+    }
 
     puts "Binding spectra to Xamine"
     
