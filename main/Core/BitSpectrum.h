@@ -25,6 +25,7 @@
 
 #include "Spectrum1d.h"
 #include <stdint.h>
+#include <histotypes.h>
 
 
 /**
@@ -52,6 +53,7 @@ public:
     virtual  ~ CBitSpectrum( ) ;
 
     virtual   void Increment (const CEvent& rEvent)  ;
+    virtual SpectrumType_t getSpectrumType() {return keBitmask;}
 };
 
 typedef CBitSpectrum<uint32_t> CBitSpectrumL;
