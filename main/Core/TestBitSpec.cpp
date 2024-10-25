@@ -10,11 +10,12 @@
 
 #include "BitSpectrumL.h"
 #include "BitSpectrumW.h"
-
+#include <histotypes.h>
 
 
 class TestBitSpec : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestBitSpec);
+  CPPUNIT_TEST(construct);
   CPPUNIT_TEST(inspecL);
   CPPUNIT_TEST(uflowL);
   CPPUNIT_TEST(oflowL);
@@ -38,6 +39,7 @@ public:
   void tearDown() {
   }
 protected:
+  void construct();
   void inspecL();
   void uflowL();
   void oflowL();
@@ -81,6 +83,19 @@ TestBitSpec::fillW(unsigned mask, unsigned low, unsigned high)
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBitSpec);
 
+// Ensure construction works properly:
+
+void TestBitSpec::construct() {
+    CParameter p("test", 0, "arb");
+    CBitSpectrumL l("test", 1, p, 32);
+
+    EQ(l.getSpectrumType(), keBitmask);
+
+    CBitSpectrumW w("testw", 2, p, 32);
+    EQ(w.getSpectrumType(), keBitmask);
+
+}
+
 // Tests for longword spectra:
 
 // All bits are in range.
@@ -94,6 +109,7 @@ void TestBitSpec::inspecL() {
     
     EQ(unsigned(0), result.first[0]);
     EQ(unsigned(0), result.second[0]);
+    
 }
 
 // Underflow bits:
