@@ -30,6 +30,7 @@ CMTDC32Unpacker.cpp \
 CMQDC32Unpacker.cpp \
 CMDPP32QDCUnpacker.cpp \
 CMDPP32SCPSROUnpacker.cpp \
+CMDPP32SCPSROSoftTriggerUnpacker.cpp \
 CVMUSBScalerUnpacker.cpp \
 LICENCE.cpp
 
@@ -58,6 +59,7 @@ CMTDC32Unpacker.h \
 CMQDC32Unpacker.h \
 CMDPP32QDCUnpacker.h \
 CMDPP32SCPSROUnpacker.h \
+CMDPP32SCPSROSoftTriggerUnpacker.h \
 CVMUSBScalerUnpacker.h
 
 bin_PROGRAMS=VMUSBSpecTcl

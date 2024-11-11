@@ -620,6 +620,9 @@ proc mdpp32scp args {
         set outputformat [lindex $args $outputformatidx]
         if {$outputformat == 4} {
           set ::readoutDeviceType($name) $::typeMDPP32SCPSRO
+          if {$::MDPPSCPSROSoftTrigger == 1} {
+            set ::readoutDeviceType($name) $::typeMDPP32SCPSROSoftTrigger
+          }
         }
       }
 

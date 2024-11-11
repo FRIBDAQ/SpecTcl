@@ -487,6 +487,12 @@ proc buildMDPP32SCPSROMap {param name} {
     return [makeParamsSpectraAndMap $param $name $::typeMDPP32SCPSRO $::adcChannels($name)  $resolution ]
 }
 
+proc buildMDPP32SCPSROSoftTriggerMap {param name} {
+    set resolution $::channelCount($::typeMDPP32SCPSROSoftTrigger);
+
+    return [makeParamsSpectraAndMap $param $name $::typeMDPP32SCPSROSoftTrigger $::adcChannels($name)  $resolution ]
+}
+
 proc buildVMUSBSCALERMap {param name} {
     set resolution $::channelCount($::typeVMUSBSCALER);
 
@@ -549,28 +555,30 @@ proc buildChannelMaps param {
             #  Give SpecTcl the parameter map for the module:
         } elseif {$::readoutDeviceType($module) eq $::typeMase} {
 
-            set param [buildMaseMap $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typeCAENDual} {
-            set param [buildCAENDualMap $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typeHINP} {
-            set param [buildHINPMap $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typePSD} {
-            set param [buildPSDMap $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typeMADC32} {
-            set param [buildMADC32Map $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typeMTDC32} {
-            set param [buildMTDC32Map $param $module]	    
-        } elseif {$::readoutDeviceType($module) eq $::typeMQDC32} {
-            set param [buildMQDC32Map $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typeMDPP32QDC} {
-            set param [buildMDPP32QDCMap $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typeMDPP32SCPSRO} {
-            set param [buildMDPP32SCPSROMap $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typeVMUSBSCALER} {
-            set param [buildVMUSBSCALERMap $param $module]
-        } elseif {$::readoutDeviceType($module) eq $::typeV1729} {
-            set param [buildV1729Map $param $module]
-            createFreezeButton
+	    set param [buildMaseMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeCAENDual} {
+	    set param [buildCAENDualMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeHINP} {
+	    set param [buildHINPMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typePSD} {
+	    set param [buildPSDMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMADC32} {
+	    set param [buildMADC32Map $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMTDC32} {
+	    set param [buildMTDC32Map $param $module]	    
+	} elseif {$::readoutDeviceType($module) eq $::typeMQDC32} {
+	    set param [buildMQDC32Map $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32QDC} {
+	    set param [buildMDPP32QDCMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32SCPSRO} {
+	    set param [buildMDPP32SCPSROMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32SCPSROSoftTrigger} {
+	    set param [buildMDPP32SCPSROSoftTriggerMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeVMUSBSCALER} {
+	    set param [buildVMUSBSCALERMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
+	    set param [buildV1729Map $param $module]
+	    createFreezeButton
 
         } else {
             set vsn        $::adcConfiguration($module)

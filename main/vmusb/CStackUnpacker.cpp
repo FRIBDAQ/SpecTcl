@@ -32,6 +32,7 @@
 #include "CMDPP32QDCUnpacker.h"
 #include "CMDPP32SCPSROUnpacker.h"
 #include "CVMUSBScalerUnpacker.h"
+#include "CMDPP32SCPSROSoftTriggerUnpacker.h"
 
 #include <Event.h>
 #include <TCLAnalyzer.h>
@@ -66,6 +67,7 @@ static CMTDC32Unpacker    unpackMTDC32;
 static CMQDC32Unpacker    unpackMQDC32;
 static CMDPP32QDCUnpacker    unpackMDPP32QDC;
 static CMDPP32SCPSROUnpacker unpackMDPP32SCPSRO;
+static CMDPP32SCPSROSoftTriggerUnpacker unpackMDPP32SCPSROSoftTrigger;
 static CVMUSBScalerUnpacker  unpackVMUSBScaler;
 
 // table of unpackers for each type of module.
@@ -86,7 +88,8 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpackMQDC32,
     &unpackMDPP32QDC,
     &unpackMDPP32SCPSRO,
-    &unpackVMUSBScaler
+    &unpackVMUSBScaler,
+    &unpackMDPP32SCPSROSoftTrigger
 };
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +173,7 @@ CStackUnpacker::operator()(const Address_t pEvent,
   if (offset != event.size()) {
     cerr << "**WARNING** Event not entirely decoded by unpackers\n";
     cerr << "            Event will not be histogrammed, proceeding with next event\n";
+		cerr << "offset: " << offset << " size: " << event.size() << endl;
     return kfFALSE;
   }
  
