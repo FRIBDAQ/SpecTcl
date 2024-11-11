@@ -473,6 +473,12 @@ proc buildMDPP32SCPSROMap {param name} {
     return [makeParamsSpectraAndMap $param $name $::typeMDPP32SCPSRO $::adcChannels($name)  $resolution ]
 }
 
+proc buildMDPP32SCPSROSoftTriggerMap {param name} {
+    set resolution $::channelCount($::typeMDPP32SCPSROSoftTrigger);
+
+    return [makeParamsSpectraAndMap $param $name $::typeMDPP32SCPSROSoftTrigger $::adcChannels($name)  $resolution ]
+}
+
 proc buildVMUSBSCALERMap {param name} {
     set resolution $::channelCount($::typeVMUSBSCALER);
 
@@ -551,6 +557,8 @@ proc buildChannelMaps param {
 	    set param [buildMDPP32QDCMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32SCPSRO} {
 	    set param [buildMDPP32SCPSROMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMDPP32SCPSROSoftTrigger} {
+	    set param [buildMDPP32SCPSROSoftTriggerMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeVMUSBSCALER} {
 	    set param [buildVMUSBSCALERMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
