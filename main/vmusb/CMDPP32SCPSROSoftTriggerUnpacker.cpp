@@ -94,56 +94,49 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
     while (1) {
         uint32_t vme1 = getLong(event, offset);
 
-        if (vme1 == 0xffffffff) {	// if no header, there will be just the two words of 0xffffffff
-            return offset + 2;
+        uint32_t vme2 = getLong(event, offset + 2);
+
+        if (vme1 == 0xffffffff && vme2 == 0xffffffff) {	// if no header, there will be just the two words of 0xffffffff
+            return offset + 4;
         }
-    
-    		int id      = pMap -> map[34];
-        if (id != -1) {
-    				rEvent[id] = vme1;
-    		} else {
-    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
-    		}
 
-				offset += 2;
-
-        uint32_t vme2 = getLong(event, offset);
-    		id      = pMap -> map[35];
-        if (id != -1) {
-    				rEvent[id] = vme2;
-    		} else {
-    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
-    		}
-
-				offset += 2;
+				offset += 4;
 
         // Get the 'header' and be sure it actually is a header and for our module id.
         uint32_t header = getLong(event, offset);
     
         uint32_t type   = (header & ALL_TYPEMASK) >> ALL_TYPESHFT;
-        if (type != TYPE_DATA) { return offset; }
+        if (type != TYPE_DATA) { return offset - 4; }
     
         int modid = (header & DATA_MODIDMASK) >> DATA_MODIDSHFT;
-        if (modid != pMap -> vsn) { return offset; }
-    
+        if (modid != pMap -> vsn) { return offset - 4; }
+
     		int channel = (header & DATA_CHMASK) >> DATA_CHSHFT;
     		int value   = header & DATA_VALUEMASK;
-    		id      = pMap -> map[channel];
+    		int id      = pMap -> map[channel];
         if (id != -1) {
     				rEvent[id] = value;
     		} else {
     				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
     		}
+
+    		id      = pMap -> map[channel + 96];
+    		if (id != -1) {
+    				rEvent[id] = vme1;
+    		} else {
+    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
+    		}
     
-    		// zeropad part
+    		// timestampFromStart or zeropad part
         offset += 2;
 
-				uint32_t zeropad = getLong(event, offset);
-				if (zeropad != 0) {
-    				cerr << __func__ << ": Impossible things happening! Are you sure it's MDPP-32 SCP SRO Software Trigger data?!" << endl;
-
-						return offset + 2;
-				}
+    		uint32_t timestampFromStart = getLong(event, offset);
+    		id      = pMap -> map[channel + 64];
+    		if (id != -1) {
+    				rEvent[id] = timestampFromStart;
+    		} else {
+    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
+    		}
 
 				// rollover counter (32 MSB)
 				offset += 2;
@@ -156,13 +149,7 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
 						return offset + 2;
 				}
 
-        uint32_t rolloverCount = rolloverCounter & EOE_TIMESTAMPMASK;
-        id = pMap -> map[32];
-        if (id != -1) {
-            rEvent[id] = rolloverCount;
-        } else {
-    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO timestamp!" << endl;
-    		}
+        uint64_t rolloverCount = rolloverCounter & EOE_TIMESTAMPMASK;
 
 				offset += 2;
     
@@ -174,8 +161,8 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
     		}
     
         // Timestamp is stored in 33th element
-        uint64_t timestamp = trailer & EOE_TIMESTAMPMASK;
-        id = pMap -> map[33];
+        uint64_t timestamp = (rolloverCount << 30) | (trailer&EOE_TIMESTAMPMASK);
+        id = pMap -> map[channel + 32];
         if (id != -1) {
             rEvent[id] = timestamp;
         } else {
