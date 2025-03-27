@@ -120,7 +120,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdint.h>
 #include <tcl.h>
 
-
+// Fix for issue #122: suppress <RootX11ErrorHandler> messages:
+#include <TError.h>
 
 #include <TclPump.h>
 #include "RingItemPump.h"
@@ -1039,7 +1040,7 @@ int CTclGrammerApp::operator()() {
   
   // Fix for issue #122: suppress <RootX11ErrorHandler> messages:
   gErrorIgnoreLevel = kFatal;
-  
+
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);
 
