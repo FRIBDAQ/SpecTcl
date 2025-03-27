@@ -135,7 +135,7 @@ public:
     virtual ~CCalibratedFileDrivenParameterMapper(); 
     
     virtual void mapToParameters(
-        const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
+        const std::vector<ddasfmt::DDASHit>& hits, CEvent& rEvent
     );
 private:   
     // map creation:
@@ -153,9 +153,9 @@ private:
     const ParameterInfo& getParameterInfo(
         unsigned crate, unsigned slot, unsigned chan
     );
-    void unpackRaw(const DAQ::DDAS::DDASHit& hit, const ParameterInfo& info);
+    void unpackRaw(const ddasfmt::DDASHit& hit, const ParameterInfo& info);
     void unpackCalibration(
-        const DAQ::DDAS::DDASHit& hit, const ParameterInfo& info
+        const ddasfmt::DDASHit& hit, const ParameterInfo& info
     );
     double getCoefficient(const Coefficient& coef);
     

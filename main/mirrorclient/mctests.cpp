@@ -59,7 +59,7 @@ public:
             m_memory.dsp_types[i]  = undefined;
         }
         m_factory = new MirrorServerFactory(&m_memory);
-        m_listener = new ServerListener("5555", m_factory);
+	m_listener = new ServerListener("5555", m_factory);
         m_listener->start();
         
         m_pClient = new MirrorClient;

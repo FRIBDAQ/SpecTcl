@@ -27,6 +27,7 @@
 #include <sstream>
 #include <string>
 
+using namespace ddasfmt;
 
 /**
  * constructor
@@ -84,11 +85,11 @@ CCalibratedFileDrivenParameterMapper::~CCalibratedFileDrivenParameterMapper()
  */
 void
 CCalibratedFileDrivenParameterMapper::mapToParameters(
-    const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
+    const std::vector<DDASHit>& hits, CEvent& rEvent
 )
 {
     for (auto h = 0; h < hits.size(); h++) {
-        const DAQ::DDAS::DDASHit& hit(hits[h]);
+        const DDASHit& hit(hits[h]);
         unsigned c = hit.getCrateID();
         unsigned s = hit.getSlotID();
         unsigned ch= hit.getChannelID();
@@ -361,7 +362,7 @@ CCalibratedFileDrivenParameterMapper::getParameterInfo(
  */
 void
 CCalibratedFileDrivenParameterMapper::unpackRaw(
-    const DAQ::DDAS::DDASHit& hit, const ParameterInfo& info
+    const DDASHit& hit, const ParameterInfo& info
 )
 {
     if (info.s_raw) {
@@ -376,7 +377,7 @@ CCalibratedFileDrivenParameterMapper::unpackRaw(
  */
 void
 CCalibratedFileDrivenParameterMapper::unpackCalibration(
-    const DAQ::DDAS::DDASHit& hit, const ParameterInfo& info
+    const DDASHit& hit, const ParameterInfo& info
 )
 {
     if (info.s_calibrated) {

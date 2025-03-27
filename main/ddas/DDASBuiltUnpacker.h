@@ -71,7 +71,7 @@ namespace DAQ {
 
       private:
         std::set<uint32_t>    m_sourceIds;        ///< source ids to parse
-        std::vector<DDASHit>  m_channelList;      ///< list of parsed data
+        std::vector<ddasfmt::DDASHit>  m_channelList;      ///< list of parsed data
         CParameterMapper*     m_pParameterMapper; ///< the user's mapper
 
       public:

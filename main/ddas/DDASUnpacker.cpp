@@ -12,6 +12,7 @@
 #include <tuple>
 
 using namespace std;
+using namespace ddasfmt;
 
 namespace DAQ {
   namespace DDAS {
