@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,7.0-001, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl,7.0-002, daqhelp@frib.msu.edu)
 
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE([tar-ustar foreign])
@@ -67,9 +67,13 @@ then
 fi
 
 # Require C++11 support:
+#AX_CXX_COMPILE_STDCXX_11([noext])
 
-AX_CXX_COMPILE_STDCXX_11([noext])
-
+# General support for 11,14,17,20,23 - giordano
+ 
+AX_CXX_COMPILE_STDCXX(17, [noext])
+CXXVERSIONSW=${switch}
+AC_MSG_NOTICE([Building with standard ${CXXVERSIONSW}])
 
 # we use libtool, thus we need to include it
 LT_INIT
