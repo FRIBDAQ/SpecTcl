@@ -37,6 +37,9 @@ then
   CXX=${mpicxx}
   AC_DEFINE(WITH_MPI, 1, [MPI Parallel SpecTcl])
   AC_MSG_NOTICE([Building MPI enabled SpecTcl using ${mpicc} and ${mpicxx} as compiler drivers])
+	MPI_FLAGS=`$CXX -show|cut -d" " -f2-1000`
+
+	AC_SUBST(MPI_FLAGS)
   MPI="Enabled"
 else 
   MPI="Disabled"
