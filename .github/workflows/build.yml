@@ -81,8 +81,8 @@ jobs:
           source `cat /usr/opt/ROOT_PATH`/bin/thisroot.sh
           ../configure --prefix=/usr/opt/spectcl/$GITHUB_REF_NAME \
                        --enable-mpi \
-                       --with-mpicxx=`/usr/opt/MPICXX_PATH` \
-                       --with-mpicc=`/usr/opt/MPICC_PATH` \
+                       --with-mpicxx=`cat /usr/opt/MPICXX_PATH` \
+                       --with-mpicc=`cat /usr/opt/MPICC_PATH` \
                        --with-rootsys=`cat /usr/opt/ROOT_PATH`
       - name: Make
         working-directory: ./main/oot
