@@ -112,7 +112,7 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
         uint32_t header = getLong(event, offset);
     
         uint32_t type   = (header & ALL_TYPEMASK) >> ALL_TYPESHFT;
-        if (type != TYPE_DATA) { return offset; }
+        if (type != TYPE_HEADER) { return offset; }
 
         int id = (header & HDR_IDMASK) >> HDR_IDSHFT;
         if (id != pMap -> vsn) { return offset; }
@@ -124,8 +124,8 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
         uint32_t datum = getLong(event, offset);
         if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
             if ((datum & DATA_SUBHDRMASK) == DATA_CHANNEL) {
-                channel = (header & DATA_CHMASK) >> DATA_CHSHFT;
-                int value   = header & DATA_VALUEMASK;
+                channel = (datum & DATA_CHMASK) >> DATA_CHSHFT;
+                int value   = datum & DATA_VALUEMASK;
                 int id      = pMap -> map[channel];
                 if (id != -1) {
                     rEvent[id] = value;
@@ -137,21 +137,23 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
 
     		// extended timestamp
         offset += 2;
+        datum = getLong(event, offset);
 
 				uint64_t timestamp = 0;
 
         if ((datum & DATA_SUBHDRMASK) == DATA_EXTSTAMP) {
-            uint32_t extstamp = getLong(event, offset) & DATA_EXTSTAMPMASK;
+            uint32_t extstamp = datum & DATA_EXTSTAMPMASK;
 		  			timestamp = extstamp << DATA_EXTSTAMPSHFT;
         }
 
     		// timestamp
         offset += 2;
+        datum = getLong(event, offset);
 
         if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
             timestamp |= (datum & TRAILER_COUNTMASK);
 
-            int id      = pMap -> map[channel + 32];
+            int id = pMap -> map[channel + 32];
             if (id != -1) {
                 rEvent[id] = timestamp;
             } else {
@@ -169,7 +171,7 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
             }
         }
 
-				offset += 2;
+        offset += 2;
 		}
     
     // There will be a 0xffffffff longword for the BERR at the end of the
