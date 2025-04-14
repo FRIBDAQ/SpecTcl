@@ -1,5 +1,6 @@
 == 7.0-002 ==
 * Adding support on MDPP-16/32 QDC/SCP extended timestamp analysis
+* Updating MDPP-32 SCP SRO software trigger data analysis with new data format
 == 7.0-002 ==
 
 == 7.0-001 ==

@@ -24,25 +24,31 @@ using namespace std;
 static const uint32_t ALL_TYPEMASK(0xc0000000);
 static const uint32_t ALL_TYPESHFT(30);
 
-static const uint32_t TYPE_DATA(1);
-static const uint32_t TYPE_RO(2);
-static const uint32_t TYPE_EOE(3);
+static const uint32_t TYPE_HEADER(1);
+static const uint32_t TYPE_DATA(0);
+static const uint32_t TYPE_TRAILER(3);
+
+// Fields in the headers:
+static const uint32_t HDR_IDMASK(0xff0000);
+static const uint32_t HDR_IDSHFT(16);
 
 // Fields in the data words:
-static const uint32_t DATA_MODIDMASK   (0x3f000000);
-static const uint32_t DATA_MODIDSHFT   (24);
-static const uint32_t DATA_TRIGMASK    (0x00800000);
-static const uint32_t DATA_TRIGSHFT    (23);
-static const uint32_t DATA_CHMASK      (0x007c0000);
-static const uint32_t DATA_CHSHFT      (18);
-static const uint32_t DATA_PILEUPMASK  (0x00020000);
-static const uint32_t DATA_PILEUPSHFT  (17);
-static const uint32_t DATA_OVERFLOW    (0x00010000);
-static const uint32_t DATA_OVERFLOWSHFT(16);
-static const uint32_t DATA_VALUEMASK   (0x0000ffff);
+static const uint32_t DATA_SUBHDRMASK  (0x30000000);
+static const uint32_t DATA_CHANNEL     (0x10000000);
+static const uint32_t DATA_EXTSTAMP    (0x20000000);
+
+static const uint32_t DATA_PILEUPMASK  ( 0x1000000);
+static const uint32_t DATA_PILEUPSHFT  (24);
+static const uint32_t DATA_OVERFLOWMASK(  0x800000);
+static const uint32_t DATA_OVERFLOWSHFT(23);
+static const uint32_t DATA_CHMASK      (  0x7f0000);
+static const uint32_t DATA_CHSHFT      (16);
+static const uint32_t DATA_VALUEMASK   (    0xffff);
+static const uint32_t DATA_EXTSTAMPMASK( 0xfffffff);
+static const uint32_t DATA_EXTSTAMPSHFT(30);
 
 // Fields in the trailer.
-static const uint32_t EOE_TIMESTAMPMASK (0x3fffffff); // timestamp
+static const uint32_t TRAILER_COUNTMASK (0x3fffffff);
 
 /////////////////////////////////////////////////////////////////////////////
 // Canonical functions.
@@ -91,85 +97,77 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
                                unsigned int                  offset,
                                CParamMapCommand::AdcMapping* pMap)
 {
+		uint64_t eventTimestamp = 0;
+
     while (1) {
-        uint32_t vme1 = getLong(event, offset);
+        uint32_t firstItem = getLong(event, offset);
 
-        uint32_t vme2 = getLong(event, offset + 2);
+        uint32_t secondItem = getLong(event, offset + 2);
 
-        if (vme1 == 0xffffffff && vme2 == 0xffffffff) {	// if no header, there will be just the two words of 0xffffffff
+        if (firstItem == 0xffffffff && secondItem == 0xffffffff) {	// if no header, there will be just the two words of 0xffffffff
             return offset + 4;
         }
-
-				offset += 4;
 
         // Get the 'header' and be sure it actually is a header and for our module id.
         uint32_t header = getLong(event, offset);
     
         uint32_t type   = (header & ALL_TYPEMASK) >> ALL_TYPESHFT;
-        if (type != TYPE_DATA) { return offset - 4; }
-    
-        int modid = (header & DATA_MODIDMASK) >> DATA_MODIDSHFT;
-        if (modid != pMap -> vsn) { return offset - 4; }
+        if (type != TYPE_DATA) { return offset; }
 
-    		int channel = (header & DATA_CHMASK) >> DATA_CHSHFT;
-    		int value   = header & DATA_VALUEMASK;
-    		int id      = pMap -> map[channel];
-        if (id != -1) {
-    				rEvent[id] = value;
-    		} else {
-    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
-    		}
+        int id = (header & HDR_IDMASK) >> HDR_IDSHFT;
+        if (id != pMap -> vsn) { return offset; }
 
-    		id      = pMap -> map[channel + 96];
-    		if (id != -1) {
-    				rEvent[id] = vme1;
-    		} else {
-    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
-    		}
-    
-    		// timestampFromStart or zeropad part
         offset += 2;
 
-    		uint32_t timestampFromStart = getLong(event, offset);
-    		id      = pMap -> map[channel + 64];
-    		if (id != -1) {
-    				rEvent[id] = timestampFromStart;
-    		} else {
-    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
-    		}
+        int channel = 0;
 
-				// rollover counter (32 MSB)
-				offset += 2;
-				
-				uint32_t rolloverCounter = getLong(event, offset);
-				type = (rolloverCounter & ALL_TYPEMASK) >> ALL_TYPESHFT;
-				if (type != TYPE_RO) {
-    				cerr << __func__ << ": Impossible things happening! Are you sure it's MDPP-32 SCP SRO Software Trigger data?!" << endl;
+        uint32_t datum = getLong(event, offset);
+        if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
+            if ((datum & DATA_SUBHDRMASK) == DATA_CHANNEL) {
+                channel = (header & DATA_CHMASK) >> DATA_CHSHFT;
+                int value   = header & DATA_VALUEMASK;
+                int id      = pMap -> map[channel];
+                if (id != -1) {
+                    rEvent[id] = value;
+                } else {
+                  cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
+                }
+            }
+        }
 
-						return offset + 2;
-				}
+    		// extended timestamp
+        offset += 2;
 
-        uint64_t rolloverCount = rolloverCounter & EOE_TIMESTAMPMASK;
+				uint64_t timestamp = 0;
 
-				offset += 2;
-    
-        uint32_t trailer = getLong(event, offset);
-        type = (trailer & ALL_TYPEMASK) >> ALL_TYPESHFT;
-        if (type != TYPE_EOE) {
-    				cerr << __func__ << ": Impossible things happening! MDPP-32 SCP SRO roll over counter is not followed by timestamp! (0x" << hex << trailer << dec << ")" << endl;
-    			  return offset;
-    		}
-    
-        // Timestamp is stored in 33th element
-        uint64_t timestamp = (rolloverCount << 30) | (trailer&EOE_TIMESTAMPMASK);
-        id = pMap -> map[channel + 32];
-        if (id != -1) {
-            rEvent[id] = timestamp;
-        } else {
-    				cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO timestamp!" << endl;
-    		}
+        if ((datum & DATA_SUBHDRMASK) == DATA_EXTSTAMP) {
+            uint32_t extstamp = getLong(event, offset) & DATA_EXTSTAMPMASK;
+		  			timestamp = extstamp << DATA_EXTSTAMPSHFT;
+        }
 
-				offset += 2;
+    		// timestamp
+        offset += 2;
+
+        if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
+            timestamp |= (datum & TRAILER_COUNTMASK);
+
+            int id      = pMap -> map[channel + 32];
+            if (id != -1) {
+                rEvent[id] = timestamp;
+            } else {
+                cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
+            }
+
+            if (eventTimestamp == 0) {
+                eventTimestamp = timestamp;
+                id = pMap -> map[64];
+                if (id != -1) {
+                    rEvent[id] = eventTimestamp;
+                } else {
+                    cerr << __func__ << ": No matching ID for MDPP-32 SCP SRO Software Trigger data!" << endl;
+                }
+            }
+        }
 		}
     
     // There will be a 0xffffffff longword for the BERR at the end of the
