@@ -168,6 +168,8 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
                 }
             }
         }
+
+				offset += 2;
 		}
     
     // There will be a 0xffffffff longword for the BERR at the end of the
