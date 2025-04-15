@@ -65,7 +65,7 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
 
-          if test -e qtpi-incorp.sh ; then ./qtpi-incorp.sh  v1.4; fi
+          if test -e qtpi-incorp.sh ; then ./qtpi-incorp.sh; fi
       - name: Initializing submodule
         working-directory: ./main
         shell: bash
