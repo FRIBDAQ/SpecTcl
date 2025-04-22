@@ -89,6 +89,8 @@ static const char *help_text[] = {
   NULL
   };
 
+class Expand;
+static Expand *dialog = NULL;
 
 
 /*
@@ -112,7 +114,9 @@ class Expand : public GraphicalInput, public Xamine_Select2 {
   /* Constructors and destructors: */
 
   Expand(XMWidget *parent, const char *name, const char **help_text = NULL);
-  virtual ~Expand() { }			/* Get the hierarchy destroyed. */
+  virtual ~Expand() { 
+    
+  }			/* Get the hierarchy destroyed. */
 
   /* The following functions replace the virtual function set that
   ** are pure virtuals in GraphicalInput:
@@ -161,7 +165,7 @@ private:
 			       XtPointer c);
 };
 
-static Expand *dialog = NULL;
+
 
 /*
 ** External references:
@@ -215,6 +219,8 @@ Expand::Expand(XMWidget *parent, const char *name, const char **help_text) :
   AddCancelCallback(CancelCallback_relay, this);
   AddOkCallback(OkCallback_relay, this);
   AddApplyCallback(ApplyCallback_relay, this);
+
+
 }
 
 /*
@@ -1027,8 +1033,8 @@ void Xamine_Expand(XMWidget *w, XtPointer user_data, XtPointer call_data)
 
     dialog->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			(XtPointer)&dialog);
-    dialog->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput, 
-			(XtPointer)&dialog);
+    //dialog->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput, 
+		//	(XtPointer)&dialog);
 
   }
 
