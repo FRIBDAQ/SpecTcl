@@ -293,16 +293,22 @@ void Xamine_RedrawPane(int column, int row)
   /*
    ** If the queue is empty, then schedule the work proc to process it.
    */
-  if(update_list.IsEmpty())
-    XtAppAddWorkProc(XtWidgetToApplicationContext(context.pane->getid()),
-		     Xamine_Refresh,
-		     &update_list);
-  
+  bool mustQueue = update_list.IsEmpty();    /// WIll need to start the work proc.
+
   /*
    ** Enter the context in the update list queue.
    */
   
   update_list.Append(context); /* Append the context entry. */
+  if (mustQueue) {
+      
+    XtAppAddWorkProc(
+      XtWidgetToApplicationContext(context.pane->getid()),
+      Xamine_Refresh,
+      &update_list
+    );
+
+  }
 }
 
 /*
