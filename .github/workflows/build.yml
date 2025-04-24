@@ -80,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.os-version }} complete source distribution
-          path: ./main/oot/spectcl-${{ github.ref_name }}-dist.tar.gz
+          path: ./main/oot/spectcl-${{ github.ref_name }}-dist-${{ inputs.os-version }}.tar.gz
       - name: Packaging for binary distribution
         if: ${{ inputs.packaging == true }}
         working-directory: /usr/opt/spectcl
