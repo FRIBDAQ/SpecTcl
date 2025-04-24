@@ -104,7 +104,7 @@ jobs:
         if: ${{ inputs.packaging == true && inputs.dist-packaging == true }}
         uses: actions/upload-artifact@v4
         with:
-          name: Complete source distribution
+          name: ${{ inputs.os-version }} complete source distribution
           path: ./main/oot/spectcl-${{ github.ref_name }}-dist.tar.gz
       - name: Packaging for binary distribution
         if: ${{ inputs.packaging == true }}
