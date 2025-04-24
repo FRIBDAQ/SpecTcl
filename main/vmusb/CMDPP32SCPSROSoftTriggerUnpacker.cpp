@@ -142,7 +142,7 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
 				uint64_t timestamp = 0;
 
         if ((datum & DATA_SUBHDRMASK) == DATA_EXTSTAMP) {
-            uint32_t extstamp = datum & DATA_EXTSTAMPMASK;
+            uint64_t extstamp = datum & DATA_EXTSTAMPMASK;
 		  			timestamp = extstamp << DATA_EXTSTAMPSHFT;
         }
 
