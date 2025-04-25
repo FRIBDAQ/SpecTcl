@@ -50,6 +50,10 @@
 #include <stdlib.h>
 #include <iostream>
 
+// Due to scaler alignment in v < 10 buffers.
+
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
+
 using namespace ufmt;
 /*---------------------------------------------------------------------------
  *  Dispatch methods:
@@ -524,23 +528,20 @@ CAnalysisEventProcessor::getStateChangeAbsTime(CBufferDecoder& rDecoder)
             0,0,0
         };
         return mktime(&timeStruct);
-    } else {
+    } else {                         // Issue #185 changes simplify this 
         // where this all is depends on the 10/11-ness of the stuff:
         
         CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(&rDecoder);
-        if (dynamic_cast<CRingFormatHelper10*>(pDecoder->getCurrentFormatHelper())) {
-            // 10.x
-            
-            v10::pStateChangeItem pItem =
-                reinterpret_cast<v10::pStateChangeItem>(pDecoder->getItemPointer());
-            return pItem->s_Timestamp;
-        
-        } else {
+    
+        auto pTranslator = pDecoder->getBufferTranslator();
+        auto pItem        = pDecoder->getItemPointer();
+        auto helper      = pDecoder->getCurrentFormatHelper();
 
-            v11::pStateChangeItemBody pItem =
-                reinterpret_cast<v11::pStateChangeItemBody>(pDecoder->getBody());
-            return pItem->s_Timestamp;
-        }
+        return helper->getStateChangeTime(pItem, pTranslator);
+
+        
+        
+        
     }
     // Should not get here:
     
@@ -570,25 +571,15 @@ CAnalysisEventProcessor::getStateChangeRunTime(CBufferDecoder& rDecoder)
         return pBody->sortim;
         
     } else {
-        // 10 or 11.
+        // 10 or 11.  Much simplified with Issue #185
         
         CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(&rDecoder);
-        if (dynamic_cast<CRingFormatHelper10*>(pDecoder->getCurrentFormatHelper())) {
-            // 10
-            
-            v10::pStateChangeItem pItem =
-                reinterpret_cast<v10::pStateChangeItem>(pDecoder->getItemPointer());
-            return pItem->s_timeOffset;
-            
-        } else {
-            // 11
-            
-            v11::pStateChangeItemBody pItem =
-                reinterpret_cast<v11::pStateChangeItemBody>(pDecoder->getBody());
-            int divisor = pItem->s_offsetDivisor ? pItem->s_offsetDivisor : 1;
-            
-            return ((double)(pItem->s_timeOffset) )/ divisor;
-        }
+        auto pHelper = pDecoder->getCurrentFormatHelper();
+        auto pItem   = pDecoder->getItemPointer();
+        auto pTrans  = pDecoder->getBufferTranslator();
+
+        return pHelper->getStateChangeRunTime(pItem, pTrans);
+        
     }
 }
 
@@ -639,23 +630,21 @@ CAnalysisEventProcessor::StringBuffer8(CAnalysisBase::StringListType type)
 void
 CAnalysisEventProcessor::StringBuffer10(CAnalysisBase::StringListType type)
 {
+    // THis is actually now indpendeent of format as long as it's 10+ (Issue #185)
     CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
-    v10::pTextItem pItem =
-        reinterpret_cast<v10::pTextItem>(pDecoder->getItemPointer());
+    void* pItem = pDecoder->getItemPointer();
+    auto pHelper = pDecoder->getCurrentFormatHelper();
+    auto pTrans = pDecoder->getBufferTranslator();
+
+    time_t stamp  = pHelper->getStringListTime(pItem, pTrans);
+    float  offset = pHelper->getStringListRunOffset(pItem, pTrans);
+    int    nStrings = pHelper->getStringCount(pItem, pTrans);
+    std::vector<std::string> strings = pHelper->getStrings(pItem, pTrans); 
     
-    // non string data:
-    
-    time_t stamp   = pItem->s_timestamp;
-    float  offset  = pItem->s_timeOffset;
-    int nStrings   = pItem->s_stringCount;
-    char* pStrings = pItem->s_strings;
-    
-    // Perform the callback:
     
     ClientData cd = {m_pUserClientData, this};
     m_pUserCode->onStringLists(
-        type, stamp, offset, marshallUnpaddedStrings(nStrings, pStrings), &cd
-    );
+        type, stamp, offset, strings, &cd);
 }
 /**
  * StringBuffer11
@@ -666,24 +655,9 @@ CAnalysisEventProcessor::StringBuffer10(CAnalysisBase::StringListType type)
 void
 CAnalysisEventProcessor::StringBuffer11(CAnalysisBase::StringListType type)
 {
-    CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
-    v11::pTextItemBody pItem =
-        reinterpret_cast<v11::pTextItemBody>(pDecoder->getBody());
-    
-    // Non string data:
-    
-    time_t stamp    = pItem->s_timestamp;
-    float  offset   = pItem->s_timeOffset;
-    if (pItem->s_offsetDivisor > 1) offset = offset / pItem->s_offsetDivisor;
-    int nStrings    = pItem->s_stringCount;
-    char* pStrings  = pItem->s_strings;
-    
-    //  Perform the callback:
-    
-    ClientData cd = {m_pUserClientData, this};
-    m_pUserCode->onStringLists(
-        type, stamp, offset, marshallUnpaddedStrings(nStrings, pStrings), &cd
-    );
+    // StringBuffer10 is now independent of format thanks to issue #185:
+
+    StringBuffer10(type);
     
 }
 /**
@@ -694,24 +668,27 @@ CAnalysisEventProcessor::StringBuffer11(CAnalysisBase::StringListType type)
 void
 CAnalysisEventProcessor::ScalerBuffer10()
 {
+    // Thanks to Issue #185 this is now indpeendent of format as long as its 10+:
+
+    
     CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
-    v10::pScalerItem pItem =
-        reinterpret_cast<v10::pScalerItem>(pDecoder->getItemPointer());
+    void* pItem  = (pDecoder->getItemPointer());
     auto pHelper = pDecoder->getCurrentFormatHelper();
+    auto pTrans  = pDecoder->getBufferTranslator();
     
     // Fish out non scaler info.
     
-    time_t stamp   = pItem->s_timestamp;
-    float start    = pItem->s_intervalStartOffset;
-    float end      = pItem->s_intervalEndOffset;
+    time_t stamp   = pHelper->getScalerTime(pItem, pTrans);
+    float start    = pHelper->getBeginOffset(pItem, pTrans);
+    float end      = pHelper->getEndOffset(pItem, pTrans);
     
     // callback:
     
     ClientData cd = {m_pUserClientData, this};
     m_pUserCode->onScalers(
         stamp, start, end,
-	pHelper->getScalers(pItem, pDecoder->getBufferTranslator()),
-	true, &cd
+	    pHelper->getScalers(pItem, pDecoder->getBufferTranslator()),
+	    pHelper->isIncremental(pItem, pTrans), &cd
     );    
 }
 /**
@@ -723,35 +700,9 @@ CAnalysisEventProcessor::ScalerBuffer10()
 void
 CAnalysisEventProcessor::ScalerBuffer11()
 {
-    CRingBufferDecoder* pDecoder = dynamic_cast<CRingBufferDecoder*>(m_pDecoder);
-    v11::pScalerItemBody pItem =
-        static_cast<v11::pScalerItemBody>(pDecoder->getBody());
-    auto pHelper = pDecoder->getCurrentFormatHelper();
+    // Thanks to changes in the helper interface, ScalerBuffer10 is now format independent (Issue #185).
     
-    // Non scaler info:
-    
-    time_t stamp = pItem->s_timestamp;
-    float  start = pItem->s_intervalStartOffset;
-    float  end   = pItem->s_intervalEndOffset;
-    int    divisor = pItem->s_intervalDivisor;
-    if (divisor > 1) {
-        start = start/divisor;
-        end   = end/divisor;
-    }
-    bool incremental = pItem->s_isIncremental != 0;
-
-    
-    // callback:
-    
-    ClientData cd = {m_pUserClientData, this};
-    m_pUserCode->onScalers(
-	stamp, start, end,
-	pHelper->getScalers(
-	   pDecoder->getItemPointer(),
-	   pDecoder->getBufferTranslator()
-	),
-	incremental, &cd
-    );   
+    ScalerBuffer10();
 }
 /**
  * marshallUnpaddedStrings
