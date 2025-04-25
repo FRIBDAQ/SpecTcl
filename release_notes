@@ -1,6 +1,11 @@
 == 7.0-002 ==
 * Adding support on MDPP-16/32 QDC/SCP extended timestamp analysis
 * Updating MDPP-32 SCP SRO software trigger data analysis with new data format
+* Additional methods to ring format helperse that allow CAnalysisEventProcessor
+to be written in terms of it so that it will be format independent as long as
+the helpers are.
+* Issue #183 - fixe error in Xamikne that caused it to crash under bookworm
+when Expand dialogs were unposted.
 == 7.0-002 ==
 
 == 7.0-001 ==
