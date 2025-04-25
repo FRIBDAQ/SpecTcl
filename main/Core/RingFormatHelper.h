@@ -20,7 +20,7 @@
 #include <string>
 #include <stdint.h>
 #include <vector>
-
+#include <time.h>
 /**
  * @file RingFormatHelper.h
  * @brief  Definition of the abstract base class for Ring Format helpers
@@ -60,6 +60,7 @@ public:
     virtual void* getBodyPointer(void* pItem)       = 0;
     virtual void* getBodyHeaderPointer(void* pItem) = 0;
     virtual uint32_t getSourceId(void* pItem, BufferTranslator* pTranslator) = 0;
+    
   
   
     // Methods specific to state transitions:
@@ -67,7 +68,10 @@ public:
     virtual std::string getTitle(void* pItem) = 0;
     virtual unsigned    getRunNumber(
         void* pItem, BufferTranslator* pTranslator) = 0;
+    virtual time_t getStateChangeTime(void* pItem, BufferTranslator* pTranslator) = 0; // Issue #185
+    virtual float getStateChangeRunTime(void* pItem, BufferTranslator* pTranslator) = 0; // Issue #185
     
+
     // Methods specific to string lists:
     
     virtual unsigned getStringCount(
@@ -75,6 +79,9 @@ public:
     virtual std::vector<std::string> getStrings(
         void* pItem, BufferTranslator* pTranslator
     ) = 0;
+    virtual time_t getStringListTime(void* pItem, BufferTranslator* pTranslator) = 0; // Issue #185
+    virtual float getStringListRunOffset(void* pItem, BufferTranslator* pTranslator) = 0; // Issue #185
+
     
     // Methods specific to scaler items:
     
@@ -84,6 +91,11 @@ public:
         void* pItem, BufferTranslator* pTranslator
     ) = 0;
     virtual uint32_t getScalerOriginalSourceId(void* pItem, BufferTranslator* pTranslator) = 0;
+    virtual time_t getScalerTime(void* pItem, BufferTranslator* pTranslator) = 0; // Issue #185
+    virtual float getBeginOffset(void* pItem, BufferTranslator* pTranslator) = 0; // Issue #185
+    virtual float getEndOffset(void* pItem, BufferTranslator* pTranslator) = 0; // Issue #185
+    virtual bool  isIncremental(void* pItem, BufferTranslator* pTranslator) = 0; // Issue #185
+
     
     // Methods specific to trigger count items
     
