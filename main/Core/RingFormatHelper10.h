@@ -56,6 +56,8 @@ public:
     virtual std::string getTitle(void* pItem);
     virtual unsigned    getRunNumber(
         void* pItem, BufferTranslator* pTranslator);
+    virtual time_t getStateChangeTime(void* pItem, BufferTranslator* pTranslator); // Issue #185
+    virtual float getStateChangeRunTime(void* pItem, BufferTranslator* pTranslator); // Issue #185
     
     // Methods specific to string lists:
     
@@ -64,6 +66,8 @@ public:
     virtual std::vector<std::string> getStrings(
         void* pItem, BufferTranslator* pTranslator
     );
+    virtual time_t getStringListTime(void* pItem, BufferTranslator* pTranslator); // Issue #185
+    virtual float getStringListRunOffset(void* pItem, BufferTranslator* pTranslator); // Issue #185
     
     // Methods specific to scaler items:
     
@@ -73,10 +77,17 @@ public:
         void* pItem, BufferTranslator* pTranslator
     );
     virtual uint32_t getScalerOriginalSourceId(void* pItem, BufferTranslator* pTranslator);
+    virtual time_t getScalerTime(void* pItem, BufferTranslator* pTranslator); // Issue #185
+    virtual float getBeginOffset(void* pItem, BufferTranslator* pTranslator); // Issue #185
+    virtual float getEndOffset(void* pItem, BufferTranslator* pTranslator); // Issue #185
+    virtual bool  isIncremental(void* pItem, BufferTranslator* pTranslator); // Issue #185
+
+
     // Methods specific to trigger count items
     
     virtual uint64_t getTriggerCount(
         void* pItem, BufferTranslator* pTranslator);
+
 
 private:
      bool isStateTransition(void* pItem);

@@ -202,7 +202,57 @@ CRingFormatHelper11::getRunNumber(void* pItem, BufferTranslator* pTranslator)
   }
   
 }
+/**
+ * getStateChangeTime (issue #185)
+ *     Return the absolute time at which the state change item was created.
+ * 
+ * @param pItem       - pointer to the item.
+ * @param pTranslator - pointer to the byte order converter appropriate to the sourc.
+ *
+ * @return time_t
+ * @throw std::string if the item is not a state transition item.
+ */
+time_t
+CRingFormatHelper11::getStateChangeTime(void* pItem, BufferTranslator* pTranslator) {
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+  std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
+  try {
+   std::unique_ptr<::ufmt::CRingStateChangeItem> pActual(
+     m_Factory->makeStateChangeItem(*pBase)
+   );
+   return pActual->getTimestamp();
+  }
+  catch (...) {
+   throw std::string("CRingFormatHelper11::getTitle - not state transition");
+  }
+}
 
+/** 
+ * getStateChangeRunTime (issue #185)
+ * 
+ * Get the number of seconds intot he run this item was emitted.  Note the offset divisor
+ * is taken into account.
+ * 
+ * @param pItem       - pointer to the item.
+ * @param pTranslator - pointer to the byte order converter appropriate to the sourc.
+ *
+ * @return float
+ * @throw std::string if the item is not a state transition item.
+ */
+float
+CRingFormatHelper11::getStateChangeRunTime(void* pItem, BufferTranslator* pTranslator) {
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+    std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
+    try {
+     std::unique_ptr<::ufmt::CRingStateChangeItem> pActual(
+       m_Factory->makeStateChangeItem(*pBase)
+     );
+     return pActual->computeElapsedTime();
+    }
+    catch (...) {
+     throw std::string("CRingFormatHelper11::getTitle - not state transition");
+    }  
+}
 // Methods specific to string lists:
 
 /**
@@ -238,9 +288,48 @@ CRingFormatHelper11::getStrings(void* pItem, BufferTranslator* pTranslator)
   }
   catch (...) {
    throw std::string("CRingFormatHalper11::getStringCount - not a text ring item");
-  }
-
-
+  } 
+}
+/**
+ *  getStringListTime (issue #185)
+ *     Determine the absolute time at which this string list item was emitted.
+ * 
+ * @param pItem - pointer to the item.
+* @param pTranslator - pointer to the byte order translator.
+* @return time_t
+ */
+time_t
+CRingFormatHelper11::getStringListTime(void* pItem, BufferTranslator* pTranslator) {
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+    std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
+    try {
+       std::unique_ptr<::ufmt::CRingTextItem> p(m_Factory->makeTextItem(*pBase));
+       return p->getTimestamp();
+    }
+    catch (...) {
+     throw std::string("CRingFormatHalper11::getStringCount - not a text ring item");
+    } 
+}
+/**
+ * getStringListRunOffset (issue #185)
+ * 
+ *    Compute the number of seconds into the run at which the item was emitted.
+ * 
+ * @param pItem - pointer to the item.
+* @param pTranslator - pointer to the byte order translator.
+* @return float
+ */
+float
+CRingFormatHelper11::getStringListRunOffset(void* pItem, BufferTranslator* pTranslator) {
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+    std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
+    try {
+       std::unique_ptr<::ufmt::CRingTextItem> p(m_Factory->makeTextItem(*pBase));
+       return p->computeElapsedTime();
+    }
+    catch (...) {
+     throw std::string("CRingFormatHalper11::getStringCount - not a text ring item");
+    } 
 }
 // Methods specific to scaler items.
 /**
@@ -312,7 +401,7 @@ std::vector<uint32_t> CRingFormatHelper11::getScalers(
 uint32_t
 CRingFormatHelper11::getScalerOriginalSourceId(void* pItem, BufferTranslator* pTranslator)
 {
-      const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
     std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
     try {
         std::unique_ptr<::ufmt::CRingScalerItem> pActual(
@@ -327,6 +416,105 @@ CRingFormatHelper11::getScalerOriginalSourceId(void* pItem, BufferTranslator* pT
     }
   
     
+}
+/** getScalerTime (Issue #185)
+ * 
+ *    Get the absolute time at which a scaler item was produced.ABSTRACTRINGITEM_H
+ * 
+ *   @param pItem - pointer to the item.
+ *   @param pTranslator - buffer translator
+ *   @return time_t
+ */
+time_t
+CRingFormatHelper11::getScalerTime(void* pItem, BufferTranslator* pTranslator) {
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+    std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
+    try {
+        std::unique_ptr<::ufmt::CRingScalerItem> pActual(
+           m_Factory->makeScalerItem(*pBase)
+        );
+        return pActual->getTimestamp();
+    }
+    catch (...) {
+       throw std::string(
+            "CRingFormatHelper11::getScalerCount - not a scaler item."
+        ); 
+    }
+  
+}
+/**
+ * getBeginOffset (Issue #185)
+ * 
+ *    Compute the number of seconds into the run at which this counting interval
+ * started.
+ * 
+ *   @param pItem - pointer to the item.
+ *   @param pTranslator - buffer translator
+ *   @return float -  the offset divisor is used in the computation.
+ */
+float
+CRingFormatHelper11::getBeginOffset(void* pItem, BufferTranslator* pTranslator) {
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+    std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
+    try {
+        std::unique_ptr<::ufmt::CRingScalerItem> pActual(
+           m_Factory->makeScalerItem(*pBase)
+        );
+        return pActual->computeStartTime();
+    }
+    catch (...) {
+       throw std::string(
+            "CRingFormatHelper11::getScalerCount - not a scaler item."
+        ); 
+    }
+  
+}
+/**
+ *  getEndOffset (Issue #185)
+ * 
+ * Same as getBeginOffset but the seconds into the run at which the counting 
+ * interval ends is computed
+ */
+float
+CRingFormatHelper11::getEndOffset(void* pItem, BufferTranslator* pTranslator) {
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+    std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
+    try {
+        std::unique_ptr<::ufmt::CRingScalerItem> pActual(
+           m_Factory->makeScalerItem(*pBase)
+        );
+        return pActual->computeEndTime();
+    }
+    catch (...) {
+       throw std::string(
+            "CRingFormatHelper11::getScalerCount - not a scaler item."
+        ); 
+    }
+}
+/**
+ * isIncremental
+ *     Determines if the scaler counts are incremental (cleared at the beginning of each
+ * counting interval) or cumulative (not cleared)
+ * 
+ *   @param pItem - pointer to the item.
+ *   @param pTranslator - buffer translator
+ *   @return bool - true if the scalers are incremental.
+ */
+bool
+CRingFormatHelper11::isIncremental(void* pItem, BufferTranslator* pTranslator) {
+    const ::ufmt::RingItem* pRaw = reinterpret_cast<const ::ufmt::RingItem*>(pItem);
+    std::unique_ptr<::ufmt::CRingItem> pBase(m_Factory->makeRingItem(pRaw));
+    try {
+        std::unique_ptr<::ufmt::CRingScalerItem> pActual(
+           m_Factory->makeScalerItem(*pBase)
+        );
+        return pActual->isIncremental();
+    }
+    catch (...) {
+       throw std::string(
+            "CRingFormatHelper11::getScalerCount - not a scaler item."
+        ); 
+    }
 }
 
 // Methods specific to trigger count items.
