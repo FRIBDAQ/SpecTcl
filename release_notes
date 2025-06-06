@@ -1,7 +1,33 @@
+== 5.14-002 ==
+* Migrating all the changes in 5.13
+== 5.14-002 ==
+
 == 5.14-001 ==
 * Upgrade DDASFormat incorp to 1.1-000.
 * Add MDPP-32 SCP SRO Software Trigger data analysis
 == 5.14-001 ==
+
+== 5.13-017 ==
+* Bug fix - Wrong timestamp type for MDPP-32 SCP SRO software trigger data
+== 5.13-017 ==
+
+== 5.13-016 ==
+* Add MDPP-32 SCP SRO Software Trigger data analysis
+* Updating MDPP-32 SCP SRO software trigger data analysis with new data format
+== 5.13-016 ==
+
+== 5.13-015 ==
+* Fix <RootX11ErrorHandler> messages
+* Remove old ROOT compiler flags
+* Fix error when MDPP-32 QDC multievent=3
+== 5.13-015 ==
+
+== 5.13-014 ==
+* VMUSBSpecTcl
+  * VMUSB controller scaler data support
+  * MDPP-32 SCP streaming readout support
+== 5.13-014 ==
+>>>>>>> 5.13
 
 == 5.13-012 ==
 * MDPP-16 QDC support

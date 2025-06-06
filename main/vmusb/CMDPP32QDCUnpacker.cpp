@@ -42,6 +42,8 @@ static const uint32_t DATA_OVERFLOWSHFT(23);
 static const uint32_t DATA_VALUEMASK(0xffff);
 static const uint32_t DATA_CHANNELMASK(0x7f0000);
 static const uint32_t DATA_CHANNELSHFT(16);
+static const uint32_t DATA_EXTSTAMPMASK(0xffff);
+static const uint32_t EXTSTAMP_SHIFT(30);
 
 // Fields in the trailer.
 static const uint32_t TRAILER_COUNTMASK(0x3fffffff); // trigger count or timestamp counter.
@@ -119,6 +121,8 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
     unsigned long datum = getLong(event, offset);
     offset += 2;
 
+		uint32_t extstamp = 0;
+
     // datum has to be equal to TYPE_DATA = 0
     while (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
         if ((datum & DATA_SUBHDRMASK) == DATA_CHANNEL) {
@@ -129,7 +133,13 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
                 rEvent[id] = value;
             }
         } else if ((datum & DATA_SUBHDRMASK) == DATA_EXTSTAMP) {
-            // Space for extended timestamp support
+            // Extended timestamp must be the last meaningful data
+            if (extstamp != 0) {
+                cerr << __func__ << ": Something wrong with the data - 0x" << hex << datum << dec << endl;
+                return offset - 2;
+						}
+
+            extstamp = datum & DATA_EXTSTAMPMASK;
         } else {
             // bad datum of some sort.
         }
@@ -141,11 +151,13 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
     // then save the count field as parameter 128.
 
     if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
-        uint32_t value = datum & TRAILER_COUNTMASK;
+        uint64_t value = datum & TRAILER_COUNTMASK | (extstamp << EXTSTAMP_SHIFT);
         int      id    = pMap -> map[128];
         if (id != -1) {
             rEvent[id] = value;
         }
+
+        extstamp = 0;
     }
     else {
         cerr << __func__ << ": Something wrong with the data - 0x" << hex << datum << dec << endl;
