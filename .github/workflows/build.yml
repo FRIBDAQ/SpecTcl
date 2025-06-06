@@ -80,8 +80,6 @@ jobs:
         if: ${{ inputs.packaging == true && inputs.dist-packaging == true }}
         working-directory: ./main/oot
         run: |
-          cd ../libtcl
-          make clean
           cd ../unifiedformat
           rm -rf build
           cd ../ddasformat
