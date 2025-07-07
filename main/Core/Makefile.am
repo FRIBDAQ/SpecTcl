@@ -1,7 +1,8 @@
 lib_LTLIBRARIES = libSpecTclTcp.la libTclGrammerApp.la libSpecTclMain.la 
 
 libSpecTclMain_la_SOURCES=SpecTclMain.cpp
-libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la @top_builddir@/mpi/libMPIUtilities.la @top_builddir@/Display/libXamine.la
+libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la \
+	@top_builddir@/mpi/libMPIUtilities.la @top_builddir@/Display/libXamine.la
 libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 	-I@top_srcdir@/Utility -I@top_srcdir@/mpi
 
@@ -106,7 +107,7 @@ Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
 	NSCLJumboBufferDecoder.h DopeVector.h 
 
-Event_noinst_INCULDES = EventMessage.h;
+Event_noinst_INCLDES = EventMessage.h
 
 # Removed TapeException.cpp, Tapefile
 
@@ -432,7 +433,7 @@ include_HEADERS = 		$(DecoderRing_INCLUDES) \
 				$(Mirror_Includes) \
 				$(NewAnalysis_INCLUDES)
 
-noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) $(Event_noinst_INCULDES)
+noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) $(Event_noinst_INCLUDES)
 
 
 noinst_PROGRAMS =    spectrumPkgTests \
@@ -454,7 +455,8 @@ commonTestCXXFLAGS = -I@top_srcdir@/Core \
 	  			@LIBTCLPLUS_CFLAGS@ \
 				@TCL_CPPFLAGS@ \
 				@CPPUNIT_CFLAGS@ \
-				@ROOT_CFLAGS@
+				@ROOT_CFLAGS@ \
+				@UFMT_CPPFLAGS@
 
 # Removed @top_builddir@/Tape/libtape.la
 
@@ -476,8 +478,8 @@ newanalysistests_LDADD=$(commonTestLdFlags)
 caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp \
 	modulehittests.cpp parsertest.cpp caenpmaptests.cpp caenevptests.cpp
 
-caendpptests_CXXFLAGS= @UFMT_CPPFLAGS@ $(commonTestCXXFLAGS)
-caendpptests_LDADD   = $(commonTestLdFlags) @UFMT_LDFLAGS@
+caendpptests_CXXFLAGS= $(commonTestCXXFLAGS)
+caendpptests_LDADD   = $(commonTestLdFlags) 
 
 
 gateTests_CXXFLAGS = $(commonTestCXXFLAGS)
@@ -540,8 +542,8 @@ spectclCmdTests_SOURCES  = TestRunner.cpp \
 			SharedMemoryKeyCommandTest.cpp \
 			SharedMemorySizeCommandTest.cpp
 
-evbProcessorTests_CXXFLAGS = $(commonTestCXXFLAGS) @UFMT_CPPFLAGS@
-evbProcessorTests_LDADD = $(commonTestLdFlags) @UFMT_LDFLAGS@
+evbProcessorTests_CXXFLAGS = $(commonTestCXXFLAGS) 
+evbProcessorTests_LDADD = $(commonTestLdFlags) 
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
 	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp
 
@@ -551,8 +553,8 @@ mirrortests_LDADD=$(commonTestLdFlags)
 mirrortests_SOURCES = TestRunner.cpp mdirtests.cpp servertests.cpp \
 	mservertests.cpp mirrorcmdtests.cpp
 
-helpertests_CXXFLAGS=@UFMT_CPPFLAGS@ $(commonTestCXXFLAGS)
-helpertests_LDADD=$(commonTestLdFlags) @UFMT_LDFLAGS@
+helpertests_CXXFLAGS= $(commonTestCXXFLAGS)
+helpertests_LDADD=$(commonTestLdFlags) 
 helpertests_SOURCES=TestRunner.cpp helper10tests.cpp helper11tests.cpp \
 	helper12tests.cpp
 
@@ -561,8 +563,8 @@ paramdecodetests_LDADD=$(commonTestLdFlags)
 paramdecodetests_SOURCES=TestRunner.cpp paramdecodetests.cpp \
 	testStubs.cpp TreeTestSupport.h
 
-fribfiltertests_CXXFLAGS=$(commonTestCXXFLAGS) @UFMT_CPPFLAGS@
-fribfiltertests_LDADD=$(commonTestLdFlags) @UFMT_LDFLAGS@
+fribfiltertests_CXXFLAGS=$(commonTestCXXFLAGS) 
+fribfiltertests_LDADD=$(commonTestLdFlags) 
 fribfiltertests_SOURCES=TestRunner.cpp fribfiltertests.cpp \
 	FRIBFilterFormatter.cpp FRIBFilterFormatter.h
 
