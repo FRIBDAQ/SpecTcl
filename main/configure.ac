@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl, 5.14-003, daqhelp@frib.msu.edu)
+AC_INIT(SpecTcl, 5.14-004, daqhelp@frib.msu.edu)
 
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE([tar-ustar foreign])
@@ -163,7 +163,21 @@ DAQROOT=$daqroot
 
 AC_SUBST(DAQROOT)
 
+#  WE want to create XDR_CPPFLAGS and XDR_LDFLAGS  
+#  In deb bookworm, these were moved for buster the headers 
+#  are just in /usr/include/..../rpc and libc has the functions.:
+# Note tirpc means 'transport independent remote procedure calls'
 
+AC_CHECK_LIB([tirpc], [xdr_int], [
+  XDR_CPPFLAGS="-I/usr/include/tirpc"
+  XDR_LDFLAGS="-ltirpc"
+], [
+  XDR_CPPFLAGS=""
+  XDR_LDFLAGS=""
+])
+
+AC_SUBST(XDR_CPPFLAGS)
+AC_SUBST(XDR_LDFLAGS)
 
 # -------------------- X11 tests
 

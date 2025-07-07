@@ -1,13 +1,13 @@
 lib_LTLIBRARIES = libSpecTclTcp.la libTclGrammerApp.la libSpecTclMain.la 
 
 libSpecTclMain_la_SOURCES=SpecTclMain.cpp
-libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la
+libSpecTclMain_la_LIBADD = @builddir@/libTclGrammerApp.la @XDR_LDFLAGS@
 libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 	-I@top_srcdir@/Utility
 
 
 
-COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@
+COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@ @XDR_CPPFLAGS@
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
@@ -447,7 +447,7 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
 		@TCL_LIBS@ @ROOT_LDFLAGS@ \
-		@UFMT_LDFLAGS@
+		@UFMT_LDFLAGS@ @XDR_LDFLAGS@
 
 newanalysistests_SOURCES=TestRunner.cpp scalerprocessortests.cpp
 newanalysistests_CPPFLAGS=$(commonTestCXXFLAGS)
