@@ -1,3 +1,7 @@
+== 5.13-018 ==
+* Backport expand error in Xamine
+== 5.13-018 ==
+
 == 5.13-017 ==
 * Bug fix - Wrong timestamp type for MDPP-32 SCP SRO software trigger data
 == 5.13-017 ==
