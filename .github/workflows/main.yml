@@ -2,9 +2,8 @@ name: Compiling workflow
 
 on:
   push:
-    branches: 
-      - '5.13-maint'
-      - '5.14-dev'
+    branches:
+      - '*'
     tags:
       - '*'
     paths-ignore:
