@@ -15,6 +15,13 @@
 */
 
 #include "CMDPP32QDCUnpacker.h"
+#include <string.h>
+#include <TreeParameter.h>
+#include <SpecTcl.h>
+#include <Parameter.h>
+#include <TCLInterpreter.h>
+#include <TCLList.h>
+#include <TCLVariable.h>
 #include <Event.h>
 #include <stdint.h>
 
@@ -149,14 +156,14 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
             //                     = sampleChannel - 32 (MDPP-32)
             sampleChannel = (channel/32 == 0 ? channel - 16 : channel - 32);
         } else if ((datum & DATA_SUBHDRMASK) == DATA_SAMPLE) {
-            if (!IsSampleDetected) {
+            if (!isSampleDetected) {
                 isSampleDetected   = true;
 
                 noOffsetCorrection = ((datum&0x4000000) >> 26);
                 noResampling       = ((datum&0x2000000) >> 25);
                 sampleSource       = ((datum& 0x180000) >> 19);
                 phase              = ((datum&  0x7fc00) >> 10);
-                numSampleWords     = ((datum&    0x3ff);
+                numSampleWords     =  (datum&    0x3ff);
             } else {
                 // The if statement below must be not null for the defined channel in adcChannels
                 if (mdppSamples.channel[sampleChannel] != NULL) {
