@@ -168,7 +168,7 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
                 // The if statement below must be not null for the defined channel in adcChannels
                 if (mdppSamples.channel[sampleChannel] != NULL) {
                     CTreeParameterArray *pChannelArray = mdppSamples.channel[sampleChannel];
-                    CTraaParameterArray &channelArray = *pChannelArray;
+                    CTreeParameterArray &channelArray = *pChannelArray;
                     channelArray[channelArray.size()] = datum&0x3fff;
                     channelArray[channelArray.size()] = ((datum&0xfffc000) >> 14);
                 }
