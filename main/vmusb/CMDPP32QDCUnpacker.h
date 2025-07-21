@@ -25,7 +25,7 @@ class CMDPP32QDCUnpacker : public CModuleUnpacker
 {
 private:
     typedef struct _sample {
-       CTreeParameterArray *channel; // sample bins for a channel
+       CTreeParameterArray **channel; // sample bins for a channel
     } MDPPSamples;
 
     MDPPSamples& getSampleArray(CParamMapCommand::AdcMapping* pMap);

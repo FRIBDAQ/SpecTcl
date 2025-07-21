@@ -132,7 +132,7 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
 		uint32_t extstamp = 0;
 
     // Sample processing
-    bool isSampleStarted    = false;
+    bool isSampleDetected   = false;
      int sampleChannel      = -1;
     bool noOffsetCorrection = false;
     bool noResampling       = false;
@@ -140,7 +140,7 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
      int phase              = -1;
      int numSampleWords     = -1;
 
-    MDPPSamples mdppSamples = getSampleArray(pMap);
+    MDPPSamples &mdppSamples = getSampleArray(pMap);
 
     // datum has to be equal to TYPE_DATA = 0
     while (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
@@ -170,7 +170,7 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
                     CTreeParameterArray *pChannelArray = mdppSamples.channel[sampleChannel];
                     CTraaParameterArray &channelArray = *pChannelArray;
                     channelArray[channelArray.size()] = datum&0x3fff;
-                    channelArray[channelArray.size()] = (datum&0xfffc000) >> 14);
+                    channelArray[channelArray.size()] = ((datum&0xfffc000) >> 14);
                 }
             }
         } else if ((datum & DATA_SUBHDRMASK) == DATA_EXTSTAMP) {
@@ -204,17 +204,6 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
     else {
         cerr << __func__ << ": Something wrong with the data - 0x" << hex << datum << dec << endl;
         return offset - 2; // Really should not happen!!
-    }
-
-    // Check if the number of samples are correct, then create tree variable
-    if (isSampleDetected) {
-        if (samples.size() != numSampleWords*2) {
-            cerr << __func__ << ": The number of stored samples are not the same as expected - stored=";
-            cerr << samples.size() << " expected=" << numSampleWords*2 << endl;
-            return offset - 2;
-        }
-
-        // Create tree variable here
     }
 
     uint32_t ender = getLong(event, offset + 2);
