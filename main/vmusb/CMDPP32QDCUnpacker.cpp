@@ -215,7 +215,7 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
     return offset + 2;
 }
 
-MDPPSamples& CMDPP32QDCUnpacker::getSampleArray(CParamMapCommand::AdcMapping *pMap)
+CMDPP32QDCUnpacker::MDPPSamples& CMDPP32QDCUnpacker::getSampleArray(CParamMapCommand::AdcMapping *pMap)
 {
     if (pMap -> extraData) {
         return *reinterpret_cast<MDPPSamples*>(pMap -> extraData);
