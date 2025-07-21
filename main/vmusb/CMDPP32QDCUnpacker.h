@@ -19,13 +19,21 @@
 
 #include "CModuleUnpacker.h"
 
+class CTreeParameterArray;
+
 class CMDPP32QDCUnpacker : public CModuleUnpacker
 {
+private:
+    typedef struct _sample {
+       CTreeParameterArray *channel; // sample bins for a channel
+    } MDPPSamples;
+
+    MDPPSamples& getSampleArray(CParamMapCommand::AdcMapping* pMap);
+
 public:
     CMDPP32QDCUnpacker();
     virtual ~CMDPP32QDCUnpacker();
 
-public:
     virtual unsigned int operator()(CEvent&                       rEvent,
                                     std::vector<unsigned short>&  event,
                                     unsigned int                  offset,

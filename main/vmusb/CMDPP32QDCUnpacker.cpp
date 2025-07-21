@@ -36,6 +36,7 @@ static const uint32_t HDR_IDSHFT(16);
 static const uint32_t DATA_SUBHDRMASK(0x30000000);
 static const uint32_t DATA_CHANNEL   (0x10000000);
 static const uint32_t DATA_EXTSTAMP  (0x20000000);
+static const uint32_t DATA_SAMPLE    (0x30000000);
 
 static const uint32_t DATA_OVERFLOWMASK(0x800000);
 static const uint32_t DATA_OVERFLOWSHFT(23);
@@ -123,6 +124,17 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
 
 		uint32_t extstamp = 0;
 
+    // Sample processing
+    bool isSampleStarted    = false;
+     int sampleChannel      = -1;
+    bool noOffsetCorrection = false;
+    bool noResampling       = false;
+     int sampleSource       = -1;
+     int phase              = -1;
+     int numSampleWords     = -1;
+
+    MDPPSamples mdppSamples = getSampleArray(pMap);
+
     // datum has to be equal to TYPE_DATA = 0
     while (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
         if ((datum & DATA_SUBHDRMASK) == DATA_CHANNEL) {
@@ -131,6 +143,28 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
             int id      = pMap -> map[channel];
             if (id != -1) {
                 rEvent[id] = value;
+            }
+
+            // Real channel number = sampleChannel - 16 (MDPP-16)
+            //                     = sampleChannel - 32 (MDPP-32)
+            sampleChannel = (channel/32 == 0 ? channel - 16 : channel - 32);
+        } else if ((datum & DATA_SUBHDRMASK) == DATA_SAMPLE) {
+            if (!IsSampleDetected) {
+                isSampleDetected   = true;
+
+                noOffsetCorrection = ((datum&0x4000000) >> 26);
+                noResampling       = ((datum&0x2000000) >> 25);
+                sampleSource       = ((datum& 0x180000) >> 19);
+                phase              = ((datum&  0x7fc00) >> 10);
+                numSampleWords     = ((datum&    0x3ff);
+            } else {
+                // The if statement below must be not null for the defined channel in adcChannels
+                if (mdppSamples.channel[sampleChannel] != NULL) {
+                    CTreeParameterArray *pChannelArray = mdppSamples.channel[sampleChannel];
+                    CTraaParameterArray &channelArray = *pChannelArray;
+                    channelArray[channelArray.size()] = datum&0x3fff;
+                    channelArray[channelArray.size()] = (datum&0xfffc000) >> 14);
+                }
             }
         } else if ((datum & DATA_SUBHDRMASK) == DATA_EXTSTAMP) {
             // Extended timestamp must be the last meaningful data
@@ -146,6 +180,7 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
         datum   = getLong(event, offset);
         offset += 2;
     }
+
 
     // The datum should be the trailer and be equal to 3
     // then save the count field as parameter 128.
@@ -164,6 +199,17 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
         return offset - 2; // Really should not happen!!
     }
 
+    // Check if the number of samples are correct, then create tree variable
+    if (isSampleDetected) {
+        if (samples.size() != numSampleWords*2) {
+            cerr << __func__ << ": The number of stored samples are not the same as expected - stored=";
+            cerr << samples.size() << " expected=" << numSampleWords*2 << endl;
+            return offset - 2;
+        }
+
+        // Create tree variable here
+    }
+
     uint32_t ender = getLong(event, offset + 2);
     if (ender == 0xffffffff) { // When multievent=3, there's another BERR
 					   return offset + 4;
@@ -171,4 +217,61 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
     // There will be a 0xffffffff longword for the BERR at the end of the
     // readout.
     return offset + 2;
+}
+
+MDPPSamples& CMDPP32QDCUnpacker::getSampleArray(CParamMapCommand::AdcMapping *pMap)
+{
+    if (pMap -> extraData) {
+        return *reinterpret_cast<MDPPSamples*>(pMap -> extraData);
+    }
+
+    MDPPSamples *mdppSamples = new MDPPSamples;
+
+    CTCLInterpreter *pInterp = SpecTcl::getInstance() -> getInterpreter();
+
+    CTCLVariable adcChannels(string("adcChannels"), false);
+    adcChannels.Bind(*pInterp);
+
+    const char* channelString = adcChannels.Get(TCL_GLOBAL_ONLY, const_cast<char*>((pMap -> name).c_str()));
+    if (!channelString) {
+        std::cerr << "WARNING SpecTcl misconfigured, adcChannels(" << (pMap -> name).c_str() << ")\n";
+        std::cerr << "      is undefined. Set that up in you daqconfig file\n";
+        std::cerr << "      this TDC will not be unpacked.\n";
+        exit(-1);
+    }
+
+    CTCLList adcBaseList(pInterp, channelString);
+    StringArray baseNames;
+    adcBaseList.Split(baseNames);
+
+    // Add "sample" between module name and channel number
+    StringArray sampleBaseNames;
+    for (string basename : baseNames) {
+        string sampleBaseName;
+        for (char character : basename) {
+            if (character == '.') {
+                sampleBaseName += ".sample."; 
+            } else {
+                sampleBaseName += character;
+            }
+        }
+
+        sampleBaseNames.push_back(sampleBaseName);
+    }
+
+    // Leave NULL to the array element of the channels not defined in adcChannels
+    mdppSamples -> channel = new CTreeParameterArray*[32];
+    int nameIndex = 0;
+    for (int i = 0; i < 32; i++) {
+        if (pMap -> map[i] != -1) {
+            mdppSamples -> channel[i] = new CTreeParameterArray(sampleBaseNames[nameIndex++],
+                                                                0., 16383., "A.U.", 1000, 0);
+        } else {
+            mdppSamples -> channel[i] = NULL;
+        }
+    }
+
+    pMap -> extraData = mdppSamples;
+
+    return *mdppSamples;
 }
