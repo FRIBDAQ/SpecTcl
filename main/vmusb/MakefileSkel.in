@@ -6,7 +6,7 @@ include $(INSTDIR)/etc/SpecTcl_Makefile.include
 #  If you have any switches that need to be added to the default c++ compilation
 # rules, add them to the definition below:
 
-USERCXXFLAGS= -std=c++11
+USERCXXFLAGS= -std=c++14
 
 #  If you have any switches you need to add to the default c compilation rules,
 #  add them to the defintion below:
