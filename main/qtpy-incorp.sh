@@ -12,14 +12,14 @@ REPOSITORY=https://github.com/FRIBDAQ/CutiePie.git
 TARGET=PyQtGUI
 VERSION=$1
 
-if [[ ! $VERSION ]]
-then
-  VERSION="v1.5-005"
-fi
-
 rm -rf ${TARGET}
 git clone ${REPOSITORY} ${TARGET}
+
+if [[ ! $VERSION ]]
+then
+  VERSION=$(cd ${TARGET}; git ls-remote --tags --sort=committerdate | grep -o 'v.*' | sort -r | head -1)
+fi
+
 (cd ${TARGET}; git checkout ${VERSION})
 (cd ${TARGET}/main; autoreconf -if)
 echo CutiePie ${VERSION} ready to build with SpecTcl
-
