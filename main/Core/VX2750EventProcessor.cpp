@@ -25,6 +25,7 @@
 #include <stdexcept>
 #include <cstdint>
 #include <iostream>
+#include <TCLAnalyzer.h> // Issue #194: set event size
 
 namespace caen_spectcl {
 /**
@@ -106,7 +107,12 @@ VX2750EventProcessor::operator()(
     
     const std::uint32_t* p = reinterpret_cast<std::uint32_t*>(pEvent);
     const std::uint8_t*   pEnd;
-    std::uint32_t nWords = *p;
+    std::uint32_t nWords = *p; // Self-inclusive count of 16-bit body words
+
+    // Issue #194 - set event size:
+    
+    CTclAnalyzer& rAna((CTclAnalyzer&)rAnalyzer);
+    rAna.SetEventSize(nWords*sizeof(uint16_t)); // In bytes
     
     try {
       pEnd = reinterpret_cast<const std::uint8_t*>(m_pUnpacker->unpackHit(p));
