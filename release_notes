@@ -1,3 +1,9 @@
+== 7.0-003 ==
+* Upgrade DDASFormat incorp to 1.1-000.
+* Adding MDPP-32 SCP SRO software trigger data analysis
+* Correctly unpack data from CAEN VX2740
+== 7.0-003 ==
+
 == 7.0-002 ==
 * Adding support on MDPP-16/32 QDC/SCP extended timestamp analysis
 * Updating MDPP-32 SCP SRO software trigger data analysis with new data format
