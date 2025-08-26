@@ -1,3 +1,7 @@
+== 5.14-005 ==
+* Correctly unpack data coming from CAEN VX2740 digitizers
+== 5.14-005 ==
+
 == 5.14-002 ==
 * Migrating all the changes in 5.13
 == 5.14-002 ==
