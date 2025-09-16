@@ -45,10 +45,6 @@ using namespace std;
 
 // Constants
 
-static const UShort_t VMUSB_STACKID_MASK(0xe000);
-static const UShort_t VMUSB_STACKID_SHIFT(13);
-static const UShort_t VMUSB_CONTINUE(0x1000);
-static const UShort_t VMUSB_LENGTH(0x0fff);
 
 
 // Local and class static data:
@@ -116,7 +112,7 @@ CStackUnpacker::~CStackUnpacker() {}
    \param rEvent    - The 'array' of parameters in which to unpack the data.
    \param rAnalyzer - Reference to the analyzer.  This is really a Tcl Analyzer and is
                       used to set the size of the event (in bytes).
-   \param rDecoder  - Reference to the buffer decoder which is not used at all atually.
+   \param rDecoder  - Reference to the buffer decoder 
 
    \return Bool_t
    \retval kfTRUE - The unpacker succeeded.  Remaining event processors can be called.
@@ -132,10 +128,11 @@ CStackUnpacker::operator()(const Address_t pEvent,
 {
   CTclAnalyzer&    analyzer(dynamic_cast<CTclAnalyzer&>(rAnalyzer));
   TranslatorPointer<UShort_t> p(*(rDecoder.getBufferTranslator()), pEvent);
+  UInt_t           size = rDecoder.getBodySize();       // Bytes in the body.
   vector<uint16_t> event;
   StackInfo        info;
 
-  info        = assembleEvent(p, event);
+  info        = assembleEvent(size, p, event);
   int stackId = info.s_stackNumber;
   analyzer.SetEventSize((info.s_stackSize)*sizeof(uint16_t)); // +1 for the header.
 
@@ -188,39 +185,34 @@ CStackUnpacker::operator()(const Address_t pEvent,
 /*
    Assemble an event from the VMUSB event fragments.  While we're at it,
    extract the stack id and return it to the caller.
+   This is much simpler for us as we don't have segments.
+
+   @param nBytes - size of the event body.
+   @param p      - translating pointer to the event body.
+   @param event  - Vector we fill in from the body.
+   @return StacKInfo that describes this stack.
 
 */
 CStackUnpacker::StackInfo
-CStackUnpacker::assembleEvent(TranslatorPointer<UShort_t>&p, 
-			      vector<uint16_t>& event)
-{
+CStackUnpacker::assembleEvent(
+  size_t                      nBytes,
+  TranslatorPointer<UShort_t>&p, 
+	vector<uint16_t>& event) {
   StackInfo result;
-  bool done    = false;
-  int  stackId = -1;
-  size_t totalSize = 0;
-  while(!done) {
-    // Decode the header:
-
-    uint16_t header = *p; ++p;
-    done            = (header & VMUSB_CONTINUE) == 0;
-    int fragmentSize = header & VMUSB_LENGTH;
-    totalSize++;		// headers are a word of size...
-
-    // only pull the stackid out of the first header (just in case).
-
-    if (stackId < 0) {
-      stackId = (header & VMUSB_STACKID_MASK) >> VMUSB_STACKID_SHIFT;
-    }
-    // Append the fragment to the event vector
-
-    for (int i=0; i < fragmentSize; i++) {
-      uint16_t datum = *p; ++p;
-      event.push_back(datum);
-    }
-    totalSize += fragmentSize;	// Words in the fragment...
-  }
   
-  result.s_stackNumber = stackId;
-  result.s_stackSize   = totalSize; // pEvent words consumed.
+  result.s_stackNumber = 0;         // always the event stack.
+  result.s_stackSize   = nBytes/sizeof(uint16_t); // pEvent words consumed.
+  
+  // Let's make  push's marginally more efficient.
+
+  event.reserve(result.s_stackSize);
+  
+  // Fill the event vector.
+
+  for (int i=0; i < result.s_stackSize; i++) {
+    uint16_t datum = *p; ++p;
+    event.push_back(datum);
+  }
+
   return result;
 }

@@ -28,31 +28,15 @@ class CAnalyzer;
 class CBufferDecoder;
 
 /*!
-  This class unpacks data from the generalized stack VM-USB readout program.
-  Events have format that is described in the VM-USB manual section 4.6.
+  This class unpacks stacks from fribdaq-readout in the
+  mesytec-mvlc installation.  These stacks are
+  very  much like VMUSB stacks _but_ and this is a big but.
+  *  They are not segmented.  Events are all a single soup.
+  *  They don't have a header.
   
-  Events come in fragments that are at most 2kwords long.  A fragment has 
-  a header that looks like:
 
-\verbatim
-  15-13          12            11 - 0
-  +-----------+-------------+--------------------+
-  | stackid   | continued   |  fragment_length   |
-  +-----------+-------------+--------------------+
-
-\endverbatim
-  Where:
-  - stackid is the id of the stack that produced the event. For us this is
-    always 2.
-  - continued indicates this is not the last fragment of the event.
-  - fragment_length is the number of 16 bit words in the event.
-
-  In this software we will assemble events into a vector decoding the stack id
-  as we go.   The stack id will be used to fetch a vector of pointers to 
-  parameter maps for each of the modules.  Each parameter map also includes
-  information that allows the unpacker to choose a correct module unpacker for
-  the map.  The actual unpacking of the data from a piece of hardware is delegated to 
-  the appropriate module specific unpacker.
+  There are other differences that the individaul decoders
+  need to know as well but we don't worry about that here.
 */
 
 class CStackUnpacker  : public CEventProcessor
@@ -86,7 +70,7 @@ public:
   // Utilties:
 
 private:
-  static StackInfo assembleEvent(TranslatorPointer<UShort_t>& p, std::vector<uint16_t>& event);
+  static StackInfo assembleEvent(size_t nBytes, TranslatorPointer<UShort_t>& p, std::vector<uint16_t>& event);
 };
 
 #endif
