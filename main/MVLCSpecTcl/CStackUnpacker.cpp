@@ -55,9 +55,9 @@ static CNADC2530Unpacker  unpackNADC2530;
 static CMADC32Unpacker    unpackMADC32;
 static CV1x90Unpacker     unpackV1x90;
 static CV977Unpacker      unpackV977;
-static CMASE              unpackMase;
-static CHINP              unpackHINP;
-static CPSD               unpackPSD;
+//static CMASE              unpackMase;
+//static CHINP              unpackHINP;  // We don't support the St.Louis chip stuff.
+//static CPSD               unpackPSD;
 static CV1729Unpacker     unpackV1729;
 static CMTDC32Unpacker    unpackMTDC32;
 static CMQDC32Unpacker    unpackMQDC32;
@@ -67,6 +67,9 @@ static CMDPP32SCPSROSoftTriggerUnpacker unpackMDPP32SCPSROSoftTrigger;
 static CVMUSBScalerUnpacker  unpackVMUSBScaler;
 
 // table of unpackers for each type of module.
+// Attempting to use the St. Louis chip boards will
+// fail spectacularly.
+// (Segfault maybe).
 
 CModuleUnpacker* CStackUnpacker::m_unpackers[] = 
   {
@@ -75,10 +78,10 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpackMADC32,
     &unpackV1x90,
     &unpackV977,
-    &unpackMase,
+    nullptr,
     &unpack785,			// CAEN Dual range placeholder
-    &unpackHINP,
-    &unpackPSD,
+    nullptr,
+    nullptr,
     &unpackV1729,
     &unpackMTDC32,
     &unpackMQDC32,
