@@ -938,8 +938,6 @@ AC_MSG_NOTICE([Building and installing CutiePie])
 result=$?
 AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install CutiePie with result: ${result}]))
 
-######################################## Checks for ZMQ
-AX_ZMQ
 
 ######################################## Checks for Root 
 
