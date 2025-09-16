@@ -1084,7 +1084,7 @@ AC_OUTPUT(Makefile
           contrib/treeparam/Makefile
           mpi/Makefile
           compress/Makefile
-	  RootInterface/Makefile
+	        RootInterface/Makefile
           Core/Makefile 
           ccusb/Makefile
           ccusb/MakefileSkel
@@ -1102,7 +1102,7 @@ AC_OUTPUT(Makefile
           filtsplit/Makefile
           Gui/Makefile
           Replace/Makefile
-	  scalerWrapper/Makefile
+	        scalerWrapper/Makefile
           Scripts/Makefile 
           SpecTcl/Makefile
           splash/Makefile
@@ -1115,6 +1115,7 @@ AC_OUTPUT(Makefile
           Utility/daqdefs.tcl 
           vmusb/Makefile
           vmusb/MakefileSkel 
+          MVLCSpecTcl/Makefile
           Python/Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
