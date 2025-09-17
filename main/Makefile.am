@@ -21,6 +21,7 @@ SUBDIRS = Replace \
 					treegui \
 					ccusb \
 					vmusb \
+					MVLCSpecTcl \
 					tkcon \
 					compress \
 					docs \

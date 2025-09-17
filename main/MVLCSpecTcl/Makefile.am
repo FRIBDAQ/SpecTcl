@@ -19,7 +19,7 @@ COMMON_cppflags = -I@top_srcdir@/Utility \
 # definition which is done in the COMMON_cppflags
 # above if code differences are needed.
 
-VMUSB=@abs_top_srcdir@/vmusb
+VMUSB=@top_srcdir@/vmusb
 
 libMVLCSpecTcl_la_SOURCES= \
 	$(VMUSB)/CParamMapCommand.cpp \
@@ -66,3 +66,4 @@ install-exec-local:
 	$(INSTALL_SCRIPT) $(VMUSB)/SpecTclInit.tcl @prefix@/MVLCSkel
 	$(INSTALL_DATA)  @builddir@/MakefileSkel @prefix@/MVLCSkel/Makefile
 
+EXTRA_DIST=MakefileSkel.in
