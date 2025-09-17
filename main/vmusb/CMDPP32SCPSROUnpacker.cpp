@@ -83,6 +83,9 @@ CMDPP32SCPSROUnpacker::~CMDPP32SCPSROUnpacker()
      \note - the data are in little-endian form.
      \note - in single event mode, buffer overflows are not possible so we ignore the
              header error flag.
+      \note Issue #199 adds #ifdefery to allow this to work with the MVLCSpecTcl.
+        the MVLC controller does not mark the BERR end of a block transfer with a 0xffffffff.
+        The compilation in MVLCSpecTcl defines MVLC to distinguish it from the VMUSB compilation.
 */
 unsigned int
 CMDPP32SCPSROUnpacker::operator()(CEvent&                       rEvent,
@@ -92,11 +95,11 @@ CMDPP32SCPSROUnpacker::operator()(CEvent&                       rEvent,
 {
     // Get the 'header' and be sure it actually is a header and for our module id.
     uint32_t header = getLong(event, offset);
-
+#ifndef MVLC
     if (header == 0xffffffff) {	// if no header, there will be just the two words of 0xffffffff
         return offset + 2;
     }
-
+#endif
     uint32_t type   = (header & ALL_TYPEMASK) >> ALL_TYPESHFT;
     if (type != TYPE_DATA) { return offset; }
 
@@ -116,14 +119,14 @@ CMDPP32SCPSROUnpacker::operator()(CEvent&                       rEvent,
     offset += 2;
 
     uint32_t trailer = getLong(event, offset);
-
+#ifndef MVLC
     if (trailer == 0xffffffff) {
-			  // This line can never happen. Just here to be safe.
+			  // This line can never happen. Just here to be safe....especially for mvlc.
 				cerr << __func__ << ": Impossible things happening! Empty data after MDPP-32 SCP SRO header!" << endl;
 
         return offset + 2;
     }
-
+#endif
     type = (trailer & ALL_TYPEMASK) >> ALL_TYPESHFT;
     if (type != TYPE_EOE) {
 				cerr << __func__ << ": Impossible things happening! MDPP-32 SCP SRO Header is not followed by trailer! (0x" << hex << trailer << dec << ")" << endl;
@@ -140,6 +143,10 @@ CMDPP32SCPSROUnpacker::operator()(CEvent&                       rEvent,
 		}
 
     // There will be a 0xffffffff longword for the BERR at the end of the
-    // readout.
-    return offset + 2;
+    // readout for the VMUSB:
+
+#ifndef MVLC
+    offset += 2;
+#endif
+    return offset;
 }

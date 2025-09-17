@@ -102,6 +102,9 @@ CMQDC32Unpacker::~CMQDC32Unpacker()
      \note - the data are in little-endian form.
      \note - in single event mode, buffer overflows are not possible so we ignore the
              header error flag.
+      \note Issue #199  - Adds #ifdefery to allow this to be used in MVLCSpecTcl. The MVLC does not mark
+        BERR termination of block reads with 0xffffffff.  MVLCSpecTcl defines the preprocessor symbol
+        MVLC to allow this #ifdefery.
 */
 unsigned int 
 CMQDC32Unpacker::operator()(CEvent&                       rEvent,
@@ -128,10 +131,11 @@ CMQDC32Unpacker::operator()(CEvent&                       rEvent,
     header = getLong(event, offset);
 
     // Get the 'header' and be sure it actually is a header and for our module id.
+#ifndef MVLC
     if (header == 0xffffffff) {   // ADC had no data there will be just the two words of 0xffffffff
       return offset + 2;
     }
-
+#endif
     // find type of datum
     uint32_t  type   = (header &  ALL_TYPEMASK) >> ALL_TYPESHFT;
     // header type
@@ -197,7 +201,9 @@ CMQDC32Unpacker::operator()(CEvent&                       rEvent,
   }
 
   // There will be a 0xffffffff longword for the BERR at the end of the
-  // readout.
-
-  return offset + 2;
+  // readout if read by VMUMUSB
+#ifndef MVLC
+  offset += 2;
+#endif
+  return offset;
 }

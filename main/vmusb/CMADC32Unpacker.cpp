@@ -102,6 +102,8 @@ CMADC32Unpacker::~CMADC32Unpacker()
      \note - the data are in little-endian form.
      \note - in single event mode, buffer overflows are not possible so we ignore the
              header error flag.
+      \note - Issue #199 - #ifdefery allows this to be compiled for MVLCSpecTcl; that controller
+          does not put 0xffffffff markers in the data for BERR reads.
 */
 unsigned int 
 CMADC32Unpacker::operator()(CEvent&                       rEvent,
@@ -125,12 +127,12 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
   
   while (bank) {
     header = getLong(event, offset);
-
+#ifndef MVLC
     // Get the 'header' and be sure it actually is a header and for our module id.
     if (header == 0xffffffff) {   // ADC had no data there will be just the two words of 0xffffffff
       return offset + 2;
     }
-
+#endif
     // find type of datum
     uint32_t  type   = (header &  ALL_TYPEMASK) >> ALL_TYPESHFT;
     // header type
@@ -152,21 +154,21 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
     else if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
       if ((datum & ALL_FILLMASK) == 0){
         //std::cout << "Skip fill words!" << std::endl;
-	datum   = getLong(event, offset);
-	offset += 2;
-      } else {
-	bool overflow = (datum & DATA_ISOVERFLOW) != 0;
-	if (!overflow) {
-	  int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
-	  int value   = datum & DATA_VALUEMASK;
-	  int id      = pMap->map[channel];
-	  if (id != -1) {
-	    rEvent[id] = value;
-	  }
-	}
-	datum   = getLong(event, offset);
-	longsRead++;
-	offset += 2;
+        datum   = getLong(event, offset);
+        offset += 2;
+            } else {
+        bool overflow = (datum & DATA_ISOVERFLOW) != 0;
+        if (!overflow) {
+          int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
+          int value   = datum & DATA_VALUEMASK;
+          int id      = pMap->map[channel];
+          if (id != -1) {
+            rEvent[id] = value;
+          }
+        }
+        datum   = getLong(event, offset);
+        longsRead++;
+        offset += 2;
       }
     }
     // bank type
@@ -174,7 +176,7 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
       bankctr++;
       offset += 2;
       if (bankctr == 2)
-	bank = false;
+	      bank = false;
     }
     else {
       std::cout << "Something is really wrong with this data" << std::endl;
@@ -198,7 +200,9 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
   }
 
   // There will be a 0xffffffff longword for the BERR at the end of the
-  // readout.
-
-  return offset + 2;
+  // readout for the VMUSB, but not for the MVLC.
+#ifndef MVLC
+  offset += 2;
+#endif
+  return offset;
 }
