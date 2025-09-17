@@ -1114,6 +1114,7 @@ AC_OUTPUT(Makefile
           vmusb/Makefile
           vmusb/MakefileSkel 
           MVLCSpecTcl/Makefile
+	  MVLCSpecTcl/MakefileSkel
           Python/Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
