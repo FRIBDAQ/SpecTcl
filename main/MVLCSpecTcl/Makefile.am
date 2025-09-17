@@ -15,7 +15,7 @@ COMMON_cppflags = -I@top_srcdir@/Utility \
 # above if code differences are needed.
 
 VMUSB=@srcdir@/../vmusb
-libMVLCSpecTcl_la_SOURCES=CStackUnpacker.cpp \
+libMVLCSpecTcl_la_SOURCES= \
 	$(VMUSB)/CParamMapCommand.cpp \
 	$(VMUSB)/CStackMapCommand.cpp \
 	$(VMUSB)/CModuleUnpacker.cpp \
@@ -33,3 +33,19 @@ libMVLCSpecTcl_la_SOURCES=CStackUnpacker.cpp \
 
 
 libMVLCSpecTcl_la_CPPFLAGS=$(COMMON_cppflags)
+
+bin_PROGRAMS = MVLCSpecTcl
+MVLCSpecTcl_SOURCES = MySpecTclApp.cpp CStackUnpacker.cpp
+noinst_HEADERS = MySpecTclApp.h CStackUnpacker.h
+
+MVLCSpecTcl_CPPFLAGS=$(COMMON_cppflags)
+MVLCSpecTcl_LDADD= @builddir@/libMVLCSpecTcl.la @top_builddir@/Core/libSpecTclMain.la \
+		@top_builddir@/Core/libTclGrammerApp.la \
+		    @top_builddir@/calibratedparams/libCalibrations.la \
+		    @top_builddir@/Display/libXamine.la \
+			@top_builddir@/mpi/libMPIUtilities.la \
+	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ @ROOT_LDFLAGS@ \
+	-lgsl -lgslcblas	\
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
+
+MVLCSpecTcl_LDFLAGS = -g -Wl,"-rpath=@libdir@"

@@ -64,7 +64,7 @@ static CMQDC32Unpacker    unpackMQDC32;
 static CMDPP32QDCUnpacker    unpackMDPP32QDC;
 static CMDPP32SCPSROUnpacker unpackMDPP32SCPSRO;
 static CMDPP32SCPSROSoftTriggerUnpacker unpackMDPP32SCPSROSoftTrigger;
-static CVMUSBScalerUnpacker  unpackVMUSBScaler;
+//static CVMUSBScalerUnpacker  unpackVMUSBScaler;
 
 // table of unpackers for each type of module.
 // Attempting to use the St. Louis chip boards will
@@ -87,7 +87,7 @@ CModuleUnpacker* CStackUnpackerMVLC::m_unpackers[] =
     &unpackMQDC32,
     &unpackMDPP32QDC,
     &unpackMDPP32SCPSRO,
-    &unpackVMUSBScaler,
+    nullptr,
     &unpackMDPP32SCPSROSoftTrigger
 };
 
