@@ -64,4 +64,5 @@ install-exec-local:
 	for f in $(MVLCSpecTcl_SOURCES) $(noinst_HEADERS); do $(INSTALL_DATA) @srcdir@//$$f @prefix@/MVLCSkel; done
 	$(INSTALL_SCRIPT) $(VMUSB)/SpecTclRC.tcl @prefix@/MVLCSkel
 	$(INSTALL_SCRIPT) $(VMUSB)/SpecTclInit.tcl @prefix@/MVLCSkel
+	$(INSTALL_DATA)  @builddir@/MakefileSkel @prefix@/MVLCSkel/Makefile
 
