@@ -1,3 +1,8 @@
+# the line below eliminates warnings about the stuff we're dragging in from VMUSBSpecTcl
+
+AUTOMAKE_OPTIONS = subdir-objects
+
+
 lib_LTLIBRARIES=libMVLCSpecTcl.la
 
 COMMON_cppflags = -I@top_srcdir@/Utility \
@@ -14,7 +19,8 @@ COMMON_cppflags = -I@top_srcdir@/Utility \
 # definition which is done in the COMMON_cppflags
 # above if code differences are needed.
 
-VMUSB=@srcdir@/../vmusb
+VMUSB=@abs_top_srcdir@/vmusb
+
 libMVLCSpecTcl_la_SOURCES= \
 	$(VMUSB)/CParamMapCommand.cpp \
 	$(VMUSB)/CStackMapCommand.cpp \
@@ -49,3 +55,13 @@ MVLCSpecTcl_LDADD= @builddir@/libMVLCSpecTcl.la @top_builddir@/Core/libSpecTclMa
 	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
 
 MVLCSpecTcl_LDFLAGS = -g -Wl,"-rpath=@libdir@"
+
+
+## Install a MVLCSkel so users can extend this.
+
+install-exec-local:
+	$(mkinstalldirs) @prefix@/MVLCSkel
+	for f in $(MVLCSpecTcl_SOURCES) $(noinst_HEADERS); do $(INSTALL_DATA) @srcdir@//$$f @prefix@/MVLCSkel; done
+	$(INSTALL_SCRIPT) $(VMUSB)/SpecTclRC.tcl @prefix@/MVLCSkel
+	$(INSTALL_SCRIPT) $(VMUSB)/SpecTclInit.tcl @prefix@/MVLCSkel
+
