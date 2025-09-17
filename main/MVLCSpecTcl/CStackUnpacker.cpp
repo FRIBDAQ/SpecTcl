@@ -71,7 +71,7 @@ static CVMUSBScalerUnpacker  unpackVMUSBScaler;
 // fail spectacularly.
 // (Segfault maybe).
 
-CModuleUnpacker* CStackUnpacker::m_unpackers[] = 
+CModuleUnpacker* CStackUnpackerMVLC::m_unpackers[] = 
   {
     &unpack785, 
     &unpackNADC2530,
@@ -96,8 +96,8 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
 
 // The ones we have ar no-ops.
 
-CStackUnpacker::CStackUnpacker() {}
-CStackUnpacker::~CStackUnpacker() {}
+CStackUnpackerMVLC::CStackUnpackerMVLC() {}
+CStackUnpackerMVLC::~CStackUnpackerMVLC() {}
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,7 @@ CStackUnpacker::~CStackUnpacker() {}
 */
 
 Bool_t
-CStackUnpacker::operator()(const Address_t pEvent,
+CStackUnpackerMVLC::operator()(const Address_t pEvent,
 			   CEvent&         rEvent,
 			   CAnalyzer&      rAnalyzer,
 			   CBufferDecoder& rDecoder)
@@ -196,8 +196,8 @@ CStackUnpacker::operator()(const Address_t pEvent,
    @return StacKInfo that describes this stack.
 
 */
-CStackUnpacker::StackInfo
-CStackUnpacker::assembleEvent(
+CStackUnpackerMVLC::StackInfo
+CStackUnpackerMVLC::assembleEvent(
   size_t                      nBytes,
   TranslatorPointer<UShort_t>&p, 
 	vector<uint16_t>& event) {

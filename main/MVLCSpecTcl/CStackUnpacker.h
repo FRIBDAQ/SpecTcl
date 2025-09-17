@@ -14,8 +14,8 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef CSTACKUNPACKER_H
-#define CSTACKUNPACKER_H
+#ifndef CSTACKUNPACKERMVLC_H
+#define CSTACKUNPACKERMVLC_H
 
 #include <EventProcessor.h>
 #include <TranslatorPointer.h>
@@ -39,7 +39,7 @@ class CBufferDecoder;
   need to know as well but we don't worry about that here.
 */
 
-class CStackUnpacker  : public CEventProcessor
+class CStackUnpackerMVLC  : public CEventProcessor
 {
 private:
   // data structures:
@@ -54,8 +54,8 @@ private:
 
   // Canonicals:
 public:
-  CStackUnpacker();
-  virtual ~CStackUnpacker();
+  CStackUnpackerMVLC();
+  virtual ~CStackUnpackerMVLC();
 
   // As we have no object data the default canonicals are just fine for us.
 
