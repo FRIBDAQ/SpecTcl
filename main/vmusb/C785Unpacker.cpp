@@ -100,6 +100,8 @@ C785Unpacker::~C785Unpacker() {}
 
      \note - Overflow and Underflow parameters are not transferred to parameters.
      \note - the data are in little-endian form.
+    \note issue #199 - added some #ifdefery for the MVLC which does not use 0xffffffff's to 
+          mark BERR's.  MVLC preprocessor #define indicates compilation for MVLCSpecTcl.
 */
 unsigned int
 C785Unpacker::operator()(CEvent&                       rEvent,
@@ -111,10 +113,11 @@ C785Unpacker::operator()(CEvent&                       rEvent,
   // Get the 'header' .. ensure that it is one and that it matches our VSN.
 
   unsigned long header=  getLong(event, offset);
+#ifndef MVLC
   if (header == 0xffffffff) {
     return offset+2;		// If immed BERR skip the BERR word and give up
   }
-
+#endif
   int           vsn   = (header & ALLH_GEOMASK) >> ALLH_GEOSHIFT;
   if(vsn != pMap->vsn) return offset;
 
@@ -161,11 +164,11 @@ C785Unpacker::operator()(CEvent&                       rEvent,
 
   // An extra 32 bits of 0xffffffff was read if not in a chain or if at
   // end of chain:
-
+#ifndef MVLC
   if (getLong(event, offset) == 0xffffffff) {
     offset += 2;
   }
-
+#endif
 
   return offset;
 }

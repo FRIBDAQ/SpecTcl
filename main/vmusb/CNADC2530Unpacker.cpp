@@ -84,7 +84,9 @@ CNADC2530Unpacker::~CNADC2530Unpacker()
      \retval offset to the first word of the event not processed by this member.
 
      \note - the data are in little endian form.
-
+    \note Issue #199 #ifdeffery is used to deal with differences between the MVLC and
+      VMUSB to allow this to be used in MVLCSpecTcl.  THe differences are that MVLC markers are 32 bits
+      and BERR terminate block reads don't insert a 0xffffffff marker.
 
 
 */
@@ -94,14 +96,21 @@ CNADC2530Unpacker::operator()(CEvent&                       rEvent,
 			      unsigned int                  offset,
 			      CParamMapCommand::AdcMapping* pMap)
 {
-  // Match our virtual slot number:
-
+  // Match our virtual slot number - this is a marker, 32 bits for MVLC
+  // 16 bits for VMUSB.
+#ifdef MVLC
+  uint32_t id = getLong(event, offset);
+  if (id != pMap->vsn) {
+    return offset;                     // Not our data.
+  }
+  offset += 2;
+#else
   uint16_t id = event[offset];
   if (id != pMap->vsn) {
     return offset;		// Not our data
   }
   offset++;
-
+#endif
   // Next is the NDMask and ND.
   // after the word count:
 
@@ -139,16 +148,16 @@ CNADC2530Unpacker::operator()(CEvent&                       rEvent,
 
     case TYPE_DATA:
       {
-	uint32_t adc    = datum & VALUE_MASK;
-	uint32_t chan   = (datum & CHAN_MASK) >> CHAN_SHIFT;
-	chan++; 			// The channels start at map[1].
-	int param       = pMap->map[chan];
-	if (param != -1) {	// It's mapped.
-	  if (!rEvent[param].isValid()     ||
-	      (rEvent[param] < adc)) { // Not yet set or we have a bigger adc value:
-	    rEvent[param] = adc;
-	  }
-	}
+        uint32_t adc    = datum & VALUE_MASK;
+        uint32_t chan   = (datum & CHAN_MASK) >> CHAN_SHIFT;
+        chan++; 			// The channels start at map[1].
+        int param       = pMap->map[chan];
+        if (param != -1) {	// It's mapped.
+          if (!rEvent[param].isValid()     ||
+              (rEvent[param] < adc)) { // Not yet set or we have a bigger adc value:
+            rEvent[param] = adc;
+          }
+        }
       }
       break;
 
@@ -166,7 +175,7 @@ CNADC2530Unpacker::operator()(CEvent&                       rEvent,
       // Stuff parameter 0 wioth timestamp if it's defined
       
       if (pMap->map[0] != -1) {
-	rEvent[pMap->map[0]] = timestamp;
+	      rEvent[pMap->map[0]] = timestamp;
       }
       break;
 

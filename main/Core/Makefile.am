@@ -107,7 +107,7 @@ Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
 	NSCLJumboBufferDecoder.h DopeVector.h 
 
-Event_noinst_INCLDES = EventMessage.h
+Event_noinst_INCLUDES = EventMessage.h
 
 # Removed TapeException.cpp, Tapefile
 
@@ -213,6 +213,7 @@ Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Di
 	CGammaSpectrum.h \
 	Spectrum1DL.h Spectrum1DW.h Spectrum1d.h Spectrum1d.hpp\
 	Spectrum2d.h Spectrum2d.hpp Gamma1D.h Gamma1D.hpp SummarySpectrum.hpp \
+	SummarySpectrum.h \
 	Spectrum2DB.h Spectrum2DW.h \
 	SpectrumFactory.h SpectrumFactoryException.h SummarySpectrumB.h \
 	SummarySpectrumW.h CAxis.h CParameterMapping.h SpectrumS.h \

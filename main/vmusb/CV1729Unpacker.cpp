@@ -111,6 +111,9 @@ CV1729Unpacker::~CV1729Unpacker() {}
  *                    provide data.
  * @return unsigned int
  * @retval Value of offset for next part of the event.
+ * @note Issue #199 - #ifdefery added to allow incorporation in MVLCSpecZTcl.  There markers are 32 bits
+ *  and BERR terminated reads don't leave a 0xffffffff in the data.  MVLCSpecTcl defines the preprocessor symbol
+ *  MVLC
  *
  */
 unsigned int
@@ -144,13 +147,12 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
     CSpectrum* pSpectra[4];
     for (int i = 0; i < 4; i++) {
       if (info.s_spectrumIndex < 2048) {
-	pSpectra[i] = info.s_Spectra[i][info.s_spectrumIndex];
-	if (pSpectra[i]) {
-	  pSpectra[i]->Clear();
-	}
-      }
-      else {
-	pSpectra[i] = 0;
+        pSpectra[i] = info.s_Spectra[i][info.s_spectrumIndex];
+        if (pSpectra[i]) {
+          pSpectra[i]->Clear();
+        }
+      } else {
+	      pSpectra[i] = 0;
       }
     }
     // Adapted from V1729.c generously handed to me for examination by CAEN
@@ -160,11 +162,11 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
     for (UInt_t i = 0; i < numSamples; i++) {
       UInt_t j = (2560 + i  + end_cell) % numCells;
       for (int d = 0; d < 4; d++) {
-	int ch   = channelOrder[d];
-	int data = event[sampleBegin + 4*j + d];
-	if (pSpectra[ch]) {
-	  pSpectra[ch]->set(&i, data);
-	}
+        int ch   = channelOrder[d];
+        int data = event[sampleBegin + 4*j + d];
+        if (pSpectra[ch]) {
+          pSpectra[ch]->set(&i, data);
+        }
       }
     }
   }
@@ -207,7 +209,7 @@ CV1729Unpacker::findSpectra(CParamMapCommand::AdcMapping& rMap)
       // Null the spectrum pointers:
 
       for (int spec = 0; spec < 2048; spec++) {
-	pSpectra->s_Spectra[chan][spec] = 0;
+	      pSpectra->s_Spectra[chan][spec] = 0;
       } 
 
       // If the parameter is defined and we can track down its name
@@ -215,17 +217,17 @@ CV1729Unpacker::findSpectra(CParamMapCommand::AdcMapping& rMap)
       // them into the struct.
 
       if (rMap.map[chan] != -1) {
-	CParameter* pParam = pApi->FindParameter(rMap.map[chan]);
-	if (pParam) {
-	  string baseName = pParam->getName();
-	  for (int i = 0; i < 2048; i++) {
-	    char spectrumName[2048];
-	    snprintf(spectrumName, sizeof(spectrumName), "%04d.%s",i, baseName.c_str());
-	    CSpectrum* pSpec = pApi->FindSpectrum(spectrumName);
-	    pSpectra->s_Spectra[chan][i] = pSpec; // Correct thing to do even if there's no match.
-	  }
+        CParameter* pParam = pApi->FindParameter(rMap.map[chan]);
+        if (pParam) {
+          string baseName = pParam->getName();
+          for (int i = 0; i < 2048; i++) {
+            char spectrumName[2048];
+            snprintf(spectrumName, sizeof(spectrumName), "%04d.%s",i, baseName.c_str());
+            CSpectrum* pSpec = pApi->FindSpectrum(spectrumName);
+            pSpectra->s_Spectra[chan][i] = pSpec; // Correct thing to do even if there's no match.
+          }
 
-	}
+        }
       }
     }
 

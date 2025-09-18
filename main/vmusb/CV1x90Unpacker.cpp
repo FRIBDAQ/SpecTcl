@@ -120,6 +120,10 @@ CV1x90Unpacker::~CV1x90Unpacker()
   \return int
   \retval Offset to the next chunk of the event.
 
+  \note Issue #199 Added ifdefery to allow this to be incorporated into the MVLCSpecTcl.
+    The difference we need to worry about is that the MVLC does not insert a 0xffffffff on a BERR
+    terminated block read.  The MVCLSpecTcl compilation defines MVLC to support this ifdefery.
+
 */
 unsigned int
 CV1x90Unpacker::operator() (CEvent&                      rEvent,
@@ -135,9 +139,11 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
   // and it should have a geo field that matches the vsn in our pMap element.
 
   uint32_t header = getLong(event, offset);
+#ifndef MVLC
   if (header == 0xffffffff) {
     return offset+2;
   }
+#endif
   if ((header & ITEM_TYPE) != TYPE_GBLHEAD) return offset; // not TDC data.
   
   if ((header & GBLHEAD_VSN ) != pMap->vsn) return offset;
@@ -194,8 +200,10 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
   }
   // If the next longword is a 0xffffffff that's due to the BERR
   // at the end of our readout:
-
+#ifndef MVLC
   if(getLong(event, offset) == 0xffffffff) offset += 2;
+#endif
+
 
   // If we got no hits (just tdc headers/trailers don't do anything.
 
@@ -205,17 +213,16 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
     // Two cases to consider.  If the reference channel number is -1
     // there's no reference channel..otherwised there is:
     //
-    int32_t reftime = 0;		// Default to no reference chhanel:
+    int32_t reftime = 0;		// Default to no reference channel:
     if (info.s_refchannel >= 0) {	//  Reference channel used:
 
 
       if (rawTimes[info.s_refchannel].size() > 0) {
-	reftime = rawTimes[info.s_refchannel][0];
-      }
-      else {
-	std::cerr << "-- TDC data with no hits in reference time discarded from vsn: ";
-	std::cerr << pMap->vsn << std::endl;
-	return offset;
+	      reftime = rawTimes[info.s_refchannel][0];
+      } else {
+        std::cerr << "-- TDC data with no hits in reference time discarded from vsn: ";
+        std::cerr << pMap->vsn << std::endl;
+        return offset;
       }
     }
 
@@ -225,15 +232,15 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
     for (int i = 0; i < info.s_channelCount; i++) {
       int hits = rawTimes[i].size();
       if (hits > info.s_depth) hits = info.s_depth;
-      CTreeParameterArray* pArray = info.s_parameters[i];
+        CTreeParameterArray* pArray = info.s_parameters[i];
       if (pArray) {		// No parameter defined.
-	CTreeParameterArray&  Array(*pArray);
-	for (int hit =0; hit < hits; hit++) {
-	  double triggerRelative = static_cast<double>(rawTimes[i][hit] - reftime);
-	  triggerRelative        = triggerRelative*info.s_chansToNs;
-	
-	  Array[hit] = triggerRelative;	// common stop assumption.
-	}
+        CTreeParameterArray&  Array(*pArray);
+        for (int hit =0; hit < hits; hit++) {
+          double triggerRelative = static_cast<double>(rawTimes[i][hit] - reftime);
+          triggerRelative        = triggerRelative*info.s_chansToNs;
+        
+          Array[hit] = triggerRelative;	// common stop assumption.
+        }
       }
     }
   } // Have some hits.

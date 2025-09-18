@@ -88,6 +88,8 @@ CMDPP32QDCUnpacker::~CMDPP32QDCUnpacker()
      \note - the data are in little-endian form.
      \note - in single event mode, buffer overflows are not possible so we ignore the
              header error flag.
+      \note #ifdeffery is useed to allow this to compile as well for MVLCSpecTcl
+        (issue #199).  The MVLC preprocessor symbol is defined for that compilation.
 */
 unsigned int
 CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
@@ -97,7 +99,7 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
 {
     // Get the 'header' and be sure it actually is a header and for our module id.
     uint32_t header = getLong(event, offset);
-
+#ifndef MVLC
     if (header == 0xffffffff) {	// if no data, there will be just the two words of 0xffffffff
         uint32_t ender = getLong(event, offset + 2);
         if (ender == 0xffffffff) { // When multievent=3, there's another BERR
@@ -106,7 +108,7 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
 
         return offset + 2;
     }
-
+#endif
     uint32_t type   = (header & ALL_TYPEMASK) >> ALL_TYPESHFT;
     if (type != TYPE_HEADER) { return offset; }
 
@@ -163,12 +165,15 @@ CMDPP32QDCUnpacker::operator()(CEvent&                       rEvent,
         cerr << __func__ << ": Something wrong with the data - 0x" << hex << datum << dec << endl;
         return offset - 2; // Really should not happen!!
     }
-
+#ifndef MVLC
     uint32_t ender = getLong(event, offset + 2);
     if (ender == 0xffffffff) { // When multievent=3, there's another BERR
 					   return offset + 4;
 				}
     // There will be a 0xffffffff longword for the BERR at the end of the
     // readout.
-    return offset + 2;
+
+    offset += 2;
+#endif
+    return offset;
 }

@@ -938,8 +938,6 @@ AC_MSG_NOTICE([Building and installing CutiePie])
 result=$?
 AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install CutiePie with result: ${result}]))
 
-######################################## Checks for ZMQ
-AX_ZMQ
 
 ######################################## Checks for Root 
 
@@ -1084,7 +1082,7 @@ AC_OUTPUT(Makefile
           contrib/treeparam/Makefile
           mpi/Makefile
           compress/Makefile
-	  RootInterface/Makefile
+	        RootInterface/Makefile
           Core/Makefile 
           ccusb/Makefile
           ccusb/MakefileSkel
@@ -1102,7 +1100,7 @@ AC_OUTPUT(Makefile
           filtsplit/Makefile
           Gui/Makefile
           Replace/Makefile
-	  scalerWrapper/Makefile
+	        scalerWrapper/Makefile
           Scripts/Makefile 
           SpecTcl/Makefile
           splash/Makefile
@@ -1115,12 +1113,12 @@ AC_OUTPUT(Makefile
           Utility/daqdefs.tcl 
           vmusb/Makefile
           vmusb/MakefileSkel 
+          MVLCSpecTcl/Makefile
+	  MVLCSpecTcl/MakefileSkel
           Python/Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
 	  ddas/src/Makefile_user
-	  packaged/Makefile
-	  packaged/Makefile_skel
 	  db/Makefile
 	  restclient/Makefile
 	  xaminerunner/Makefile
@@ -1133,3 +1131,7 @@ AC_OUTPUT(Makefile
     rootFilterFormat/Makefile
 	  )
           
+
+
+#	  packaged/Makefile
+#	  packaged/Makefile_skel

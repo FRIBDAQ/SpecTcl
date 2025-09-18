@@ -90,6 +90,8 @@ CMDPP32SCPSROSoftTriggerUnpacker::~CMDPP32SCPSROSoftTriggerUnpacker()
      \note - the data are in little-endian form.
      \note - in single event mode, buffer overflows are not possible so we ignore the
              header error flag.
+      \note Issue #199;  #ifdefery is used to allow this to work in MVLCSpecTcl.  The MVLC
+        does not mark BERR reads with 0xffffffff
 */
 unsigned int
 CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEvent,
@@ -103,11 +105,11 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
         uint32_t firstItem = getLong(event, offset);
 
         uint32_t secondItem = getLong(event, offset + 2);
-
+#ifndef MVLC
         if (firstItem == 0xffffffff && secondItem == 0xffffffff) {	// if no header, there will be just the two words of 0xffffffff
             return offset + 4;
         }
-
+#endif
         // Get the 'header' and be sure it actually is a header and for our module id.
         uint32_t header = getLong(event, offset);
     
@@ -176,5 +178,8 @@ CMDPP32SCPSROSoftTriggerUnpacker::operator()(CEvent&                       rEven
     
     // There will be a 0xffffffff longword for the BERR at the end of the
     // readout.
-    return offset + 2;
+#ifndef MVLC
+    offset += 2;
+#endif
+    return offset;
 }
