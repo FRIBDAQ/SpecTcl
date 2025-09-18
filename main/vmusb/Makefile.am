@@ -117,7 +117,7 @@ install-exec-local:
 	done
 
 
-EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  vmusb.xml constants.tcl SpecTclRC.tcl
+EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  vmusb.xml constants.tcl SpecTclRC.tcl SpecTclInit.tcl
 
 BUILT_SOURCES = @builddir@/docs_built
 
