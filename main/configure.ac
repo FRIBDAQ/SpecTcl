@@ -1119,8 +1119,6 @@ AC_OUTPUT(Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
 	  ddas/src/Makefile_user
-	  packaged/Makefile
-	  packaged/Makefile_skel
 	  db/Makefile
 	  restclient/Makefile
 	  xaminerunner/Makefile
@@ -1133,3 +1131,7 @@ AC_OUTPUT(Makefile
     rootFilterFormat/Makefile
 	  )
           
+
+
+#	  packaged/Makefile
+#	  packaged/Makefile_skel
