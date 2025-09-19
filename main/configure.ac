@@ -467,112 +467,70 @@ fi
 # Checks for include declarations
 
 
-# These checks are for declarations within specific system headers. For
-# instance, MTSETBLK is not declared in sys/mtio.h on all platforms, but
-# is needed on Linux.
-
-	# MTSETBLK in sys/mtio.h
-AC_MSG_CHECKING([for MTSETBLK in sys/mtio.h])
-    AC_TRY_COMPILE([
-#include <sys/mtio.h>
-#ifndef MTSETBLK
-#  error mtsetblk not defined
-#endif
-], , my_cv_have_mtsetblk=yes, my_cv_have_mtsetblk=no)
-    if test $my_cv_have_mtsetblk = yes ; then
-	AC_DEFINE(HAVE_DECL_MTSETBLK, 1, [True if MTSETBLK defined in sys/mtio.h])
-    fi
-AC_MSG_RESULT($my_cv_have_mtsetblk)
-
-	# MTOVERRUN in sys/mtio.h
-AC_MSG_CHECKING([for MTOVERRUN in sys/mtio.h])
-    AC_TRY_COMPILE([
-#include <sys/mtio.h>
-#ifndef MTOVERRUN
-# error overrun not defined
-#endif
-], , my_cv_have_mtoverrun=yes, my_cv_have_mtoverrun=no)
-    if test $my_cv_have_mtoverrun = yes ; then
-	AC_DEFINE(HAVE_DECL_MTOVERRUN, 1, [True if MTOVERRUN defined in sys/mtio.h])
-    fi
-AC_MSG_RESULT($my_cv_have_mtoverrun)
-
-
-	# MTCSE in sys/mtio.h
-AC_MSG_CHECKING([for MTCSE in sys/mtio.h])
-    AC_TRY_COMPILE([
-#include <sys/mtio.h>
-#ifndef MTCSE
-# error mtcse not defined
-#endif
-], , my_cv_have_mtcse=yes, my_cv_have_mtcse=no)
-    if test $my_cv_have_mtcse = yes ; then
-	AC_DEFINE(HAVE_DECL_MTCSE, 1, [True if MTCSE defined in sys/mtio.h])
-    fi
-AC_MSG_RESULT($my_cv_have_mtcse)
 
 	# PAGESIZE in limits.h
 AC_MSG_CHECKING([for PAGESIZE in limits.h])
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <limits.h>
 #ifndef PAGESIZE
 # error pagesize not defined
 #endif
-], , my_cv_have_pagesize=yes, my_cv_have_pagesize=no)
-    if test $my_cv_have_pagesize = yes ; then
-	AC_DEFINE(HAVE_DECL_PAGESIZE, 1, [True if PAGESIZE is defined in limits.h as on HP-UX])
-    fi
-AC_MSG_RESULT($my_cv_have_pagesize)
+])],
+AC_DEFINE(HAVE_DECL_PAGESIZE, 1, [True if PAGESIZE is defined in limits.h as on HP-UX]),
+AC_MSG_NOTICE([PAGESIZE is not defined in limits.h]))
 
-	# PADSIZE in limits.h
+
+# PADSIZE in limits.h
 AC_MSG_CHECKING([for PADSIZE in limits.h])
-    AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <limits.h>
 #ifndef PADSIZE
 # error padsize not defined
 #endif
-], , my_cv_have_padsize=yes, my_cv_have_padsize=no)
-    if test $my_cv_have_padsize = yes ; then
-	AC_DEFINE(HAVE_DECL_PADSIZE, 1, [True if PADSIZE defined in limits.h])
-    fi
-AC_MSG_RESULT($my_cv_have_padsize)
+])],
+AC_DEFINE(HAVE_DECL_PADSIZE, 1, [True if PADSIZE defined in limits.h]),
+AC_MSG_NOTICE(["PADSIZE not defined in limit.sh])
+)
+
 
 	# INT_MAX in limits.h
 AC_MSG_CHECKING([for INT_MAX in limits.h])
-    AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <limits.h>
 #ifndef INT_MAX
 # error intmax not defined
 #endif
-], , my_cv_have_int_max=yes, my_cv_have_int_max=no)
-    if test $my_cv_have_int_max = yes ; then
+])],  my_cv_have_int_max=yes, my_cv_have_int_max=no)
+
+if test $my_cv_have_int_max = yes ; then
 	AC_DEFINE(HAVE_DECL_INT_MAX, 1, [True if INT_MAX defined in limits.h])
-    fi
+fi
 AC_MSG_RESULT($my_cv_have_int_max)
 
 	# MAXINT in values.h
 AC_MSG_CHECKING([for MAXINT in values.h])
-    AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <values.h>
 #ifndef MAXINT
 # error maxint not defined
 #endif
-], , my_cv_have_maxint=yes, my_cv_have_maxint=no)
-    if test $my_cv_have_maxint = yes ; then
+])],  my_cv_have_maxint=yes, my_cv_have_maxint=no)
+    if test "$my_cv_have_maxint" = "yes"
+    then
 	AC_DEFINE(HAVE_DECL_MAXINT, 1, [True if MAXINT defined in values.h])
     fi
 AC_MSG_RESULT($my_cv_have_maxint)
 
 	# Check for 64 bit longs
 AC_MSG_CHECKING([whether long int is 64 bits])
-    AC_TRY_RUN([
+    AC_TRY_RUN(AC_LANG_SOURCE([
 int main(int argc, char **argv) {
 	if(sizeof(long) == 8)
 		return 0;
 	else
 		return 1;
 }  
-], [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
+]), [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
 
 
 
