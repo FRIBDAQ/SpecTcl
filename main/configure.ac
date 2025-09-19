@@ -1,4 +1,4 @@
- Process this file with autoconf to produce a configure script.
+# Process this file with autoconf to produce a configure script.
 
 AC_INIT(SpecTcl,7.0-003, daqhelp@frib.msu.edu)
 
