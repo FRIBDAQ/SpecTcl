@@ -1082,7 +1082,7 @@ AC_SUBST(MANDOCBOOK)
 # create output files.
 # Removed           Tape/Makefile
 
-AC_OUTPUT(Makefile 
+AC_CONFIG_FILES(Makefile 
           calibratedparams/Makefile 
           contrib/Makefile
           contrib/scriptable/Makefile
@@ -1140,7 +1140,5 @@ AC_OUTPUT(Makefile
     rootFilterFormat/Makefile
 	  )
           
+AC_OUTPUT
 
-
-#	  packaged/Makefile
-#	  packaged/Makefile_skel
