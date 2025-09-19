@@ -1,10 +1,10 @@
-# Process this file with autoconf to produce a configure script.
+ Process this file with autoconf to produce a configure script.
 
 AC_INIT(SpecTcl,7.0-003, daqhelp@frib.msu.edu)
 
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE([tar-ustar foreign])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -97,7 +97,14 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AM_PROG_LEX
+
+AC_MSG_CHECKING([Checking for FLEX/LEX])
+AC_PROG_LEX([yywrap])
+if test "$LEX" = ":"
+then
+   AC_MSG_ERROR([FLEX/LEX not found needed by Xamine])
+fi
+
 AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
