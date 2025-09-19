@@ -107,7 +107,7 @@ fi
 
 AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
-AC_PROG_LIBTOOL
+LT_INIT
 
 # Is GIT installed?
 
@@ -158,21 +158,23 @@ AH_TEMPLATE([SPECTCL_5_INIT],
 AC_DEFINE(SPECTCL_5_INIT)
 
 # Checks for header files.
-AC_HEADER_STDC
+#   AC_HEADER_STDC   # No longer needed.
+
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADER(time.h)
 AC_CHECK_HEADERS([fcntl.h limits.h malloc.h memory.h stddef.h stdlib.h strings.h string.h sys/file.h sys/ioctl.h sys/socket.h sys/time.h unistd.h values.h windows.h machine/hal_sysinfo.h sys/proc.h sys/mtio.h sys/mman.h sys/ipc.h sys/shm.h machine/param.h sys/un.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
-AC_HEADER_TIME
+#AC_HEADER_TIME   # Obsolete. see below.
+AC_CHECK_HEADERS([sys/time.h])
 AC_STRUCT_TM
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_OFF_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-AC_TYPE_SIGNAL
+#AC_TYPE_SIGNAL   # No longer needed.
 
 # Checks for library functions.
 AC_FUNC_MMAP
@@ -530,14 +532,14 @@ AC_MSG_RESULT($my_cv_have_maxint)
 
 	# Check for 64 bit longs
 AC_MSG_CHECKING([whether long int is 64 bits])
-    AC_TRY_RUN(AC_LANG_SOURCE([
+    AC_RUN_IFELSE([AC_LANG_SOURCE([
 int main(int argc, char **argv) {
 	if(sizeof(long) == 8)
 		return 0;
 	else
 		return 1;
 }  
-]), [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
+])], [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
 
 
 
