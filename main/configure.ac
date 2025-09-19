@@ -107,6 +107,15 @@ AC_PROG_LIBTOOL
 AC_CHECK_PROG(GIT, git, git, :)
 AC_SUBST(GIT)
 
+# Pandoc for Markdown docs:
+
+AC_CHECK_PROG(PANDOC, pandoc, pandoc, no)
+if test "x$PANDOC" = "xno"
+then
+  AC_MSG_ERROR([pandoc must be installed in the path to build some documentation])
+fi
+AC_SUBST(PANDOC)
+
 #
 
 # PYthon C/C++ extension environment build flags:
