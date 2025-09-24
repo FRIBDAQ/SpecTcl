@@ -15,8 +15,8 @@ COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' \
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
 
-Trace_INCLUDES=CWaveForm.h
-Trace_SRC=CWaveForm.cpp
+Trace_INCLUDES=CWaveForm.h CWaveFormDictionary.h
+Trace_SRC=CWaveForm.cpp CWaveFormDictionary.cpp
 
 
 Tcp_SRC = io.cpp  os.cpp \
