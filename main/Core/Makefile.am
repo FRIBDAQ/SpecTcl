@@ -15,6 +15,10 @@ COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' \
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
 
+Trace_INCLUDES=CWaveForm.h
+Trace_SRC=CWaveForm.cpp
+
+
 Tcp_SRC = io.cpp  os.cpp \
 	CSocket.cpp         \
            CSocket.h  \
@@ -389,7 +393,8 @@ libTclGrammerApp_la_SOURCES = $(DecoderRing_SRC) \
 				$(TreeParam_SRC) \
 				$(Xamine_SRC) \
 				$(Mirror_Src)  \
-				$(NewAnalysis_SRC)
+				$(NewAnalysis_SRC) \
+				$(Trace_SRC)
 
 # Removed -I@top_srcdir@/Tape
 
@@ -432,7 +437,8 @@ include_HEADERS = 		$(DecoderRing_INCLUDES) \
 				$(TreeParam_INCLUDES) \
 				$(Xamine_INCLUDES) \
 				$(Mirror_Includes) \
-				$(NewAnalysis_INCLUDES)
+				$(NewAnalysis_INCLUDES) \
+				$(Trace_INCLUDES)
 
 noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) $(Event_noinst_INCLUDES)
 
