@@ -129,7 +129,7 @@ CWaveform::size() const {
 void
 CWaveform::resize(unsigned nSamples) {
     m_trace.resize(nSamples);
-    memcpy(m_trace.data(), 0, nSamples*sizeof(uint16_t));
+    memset(m_trace.data(), 0, nSamples*sizeof(uint16_t));
 }
 
 
