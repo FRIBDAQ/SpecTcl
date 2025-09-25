@@ -48,6 +48,10 @@ class WFDictTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(size_1);
     CPPUNIT_TEST(size_2);
     CPPUNIT_TEST(size_3);
+
+    CPPUNIT_TEST(find_1);
+    CPPUNIT_TEST(find_2);
+    CPPUNIT_TEST(find_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -65,6 +69,10 @@ protected:
     void size_1();
     void size_2();
     void size_3();
+
+    void find_1();
+    void find_2();
+    void find_3();
 public:
     void setUp() {
         // destroy the dictionary:
@@ -202,4 +210,51 @@ WFDictTests::size_3() {
     d.remove("curly");
 
     EQ(size_t(3), d.size());
+}
+
+// test find method:
+
+void
+WFDictTests::find_1() {
+    // Can find the one I put in:
+
+    auto& d = CWaveFormDictionary::getInstance();
+
+    d.add(CWaveform("test", 100));
+    CPPUNIT_ASSERT_NO_THROW({
+        auto& wf = d.find("test");
+        EQ(std::string("test"), wf.getName());
+    });
+}
+void
+WFDictTests::find_2() {
+    // can find the right one of several:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    d.add(CWaveform("larry", 100));
+    d.add(CWaveform("curly", 100));
+    d.add(CWaveform("moe", 100));
+    d.add(CWaveform("shemp", 100));
+
+    CPPUNIT_ASSERT_NO_THROW({
+        auto& wf = d.find("curly");
+        EQ(std::string("curly"), wf.getName());
+    });
+
+}
+void
+WFDictTests::find_3()
+{ 
+    // Find no such throws:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    d.add(CWaveform("larry", 100));
+    d.add(CWaveform("curly", 100));
+    d.add(CWaveform("moe", 100));
+    d.add(CWaveform("shemp", 100));
+
+    CPPUNIT_ASSERT_THROW(
+        d.find("test"),
+        CNoSuchObjectException
+    );
 }
