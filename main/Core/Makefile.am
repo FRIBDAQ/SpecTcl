@@ -578,7 +578,7 @@ fribfiltertests_SOURCES=TestRunner.cpp fribfiltertests.cpp \
 
 waveformtests_CXXFLAGS=$(commonTestCXXFLAGS)
 waveformtests_LDADD=$(commonTestLdFlags)
-waveformtests_SOURCES=TestRunner.cpp
+waveformtests_SOURCES=TestRunner.cpp waveformtests.cpp
 
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
