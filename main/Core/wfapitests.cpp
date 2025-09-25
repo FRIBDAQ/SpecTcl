@@ -38,6 +38,8 @@ class WFAPITests : public CppUnit::TestFixture {
     CPPUNIT_TEST(remove_1);
     CPPUNIT_TEST(count_1);
     CPPUNIT_TEST(count_2);
+    CPPUNIT_TEST(find_1);
+    CPPUNIT_TEST(find_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -45,6 +47,8 @@ protected:
     void remove_1();
     void count_1();
     void count_2();
+    void find_1();
+    void find_2();
 public:
     void setUp() {
         // new dictionary for each test:
@@ -93,4 +97,27 @@ WFAPITests::count_2() {
     pApi->addWaveform(CWaveform("Test", 100));
 
     EQ(size_t(1), pApi->waveformCount());
+}
+
+// test find
+
+void
+WFAPITests::find_1() {
+    // successful find:
+    auto pApi = SpecTcl::getInstance();
+    pApi->addWaveform(CWaveform("Test", 100));
+
+    auto p = pApi->findWaveform("Test");
+    ASSERT(p);
+    EQ(std::string("Test"), p->getName());
+}
+void
+WFAPITests::find_2() {
+    // failed find gives null wihtout exception:
+
+    auto pApi = SpecTcl::getInstance();
+
+    CWaveform* p;
+    CPPUNIT_ASSERT_NO_THROW(p = pApi->findWaveform("test"));
+    ASSERT(!p);
 }
