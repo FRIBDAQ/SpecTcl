@@ -3005,7 +3005,7 @@ SpecTcl::addFilterOutputFormat(CFilterOutputStageCreator& creator)
  * @todo - handle in mpiSpecTcl case.
  */
 void
-SpecTcl::addWaveform(CWaveform& wf) {
+SpecTcl::addWaveform(const CWaveform& wf) {
   auto& dict = CWaveFormDictionary::getInstance(); 
   dict.add(wf);
 }

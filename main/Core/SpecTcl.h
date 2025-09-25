@@ -418,7 +418,7 @@ public:
   
   // Waveform API:
 
-  void addWaveform(CWaveform& wf);
+  void addWaveform(const CWaveform& wf);
   void removeWaveform(const char* name);
   size_t waveformCount();
   CWaveform* findWaveform(const char* name);
