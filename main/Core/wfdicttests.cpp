@@ -40,6 +40,10 @@ class WFDictTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(add_1);
     CPPUNIT_TEST(add_2);
     CPPUNIT_TEST(add_2);
+
+    CPPUNIT_TEST(remove_1);
+    CPPUNIT_TEST(remove_2);
+    CPPUNIT_TEST(remove_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -49,6 +53,10 @@ protected:
     void add_1();
     void add_2();
     void add_3();
+
+    void remove_1();
+    void remove_2();
+    void remove_3();
 public:
     void setUp() {
         // destroy the dictionary:
@@ -114,5 +122,42 @@ WFDictTests::add_3() {
     CPPUNIT_ASSERT_THROW(
         d.add(CWaveform("test", 150)),
         CDuplicateSingleton
+    );
+}
+// Test remove method:
+
+void
+WFDictTests::remove_1() {
+     // An item is removed:
+
+     auto& d = CWaveFormDictionary::getInstance();
+     d.add(CWaveform("test", 100));
+     CPPUNIT_ASSERT_NO_THROW(d.remove("test"));
+
+     EQ(size_t(0), d.m_dict.size());
+}
+
+void 
+WFDictTests::remove_2() {
+    // the right one is removed of 2:
+
+    auto& d = CWaveFormDictionary::getInstance();
+
+    d.add(CWaveform("test", 100));
+    d.add(CWaveform("TEST", 100));
+
+    CPPUNIT_ASSERT_NO_THROW(d.remove("test"));   // the lower case one.
+
+    EQ(size_t(1), d.m_dict.size());             // still one left.
+    ASSERT(d.m_dict.find("TEST") != d.m_dict.end());  // the right one is still left.
+}
+void
+WFDictTests::remove_3() {
+    // removing nonexisting throws:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    CPPUNIT_ASSERT_THROW(
+        d.remove("test"),
+        CNoSuchObjectException
     );
 }
