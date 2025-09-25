@@ -44,7 +44,7 @@ private:
 
 public:
     static CWaveFormDictionary& getInstance();
-    void clear();                       // For testing.
+    
 
     // Dictionary modification
 

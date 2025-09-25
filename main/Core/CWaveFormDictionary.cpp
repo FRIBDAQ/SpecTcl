@@ -55,13 +55,7 @@ CWaveFormDictionary::getInstance() {
     }
     return *m_pInstance;
 }
-/**
- * unit testing demands that we be able to return the dictionary to empty between tests:
- */
-void
-CWaveFormDictionary::clear() {
-    m_dict.clear();
-}
+
 /**
  * add
  *    Add a _copy_ of a waveform object to the dictionary. 
