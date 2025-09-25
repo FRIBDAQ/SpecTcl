@@ -44,6 +44,10 @@ class WFDictTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(remove_1);
     CPPUNIT_TEST(remove_2);
     CPPUNIT_TEST(remove_3);
+
+    CPPUNIT_TEST(size_1);
+    CPPUNIT_TEST(size_2);
+    CPPUNIT_TEST(size_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -57,6 +61,10 @@ protected:
     void remove_1();
     void remove_2();
     void remove_3();
+
+    void size_1();
+    void size_2();
+    void size_3();
 public:
     void setUp() {
         // destroy the dictionary:
@@ -160,4 +168,38 @@ WFDictTests::remove_3() {
         d.remove("test"),
         CNoSuchObjectException
     );
+}
+// Test the size method:
+
+void 
+WFDictTests::size_1() {
+    // initially 0:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    EQ(size_t(0), d.size());
+}
+void
+WFDictTests::size_2() {
+    // IF I put one in, size is 1.
+
+    auto& d = CWaveFormDictionary::getInstance();
+
+    d.add(CWaveform("test", 100));
+
+    EQ(size_t(1), d.size());
+}
+
+void
+WFDictTests::size_3() {
+    // I put four in and take one  out I have three:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    d.add(CWaveform("larry", 100));
+    d.add(CWaveform("curly", 100));
+    d.add(CWaveform("moe", 100));
+    d.add(CWaveform("shemp", 100));
+
+    d.remove("curly");
+
+    EQ(size_t(3), d.size());
 }
