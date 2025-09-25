@@ -40,6 +40,7 @@
 #include <TCLAnalyzer.h>
 #include <EventSinkPipeline.h>
 #include <AttachCommand.h>
+#include "CWaveFormDictionary.h"
 
 // Forward class definitions
 
@@ -58,7 +59,7 @@ class CDisplayInterface;
 
 class CFilterOutputStageCreator;
 class CGatedEventFilter;
-
+class CWaveform;
 
 /*!
   Top level class that provides the user's application programming interface to
@@ -415,6 +416,14 @@ public:
   void               deleteFilter(std::string filterName);
   void               addFilterOutputFormat(CFilterOutputStageCreator& creator);
   
+  // Waveform API:
+
+  void addWaveform(CWaveform& wf);
+  void removeWaveform(const char* name);
+  size_t waveformCount();
+  CWaveform* findWaveform(const char* name);
+  CWaveFormDictionary::Dictionary_t::iterator waveformBegin();
+  CWaveFormDictionary::Dictionary_t::iterator waveformEnd();
 
   // Expose the guts for the really curious and those who need more
   // than we can offer.

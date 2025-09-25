@@ -2991,7 +2991,82 @@ SpecTcl::addFilterOutputFormat(CFilterOutputStageCreator& creator)
   CFilterOutputStageFactory& fact(CFilterOutputStageFactory::getInstance());
   fact.Register(creator);
 }
+/////// API foir waveform objects:
 
+/**
+ * addWaveform
+ *    Add a waveform object to the waveform dictionary.
+ * @param wf - references the waveform to add. 
+ * @note     - the waveform is _copied_ into the dictionary so to
+ *             actually manipulate it you need to find it to get the
+ *             instance in the dictionary.  This deals with any object lifetime
+ *             issues.
+ * @throw  CDuplicateSingleton if a waverform with that name already exists.
+ * @todo - handle in mpiSpecTcl case.
+ */
+void
+SpecTcl::addWaveform(CWaveform& wf) {
+  auto& dict = CWaveFormDictionary::getInstance(); 
+  dict.add(wf);
+}
+/**
+ * removeWaveform
+ *     Removes a named waveform from the dictionary.
+ * 
+ *  @param name - name of the waveform.
+ *  @throw CNoSuchObjectException if there's no such waveform.
+ *  @todo - handle in mpiSpecTcl case.
+ */
+void
+SpecTcl::removeWaveform(const char* name) {
+  auto& dict = CWaveFormDictionary::getInstance();
+  dict.remove(name);
+}
+/**
+ * waveformCount
+ *    @return size_t - number of waveforms that are defined.
+ */
+size_t
+SpecTcl::waveformCount() {
+  return CWaveFormDictionary::getInstance().size();
+}
+/**
+ *  findWaveform
+ *     @return CWaveform* - pointer to the named waveform in the dict.
+ *     @retval nullptr - if there's no such named waveform.
+ * 
+ * @todo - handle in mpiSpecTcl case.
+ */
+CWaveform*
+SpecTcl::findWaveform(const char* name) {
+  auto& dict = CWaveFormDictionary::getInstance();
+
+  try {
+    return &dict.find(name);
+  }
+  catch(...) {
+    return nullptr;
+  }
+}
+/**
+ * waveformBegin()
+ *   @return CWaveFormDictionary::Dictionary_t::iterator - iterator to the beginning of the dictionary.
+ *   @todo handle mpiSpecTcl case.
+ */
+CWaveFormDictionary::Dictionary_t::iterator
+SpecTcl::waveformBegin() {
+  return CWaveFormDictionary::getInstance().begin();
+}
+
+/**
+ * waveformEnd()
+ *    @return CWaveFormDictionary::Dictionary_t::iterator - iterator to end of dictioanry iteration.
+ *    @todo mpiSpecTcl case.
+ */
+CWaveFormDictionary::Dictionary_t::iterator
+SpecTcl::waveformEnd() {
+  return CWaveFormDictionary::getInstance().end();
+}
 /*!
    Get a pointer to the TCLinterpreter.
 */

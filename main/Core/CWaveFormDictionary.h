@@ -35,6 +35,13 @@ private:
     CWaveFormDictionary();
     ~CWaveFormDictionary();
 
+    // These are completely forbidden:
+private:
+    CWaveFormDictionary(const CWaveFormDictionary&);
+    CWaveFormDictionary& operator=(const CWaveFormDictionary&);
+    int operator==(const CWaveFormDictionary&) const;
+    int operator!=(const CWaveFormDictionary&) const;
+
 public:
     static CWaveFormDictionary& getInstance();
     void clear();                       // For testing.
