@@ -25,6 +25,7 @@
 #include "CWaveForm.h"
 #undef private
 
+#include <CNoSuchObjectException.h>
 class WaveformTests : public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(WaveformTests);
 CPPUNIT_TEST(construct_1);
@@ -32,6 +33,10 @@ CPPUNIT_TEST(construct_2);
 CPPUNIT_TEST(setmd_1);
 CPPUNIT_TEST(setmd_2);
 CPPUNIT_TEST(setmd_3);
+CPPUNIT_TEST(getmd_1);
+CPPUNIT_TEST(getmd_2);
+CPPUNIT_TEST(getmd_3);
+CPPUNIT_TEST(getmd_4);
 CPPUNIT_TEST_SUITE_END();
 
 
@@ -42,6 +47,11 @@ protected:
     void setmd_1();
     void setmd_2();
     void setmd_3();
+
+    void getmd_1();
+    void getmd_2();
+    void getmd_3();
+    void getmd_4();
 
 public:
     void setUp() {
@@ -105,4 +115,68 @@ WaveformTests::setmd_3() {
 
     EQ(std::string("junk"), wf.m_metadata["test1"]);
     EQ(std::string("trash"), wf.m_metadata["test2"]);
+}
+
+// Getting metadata.
+void
+WaveformTests::getmd_1() {
+    // No such metadata thows a no such object exception.
+
+    CWaveform wf ("Test", 100);
+
+    CPPUNIT_ASSERT_THROW(
+        wf.getMetadata("test"),
+        CNoSuchObjectException
+    );
+}
+
+void
+WaveformTests::getmd_2() {
+    // Getting one of one metadata:
+
+
+    CWaveform wf("test", 100);
+    wf.setMetadata("test", "junk");
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(
+        value = wf.getMetadata("test")
+    );
+    EQ(std::string("junk"), value);
+}
+void
+WaveformTests::getmd_3() {
+    // Got the right one from 'many'.
+
+    CWaveform wf("test", 100);
+    wf.setMetadata("test1", "junk");
+    wf.setMetadata("test2", "trash");
+
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(
+        value = wf.getMetadata("test1")
+    );
+    EQ(std::string("junk"), value);
+
+    CPPUNIT_ASSERT_NO_THROW(
+        value = wf.getMetadata("test2")
+    );
+    EQ(std::string("trash"), value);
+}
+
+void
+WaveformTests::getmd_4() {
+    // Get the whole lot of the metadata:
+
+    CWaveform wf("test", 100);
+    wf.setMetadata("stooge1", "larry");
+    wf.setMetadata("stooge2", "curly");
+    wf.setMetadata("stooge3", "moe");
+    wf.setMetadata("stoogeextra", "shemp");  // there reeally were 4 stooges :-)
+
+    auto md = wf.getMetadata();
+    EQ(size_t(4), md.size());
+    EQ(std::string("larry"), md["stooge1"]);
+    EQ(std::string("curly"), md["stooge2"]);
+    EQ(std::string("moe"), md["stooge3"]);
+    EQ(std::string("shemp"), md["stoogeextra"]);
 }
