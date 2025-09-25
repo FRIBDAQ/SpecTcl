@@ -36,11 +36,15 @@ class WFAPITests : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(WFAPITests);
     CPPUNIT_TEST(add_1);
     CPPUNIT_TEST(remove_1);
+    CPPUNIT_TEST(count_1);
+    CPPUNIT_TEST(count_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
     void add_1();
     void remove_1();
+    void count_1();
+    void count_2();
 public:
     void setUp() {
         // new dictionary for each test:
@@ -72,4 +76,21 @@ WFAPITests::remove_1() {
 
     pApi->removeWaveform("test");
     EQ(size_t(0), CWaveFormDictionary::getInstance().size());
+}
+// Count:
+
+void
+WFAPITests::count_1() {
+    // initially 0:
+
+    EQ(size_t(0), SpecTcl::getInstance()->waveformCount());
+}
+void
+WFAPITests::count_2() {
+    // if I add one it's in the count:
+
+    auto pApi = SpecTcl::getInstance();
+    pApi->addWaveform(CWaveform("Test", 100));
+
+    EQ(size_t(1), pApi->waveformCount());
 }
