@@ -42,6 +42,9 @@ CPPUNIT_TEST(getmd_3);
 CPPUNIT_TEST(getmd_4);
 CPPUNIT_TEST(update_1);
 CPPUNIT_TEST(update_2);
+CPPUNIT_TEST(size_1);
+CPPUNIT_TEST(size_2);
+CPPUNIT_TEST(size_3);
 CPPUNIT_TEST_SUITE_END();
 
 
@@ -60,6 +63,10 @@ protected:
 
     void update_1();
     void update_2();
+
+    void size_1();
+    void size_2();
+    void size_3();
 
 public:
     void setUp() {
@@ -216,6 +223,46 @@ WaveformTests::update_2() {
     CWaveform wf("test", 100);
     auto& saved = wf.trace();
     for (auto sample : saved) {
+        EQ(uint16_t(0), sample);
+    }
+}
+// test size/resize.
+
+void
+WaveformTests::size_1() {
+    // size is correct intiallly:
+
+    CWaveform wf("test", 100);
+    EQ(size_t(100), wf.size());
+}
+
+void
+WaveformTests::size_2() {
+    // can resize:
+
+    CWaveform wf("test", 100);
+    wf.resize(150);
+
+    EQ(size_t(150), wf.size());
+}
+void
+WaveformTests::size_3() {
+    // Resize clears the trace.
+
+    CWaveform wf("test", 100);
+    std::vector<uint16_t> trace;
+    //fill with a ramp:
+
+    for( int i =0; i < 100; i++) {
+        trace.push_back(i);
+    }
+    wf.update(trace.data());
+
+    // Resize should clear the trace:
+
+    wf.resize(50);
+    auto& values = wf.trace();
+    for (auto sample : values) {
         EQ(uint16_t(0), sample);
     }
 }
