@@ -40,6 +40,8 @@ class WFAPITests : public CppUnit::TestFixture {
     CPPUNIT_TEST(count_2);
     CPPUNIT_TEST(find_1);
     CPPUNIT_TEST(find_2);
+    CPPUNIT_TEST(iter_1);
+    CPPUNIT_TEST(iter_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -49,6 +51,8 @@ protected:
     void count_2();
     void find_1();
     void find_2();
+    void iter_1();
+    void iter_2();
 public:
     void setUp() {
         // new dictionary for each test:
@@ -120,4 +124,27 @@ WFAPITests::find_2() {
     CWaveform* p;
     CPPUNIT_ASSERT_NO_THROW(p = pApi->findWaveform("test"));
     ASSERT(!p);
+}
+// test iteration.
+
+void
+WFAPITests::iter_1() {
+    // initially begin == end:
+
+    auto pApi = SpecTcl::getInstance();
+    ASSERT(pApi->waveformBegin() == pApi->waveformEnd());
+}
+void
+WFAPITests::iter_2() {
+    // I can iterate through an inserted item:
+
+    auto pApi = SpecTcl::getInstance();
+    pApi->addWaveform(CWaveform("Test", 100));
+
+    auto p = pApi->waveformBegin();
+    ASSERT(p != pApi->waveformEnd());
+    EQ(std::string("Test"), p->second.getName());
+    ++p;
+    ASSERT(p == pApi->waveformEnd());
+
 }
