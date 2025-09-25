@@ -29,12 +29,19 @@ class WaveformTests : public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(WaveformTests);
 CPPUNIT_TEST(construct_1);
 CPPUNIT_TEST(construct_2);
+CPPUNIT_TEST(setmd_1);
+CPPUNIT_TEST(setmd_2);
+CPPUNIT_TEST(setmd_3);
 CPPUNIT_TEST_SUITE_END();
 
 
 protected:
     void construct_1();
     void construct_2();
+
+    void setmd_1();
+    void setmd_2();
+    void setmd_3();
 
 public:
     void setUp() {
@@ -47,6 +54,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(WaveformTests);
 
 
 /// the tests
+
+
+// construction.
 
 void
 WaveformTests::construct_1() {
@@ -65,4 +75,34 @@ WaveformTests::construct_2() {
     CWaveform wf1("test1", 100);
     CWaveform wf2("test2", 125);
     EQ(UInt_t(1), wf2.getNumber());
+}
+
+// Setting metadata:
+void
+WaveformTests::setmd_1() {
+    // Can set a single bit of metadata that's not yet defined:
+
+    CWaveform wf("test", 100);
+    wf.setMetadata("testing", "junk");
+    EQ(std::string("junk"), wf.m_metadata["testing"]);
+}
+void
+WaveformTests::setmd_2() {
+    // can overwrite existing metadata:
+
+    CWaveform wf("test", 100);
+    wf.setMetadata("testing", "trash");
+    wf.setMetadata("testing", "junk");
+    EQ(std::string("junk"), wf.m_metadata["testing"]);
+}
+void
+WaveformTests::setmd_3() {
+    // More than one bit of metadata is kept straight:
+
+    CWaveform wf("test", 100);
+    wf.setMetadata("test1", "junk");
+    wf.setMetadata("test2", "trash");
+
+    EQ(std::string("junk"), wf.m_metadata["test1"]);
+    EQ(std::string("trash"), wf.m_metadata["test2"]);
 }
