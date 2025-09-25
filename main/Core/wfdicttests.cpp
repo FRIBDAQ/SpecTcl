@@ -52,6 +52,9 @@ class WFDictTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(find_1);
     CPPUNIT_TEST(find_2);
     CPPUNIT_TEST(find_3);
+
+    CPPUNIT_TEST(iter_1);
+    CPPUNIT_TEST(iter_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -73,6 +76,9 @@ protected:
     void find_1();
     void find_2();
     void find_3();
+
+    void iter_1();
+    void iter_2();
 public:
     void setUp() {
         // destroy the dictionary:
@@ -257,4 +263,39 @@ WFDictTests::find_3()
         d.find("test"),
         CNoSuchObjectException
     );
+}
+
+// test iteration:
+
+void
+WFDictTests::iter_1() {
+    // empty dict, begin is end:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    ASSERT(d.begin() == d.end());
+}
+void WFDictTests::iter_2() {
+    // Four element iteration:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    d.add(CWaveform("larry", 100));
+    d.add(CWaveform("curly", 100));
+    d.add(CWaveform("moe", 100));
+    d.add(CWaveform("shemp", 100));
+    auto p = d.begin();
+    ASSERT(p != d.end());              
+
+    // White box - they'll come out alpha by name:
+    EQ(std::string("curly"), p->second.getName());
+    ++p;                        // larry
+    ASSERT(p != d.end());              
+    EQ(std::string("larry"), p->second.getName());
+    ++p;                       // moe.
+    ASSERT(p != d.end());              
+    EQ(std::string("moe"), p->second.getName());
+    ++p;                      // Shemp.
+    ASSERT(p != d.end());              
+    EQ(std::string("shemp"), p->second.getName());
+    ++p;                           // end.
+    ASSERT(p == d.end());
 }
