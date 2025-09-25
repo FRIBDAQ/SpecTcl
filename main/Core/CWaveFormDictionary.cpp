@@ -34,7 +34,7 @@ CWaveFormDictionary* CWaveFormDictionary::m_pInstance(0);
  * 
  */
 CWaveFormDictionary::CWaveFormDictionary() {
-    m_pInstance = new CWaveFormDictionary;
+   
 }
 /**
  *  destructor:
