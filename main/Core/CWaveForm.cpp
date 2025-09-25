@@ -105,7 +105,13 @@ void
 CWaveform::update(const uint16_t* data) {
     memcpy(m_trace.data(), data, m_trace.size()*sizeof(uint16_t));
 }
-
+/**
+ * @return size_t - waveform current size.
+ */
+size_t
+CWaveform::size() const {
+    return m_trace.size();
+}
 /**
  *  resize
  *    Change the size of the waveform.  The waveform values are zeroed.
@@ -117,6 +123,7 @@ CWaveform::resize(unsigned nSamples) {
     m_trace.resize(nSamples);
     memcpy(m_trace.data(), 0, nSamples*sizeof(uint16_t));
 }
+
 
 //////////////////////////////// static methods ////////////////////////////////
 

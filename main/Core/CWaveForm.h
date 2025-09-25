@@ -54,6 +54,7 @@ public:
 
     void update(const uint16_t* data);    // Update the waveform.
     void resize(unsigned nSample);        // Change # of samples.
+    size_t size() const;
 private:
     static unsigned getid();
 };
