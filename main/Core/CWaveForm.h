@@ -30,8 +30,6 @@
 class CWaveform : public CNamedItem {
 public:
     typedef std::map<std::string, std::string> Metadata_t;
-private:
-
     typedef std::vector<uint16_t>  WaveForm_t;
 private:
     Metadata_t  m_metadata;
@@ -53,8 +51,11 @@ public:
     const Metadata_t& getMetadata() const;
 
     void update(const uint16_t* data);    // Update the waveform.
+    const WaveForm_t& trace() const;
     void resize(unsigned nSample);        // Change # of samples.
     size_t size() const;
+
+
 private:
     static unsigned getid();
 };

@@ -106,6 +106,14 @@ CWaveform::update(const uint16_t* data) {
     memcpy(m_trace.data(), data, m_trace.size()*sizeof(uint16_t));
 }
 /**
+ * trace
+ *    @return const Waveform_t& - reference the trace last saved.
+ */
+const CWaveform::WaveForm_t&
+CWaveform::trace() const {
+    return m_trace;
+}
+/**
  * @return size_t - waveform current size.
  */
 size_t

@@ -26,6 +26,9 @@
 #undef private
 
 #include <CNoSuchObjectException.h>
+#include <math.h>
+#include <vector>
+
 class WaveformTests : public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(WaveformTests);
 CPPUNIT_TEST(construct_1);
@@ -37,6 +40,8 @@ CPPUNIT_TEST(getmd_1);
 CPPUNIT_TEST(getmd_2);
 CPPUNIT_TEST(getmd_3);
 CPPUNIT_TEST(getmd_4);
+CPPUNIT_TEST(update_1);
+CPPUNIT_TEST(update_2);
 CPPUNIT_TEST_SUITE_END();
 
 
@@ -52,6 +57,9 @@ protected:
     void getmd_2();
     void getmd_3();
     void getmd_4();
+
+    void update_1();
+    void update_2();
 
 public:
     void setUp() {
@@ -179,4 +187,35 @@ WaveformTests::getmd_4() {
     EQ(std::string("curly"), md["stooge2"]);
     EQ(std::string("moe"), md["stooge3"]);
     EQ(std::string("shemp"), md["stoogeextra"]);
+}
+
+// Update tests:
+
+void
+WaveformTests::update_1() {
+    CWaveform wf("test", 100);
+    std::vector<uint16_t> trace;
+
+    for (int i =0; i < 100; i++) {
+        double deg = i;                    // i degrees
+        double rad = deg*3.1416/180.0; // converted to radians.
+        trace.push_back(int(sin(rad) * 100));  // sine wave trace.
+    }
+    wf.update(trace.data());
+
+    auto& saved = wf.trace();
+    for (int i=0; i < saved.size(); i++) {
+        EQ(trace[i], saved[i]);
+    }
+
+}
+void
+WaveformTests::update_2() {
+    // unupdated trace is 0's:
+
+    CWaveform wf("test", 100);
+    auto& saved = wf.trace();
+    for (auto sample : saved) {
+        EQ(uint16_t(0), sample);
+    }
 }
