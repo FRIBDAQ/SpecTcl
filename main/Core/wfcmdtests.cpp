@@ -31,11 +31,18 @@
 
 #include "SpecTcl.h"
 #include "CWaveForm.h"
+#include <tcl.h>
 
 class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(WFCmdTests);
+    CPPUNIT_TEST(create_1);
+    CPPUNIT_TEST(create_2);
     CPPUNIT_TEST_SUITE_END();
 
+    // test methods
+private:
+    void create_1();
+    void create_2();
 // Test objects:
 private:
     CTCLInterpreter* m_pInterp;
@@ -57,3 +64,34 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(WFCmdTests);
+
+// create tests:
+
+void
+WFCmdTests::create_1() {
+    // explicit create subcommand:
+
+    // successful.
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform create test 100")
+    );  
+    // The waveform was created and has the right size
+
+    auto wf = SpecTcl::getInstance()->findWaveform("test");
+    ASSERT(wf);
+    EQ(size_t(100), wf->size());
+
+}
+
+void
+WFCmdTests::create_2() {
+    // implicit create:
+
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform test 100")
+    );
+
+    auto wf = SpecTcl::getInstance()->findWaveform("test");
+    ASSERT(wf);
+    EQ(size_t(100), wf->size());
+}

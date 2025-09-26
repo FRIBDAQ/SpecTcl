@@ -133,7 +133,7 @@ CWaveformCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
  */
 void
 CWaveformCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv, unsigned nameIndex) {
-    if ((objv.size() - nameIndex) != 1) {
+    if ((objv.size() - nameIndex) != 2) {
         throw std::string("waveform ?create? incorrect number of command parameters");
     }
     std::string name = objv[nameIndex];
