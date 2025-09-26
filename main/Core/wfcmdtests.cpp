@@ -37,6 +37,8 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(WFCmdTests);
     CPPUNIT_TEST(create_1);
     CPPUNIT_TEST(create_2);
+    CPPUNIT_TEST(create_3);
+    CPPUNIT_TEST(create_4);
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
