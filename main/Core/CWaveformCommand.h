@@ -81,5 +81,6 @@ private:
     CWaveform* find(const char* name);      //  hides all the API junk.
     void save(const CWaveform& wf);         //  Saves a constructed waveform.
     void listWaveform(CTCLObject& result, const CWaveform& wf);
+    void getWaveform(CTCLObject& result, const CWaveform& wf);
 };
 #endif

@@ -45,6 +45,10 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(list_3);
     CPPUNIT_TEST(list_4);
     CPPUNIT_TEST(list_5);
+
+    CPPUNIT_TEST(get_1);
+    CPPUNIT_TEST(get_2);
+    CPPUNIT_TEST(get_3);
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
@@ -60,6 +64,11 @@ private:
     void list_3();
     void list_4();
     void list_5();
+
+    void get_1();
+    void get_2();
+    void get_3();
+
 // Test objects:
 private:
     CTCLInterpreter* m_pInterp;
@@ -274,3 +283,9 @@ void WFCmdTests::list_5() {
     EQ(std::string("frequency"), std::string(mddict.lindex(0)));
     EQ(std::string("250MHz"), std::string(mddict.lindex(1)));
 }
+
+// tests of the get subcommand.
+
+void WFCmdTests::get_1() {}
+void WFCmdTests::get_2() {}
+void WFCmdTests::get_3() {}

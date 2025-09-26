@@ -282,7 +282,7 @@ CWaveformCommand::get(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
     for (auto p : waveforms) {
         CTCLObject item;
         item.Bind(interp);
-        listWaveform(item, *p);             // Does the work for one wf.
+        getWaveform(item, *p);             // Does the work for one wf.
         result += item;
     }
     // result is ready to set.
@@ -543,3 +543,34 @@ CWaveformCommand::listWaveform(CTCLObject& result, const CWaveform& wf) {
     DictPut(*pInterp, result, "metadata", metadata);
 }
 
+
+
+/**
+ * getWaveform
+ * 
+ *    Returns a list for the waveform  values. This is of the form:
+ * 
+ * \verbatim 
+ *  {name {pts}}
+ * \endverbatim
+ * 
+ * @param result - bound object to hold the result.
+ * @param wf     - references the waveform.
+ * 
+ */
+void
+CWaveformCommand::getWaveform(CTCLObject& result, const CWaveform& wf) {
+    CTCLInterpreter* pInterp = result.getInterpreter();
+
+    result += wf.getName();
+    
+    CTCLObject points;
+    points.Bind(*pInterp);
+
+    auto& trace = wf.trace();
+    for (int p : trace) {
+        points += p;
+    }
+    result += points;
+
+}
