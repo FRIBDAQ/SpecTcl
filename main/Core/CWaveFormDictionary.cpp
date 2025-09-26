@@ -38,7 +38,7 @@ CWaveFormDictionary::CWaveFormDictionary() {
 }
 /**
  *  destructor:
- *     This shoulid never be called;
+ *     This shoulid never be called except in testing.
  */
 CWaveFormDictionary::~CWaveFormDictionary() {
     
