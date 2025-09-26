@@ -477,7 +477,8 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
 		@TCL_LIBS@ @ROOT_LDFLAGS@ \
-		@UFMT_LDFLAGS@
+		@UFMT_LDFLAGS@ \
+		@top_builddir@/Utility/libUtilities.la
 
 newanalysistests_SOURCES=TestRunner.cpp scalerprocessortests.cpp
 newanalysistests_CPPFLAGS=$(commonTestCXXFLAGS)
