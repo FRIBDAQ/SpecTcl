@@ -59,6 +59,12 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(mdset_3);
     CPPUNIT_TEST(mdset_4);
     CPPUNIT_TEST(mdset_5);
+
+    CPPUNIT_TEST(mdget_1);
+    CPPUNIT_TEST(mdget_2);
+    CPPUNIT_TEST(mdget_3);
+    CPPUNIT_TEST(mdget_4);
+    
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
@@ -88,6 +94,11 @@ private:
     void mdset_3();
     void mdset_4();
     void mdset_5();
+
+    void mdget_1();
+    void mdget_2();
+    void mdget_3();
+    void mdget_4();
 
 // Test objects:
 private:
@@ -503,6 +514,78 @@ WFCmdTests::mdset_5() {
     m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
     CPPUNIT_ASSERT_THROW(
         m_pInterp->GlobalEval("spectcl::serial::metadata set test mdname"),
+        CTCLException
+    );
+}
+
+// metadata get.
+
+void
+WFCmdTests::mdget_1() {
+    // single item get.
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    m_pInterp->GlobalEval("spectcl::serial::waveform metadata set test a b c d");
+
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform metadata get test c")
+    );
+
+    CTCLObject result;
+    result.Bind(*m_pInterp);
+    result = m_pInterp->GetResultString();
+
+    EQ(2, result.llength());     // name value pair.
+    EQ(std::string("c"), std::string(result.lindex(0)));  // metadata name.
+    EQ(std::string("d"), std::string(result.lindex(1)));  // value.
+}
+
+void 
+WFCmdTests::mdget_2() {
+    // Dump all metadata
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    m_pInterp->GlobalEval("spectcl::serial::waveform metadata set test a b c d");
+
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform metadata get test")
+    );
+
+    CTCLObject result;
+    result.Bind(*m_pInterp);
+    result = m_pInterp->GetResultString();
+
+    EQ(4, result.llength());    // DIct with both items.
+
+    // Will be in alpha order because (whitebox) it's a map.
+
+    EQ(std::string("a"), std::string(result.lindex(0)));
+    EQ(std::string("b"), std::string(result.lindex(1)));
+
+    EQ(std::string("c"), std::string(result.lindex(2)));
+    EQ(std::string("d"), std::string(result.lindex(3)));
+}
+
+void
+WFCmdTests::mdget_3() {
+    // Get no-such metadata
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    m_pInterp->GlobalEval("spectcl::serial::waveform metadata set test a b c d");
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform metadata get george"),
+        CTCLException
+    );
+
+}
+
+void
+WFCmdTests::mdget_4() {
+    // Get from no such waveform
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::metadata get junk"),
         CTCLException
     );
 }
