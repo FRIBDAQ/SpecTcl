@@ -50,6 +50,15 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(get_2);
     CPPUNIT_TEST(get_3);
     CPPUNIT_TEST(get_4);
+
+    CPPUNIT_TEST(metadata_1);
+    CPPUNIT_TEST(metadata_2);
+
+    CPPUNIT_TEST(mdset_1);
+    CPPUNIT_TEST(mdset_2);
+    CPPUNIT_TEST(mdset_3);
+    CPPUNIT_TEST(mdset_4);
+    CPPUNIT_TEST(mdset_5);
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
@@ -70,6 +79,15 @@ private:
     void get_2();
     void get_3();
     void get_4();
+
+    void metadata_1();
+    void metadata_2();
+
+    void mdset_1();
+    void mdset_2();
+    void mdset_3();
+    void mdset_4();
+    void mdset_5();
 
 // Test objects:
 private:
@@ -399,4 +417,92 @@ void WFCmdTests::get_4() {
         m_pInterp->GlobalEval("spectcl::serial::waveform get"),
         CTCLException
     );  
+}
+
+// metdata:
+
+void
+WFCmdTests::metadata_1() {
+    // no subcommand:
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform metadata"),
+        CTCLException
+    );
+}
+void
+WFCmdTests::metadata_2() {
+    // Invalid subcommand:
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform metadata invalid"),
+        CTCLException
+    );
+}
+
+// metadata set:
+
+void
+WFCmdTests::mdset_1() {
+    // Set a single bit of metadata:
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform metadata set test a b")
+    );
+
+    // Did it set the metadata:
+
+    auto wf = SpecTcl::getInstance()->findWaveform("test");
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(value = wf->getMetadata("a"));
+    EQ(std::string("b"), value);
+
+}
+void
+WFCmdTests::mdset_2() {
+    // Can set more than one metadata item per metadata set command.
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform metadata set test a b c d")
+    );
+    auto wf = SpecTcl::getInstance()->findWaveform("test");
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(value = wf->getMetadata("a"));
+    EQ(std::string("b"), value);
+
+    CPPUNIT_ASSERT_NO_THROW(value = wf->getMetadata("c"));
+    EQ(std::string("d"), value);
+}
+
+void
+WFCmdTests::mdset_3() {
+    // no such waveform:
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform metadata set test a b"),
+        CTCLException
+    );
+}
+void
+WFCmdTests::mdset_4() {
+    // Too fiew parameters:
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::metadata set test"),
+        CTCLException
+    );
+}
+void
+WFCmdTests::mdset_5() {
+    // metadata name w/o value:
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::metadata set test mdname"),
+        CTCLException
+    );
 }
