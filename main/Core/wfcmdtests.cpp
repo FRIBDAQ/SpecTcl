@@ -65,6 +65,10 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(mdget_3);
     CPPUNIT_TEST(mdget_4);
     
+    CPPUNIT_TEST(resize_1);
+    CPPUNIT_TEST(resize_2);
+    CPPUNIT_TEST(resize_3);
+    CPPUNIT_TEST(resize_4);
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
@@ -100,6 +104,10 @@ private:
     void mdget_3();
     void mdget_4();
 
+    void resize_1();
+    void resize_2();
+    void resize_3();
+    void resize_4();
 // Test objects:
 private:
     CTCLInterpreter* m_pInterp;
@@ -588,4 +596,49 @@ WFCmdTests::mdget_4() {
         m_pInterp->GlobalEval("spectcl::serial::metadata get junk"),
         CTCLException
     );
+}
+
+// resize subcommand tests.
+
+void
+WFCmdTests::resize_1() {
+    // good resize..
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform resize test 200")
+    );
+
+    auto wf = SpecTcl::getInstance()->findWaveform("test");
+    EQ(size_t(200), wf->size());
+}
+void
+WFCmdTests::resize_2() {
+    // bad integer 
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform resize test 10fa"),
+        CTCLException
+    );   
+}
+
+void
+WFCmdTests::resize_3() {
+    // no such waveform.
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform resize test 200"),
+        CTCLException
+    );
+}
+void
+WFCmdTests::resize_4() {
+    // Not enough command parameters.
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform resize test"),
+        CTCLException
+    );   
 }
