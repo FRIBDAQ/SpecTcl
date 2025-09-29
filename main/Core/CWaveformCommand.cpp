@@ -576,3 +576,11 @@ CWaveformCommand::getWaveform(CTCLObject& result, const CWaveform& wf) {
     result += points;
 
 }
+
+//////////////// MPI Wrapping:
+
+CWaveformCommandWrapper::CWaveformCommandWrapper(CTCLInterpreter& interp, const char* command)  :
+    CMPITclCommandAll(interp, command, new CWaveformCommand(interp))
+{
+
+}

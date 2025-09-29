@@ -91,6 +91,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CRemoteCommand.h"
 #include "CMirrorCommand.h"
 
+#include "CWaveformCommand.h"
+
 #include "ProductionXamineShMem.h"
 #include "CHttpdServer.h"
 
@@ -950,6 +952,7 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
     new CRemoteCommand(rInterp);
   }
   new CMirrorCommand(rInterp);
+  new CWaveformCommandWrapper(rInterp);
   
   cerr.flush();
 }

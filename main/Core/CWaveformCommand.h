@@ -20,7 +20,7 @@
  * @brief Header for the waveform command execution class.
  */
 #include <TCLObjectProcessor.h>
-
+#include <MPITclCommandAll.h>
 class CTCLInterpreter;
 class CTCLObject;
 class CWaveform;
@@ -82,5 +82,13 @@ private:
     void save(const CWaveform& wf);         //  Saves a constructed waveform.
     void listWaveform(CTCLObject& result, const CWaveform& wf);
     void getWaveform(CTCLObject& result, const CWaveform& wf);
+};
+
+// MPI wrapper:
+
+class CWaveformCommandWrapper : public CMPITclCommandAll {
+public:
+    CWaveformCommandWrapper(CTCLInterpreter& interp, const char* command = "waveform");
+    ~CWaveformCommandWrapper() {}
 };
 #endif

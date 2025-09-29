@@ -414,6 +414,7 @@ libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			@builddir@/libSpecTclTcp.la \
 			@top_builddir@/mpi/libMPIUtilities.la \
+			@top_builddir@/Utility/libUtilities.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
 			@JSONCPP_LIBS@ \
 			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@
