@@ -368,7 +368,7 @@ CWaveformCommand::metadataSet(CTCLInterpreter& interp, std::vector<CTCLObject>& 
 
     // Everyting checks out, now set the metadata items:
 
-    for (int i = 7; i < objv.size(); i+=2) {
+    for (int i = 4; i < objv.size(); i+=2) {
         std::string name  = objv[i];
         std::string value = objv[i+1];
 
