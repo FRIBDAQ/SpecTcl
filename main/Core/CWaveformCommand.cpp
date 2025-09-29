@@ -264,7 +264,7 @@ CWaveformCommand::get(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
     std::vector<CWaveform*> waveforms;
     for (int i =2; i < objv.size(); i++) {   //  Iteration over names.
         std::string name = objv[i];
-        CWaveform* pWf = SpecTcl::getInstance()->findWaveform(name.c_str());
+        CWaveform* pWf = find(name.c_str());
         if (!pWf) {
             // No such:
 
