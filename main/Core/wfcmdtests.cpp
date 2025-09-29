@@ -49,6 +49,7 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(get_1);
     CPPUNIT_TEST(get_2);
     CPPUNIT_TEST(get_3);
+    CPPUNIT_TEST(get_4);
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
@@ -68,6 +69,7 @@ private:
     void get_1();
     void get_2();
     void get_3();
+    void get_4();
 
 // Test objects:
 private:
@@ -286,6 +288,115 @@ void WFCmdTests::list_5() {
 
 // tests of the get subcommand.
 
-void WFCmdTests::get_1() {}
-void WFCmdTests::get_2() {}
-void WFCmdTests::get_3() {}
+void WFCmdTests::get_1() {
+    // Single trace returned:
+
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test 100");
+    
+    // Put in a ramp trace:
+
+    std::vector<uint16_t> trace;
+    for (int i =0; i < 100; i++) {
+        trace.push_back(i);
+    }
+
+    auto wf = SpecTcl::getInstance()->findWaveform("test");
+    wf->update(trace.data());
+
+    // Now get it:
+
+    CPPUNIT_ASSERT_NO_THROW(m_pInterp->GlobalEval("spectcl::serial::waveform get test"));
+
+    CTCLObject result;
+    result.Bind(*m_pInterp);
+    result = m_pInterp->GetResultString();
+    EQ(1, result.llength());    // One trace.
+    CTCLObject t;
+    t.Bind(*m_pInterp);                     
+    t = result.lindex(0);                      // {name {points...}}
+    EQ(2, t.llength());
+
+    std::string name = std::string(t.lindex(0));
+    EQ(std::string("test"),name);
+    t = t.lindex(1);
+    EQ(100, t.llength());
+
+    for (int i = 0; i < 100; i++) {
+        int v = t.lindex(i);
+        EQ(trace[i], uint16_t(v));
+    }
+
+}
+void WFCmdTests::get_2() {
+    // no such waveform.
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform get test"),
+        CTCLException
+    );
+}
+void WFCmdTests::get_3() {
+    // Get two waveforms.
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test1 100");
+    m_pInterp->GlobalEval("spectcl::serial::waveform create test2 100");
+
+    std::vector<uint16_t> trace;
+    for (int i=0; i < 100; i++) {
+        trace.push_back(i);
+    }
+    SpecTcl::getInstance()->findWaveform("test1")->update(trace.data());
+
+    for (int i =0; i < 100; i++) {
+        trace[i] = 100-i;
+    }
+    SpecTcl::getInstance()->findWaveform("test2")->update(trace.data());
+
+    // get the ramp:
+
+    CPPUNIT_ASSERT_NO_THROW(m_pInterp->GlobalEval("spectcl::serial::waveform get test1 test2")); 
+
+    CTCLObject result;
+    result.Bind(*m_pInterp);
+    result = m_pInterp->GetResultString();
+    // Two waveforms:
+
+    EQ(2, result.llength());
+    CTCLObject wf1;
+    wf1.Bind(*m_pInterp);
+    wf1 = result.lindex(0);               // {test1 {upramp}}
+
+    CTCLObject wf2;
+    wf2.Bind(*m_pInterp);
+    wf2 = result.lindex(1);             // {test2 {downramp}}
+
+    // Analyze wf1:
+
+    EQ(2, wf1.llength());
+    EQ(std::string("test1"), std::string(wf1.lindex(0)));
+    wf1 = wf1.lindex(1);
+    EQ(100, wf1.llength());
+    for (int i =0; i < 100; i++) {
+        int value = wf1.lindex(i);
+        EQ(i, value);
+    }
+
+    // Analyze wf2:
+
+    EQ(2, wf2.llength());
+    EQ(std::string("test2"), std::string(wf2.lindex(0)));
+    wf2 = wf2.lindex(1);
+    EQ(100, wf2.llength());
+    for (int i =0; i < 100; i++) {
+        int value = wf2.lindex(i);
+        EQ(100 - i, value);
+    }
+
+}
+
+void WFCmdTests::get_4() {
+    // get without a waveform spec
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform get"),
+        CTCLException
+    );  
+}
