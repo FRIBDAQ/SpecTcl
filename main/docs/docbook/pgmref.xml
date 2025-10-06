@@ -337,6 +337,12 @@ public:
   void               deleteFilter(std::string filterName);
   void               addFilterOutputFormat(CFilterOutputStageCreator&amp; creator);
 
+  void addWaveform(const CWaveform&amp; wf);
+  void removeWaveform(const char* name);
+  size_t waveformCount();
+  CWaveform* findWaveform(const char* name);
+  CWaveFormDictionary::Dictionary_t::iterator waveformBegin();
+  CWaveFormDictionary::Dictionary_t::iterator waveformEnd();
 
   // Expose the guts for the really curious and those who need more
   // than we can offer.
@@ -3721,6 +3727,79 @@ if (pSomeFilter) {
                 </listitem>
             </varlistentry>
         </variablelist>
+        <para>
+            This chunk of the API provides access to waveform objects:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <type>void</type>
+                        <methodname>addWaveform</methodname>
+                        <methodparam>
+                            <type>const CWaveform&amp;</type> <parameter>wf</parameter>
+                        </methodparam>
+                    </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Adds a copy of the waveform <parameter>wf</parameter> to the 
+                    waveform dictionary.  If a waveform by this name already exists,
+                    <classname>CDuplicateSingleton</classname> is thrown.  Note that the original
+                    waveform parameter is not really usable.  First use <methodname>findWaveform</methodname>
+                    to get a pointer to the copy of the waveform that this method created.  
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>void</type> <methodname>removeWaveform</methodname>
+                    <methodparam>
+                        <type>const char*</type> <parameter>name</parameter>
+                    </methodparam>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Removes the named waveform from the waveform dictionary.  This should be done
+                    with caution as it invalidates any pointers to the waveform that e.g. event processors
+                    might be holding (this is why the <command>wavefom</command> command has no delete subcommand).
+                    If the named waveform does not exist, <classname>CNoSuchObjectException</classname>
+                    is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>size_t</type> <methodname>waveformCount</methodname>
+                    <void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns the number of known waveforms.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>CWaveFormDictionary::Dictionary_t::iterator</type> 
+                    <methodname>waveformBegin</methodname>
+                    <void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns an iterator to the beginning of iteration in the waveform dictionary.
+                    The iterator can be dereferenced to a an std::pair&lt;std::string, CWaveform"&gt;
+                    It can also be compared for equality with other iterators most often the one
+                    returned from <methodname>waveformEnd</methodname>
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>CWaveFormDictionary::Dictionary_t::iterator</type>
+                    <methodname>waveformEnd</methodname>
+                    <void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns an iterator off the end of the waveform dictionary.  Iteration
+                    through the dictionary should end when the iterator is equal to this.
+                </para></listitem>
+            </varlistentry>
+
+        </variablelist>
+        
         <para>
             The remainder of the API are miscellaneous methods that don't really
             fit well into any of the method categories above.
