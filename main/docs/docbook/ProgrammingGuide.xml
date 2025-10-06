@@ -10867,12 +10867,12 @@ pman use raw                               <co id='dynpipe.pman.use'/>
             you can use as you choose (e.g. to store the digitizer frequency or resolution). 
         </para>
         <para>
-            The exmaple below shows how to create and register a waveform object within an event processor.
+            The example below shows how to create and register a waveform object within an event processor.
             Note that registering a waveform with the dictionary copies the waveform object making it necessary
             to find it to use it.
         </para>
-        <example>
-            <title>Programmatically creating and filling a waveform</title>
+        <example id='wf1.example'>
+            <title id='wf1.example.title'>Programmatically creating and filling a waveform</title>
             <programlisting>
 #include &lt;SpecTcl.h&gt;       <co id='wf1.headers' />
 #include &lt;CWaveForm.h&gt;
@@ -10983,6 +10983,34 @@ Bool_t
     <section>
         <title>Scripting the creation of waveforms and using them</title>
         <para>
+            You can also script the creation of waveform objects and then use the SpecTcl API to locate
+            the waveform objects you need in your event processor object.  The new <command>waveform</command>
+            allows you to create and maniupulate waveform objects.  The code in the <methodname>OnAttach</methodname>
+            of <link linkend='wf1.example' endterm='wf1.example.title' /> is equivalent to the following Tcl,
+            which can be placed in, e.g. <filename>SpecTclRC.tcl</filename>
+        </para>
+        <example>
+            <title>Scrdipting waveform objects</title>
+            <programlisting>
+waveform create test 100     <co id='wf2.create' />
+waveform metadata set test Frequency  100MHz bits 14 <co id='wf2.metaset' />
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='wf2.create'>
+                <para>
+                    Creates the waveform named <literal>test</literal> with 100 sample points.
+                </para>
+            </callout>
+            <callout arearefs='wf2.metaset'>
+                <para>
+                    Sets the waveform metadata.
+                </para>
+            </callout>
+        </calloutlist>
+        <para>
+            The code to locate and fill the event processor in the event processor is the same as that
+            shown in <link linkend='wf1.example' endterm='wf1.example.title' />.
         </para>
     </section>
 </chapter>
