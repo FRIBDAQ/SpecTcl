@@ -65,5 +65,7 @@ install-exec-local:
 	$(INSTALL_SCRIPT) $(VMUSB)/SpecTclRC.tcl @prefix@/MVLCSkel
 	$(INSTALL_SCRIPT) $(VMUSB)/SpecTclInit.tcl @prefix@/MVLCSkel
 	$(INSTALL_DATA)  @builddir@/MakefileSkel @prefix@/MVLCSkel/Makefile
+	$(mkinstalldirs) @prefix@/share/mvlcspectcl
+	@PANDOC@ -s --metadata title=MVLCSpecTcl -o @prefix@/share/mvlcspectcl/index.html @srcdir@/Readme.md
 
-EXTRA_DIST=MakefileSkel.in
+EXTRA_DIST=MakefileSkel.in Readme.md

@@ -4,7 +4,7 @@ AC_INIT(SpecTcl,7.0-003, daqhelp@frib.msu.edu)
 
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE([tar-ustar foreign])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -97,15 +97,31 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AM_PROG_LEX
+
+AC_MSG_CHECKING([Checking for FLEX/LEX])
+AC_PROG_LEX([yywrap])
+if test "$LEX" = ":"
+then
+   AC_MSG_ERROR([FLEX/LEX not found needed by Xamine])
+fi
+
 AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
-AC_PROG_LIBTOOL
+LT_INIT
 
 # Is GIT installed?
 
 AC_CHECK_PROG(GIT, git, git, :)
 AC_SUBST(GIT)
+
+# Pandoc for Markdown docs:
+
+AC_CHECK_PROG(PANDOC, pandoc, pandoc, no)
+if test "x$PANDOC" = "xno"
+then
+  AC_MSG_ERROR([pandoc must be installed in the path to build some documentation])
+fi
+AC_SUBST(PANDOC)
 
 #
 
@@ -142,21 +158,23 @@ AH_TEMPLATE([SPECTCL_5_INIT],
 AC_DEFINE(SPECTCL_5_INIT)
 
 # Checks for header files.
-AC_HEADER_STDC
+#   AC_HEADER_STDC   # No longer needed.
+
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADER(time.h)
 AC_CHECK_HEADERS([fcntl.h limits.h malloc.h memory.h stddef.h stdlib.h strings.h string.h sys/file.h sys/ioctl.h sys/socket.h sys/time.h unistd.h values.h windows.h machine/hal_sysinfo.h sys/proc.h sys/mtio.h sys/mman.h sys/ipc.h sys/shm.h machine/param.h sys/un.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
-AC_HEADER_TIME
+#AC_HEADER_TIME   # Obsolete. see below.
+AC_CHECK_HEADERS([sys/time.h])
 AC_STRUCT_TM
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_OFF_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-AC_TYPE_SIGNAL
+#AC_TYPE_SIGNAL   # No longer needed.
 
 # Checks for library functions.
 AC_FUNC_MMAP
@@ -458,112 +476,70 @@ fi
 # Checks for include declarations
 
 
-# These checks are for declarations within specific system headers. For
-# instance, MTSETBLK is not declared in sys/mtio.h on all platforms, but
-# is needed on Linux.
-
-	# MTSETBLK in sys/mtio.h
-AC_MSG_CHECKING([for MTSETBLK in sys/mtio.h])
-    AC_TRY_COMPILE([
-#include <sys/mtio.h>
-#ifndef MTSETBLK
-#  error mtsetblk not defined
-#endif
-], , my_cv_have_mtsetblk=yes, my_cv_have_mtsetblk=no)
-    if test $my_cv_have_mtsetblk = yes ; then
-	AC_DEFINE(HAVE_DECL_MTSETBLK, 1, [True if MTSETBLK defined in sys/mtio.h])
-    fi
-AC_MSG_RESULT($my_cv_have_mtsetblk)
-
-	# MTOVERRUN in sys/mtio.h
-AC_MSG_CHECKING([for MTOVERRUN in sys/mtio.h])
-    AC_TRY_COMPILE([
-#include <sys/mtio.h>
-#ifndef MTOVERRUN
-# error overrun not defined
-#endif
-], , my_cv_have_mtoverrun=yes, my_cv_have_mtoverrun=no)
-    if test $my_cv_have_mtoverrun = yes ; then
-	AC_DEFINE(HAVE_DECL_MTOVERRUN, 1, [True if MTOVERRUN defined in sys/mtio.h])
-    fi
-AC_MSG_RESULT($my_cv_have_mtoverrun)
-
-
-	# MTCSE in sys/mtio.h
-AC_MSG_CHECKING([for MTCSE in sys/mtio.h])
-    AC_TRY_COMPILE([
-#include <sys/mtio.h>
-#ifndef MTCSE
-# error mtcse not defined
-#endif
-], , my_cv_have_mtcse=yes, my_cv_have_mtcse=no)
-    if test $my_cv_have_mtcse = yes ; then
-	AC_DEFINE(HAVE_DECL_MTCSE, 1, [True if MTCSE defined in sys/mtio.h])
-    fi
-AC_MSG_RESULT($my_cv_have_mtcse)
 
 	# PAGESIZE in limits.h
 AC_MSG_CHECKING([for PAGESIZE in limits.h])
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <limits.h>
 #ifndef PAGESIZE
 # error pagesize not defined
 #endif
-], , my_cv_have_pagesize=yes, my_cv_have_pagesize=no)
-    if test $my_cv_have_pagesize = yes ; then
-	AC_DEFINE(HAVE_DECL_PAGESIZE, 1, [True if PAGESIZE is defined in limits.h as on HP-UX])
-    fi
-AC_MSG_RESULT($my_cv_have_pagesize)
+])],
+AC_DEFINE(HAVE_DECL_PAGESIZE, 1, [True if PAGESIZE is defined in limits.h as on HP-UX]),
+AC_MSG_NOTICE([PAGESIZE is not defined in limits.h]))
 
-	# PADSIZE in limits.h
+
+# PADSIZE in limits.h
 AC_MSG_CHECKING([for PADSIZE in limits.h])
-    AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <limits.h>
 #ifndef PADSIZE
 # error padsize not defined
 #endif
-], , my_cv_have_padsize=yes, my_cv_have_padsize=no)
-    if test $my_cv_have_padsize = yes ; then
-	AC_DEFINE(HAVE_DECL_PADSIZE, 1, [True if PADSIZE defined in limits.h])
-    fi
-AC_MSG_RESULT($my_cv_have_padsize)
+])],
+AC_DEFINE(HAVE_DECL_PADSIZE, 1, [True if PADSIZE defined in limits.h]),
+AC_MSG_NOTICE(["PADSIZE not defined in limit.sh])
+)
+
 
 	# INT_MAX in limits.h
 AC_MSG_CHECKING([for INT_MAX in limits.h])
-    AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <limits.h>
 #ifndef INT_MAX
 # error intmax not defined
 #endif
-], , my_cv_have_int_max=yes, my_cv_have_int_max=no)
-    if test $my_cv_have_int_max = yes ; then
+])],  my_cv_have_int_max=yes, my_cv_have_int_max=no)
+
+if test $my_cv_have_int_max = yes ; then
 	AC_DEFINE(HAVE_DECL_INT_MAX, 1, [True if INT_MAX defined in limits.h])
-    fi
+fi
 AC_MSG_RESULT($my_cv_have_int_max)
 
 	# MAXINT in values.h
 AC_MSG_CHECKING([for MAXINT in values.h])
-    AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <values.h>
 #ifndef MAXINT
 # error maxint not defined
 #endif
-], , my_cv_have_maxint=yes, my_cv_have_maxint=no)
-    if test $my_cv_have_maxint = yes ; then
+])],  my_cv_have_maxint=yes, my_cv_have_maxint=no)
+    if test "$my_cv_have_maxint" = "yes"
+    then
 	AC_DEFINE(HAVE_DECL_MAXINT, 1, [True if MAXINT defined in values.h])
     fi
 AC_MSG_RESULT($my_cv_have_maxint)
 
 	# Check for 64 bit longs
 AC_MSG_CHECKING([whether long int is 64 bits])
-    AC_TRY_RUN([
+    AC_RUN_IFELSE([AC_LANG_SOURCE([
 int main(int argc, char **argv) {
 	if(sizeof(long) == 8)
 		return 0;
 	else
 		return 1;
 }  
-], [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
+])], [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
 
 
 
@@ -1073,7 +1049,7 @@ AC_SUBST(MANDOCBOOK)
 # create output files.
 # Removed           Tape/Makefile
 
-AC_OUTPUT(Makefile 
+AC_CONFIG_FILES(Makefile 
           calibratedparams/Makefile 
           contrib/Makefile
           contrib/scriptable/Makefile
@@ -1131,7 +1107,5 @@ AC_OUTPUT(Makefile
     rootFilterFormat/Makefile
 	  )
           
+AC_OUTPUT
 
-
-#	  packaged/Makefile
-#	  packaged/Makefile_skel
