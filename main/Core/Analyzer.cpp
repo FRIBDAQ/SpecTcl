@@ -172,66 +172,6 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
       while(nEvents) {
         m_fPartialEntity = false;
 
-<<<<<<< HEAD
-        if(nOffset >= nBufferSize) { // Someone lied about event sizes:
-
-          // It's possible there's not  a body...in that case there's
-          // no error if nOffset == 0:
-
-          if ((nBufferSize == 0) && (nOffset == 0)) {
-            ClearEventList();
-            return;     // Not a real event.
-          }
-
-          cerr << "-------------------------------------------------\n";
-          cerr << "Unpacker tried to run analyzer off end of the buffer\n";
-          cerr << "Current offset = " << nOffset;
-          cerr << " Buffer size = " << nBufferSize << endl;
-          cerr << "Analysis continue with the next buffer\n";
-          cerr << "--------------------------------------------------\n";
-          
-          HistogramEvents(m_EventList); // Dump partial event list.
-          ClearEventList();
-          return;
-        }
-        pEvent     = CreateEvent();
-        try {
-          m_fAbort = kfFALSE;
-          nEventSize = OnEvent(pData, *pEvent);
-          if(!m_fAbort) {
-            m_EventList[nEventNo] = pEvent;
-            nEventNo++; 
-          }
-          else {                           // Must return the event (bug 144)
-            ReturnEvent(pEvent);           // to the pool to prevent memory leak.
-          }
-          if ((nEventSize == 0) && !(m_fPartialEntity)) { // If we didn't throw now we'd hang here.
-            throw CEventFormatError((int)CEventFormatError::knSizeMismatch,
-                  std::string("Packer returned event size = 0"),
-                  (UInt_t*)pData, 16, 0,0);
-          }
-        }
-        catch (CEventFormatError& rError) { // See if we can continue...
-          if(!rError.EventSizeOk()) throw; // Nope. so rethrow.
-          delete pEvent;
-          cerr << "-------------------------------------------------------\n";
-          cerr << "Event format error detected while analyzing buffer\n";
-          cerr << rError.ReasonText() << endl;
-          cerr << "Attempting to continue with next event in buffer\n";
-          cerr << "-------------------------------------------------------\n";
-        }
-        if (!m_fPartialEntity) {
-          nEvents--;
-        }
-        pData     = (Address_t)((uint8_t*)pData + nEventSize);
-        nOffset  += nEventSize;
-        if(nEventNo >= m_nEventThreshold) {
-          HistogramEvents(m_EventList);
-          
-          ClearEventList();
-          nEventNo = 0;
-        }
-=======
 	if(nOffset >= nBufferSize) { // Someone lied about event sizes:
     if ((nOffset == 0) && (nBufferSize ==0)) {   // No actual event.
       ClearEventList();
@@ -285,7 +225,6 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	  ClearEventList();
 	  nEventNo = 0;
 	}
->>>>>>> 6997bfe7 (Issue #199 MVLC SpecTcl)
       }
       // Dump any partial event list:
       if(nEventNo) {
