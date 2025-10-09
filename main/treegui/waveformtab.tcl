@@ -219,7 +219,7 @@ snit::widget WaveformMetadataEditor {
     #  Private methods:
 
     ##
-    # getmetadata
+    # _getmetadata
     #   Marshall the metadata from the tree:
     #
     #  @param opt -name of the option (always -metdata)
@@ -234,4 +234,37 @@ snit::widget WaveformMetadataEditor {
 
         return $result
     }
+    ##
+    # _validSamples
+    #    Called when the entry loses focus If the entry contents are not a valid
+    #  integer, the value is restored and a pop-up tells the user about the problem.
+    #
+    # @param old - original value(?)
+    #
+    method _validSamples old {
+        
+        if {[catch {snit::integer validate $options(-samples)}] || $options(-samples) <= 0} {
+            set options(-samples) $old
+            tk_messageBox -parent $win.top.samples -type ok -icon error \
+                -message "Samples values must be an integer > 0"
+            return 0
+        }
+        return 1
+    }
+    ##
+    # _commitRelay
+    #    If the # of samples is valid, call the commit script which can do what it wants.
+    #
+    method _commitRelay {} {
+        set command $options(-command)
+        if {$command ne ""} {
+            # Require valid samples:
+
+            if {[$self _validSamples $options(-samples)]} {
+                uplevel 0 $command
+            }
+        }
+    }
+
+
 }
