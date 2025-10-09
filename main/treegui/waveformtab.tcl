@@ -143,7 +143,7 @@ snit::widget WaveformMetadataEditor {
     option -command -default [list]
     option -samples -default 0 -readonly 1
     option -name -default "                " -readonly 1
-    option -metadata -default "" -readonly 1
+    option -metadata -default "" -readonly 1 -cgetmethod _getmetadata
 
     #
     # constructor
@@ -216,5 +216,22 @@ snit::widget WaveformMetadataEditor {
 
         $win.commit configure -state normal
     }
+    #  Private methods:
 
+    ##
+    # getmetadata
+    #   Marshall the metadata from the tree:
+    #
+    #  @param opt -name of the option (always -metdata)
+    #  @return dict keyed by metadata name and with metadata values
+    
+    method _getmetadata opt {
+        set result [dict create]
+        foreach child [$win.tree children {}] {
+            set key_value [$win.tree item $child -values]
+            dict append result [lindex $key_value 0] [lindex $key_value 1]
+        }
+
+        return $result
+    }
 }
