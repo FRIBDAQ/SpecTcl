@@ -109,3 +109,112 @@ snit::widget WaveformList {
     }
 
 }
+
+##
+#  WaveformMetadataEditor
+#    This megawidget provides an editor for the metadata associated with a 
+#    waveform.  Metadata are held in a ttk::treview table and consist of name
+#    value pairs.  The editor also displays and allows you to edit the samples
+#    value of the waveform even though that's not actually metadata.
+#
+# Layout:
+#
+#   +------------------------------------------------------+
+#   | <name label>  <samples label> <samples value entry>  |
+#   |                                                      |
+#   |   +------------------------------------------+       |
+#   |   |  Metadata in editable treeview           |       |
+#   ...                 ...                                |
+#   |   +------------------------------------------+
+#   |           [Commit button]                            |
+#   +------------------------------------------------------+
+#
+#  OPTIONS:
+#     -command - called when the commit button is clicked
+#     -samples (readonly) - number of samples.
+#     -name    (readonly) - waveform name.
+#     -metadata (readonly) -dict of curnent metadata keyed by name, 
+# PUBLIC METHODS:
+#    load   - loads the widget from the description of the waveform
+#             (e.g. the output of a waveform list command for that name
+#
+#
+snit::widget WaveformMetadataEditor {
+    option -command -default [list]
+    option -samples -default 0 -readonly 1
+    option -name -default "                " -readonly 1
+    option -metadata -default "" -readonly 1
+
+    #
+    # constructor
+    #   Note that the commit button is initially disabled 
+    #   the first 'load' operation will enable it.  This ensures
+    #   the command script won't be calle dwith an  illegal configuration.
+    # @param args - configuration options at construction time. 
+    constructor args {
+        $self configurelist $args
+
+        # Top line of the mwidget.    
+        frame $win.top
+        ttk::label $win.top.name -textvariable [myvar options(-name)]
+        ttk::label $win.top.samplelbl -text "Samples:"
+        ttk::entry $win.top.samples -textvariable [myvar options(-samples)] \
+            -validate focusout -validatecommand [mymethod _validSamples %s]
+        
+        grid $win.top.name $win.top.samplelbl $win.top.samples
+        grid $win.top -sticky nsew
+
+        # Middle:
+
+        ttk::treeview $win.tree \
+            -show headings -columns [list name value] -displaycolumns [list name value] \
+            -selectmode browse
+        $win.tree heading name -text name
+        $win.tree heading value -text value
+        grid $win.tree -sticky nsew
+
+        # bottom:
+
+        ttk::button $win.commit -text {Commit Changes} -command [mymethod _commitRelay] \
+            -state disabled
+        grid $win.commit
+
+
+        # Establish the event handlers needed to edit metadata.
+
+    }
+    #  Public methods
+
+    ##
+    # load
+    #   Loads data into the widget.
+    #
+    #  @param desc - description of the waveform as gotten from waveform list.  This is a dict with
+    #  keys:
+    #      - name - name of the waveform
+    #      - samples - number of samples in the waveform.
+    #      - metadata - itself a dict of name keys and value values.
+    #
+    method load desc {
+        # Set the top stuff:
+
+        set options(-name) [dict get $desc name]
+        set options(-samples) [dict get $desc samples]
+
+        # now the meatdata:
+
+        set metadata [dict get $desc metadata]
+        set existing [$win.tree children {}]
+        $win.tree delete $existing;      # Clear the tree.
+
+        dict for {key value} $metadata {
+            $win.tree insert {} end -values [list $key $value]
+        }
+        
+
+        # Enable the button:
+
+        $win.commit configure -state normal
+    }
+
+}
