@@ -34,8 +34,37 @@ package require Plotchart;        # FOr waveform plots.
 #   - A WaveformPlotter widget which allows the selected waveform to be gotten and
 #     plotted with Plotchart.
 #
+#  OPTIONS:
+#     -names        - waveform names.
+#     -selectscript - Script to handle the listing selecting a waveform.
+#     -setwaveform  - Set the current waveform in the md editor. 
+#     -wfupdatescript - Update a waveform definition.
+#     -plotupdatescript - Update the plot.
+# Methods:
+#    plot  plot a waveform.
+#
 snit::widget WaveformWidget {
+    component listing
+    component mdeditor
+    component wfplot
 
+    option -selectscript
+    option -setwaveform -configuremethod setEditor
+    option -wfupdatescript
+    option -plotupdatescript
+
+    delegate option -names to listing as -waveforms
+
+    constructor args {
+        install listing using WaveformList $win.list -selectcommand [mymethod _selectWaveform]
+        install mdeditor using WaveformEditor $win.editor -command [mymethod _updateWfDef]
+        install wfplot using WaveformDisplay $win.plot -command [mymethod _updatePlot]
+
+        grid $listing $mdeditor -sticky s
+        grid $wfplot -columnspan 2
+
+        $self configurelist $args
+    }
 }
 
 
@@ -486,6 +515,12 @@ snit::widget WaveformDisplay {
         grid $win.update
         
         $self configurelist $args
+    }
+
+    destructor {
+        if {$plotName ne ""} {
+            destroy $plotName;    # Kill any hanging plot.
+        }
     }
     # Private methods:
 
