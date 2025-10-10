@@ -139,7 +139,7 @@ snit::widget WaveformList {
 #             (e.g. the output of a waveform list command for that name
 #
 #
-snit::widget WaveformMetadataEditor {
+snit::widget WaveformEditor {
     option -command -default [list]
     option -samples -default 0 -readonly 1
     option -name -default "" -readonly 1
