@@ -467,21 +467,132 @@ snit::widget MetadataPrompter {
 #   |      [Update]                       |
 #   +-------------------------------------+
 snit::widget WaveformDisplay {
-    option -name ""
-    option -samples -default [list] -configuremethod updatePlot
+    option -name -default ""  -configuremethod _updateTitle
+    option -samples -default [list] -configuremethod _updatePlot
     option -command -default [list]
 
     variable plotName "";         # Name of the plot chart plot.
 
+    #  Canvas dimensions so we can easily change them as we tweak.
+    variable height 500
+    variable width 700
     constructor args {
         #  We need to create the UI before doing the configure list
         #  In cas the -samples  ares set.
 
-        canvas $win.plot -width 500 -height 300
+        canvas $win.plot -width $width -height $height
         grid $win.plot -sticky nsew
         ttk::button $win.update -text Refresh -command [mymethod _relayUpdate]
         grid $win.update
         
         $self configurelist $args
+    }
+    # Private methods:
+
+    ##
+    #  _relayUpdate
+    #    Called when the plot wants an update.
+    # 
+    method _relayUpdate {} {
+        set script $options(-command)
+        if {$script ne ""} {
+            uplevel 0 $script
+        }
+    }
+
+    ##
+    # _updateTitle
+    #   Update the title string.  If there's a current plot,
+    #   The title is set.
+    # @param opt - option name, always -name.
+    # @param value - new value for the option.
+    #
+    method _updateTitle {opt value} {
+        set options($opt) $value
+
+        if {$plotName ne ""} {
+            # There's a plot:
+
+            $plotName title $value top
+        }
+    }
+    ##
+    # _updatePlot
+    #    If there's a plott it must be destroyed.  This involves destroying the canvas
+    #    and the plot and recreating it.
+    #  The axis limits for x/y must be computed
+    #  The X/Y labels must be computed and the X series as well.
+    #
+    method _updatePlot {opt value} {
+        set options($opt) $value
+        destroy $win.plot
+        if {$plotName ne ""} {
+            destroy $plotName
+            set plotName ""
+        }
+
+        # Figure out our axis ranges and labels.
+
+        set xaxis [list 0 [llength $options($opt)] ""]
+        set yaxis [list 0 [_ymax $options($opt)] ""]
+
+        set xlabels [_xlabels $xaxis ]
+        set ylabels [_ylabels $yaxis ]
+
+        # Generate the canvas and plot:
+
+        canvas $win.plot -width $width -height $height
+        grid $win.plot -row 0 -column 0
+        set plotName [Plotchart::createXYPlot $win.plot $xaxis $yaxis \
+            -xlabels $xlabels -ylabels $ylabels          \
+        ]
+        $plotName title $options(-name) top;   #  Title (if ther's none it'll be blank).
+
+        #  Generate the x series:
+
+        set xpts [_xpoints $options($opt)]
+
+        $plotName plotlist trace $xpts $options($opt) [llength $options($opt)]
+        $plotName dataconfig trace -type line
+    }
+
+    #  Utility proces:
+
+    #  _ymax - compute the max of a plot given its points.
+    #    we use max + 0.05*max
+
+    proc _ymax series {
+        set max [expr max([join $series ,])]
+        set max [expr 1.05*$max]
+        return $max
+    }
+
+    #  _xlabels - given an xaxis spec return a list of labels, every 100.
+
+    proc _xlabels axis {
+        return [_labels $axis 100]
+    }
+    # _ylabels - given an axis spec return labels every 1000
+
+    proc _ylabels axis {
+        return [_labels $axis 1000]
+    }
+    # _labels - return labels for a given interval
+
+    proc _labels {axis interval} {
+        set max [lindex $axis 1]
+        set result [list]
+
+        for {set i 0} {$i <= $max} {incr i $interval} {
+            lappend result $i
+        }
+        return $result
+    }
+
+    # _xpoints - produce the x pointes of the trace:
+
+    proc _xpoints yvalues {
+        set max  [expr {[llength $yvalues] - 1}]
+        return [_labels [list 0 $max] 1]
     }
 }
