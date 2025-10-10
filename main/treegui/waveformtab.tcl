@@ -444,3 +444,44 @@ snit::widget MetadataPrompter {
     }
 
 }
+
+##
+#  WaveformDisplay
+#   Provides a plotchart display for a waveform.
+#
+# OPTIONS:
+#   -name   - name of the waveform.
+#   -samples - Waveform samples - setting updates the plot.
+#   -command - Script to execute when an update is required/requested.
+#
+# In this initial version only buttons update the display. Future version may
+# provide for timed update requests.
+#
+# In this version the Y axis goes from 0-max(-samples) + 5%
+#
+# THe x axis goes from 0 - [llength -samples].
+# 
+# Layout:
+#   +-------------------------------------+
+#   |   plot area                         |
+#   |      [Update]                       |
+#   +-------------------------------------+
+snit::widget WaveformDisplay {
+    option -name ""
+    option -samples -default [list] -configuremethod updatePlot
+    option -command -default [list]
+
+    variable plotName "";         # Name of the plot chart plot.
+
+    constructor args {
+        #  We need to create the UI before doing the configure list
+        #  In cas the -samples  ares set.
+
+        canvas $win.plot -width 500 -height 300
+        grid $win.plot -sticky nsew
+        ttk::button $win.update -text Refresh -command [mymethod _relayUpdate]
+        grid $win.update
+        
+        $self configurelist $args
+    }
+}
