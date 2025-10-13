@@ -36,10 +36,10 @@ package require Plotchart;        # FOr waveform plots.
 #
 #  OPTIONS:
 #     -names        - waveform names.
-#     -selectscript - Script to handle the listing selecting a waveform.
-#     -setwaveform  - Set the current waveform in the md editor. 
-#     -wfupdatescript - Update a waveform definition.
-#     -plotupdatescript - Update the plot.
+#     -selectscript - Script to handle the listing selecting a waveform.  Receives the waveform name as a param
+#     -waveform  - Set the current waveform in the md editor. 
+#     -wfupdatescript - Update a waveform definition. Receives the waveform definition dict as a parameter.
+#     -plotupdatescript - Update the plot. Receives the waveform name as a parameter.
 # Methods:
 #    plot  plot a waveform.
 #
@@ -49,7 +49,7 @@ snit::widget WaveformWidget {
     component wfplot
 
     option -selectscript
-    option -setwaveform -configuremethod setEditor
+    option -waveform -configuremethod _setWaveform
     option -wfupdatescript
     option -plotupdatescript
 
@@ -65,8 +65,92 @@ snit::widget WaveformWidget {
 
         $self configurelist $args
     }
-}
 
+    # Public methods:
+
+    ##
+    # plot
+    #
+    #   Given data from waveform list for a single waveform, plot it.
+    #
+    # @param data - dtaa is at least a two element list containing the name of the
+    #     waveform and the data points.  At least because for MPI, there will actually
+    #     be a trace from each worker.
+    #
+    method plot data {
+        set name [lindex $data 0]
+        set trace [lindex $data 1]
+        $wfplot configure -name $name -samples $trace
+    }
+    # Private methods
+
+    ##
+    #  _setWaveform
+    #    Called by the client to:
+    # * Load a waveform definition into the editor.
+    # * set the name in the waveform plot.
+    # param opt - name of the optin, always -waveform.
+    # @param value - should be a waveform definition from waveform list.
+    #
+    method _setWaveform {opt value} {
+        set name [dict get $value name]
+        $mdeditor load $value
+        $plot configure -name $name
+
+        set options($opt) $value
+
+       
+    }
+    ##
+    #  _selectWaveform
+    #     Called when a waveform was selected from the listing widget.
+    #    If options(-selectscript) is not empty it is called with the
+    #   selected waveform name as the parameter.
+    #
+    # @param name - waveform name that was selecte.
+    #
+    method _selectWaveform name {
+        set script $options(-selectscript)
+        if {$script ne ""} {
+            uplevel 0 $script $name
+        }
+    }
+    ##
+    #  _updateWfDef
+    #    Called when the waveform metadata editor has had commit clicked.
+    # If options(-wfupdatescript) is defined, it is called with the new
+    # waveform definition dict.
+    #
+    method _updateWfDef {} {
+        set script $options(-wfupdatescript)
+        if {$script ne ""} {
+            set name [$mdeditor cget -name]
+            set samples [$mdeditor cget -samples]
+            set metadata [$mdeditor cget -metadata]
+
+            set definition [dict create name $name samples $samples metadata $metadata]
+            uplevel 0 $script {$definition};   # since uplevel unwraps a level of list.
+        }
+    }
+    ##
+    # _updatePlot
+    #    Clicked if the waveform plot wants an update.
+    # Preconditions:
+    #   There must be a selected waveform name in the metadata editor.
+    #   There must be a -plotupdatescript
+    #
+    #  If these preconditions are met, the plotupdate script is called at level 0.
+    #  with the selected name as the parameter.  It is expected that it will get the
+    #  waveform samples and invoke plot.
+    #
+    method _updatePlot {} {
+        set name [$mdeditor cget -name]
+        set script $options(-plotupdatescript)
+        if {($name ne "") && ($script ne "")} {
+            uplevel 0 $script $name
+        }
+    }
+}
 
 ##
 #  WaveFormList
@@ -565,17 +649,13 @@ snit::widget WaveformDisplay {
             destroy $plotName
             set plotName ""
         }
-
         # Figure out our axis ranges and labels.
 
         set xaxis [list 0 [llength $options($opt)] ""]
         set yaxis [list 0 [_ymax $options($opt)] ""]
-
         set xlabels [_xlabels $xaxis ]
         set ylabels [_ylabels $yaxis ]
-
         # Generate the canvas and plot:
-
         canvas $win.plot -width $width -height $height
         grid $win.plot -row 0 -column 0
         set plotName [Plotchart::createXYPlot $win.plot $xaxis $yaxis \
@@ -589,6 +669,7 @@ snit::widget WaveformDisplay {
 
         $plotName plotlist trace $xpts $options($opt) [llength $options($opt)]
         $plotName dataconfig trace -type line
+
     }
 
     #  Utility proces:
@@ -629,5 +710,100 @@ snit::widget WaveformDisplay {
     proc _xpoints yvalues {
         set max  [expr {[llength $yvalues] - 1}]
         return [_labels [list 0 $max] 1]
+    }
+}
+
+##
+#  WaveformController
+#     The controller for the waveform MVC triad.  The model is SpecTcl
+# itself and the command set that provides access to the waveforms.
+#
+# OPTIONS
+#    -view - the widget that contains the vew.  When it's confi9gured, we hook
+#           into its script callbacks and alsso load the waveform names
+#           into the view.
+#
+snit::type WaveformController {
+    option -view -configuremethod _loadWaveforms
+    
+
+    constructor {args} {
+        $self configurelist $args;    #might call _loadWaveforms.
+    }
+    #  Option processing:
+
+    ##
+    # _loadWaveforms
+    #   Process setting the -view option.   The names of the waveforms are
+    #  loaded into the view's -names option.
+    #
+    # @param option - name of the option (-view always).
+    # @param value  - View widget command.
+    #
+    method _loadWaveforms {option value} {
+        set options(-view) $value
+
+        #Load the names into the view:
+
+        set listing [waveform list];    # waveform dicts.
+        set names [list]
+        foreach def $listing {
+            lappend names [dict get $def name]
+        }
+        $value configure -names $names
+        
+        # Next hook our callback methods into the script callbacks for the view:
+
+        $value configure -selectscript [mymethod _selectWaveform] \
+            -wfupdatescript [mymethod _wfredefine] -plotupdatescript [mymethod _plot]
+
+    }
+    #   View callback handlers:
+
+    ##
+    #  _selectWaveform
+    #    Called when the user selected a waveform from the selection list
+    #  We load it into the metadata editor part of the view:
+    #
+    # @param name - name of the selected waveform.
+    #
+    method _selectWaveform name {
+        
+        set def [waveform list $name]
+        if {[llength $def] > 0} {;      # It's a list maybe deleted?
+            set def [lindex $def 0]
+            
+            #There's a view since it called us:
+            $options(-view) configure -waveform $def
+        }
+    } 
+    ##
+    # _wfredefine
+    #    Called when the metadata editor part of the view has asked us to commit
+    #   changes to the waveform definition.
+    #
+    #  @param def - Dict that is the new waveform definition.
+    #
+    method _wfredefine def {
+        set name [dict get $def name]
+        set samples [dict get $def samples]
+        set metadata [dict get $def metadata]
+
+        waveform resize $name $samples
+        waveform metadata set $name {*}$metadata
+    }
+    ##
+    # _plot
+    #    Called when the user wants to update the plot of a waveform.
+    #    We just need to get the waveform data and send it on to the view's 
+    #   plot method
+    #
+    # @param name - name of the waveform.
+    #
+    method _plot name {
+        set points [waveform get $name]
+        set points [lindex $points 0] ;   # Could be several waveforms.
+
+        $options(-view) plot $points
     }
 }
