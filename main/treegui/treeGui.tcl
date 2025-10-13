@@ -28,6 +28,7 @@ package require gateTabActions
 package require spectrumTabActions
 package require SpecTclGui
 package require treeUtilities
+package require SpecTclWaveforms
 
 ##
 # updateParameterMenus
@@ -70,6 +71,12 @@ if {![winfo exists .treegui]}  {	# Don't do it twice!
 
     $treenotebook add $treenotebook.gates -text Gates -sticky nsew
     
+    # The new waveform gui tab:  Issue #2301
+
+    WaveformWidget $treenotebook.waveforms
+    WaveformController %AUTO% -view $treenotebook.waveforms
+    $treenotebook add $treenotebook.waveforms -text "Waveforms" -sticky nsew
+
     #  Now the folder gui as a new tab:
     
 

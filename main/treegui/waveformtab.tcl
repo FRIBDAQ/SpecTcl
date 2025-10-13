@@ -588,7 +588,7 @@ snit::widget WaveformDisplay {
 
     #  Canvas dimensions so we can easily change them as we tweak.
     variable height 500
-    variable width 700
+    variable width 800
     constructor args {
         #  We need to create the UI before doing the configure list
         #  In cas the -samples  ares set.
@@ -691,7 +691,7 @@ snit::widget WaveformDisplay {
     # _ylabels - given an axis spec return labels every 1000
 
     proc _ylabels axis {
-        return [_labels $axis 1000]
+        return [_labels $axis 500]
     }
     # _labels - return labels for a given interval
 
