@@ -49,7 +49,7 @@ namespace eval waveform {
     }
     proc _traceToJson trace {
         return [json::write object \
-            name [json::write string[lindex $trace 0]] \
+            name [json::write string [lindex $trace 0]] \
             samples [json::write array {*}[lindex $trace 1]] \
         ]
     }
@@ -118,7 +118,7 @@ proc SpecTcl_waveform/get {name} {
     }
     set result [list]
     foreach trace $msg {
-        lappend result [_wavform::_traceToJson $trace]
+        lappend result [waveform::_traceToJson $trace]
     }
     SpecTcl::_returnObject OK [json::write array {*}$result]
 }
