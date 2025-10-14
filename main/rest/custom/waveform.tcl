@@ -132,8 +132,8 @@ proc SpecTcl_waveform/get {name} {
 # Result:
 #   An array of name value objects for each metadata item.
 #
-proc SpecTcl_waveform/metadata/get {name {key }} {
-    set ::SpecTcl_waveform/metadata/ge=application/json;  # All return JSON.
+proc SpecTcl_waveform/metadata/get {name {key {}}} {
+    set ::SpecTcl_waveform/metadata/get application/json;  # All return JSON.
     set cmd [list waveform metadata get $name]
     if {$key ne ""} {
         lappend cmd $key
@@ -145,10 +145,11 @@ proc SpecTcl_waveform/metadata/get {name {key }} {
         ]
     }
     set result [list]
-    foreach metadata $msg {
+   
+    dict for {key value} $msg {
         lappend result [json::write object \
-            name [json::write string [lindex $metadata 0]] \
-            value [json::write string [lindex $metadata 1]] \
+            name [json::write string $key] \
+            value [json::write string $value] \
         ]
     }
     SpecTcl::_returnObject OK [json::write array {*}$result]
