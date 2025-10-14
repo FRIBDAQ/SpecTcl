@@ -69,7 +69,7 @@ proc SpecTcl_waveform/create {name samples} {
         waveform create $name $samples
     } msg]
     if {$status} {
-        return [SpecTcl_returnObject "'waveform create' failed" \
+        return [SpecTcl::_returnObject "'waveform create' failed" \
             [json::write string $msg]                          \
         ]
     } 
