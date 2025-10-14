@@ -167,10 +167,10 @@ proc SpecTcl_waveform/metadata/get {name {key {}}} {
 #     before the metadata are set as are the match in the number of metadata key/values.
 #     This impllies the that this request either fully succeeds or fully fails.
 #
-proc SpecTcl_waveformm/metadata/set {name keys values} {
+proc SpecTcl_waveform/metadata/set {name key value} {
     set ::SpecTcl_waveform/metadata/set application/json;  # All return JSON.
 
-    if {[llength $keys] != [llength $values]} {
+    if {[llength $key] != [llength $value]} {
         return [SpecTcl::_returnObject "'key' and 'value' parameters must appear the same number of times"]
     }
     set def [waveform list $name]
@@ -178,8 +178,8 @@ proc SpecTcl_waveformm/metadata/set {name keys values} {
         return [SpecTcl::_returnObject "No such waveform '$name'"]
     }
     set cmd [list waveform metadata set $name]
-    foreach key $keys  value $values {
-        lappend cmd $key $value
+    foreach k $key  v $value {
+        lappend cmd $k $v
     }
     set status [catch {eval $cmd} msg]
     if {$status} {
