@@ -3782,7 +3782,7 @@ c destroy                                     <co id='ex.client.destroy' />
                                             </listitem>
                                         </varlistentry>
                                         <varlistentry>
-                                                <term><literal>metadata</literal></term>
+                                                <term><literal>metadata</literal>cd</term>
                                                 <listitem>
                                                     <para>
                                                         A dict containing the metadata where keys are the names of

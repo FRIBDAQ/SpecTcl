@@ -16,6 +16,8 @@
 /**
  *  @file CWaveformCommand.cpp
  *  @brief implementation of the waveform command.
+ *  @note  in MPI Mode, we are only going to actually execute stuff in the 
+ *         workers.
  */
 
 #include "CWaveformCommand.h"
@@ -30,6 +32,7 @@
 #include <sstream>    // for message formatting.
 #include <tcl.h>
 #include <TclPump.h>
+#include <Globals.h>
 
  /**
   * constructor
@@ -60,44 +63,46 @@ CWaveformCommand::~CWaveformCommand() {}
  */
 int
 CWaveformCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
-    try {
-        bindAll(interp, objv);       // So subcommands don't have to.
-        requireAtLeast(
-            objv, 2, 
-            "Insufficient number of command parameters");  // Even implied create has a parameter.
-        std::string sub = objv[1];
-        if(sub == "create") {
-            create(interp, objv, 2);              // Name is after create subcommand.
-        } else if (sub == "list") {
-            list(interp, objv);
-        } else if (sub == "get") {
-            get(interp, objv);
-        } else if (sub == "metadata") {
-            metadata(interp, objv);
-        } else if (sub == "resize") {
-            resize(interp, objv);
-        } else {
-            create(interp, objv, 1);              // no subcommand, assume create.
+    if (!gMPIParallel || (myRank() >= MPI_FIRST_WORKER_RANK)) {
+        try {
+            bindAll(interp, objv);       // So subcommands don't have to.
+            requireAtLeast(
+                objv, 2, 
+                "Insufficient number of command parameters");  // Even implied create has a parameter.
+            std::string sub = objv[1];
+            if(sub == "create") {
+                create(interp, objv, 2);              // Name is after create subcommand.
+            } else if (sub == "list") {
+                list(interp, objv);
+            } else if (sub == "get") {
+                get(interp, objv);
+            } else if (sub == "metadata") {
+                metadata(interp, objv);
+            } else if (sub == "resize") {
+                resize(interp, objv);
+            } else {
+                create(interp, objv, 1);              // no subcommand, assume create.
+            }
+
         }
-
-    }
-    catch (std::string msg) {
-        interp.setResult(msg);
-        return TCL_ERROR;
-    }
-    catch (std::exception& e) {
-        interp.setResult(e.what());
-        return TCL_ERROR;
-    }
-    catch (CException& e) {
-        interp.setResult(e.ReasonText());
-        return TCL_ERROR;
-    }
-    catch (...) {
-        interp.setResult("Unexpected exception type executing waveform command");
-        return TCL_ERROR;
-    }
-
+        catch (std::string msg) {
+            interp.setResult(msg);
+            return TCL_ERROR;
+        }
+        catch (std::exception& e) {
+            interp.setResult(e.what());
+            return TCL_ERROR;
+        }
+        catch (CException& e) {
+            interp.setResult(e.ReasonText());
+            return TCL_ERROR;
+        }
+        catch (...) {
+            interp.setResult("Unexpected exception type executing waveform command");
+            return TCL_ERROR;
+        }
+    }                                      //Not mpi or mpi and a worker.
+    // In MPI mode, non-workers do nothing and return OK.
     return TCL_OK;
 }
 ///////////////////////// protected methods are sub-command handlers. //////////////////////////////////
@@ -574,6 +579,7 @@ CWaveformCommand::getWaveform(CTCLObject& result, const CWaveform& wf) {
         points += p;
     }
     result += points;
+    result += myRank();              // MPI rank (0 if not MPI).
 
 }
 

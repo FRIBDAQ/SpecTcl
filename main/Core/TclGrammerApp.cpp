@@ -954,6 +954,7 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   new CMirrorCommand(rInterp);
   new CWaveformCommandWrapper(rInterp);
   
+  
   cerr.flush();
 }
 
