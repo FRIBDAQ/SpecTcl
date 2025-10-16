@@ -337,6 +337,12 @@ public:
   void               deleteFilter(std::string filterName);
   void               addFilterOutputFormat(CFilterOutputStageCreator&amp; creator);
 
+  void addWaveform(const CWaveform&amp; wf);
+  void removeWaveform(const char* name);
+  size_t waveformCount();
+  CWaveform* findWaveform(const char* name);
+  CWaveFormDictionary::Dictionary_t::iterator waveformBegin();
+  CWaveFormDictionary::Dictionary_t::iterator waveformEnd();
 
   // Expose the guts for the really curious and those who need more
   // than we can offer.
@@ -3721,6 +3727,79 @@ if (pSomeFilter) {
                 </listitem>
             </varlistentry>
         </variablelist>
+        <para>
+            This chunk of the API provides access to waveform objects:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <type>void</type>
+                        <methodname>addWaveform</methodname>
+                        <methodparam>
+                            <type>const CWaveform&amp;</type> <parameter>wf</parameter>
+                        </methodparam>
+                    </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Adds a copy of the waveform <parameter>wf</parameter> to the 
+                    waveform dictionary.  If a waveform by this name already exists,
+                    <classname>CDuplicateSingleton</classname> is thrown.  Note that the original
+                    waveform parameter is not really usable.  First use <methodname>findWaveform</methodname>
+                    to get a pointer to the copy of the waveform that this method created.  
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>void</type> <methodname>removeWaveform</methodname>
+                    <methodparam>
+                        <type>const char*</type> <parameter>name</parameter>
+                    </methodparam>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Removes the named waveform from the waveform dictionary.  This should be done
+                    with caution as it invalidates any pointers to the waveform that e.g. event processors
+                    might be holding (this is why the <command>wavefom</command> command has no delete subcommand).
+                    If the named waveform does not exist, <classname>CNoSuchObjectException</classname>
+                    is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>size_t</type> <methodname>waveformCount</methodname>
+                    <void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns the number of known waveforms.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>CWaveFormDictionary::Dictionary_t::iterator</type> 
+                    <methodname>waveformBegin</methodname>
+                    <void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns an iterator to the beginning of iteration in the waveform dictionary.
+                    The iterator can be dereferenced to a an std::pair&lt;std::string, CWaveform"&gt;
+                    It can also be compared for equality with other iterators most often the one
+                    returned from <methodname>waveformEnd</methodname>
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>CWaveFormDictionary::Dictionary_t::iterator</type>
+                    <methodname>waveformEnd</methodname>
+                    <void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns an iterator off the end of the waveform dictionary.  Iteration
+                    through the dictionary should end when the iterator is equal to this.
+                </para></listitem>
+            </varlistentry>
+
+        </variablelist>
+        
         <para>
             The remainder of the API are miscellaneous methods that don't really
             fit well into any of the method categories above.
@@ -34612,6 +34691,371 @@ virtual std::string  type() const = 0;
             </varlistentry>
         </variablelist>
 
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CWaveform</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CWaveform</refname>
+        <refpurpose>Container for waveforms</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;CWaveForm.h&gt;
+
+class CWaveform : public CNamedItem {
+public:
+    typedef std::map&lt;std::string, std::string&gt; Metadata_t;
+    typedef std::vector&lt;uint16_t&gt;  WaveForm_t;
+public:
+
+    CWaveform(const char* name, size_t nSamples);
+    virtual ~CWaveform();
+public:
+    void setMetadata(const char* name, const char* value);
+    std::string getMetadata(const char* name) const;
+    const Metadata_t&amp; getMetadata() const;
+
+    void update(const uint16_t* data);    // Update the waveform.
+    const WaveForm_t&amp; trace() const;
+    void resize(unsigned nSample);        // Change # of samples.
+    size_t size() const;
+
+
+private:
+    static unsigned getid();
+};
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CWaveform</classname> class provides a container object for 
+            waveforms in SpectTcl.  Normally, waveforms are made known to SpecTcl
+            by creating them and then using the <methodname>SpecTcl::addWaveform</methodname>
+            API element to add them to the waveform dictionary (see
+            <link linkend='spectcl.cwaveformdictionary' endterm='spectcl.cwaveformdictionary.title' />).
+        </para>
+        <para>
+            The SpecTcl <command>waveform</command> can also be used to create waveforms and insert them
+            into the dictionary.  Event processors can then locate waveforms and fill them as they desire.
+        </para>
+        <para>
+            Optionally, waveform objects  can have arbitrary metadata associated with them. These
+            metadata are simply name/value pairs.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                    <term><constructorsynopsis>
+                        <methodname>CWaveform</methodname>
+                        <methodparam>
+                            <type>const char*</type> <parameter>name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>size_t</type> <parameter>nSamples</parameter>
+                        </methodparam>
+                    </constructorsynopsis></term>
+                    <listitem>
+                        <para>
+                            Constructs a new waveform.  Waveforms have names and size. The
+                            <parameter>name</parameter> is the new waveform's name and
+                            it will have <parameter>nSamples</parameter> samples worth of 
+                            <type>uint16_t</type> storage.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><methodsynopsis>
+                        <type>void</type><methodname>setMetadata</methodname>
+                        <methodparam>
+                            <type>const char*</type> <parameter>name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const char*</type> <parameter>value</parameter>
+                        </methodparam>
+                    </methodsynopsis></term>
+                    <listitem>
+                        <para>
+                            Creates or updates waveform metadata.  The name of the  metadata item
+                            to create/modify is <parameter>name</parameter> its new value will be
+                            <parameter>value</parameter>.  If <parameter>name</parameter> does not yet
+                            exist as metadata, a new metadata item is created otherwise the existing 
+                            metadata item's value is updated.
+                        </para>
+                    </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                    <term><methodsynopsis>
+                        <type>std::string</type> <methodname>getMetadta</methodname>
+                        <methodparam>
+                            <type>const char*</type> <parameter>name</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis></term>
+                    <listitem>
+                        <para>
+                            Returns the value of the metadata <parameter>name</parameter>.
+                            If <parameter>name</parameter> does not specify exisiting metadata,
+                            a <classname>CNoSuchObjectException</classname> is thrown .
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><methodsynopsis>
+                        <type>const Metadta_t&amp;</type> <methodname>getMetadata</methodname>
+                        <void />
+                    </methodsynopsis></term>
+                    <listitem>
+                        <para>
+                            Returns a reference to the metadata.  See <literal>DATA TYPES</literal> for
+                            a description of the return type.  The reference returned is const allowing
+                            only const methods to be invoked on it.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><methodsynopsis>
+                        <type>void</type> <methodname>update</methodname>
+                        <methodparam>
+                            <type>const uint16_t*</type> <parameter>data</parameter>
+                        </methodparam>
+                    </methodsynopsis></term>
+                    <listitem>
+                        <para>
+                            The waveform pointed to by <parameter>data</parameter> is loaded into the
+                            waveform object's waveform storage.  <methodname>size</methodname>() 
+                            <type>uint16_t</type> items will be copied from <parameter>data</parameter>
+                            so at least that much storage must be available.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><methodsynopsis>
+                        <type>const WaveForm_t&amp;</type> <methodname>trace</methodname>
+                        <void /><modifier>const</modifier>
+                    </methodsynopsis></term>
+                    <listitem>
+                        <para>
+                            Returns a const reference to the trace data that has been stored in the waveform.
+                            If <methodname>update</methodname> has never been called on this object, the trace
+                            Only const methods can be called on the returned reference.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>void</type> <methodname>resize</methodname>
+                    <methodparam>
+                        <type>unsigned</type> <parameter>newsize</parameter>
+                    </methodparam>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Resizes the waveform storage to <parameter>newsize</parameter>
+                    <type>uint16_t</type> elements.  The resized waveform is initialized
+                    to all zeroes.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>size_t</type> <methodname>size</methodname>
+                    <void /><modifier>const</modifier>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns the number of samples the waveform has.
+                </para></listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>DATA TYPES</title>
+        <para>
+            The class defines the following types:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>Metadata_t</type></term>
+                <listitem>
+                    <para>
+                        This is defined as <type>std::map&lt;std::string, std::string&gt;</type>;
+                        a map of keys that are the names of metadata items and their string values.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>WaveForm_t</type></term>
+                <listitem><para>
+                    Waveforms are held in vectors.  <methodname>update</methodname> is used to
+                    load a new waveform and <methodname>trace</methodname> to get a const reference
+                    to the waveform.
+                </para></listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
+<refentry id='spectcl.cwaveformdictionary'>
+    <refmeta>
+        <refentrytitle id='spectcl.cwaveformdictionary.title'>CWaveformDictionary</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CWaveformDictionary</refname>
+        <refpurpose>Singleton that holds SpecTcl's known waveforms</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;CWaveFormDictionary.h&gt;
+
+class CWaveFormDictionary {
+public:
+    typedef std::map&lt;std::string, CWaveform&gt; Dictionary_t;
+public:
+    static CWaveFormDictionary&amp; getInstance();
+
+    CWaveform&amp; add(const CWaveform&amp; trace);
+    void remove (const char* name);
+
+    size_t size() const;
+    CWaveform&amp; find(const char* name);
+    Dictionary_t::iterator begin();
+    Dictionary_t::iterator end();
+ };
+
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This is a singleton object.  As such, you cannot construct it directly but must use the
+            <methodname>getInstance</methodname> to get a reference to the singleton.  The dictionary holds
+            all of the waveforms that are known to SpecTcl.  It is not enough to create a 
+            <classname>CWaveform</classname> object.  You must enter that object into the waveform dictionary for it to
+            be known to e.g. the <command>waveform</command> command or the <classname>SpecTcl</classname>
+            API singleton's waveform manipulation methods.
+        </para>
+        <para>
+            Note that in order to assure object lifetimes, adding an item to the dictionary creates a copy and adds
+            that copy.  Once your code has done that, it normally then finds that item in the dictionary
+            in order to fill the waveform.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>static CWaveformDictionary&amp;</type> <methodname>getInstance</methodname>
+                    <void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns a reference to the <classname>CWaveformDictionary</classname> singleton object,
+                    creating it if needed.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>CWaveform&amp;</type> <methodname>add</methodname>
+                    <methodparam>
+                        <type>CWaveform&amp;</type> <parameter>trace</parameter>
+                    </methodparam>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Adds a copy of the <parameter>trace</parameter> to the dictionary. 
+                    The method returns a referene to the copy of the waveform that is in the dictionary.
+                    The caller should not longer use the waveform it created but this reference instead, or,
+                    alternatively use the result of a <methodname>find</methodname> calls.
+                    If a waveform with the same name exists, 
+                    <classname>CDuplicateSingleton</classname> is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>void</type> <methodname>remove</methodname>
+                    <methodparam>
+                        <type>const char*</type> <parameter>name</parameter>
+                    </methodparam>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Remove the waveform named by <parameter>name</parameter> from the
+                    dictionary.  If the waveform does not exist, 
+                    <classname>CNoSuchObjectException</classname> is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>size_t</type> <methodname>size</methodname>
+                    <void /><modifier>const</modifier>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns the number of waveform objects in the dictionary.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>CWaveform&amp;</type> <methodname>find</methodname>
+                    <methodparam>
+                        <type>const char*</type><parameter>name</parameter>
+                    </methodparam>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns a reference to the waveform named <parameter>name</parameter> in the
+                    dictionary.  If there is no such waveform,
+                    <classname>CNoSuchObjectException</classname> is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>Dictionary_t::iterator</type> <methodname>begin</methodname><void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Retuns an iterator to the beginning of the dictionary.  Iterators can be
+                    derefernced to produce <type>std::pair&lt;std::string, CWaveform&amp;&gt;</type>.
+                    Where the string is the waveform name.  Be careful handling the second element
+                    of the pair as <classname>CWaveform</classname> objects are can be copied and any
+                    modifications made to the copy are not reflected in the dictionary object.
+                </para><para>
+                    These iterators can also be compared for equality and normally this is done to
+                    the itertor returned by the <methodname>end</methodname>.
+                </para><para>
+                    The existence of <methodname>begin</methodname> and <methodname>end</methodname>
+                    methods also supports using a for loop directly to loop over the map as in the
+                    code fragment below:
+                    <informalexample>
+                        <programlisting>
+...
+auto&amp; d = CWaveFormDictionary::getInstance();
+for(auto&amp; p : d) {
+    std::string name = p.first;
+    CWaveform&amp; wf = p.second;
+    ...
+}
+...
+                     </programlisting>
+                    </informalexample>
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>Dictionary_t::iterator</type> <methodname>end</methodname><void />
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns an end of iteration iterator into the map.  See <methodname>begin</methodname>
+                </para></listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>DATA TYPES</title>
+        <para>
+            The class exports the <type>Dictionary_t</type> data type which is a typedef for
+            <type>std::map&lt;std::string, CWaveform&gt;</type>
+        </para>
     </refsect1>
 </refentry>
 <refentry>

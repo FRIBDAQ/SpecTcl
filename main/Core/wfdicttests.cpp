@@ -1,0 +1,301 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2017.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Giordano Cerriza
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
+/** @file:  wfdicttests.cpp
+ *  @brief: Test the waveform dictionary singleton.
+ */
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/Asserter.h>
+#include "Asserts.h"
+
+#define private public
+#include "CWaveFormDictionary.h"
+#undef private
+#include "CWaveForm.h"
+
+#include <CDuplicateSingleton.h>
+#include <CNoSuchObjectException.h>
+
+
+
+class WFDictTests : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE(WFDictTests);
+    CPPUNIT_TEST(instance_1);
+    CPPUNIT_TEST(instance_2);
+
+    CPPUNIT_TEST(add_1);
+    CPPUNIT_TEST(add_2);
+    CPPUNIT_TEST(add_2);
+
+    CPPUNIT_TEST(remove_1);
+    CPPUNIT_TEST(remove_2);
+    CPPUNIT_TEST(remove_3);
+
+    CPPUNIT_TEST(size_1);
+    CPPUNIT_TEST(size_2);
+    CPPUNIT_TEST(size_3);
+
+    CPPUNIT_TEST(find_1);
+    CPPUNIT_TEST(find_2);
+    CPPUNIT_TEST(find_3);
+
+    CPPUNIT_TEST(iter_1);
+    CPPUNIT_TEST(iter_2);
+    CPPUNIT_TEST_SUITE_END();
+
+protected:
+    void instance_1();
+    void instance_2();
+
+    void add_1();
+    void add_2();
+    void add_3();
+
+    void remove_1();
+    void remove_2();
+    void remove_3();
+
+    void size_1();
+    void size_2();
+    void size_3();
+
+    void find_1();
+    void find_2();
+    void find_3();
+
+    void iter_1();
+    void iter_2();
+public:
+    void setUp() {
+        // destroy the dictionary:
+        delete CWaveFormDictionary::m_pInstance;
+        CWaveFormDictionary::m_pInstance = nullptr;
+
+    }
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(WFDictTests);
+
+// Get instance tests:
+
+void
+WFDictTests::instance_1() {
+    // A non null ref is retunred.
+    auto& d1 = CWaveFormDictionary::getInstance();
+    ASSERT(&d1);
+}
+void
+WFDictTests::instance_2() {
+    // The same instance ref is returned both times:
+
+    auto& d1 = CWaveFormDictionary::getInstance();
+    auto& d2 = CWaveFormDictionary::getInstance();
+
+    EQ(&d1, &d2);
+}
+
+// Add tests.
+
+void
+WFDictTests::add_1() {
+    // Adding an item is ok and adds it to the underlying dict:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    CPPUNIT_ASSERT_NO_THROW(d.add(CWaveform("test", 100)));
+
+    EQ(size_t(1), d.m_dict.size());
+    ASSERT(d.m_dict.find("test") != d.m_dict.end());
+    const CWaveform& wf = d.m_dict.find("test")->second;
+    //EQ(size_t(100), wf.size());
+}
+void
+WFDictTests::add_2() {
+    // Adding a second item with a distinct name is ok.
+
+    auto& d= CWaveFormDictionary::getInstance();
+    CPPUNIT_ASSERT_NO_THROW(d.add(CWaveform("test1", 100)));
+    CPPUNIT_ASSERT_NO_THROW(d.add(CWaveform("test2", 100)));
+
+    EQ(size_t(2), d.m_dict.size());
+    ASSERT(d.m_dict.find("test1") != d.m_dict.end());
+    ASSERT(d.m_dict.find("test2") != d.m_dict.end());
+}
+void
+WFDictTests::add_3() {
+    // It's a duplicate singleton to put two identically named waveforms in the cit.
+
+    auto& d = CWaveFormDictionary::getInstance();
+
+    d.add(CWaveform("test", 100));
+    CPPUNIT_ASSERT_THROW(
+        d.add(CWaveform("test", 150)),
+        CDuplicateSingleton
+    );
+}
+// Test remove method:
+
+void
+WFDictTests::remove_1() {
+     // An item is removed:
+
+     auto& d = CWaveFormDictionary::getInstance();
+     d.add(CWaveform("test", 100));
+     CPPUNIT_ASSERT_NO_THROW(d.remove("test"));
+
+     EQ(size_t(0), d.m_dict.size());
+}
+
+void 
+WFDictTests::remove_2() {
+    // the right one is removed of 2:
+
+    auto& d = CWaveFormDictionary::getInstance();
+
+    d.add(CWaveform("test", 100));
+    d.add(CWaveform("TEST", 100));
+
+    CPPUNIT_ASSERT_NO_THROW(d.remove("test"));   // the lower case one.
+
+    EQ(size_t(1), d.m_dict.size());             // still one left.
+    ASSERT(d.m_dict.find("TEST") != d.m_dict.end());  // the right one is still left.
+}
+void
+WFDictTests::remove_3() {
+    // removing nonexisting throws:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    CPPUNIT_ASSERT_THROW(
+        d.remove("test"),
+        CNoSuchObjectException
+    );
+}
+// Test the size method:
+
+void 
+WFDictTests::size_1() {
+    // initially 0:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    EQ(size_t(0), d.size());
+}
+void
+WFDictTests::size_2() {
+    // IF I put one in, size is 1.
+
+    auto& d = CWaveFormDictionary::getInstance();
+
+    d.add(CWaveform("test", 100));
+
+    EQ(size_t(1), d.size());
+}
+
+void
+WFDictTests::size_3() {
+    // I put four in and take one  out I have three:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    d.add(CWaveform("larry", 100));
+    d.add(CWaveform("curly", 100));
+    d.add(CWaveform("moe", 100));
+    d.add(CWaveform("shemp", 100));
+
+    d.remove("curly");
+
+    EQ(size_t(3), d.size());
+}
+
+// test find method:
+
+void
+WFDictTests::find_1() {
+    // Can find the one I put in:
+
+    auto& d = CWaveFormDictionary::getInstance();
+
+    d.add(CWaveform("test", 100));
+    CPPUNIT_ASSERT_NO_THROW({
+        auto& wf = d.find("test");
+        EQ(std::string("test"), wf.getName());
+    });
+}
+void
+WFDictTests::find_2() {
+    // can find the right one of several:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    d.add(CWaveform("larry", 100));
+    d.add(CWaveform("curly", 100));
+    d.add(CWaveform("moe", 100));
+    d.add(CWaveform("shemp", 100));
+
+    CPPUNIT_ASSERT_NO_THROW({
+        auto& wf = d.find("curly");
+        EQ(std::string("curly"), wf.getName());
+    });
+
+}
+void
+WFDictTests::find_3()
+{ 
+    // Find no such throws:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    d.add(CWaveform("larry", 100));
+    d.add(CWaveform("curly", 100));
+    d.add(CWaveform("moe", 100));
+    d.add(CWaveform("shemp", 100));
+
+    CPPUNIT_ASSERT_THROW(
+        d.find("test"),
+        CNoSuchObjectException
+    );
+}
+
+// test iteration:
+
+void
+WFDictTests::iter_1() {
+    // empty dict, begin is end:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    ASSERT(d.begin() == d.end());
+}
+void WFDictTests::iter_2() {
+    // Four element iteration:
+
+    auto& d = CWaveFormDictionary::getInstance();
+    d.add(CWaveform("larry", 100));
+    d.add(CWaveform("curly", 100));
+    d.add(CWaveform("moe", 100));
+    d.add(CWaveform("shemp", 100));
+    auto p = d.begin();
+    ASSERT(p != d.end());              
+
+    // White box - they'll come out alpha by name:
+    EQ(std::string("curly"), p->second.getName());
+    ++p;                        // larry
+    ASSERT(p != d.end());              
+    EQ(std::string("larry"), p->second.getName());
+    ++p;                       // moe.
+    ASSERT(p != d.end());              
+    EQ(std::string("moe"), p->second.getName());
+    ++p;                      // Shemp.
+    ASSERT(p != d.end());              
+    EQ(std::string("shemp"), p->second.getName());
+    ++p;                           // end.
+    ASSERT(p == d.end());
+}

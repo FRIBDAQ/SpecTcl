@@ -4006,5 +4006,181 @@ http://host:port/spectcl/mirror<optional>?pattern=<replaceable>host-pattern</rep
             tothat memory directly.   If not it can set up a new mirror.
         </para>
         </section>
+        <section>
+            <title>Waveform requests (new in 7.0-003)</title>
+            <para>
+                SpecTcl version 7.0-003 introduced the <command>waveform</command>.
+                This command supports the storage and retrieval of digitized waveforms 
+                and their associated metadata.  This section of the ReST documents
+                describes the encapsulation of this command's capabilities within the
+                ReST server.
+            </para>
+            <para>
+                The base URL for ReST access to the waveform command is:
+                <literal>http://host:port/spectcl/waveform</literal>. 
+            </para>
+            <section>
+                <title>Creating new waveforms</title>
+                <informalexample>
+                    <cmdsynopsis>
+                        <command>
+http://host:port/spectcl/waveform/create?name=<replaceable>wfname</replaceable>&amp;samples=<replaceable>length</replaceable>
+                        </command>
+                    </cmdsynopsis>
+                </informalexample>
+                <para>
+                    In this request, the query parameter <literal>name</literal> is the
+                    name of the waveform to create and <literal>samples</literal> is the number of samples the
+                    waveform will hold.  Note that creating a wavform does not automatically mean it will be filled.
+                    That is up to the user written event processors running in SpecTcl.  If one of them, from time to time,
+                    attempts to locate a crated waveform and then fill it in, the waveform will get populated.
+                </para>
+                <para>
+                    The detail section of the response is empty on success.
+                </para>
+            </section>
+            <section>
+                <title>Listing waveform properties</title>
+                <informalexample>
+                    <cmdsynopsis>
+                        <command>
+>http://host:port/spectcl/waveform/list<optional>?pattern=<replaceable>wfname-pattern</replaceable></optional>
+                        </command>
+                    </cmdsynopsis> 
+                </informalexample>
+                <para>
+                    This request lists the the properties of all waveforms that match the optional 
+                    <literal>pattern</literal> query parameter.  If provided, this parameter is a glob pattern that
+                    determines which waveforms will be listed.  If not supplied the pattern defaults to <literal>*</literal> 
+                    which matches all waveform names..
+                </para>
+                <para>
+                    The detail is a JSON array.  Each element of the array is an object that describes a single waveform.
+                    Each object has the following attributes:
+                    <variablelist>
+                        <varlistentry>
+                                <term><literal>name</literal></term>
+                                <listitem>
+                                    <para>
+                                        The value of this attribute is the name of the waveform being desribed.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term><literal>samples</literal></term>
+                                <listitem>
+                                    <para>
+                                        The value of this attribute is the number of samples the waveform
+                                        holds.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term><literal>metadata</literal></term>
+                                <listitem>
+                                    <para>
+                                        The value of this attribute is an array of objects with the attributes 
+                                        <literal>name</literal> containing the name of a metadata value and
+                                        <literal>value</literal> containing the value of that metadata item.    
+                                        This array  may be empty if no metadata has been associated with the waveform.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </para>
+            </section>
+            <section>
+                <title>Retrieving waveform samples.</title>
+                <informalexample>
+                    <cmdsynopsis>
+                        <command>
+http://host:port/spectcl/waveform/get?name=<replaceable>wfname</replaceable>
+                        </command>
+                    </cmdsynopsis>
+                </informalexample>
+                <para>
+                    This request returns the samples associated with a waveform.
+                    The mandatory <literal>name</literal> query parameter is the name of the waveform.
+                    The return value is an object with the attributes <literal>name</literal> the
+                    name of the waveform and <literal>samples</literal> which is an array of integers 
+                    containing the waveform samples, and rank which is the rank number returning the data.
+                    This can be different from query to query as the
+                    data are analyzed and waveforms are filled.
+                </para>
+                <para>
+                    The rank number documents, for MPISpecTcl which rank returned the data. In serial SpecTcl,
+                    this will always be zero, however, it will be a random value at least to identifing
+                    a worker processi n MPISpecTcl.
+                </para>
+            </section>
+            <section>
+                <title>Getting waveform metadata</title>
+                <informalexample>
+                    <cmdsynopsis>
+                        <command>
+http://host:port/spectcl/waveform/metadata/get?name=<replaceable>wfname</replaceable><optional>&amp;key=<replaceable>metadata-key</replaceable></optional>
+                        </command>
+                    </cmdsynopsis>
+                </informalexample>
+
+                <para>
+                    Returns the metadata associated with a the waveform object specified by the <parameter>name</parameter>.
+                    The optional <parameter>key</parameter> query parameter, if provided, restricts the returned metadata to
+                    only that key.  If not provided, all metadata associated with the waveform is returned.
+                </para>
+                <para>
+                    The detail part of the response is an array of objects.  Each object
+                    has two attributes, <literal>name</literal> and <literal>value</literal>.
+                    The value of the <literal>name</literal> attribute is the name of a metadata item.
+                    The value of the <literal>value</literal> attribute is the value of that metadata item.
+                </para>
+                <para>
+                    Note that the values of all metadata items are treated as strings.
+                </para>
+            </section>
+            <section>
+                <title>Modifying waveform metadata</title>
+                <informalexample>
+                    <cmdsynopsis>
+                        <command>
+http://host:port/spectcl/waveform/metadata/set?name=<replaceable>wfname</replaceable>&amp;key=<replaceable>metadata-key</replaceable>&amp;value=<replaceable>metadata-value</replaceable>...
+                        </command>
+                    </cmdsynopsis>
+                </informalexample>
+
+                <para>
+                    Sets metadata items for the waveform specified by the mandatory
+                    <literal>name</literal> query parameter.  The mandatory
+                    <literal>key</literal> and <literal>value</literal> query parameters
+                    specify a single metadata item to set.  This request can be repeated
+                    to set multiple metadata items.  The same number of <literal>key</literal>
+                    and <literal>value</literal> query parameters must be provided.
+                    If a metadata item already exists, its value is replaced with the
+                    new value.  If it does not exist, it is created.
+                </para>
+                <para>
+                    The detail section of the response is empty on success.
+                </para>
+                <para>
+                    Full validation is performed prior to setting the metadata.  This implies that either
+                    all metadata are set or none are set (in case of an error).
+                </para>
+            </section>
+            <section>
+                <title>Resizing a waveform.</title>
+                <informalexample>
+                    <cmdsynopsis>
+                        <command>
+http://host:port/spectcl/waveform/resize?name=<replaceable>wfname</replaceable>&amp;samples=<replaceable>new-size</replaceable>
+                        </command>
+                    </cmdsynopsis>
+                </informalexample>
+                <para>
+                    Resizes the waveform specified by the mandatory <literal>name</literal>
+                    query parameter to hold <literal>new-size</literal> samples.
+                    The waveform is initialized to zero.
+                </para>
+            </section>
+        </section>
     </chapter>
 </book>

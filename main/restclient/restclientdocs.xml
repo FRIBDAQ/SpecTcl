@@ -395,6 +395,15 @@ c destroy                                     <co id='ex.client.destroy' />
     $client traceFetch $token
     
     $client mirror ?host-pattern?
+
+    # Since version 7.0-003:
+
+    $client waveformCreate name samples
+    $client waveformList ?pattern?
+    $client waveformGet name
+    $client waveformGetMetadata name ?key?
+    $client waveformSetMetadata name name1 value1 ?name2 value2 ...?
+    $client waveformResize name newsamples
     
                     </programlisting>
                 </refsynopsisdiv>
@@ -3723,7 +3732,7 @@ c destroy                                     <co id='ex.client.destroy' />
                                         </listitem>
                                     </varlistentry>
                                     <varlistentry>
-                                       <term><literal>shmkey</literal></term>
+                                       <term><literal>shmemkey</literal></term>
                                        <listitem>
                                            <para>
                                             The SYS-V shared memory key of that mirrror.
@@ -3733,23 +3742,119 @@ c destroy                                     <co id='ex.client.destroy' />
                                    </variablelist>
                                 </listitem>
                             </varlistentry>
+                            
+                            <varlistentry>
+                                    <term><literal>waveformCreate</literal> <replaceable>name samples</replaceable></term>
+                                    <listitem>
+                                        <para>
+                                            Creats a new wave form with the requested <parameter>name</parameter>
+                                            and number of <parameter>samples</parameter>
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term><literal>waveformList</literal> <replaceable>?pattern?</replaceable></term>
+                                <listitem>
+                                    <para>
+                                        Returns a list of dicts describing the waveforms whose names
+                                        match <parameter>pattern</parameter>.  If <parameter>pattern</parameter>
+                                        is not supplied, it defaults to <literal>*</literal> which matches
+                                        all waveforms.
+                                    </para>
+                                    <para>
+                                        Each dict in the returned list contains the keys:
+                                    </para>
+                                    <variablelist>
+                                        <varlistentry>
+                                            <term><literal>name</literal></term>
+                                            <listitem>
+                                                <para>
+                                                    The name of the waveform.
+                                                </para>
+                                            </listitem>
+                                        </varlistentry>
+                                        <varlistentry>
+                                            <term><literal>samples</literal></term>
+                                            <listitem>
+                                                <para>
+                                                    The number of samples in the waveform.
+                                                </para>
+                                            </listitem>
+                                        </varlistentry>
+                                        <varlistentry>
+                                                <term><literal>metadata</literal>cd</term>
+                                                <listitem>
+                                                    <para>
+                                                        A dict containing the metadata where keys are the names of
+                                                        metadata items and their values are the values of those items.
+                                                    </para>
+                                                </listitem>
+                                        </varlistentry>
+                                    </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term><literal>waveformGet</literal> <replaceable>name</replaceable></term>
+                                <listitem>
+                                    <para>
+                                        Returns the waveform values for the waveform named by 
+                                        <parameter>name</parameter>.  The result is a dicts. The keys in this
+                                        list are: <literal>name</literal> the name of the waveform,
+                                        <literal>samples</literal> an array of integers containing the samples
+                                        and <literal>rank</literal> which is the rank number returning the data.
+                                        The rank number will be a value at least 2  for MPISpecTcl
+                                         and identifies the worker
+                                        from which the waveform was taken. For serial SpecTcl, the rank will
+                                        always be zero.
+                                    </para>
+                                    <para>
+                                        In the future, this maybe extended to include waveform data from all
+                                        workers.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term><literal>waveformGetMetadata</literal> <replaceable>name ?key?</replaceable></term>
+                                <listitem>
+                                    <para>
+                                        Fetches the metadata for a specific waveform named by <parameter>name</parameter>.
+                                        The result is a list of dicts with a <literal>name</literal> key containing the name of the
+                                        of a metadata item and <literal>value</literal> ky containing the value
+                                        of that metadata item.  If <parameter>key</parameter> is supplied only that
+                                        metadata item is returned, however note that the result is still a
+                                        single item dict as 
+                                        described above.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term><literal>waveformSetMetadata</literal> <replaceable>name key value ?key value ...?</replaceable></term>
+                                <listitem>
+                                    <para>
+                                        Sets the metadata for the waveform named by <parameter>name</parameter>.
+                                        The metadata to be set is specified as a list of name/value pairs.
+                                        An error results if an odd number of name/value pairs is supplied. For example
+                                        <literal>$client waveformSetMetadata wf frequency 500MHz meaning {something fast}</literal>
+                                        sets two metadata items for the waveform named <literal>wf</literal>.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term><literal>waveformResize</literal> <replaceable>name new-size</replaceable></term>
+                                <listitem>
+                                    <para>
+                                        Sets the number of samples held by the waveform <parameter>name</parameter>
+                                        to <parameter>new-size</parameter>.  The resulting waveform is cleared to all zeroes.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
                         </variablelist>
                         
                     </refsect2>
-
+                    
                 </refsect1>
-                <refsect1>
-                    <title>OMISSIONS</title>
-                    <para>
-                        There is no REST access to the
-                        <command>rootexec</command> command as the most common
-                        use case is to pop up a <classname>TBrowser</classname>
-                        to allow ROOT interaction with the spectrum data and,
-                        that could only pop up on any X-11 DISPLAY connection
-                        of the SpecTcl server, not the client.
-                    </para>
-                </refsect1>
-            </refentry>
+            </refentry> 
+           
             <refentry>
                <refmeta>
                   <refentrytitle>SpecTclRestCommand</refentrytitle>

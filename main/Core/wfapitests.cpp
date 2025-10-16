@@ -1,0 +1,150 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2017.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Giordano Cerriza
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
+/** @file:  wfapitests.cpp
+ *  @brief: Test the waveform api in the SpecTcl singleton.
+ */
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/Asserter.h>
+#include "Asserts.h"
+
+#define private public
+#include "CWaveFormDictionary.h"
+#undef private
+#include "SpecTcl.h"
+#include "CWaveForm.h"
+
+
+// Note that the api is just a wrapper to the dictionary
+// since that's been thoroughly tested, in many cases
+// mimimal testing is sufficent.
+class WFAPITests : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE(WFAPITests);
+    CPPUNIT_TEST(add_1);
+    CPPUNIT_TEST(remove_1);
+    CPPUNIT_TEST(count_1);
+    CPPUNIT_TEST(count_2);
+    CPPUNIT_TEST(find_1);
+    CPPUNIT_TEST(find_2);
+    CPPUNIT_TEST(iter_1);
+    CPPUNIT_TEST(iter_2);
+    CPPUNIT_TEST_SUITE_END();
+
+protected:
+    void add_1();
+    void remove_1();
+    void count_1();
+    void count_2();
+    void find_1();
+    void find_2();
+    void iter_1();
+    void iter_2();
+public:
+    void setUp() {
+        // new dictionary for each test:
+
+        delete CWaveFormDictionary::m_pInstance;
+        CWaveFormDictionary::m_pInstance = nullptr;
+    }
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(WFAPITests);
+
+
+// Test add:
+
+void
+WFAPITests::add_1() {
+    auto pApi = SpecTcl::getInstance();
+    pApi->addWaveform(CWaveform("test", 100));
+
+    CPPUNIT_ASSERT_NO_THROW(CWaveFormDictionary::getInstance().find("test"));
+}
+
+// remove
+
+void
+WFAPITests::remove_1() {
+    auto pApi = SpecTcl::getInstance();
+    pApi->addWaveform(CWaveform("test", 100));
+
+    pApi->removeWaveform("test");
+    EQ(size_t(0), CWaveFormDictionary::getInstance().size());
+}
+// Count:
+
+void
+WFAPITests::count_1() {
+    // initially 0:
+
+    EQ(size_t(0), SpecTcl::getInstance()->waveformCount());
+}
+void
+WFAPITests::count_2() {
+    // if I add one it's in the count:
+
+    auto pApi = SpecTcl::getInstance();
+    pApi->addWaveform(CWaveform("Test", 100));
+
+    EQ(size_t(1), pApi->waveformCount());
+}
+
+// test find
+
+void
+WFAPITests::find_1() {
+    // successful find:
+    auto pApi = SpecTcl::getInstance();
+    pApi->addWaveform(CWaveform("Test", 100));
+
+    auto p = pApi->findWaveform("Test");
+    ASSERT(p);
+    EQ(std::string("Test"), p->getName());
+}
+void
+WFAPITests::find_2() {
+    // failed find gives null wihtout exception:
+
+    auto pApi = SpecTcl::getInstance();
+
+    CWaveform* p;
+    CPPUNIT_ASSERT_NO_THROW(p = pApi->findWaveform("test"));
+    ASSERT(!p);
+}
+// test iteration.
+
+void
+WFAPITests::iter_1() {
+    // initially begin == end:
+
+    auto pApi = SpecTcl::getInstance();
+    ASSERT(pApi->waveformBegin() == pApi->waveformEnd());
+}
+void
+WFAPITests::iter_2() {
+    // I can iterate through an inserted item:
+
+    auto pApi = SpecTcl::getInstance();
+    pApi->addWaveform(CWaveform("Test", 100));
+
+    auto p = pApi->waveformBegin();
+    ASSERT(p != pApi->waveformEnd());
+    EQ(std::string("Test"), p->second.getName());
+    ++p;
+    ASSERT(p == pApi->waveformEnd());
+
+}

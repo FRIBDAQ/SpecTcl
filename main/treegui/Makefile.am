@@ -27,7 +27,8 @@ treeUtilities.tcl \
 treeVariableContainer.tcl \
 treeVariableEditor.tcl \
 treeVariableLoadSave.tcl \
-variableTabActions.tcl 
+variableTabActions.tcl  \
+waveformtab.tcl
 
 
 install-exec-local:
@@ -69,4 +70,5 @@ treeVariableLoadSave.tcl \
 variableTabActions.tcl \
 scrollingMenu.tcl \
 downarrow.gif \
-uparrow.gif
+uparrow.gif \
+waveformtab.tcl

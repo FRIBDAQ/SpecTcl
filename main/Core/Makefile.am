@@ -15,6 +15,10 @@ COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' \
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
 
+Trace_INCLUDES=CWaveForm.h CWaveFormDictionary.h CWaveformCommand.h
+Trace_SRC=CWaveForm.cpp CWaveFormDictionary.cpp CWaveformCommand.cpp
+
+
 Tcp_SRC = io.cpp  os.cpp \
 	CSocket.cpp         \
            CSocket.h  \
@@ -389,7 +393,8 @@ libTclGrammerApp_la_SOURCES = $(DecoderRing_SRC) \
 				$(TreeParam_SRC) \
 				$(Xamine_SRC) \
 				$(Mirror_Src)  \
-				$(NewAnalysis_SRC)
+				$(NewAnalysis_SRC) \
+				$(Trace_SRC)
 
 # Removed -I@top_srcdir@/Tape
 
@@ -408,6 +413,7 @@ libTclGrammerApp_la_CXXFLAGS = @UFMT_CPPFLAGS@ -I@top_srcdir@/Utility \
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			@builddir@/libSpecTclTcp.la \
 			@top_builddir@/mpi/libMPIUtilities.la \
+			@top_builddir@/Utility/libUtilities.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
 			@JSONCPP_LIBS@ \
 			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@
@@ -431,7 +437,8 @@ include_HEADERS = 		$(DecoderRing_INCLUDES) \
 				$(TreeParam_INCLUDES) \
 				$(Xamine_INCLUDES) \
 				$(Mirror_Includes) \
-				$(NewAnalysis_INCLUDES)
+				$(NewAnalysis_INCLUDES) \
+				$(Trace_INCLUDES)
 
 noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) $(Event_noinst_INCLUDES)
 
@@ -444,7 +451,8 @@ noinst_PROGRAMS =    spectrumPkgTests \
 			gateTests  caendpptests \
 			mirrortests \
 			helpertests newanalysistests  \
-			paramdecodetests fribfiltertests
+			paramdecodetests fribfiltertests \
+			waveformtests
 
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
@@ -469,7 +477,8 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
 		@TCL_LIBS@ @ROOT_LDFLAGS@ \
-		@UFMT_LDFLAGS@
+		@UFMT_LDFLAGS@ \
+		@top_builddir@/Utility/libUtilities.la
 
 newanalysistests_SOURCES=TestRunner.cpp scalerprocessortests.cpp
 newanalysistests_CPPFLAGS=$(commonTestCXXFLAGS)
@@ -568,10 +577,16 @@ fribfiltertests_LDADD=$(commonTestLdFlags)
 fribfiltertests_SOURCES=TestRunner.cpp fribfiltertests.cpp \
 	FRIBFilterFormatter.cpp FRIBFilterFormatter.h
 
+waveformtests_CXXFLAGS=$(commonTestCXXFLAGS)
+waveformtests_LDADD=$(commonTestLdFlags)
+waveformtests_SOURCES=TestRunner.cpp waveformtests.cpp wfdicttests.cpp \
+	wfapitests.cpp wfcmdtests.cpp
+
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS =helpertests gateTests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests  caendpptests \
-	mirrortests newanalysistests paramdecodetests fribfiltertests
+	mirrortests newanalysistests paramdecodetests fribfiltertests \
+	waveformtests
 
 

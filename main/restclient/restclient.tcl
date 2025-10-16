@@ -1685,4 +1685,107 @@ snit::type SpecTclRestClient {
             mirror [dict create pattern $pattern]                         \
         ]] detail]                                                        \
     }
+
+    #-------------------------------------------------------------------------
+    #  Waveform methods:
+
+    ## waveformCreate
+    #    Create a new waveform:
+    #  @param name - name of the waveform.
+    #  @param samples - size of the waveform in samples.
+    #  @return - the name of the created waveform.
+    method waveformCreate {name samples} {
+        set reply [$self _request \
+            [$self _makeUrl waveform/create \
+            [dict create name $name samples $samples]]]
+        return $name
+    }
+    ##
+    #  waveformList 
+    #    List the properties of waveforms.
+    #
+    #   @param pattern - glob pattern to filter the waveforms by name.
+    #                    defaults to * which matches everything.
+    #  @return list of dicts - each dict describes a waveform and
+    #          contains the following
+    #          keys:
+    #          - name - the waveform name.
+    #          - samples - number of samples in the waveform.
+    #          - metadata - a list of name/value dicts containing any metadata
+    #               associated with the waveform.  Could be empty.
+    #
+    method waveformList {{pattern *}} {
+        set info [$self _request [$self _makeUrl \
+            waveform/list [dict create pattern $pattern] \
+        ]]
+        return [dict get $info detail]
+    }
+    ##
+    #   waveformGet
+    #     get the current waveform data. Note that in the MPI case, each worker
+    #     will return a waveform. That is why the result is a list not a single 
+    #     waveform description.
+    #
+    # @param name - name of the waveform to get.
+    #
+    method waveformGet {name} {
+        set info [$self _request [$self _makeUrl \
+            waveform/get [dict create name $name] \
+        ]]
+        return [dict get $info detail]
+    }   
+    ##
+    #  waveformGetMetadata
+    #   Get the metadata associated with a waveform.
+    # @param name - name of the waveform.
+    # @param key - optional key of the metadata item to retrieve.
+    #              if not specified all metadata are returned.
+    # @return list of name/value dicts containing
+    #
+    method waveformGetMetadata {name {key ""}} {
+        set qdict [dict create name $name]
+        if {$key ne ""} {
+            dict set qdict key $key
+        }
+        set info [$self _request [$self _makeUrl \
+            waveform/metadata/get $qdict \
+        ]]
+        return [dict get $info detail]
+    }
+    ##
+    # waveformSetMetadata
+    #   Set metadata on a waveform.
+    # @param name - name of the waveform.
+    # @param args - A list of name followed by values.  For example:
+    #                 {key1 value1 key2 value2 ...} that describe the metadata to set
+    # @note if a key already exists its value is replaced. If it does not new metadata are created.
+    # @return - nothing.
+    #
+    method waveformSetMetadata {name args} {
+        if {([llength $args] % 2) != 0} {
+            error "waveformSetMetadata args must be a list of name value pairs"
+        }
+        set qdict [dict create name $name]
+        # Collect the keys and values
+        for {set i 0} {$i < [llength $args]} {incr i 2} {
+            lappend keys [lindex $args $i]
+            lappend values [lindex $args $i+1]
+                    }
+        lappend qdict {*}[_listToQueryList key $keys]
+        lappend qdict {*}[_listToQueryList value $values]
+        
+        $self _request [$self _makeUrl waveform/metadata/set $qdict]
+    }
+    ##
+    # waveformResize
+    #   Resize a waveform.  Note that this will clear any existing data.
+    #
+    # @param name - name of the waveform.
+    # @param samples - new size of the waveform in samples.
+    # @return - nothing.
+    #
+    method waveformResize {name samples} {
+        set qdict [dict create name $name samples $samples]
+        $self _request [$self _makeUrl waveform/resize $qdict]
+    }
 }

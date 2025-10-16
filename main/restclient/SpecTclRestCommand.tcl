@@ -2080,3 +2080,134 @@ proc mirror {list {pattern *}} {
     }
     return [$::SpecTclRestCommand::client mirror $pattern]
 }
+
+#-----------------------------------------------------------------------------
+# Waveform commands:
+#  It's a namespaxce ensemble.
+
+namespace eval waveform {
+    namespace export create metadata get resize   _defaultCreate
+    namespace ensemble create
+
+    proc _metadataToDict {metaList} {
+
+        set metaDict [dict create]
+        foreach item $metaList {
+            set key [dict get $item name]
+            set value [dict get $item value]
+            dict set metaDict $key $value
+        }
+        return $metaDict
+    }
+    # _mdget - handle metedata get subcommand.
+    # @param name - name of the waveform.
+    # @param args - remaing command line words at most 1 word, a metadata key.
+    # @return metadata dict.
+    #
+    proc _mdget {name args} {
+        if {[llength $args] > 1} {
+            error "waveform metadata get takes at most one argument"
+        }
+        set key ""
+        if {[llength $args] == 1} {
+            set key [lindex $args 0]
+        }
+
+        set raw [$::SpecTclRestCommand::client waveformGetMetadata $name $key]
+
+        return  [::waveform::_metadataToDict $raw]
+    }
+    # _mdset - handle metadata set subcommand.
+    #
+    # @param name - name of the waveform.
+    # @param args - remaining command line words, must be an even number
+    #   alternating name/value items.
+    # @return none.
+    #
+    proc _mdset {name args} {
+        if {([llength $args] % 2) != 0} {
+            error "waveform metadata set requires an even number of name/value pairs"
+        }
+        
+        return [$::SpecTclRestCommand::client waveformSetMetadata $name {*}$args]
+    }
+    ##
+    # create - make a new waveform.    
+    #   @param name - waveform name.
+    #   @param samples - number of points.
+    #   @return name of the new waveform.
+
+    proc create {name samples} {
+        return [$::SpecTclRestCommand::client waveformCreate $name $samples]
+    }
+    ##
+    # list - list waveforms.
+    #   @param pattern - pattern to match.
+    #   @return list of waveform definitions.
+    #   @note we have to cook the metadata since it's a list of name/value dicts rather than
+    #      a pure dict.
+    proc _list {{pattern *}} {
+        puts $pattern
+        set raw [$::SpecTclRestCommand::client waveformList $pattern]
+        set result [list]
+        foreach w $raw {
+            set name [dict get $w name]
+            set samples [dict get $w samples]
+            set metadata [dict get $w metadata]
+            set metaDict [::waveform::_metadataToDict $metadata]
+            lappend result [dict create name $name samples $samples metadata $metaDict]
+        }
+        return $result
+    }
+    ##
+    #  get  - get waveform samples.
+    #   @param name - waveform name.
+    #
+    proc get {name} {
+        set raw [$::SpecTclRestCommand::client waveformGet $name]
+        set result [list] 
+        foreach w $raw {
+            lappend result [list [dict get $w name] [dict get $w samples] [dict get $w rank]]
+        }
+        return $result
+    }
+    ##
+    # metdata
+    #   decodes the subcommand (get/set) and dispatches to the _metadataGet or _metadataSet subcommands.
+    #
+    # @param subcommand - subcommand (get or set).
+    # @param name  - waveform name to operate on.
+    # @param args  - Remaining command line words.
+    #
+    proc metadata {subcommand name args} {
+        if {$subcommand eq "get"} {
+            return [_mdget $name $args]
+        } elseif {$subcommand eq "set"} {
+            return [_mdset $name {*}$args]
+        } else {
+            error "waveform metadata subcommand must be get or set was $subcommand"
+        }
+    }
+
+    ##
+    #  resize
+    #     Resize a waveform (change the number of samples).
+    # @param name - waveform name.
+    #  @param samples - new number of samples.
+    # @return none.
+    proc resize {name samples} {
+        return [$::SpecTclRestCommand::client waveformResize $name $samples]    
+    }
+        
+}
+## default unkown handler for waveform namepace assumes a create:
+#  returns the subcommand script.
+proc waveform::_default {ns name args} {
+    puts "unknown $ns $name $args"
+    if {$name eq "list"}  {
+        return [list _list ]
+    }
+    return [list create]
+
+}
+namespace ensemble configure waveform -unknown waveform::_default
