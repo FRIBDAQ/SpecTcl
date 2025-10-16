@@ -7361,7 +7361,9 @@ waveform resize name samples
                 The <command>get</command> subcommand gets the current contents of a waveform.
                 The parameters of this command are the names of the waveforms to get.
                 The result is a list, one for each waveform.  Each waveform list contains
-                the name of a waveform followed by the list of its points.
+                the name of a waveform followed by the list of its points followed by a number.
+		For serial SpecTcl, this number will be zero.   For MPISpecTcl, this will be an integer
+		that is at least 2 and represents the rank of the worker from wihch the waveform was contributed.
             </para>
             <para>
                 In MPI SpecTcl, because each event processor process has a waveform, a waveform

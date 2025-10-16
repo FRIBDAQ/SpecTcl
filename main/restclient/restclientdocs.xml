@@ -3798,11 +3798,18 @@ c destroy                                     <co id='ex.client.destroy' />
                                 <listitem>
                                     <para>
                                         Returns the waveform values for the waveform named by 
-                                        <parameter>name</parameter>.  The result is a list of lists
-                                        where each sublist contains two elements; the first is the name of the
-                                        waveform and the second is a list of the samples in the waveform.
-                                        The outer list in serial SpecTcl will be of length 1 while in MPISpecTcl there
-                                        will be one element for each worker process.
+                                        <parameter>name</parameter>.  The result is a dicts. The keys in this
+                                        list are: <literal>name</literal> the name of the waveform,
+                                        <literal>samples</literal> an array of integers containing the samples
+                                        and <literal>rank</literal> which is the rank number returning the data.
+                                        The rank number will be a value at least 2  for MPISpecTcl
+                                         and identifies the worker
+                                        from which the waveform was taken. For serial SpecTcl, the rank will
+                                        always be zero.
+                                    </para>
+                                    <para>
+                                        In the future, this maybe extended to include waveform data from all
+                                        workers.
                                     </para>
                                 </listitem>
                             </varlistentry>
