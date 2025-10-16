@@ -2167,7 +2167,7 @@ namespace eval waveform {
         set raw [$::SpecTclRestCommand::client waveformGet $name]
         set result [list] 
         foreach w $raw {
-            lappend result [list [dict get $w name] [dict get $w samples]]
+            lappend result [list [dict get $w name] [dict get $w samples] [dict get $w rank]]
         }
         return $result
     }
