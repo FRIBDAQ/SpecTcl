@@ -351,7 +351,7 @@ void WFCmdTests::get_1() {
     CTCLObject t;
     t.Bind(*m_pInterp);                     
     t = result.lindex(0);                      // {name {points...}}
-    EQ(2, t.llength());
+    EQ(3, t.llength());
 
     std::string name = std::string(t.lindex(0));
     EQ(std::string("test"),name);
@@ -396,7 +396,7 @@ void WFCmdTests::get_3() {
     result = m_pInterp->GetResultString();
     // Two waveforms:
 
-    EQ(2, result.llength());
+    EQ(3, result.llength());
     CTCLObject wf1;
     wf1.Bind(*m_pInterp);
     wf1 = result.lindex(0);               // {test1 {upramp}}
