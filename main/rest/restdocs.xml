@@ -4103,8 +4103,14 @@ http://host:port/spectcl/waveform/get?name=<replaceable>wfname</replaceable>
                     The mandatory <literal>name</literal> query parameter is the name of the waveform.
                     The return value is an object with the attributes <literal>name</literal> the
                     name of the waveform and <literal>samples</literal> which is an array of integers 
-                    containing the waveform samples.  This can be different from query to query as the
+                    containing the waveform samples, and rank which is the rank number returning the data.
+                    This can be different from query to query as the
                     data are analyzed and waveforms are filled.
+                </para>
+                <para>
+                    The rank number documents, for MPISpecTcl which rank returned the data. In serial SpecTcl,
+                    this will always be zero, however, it will be a random value at least to identifing
+                    a worker processi n MPISpecTcl.
                 </para>
             </section>
             <section>

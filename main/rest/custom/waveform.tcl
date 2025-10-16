@@ -51,6 +51,7 @@ namespace eval waveform {
         return [json::write object \
             name [json::write string [lindex $trace 0]] \
             samples [json::write array {*}[lindex $trace 1]] \
+            rank  [lindex $trace 2]   \
         ]
     }
 }
