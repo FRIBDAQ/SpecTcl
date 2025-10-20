@@ -2,6 +2,11 @@
 * Upgrade DDASFormat incorp to 1.1-000.
 * Adding MDPP-32 SCP SRO software trigger data analysis
 * Correctly unpack data from CAEN VX2740
+* Added support for waveforms:
+    *  CWaveform class and dictionary allow users to create/fill wavefomrs.
+    *  waveform command supports scripting waveforms.
+    *  Waveform tab added to tree gui.
+    *  Waveform ReST domain added to alliow clients access to this feature.
 == 7.0-003 ==
 
 == 7.0-002 ==
