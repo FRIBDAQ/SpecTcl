@@ -1,3 +1,13 @@
+== 5.14-006 ==
+* Added MDPP-32 PADC firmware data unpacking
+== 5.14-006 ==
+
+== 5.14-005 ==
+* Correctly unpack data coming from CAEN VX2740 digitizers
+== 5.14-005 ==
+
+== 5.14-002 ==
+
 == 5.14-005 ==
 * Correctly unpack data coming from CAEN VX2740 digitizers
 == 5.14-005 ==
