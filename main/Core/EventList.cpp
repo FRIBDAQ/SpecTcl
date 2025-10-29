@@ -394,7 +394,7 @@ pCEvent& CEventList::operator[](UInt_t nEvent) {
   //      If nEvent does not yet exist, then one will be
   //     generated and inserted in the clear state, and
   //     a reference returned.
-  while(m_rvEvents.size() < nEvent) 
+  while(m_rvEvents.size() <= nEvent) 
     Expand();   // Expand vector as needed.
   return m_rvEvents[nEvent];
 }
@@ -458,6 +458,7 @@ void CEventList::clear() {
     delete m_rvEvents[i];
     m_rvEvents[i] = nullptr;
   }
+  m_rvEvents.clear();
 
 }
 
@@ -497,9 +498,8 @@ void CEventList::DoAssign(const CEventList& Evt) {
 void CEventList::Expand() {
   // BUG! Do not run on construction, or else 
   // CAnalyzer::CreateEvent will fail.
-  m_rvEvents.insert(m_rvEvents.end(), 
-		    (long int)knExpandSize, (CEvent*)kpNULL);
-
+  m_rvEvents.insert(m_rvEvents.end(), knExpandSize, nullptr);
+  
 }
 
 //////////////////////////////////////////////////////////////////////////
