@@ -26,6 +26,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <DataFormat.h>
+#include <numeric>
 
 using namespace ufmt;
 #ifdef WITH_MPI
@@ -38,6 +39,9 @@ typedef int MPI_Datatype;               // Helps to minimze the #ifdefery.
 #define EVENT_TAG MPI_RING_ITEM_TAG             // Tag used for event messages.
 #define RECEIVER_EVENTLIST_SIZE 1       // Size of the event list we receive from one sender.
 
+
+
+
 // Internal definitions:
 // An event looks like an array of parameters:
 
@@ -46,6 +50,17 @@ typedef struct _MPIParameter {
     double value;
 } MPIParameter, *pMPIParameter;
 static MPI_Datatype ParameterType;
+
+// Issue #205 - We accumulate the parameters from several
+// events into the accumulatedEvents vector.
+// the # of parameters in each event is accumulated into accumulatedSizes.
+// The final send is three messages:
+//  integer - size of the accumulatedSizes vector.
+//  array of accumulatied sizes (size determined by the first message).
+//  array of accumulated events - total size detemeined by sum of accumluated sizes.
+static const size_t BATCH_SIZE(100);     // Number of events in a batch.
+static std::vector<MPIParameter> accumulatedEvents;
+static std::vector<unsigned>          accumulatedSizes;
 
 // Register our custom data types;
 
@@ -83,12 +98,8 @@ getParameterType() {
 ///////////////////////////////// Sender side private functions //////////////////////////////
 // Send an event:
 
-static void
-SendEventToHistogramer(CEvent& event) {
-#ifdef WITH_MPI
-    // We use the dope vector to only send the valid parameters:
-
-    DopeVector& dope(event.getDopeVector());
+#ifdef undefined // hang on to the code for flush.
+DopeVector& dope(event.getDopeVector());
     auto valids = dope.size();
      
     // Send the size:
@@ -111,6 +122,74 @@ SendEventToHistogramer(CEvent& event) {
             throw std::runtime_error("Failed to send event parameters to histogramer");
     }
 #endif
+// FLush events to the histogrammer from the accumulatedSizEs and accumulatedEvents
+// vectors.  
+
+// Note that we just accumulate events until we have BATCH_SIZE of them and then FlushToHistogrammer
+// is called to actually do the send.
+//
+// The final send is three messages:
+//  integer - size of the accumulatedSizes vector.
+//  array of accumulatied sizes (size determined by the first message).
+//  array of accumulated events - total size detemeined by sum of accumluated sizes.
+#ifdef WITH_MPI                     // only called if compiled with MPI enabled.
+static void flushEventsToHistogrammer() {
+    // do nothing if there are no events to flush (e.g. called before sending statechage).
+
+    if (accumulatedSizes.size() > 0) {
+        // Send the number of events
+        unsigned nEvents = accumulatedSizes.size();
+        if (MPI_Send(
+            &nEvents, 1, MPI_UNSIGNED, HISTOGRAMER_RANK, EVENT_TAG, MPI_COMM_WORLD) !=
+            MPI_SUCCESS
+        ) {
+            throw std::runtime_error("Failed to send # of events in a batch to the histogrammer");
+        }
+
+        // Send the event sizes.
+
+        if(MPI_Send(
+            accumulatedSizes.data(), accumulatedSizes.size(), MPI_UNSIGNED, 
+            HISTOGRAMER_RANK, EVENT_TAG, MPI_COMM_WORLD
+            ) != MPI_SUCCESS
+        ) {
+            throw std::runtime_error("Failed to send event sizes array -> histogrammer");
+        }
+
+        // send the event data.
+
+        if (MPI_Send(
+            accumulatedEvents.data(), accumulatedEvents.size(), getParameterType(),
+                HISTOGRAMER_RANK, EVENT_TAG, MPI_COMM_WORLD
+            ) != MPI_SUCCESS
+        ) {
+            throw std::runtime_error("Failed to send event paramter soup -> histogrammer");
+        }
+
+        // Clear the accumulated event storage.
+        accumulatedEvents.clear(); 
+        accumulatedSizes.clear();    
+    }
+}
+#endif
+
+static void
+SendEventToHistogramer(CEvent& event) {
+#ifdef WITH_MPI
+    // We use the dope vector to only send the valid parameters:
+
+    DopeVector& dope(event.getDopeVector());
+    auto valids = dope.size();
+    accumulatedSizes.push_back(valids);                   // number of items in the event.
+    for (int i =0; i < valids; i++) {
+        accumulatedEvents.push_back({number: (int)dope[i], value: event[dope[i]]});
+    }
+    // If the total number of events is BATCH_SIZE, flush the batched events to the histogrammer:
+
+    if (accumulatedSizes.size() == BATCH_SIZE) {
+        flushEventsToHistogrammer();
+    }
+#endif
 }
 
 // send an event list to the histogramer:
@@ -129,38 +208,76 @@ MPIHistogramEvents(CEventList& events) {
 // this simplifies the logic.  We produce an event list with one event.
 // Using a parameter as the event list saves copies.
 // Caller must have sized the event list to 1.
+// Per issue #205 - we recieve a batch of events.
+// This comes in three messages:
+// 1. UNSIGNED number of events in the batch
+// 2. Array of event sizes (number of parameters in each event).
+// 3. Soup of parameters (MPIParameter).
+//
+///  Thes are marshalled back into events in the event list.
 static void
 MPIReceiveEvent(CEventList& eventList) {
-    CEvent& event(*eventList[0]);
+    // 
 
 #ifdef WITH_MPI
-    // Get the size and sender:
-
     MPI_Status status;
+    // Get the number of events we've got and create the receivers for them:
+
+    unsigned nEvents;
+    if (MPI_Recv(
+            &nEvents, 1, MPI_UNSIGNED, MPI_ANY_SOURCE,
+            EVENT_TAG, MPI_COMM_WORLD, &status
+        ) != MPI_SUCCESS
+    ) {
+        throw std::runtime_error("Failed to receive # of events.");
+    }
+    // Create the CEvents to receive the data:
+    // the sender is programmed such that nEvents is never zero.
+    for (int i=0; i < nEvents; i++) {
+        auto pe = new CEvent();
+        eventList[i] = pe;
+    }
+
+    // Get the sizes 
+
+    int sender = status.MPI_SOURCE;
+    std::vector<unsigned> sizes;
+    sizes.resize(nEvents);
+    
     unsigned    size;
     if (MPI_Recv(
-            &size, 1, MPI_UNSIGNED, MPI_ANY_SOURCE, 
+            sizes.data(), nEvents, MPI_UNSIGNED, sender,
             EVENT_TAG, MPI_COMM_WORLD, &status) 
         != MPI_SUCCESS) {
-        throw std::runtime_error("Failed to receive the event size.");
+        throw std::runtime_error("Failed to receive the event sizes.");
     }
-    // Create the parameter vector:
+    // Create the parameter vectors:
 
-    std::vector<MPIParameter> params(size);
-    int sender = status.MPI_SOURCE;
+    //Figure out the total event size by summing data:
+
+    auto totalParameterCount = std::accumulate(sizes.begin(), sizes.end(), 0);
+
+    std::vector<MPIParameter> params(totalParameterCount);
+    
 
     // Now get the parameter values and numbers:
 
     if (MPI_Recv(
-            params.data(), size, getParameterType(), 
+            params.data(), totalParameterCount, getParameterType(), 
             sender, EVENT_TAG, MPI_COMM_WORLD, &status
         ) != MPI_SUCCESS) {
         throw std::runtime_error("Failed to receive event parameters");
     }
-    // Build the event:
-
-    for (auto& par: params) {
-        event[par.number] = par.value;
+    // Build the events we already allocated them in the event list.
+    
+    int index(0);
+    for (int i = 0; i < nEvents; i++) {
+        CEvent& e(*eventList[i]);              // Event we're filling in. notational sugar.
+        unsigned n = sizes[i];                  // number of paramters in the event.
+        for (int j = 0; j < n; j++) {
+            e[params[index].number] = params[index].value;  // Fill in a parameter with its value.
+            index++;
+        }
     }
 
 #endif
@@ -189,7 +306,12 @@ static int EventEventHandler(Tcl_Event* p, int flags) {
     if (pipeline) {
         (*pipeline)(*pEvent->pEvents);
     }
-    delete pEvent->pEvents;  //Event list destructor destroys the events too.
+    
+    
+    // destructor destroys the events too.
+    delete pEvent->pEvents;
+    pEvent->pEvents = nullptr;
+    
     return 1;
 }
 
@@ -206,7 +328,8 @@ createTclEvent() {
     result->header.proc = EventEventHandler;
     result->header.nextPtr = nullptr;
     result->pEvents = new CEventList(RECEIVER_EVENTLIST_SIZE);         // We're sending one event around.
-    (*result->pEvents)[0] = new CEvent;
+    
+    // MPIReceiveEvent will create the CEvent objects themselves.
     return result;
 }
 
@@ -256,7 +379,9 @@ static MPI_Datatype
 StateChangeType() {
     static bool mustCreate(true);
     static MPI_Datatype result;
+    // Flush the event buffers:
 
+    
     if (mustCreate) {
         MPI_Aint offsets[3] = {
             offsetof(StateChangeMessage, s_runNumber),
@@ -345,6 +470,7 @@ StateChangePump(ClientData pData) {
  */
 static void MPISendStateChange(unsigned run, const char* title, bool begin) {
 #ifdef WITH_MPI
+    flushEventsToHistogrammer();              // Flush the accumulated events first.
     StateChangeMessage msg;
     msg.s_runNumber = run;
     msg.s_isBegin = begin;
@@ -455,6 +581,7 @@ stopHistogramPump() {
         CEventList fakeEvents(1);
         fakeEvents[0] = new CEvent;
         HistogramEvents(fakeEvents);
+        flushEventsToHistogrammer();
         Tcl_JoinThread(pumpThread, &exitStatus);  // Don't carea aboput the exit status.
     }
 }
