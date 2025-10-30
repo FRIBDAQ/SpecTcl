@@ -34,6 +34,15 @@
 #include<sys/wait.h> 
 #include<sys/types.h> 
 
+// Environment variables:
+// EXE_PATH_ENV - points to the executable itself.
+// ROOT_DIR - Points to the top level directory (/bin/_CutiePie is appended).
+// defaultPyQtPath is the full path to the built in one.
+
+static const char* EXE_PATH_ENV="PYQTGUI_EXECUTABLE_PATH";
+static const char* ROOT_DIR="PYQTGUI_ROOT";
+static const std::string DEFAULT_QTPY_PATH(INSTALLED_IN);
+
 CPyQtProcess::CPyQtProcess() : m_pid(0)
 {
 }
@@ -98,17 +107,28 @@ std::string
 CPyQtProcess::generatePath() const {
 
   // Makefile rule sets INSTALLED_IN to @prefix@
-  std::string defaultPyQtPath(INSTALLED_IN);
+  
 
-  defaultPyQtPath += "/bin/_CutiePie";
+  std::string defaultPyQtPath = DEFAULT_QTPY_PATH + "/bin/_CutiePie";
 
   // environment variable overrides
   std::string PyQtPath;
-  const char* envPath = std::getenv("PYQTGUI_EXECUTABLE_PATH");
+  const char* envPath = std::getenv(EXE_PATH_ENV);
   if (envPath) {
     PyQtPath = envPath;
   }
+  // If empty, try the root directory env var:
+
+  if (PyQtPath.empty()) {
+    const char* rootpath = std::getenv(ROOT_DIR);
+    if (rootpath) {
+      PyQtPath = rootpath;
+      PyQtPath += "/bin/_CutiePie";
+    }
+  }
   
+  // If still empty 
+
   if (PyQtPath.empty()) {
     PyQtPath = defaultPyQtPath;
   }
