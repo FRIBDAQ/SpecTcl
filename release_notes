@@ -1,5 +1,9 @@
+== 7.0-004 ==
+* Upgrade DDASFormat incorp to 1.1-002
+== 7.0-004 ==
+
+
 == 7.0-003 ==
-* Upgrade DDASFormat incorp to 1.1-000.
 * Adding MDPP-32 SCP SRO software trigger data analysis
 * Correctly unpack data from CAEN VX2740
 * Added support for waveforms:

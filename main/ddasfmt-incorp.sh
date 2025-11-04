@@ -10,7 +10,7 @@ TARGET="ddasformat"
 
 if [[ ! $TAG ]]
 then
-  TAG="1.1-000"
+  TAG="1.1-002"
 fi
 
 rm -rf $TARGET
