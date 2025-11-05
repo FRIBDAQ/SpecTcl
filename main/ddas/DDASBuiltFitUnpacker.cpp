@@ -1,10 +1,6 @@
 
 
 #include "DDASBuiltFitUnpacker.h"
-#include "FitParameterMapper.h"
-
-#include "DDASHit.h"
-#include "DDASFitHitUnpacker.h"
 
 #include "Globals.h"
 #include <TCLAnalyzer.h>
@@ -12,6 +8,10 @@
 #include <algorithm>
 #include <cstdint>
 
+#include <DDASHit.h>
+#include <DDASFitHitUnpacker.h>
+
+#include "FitParameterMapper.h"
 
 using namespace std;
 using namespace ddastoys;
