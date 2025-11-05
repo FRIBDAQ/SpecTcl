@@ -11,6 +11,13 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_EXEEXT
 AC_OBJEXT
 
+# Set parallel build for incorps:
+
+AC_ARG_WITH([incorp-build-cores],
+	AC_HELP_STRING([--with-incorp-build-cores=N], [Number of cores used to build incorporated packages (default=1)]),
+	[incorp_cores=$withval],
+	[incorp_cores=1])
+AC_MSG_NOTICE([Building incorporated packages with ${incorp_cores} cores])
 
 ##
 #  SpecTcl 7  - the point of this version is to support 
@@ -154,7 +161,7 @@ AC_PATH_PROG(PDFDOCBOOK,  docbook2pdf, echo)
 
 
 AH_TEMPLATE([SPECTCL_5_INIT],
-	[Let the compiler know that SpecTcl 5 style initialization is in evfect])
+	[Let the compiler know that SpecTcl 5 style initialization is in effect])
 AC_DEFINE(SPECTCL_5_INIT)
 
 # Checks for header files.
@@ -841,32 +848,13 @@ AC_CHECK_FILE([${srcdir}/unifiedformat/CMakeLists.txt],
 rm -rf unifiedformat/build
 AS_MKDIR_P(unifiedformat/build)	
 AC_MSG_NOTICE([Building unified format])
-(cd unifiedformat/build; cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make clean install)
+(cd unifiedformat/build; cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${prefix}/unifiedformat; make clean ; make -j ${incorp_cores} ; make install)
 result=$?
 AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install unified format library with result: ${result}]))
 UFMT_CPPFLAGS="-I${prefix}/unifiedformat/include"
 UFMT_LDFLAGS="-L${prefix}/unifiedformat/lib -lNSCLDAQFormat -lV10Format -lV11Format -lV12Format -lAbstractFormat -Wl,-rpath=${prefix}/unifiedformat/lib"
 AC_SUBST(UFMT_CPPFLAGS)
 AC_SUBST(UFMT_LDFLAGS)
-
-# Check that the DDAS format library has been incorporated into the
-# source tree and configure/build it into $prefix/ddasformat.
-		
-AC_CHECK_FILE([${srcdir}/ddasformat/CMakeLists.txt],
-	[AC_MSG_NOTICE([Using previously incorprated ddasformat from the source tree at ${srcdir}/ddasformat])
-	cp -r ${srcdir}/ddasformat .],
-	[AC_MSG_NOTICE([Incorporating ddasformat for you])
-	${srcdir}/ddasfmt-incorp.sh])
-rm -rf ddasformat/build
-AS_MKDIR_P(ddasformat/build)
-AC_MSG_NOTICE([Building DDAS format])
-(cd ddasformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/ddasformat; make clean install)
-result=$?
-AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install ddasformat with result: ${result}]))
-DDASFMT_CPPFLAGS="-I${prefix}/ddasformat/include"
-DDASFMT_LDFLAGS="-L${prefix}/ddasformat/lib -lDDASFormat -Wl,-rpath=${prefix}/ddasformat/lib"
-AC_SUBST(DDASFMT_CPPFLAGS)
-AC_SUBST(DDASFMT_LDFLAGS)
 
 #
 #   libTclPlus and libException could have been installed from 
@@ -890,7 +878,7 @@ AC_CHECK_FILE([${srcdir}/libtcl/configure.ac],
 		[AC_MSG_NOTICE([Incorporating tcl++ for you])
 		${srcdir}/tcl++incorp])
 AC_MSG_NOTICE([Building and installing tcl++])
-(cd libtcl; ./configure --prefix=${prefix}; make clean install)
+(cd libtcl; ./configure --prefix=${prefix}; make clean ; make -j ${incorp_cores} ; make install)
 result=$?
 AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install tcl++ with result: ${result}]))
 LIBTCLPLUS_CFLAGS="-I${prefix}/include"
@@ -910,7 +898,7 @@ AC_CHECK_FILE([${srcdir}/${QTPYBUILDDIR}/configure.ac],
 	[AC_MSG_NOTICE([Incorporating CutiePie for you])
 	${srcdir}/qtpy-incorp.sh])
 AC_MSG_NOTICE([Building and installing CutiePie])
-(cd ${QTPYBUILDDIR}; autoreconf -if; ./configure --prefix=${prefix}; make clean install)
+(cd ${QTPYBUILDDIR}; autoreconf -if; ./configure --prefix=${prefix} --with-incorp-build-cores=${incorp_cores}; make clean ; make -j ${incorp_cores} ; make install)
 result=$?
 AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install CutiePie with result: ${result}]))
 
@@ -945,6 +933,70 @@ AC_SUBST(ROOT_LDFLAGS)
 AC_SUBST(ROOT_LIBRARY_DIR)
 AC_SUBST(ROOTCONFIG)
 
+#####################################################################
+# Check that the DDAS format library has been incorporated into the
+# source tree and configure/build it into $prefix/ddasformat.
+#
+
+AC_CHECK_FILE([${srcdir}/ddasformat/CMakeLists.txt],
+	[AC_MSG_NOTICE([Using previously incorprated ddasformat from the source tree at ${srcdir}/ddasformat])
+	cp -r ${srcdir}/ddasformat .],
+	[AC_MSG_NOTICE([Incorporating ddasformat for you])
+	${srcdir}/ddasfmt-incorp.sh])
+rm -rf ddasformat/build
+AS_MKDIR_P(ddasformat/build)
+AC_MSG_NOTICE([Building DDAS format])
+(cd ddasformat/build; cmake .. -DCMAKE_INSTALL_PREFIX=${prefix}/ddasformat; make clean ; make -j ${incorp_cores} ; make install)
+result=$?
+AS_VAR_IF([result], [0], [], AC_MSG_ERROR([Failed to build and install ddasformat with result: ${result}]))
+DDASFMT_CPPFLAGS="-I${prefix}/ddasformat/include"
+DDASFMT_LDFLAGS="-L${prefix}/ddasformat/lib -lDDASFormat -Wl,-rpath=${prefix}/ddasformat/lib"
+AC_SUBST(DDASFMT_CPPFLAGS)
+AC_SUBST(DDASFMT_LDFLAGS)
+
+#############################################################################
+# Check whether we're building with DDAS trace fitting support
+#
+# If --enable-ddastoys is provided, user must also provide a path. It is
+# assumed that the file fit_extensions.h is located in $ddastoysdir/include.
+# Not finding the fit extensions header is an error and will terminate the
+# configuration.
+# 
+# The following output variables are created if building with DDASToys:
+#   DDASTOYS          - conditional for --enable-ddastoys
+#   DDASTOYS_CPPFLAGS - compilation flags
+#   DDASTOYS_LDFLAGS  - link the unpacking library from DDASToys install
+#
+# Note that:
+#   ddastoys_enabled = 1 if --enable-ddastoys is provided
+#   ddastoys_enabled = 0 if --disable-ddastoys is provided (unlikely)
+#   ddastoys_enabled = 0 default, no fit processing support
+#
+
+AC_ARG_ENABLE([ddastoys],
+	[AS_HELP_STRING([--enable-ddastoys], [Enable support for DDASToys parallel trace-fitting, see the --with-ddastoysdir flag as well])],
+	[AS_IF([test "x${enableval}" = "xyes"],
+		     [ddastoys_enabled=1],
+		     [ddastoys_enabled=0])],
+	[ddastoys_enabled=0])
+	
+AS_IF([test "${ddastoys_enabled}" = "1"],
+	[AC_ARG_WITH([ddastoysdir],
+		[AS_HELP_STRING([--with-ddastoysdir], [Path to DDASToys trace-fitting code installation directory, required if --enable-ddastoys is provided])],
+		[ddastoysdir=${withval}],
+		[AC_MSG_ERROR([--with-ddastoysdir option is required if --enable-ddastoys is provided])])
+	AC_CHECK_FILE([${ddastoysdir}/include/fit_extensions.h],
+	[DDASTOYS_CPPFLAGS="-I${ddastoysdir}/include"
+	DDASTOYS_LDFLAGS="-L${ddastoysdir}/lib -lDDASFitHitUnpacker -Wl,-rpath=${ddastoysdir}/lib"
+	AC_SUBST(DDASTOYS_CPPFLAGS)
+	AC_SUBST(DDASTOYS_LDFLAGS)],
+	[AC_MSG_ERROR([Invalid DDASToys installation directory, cannot find fit_extensions.h in ${ddastoysdir}/include])])])
+	
+# Note that autoconf docs specify that _every_ AM_CONDITIONAL must be invoked
+# every time configure is run, hence its placement outside the AS_IF macro:
+
+AM_CONDITIONAL([DDASTOYS], [test "${ddastoys_enabled}" = "1"])
+		
 ######################################  Checks for jsoncpp
 
 
