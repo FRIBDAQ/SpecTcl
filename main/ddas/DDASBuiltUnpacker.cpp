@@ -129,6 +129,7 @@ namespace DAQ {
 
       auto pBody      = reinterpret_cast<const uint32_t*>(info.s_itembody);
       size_t bodySize = *pBody; // # of 16-bit words in body (inclusive)
+      std::cerr << std::hex << bodySize << " " << std::dec << bodySize << std::endl;
 
       // parse the body of the ring item 
 
