@@ -136,8 +136,8 @@ namespace DAQ {
     {
 	DDASHitUnpacker unpacker; // DDASFormat hit unpacker
 	DDASHit hit;              // Unpacked data goes here
-	const uint32_t* pBody;    // Pointer to Pixie data payload
-	uint32_t bodyHeaderSize;  // Bytes in body header
+	const uint8_t* pBody;     // Pointer to Pixie data payload
+	size_t bodyHeaderSize;    // Bytes in body header
 
 	auto pItem = reinterpret_cast<const ::ufmt::RingItem*>(info.s_itemhdr);
 	
@@ -146,17 +146,21 @@ namespace DAQ {
 	// 32-bit word of the header (size word) and is therefore non-zero
 	
 	if (pItem->s_body.u_noBodyHeader.s_mbz) {
-	    pBody = reinterpret_cast<const uint32_t*>(pItem->s_body.u_hasBodyHeader.s_body);
+	    pBody = reinterpret_cast<const uint8_t*>(pItem->s_body.u_hasBodyHeader.s_body);
 	    bodyHeaderSize = pItem->s_body.u_hasBodyHeader.s_bodyHeader.s_size;
 	} else {
-	    pBody = reinterpret_cast<const uint32_t*>(pItem->s_body.u_noBodyHeader.s_body);
+	    pBody = reinterpret_cast<const uint8_t*>(pItem->s_body.u_noBodyHeader.s_body);
 	    bodyHeaderSize = sizeof(uint32_t);
 	}
 
-	uint32_t bodySize = pItem->s_header.s_size - bodyHeaderSize - sizeof(::ufmt::RingItemHeader);
-	const uint32_t* pEnd = pBody + bodySize;
+	// Note bodySize is bytes:
+	
+	size_t bodySize = pItem->s_header.s_size - bodyHeaderSize - sizeof(::ufmt::RingItemHeader);
+	const uint8_t* pEnd = pBody + bodySize;
 
-	unpacker.unpack(pBody, pEnd, hit);
+	unpacker.unpack(reinterpret_cast<const uint32_t*>(pBody),
+			reinterpret_cast<const uint32_t*>(pEnd),
+			hit);
 	m_channelList.push_back(hit);
 	
 	return kfTRUE;
