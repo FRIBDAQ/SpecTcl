@@ -213,8 +213,12 @@ UInt_t CTclAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent) {
       IncrementCounter(EventsRejectedThisRun);
       throw;
     }
+    catch (std::exception& e) {
+	cerr << "Event processor " << p->first << " threw std::exception: " << e.what() << std::endl;
+	success = kfFALSE;
+    }
     catch (...) {
-      cerr << "Event processor" << p->first << " threw an unanticipated exception " << endl;
+      cerr << "Event processor " << p->first << " threw an unanticipated exception " << endl;
       success = kfFALSE;
     }
     if(!success) {

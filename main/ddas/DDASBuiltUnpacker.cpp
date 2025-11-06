@@ -5,6 +5,7 @@
 
 #include <DDASHit.h>
 #include <DDASHitUnpacker.h>
+#include <DataFormat.h>
 
 #include "Globals.h"
 #include <TCLAnalyzer.h>
@@ -120,21 +121,45 @@ namespace DAQ {
         return kfTRUE;
     }
 
-    ////////
-    ///
-    Bool_t CDDASBuiltUnpacker::parseAndStoreFragment(::ufmt::FragmentInfo& info) 
+      /////////
+      ///
+      /**
+       * @note ASC (11/6/25): Follow procedure outlined in
+       * DDASBuiltFitUnpacker and DDASFitHitUnpacker:
+       *   - Cast fragment to ring item
+       *   - Check if the body header is empty or not and set the body
+       *     pointer appropriately
+       *   - Calculate the body size and define the extent of the hit
+       *   - Unpack
+       */
+      Bool_t CDDASBuiltUnpacker::parseAndStoreFragment(::ufmt::FragmentInfo& info) 
     {
+	DDASHitUnpacker unpacker; // DDASFormat hit unpacker
+	DDASHit hit;              // Unpacked data goes here
+	const uint32_t* pBody;    // Pointer to Pixie data payload
+	uint32_t bodyHeaderSize;  // Bytes in body header
 
-      DDASHitUnpacker unpacker;
+	auto pItem = reinterpret_cast<const ::ufmt::RingItem*>(info.s_itemhdr);
+	
+	// RingItem struct allows us to discriminate between data formats:
+	// either s_mbz == 0 in the case of no body header or it is the first
+	// 32-bit word of the header (size word) and is therefore non-zero
+	
+	if (pItem->s_body.u_noBodyHeader.s_mbz) {
+	    pBody = reinterpret_cast<const uint32_t*>(pItem->s_body.u_hasBodyHeader.s_body);
+	    bodyHeaderSize = pItem->s_body.u_hasBodyHeader.s_bodyHeader.s_size;
+	} else {
+	    pBody = reinterpret_cast<const uint32_t*>(pItem->s_body.u_noBodyHeader.s_body);
+	    bodyHeaderSize = sizeof(uint32_t);
+	}
 
-      auto pBody      = reinterpret_cast<const uint32_t*>(info.s_itembody);
-      size_t bodySize = *pBody; // # of 16-bit words in body (inclusive)
+	uint32_t bodySize = pItem->s_header.s_size - bodyHeaderSize - sizeof(::ufmt::RingItemHeader);
+	const uint32_t* pEnd = pBody + bodySize;
 
-      // parse the body of the ring item 
-
-      m_channelList.emplace(m_channelList.end());
-      unpacker.unpack(pBody, pBody+bodySize/sizeof(uint16_t), m_channelList.back() );
-      return kfTRUE;
+	unpacker.unpack(pBody, pEnd, hit);
+	m_channelList.push_back(hit);
+	
+	return kfTRUE;
     }
 
   } // end DDAS namespace

@@ -21,7 +21,7 @@
 
 #include <config.h>
 #include <FragmentIndex.h>
-#include "DDASFitHit.h"
+#include <DDASFitHit.h>
 
 #include <EventProcessor.h>
 #include <TranslatorPointer.h>
