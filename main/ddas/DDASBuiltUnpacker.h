@@ -20,7 +20,7 @@
 #define DAQ_DDAS_DDASBUILTUNPACKER_H
 
 #include <config.h>
-#include "FragmentIndex.h"
+#include <FragmentIndex.h>
 #include <DDASHit.h>
 
 #include <EventProcessor.h>
