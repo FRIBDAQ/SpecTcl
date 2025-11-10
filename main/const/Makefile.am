@@ -19,7 +19,7 @@ AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
 
 libconstparam_la_LDFLAGS=@ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
-install-exec-local: const.pdf
+install-exec-local: @builddir@/const.pdf
 	$(mkinstalldirs) @prefix@/share/const-plugin
 	$(mkinstalldirs) $(prefix)/TclLibs $(prefix)/TclLibs/constparam
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs/constparam; done
@@ -28,8 +28,10 @@ install-exec-local: const.pdf
 
 EXTRA_DIST	= const.xml
 
-const.pdf:	const.xml
+@builddir@/const.pdf:	const.xml
 	@PDFDOCBOOK@ @srcdir@/const.xml
 
+distclean-hook:
+	rm -f const.pdf
 
 docs:   const.pdf

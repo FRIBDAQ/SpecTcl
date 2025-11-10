@@ -20,7 +20,7 @@ BUILT_SOURCES=cmdline.h cmdline.c @builddir@/docs_built
 
 noinst_HEADERS=cmdline.h
 
-install-exec-local:
+install-exec-local: @builddir@/docs_built
 	$(mkinstalldirs) @prefix@/share/rootxamine
 	$(INSTALL_DATA) @builddir@/rootxamine_docs/* @prefix@/share/rootxamine
 
@@ -32,5 +32,9 @@ cmdline.h cmdline.c : @srcdir@/rxoptions.ggo
 @builddir@/docs_built : @srcdir@/rootxamine.xml
 	@HTMLDOCBOOK@ @srcdir@/rootxamine.xml -o @builddir@/rootxamine_docs
 	touch @builddir@/docs_built
+
+distclean-hook:
+	rm -f docs_built
+	rm -rf rootxamine_docs
 
 EXTRA_DIST=rxoptions.ggo rootxamine.xml
