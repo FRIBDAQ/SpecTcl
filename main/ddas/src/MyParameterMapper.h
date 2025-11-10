@@ -35,7 +35,7 @@ public:
      * @param rEvent      The SpecTcl event.
      */
     virtual void mapToParameters(
-	const std::vector<DAQ::DDAS::DDASHit>& channelData, CEvent& rEvent
+	const std::vector<ddasfmt::DDASHit>& channelData, CEvent& rEvent
 	);
     
     /**
@@ -45,7 +45,7 @@ public:
      * 
      * @return The global channel index.
      */ 
-    int computeGlobalIndex(const DAQ::DDAS::DDASHit& hit);
+    int computeGlobalIndex(const ddasfmt::DDASHit& hit);
 };
 
 #endif

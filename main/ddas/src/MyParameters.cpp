@@ -4,10 +4,10 @@
 // Initialize the ChannelData
 //
 void ChannelData::Initialize(std::string name) {
-    // Energy: 32768 channels between 0 and 32767
-    energy.Initialize(name + ".energy", 32768, 0, 32767, "a.u.");
+    // Energy: 32768 bins between 0 and 65535
+    energy.Initialize(name + ".energy", 32768, 0, 65535, "a.u.");
 
-    // Timestamp: 64 bits with 2^64-1 ns per bin starting at 0
+    // Timestamp: 64 bins from 0 to 2^64-1 ns
     timestamp.Initialize(
 	name + ".timestamp", 64, 0, std::pow(2,64)-1, "ns", true
 	);
