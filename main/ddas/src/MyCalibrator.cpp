@@ -10,7 +10,7 @@
 //
 MyCalibrator::MyCalibrator(MyParameters& rParams) :
     m_params(rParams),
-    m_ecal("cal", 32768, 0, 32767, "a.u", 16, 0),
+    m_ecal("cal", 16384, 0, 32767, "a.u", 16, 0),
     m_slope("slope", 0.5, "", 16, 0),
     m_offset("offset", 1000., "", 16, 0)
 {}

@@ -3,7 +3,7 @@
 #include "MyParameters.h"
 
 // Make it possible to write DDASHit instead of DAQ::DDAS::DDASHit:
-using DAQ::DDAS::DDASHit;
+using ddasfmt::DDASHit;
 
 //________________________________________________________________________
 // Initialize the parameters and channel map.
