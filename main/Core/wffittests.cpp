@@ -37,6 +37,9 @@ CPPUNIT_TEST(add_1);
 CPPUNIT_TEST(add_2);
 CPPUNIT_TEST(add_3);
 CPPUNIT_TEST(add_4);
+CPPUNIT_TEST(find_1);
+CPPUNIT_TEST(find_2);
+CPPUNIT_TEST(find_3);
 CPPUNIT_TEST_SUITE_END();
 
 private: 
@@ -49,6 +52,15 @@ protected:
     void add_2();
     void add_3();
     void add_4();
+
+    void find_1();
+    void find_2();
+    void find_3();
+
+
+    // utilities (not tests)
+
+    void add();     // Add fit named "afit"
 public:
 
     void setUp() {                  // Probably don't need this but whatever.
@@ -80,7 +92,7 @@ void
 WFFitTests::add_1() {
     // Adding a fit makes the dictionary and vector size 1:
 
-    m_pTestwf->addFit("afit");
+    add();
     EQ(size_t(1), m_pTestwf->m_fitDictionary.size());
     EQ(size_t(1), m_pTestwf->m_fits.size());
 }
@@ -88,14 +100,14 @@ void
 WFFitTests::add_2() {
     // adding a fit puts it in the dictionary.
 
-    m_pTestwf->addFit("afit");
+    add();
     ASSERT(m_pTestwf->m_fitDictionary.find("afit") != m_pTestwf->m_fitDictionary.end());
 }
 void
 WFFitTests::add_3() {
      // Adding a fit puts it in the vector with the correct id and size:
 
-     m_pTestwf->addFit("afit");
+     add();
      size_t n = m_pTestwf->m_fitDictionary["afit"];
      EQ(size_t(0), n);
      EQ(size_t(100), m_pTestwf->m_fits[0].size());
@@ -105,7 +117,7 @@ void
 WFFitTests::add_4() {
     // Adding a duplicate fit throws CDuplicateSingleton
 
-    m_pTestwf->addFit("afit");
+    add();
     CPPUNIT_ASSERT_THROW(
         m_pTestwf->addFit("afit"),
         CDuplicateSingleton
@@ -119,4 +131,61 @@ WFFitTests::add_4() {
 
     EQ(size_t(2), m_pTestwf->m_fitDictionary.size());
     EQ(size_t(2), m_pTestwf->m_fits.size());
+}
+
+// Tests for the find method:
+
+void
+WFFitTests::find_1() {
+    // Can't find what's not there.
+
+    add();
+    CPPUNIT_ASSERT_THROW(
+        m_pTestwf->findFit("nosuch"),
+        CNoSuchObjectException
+
+    );
+}
+void
+WFFitTests::find_2() {
+    // Can find one it it's there:
+
+    add();
+    size_t  id;
+    CPPUNIT_ASSERT_NO_THROW(
+        id = m_pTestwf->findFit("afit")
+    );
+    EQ(id, m_pTestwf->m_fitDictionary["afit"]);
+}
+void
+WFFitTests::find_3() {
+    // We can find the correct one when there are several present.
+
+    add();                   //"afit"
+    m_pTestwf->addFit("another");
+
+    size_t id1, id2;
+    CPPUNIT_ASSERT_NO_THROW(
+        id1 = m_pTestwf->findFit("afit")
+    );
+    CPPUNIT_ASSERT_NO_THROW(
+        id2 = m_pTestwf->findFit("another")
+    );
+
+    // Correct indices "afit" is 0, "another ' is 1.. but
+    // let's get it from the map:
+
+    ASSERT(id1 != id2);   // They are distinct.
+    EQ(id1, m_pTestwf->m_fitDictionary["afit"]);
+    EQ(id2, m_pTestwf->m_fitDictionary["another"]);
+}
+
+
+////////////////////// Utility methods:
+
+void
+WFFitTests::add() {
+    // Add a fit named "afit"
+
+    m_pTestwf->addFit("afit");
 }
