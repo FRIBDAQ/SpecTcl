@@ -578,7 +578,7 @@ fribfiltertests_SOURCES=TestRunner.cpp fribfiltertests.cpp \
 	FRIBFilterFormatter.cpp FRIBFilterFormatter.h
 
 waveformtests_CXXFLAGS=$(commonTestCXXFLAGS)
-waveformtests_LDADD=$(commonTestLdFlags)
+waveformtests_LDADD=$(commonTestLdFlags) 
 waveformtests_SOURCES=TestRunner.cpp waveformtests.cpp wfdicttests.cpp \
 	wfapitests.cpp wfcmdtests.cpp wffittests.cpp
 

@@ -30,6 +30,8 @@
 #include <CDuplicateSingleton.h>
 #include <CNoSuchObjectException.h>
 
+#include <math.h>
+
 class WFFitTests : public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(WFFitTests);
 CPPUNIT_TEST(nofits_1);
@@ -44,6 +46,10 @@ CPPUNIT_TEST(get_1);
 CPPUNIT_TEST(get_2);
 CPPUNIT_TEST(get_3);
 CPPUNIT_TEST(get_4);
+CPPUNIT_TEST(fill_1);
+CPPUNIT_TEST(fill_2);
+CPPUNIT_TEST(fill_3);
+CPPUNIT_TEST(fill_4);
 CPPUNIT_TEST_SUITE_END();
 
 private: 
@@ -67,9 +73,16 @@ protected:
     void get_3();             // By name.
     void get_4();
 
+    void fill_1();           // by number.
+    void fill_2();
+
+    void fill_3();           // by name.
+    void fill_4();
+
     // utilities (not tests)
 
     void add();     // Add fit named "afit"
+    CWaveform::Fit_t makeFit();
 public:
 
     void setUp() {                  // Probably don't need this but whatever.
@@ -240,6 +253,70 @@ WFFitTests::get_4() {
 }
 
 
+// Tests for fillFit.  
+
+void
+WFFitTests::fill_1() {
+    // FIll existing by number
+
+    add();
+    size_t id = m_pTestwf->findFit("afit");
+    auto fit = makeFit();
+
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pTestwf->fillFit(id, fit.data())
+    );
+
+    // Now let's be sure the points match:
+
+    auto& filledFit = m_pTestwf->getFit(id);
+    for (int i = 0; i < fit.size(); i++) {
+        EQ(fit[i], filledFit[i]);
+    }
+}
+void
+WFFitTests::fill_2() {
+    // fill nonexistent by number:
+
+    add();
+    auto fit = makeFit();
+    CPPUNIT_ASSERT_THROW(
+        m_pTestwf->fillFit(1245, fit.data()),
+        CNoSuchObjectException
+    );
+}
+
+void
+WFFitTests::fill_3() {
+    // Fill existing by name.
+
+    add();
+    auto fit = makeFit();
+    size_t id;
+    CPPUNIT_ASSERT_NO_THROW(
+        id = m_pTestwf->fillFit("afit", fit.data())
+    );
+    // returned Id is correct:
+
+    EQ(id, m_pTestwf->findFit("afit"));
+
+    // FIt contents are corret;
+
+    auto& filledFit = m_pTestwf->getFit(id);
+    for (int i = 0; i < fit.size(); i++) {
+        EQ(fit[i], filledFit[i]);
+    }
+}
+
+void
+WFFitTests::fill_4() {
+    add();
+    auto fit = makeFit();
+    CPPUNIT_ASSERT_THROW(
+        m_pTestwf->fillFit("nosuchfit", fit.data()),
+        CNoSuchObjectException
+    );
+}
 ////////////////////// Utility methods:
 
 void
@@ -248,3 +325,22 @@ WFFitTests::add() {
 
     m_pTestwf->addFit("afit");
 }
+
+CWaveform::Fit_t
+WFFitTests::makeFit() {
+    auto pts = m_pTestwf->size();    // # of poits.
+
+    // We'll make a full cycle sin wave (roughly) 
+    // scaled by 100.0.
+
+    double step = (2.0*3.14159)/double(pts); // 2pi / pts.
+
+    CWaveform::Fit_t result;            // Really a vector.
+    for (int i =0; i < pts; i++) {
+        result.push_back(100.0 * sin(double(i)*step));
+    }
+    return result;
+
+}
+
+

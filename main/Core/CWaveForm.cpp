@@ -242,7 +242,7 @@ CWaveform::addFit(const char* name) {
     const Fit_t& cfit = getFit(fitno);   // Takes care of exceptions too...
     Fit_t& fit = const_cast<Fit_t&>(cfit);   // So we can modifity it.
 
-    memcpy(fit.data(), pData, fit.size());
+    memcpy(fit.data(), pData, fit.size()*sizeof(double));
  }
 
  /**
