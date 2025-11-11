@@ -36,6 +36,7 @@ class CWaveform;
  * waveform metadata set wfname name value ...
  * waveform metadata get wfname ?name?
  * waveform resize name samples
+ * waveform fits name ?pattern?; #212
  * \endverbatim
  * 
  * Note it is not supported to delete waveforms.
@@ -74,6 +75,7 @@ protected:
     void metadataSet(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void metadataGet(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void resize(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
+    void listFits(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv); // Issue #212
 
     // Utilities
 private:
