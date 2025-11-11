@@ -27,6 +27,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLAnalyzer.h"
 #include <Event.h>
 #include <TreeParameter.h>
+#include <SpecTcl.h>
+#include <CWaveForm.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -82,13 +84,21 @@ MyParameters vars = {
 
 class CFixedEventUnpacker : public  CEventProcessor
 {
+private:
+  CWaveform* m_pWf;
 public:
   virtual Bool_t operator()(const Address_t pEvent,
                 CEvent&         rEvent,
                 CAnalyzer&      rAnalyzer,
                 CBufferDecoder& rDecoder);
-};
+Bool_t OnEventSourceOpen(std::string name) {
+  m_pWf = SpecTcl::getInstance()->findWaveform("test");
+  // If there are no fits, make  a couple of them.
 
+  return kfTRUE;
+}
+
+};
 Bool_t
 CFixedEventUnpacker::operator()(const Address_t pEvent,
                 CEvent&         rEvent,
@@ -117,6 +127,29 @@ CFixedEventUnpacker::operator()(const Address_t pEvent,
     event.raw[param] = *p++;
     nWords--;
     param++;
+  }
+  // If there's a waveform, full it with rEvent[0]..
+  if (!m_pWf) {
+    OnEventSourceOpen("test");
+  }
+  if (m_pWf) {
+    std::vector<uint16_t> trace;
+    for (int i =0; i < m_pWf->size(); i++) {
+      trace.push_back(i+event.raw[0]);
+    }
+    m_pWf->update(trace.data());
+    // Make some fits
+    // lower is flat, the first waveform point,
+    // uppoer is flat, the last waveform point.
+    std::vector<double> lower;
+    std::vector<double> upper;
+    for (int i =0; i < m_pWf->size(); i++) {
+      lower.push_back(trace[0]);
+      upper.push_back(trace[trace.size()-1]);
+    }
+    m_pWf->fillFit(size_t(0), lower.data());
+    m_pWf->fillFit(size_t(1), upper.data());
+
   }
   return kfTRUE;		// kfFALSE would abort pipeline.
 }
@@ -256,7 +289,12 @@ elements 1 and 2 and putting the result into element 0.
 void
 CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
 {
-
+  CWaveform wf("test", 500);
+  wf.setMetadata("frequency", "500MHz");
+  wf.setMetadata("meaning", "Central Contact");
+  wf.addFit("lower");
+  wf.addFit("upper");
+  SpecTcl::getInstance()->addWaveform(wf);
 #ifdef WITHF77UNPACKER
   RegisterEventProcessor(legacyunpacker);
 #endif
