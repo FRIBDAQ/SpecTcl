@@ -40,6 +40,10 @@ CPPUNIT_TEST(add_4);
 CPPUNIT_TEST(find_1);
 CPPUNIT_TEST(find_2);
 CPPUNIT_TEST(find_3);
+CPPUNIT_TEST(get_1);
+CPPUNIT_TEST(get_2);
+CPPUNIT_TEST(get_3);
+CPPUNIT_TEST(get_4);
 CPPUNIT_TEST_SUITE_END();
 
 private: 
@@ -57,6 +61,11 @@ protected:
     void find_2();
     void find_3();
 
+    void get_1();              // By number.
+    void get_2();
+
+    void get_3();             // By name.
+    void get_4();
 
     // utilities (not tests)
 
@@ -178,6 +187,56 @@ WFFitTests::find_3() {
     ASSERT(id1 != id2);   // They are distinct.
     EQ(id1, m_pTestwf->m_fitDictionary["afit"]);
     EQ(id2, m_pTestwf->m_fitDictionary["another"]);
+}
+
+// Tests for both getFit methods. 
+
+void
+WFFitTests::get_1() {
+    // Get existing fit by number:
+    add();
+
+    CPPUNIT_ASSERT_NO_THROW(
+        auto& fit = m_pTestwf->getFit(m_pTestwf->m_fitDictionary["afit"])
+    );
+    // I don't think fit is in scope any more but we want to check that this is the 
+    // correct fit:
+
+    auto& fit = m_pTestwf->getFit(m_pTestwf->m_fitDictionary["afit"]);
+    const CWaveform::Fit_t* actual = &(m_pTestwf->m_fits[m_pTestwf->m_fitDictionary["afit"]]);
+    EQ(&fit, actual);
+}
+
+void 
+WFFitTests::get_2() {
+    // Get nonexistinug fit by number throws:
+    add();
+    CPPUNIT_ASSERT_THROW(
+        m_pTestwf->getFit(1234),
+        CNoSuchObjectException
+    );
+}
+
+void 
+WFFitTests::get_3() {
+    // Get by name existing:
+    add();
+    CPPUNIT_ASSERT_NO_THROW(
+        auto& fit = m_pTestwf->getFit("afit")
+    );
+    auto& fit = m_pTestwf->getFit("afit");
+    const CWaveform::Fit_t* actual = &(m_pTestwf->m_fits[m_pTestwf->m_fitDictionary["afit"]]);
+    EQ(&fit, actual);
+
+}
+void
+WFFitTests::get_4() {
+    // nonexistent by name throws.
+    add();
+    CPPUNIT_ASSERT_THROW(
+        m_pTestwf->getFit("nosuchfit"),
+        CNoSuchObjectException
+    );
 }
 
 
