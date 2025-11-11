@@ -50,6 +50,9 @@ CPPUNIT_TEST(fill_1);
 CPPUNIT_TEST(fill_2);
 CPPUNIT_TEST(fill_3);
 CPPUNIT_TEST(fill_4);
+CPPUNIT_TEST(list_1);
+CPPUNIT_TEST(list_2);
+CPPUNIT_TEST(list_3);
 CPPUNIT_TEST_SUITE_END();
 
 private: 
@@ -78,6 +81,10 @@ protected:
 
     void fill_3();           // by name.
     void fill_4();
+
+    void list_1();
+    void list_2();
+    void list_3();
 
     // utilities (not tests)
 
@@ -316,6 +323,51 @@ WFFitTests::fill_4() {
         m_pTestwf->fillFit("nosuchfit", fit.data()),
         CNoSuchObjectException
     );
+}
+
+// Tests for listFits:
+
+void 
+WFFitTests::list_1() {
+    // There's nothing to list:
+
+    EQ(size_t(0), m_pTestwf->listFits().size());
+}
+void
+WFFitTests::list_2() {
+    // There's our single fit:
+
+    add();
+    auto listing = m_pTestwf->listFits();
+    EQ(size_t(1), listing.size());
+    EQ(std::string("afit"), listing.at(0).first);
+    EQ(size_t(0), listing.at(0).second);
+}
+
+void
+WFFitTests::list_3() {
+    // A few fits to add.. note they'll come out in alpha order
+    // We're going to add them backwards.
+    // so these are pairs of names and anticipatd indices.
+    std::vector<std::pair<std::string, size_t>> fits = {
+        {"aaa", 4}, {"bbb", 3}, {"cccc", 2}, {"dddd", 1}, 
+        {"zzzz", 0}
+    };
+    // Add the fits in reverse order.
+    for (auto p = fits.rbegin(); p != fits.rend(); ++p) {
+        m_pTestwf->addFit(p->first.c_str());
+    }
+    // a bit of white box here, they should come out in alpha order
+    // because this is iterating the fit map.
+
+    auto listing = m_pTestwf->listFits();    
+    EQ(fits.size(), listing.size());    //should have only and all of the fits I added.
+
+    for (int i =0; i < fits.size(); i++) {
+        EQ(fits.at(i).first, listing.at(i).first);
+        EQ(fits.at(i).second, listing.at(i).second);
+    }
+
 }
 ////////////////////// Utility methods:
 
