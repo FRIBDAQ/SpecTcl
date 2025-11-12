@@ -69,6 +69,17 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(resize_2);
     CPPUNIT_TEST(resize_3);
     CPPUNIT_TEST(resize_4);
+
+    // Tests fits subcommand (ISsue #212)
+
+    CPPUNIT_TEST(fits_1);   // too few params.
+    CPPUNIT_TEST(fits_2);   // too many params.
+    CPPUNIT_TEST(fits_3);   // no such waveform.
+    CPPUNIT_TEST(fits_4);   // No fits present.
+    CPPUNIT_TEST(fits_5);   // There's a fit.   
+    CPPUNIT_TEST(fits_6);   // The fit list is correct.
+    CPPUNIT_TEST(fits_7);   // pattern defaults to *
+
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
@@ -108,6 +119,14 @@ private:
     void resize_2();
     void resize_3();
     void resize_4();
+
+    void fits_1();
+    void fits_2();
+    void fits_3();
+    void fits_4();
+    void fits_5();
+    void fits_6();
+    void fits_7();
 // Test objects:
 private:
     CTCLInterpreter* m_pInterp;
@@ -641,4 +660,131 @@ WFCmdTests::resize_4() {
         m_pInterp->GlobalEval("spectcl::serial::waveform resize test"),
         CTCLException
     );   
+}
+
+// Tests for fits (Issue #212)
+
+void 
+WFCmdTests::fits_1() {
+    // Fits needs a waveform.
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform fits"),
+        CTCLException
+    );
+}
+
+void 
+WFCmdTests::fits_2() {
+    // there's a waveform, but too many parameters:
+
+    CWaveform wf("test", 100);
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform fits test * extra-junk"),
+        CTCLException
+    );
+}
+
+void 
+WFCmdTests::fits_3() {
+    // Incorrect fit name:
+
+    CWaveform wf("test", 100);
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform fits tests *"),
+        CTCLException
+    );
+}
+
+void 
+WFCmdTests::fits_4() {
+    std::string result;
+
+    CWaveform wf("test", 100);
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_NO_THROW(
+       result = m_pInterp->GlobalEval("spectcl::serial::waveform fits test *")
+    );
+
+    CTCLObject lresult; 
+    lresult.Bind(m_pInterp);
+    lresult = std::string(result);
+
+    EQ(0, lresult.llength());
+}
+
+void 
+WFCmdTests::fits_5() {
+    std::string result;
+
+    CWaveform wf("test", 100);
+    wf.addFit("Afit");
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform fits test *")
+    );
+
+    CTCLObject lresult; 
+    lresult.Bind(m_pInterp);
+    lresult = std::string(result);
+    std::cerr << result << std::endl;
+    EQ(1, lresult.llength());
+}
+
+void 
+WFCmdTests::fits_6() {
+    std::string result;
+
+    CWaveform wf("test", 100);
+    wf.addFit("Afit");
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform fits test *")
+    );
+
+    CTCLObject lresult; 
+    lresult.Bind(m_pInterp);
+    lresult = std::string(result);
+    
+    // Simplify dict handling it's alist of name value name value....
+    CTCLObject def; def.Bind(m_pInterp); def = lresult.lindex(0);  // The definition.
+    EQ(4, def.llength());                                         // namekey name pointskey points
+    EQ(std::string("name"), std::string(def.lindex(0)));           // Name key.    
+    EQ(std::string("Afit"), std::string(def.lindex(1)));            // name value.
+    EQ(std::string("points"), std::string(def.lindex(2)));       // points key.
+
+    CTCLObject pts; pts.Bind(m_pInterp); pts = def.lindex(3);    // List of points.
+
+    EQ(100, pts.llength());
+
+    // All the points are "0.0"
+
+    auto points = pts.getListElements();
+    for (auto& p : points) {
+        EQ(std::string("0.0"), std::string(p));
+    }
+}
+void
+WFCmdTests::fits_7() {
+std::string result;
+
+    CWaveform wf("test", 100);
+    wf.addFit("Afit");
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform fits test *")
+    );
+
+    CTCLObject lresult; 
+    lresult.Bind(m_pInterp);
+    lresult = std::string(result);
+    
+    EQ(1, lresult.llength());
 }
