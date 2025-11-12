@@ -20,7 +20,7 @@
  *         workers.
  */
 
-#include "CWaveformCommand.h"
+#include "CWaveformCommand.h"0, 
 #include "CWaveForm.h"
 #include "SpecTcl.h"
 
@@ -642,7 +642,7 @@ CWaveformCommand::listWaveform(CTCLObject& result, const CWaveform& wf) {
  *    Returns a list for the waveform  values. This is of the form:
  * 
  * \verbatim 
- *  {name {pts}}
+ *  {name {pts} rank}
  * \endverbatim
  * 
  * @param result - bound object to hold the result.
