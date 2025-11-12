@@ -20,7 +20,7 @@
  *         workers.
  */
 
-#include "CWaveformCommand.h"0, 
+#include "CWaveformCommand.h" 
 #include "CWaveForm.h"
 #include "SpecTcl.h"
 
@@ -536,37 +536,9 @@ CWaveformCommand::listFits(CTCLInterpreter& interp, std::vector<CTCLObject>& obj
 
     // List the fits and figure out the result:
 
-    auto listing = wf->listFits();
-
     CTCLObject result;
     result.Bind(interp);
-    for (auto& item : listing) {
-        // First, does the fit name match the pattern:
-
-        if (Tcl_StringMatch(item.first.c_str(), pattern.c_str())) {
-            
-            CTCLObject listitem;
-            listitem.Bind(interp);                // The dict we append.
-
-            // Put the fit name in the dict:
-
-            Tcl::DictPut(interp, listitem, "name", item.first.c_str());
-
-            // Marshall the fit points.
-            
-            auto& pts = wf->getFit(item.second);   // Now we have the fit points too.
-            CTCLObject ptlist;
-            ptlist.Bind(interp);
-            for (auto pt :pts) {
-                ptlist += pt;
-            }
-            // Add the fit points to the dict:
-
-            Tcl::DictPut(interp, listitem, "points", ptlist);
-
-            result += listitem;
-        }
-    }
+    getFits(result, *wf, pattern.c_str());
 
     interp.setResult(result);
 }
@@ -665,6 +637,46 @@ CWaveformCommand::getWaveform(CTCLObject& result, const CWaveform& wf) {
     result += points;
     result += myRank();              // MPI rank (0 if not MPI).
 
+}
+/**
+ * getFits
+ *    Returns the waveform's fit as a list of dicts {name fitname points {pt-list}}
+ * @param result - the object that will hold the resulting list of dicts 
+ * @param wf     - The waveform with fits to get.
+ * @param pattern - glob pattern that selects which named fits.
+ */
+void
+CWaveformCommand::getFits(CTCLObject& result, const CWaveform& wf, const char* pattern) {
+    auto listing = wf.listFits();
+    CTCLInterpreter& interp(*getInterpreter());
+
+    for (auto& item : listing) {
+        // First, does the fit name match the pattern:
+
+        if (Tcl_StringMatch(item.first.c_str(), pattern)) {
+            
+            CTCLObject listitem;
+            listitem.Bind(interp);                // The dict we append.
+
+            // Put the fit name in the dict:
+
+            Tcl::DictPut(interp, listitem, "name", item.first.c_str());
+
+            // Marshall the fit points.
+            
+            auto& pts = wf.getFit(item.second);   // Now we have the fit points too.
+            CTCLObject ptlist;
+            ptlist.Bind(interp);
+            for (auto pt :pts) {
+                ptlist += pt;
+            }
+            // Add the fit points to the dict:
+
+            Tcl::DictPut(interp, listitem, "points", ptlist);
+
+            result += listitem;
+        }
+    }
 }
 
 //////////////// MPI Wrapping:

@@ -84,6 +84,7 @@ private:
     void save(const CWaveform& wf);         //  Saves a constructed waveform.
     void listWaveform(CTCLObject& result, const CWaveform& wf);
     void getWaveform(CTCLObject& result, const CWaveform& wf);
+    void getFits(CTCLObject& result, const CWaveform& wf, const char* pattern = "*");
 };
 
 // MPI wrapper:
