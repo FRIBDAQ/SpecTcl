@@ -658,18 +658,24 @@ snit::widget WaveformDisplay {
         # Generate the canvas and plot:
         canvas $win.plot -width $width -height $height
         grid $win.plot -row 0 -column 0
+        
         set plotName [Plotchart::createXYPlot $win.plot $xaxis $yaxis \
             -xlabels $xlabels -ylabels $ylabels          \
         ]
+        
         $plotName title $options(-name) top;   #  Title (if ther's none it'll be blank).
-
         #  Generate the x series:
 
         set xpts [_xpoints $options($opt)]
 
         $plotName plotlist trace $xpts $options($opt) [llength $options($opt)]
         $plotName dataconfig trace -type line
+        $plotName legend trace waveform
+        
 
+        $plotname legendconfig -position top-right
+
+        
     }
 
     #  Utility proces:
@@ -680,6 +686,9 @@ snit::widget WaveformDisplay {
     proc _ymax series {
         set max [expr max([join $series ,])]
         set max [expr 1.05*$max]
+        if {$max == 0} {
+            set max 100.0
+        }
         return $max
     }
 
@@ -698,7 +707,9 @@ snit::widget WaveformDisplay {
     proc _labels {axis interval} {
         set max [lindex $axis 1]
         set result [list]
-
+        if {$max == 0} {
+            return [list 0.0 500.0]
+        }
         for {set i 0} {$i <= $max} {incr i $interval} {
             lappend result $i
         }
