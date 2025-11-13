@@ -907,25 +907,166 @@ WFCmdTests::getall_3() {
 }
 void
 WFCmdTests::getall_4() {
+    auto wfs = makeWfPair();
+    wfs.first->addFit("bfit");
+    wfs.first->addFit("afit");   // Should come out in alpha order, (Whilte box).
+
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a")
+    );
+
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
     
+    CTCLObject desc = oResult.lindex(0);  desc.Bind(m_pInterp);
+
+    // Cut to the fits:
+
+    CTCLObject fits = Tcl::DictGet(*m_pInterp, desc, "fits");
+    EQ(2, fits.llength());
+
+    CTCLObject fit1 = fits.lindex(0);
+    CTCLObject fit2 = fits.lindex(1);
+    EQ(std::string("afit"), Tcl::DictGetAsStr(*m_pInterp, fit1, "name"));
+    EQ(std::string("bfit"), Tcl::DictGetAsStr(*m_pInterp, fit2, "name"));
+
+
 }
 void
 WFCmdTests::getall_5() {
-    
+    auto wfs = makeWfPair();
+
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a b")
+    );
+
+    // There should be two waveforms verify the names and that there are no fits in either:
+
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    EQ(2, oResult.llength());
+    CTCLObject d1 = oResult.lindex(0); 
+    CTCLObject d2 = oResult.lindex(1);
+
+    EQ(std::string("a"), Tcl::DictGetAsStr(*m_pInterp, d1, "name"));
+    EQ(std::string("b"), Tcl::DictGetAsStr(*m_pInterp, d2, "name"));
+
+    CTCLObject f1 = Tcl::DictGet(*m_pInterp, d1, "fits");
+    EQ(0, f1.llength());
+
+    CTCLObject f2 = Tcl::DictGet(*m_pInterp, d2, "fits");
+    EQ(0, f2.llength());
 }
 void
 WFCmdTests::getall_6() {
-    
+    auto wfs = makeWfPair();
+    wfs.first->addFit("fit");
+std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a b")
+    );
+
+    // There should be two waveforms verify the names and that there are no fits in either:
+
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    EQ(2, oResult.llength());
+    CTCLObject d1 = oResult.lindex(0); 
+    CTCLObject d2 = oResult.lindex(1);
+
+    EQ(std::string("a"), Tcl::DictGetAsStr(*m_pInterp, d1, "name"));
+    EQ(std::string("b"), Tcl::DictGetAsStr(*m_pInterp, d2, "name"));
+
+    CTCLObject f1 = Tcl::DictGet(*m_pInterp, d1, "fits");
+    EQ(1, f1.llength());
+
+    CTCLObject f2 = Tcl::DictGet(*m_pInterp, d2, "fits");
+    EQ(0, f2.llength());
 }
+
+
 void
 WFCmdTests::getall_7() {
+    auto wfs = makeWfPair();
+    wfs.second->addFit("fit2");
+    wfs.second->addFit("fit1");
+
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a b")
+    );
+
+    // There should be two waveforms verify the names and that there are no fits in either:
+
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    EQ(2, oResult.llength());
+    CTCLObject d1 = oResult.lindex(0); 
+    CTCLObject d2 = oResult.lindex(1);
+
+    EQ(std::string("a"), Tcl::DictGetAsStr(*m_pInterp, d1, "name"));
+    EQ(std::string("b"), Tcl::DictGetAsStr(*m_pInterp, d2, "name"));
+
+    CTCLObject f1 = Tcl::DictGet(*m_pInterp, d1, "fits");
+    EQ(0, f1.llength());
+
+    CTCLObject f2 = Tcl::DictGet(*m_pInterp, d2, "fits");
+    EQ(2, f2.llength());
+
+    // fit names in alpha order:
+
+    CTCLObject fit1 = f2.lindex(0);
+    fit1.Bind(m_pInterp);
+    EQ(std::string("fit1"), Tcl::DictGetAsStr(*m_pInterp, fit1, "name"));
     
+    CTCLObject fit2 = f2.lindex(1);
+    fit2.Bind(m_pInterp);
+    EQ(std::string("fit2"), Tcl::DictGetAsStr(*m_pInterp, fit2, "name"));
 }
+
 void
 WFCmdTests::getall_8() {
-    
+    auto wfs = makeWfPair();
+    wfs.first->addFit("fit1.1");
+    wfs.second->addFit("fit1.2");
+    wfs.second->addFit("fit2.2");
+
+    CTCLObject oResult; oResult.Bind(m_pInterp);
+    oResult = m_pInterp->GlobalEval("spectcl::serial::waveform getall a b");
+
+    CTCLObject d1 = oResult.lindex(0); d1.Bind(m_pInterp);
+    CTCLObject d2 = oResult.lindex(1); d2.Bind(m_pInterp);
+
+    // There' one  fit in d1:
+
+    CTCLObject fitsa = Tcl::DictGet(*m_pInterp, d1, "fits");
+    EQ(1, fitsa.llength());
+    CTCLObject fita = fitsa.lindex(0);
+    EQ(std::string("fit1.1"), Tcl::DictGetAsStr(*m_pInterp, fita, "name"));
+
+    // there's two fits in d1:
+
+    CTCLObject fitsb = Tcl::DictGet(*m_pInterp, d2, "fits");
+    EQ(2,  fitsb.llength());
+
+    CTCLObject fitb1 = fitsb.lindex(0);
+    CTCLObject fitb2 = fitsb.lindex(1);
+
+    EQ(std::string("fit1.2"), Tcl::DictGetAsStr(*m_pInterp, fitb1, "name"));
+    EQ(std::string("fit2.2"), Tcl::DictGetAsStr(*m_pInterp, fitb2, "name"));
+
+
 }
 void
 WFCmdTests::getall_9() {
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform getall nosuch"),
+        CTCLException
+    );
     
 }
