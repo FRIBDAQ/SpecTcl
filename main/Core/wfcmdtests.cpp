@@ -868,6 +868,41 @@ WFCmdTests::getall_2() {
 }
 void
 WFCmdTests::getall_3() {
+    auto wfs = makeWfPair();
+    // add a fit to the first one:
+
+    wfs.first->addFit("afit");
+
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a");
+    );
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    // There should only be one element:
+    EQ(1, oResult.llength());
+    // It should describe "a" and have a 10 pt waveform:
+
+    CTCLObject desc = oResult.lindex(0); desc.Bind(m_pInterp);
+    std::string wfName = Tcl::DictGetAsStr(*m_pInterp, desc, "name");
+    EQ(std::string("a"), wfName);
+
+    CTCLObject waveform = Tcl::DictGet(*m_pInterp, desc, "waveform");   // waveform is bound.
+    EQ(3, waveform.llength());
+    EQ(std::string("a"), std::string(waveform.lindex(0)));
+    CTCLObject trace = waveform.lindex(1); trace.Bind(m_pInterp);
+    EQ(10, trace.llength());                 // Correct # of points.
+
+    CTCLObject fits = Tcl::DictGet(*m_pInterp, desc, "fits");
+    EQ(1, fits.llength());
+    CTCLObject fit = fits.lindex(0);   // name "afit", points 10 element list.
+    fit.Bind(m_pInterp);
+
+    EQ(std::string("afit"), Tcl::DictGetAsStr(*m_pInterp, fit, "name"));
+    
+    CTCLObject points = Tcl::DictGet(*m_pInterp, fit, "points");
+    points.Bind(m_pInterp);
+    EQ(10, points.llength());
     
 }
 void
