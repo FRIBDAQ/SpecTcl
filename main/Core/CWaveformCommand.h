@@ -33,6 +33,7 @@ class CWaveform;
  * waveform ?create? name samples
  * waveform list ?pattern?
  * waveform get name...
+ * waveform getall name...
  * waveform metadata set wfname name value ...
  * waveform metadata get wfname ?name?
  * waveform resize name samples
@@ -71,6 +72,7 @@ protected:
     void create(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv, unsigned nameIdx);
     void list(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void get(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
+    void getAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void metadata(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void metadataSet(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void metadataGet(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);

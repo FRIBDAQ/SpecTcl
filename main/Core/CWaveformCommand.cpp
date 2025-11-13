@@ -82,6 +82,8 @@ CWaveformCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
                 resize(interp, objv);
             } else if (sub == "fits") {
                 listFits(interp, objv);               // Issue #212
+            } else if (sub == "getall") {
+                getAll(interp, objv);                 // Usse #212
             } else {
                 create(interp, objv, 1);              // no subcommand, assume create.
             }
@@ -540,6 +542,52 @@ CWaveformCommand::listFits(CTCLInterpreter& interp, std::vector<CTCLObject>& obj
     result.Bind(interp);
     getFits(result, *wf, pattern.c_str());
 
+    interp.setResult(result);
+}
+/**
+ * getall
+ *    Handles the command:
+ * 
+ * waveform getall name...
+ * 
+ * The result is a list of dicts for each waveform name dict keys:
+ *   *  name      Name of the waveform.
+ *   *  waveform  The result from the getWaveform
+ *   *  fits      The result from getFits with pattern *.
+ * 
+ * 
+ */
+void
+CWaveformCommand::getAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireAtLeast(objv, 3, "getall needs at least one waveform name.");
+
+    int first = 2;    // Position of first waveform name in objv.
+    CTCLObject result;
+    result.Bind(interp);
+    for (int i = first; i < objv.size(); i++) {
+        std::string wfname(objv[i]);
+        CWaveform* wf = find(wfname.c_str());
+        if (!wf) {
+            std::stringstream strmsg;
+            strmsg << "There is no waveform defined named: " << wfname;
+            std::string msg = strmsg.str();
+            throw std::invalid_argument(msg);
+        }
+
+        CTCLObject waveform; waveform.Bind(interp);
+        CTCLObject fits;     fits.Bind(interp);
+        getWaveform(waveform, *wf);
+        getFits(fits, *wf);
+
+        // Make the dict list element and add it to result:
+
+        CTCLObject dict; dict.Bind(interp);
+        Tcl::DictPut(interp, dict, "name", objv[i]);
+        Tcl::DictPut(interp, dict, "waveform", waveform);
+        Tcl::DictPut(interp, dict, "fits", fits);
+
+        result += dict;
+    }
     interp.setResult(result);
 }
 /**

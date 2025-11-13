@@ -31,6 +31,7 @@
 
 #include "SpecTcl.h"
 #include "CWaveForm.h"
+#include <TclDict.h>
 #include <tcl.h>
 
 class WFCmdTests : public CppUnit::TestFixture {
@@ -80,6 +81,18 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(fits_6);   // The fit list is correct.
     CPPUNIT_TEST(fits_7);   // pattern defaults to *
 
+    // test waveform getall sub-command (Issue #212).
+
+    CPPUNIT_TEST(getall_1);  // Too few parameters.
+    CPPUNIT_TEST(getall_2);  // One waveform, no fits.
+    CPPUNIT_TEST(getall_3);  // One waveform 1 fit.
+    CPPUNIT_TEST(getall_4);  // One waveform more than 1 fit.
+    CPPUNIT_TEST(getall_5);  // Two waveforms neither has fits.
+    CPPUNIT_TEST(getall_6);  // Two waveforms first has a fit.
+    CPPUNIT_TEST(getall_7);  // Two waveforms second has two fits.
+    CPPUNIT_TEST(getall_8);  // Two waveforms first as a fit second has two fits.
+    CPPUNIT_TEST(getall_9);  // no such waveform error.
+
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
@@ -127,6 +140,19 @@ private:
     void fits_5();
     void fits_6();
     void fits_7();
+
+    void getall_1();
+    void getall_2();
+    void getall_3();
+    void getall_4();
+    void getall_5();
+    void getall_6();
+    void getall_7();
+    void getall_8();
+    void getall_9();
+
+private:    // utilities
+    std::pair<CWaveform*, CWaveform*>  makeWfPair();
 // Test objects:
 private:
     CTCLInterpreter* m_pInterp;
@@ -732,7 +758,6 @@ WFCmdTests::fits_5() {
     CTCLObject lresult; 
     lresult.Bind(m_pInterp);
     lresult = std::string(result);
-    std::cerr << result << std::endl;
     EQ(1, lresult.llength());
 }
 
@@ -787,4 +812,85 @@ std::string result;
     lresult = std::string(result);
     
     EQ(1, lresult.llength());
+}
+// Tests for the getall subcommand.  They use the following utility:
+
+std::pair<CWaveform*, CWaveform*> 
+WFCmdTests::makeWfPair() {
+    CWaveform wf1("a", 10);   // Firs is before the second.
+    CWaveform wf2("b", 10);
+
+    SpecTcl::getInstance()->addWaveform(wf1);
+    SpecTcl::getInstance()->addWaveform(wf2);
+
+    auto p1 = SpecTcl::getInstance()->findWaveform("a");
+    auto p2 = SpecTcl::getInstance()->findWaveform("b");
+
+    return {p1, p2};
+}
+
+void
+WFCmdTests::getall_1() {
+    /// Too few parameters, needs at least one waveform.
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform getall"),
+        CTCLException
+    );
+}
+void
+WFCmdTests::getall_2() {
+    makeWfPair();               // NO fits so I don't need the ptr.
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a");
+    );
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    // There should only be one element:
+    EQ(1, oResult.llength());
+    // It should describe "a" and have a 10 pt waveform:
+
+    CTCLObject desc = oResult.lindex(0); desc.Bind(m_pInterp);
+    std::string wfName = Tcl::DictGetAsStr(*m_pInterp, desc, "name");
+    EQ(std::string("a"), wfName);
+
+    CTCLObject waveform = Tcl::DictGet(*m_pInterp, desc, "waveform");   // waveform is bound.
+    EQ(3, waveform.llength());
+    EQ(std::string("a"), std::string(waveform.lindex(0)));
+    CTCLObject trace = waveform.lindex(1); trace.Bind(m_pInterp);
+    EQ(10, trace.llength());                 // Correct # of points.
+
+    CTCLObject fits = Tcl::DictGet(*m_pInterp, desc, "fits");
+    EQ(0, fits.llength());                         // No fits.
+
+
+}
+void
+WFCmdTests::getall_3() {
+    
+}
+void
+WFCmdTests::getall_4() {
+    
+}
+void
+WFCmdTests::getall_5() {
+    
+}
+void
+WFCmdTests::getall_6() {
+    
+}
+void
+WFCmdTests::getall_7() {
+    
+}
+void
+WFCmdTests::getall_8() {
+    
+}
+void
+WFCmdTests::getall_9() {
+    
 }
