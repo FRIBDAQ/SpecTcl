@@ -10845,6 +10845,10 @@ pman use raw                               <co id='dynpipe.pman.use'/>
         and filled in by event processors.
     </para>
     <para>
+        Waveforms can also have any number of named fitlines associated with them. Those fits
+        are superimposed on the display of the waveform in the tree GUI.
+    </para>
+    <para>
         This chapter summarizes the process of creating a waveform (at the command level), 
         locating the <classname>CWaveform</classname> object you create, and updating the
         waveform contents from within your event processor.
@@ -10866,6 +10870,7 @@ pman use raw                               <co id='dynpipe.pman.use'/>
             Waveform objects have a name, a size, along with storage for a waveform as well as arbitrary metadata
             you can use as you choose (e.g. to store the digitizer frequency or resolution). 
         </para>
+        
         <para>
             The example below shows how to create and register a waveform object within an event processor.
             Note that registering a waveform with the dictionary copies the waveform object making it necessary
@@ -11012,6 +11017,103 @@ waveform metadata set test Frequency  100MHz bits 14 <co id='wf2.metaset' />
             The code to locate and fill the event processor in the event processor is the same as that
             shown in <link linkend='wf1.example' endterm='wf1.example.title' />.
         </para>
+    </section>
+    <section>
+        <title>Associating fit lines with a waveform.</title>
+        <para>
+            The  <methodname>addFit</methodname> of <classname>CWaveform</classname> provides
+            the ability to associated fit data with each waveform. As long as fit names are unique,
+            any number of fits can be associated.   The TreeGUI automatically plots fit data supermiposed
+            on the waveform. The <methodname>fillFit</methodname> method fills the fit with data.
+        </para>
+        <para>
+            Fits have a fit index associated with the fit line and it's recommended that you use
+            the index to refer to the fit during event processing, as this can be quite a bit faster
+            than forcing the fit object to look up the fit by name.
+        </para>
+        <para>
+            The example below shows how to add a fit to a waveform in the event process and to 
+            fill in the fit.  It is a modification of
+            <link linkend='wf1.example' endterm='wf1.example.title' />
+        </para>
+        <example id='wffit.example'>
+            <title id='wffit.example.title'>Using fits with CWaveform</title>
+            <programlisting>
+class MyEp : public CEventProcessor {
+private:
+    CWaveform* m_pWf;           
+    size_t     m_fitIndex;       <co id='wffit.index' />
+public:
+    Bool_t OnAttach(CAnalyzer&amp; ra);  
+    ...
+    Bool_t operator()(const Address_t pEvent,
+                            CEvent&amp; rEvent,
+                            CAnalyzer&amp; rAnalyzer,
+                            CBufferDecoder&amp; rDecoder);
+    std::vector&lt;double&gt; vitWaveform(const uint16_t* waveform);
+};
+...
+Bool_t
+MyEp::OnAttach(CAnalyzer&amp; ra) {
+    CWaveform awaveform("test", 100);
+    awaveform.setMetadata("Frequency", "250MHz"); 
+    awaveform.setMetadata("bits", "14");
+    m_fitIndex = awaveform.addFit("somefit");  <co id='wffit.add' />
+
+    SpecTcl* api = SpecTcl::getInstance();
+    api-&gt;addWaveform(awaveform);                   
+    m_pWf = api-&gt;findWaveform("test");             
+}
+
+
+Bool_t
+    MyEp::operator()(const Address_t pEvent,
+                                CEvent&amp; rEvent,
+                                CAnalyzer&amp; rAnalyzer,
+                                CBufferDecoder&amp; rDecoder) {
+    uint16_t waveformdata[100];                 
+    ....
+
+    m_pWf-&gt;update(waveformdata);
+    std::vector&lt;double&gt; fit = fitWaveform(waveformdata);   <co id='wffit.fit' />
+    m_pWf->fillFit(m_fitIndex, fit.data());             <co id='wffit.fill' />
+}
+            </programlisting>
+        </example>
+        <para>
+            Again refer to the numbers in the example when reading these annotations:
+        </para>
+        <calloutlist>
+            <callout arearefs='wffit.index'>
+                <para>
+                    Since it is more computationally efficient to refer to fits by their index,
+                    this creates member data to hold the index of the fit we are going to create.
+                </para>
+            </callout> 
+            <callout arearefs='wffit.add'>
+                <para>
+                    This line adds the fit to the waveform we are creating. The actual
+                    fit data are all initialized to 0.0.  The <methodname>addFit</methodname>
+                    returns the index of the added fit which we save in our
+                    <varname>m_fitIndex</varname> member data.
+                </para>
+            </callout>
+            <callout arearefs='wffit.fit'>
+            <para>
+                We've hidden the actual fitting so that filling the fit data does not actually
+                clutter the example.
+            </para>
+            </callout>
+            <callout arearefs='wffit.fill'>
+                <para>
+                    The <methodname>fillFit</methodname> puts our fit data into the fitline.
+                    <methodname>std::vector::data</methodname> returns a pointer to the fit storage
+                    as expected by <methodname>fillFit</methodname>.  This storage must
+                    be at least <literal>m_PWf.size()</literal> doubles big to provide a
+                    fit point for each waveform sample.
+                </para>
+            </callout>
+        </calloutlist>
     </section>
 </chapter>
 </book>
