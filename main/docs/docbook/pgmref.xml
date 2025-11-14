@@ -34710,6 +34710,7 @@ class CWaveform : public CNamedItem {
 public:
     typedef std::map&lt;std::string, std::string&gt; Metadata_t;
     typedef std::vector&lt;uint16_t&gt;  WaveForm_t;
+    typedef std::vector&lt;double&gt;    Fit_t; 
 public:
 
     CWaveform(const char* name, size_t nSamples);
@@ -34719,10 +34720,18 @@ public:
     std::string getMetadata(const char* name) const;
     const Metadata_t&amp; getMetadata() const;
 
-    void update(const uint16_t* data);    // Update the waveform.
+    void update(const uint16_t* data);    
     const WaveForm_t&amp; trace() const;
-    void resize(unsigned nSample);        // Change # of samples.
+    void resize(unsigned nSample);        
     size_t size() const;
+
+    size_t addFit(const char* fitName);
+    size_t findFit(const char* fitName) const;
+    const Fit_t&amp; getFit(size_t fitno) const;
+    const Fit_t&amp; getFit(const char* fitName)const ;
+    void fillFit(size_t fitno, const double* pData);
+    size_t fillFit(const char* fitName, const double* pData); 
+    std::vector&lt;std::pair&lt;std::string, size_t&gt; &gt; listFits() const;
 
 
 private:
@@ -34871,6 +34880,97 @@ private:
                     Returns the number of samples the waveform has.
                 </para></listitem>
             </varlistentry>
+            <varlistentry>
+                    <term><methodsynopsis>
+                        <type>size_t</type> <methodname>addFit</methodname>
+                        <methodparam>
+                            <type>const char*</type> <parameter>fitname</parameter>
+                        </methodparam>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Adds a fit object to the waveform.   The <parameter>fitname</parameter>
+                            and an integer index identify the fit. The <parameter>fitname</parameter>
+                            must be unique or else a <classname>CDuplicateSingleton</classname> is
+                            exception is thrown.  The return value is the integer index assigned to the
+                            fit.
+                        </para>
+                        <para>
+                            Identifying a fit by index is done is constant time, while identifying it
+                            by name is O(log n) time where n is the number of fits defined on the
+                            waveform.  It is recommended, therefore, that you use fit indices in event
+                            processing.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>size_t</type> <methodname>findFit</methodname>
+                    <methodparam> <type>const char*</type> <parameter>fitName</parameter>
+                    </methodparam><modifier>const</modifier>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Given a valid <parameter>fitName</parameter>, returns the index of the fit.
+                    If the fit does not exist, a <classname>CNoSuchObjectException</classname> is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><methodsynopsis>
+                        <type>const Fit_t&amp;</type> <methodname>getFit</methodname>
+                        <methodparam><type>size_t</type> <parameter>fitNo</parameter></methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the fit indexed by <parameter>fitNo</parameter>  this index
+                            should have either been returned from <methodname>addFit</methodname>
+                            or <methodname>findFit</methodname>  See
+                            <literal>DATA TYPES</literal> for what a <type>Fit_t</type> is.
+                            Note that what is retunred is a const reference so there's no data movement
+                            but you may not modify the fit constants.  See the <methodname>fillFIt</methodname>
+                            methods below.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><methodsynopsis>
+                        <type>const Fit_t&amp;</type> <methodname>getFit</methodname>
+                        <methodparam><type>const char*</type> <parameter>fitName</parameter></methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis></term>
+                    <listitem>
+                        <para>
+                            Returns a const reference to a fit given its name; <parameter>fitName</parameter>
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>void</type> <methodname>fillFit</methodname>
+                    <methodparam><type>size_t</type> <parameter>fitNo</parameter></methodparam>
+                    <methodparam><type>const double*</type> <parameter>pData</parameter></methodparam>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Fills the fit selectd by the fit index <parameter>fitNo</parameter> with the data
+                    from <parameter>pData</parameter>  this must point to at least the number of doubles
+                    that are in the size of the waveform, so that the fit will have one point for each point
+                    in the waveform.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>std::vector&lt;std::pair&lt;std::string, size_t&gt;&gt;</type>
+                    <methodname>listFits</methodname><void /><modifier>const</modifier>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns a vector that contains the correspondence between all fit names and their
+                    indicies.   You should not rely on this being in any spefici order.  Each pair of the
+                    vector, contains the name of a fit and its index (the value that would be returned from 
+                    <methodname>findFit</methodname> for that name).)
+                </para></listitem>
+            </varlistentry>
         </variablelist>
     </refsect1>
     <refsect1>
@@ -34894,6 +34994,13 @@ private:
                     Waveforms are held in vectors.  <methodname>update</methodname> is used to
                     load a new waveform and <methodname>trace</methodname> to get a const reference
                     to the waveform.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>Fit_t</type></term>
+                <listitem><para>
+                    This type is just a vector of double.   The elements of the vector are the
+                    fit values for the corresponding index of the <type>Waveform_t</type>.
                 </para></listitem>
             </varlistentry>
         </variablelist>
