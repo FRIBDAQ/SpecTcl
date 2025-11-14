@@ -47,6 +47,7 @@ snit::widget WaveformWidget {
     component listing
     component mdeditor
     component wfplot
+    delegate method addFit to wfplot;   # Expose the addFit method to the controller.
 
     option -selectscript
     option -waveform -configuremethod _setWaveform
@@ -64,6 +65,8 @@ snit::widget WaveformWidget {
         grid $wfplot -columnspan 2
 
         $self configurelist $args
+
+        
     }
 
     # Public methods:
@@ -78,6 +81,7 @@ snit::widget WaveformWidget {
     #     be a trace from each worker.
     #
     method plot data {
+        
         set name [lindex $data 0]
         set trace [lindex $data 1]
         $wfplot configure -name $name -samples $trace
@@ -567,6 +571,15 @@ snit::widget MetadataPrompter {
 #   -samples - Waveform samples - setting updates the plot.
 #   -command - Script to execute when an update is required/requested.
 #
+# METHODS:
+#    addFit - adds a fit to the existing plot. 
+#
+# @note This stuff means that there is a defined order of operations
+#   that must be followed:
+#    1.  -samples must be set to create the plot.
+#    2.  If desired, -name can be set to title the plot.
+#    3.  0 or more callse to addFit can be made to superimpose
+#       fit lines on the plot.
 # In this initial version only buttons update the display. Future version may
 # provide for timed update requests.
 #
@@ -586,6 +599,15 @@ snit::widget WaveformDisplay {
 
     variable plotName "";         # Name of the plot chart plot.
 
+    # fitColors is the set of colors the fit lines cycle through.
+    # fitColorIndex is the index of the next fit color in that list.
+
+    variable fitColors [list               \
+        red green blue magenta cyan yellow \
+        "dark green" brown "hot pink"      \
+    ]
+    variable fitColorIndex 0
+
     #  Canvas dimensions so we can easily change them as we tweak.
     variable height 500
     variable width 800
@@ -604,6 +626,33 @@ snit::widget WaveformDisplay {
     destructor {
         if {$plotName ne ""} {
             destroy $plotName;    # Kill any hanging plot.
+        }
+    }
+    # Public methods:
+    #
+
+    ##
+    # addFit name points
+    #   Adds a fit line to the existing plot.  -samples must have
+    #   been configured first.
+    #   * The fit name is used to construct the series name as fit.fitname
+    #   * The Series is added to the legend as "Fit: fitname"
+    #
+    #  @param name - name of the fit.
+    #  @param points - fit points.
+    #
+    method addFit {name points} {
+        if {$plotName ne ""} {
+            # Make the x points:
+
+            set xpts [_xpoints $points]
+            set seriesName "fit.$name"
+            set seriesTitle "Fit: $name"
+
+            $plotName dataconfig $seriesName -type line -color [$self _nextColor]
+            $plotName plotlist $seriesName $xpts $points [llength $points]
+            $plotName legend $seriesName $seriesTitle
+
         }
     }
     # Private methods:
@@ -649,6 +698,7 @@ snit::widget WaveformDisplay {
             destroy $plotName
             set plotName ""
         }
+        set fitColorIndex 0;    # Reset the color index.
         # Figure out our axis ranges and labels.
 
         set xaxis [list 0 [llength $options($opt)] ""]
@@ -673,11 +723,25 @@ snit::widget WaveformDisplay {
         $plotName legend trace waveform
         
 
-        $plotname legendconfig -position top-right
+        $plotName legendconfig -position top-right
 
         
     }
+    #  _nextColor
+    #    Return the next fit color in the fit color cycle:
+    #
+    method _nextColor {} {
+        set result [lindex $fitColors $fitColorIndex]
+        
+        
+        # Next fitColorIndex, Cycle if needed.
+        incr fitColorIndex
+        if {$fitColorIndex >= [llength $fitColors]} {
+            set fitColorIndex 0
+        }
 
+        return $result
+    }
     #  Utility proces:
 
     #  _ymax - compute the max of a plot given its points.
@@ -812,9 +876,19 @@ snit::type WaveformController {
     # @param name - name of the waveform.
     #
     method _plot name {
-        set points [waveform get $name]
-        set points [lindex $points 0] ;   # Could be several waveforms.
+        
+        set wfinfo [lindex [waveform getall $name] 0];    # dict of all:
+        # Plot the trace:
 
+        set points [dict get $wfinfo waveform]
+       # set points [lindex $points 0] ;   # Could be several waveforms. each is name points 
+        
         $options(-view) plot $points
+
+        # Plot ach fit:
+
+        foreach fit [dict get $wfinfo fits] {
+            $options(-view) addFit [dict get $fit name] [dict get $fit points]
+        }
     }
 }
