@@ -270,7 +270,7 @@ c destroy                                     <co id='ex.client.destroy' />
                     <programlisting>
     package require SpecTclRESTClient
     
-    set client [SpecTclRestClient client-spec ?options...?]
+    set client [SpecTclRestClient obj-name|%AUTO% client-spec ?options...?]
     $client configure option value ?...?
     set value [$client cget option]
     
@@ -404,6 +404,8 @@ c destroy                                     <co id='ex.client.destroy' />
     $client waveformGetMetadata name ?key?
     $client waveformSetMetadata name name1 value1 ?name2 value2 ...?
     $client waveformResize name newsamples
+    $client waveformListFits name ?fit-pat?
+    $client waveformGetAll name
     
                     </programlisting>
                 </refsynopsisdiv>
@@ -415,7 +417,15 @@ c destroy                                     <co id='ex.client.destroy' />
                         Instantiating an object creates a new command ensemble.
                         Subcommands perform specific REST transactions.
                       </para>
-                      
+                      <para>
+                        The implementation of the interface is done using the
+                        snit object oriented programming extension to Tcl.
+                        This means that when constructing an interface object,
+                        you supply the name of the object you want constructed or
+                        the special name %AUTO% to allow snit to create the object
+                        name for you.  Additional options (see <literal>OPTIONS</literal> below),
+                        define how the interface object connects to the SpecTcl ReST server.
+                      </para>
                 </refsect1>
                 <refsect1>
                     <title>OPTIONS</title>
@@ -3847,6 +3857,66 @@ c destroy                                     <co id='ex.client.destroy' />
                                         to <parameter>new-size</parameter>.  The resulting waveform is cleared to all zeroes.
                                     </para>
                                 </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>waveformListFits</literal> <replaceable>name ?fit-pat?</replaceable></term>
+                                    <listitem>
+                                        <para>
+                                            Returns a list of the fits that have been associated with the waveform
+                                            <parameter>name</parameter>.  If the optional <parameter>fit-pat</parameter>
+                                            parameter is supplied,  only fits with names that match the glob pattern
+                                            <parameter>fit-pat</parameter> will be listed.  This defaults to
+                                            <literal>*</literal> if not supplied, which matches all fit names.
+                                        </para>
+                                        <para>
+                                            The returned value is a list of dicts that contain the keys:
+                                            <literal>name</literal> and <literal>points</literal>.
+                                            The value of the <literal>name</literal> key is the name of the
+                                            fit.  The value of the <literal>points</literal> is a list
+                                            of real valued fit points for the most recently processed event.
+                                        </para>
+                                        <para>
+                                            Be sure to see <literal>waveformGetAll</literal> below as this
+                                            is the preferred way to get waveform samples and fit points.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>waveformGetAll</literal> <replaceable>name</replaceable></term>
+                                    <listitem>
+                                        <para>
+                                            Gets waveform samples and fit points for the most recent event.
+                                            Note that since SpecTcl runs asynchonously to its ReST clients, 
+                                            doing a waveformGet followed by a waveformListFits, in general, 
+                                            won't get samples and points from the same event.  This
+                                            method guarantees that samples and points are from the same event.
+                                        </para>
+                                        <para>
+                                            The <parameter>name</parameter> specifies the name of the
+                                            waveform for which data will be returned.  The returned value
+                                            is a dict that has the keys 
+                                            <literal>name</literal>, the name of the waveform, 
+                                            <literal>waveform</literal>
+                                            and <literal>fits</literal>
+                                        </para>
+                                        <para>
+                                            The contents of the <literal>waveform</literal> key is, itself,
+                                            a dict with the keys <literal>name</literal>, the name of the waveform,
+                                            <literal>samples</literal>, a list of integer valued waveform samples,
+                                            and <literal>rank</literal>, an integer identifying the source of this
+                                            information.  The <literal>rank</literal> value
+                                            will be zero for serial SpecTcl and an integer
+                                            2 or larger for MPISpecTcl identifying the worker process that
+                                            contributed this information.
+                                        </para>
+                                        <para>
+                                            The contents of the <literal>fits</literal> key is a list of dicts,
+                                            one for each fit.  The dicts contain the keys:
+                                            <literal>name</literal>, then name of the fit, and <literal>points</literal>
+                                            a list of real valued points.  There will be one point for each waveform
+                                            sample.
+                                        </para>
+                                    </listitem>
                             </varlistentry>
                         </variablelist>
                         

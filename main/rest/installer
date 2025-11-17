@@ -13,5 +13,5 @@ tar czf - bin lib custom  htdocs_2 startServer.tcl pkgIndex.tcl | \
 
 mkdir -p $docdir
 
-docbook2pdf -o $docdir  restdocs.xml 
+docbook2html -o $docdir  restdocs.xml 
 

@@ -7279,6 +7279,12 @@ waveform metadata get wvname ?name?
         <cmdsynopsis><command>
 waveform resize name samples
         </command></cmdsynopsis>
+        <cmdsynopsis><command>
+waveform fits wfname ?pattern?
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+waveform getall name1...
+        </command></cmdsynopsis>
     </refsynopsisdiv>
     <refsect1>
         <title>DESCRIPTION</title>
@@ -7395,14 +7401,53 @@ waveform resize name samples
                 a dict whose keys are metadata values and whose values are the values of each key.
             </para>
         </refsect2>
-    </refsect1>
-    <refsect1>
-        <title>Resizing waveforms</title>
-        <para>
-            The <command>resize</command> subcommand resizes the waveform storage associated with a 
-            waveform.  The first additional parameter  is the name of the waveform to be affected.  The second,
-            the new sample count.
-        </para>
+
+        
+        <refsect2>
+            <title>Resizing waveforms</title>
+            <para>
+                The <command>resize</command> subcommand resizes the waveform storage associated with a 
+                waveform.  The first additional parameter  is the name of the waveform to be affected.  The second,
+                the new sample count.
+            </para>
+        </refsect2>
+        <refsect2>
+            <title>Listing fits associated with a waveform.</title>
+            <para>
+                Waveforms can have fits associated with them.  These fits must be programmatically
+                created.  See the programming guide and reference for information about how to 
+                associated fits with waveform objects.
+            </para>
+            <para>
+                The <command>fits</command> subcommand takes the name of a waveform and an optional
+                glob pattern which defaults to <literal>*</literal>.  It returns a list of all
+                fits whose names match the glob pattern parameter.  Each element of the list is a 
+                dict with the keys <literal>name</literal> whose value is the fit name and
+                <literal>points</literal> whose value is a list of real numbers that make up the
+                fit points for the most recently processed event.
+            </para>
+        </refsect2>
+        <refsect2>
+            <title>Getting wavevorms and their fits</title>
+            <para>
+                The <command>getall</command> subcommand takes additional parameters that are
+                waveform names. The result is a list of dicts, one for each waveform specified.
+                The dict keys are <literal>name</literal> whose datum is the name of the waveform
+                object being described, <literal>waveform</literal> the waveform, see below.
+                <literal>fits</literal> a list of fits (pissibly empty) see below.
+            </para>
+            <para>
+                The fit is returned as a three element list containing, in order, the name of the fit,
+                the waveform samples as a  sub-list, and the rank of the computation that's returned this
+                result.  In serial SpecTcl the rank is always zero.  In MPISpecTcl, the rank identifies the
+                worker process and will be a value that is at least 2.
+            </para>
+            <para>
+                The waveformw are returned as a sublist where each sublist element is a dict with the keys:
+                <literal>name</literal> containing the name of the fit and 
+                <literal>pionts</literal> containig a list of real values that are the fit points.
+            </para>
+        </refsect2>
     </refsect1>
 </refentry>
 

@@ -33,9 +33,11 @@ class CWaveform;
  * waveform ?create? name samples
  * waveform list ?pattern?
  * waveform get name...
+ * waveform getall name...
  * waveform metadata set wfname name value ...
  * waveform metadata get wfname ?name?
  * waveform resize name samples
+ * waveform fits name ?pattern?; #212
  * \endverbatim
  * 
  * Note it is not supported to delete waveforms.
@@ -70,10 +72,12 @@ protected:
     void create(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv, unsigned nameIdx);
     void list(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void get(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
+    void getAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void metadata(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void metadataSet(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void metadataGet(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
     void resize(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv);
+    void listFits(CTCLInterpreter& interp,  std::vector<CTCLObject>& objv); // Issue #212
 
     // Utilities
 private:
@@ -82,6 +86,7 @@ private:
     void save(const CWaveform& wf);         //  Saves a constructed waveform.
     void listWaveform(CTCLObject& result, const CWaveform& wf);
     void getWaveform(CTCLObject& result, const CWaveform& wf);
+    void getFits(CTCLObject& result, const CWaveform& wf, const char* pattern = "*");
 };
 
 // MPI wrapper:

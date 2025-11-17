@@ -19,7 +19,7 @@ libMapValues_la_SOURCES =	CMapValueCommand.cpp	\
 noinst_HEADERS	=		CMapValueCommand.h	\
 				CMapValueProcessor.h
 
-install-exec-local: mapvalues.pdf
+install-exec-local: @builddir@/mapvalues.pdf
 	$(mkinstalldirs) $(prefix)/TclLibs
 	$(mkinstalldirs) $(prefix)/TclLibs/mapvalues
 	$(mkinstalldirs) @datarootdir@/mapvalues-plugin
@@ -30,8 +30,10 @@ install-exec-local: mapvalues.pdf
 
 EXTRA_DIST=mapvalues.xml
 
+distclean-hook:
+	rm -r mapvalues.pdf
 
-mapvalues.pdf: mapvalues.xml
+@builddir@/mapvalues.pdf: mapvalues.xml
 	$(PDFDOCBOOK) @srcdir@/mapvalues.xml
 
 

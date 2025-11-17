@@ -14,7 +14,7 @@ libfirstof_la_LDFLAGS = @ROOT_LDFLAGS@ @TCL_LIBS@ @LIBTCLPLUS_LDFLAGS@
 libfirstof_la_CPPFLAGS=@ROOT_CFLAGS@ @TCL_CPPFLAGS@ @LIBTCLPLUS_CFLAGS@ \
 	-I@top_srcdir@/Core -I@top_srcdir@/Utility -I@top_srcdir@/factories
 
-install-exec-local: firstof.pdf
+install-exec-local: @builddir@/firstof.pdf
 	$(mkinstalldirs) $(prefix)/TclLibs
 	$(mkinstalldirs) @prefix@/share/firstof-plugin
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
@@ -24,8 +24,10 @@ install-exec-local: firstof.pdf
 
 EXTRA_DIST	=	firstof.xml
 
+distclean-hook:
+	rm -f firstof.pdf
 
-firstof.pdf: firstof.xml
+@builddir@/firstof.pdf: firstof.xml
 	@PDFDOCBOOK@ @srcdir@/firstof.xml
 
 docs: firstof.pdf

@@ -54,6 +54,12 @@ namespace eval waveform {
             rank  [lindex $trace 2]   \
         ]
     }
+    proc _formatFit fit {
+        return [json::write object                                \
+            name [json::write string [dict get $fit name]]        \
+            points [json::write array {*}[dict get $fit points]]  \
+        ]
+    }
 }
 ##
 # SpecTcl_waveform/create
@@ -211,4 +217,71 @@ proc SpecTcl_waveform/resize {name samples} {
         ]
     } 
     SpecTcl::_returnObject OK
+}
+##
+# SpecTcl_waveform/fits
+#
+#   For a waveform, returns the fits associated with it
+#
+# Query parameters:
+#   @param name - name of the waveform.
+#   @param pattern - pattern that filters the fit names.
+#
+# Result:
+#   Detail is a JsON array of fit descriptions.  The attributes of each description are
+# - name  - the name of the fit.
+# - pointes - Array of real valued points.
+#
+proc SpecTcl_waveform/fits {name {pattern *}} {
+    set ::SpecTcl_waveform/fits application/json;   # Return json.
+
+    set status [catch {
+        waveform fits $name $pattern
+    } raw]
+    if {$status} {
+        return [SpecTcl::_returnObject "'waveform fit' failed" \
+            [json::write string $raw]]
+    }
+    set descList [list]
+    foreach fit $raw {
+        lappend descList [waveform::_formatFit $fit]
+    }
+    SpecTcl::_returnObject OK [json::write array {*}$descList]
+}
+##
+# SpecTcl_waveform/getall
+#   Gets all the information about a single waveform
+#
+# Query Parameters:
+#   @param name - the name of a waveform object.
+#
+# Result:
+#  Detail is a dict containing
+#    name - name of the waveform.
+#    waveform - an object as you might get from the get method.
+#    fits     - an array of fit objects such as you might get from the fits method.
+#
+proc SpecTcl_waveform/getall {name} {
+    set ::SpecTcl_waveform/getall application/json
+
+    set status [catch \
+        {waveform getall $name} raw
+    ] 
+    if {$status} {
+        return [SpecTcl::_returnObject "'waveform getall' failed" \
+        [json::write string $raw]]
+    }
+
+    set desc [lindex $raw 0];    # it's a list, this gets the description.
+    set name [dict get $desc name]
+    set wf   [waveform::_traceToJson [dict get $desc waveform]]
+    set fits [list]
+    foreach fit [dict get $desc fits] {
+        lappend fits [waveform::_formatFit $fit]
+    }
+    SpecTcl::_returnObject OK [json::write object \
+        name [json::write string $name]           \
+        waveform $wf                              \
+        fits [json::write array {*}$fits]         \
+    ]
 }

@@ -158,6 +158,15 @@ package require json
 #   evbCreate
 #   evbAdd
 #   evbList
+#   
+#   waveformCreate
+#   waveformList
+#   waveformGet
+#   waveformGetMetadata
+#   waveformSetMetadata
+#   waveformResize
+#   waveformListFits
+#   waveformGetAll
 #
 #   command
 #
@@ -1787,5 +1796,40 @@ snit::type SpecTclRestClient {
     method waveformResize {name samples} {
         set qdict [dict create name $name samples $samples]
         $self _request [$self _makeUrl waveform/resize $qdict]
+    }
+
+    ##
+    #  waveformListFits
+    #    Lists the characteristics of the fits with names that match the pattern
+    # @param name - waveform name.
+    # @param pattern - glob pattern that must match to be listed.  Defaults to "*"
+    # @return List of dicts where each dict has the keys:
+    #    name - fit name.
+    #    points - List of real valued fit points.
+    #
+    method waveformListFits {name {pattern *}} {
+        set qdict [dict create name $name pattern $pattern]
+        set result [$self _request [$self _makeUrl waveform/fits $qdict]]
+        return [dict get $result detail]
+    }
+    ##
+    #  waveformGetAll
+    #    Gets waveform samples and points for the same event in a waveform.
+    #  @param name - waveform name.  There can only be one at present.
+    #  @return dict containing the keys:
+    #      name     - Name of the waveform.
+    #      waveform - object describing the waveform.  A dict containing:
+    #          name - name of the waveform.
+    #          samples - array of integer waveform samples
+    #          rank    - in MPISpecTcl the rank of the process from which this came.
+    #       fits  - A list of dicts, each dict containing information about a fit:
+    #          name - the name of the fit.
+    #          points - list of real valued fit points.
+    #         
+    #
+    method waveformGetAll {name} {
+        set qdict [dict create name $name]
+        set result [$self _request [$self _makeUrl waveform/getall $qdict]]
+        return [dict get $result detail]
     }
 }

@@ -20,7 +20,7 @@
  *         workers.
  */
 
-#include "CWaveformCommand.h"
+#include "CWaveformCommand.h" 
 #include "CWaveForm.h"
 #include "SpecTcl.h"
 
@@ -80,6 +80,10 @@ CWaveformCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
                 metadata(interp, objv);
             } else if (sub == "resize") {
                 resize(interp, objv);
+            } else if (sub == "fits") {
+                listFits(interp, objv);               // Issue #212
+            } else if (sub == "getall") {
+                getAll(interp, objv);                 // Usse #212
             } else {
                 create(interp, objv, 1);              // no subcommand, assume create.
             }
@@ -488,7 +492,107 @@ CWaveformCommand::resize(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 
     wf->resize(newSamples);
 }
+/**
+ * listFits (Issue #212).
+ * 
+ * List waveform fits syntax:
+ * 
+ *    waveform fits wfname ?pattern?
+ * 
+ * Where:
+ *     wfname - is the name of a wave form.
+ *     pattern - is a glob pattern that restricts the fit names that will be listed.
+ *               If not supplied, the pattern defaults to "*" matching everything.
+ * 
+ *    The result is a list of dicts where the dict contents are:
+ * 
+ * *  name:  name of a fit.
+ * *  points: List of doubles that are the fit points.
+ * 
+ * @note the list could be empty if not fit names matche the pattern.
+ * 
+ * 
+ * 
+ */
+void
+CWaveformCommand::listFits(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireAtLeast(objv, 3, "Insufficient number of command parameters");
+    requireAtMost(objv, 4, "Too many commnad line parameters");
 
+    std::string wfName = objv[2];
+
+    // Figure out the pattner.
+
+    std::string pattern       = "*";
+    if (objv.size() == 4) {
+        pattern = std::string(objv[3]);
+    }
+
+    auto wf = find(wfName.c_str());
+    if (!wf) {
+        std::stringstream smsg;
+        smsg << "waveform fits - no such waveform: " << wfName;
+        std::string msg(smsg.str());
+        throw std::invalid_argument(msg);
+    }
+
+    // List the fits and figure out the result:
+
+    CTCLObject result;
+    result.Bind(interp);
+    getFits(result, *wf, pattern.c_str());
+
+    interp.setResult(result);
+}
+/**
+ * getall
+ *    Handles the command:
+ * 
+ * waveform getall name...
+ * 
+ * The result is a list of dicts for each waveform name dict keys:
+ *   *  name      Name of the waveform.
+ *   *  waveform  The result from the getWaveform
+ *   *  fits      The result from getFits with pattern *.
+ * 
+ * 
+ */
+void
+CWaveformCommand::getAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireAtLeast(objv, 3, "getall needs at least one waveform name.");
+
+    int first = 2;    // Position of first waveform name in objv.
+    CTCLObject result;
+    result.Bind(interp);
+    for (int i = first; i < objv.size(); i++) {
+        std::string wfname(objv[i]);
+        CWaveform* wf = find(wfname.c_str());
+        if (!wf) {
+            std::stringstream strmsg;
+            strmsg << "There is no waveform defined named: " << wfname;
+            std::string msg = strmsg.str();
+            throw std::invalid_argument(msg);
+        }
+
+        CTCLObject waveform; waveform.Bind(interp);
+        CTCLObject fits;     fits.Bind(interp);
+        getWaveform(waveform, *wf);
+        getFits(fits, *wf);
+
+        // Make the dict list element and add it to result:
+
+        CTCLObject dict; dict.Bind(interp);
+        Tcl::DictPut(interp, dict, "name", objv[i]);
+        Tcl::DictPut(interp, dict, "waveform", waveform);
+        Tcl::DictPut(interp, dict, "fits", fits);
+
+        result += dict;
+    }
+    interp.setResult(result);
+}
+/**
+ * 
+ */
 //////////////////////////////// private utilities ///////////////////////////////////////////////
 
 /**
@@ -558,7 +662,7 @@ CWaveformCommand::listWaveform(CTCLObject& result, const CWaveform& wf) {
  *    Returns a list for the waveform  values. This is of the form:
  * 
  * \verbatim 
- *  {name {pts}}
+ *  {name {pts} rank}
  * \endverbatim
  * 
  * @param result - bound object to hold the result.
@@ -581,6 +685,46 @@ CWaveformCommand::getWaveform(CTCLObject& result, const CWaveform& wf) {
     result += points;
     result += myRank();              // MPI rank (0 if not MPI).
 
+}
+/**
+ * getFits
+ *    Returns the waveform's fit as a list of dicts {name fitname points {pt-list}}
+ * @param result - the object that will hold the resulting list of dicts 
+ * @param wf     - The waveform with fits to get.
+ * @param pattern - glob pattern that selects which named fits.
+ */
+void
+CWaveformCommand::getFits(CTCLObject& result, const CWaveform& wf, const char* pattern) {
+    auto listing = wf.listFits();
+    CTCLInterpreter& interp(*getInterpreter());
+
+    for (auto& item : listing) {
+        // First, does the fit name match the pattern:
+
+        if (Tcl_StringMatch(item.first.c_str(), pattern)) {
+            
+            CTCLObject listitem;
+            listitem.Bind(interp);                // The dict we append.
+
+            // Put the fit name in the dict:
+
+            Tcl::DictPut(interp, listitem, "name", item.first.c_str());
+
+            // Marshall the fit points.
+            
+            auto& pts = wf.getFit(item.second);   // Now we have the fit points too.
+            CTCLObject ptlist;
+            ptlist.Bind(interp);
+            for (auto pt :pts) {
+                ptlist += pt;
+            }
+            // Add the fit points to the dict:
+
+            Tcl::DictPut(interp, listitem, "points", ptlist);
+
+            result += listitem;
+        }
+    }
 }
 
 //////////////// MPI Wrapping:

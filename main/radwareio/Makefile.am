@@ -26,14 +26,16 @@ libradwareio_la_LDFLAGS=@ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
 EXTRA_DIST = permission.txt radwareio.xml
 
-install-exec-local: radwareio.pdf
+install-exec-local: @builddir@/radwareio.pdf
 	$(mkinstalldirs) $(prefix)/TclLibs
 	$(mkinstalldirs) @datarootdir@/radwareio-plugin
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
 	$(INSTALL_DATA) @builddir@/radwareio.pdf @datarootdir@/radwareio-plugin
 
+distclean-hook:
+	rm -rf radwareio.pdf
 
-radwareio.pdf: radwareio.xml
+@builddir@/radwareio.pdf: radwareio.xml
 	@PDFDOCBOOK@ @srcdir@/radwareio.xml
 
 docs: radwareio.pdf

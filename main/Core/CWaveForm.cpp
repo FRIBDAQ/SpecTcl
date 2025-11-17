@@ -19,7 +19,9 @@
  */
 #include "CWaveForm.h"
 #include <CNoSuchObjectException.h>
+#include "CDuplicateSingleton.h"
 #include <string.h>                 // memcpy.
+
 
 /**
  * m_idIndex is an indes to be passed to the NamedObject constructor
@@ -130,6 +132,152 @@ void
 CWaveform::resize(unsigned nSamples) {
     m_trace.resize(nSamples);
     memset(m_trace.data(), 0, nSamples*sizeof(uint16_t));
+
+    // Need to also resize all the fits:
+
+    for(auto& namedfit : m_fitDictionary) {
+        m_fits.at(namedfit.second).resize(nSamples);
+
+        // Assumes 0.0 is all bytes zero:
+        memset(m_fits.at(namedfit.second).data(), 0, nSamples*sizeof(double));  // FIll with zeros.
+    }
+}
+
+////////////////////////// Support for fits Issue #212 ///////////////////////
+
+/**
+ * addFit
+ *    Add a new fit to the  list of fits.  A new fit waveform is allocated
+ * with the same size as the parent waveform.  Name of the new fit is entered into the
+ * fit dictionary and associated with the index of the added fit waveform.
+ *    @param name - name of the new fit, must be unique within the fits for the waveform.
+ *                  can be duplicated in a different waveform.. e.g. more than one waveform
+ *                  can have a fit named 'fit'.
+ *    @returns size_t - id of the fit. Passing this to e.g. fillFit will fill the fit
+ *                  named by this call.
+ *    @throw CDuplicateSingleton - the fit already exists.
+ */
+size_t 
+CWaveform::addFit(const char* name) {
+    std::string sname(name);
+    if (m_fitDictionary.find(sname) == m_fitDictionary.end()) {
+        // we can enter it.
+
+        Fit_t fit;
+        fit.resize(size());        // It has our size... .this fills with 0s.
+        m_fits.push_back(fit);
+        size_t id = m_fits.size() - 1;
+        m_fitDictionary[name] = id;
+        return id;
+    } else {
+        // Duplicate:
+
+        throw CDuplicateSingleton("Waveform already has a fit with this name", name);
+    }
+
+}
+/**
+ * findFit
+ *    Get the id fof a fit from its name. 
+ * 
+ * @param name - name seeking.
+ * @return size_t id of the fit.
+ * @throw CNoSuchObjectException - no such fit name exists.
+ */
+
+ size_t
+ CWaveform::findFit(const char* name) const {
+    std::string sname(name);
+    auto p = m_fitDictionary.find(sname);
+    if (p != m_fitDictionary.end()) {
+        return p->second;
+    } else {
+        throw CNoSuchObjectException("No fit exists with that name", name);
+    }
+ }
+
+ /** 
+  * getFit
+  *    Return a readonly reference to the fit data for a fit given its index.
+  * 
+  * @param fitno - id of the fit, returned from addFit or findFit e.g.
+  * @return const CWaveform::Fit_t& References the waveform data.
+  * @throw CNoSuchObjectException- the fitno is invalid.
+  */
+ const CWaveform::Fit_t&
+ CWaveform::getFit(size_t fitno) const {
+    
+    if (fitno < m_fits.size()) {
+        return  m_fits[fitno];
+    } else {
+        throw CNoSuchObjectException("Fit id does not reference an existing fit.", std::to_string(fitno));
+    }
+    
+ }
+
+ /**
+  * getFit
+  *    Same as above but given the name not the id.  So essentially a findFit followed by
+  * the above.
+  * 
+  * @param fitnname - name of a fit.
+  * @return const CWaveform::Fit_t& References the waveform data.
+  * @throw CNoSuchObjectException- the fitno is invalid.
+  */
+ const CWaveform::Fit_t&
+ CWaveform::getFit(const char* name) const {
+    return getFit(findFit(name));    // Takes care of the exception too.
+ }
+
+ /**
+  * fillFit
+  *    Fills a fit with data.
+  *   @param fitno - fit id from e.g. addFit.
+  *   @param pData - Pointer to double data contaning the fit points.  There must be
+  *                 at least size() points in pData.
+  *   @throw CNoSuchObjectExceptoin - invalid fitno.
+  */
+ void 
+ CWaveform::fillFit(size_t fitno, const double* pData) {
+    const Fit_t& cfit = getFit(fitno);   // Takes care of exceptions too...
+    Fit_t& fit = const_cast<Fit_t&>(cfit);   // So we can modifity it.
+
+    memcpy(fit.data(), pData, fit.size()*sizeof(double));
+ }
+
+ /**
+  * fillFit
+  *    Fills fit with data given its name.  This is not recommended because the
+  * search time for the fit goes like log(n) n number of fits.  Better to select the
+  * fit by number as that's constant time.
+  * 
+  * @param fitName - name of the fit.
+  * @param pData   - Pointer to the data to fill the fit.
+  * @return size_t - The fit index so you only need to do this once.
+  * @throw CNoSuchObjectException - no matching fit.
+  */
+size_t
+CWaveform::fillFit(const char* fitName, const double* pData) {
+    size_t id = findFit(fitName);    // Does our throw for us.
+    fillFit(id, pData);
+
+    return id;
+}
+
+/**
+ * listFits
+ *    Returns a vector of pairs containig the name and ids of the
+ * defined fits
+ * 
+ * @return std::vector<std::string, size_t>
+ */
+std::vector<std::pair<std::string, size_t> >
+CWaveform::listFits() const {
+    std::vector<std::pair<std::string, size_t>> result;
+    for (auto p : m_fitDictionary) {
+        result.push_back({p.first, p.second});
+    }
+    return result;
 }
 
 

@@ -30,10 +30,14 @@
 class CWaveform : public CNamedItem {
 public:
     typedef std::map<std::string, std::string> Metadata_t;
+    typedef std::map<std::string, size_t>      FitMap_t;
     typedef std::vector<uint16_t>  WaveForm_t;
+    typedef std::vector<double>    Fit_t;       // Fits are floating point.
 private:
     Metadata_t  m_metadata;
     WaveForm_t  m_trace;
+    FitMap_t    m_fitDictionary;     // Issue #212 - Fit name -> index.
+    std::vector<Fit_t> m_fits;  // Issue #212 - Vector of fit traces.
     
     static unsigned m_idIndex;     // Used to assign ids we don't use.
 public:
@@ -55,6 +59,15 @@ public:
     void resize(unsigned nSample);        // Change # of samples.
     size_t size() const;
 
+    // Issue #212 - add fits to waveforms:
+
+    size_t addFit(const char* fitName);
+    size_t findFit(const char* fitName) const;
+    const Fit_t& getFit(size_t fitno) const;
+    const Fit_t& getFit(const char* fitName)const ;
+    void fillFit(size_t fitno, const double* pData);
+    size_t fillFit(const char* fitName, const double* pData);   // not recommended (better by index).
+    std::vector<std::pair<std::string, size_t> > listFits() const;
 
 private:
     static unsigned getid();

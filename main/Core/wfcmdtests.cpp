@@ -31,6 +31,7 @@
 
 #include "SpecTcl.h"
 #include "CWaveForm.h"
+#include <TclDict.h>
 #include <tcl.h>
 
 class WFCmdTests : public CppUnit::TestFixture {
@@ -69,6 +70,29 @@ class WFCmdTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(resize_2);
     CPPUNIT_TEST(resize_3);
     CPPUNIT_TEST(resize_4);
+
+    // Tests fits subcommand (ISsue #212)
+
+    CPPUNIT_TEST(fits_1);   // too few params.
+    CPPUNIT_TEST(fits_2);   // too many params.
+    CPPUNIT_TEST(fits_3);   // no such waveform.
+    CPPUNIT_TEST(fits_4);   // No fits present.
+    CPPUNIT_TEST(fits_5);   // There's a fit.   
+    CPPUNIT_TEST(fits_6);   // The fit list is correct.
+    CPPUNIT_TEST(fits_7);   // pattern defaults to *
+
+    // test waveform getall sub-command (Issue #212).
+
+    CPPUNIT_TEST(getall_1);  // Too few parameters.
+    CPPUNIT_TEST(getall_2);  // One waveform, no fits.
+    CPPUNIT_TEST(getall_3);  // One waveform 1 fit.
+    CPPUNIT_TEST(getall_4);  // One waveform more than 1 fit.
+    CPPUNIT_TEST(getall_5);  // Two waveforms neither has fits.
+    CPPUNIT_TEST(getall_6);  // Two waveforms first has a fit.
+    CPPUNIT_TEST(getall_7);  // Two waveforms second has two fits.
+    CPPUNIT_TEST(getall_8);  // Two waveforms first as a fit second has two fits.
+    CPPUNIT_TEST(getall_9);  // no such waveform error.
+
     CPPUNIT_TEST_SUITE_END();
 
     // test methods
@@ -108,6 +132,27 @@ private:
     void resize_2();
     void resize_3();
     void resize_4();
+
+    void fits_1();
+    void fits_2();
+    void fits_3();
+    void fits_4();
+    void fits_5();
+    void fits_6();
+    void fits_7();
+
+    void getall_1();
+    void getall_2();
+    void getall_3();
+    void getall_4();
+    void getall_5();
+    void getall_6();
+    void getall_7();
+    void getall_8();
+    void getall_9();
+
+private:    // utilities
+    std::pair<CWaveform*, CWaveform*>  makeWfPair();
 // Test objects:
 private:
     CTCLInterpreter* m_pInterp;
@@ -641,4 +686,387 @@ WFCmdTests::resize_4() {
         m_pInterp->GlobalEval("spectcl::serial::waveform resize test"),
         CTCLException
     );   
+}
+
+// Tests for fits (Issue #212)
+
+void 
+WFCmdTests::fits_1() {
+    // Fits needs a waveform.
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform fits"),
+        CTCLException
+    );
+}
+
+void 
+WFCmdTests::fits_2() {
+    // there's a waveform, but too many parameters:
+
+    CWaveform wf("test", 100);
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform fits test * extra-junk"),
+        CTCLException
+    );
+}
+
+void 
+WFCmdTests::fits_3() {
+    // Incorrect fit name:
+
+    CWaveform wf("test", 100);
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform fits tests *"),
+        CTCLException
+    );
+}
+
+void 
+WFCmdTests::fits_4() {
+    std::string result;
+
+    CWaveform wf("test", 100);
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_NO_THROW(
+       result = m_pInterp->GlobalEval("spectcl::serial::waveform fits test *")
+    );
+
+    CTCLObject lresult; 
+    lresult.Bind(m_pInterp);
+    lresult = std::string(result);
+
+    EQ(0, lresult.llength());
+}
+
+void 
+WFCmdTests::fits_5() {
+    std::string result;
+
+    CWaveform wf("test", 100);
+    wf.addFit("Afit");
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform fits test *")
+    );
+
+    CTCLObject lresult; 
+    lresult.Bind(m_pInterp);
+    lresult = std::string(result);
+    EQ(1, lresult.llength());
+}
+
+void 
+WFCmdTests::fits_6() {
+    std::string result;
+
+    CWaveform wf("test", 100);
+    wf.addFit("Afit");
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform fits test *")
+    );
+
+    CTCLObject lresult; 
+    lresult.Bind(m_pInterp);
+    lresult = std::string(result);
+    
+    // Simplify dict handling it's alist of name value name value....
+    CTCLObject def; def.Bind(m_pInterp); def = lresult.lindex(0);  // The definition.
+    EQ(4, def.llength());                                         // namekey name pointskey points
+    EQ(std::string("name"), std::string(def.lindex(0)));           // Name key.    
+    EQ(std::string("Afit"), std::string(def.lindex(1)));            // name value.
+    EQ(std::string("points"), std::string(def.lindex(2)));       // points key.
+
+    CTCLObject pts; pts.Bind(m_pInterp); pts = def.lindex(3);    // List of points.
+
+    EQ(100, pts.llength());
+
+    // All the points are "0.0"
+
+    auto points = pts.getListElements();
+    for (auto& p : points) {
+        EQ(std::string("0.0"), std::string(p));
+    }
+}
+void
+WFCmdTests::fits_7() {
+std::string result;
+
+    CWaveform wf("test", 100);
+    wf.addFit("Afit");
+    SpecTcl::getInstance()->addWaveform(wf);
+
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform fits test *")
+    );
+
+    CTCLObject lresult; 
+    lresult.Bind(m_pInterp);
+    lresult = std::string(result);
+    
+    EQ(1, lresult.llength());
+}
+// Tests for the getall subcommand.  They use the following utility:
+
+std::pair<CWaveform*, CWaveform*> 
+WFCmdTests::makeWfPair() {
+    CWaveform wf1("a", 10);   // Firs is before the second.
+    CWaveform wf2("b", 10);
+
+    SpecTcl::getInstance()->addWaveform(wf1);
+    SpecTcl::getInstance()->addWaveform(wf2);
+
+    auto p1 = SpecTcl::getInstance()->findWaveform("a");
+    auto p2 = SpecTcl::getInstance()->findWaveform("b");
+
+    return {p1, p2};
+}
+
+void
+WFCmdTests::getall_1() {
+    /// Too few parameters, needs at least one waveform.
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform getall"),
+        CTCLException
+    );
+}
+void
+WFCmdTests::getall_2() {
+    makeWfPair();               // NO fits so I don't need the ptr.
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a");
+    );
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    // There should only be one element:
+    EQ(1, oResult.llength());
+    // It should describe "a" and have a 10 pt waveform:
+
+    CTCLObject desc = oResult.lindex(0); desc.Bind(m_pInterp);
+    std::string wfName = Tcl::DictGetAsStr(*m_pInterp, desc, "name");
+    EQ(std::string("a"), wfName);
+
+    CTCLObject waveform = Tcl::DictGet(*m_pInterp, desc, "waveform");   // waveform is bound.
+    EQ(3, waveform.llength());
+    EQ(std::string("a"), std::string(waveform.lindex(0)));
+    CTCLObject trace = waveform.lindex(1); trace.Bind(m_pInterp);
+    EQ(10, trace.llength());                 // Correct # of points.
+
+    CTCLObject fits = Tcl::DictGet(*m_pInterp, desc, "fits");
+    EQ(0, fits.llength());                         // No fits.
+
+
+}
+void
+WFCmdTests::getall_3() {
+    auto wfs = makeWfPair();
+    // add a fit to the first one:
+
+    wfs.first->addFit("afit");
+
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a");
+    );
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    // There should only be one element:
+    EQ(1, oResult.llength());
+    // It should describe "a" and have a 10 pt waveform:
+
+    CTCLObject desc = oResult.lindex(0); desc.Bind(m_pInterp);
+    std::string wfName = Tcl::DictGetAsStr(*m_pInterp, desc, "name");
+    EQ(std::string("a"), wfName);
+
+    CTCLObject waveform = Tcl::DictGet(*m_pInterp, desc, "waveform");   // waveform is bound.
+    EQ(3, waveform.llength());
+    EQ(std::string("a"), std::string(waveform.lindex(0)));
+    CTCLObject trace = waveform.lindex(1); trace.Bind(m_pInterp);
+    EQ(10, trace.llength());                 // Correct # of points.
+
+    CTCLObject fits = Tcl::DictGet(*m_pInterp, desc, "fits");
+    EQ(1, fits.llength());
+    CTCLObject fit = fits.lindex(0);   // name "afit", points 10 element list.
+    fit.Bind(m_pInterp);
+
+    EQ(std::string("afit"), Tcl::DictGetAsStr(*m_pInterp, fit, "name"));
+    
+    CTCLObject points = Tcl::DictGet(*m_pInterp, fit, "points");
+    points.Bind(m_pInterp);
+    EQ(10, points.llength());
+    
+}
+void
+WFCmdTests::getall_4() {
+    auto wfs = makeWfPair();
+    wfs.first->addFit("bfit");
+    wfs.first->addFit("afit");   // Should come out in alpha order, (Whilte box).
+
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a")
+    );
+
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+    
+    CTCLObject desc = oResult.lindex(0);  desc.Bind(m_pInterp);
+
+    // Cut to the fits:
+
+    CTCLObject fits = Tcl::DictGet(*m_pInterp, desc, "fits");
+    EQ(2, fits.llength());
+
+    CTCLObject fit1 = fits.lindex(0);
+    CTCLObject fit2 = fits.lindex(1);
+    EQ(std::string("afit"), Tcl::DictGetAsStr(*m_pInterp, fit1, "name"));
+    EQ(std::string("bfit"), Tcl::DictGetAsStr(*m_pInterp, fit2, "name"));
+
+
+}
+void
+WFCmdTests::getall_5() {
+    auto wfs = makeWfPair();
+
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a b")
+    );
+
+    // There should be two waveforms verify the names and that there are no fits in either:
+
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    EQ(2, oResult.llength());
+    CTCLObject d1 = oResult.lindex(0); 
+    CTCLObject d2 = oResult.lindex(1);
+
+    EQ(std::string("a"), Tcl::DictGetAsStr(*m_pInterp, d1, "name"));
+    EQ(std::string("b"), Tcl::DictGetAsStr(*m_pInterp, d2, "name"));
+
+    CTCLObject f1 = Tcl::DictGet(*m_pInterp, d1, "fits");
+    EQ(0, f1.llength());
+
+    CTCLObject f2 = Tcl::DictGet(*m_pInterp, d2, "fits");
+    EQ(0, f2.llength());
+}
+void
+WFCmdTests::getall_6() {
+    auto wfs = makeWfPair();
+    wfs.first->addFit("fit");
+std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a b")
+    );
+
+    // There should be two waveforms verify the names and that there are no fits in either:
+
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    EQ(2, oResult.llength());
+    CTCLObject d1 = oResult.lindex(0); 
+    CTCLObject d2 = oResult.lindex(1);
+
+    EQ(std::string("a"), Tcl::DictGetAsStr(*m_pInterp, d1, "name"));
+    EQ(std::string("b"), Tcl::DictGetAsStr(*m_pInterp, d2, "name"));
+
+    CTCLObject f1 = Tcl::DictGet(*m_pInterp, d1, "fits");
+    EQ(1, f1.llength());
+
+    CTCLObject f2 = Tcl::DictGet(*m_pInterp, d2, "fits");
+    EQ(0, f2.llength());
+}
+
+
+void
+WFCmdTests::getall_7() {
+    auto wfs = makeWfPair();
+    wfs.second->addFit("fit2");
+    wfs.second->addFit("fit1");
+
+    std::string result;
+    CPPUNIT_ASSERT_NO_THROW(
+
+        result = m_pInterp->GlobalEval("spectcl::serial::waveform getall a b")
+    );
+
+    // There should be two waveforms verify the names and that there are no fits in either:
+
+    CTCLObject oResult; oResult.Bind(m_pInterp); oResult = result;
+
+    EQ(2, oResult.llength());
+    CTCLObject d1 = oResult.lindex(0); 
+    CTCLObject d2 = oResult.lindex(1);
+
+    EQ(std::string("a"), Tcl::DictGetAsStr(*m_pInterp, d1, "name"));
+    EQ(std::string("b"), Tcl::DictGetAsStr(*m_pInterp, d2, "name"));
+
+    CTCLObject f1 = Tcl::DictGet(*m_pInterp, d1, "fits");
+    EQ(0, f1.llength());
+
+    CTCLObject f2 = Tcl::DictGet(*m_pInterp, d2, "fits");
+    EQ(2, f2.llength());
+
+    // fit names in alpha order:
+
+    CTCLObject fit1 = f2.lindex(0);
+    fit1.Bind(m_pInterp);
+    EQ(std::string("fit1"), Tcl::DictGetAsStr(*m_pInterp, fit1, "name"));
+    
+    CTCLObject fit2 = f2.lindex(1);
+    fit2.Bind(m_pInterp);
+    EQ(std::string("fit2"), Tcl::DictGetAsStr(*m_pInterp, fit2, "name"));
+}
+
+void
+WFCmdTests::getall_8() {
+    auto wfs = makeWfPair();
+    wfs.first->addFit("fit1.1");
+    wfs.second->addFit("fit1.2");
+    wfs.second->addFit("fit2.2");
+
+    CTCLObject oResult; oResult.Bind(m_pInterp);
+    oResult = m_pInterp->GlobalEval("spectcl::serial::waveform getall a b");
+
+    CTCLObject d1 = oResult.lindex(0); d1.Bind(m_pInterp);
+    CTCLObject d2 = oResult.lindex(1); d2.Bind(m_pInterp);
+
+    // There' one  fit in d1:
+
+    CTCLObject fitsa = Tcl::DictGet(*m_pInterp, d1, "fits");
+    EQ(1, fitsa.llength());
+    CTCLObject fita = fitsa.lindex(0);
+    EQ(std::string("fit1.1"), Tcl::DictGetAsStr(*m_pInterp, fita, "name"));
+
+    // there's two fits in d1:
+
+    CTCLObject fitsb = Tcl::DictGet(*m_pInterp, d2, "fits");
+    EQ(2,  fitsb.llength());
+
+    CTCLObject fitb1 = fitsb.lindex(0);
+    CTCLObject fitb2 = fitsb.lindex(1);
+
+    EQ(std::string("fit1.2"), Tcl::DictGetAsStr(*m_pInterp, fitb1, "name"));
+    EQ(std::string("fit2.2"), Tcl::DictGetAsStr(*m_pInterp, fitb2, "name"));
+
+
+}
+void
+WFCmdTests::getall_9() {
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectcl::serial::waveform getall nosuch"),
+        CTCLException
+    );
+    
 }

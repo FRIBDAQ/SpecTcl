@@ -22,7 +22,8 @@
 #define TCLDICT_H
 
 #include <tcl.h>
-class CTCLObject;
+#include <string>
+#include <TCLObject.h>
 class CTCLInterpreter;
 
 namespace Tcl {
@@ -41,6 +42,16 @@ namespace Tcl {
         CTCLInterpreter& pInterp, CTCLObject& dict, const char* key,
         const char* value
     );
+    std::string DictGetAsStr(
+        CTCLInterpreter& rInterp, CTCLObject& dict, const char* key  // else next one is ambiguous overload.
+    );
+    CTCLObject DictGet(
+        CTCLInterpreter& rInterp, CTCLObject& dict, const char* key
+    );
+    CTCLObject DictGet(
+        CTCLInterpreter& rInterp, CTCLObject& dict, CTCLObject& key
+    );
+
 }
 
 #endif
