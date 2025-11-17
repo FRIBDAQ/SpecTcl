@@ -4181,6 +4181,119 @@ http://host:port/spectcl/waveform/resize?name=<replaceable>wfname</replaceable>&
                     The waveform is initialized to zero.
                 </para>
             </section>
+            <section>
+                <title>Listing fits associated with waveforms.</title>
+                <informalexample>
+                    <cmdsynopsis><command>
+    http://host:port/spectcl/waveform/fits?name=<replaceable>wfname</replaceable><optional>&amp;pattern=<replaceable>fit-pat</replaceable></optional>
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Lists the fits associated with waveform in the <literal>name></literal> query
+                    parameter whose names match the glob <parameter>fit-pat</parameter> in the 
+                    <literal>pattern</literal> optional query parameter.  If the <literal>pattern</literal>
+                    query parameter is not provided it defaults to <literal>*</literal> which matches all
+                    fits.
+                </para>
+                <para>
+                    On success, detail is an array of objects with the attributes:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                            <term><literal>name</literal></term>
+                            <listitem>
+                                <para>
+                                    Contaqins the name of the fit.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><literal>points</literal></term>
+                            <listitem>
+                                <para>
+                                    Contains an array of real number that are the fit points.
+                                    There will be one fit point corresponding to each waveform 
+                                    sample.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                </variablelist>
+            </section>
+            <section>
+                <title>Getting synchronized waveforms and fits.</title>
+                <informalexample>
+                    <cmdsynopsis><command>
+    http://host:port/spectcl/waveform/getall?name=<replaceable>wfname</replaceable>
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    fetches waveform and fit information for a waveform named by the
+                    <literal>name</literal> parameter.  The waveform and fit are gotten in a way
+                    that you can be guaranteed that the waveform samples and fit points are from
+                    the same event.
+                </para>
+                <para>
+                    Note that at present, this can only get the information from a single
+                    waveform object. The detail, on success is a an object with the following
+                    attributes:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                            <term><literal>name</literal></term>
+                            <listitem>
+                                <para>
+                                    Name of the wvaeform.  Note that the underlying command
+                                    allows more than one waveform to be queried, in the future
+                                    this may be supported.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><literal>waveform</literal></term>
+                            <listitem>
+                                <para>
+                                    An array of integers samples of the waveform.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><literal>fits</literal></term>
+                            <listitem>
+                                <para>
+                                    An array of JsON ojects.  Each element of the array 
+                                    contains a description of one fit and has the
+                                    following attributes:
+                                </para>
+                                <variablelist>
+                                    <varlistentry>
+                                            <term><literal>name</literal></term>
+                                            <listitem>
+                                                <para>
+                                                    The name of the <emphasis>fit</emphasis>
+                                                </para>
+                                            </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                            <term><literal>points</literal></term>
+                                            <listitem>
+                                                <para>
+                                                    Array of real valued fit points. There will be
+                                                    one fit point corresponding to each fo the waveform
+                                                    samples.
+                                                </para>
+                                            </listitem>
+                                    </varlistentry>
+                                </variablelist>
+                            </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>
+                    Since SpecTcl is running asynchronously to the client if you do a <literal>get</literal>
+                    method followed by a <literal>fits</literal> method call you are likely to get waveform and
+                    fit from different events.   This <literal>getall</literal> method solves that problem.
+                </para>
+            </section>
+
         </section>
     </chapter>
 </book>
