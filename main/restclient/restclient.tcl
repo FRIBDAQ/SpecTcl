@@ -158,6 +158,15 @@ package require json
 #   evbCreate
 #   evbAdd
 #   evbList
+#   
+#   waveformCreate
+#   waveformList
+#   waveformGet
+#   waveformGetMetadata
+#   waveformSetMetadata
+#   waveformResize
+#   waveformListFits
+#   waveformGetAll
 #
 #   command
 #
@@ -1787,5 +1796,20 @@ snit::type SpecTclRestClient {
     method waveformResize {name samples} {
         set qdict [dict create name $name samples $samples]
         $self _request [$self _makeUrl waveform/resize $qdict]
+    }
+
+    ##
+    #  waveformListFits
+    #    Lists the characteristics of the fits with names that match the pattern
+    # @param name - waveform name.
+    # @param pattern - glob pattern that must match to be listed.  Defaults to "*"
+    # @return List of dicts where each dict has the keys:
+    #    name - fit name.
+    #    points - List of real valued fit points.
+    #
+    method waveformListFits {name {pattern *}} {
+        set qdict [dict create name $name pattern $pattern]
+        set result [$self _request [$self _makeUrl waveform/fits $qdict]]
+        return [dict get $result detail]
     }
 }
