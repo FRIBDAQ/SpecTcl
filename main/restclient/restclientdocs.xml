@@ -270,7 +270,7 @@ c destroy                                     <co id='ex.client.destroy' />
                     <programlisting>
     package require SpecTclRESTClient
     
-    set client [SpecTclRestClient client-spec ?options...?]
+    set client [SpecTclRestClient obj-name|%AUTO% client-spec ?options...?]
     $client configure option value ?...?
     set value [$client cget option]
     
@@ -417,7 +417,15 @@ c destroy                                     <co id='ex.client.destroy' />
                         Instantiating an object creates a new command ensemble.
                         Subcommands perform specific REST transactions.
                       </para>
-                      
+                      <para>
+                        The implementation of the interface is done using the
+                        snit object oriented programming extension to Tcl.
+                        This means that when constructing an interface object,
+                        you supply the name of the object you want constructed or
+                        the special name %AUTO% to allow snit to create the object
+                        name for you.  Additional options (see <literal>OPTIONS</literal> below),
+                        define how the interface object connects to the SpecTcl ReST server.
+                      </para>
                 </refsect1>
                 <refsect1>
                     <title>OPTIONS</title>
