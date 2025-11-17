@@ -1,6 +1,7 @@
 == 7.0-004 ==
 * Upgrade DDASFormat incorp to 1.1-002
 * Support processing DDAS data with fits via --enable-ddastoys and --with-ddastoysdir options 
+* Support associating fits with waveform objects.
 == 7.0-004 ==
 
 
