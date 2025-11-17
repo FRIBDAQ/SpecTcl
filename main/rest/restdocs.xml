@@ -4252,8 +4252,37 @@ http://host:port/spectcl/waveform/resize?name=<replaceable>wfname</replaceable>&
                             <term><literal>waveform</literal></term>
                             <listitem>
                                 <para>
-                                    An array of integers samples of the waveform.
+                                    A JsON object with the following attributes:
                                 </para>
+                                <variablelist>
+                                    <varlistentry>
+                                            <term><literal>name</literal></term>
+                                            <listitem>
+                                                <para>
+                                                    The name of the waveform.
+                                                </para>
+                                            </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                            <term><literal>samples</literal></term>
+                                            <listitem>
+                                                <para>
+                                                    Array of integer valued waveform samples
+                                                </para>
+                                            </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                            <term><literal>rank</literal></term>
+                                            <listitem>
+                                                <para>
+                                                    The rank of the process from which this was returned.
+                                                    This will be zero for serial SpecTcl and some integer
+                                                    2 or larger for MPISpecTcl identifying which worker 
+                                                    contributed this result.
+                                                </para>
+                                            </listitem>
+                                    </varlistentry>
+                                </variablelist>
                             </listitem>
                     </varlistentry>
                     <varlistentry>
