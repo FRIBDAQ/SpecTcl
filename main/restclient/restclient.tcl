@@ -1817,6 +1817,7 @@ snit::type SpecTclRestClient {
     #    Gets waveform samples and points for the same event in a waveform.
     #  @param name - waveform name.  There can only be one at present.
     #  @return dict containing the keys:
+    #      name     - Name of the waveform.
     #      waveform - object describing the waveform.  A dict containing:
     #          name - name of the waveform.
     #          samples - array of integer waveform samples

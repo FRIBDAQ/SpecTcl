@@ -3894,7 +3894,9 @@ c destroy                                     <co id='ex.client.destroy' />
                                         <para>
                                             The <parameter>name</parameter> specifies the name of the
                                             waveform for which data will be returned.  The returned value
-                                            is a dict that has the keys <literal>waveform</literal>
+                                            is a dict that has the keys 
+                                            <literal>name</literal>, the name of the waveform, 
+                                            <literal>waveform</literal>
                                             and <literal>fits</literal>
                                         </para>
                                         <para>

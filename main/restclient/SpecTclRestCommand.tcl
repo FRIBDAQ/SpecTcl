@@ -2208,6 +2208,15 @@ namespace eval waveform {
     proc fits {name {pattern *}} {
         return [$::SpecTclRestCommand::client waveformListFits $name $pattern]
     }
+    ##
+    # getall
+    #   Get the waveform and associated fits data for an event.
+    #
+    # @param name - name of the waveform.
+    #
+    proc getall {name} {
+        return [$::SpecTclRestCommand::client waveformGetAll $name]
+    }
         
 }
 ## default unkown handler for waveform namepace assumes a create:
