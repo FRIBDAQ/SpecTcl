@@ -1812,4 +1812,23 @@ snit::type SpecTclRestClient {
         set result [$self _request [$self _makeUrl waveform/fits $qdict]]
         return [dict get $result detail]
     }
+    ##
+    #  waveformGetAll
+    #    Gets waveform samples and points for the same event in a waveform.
+    #  @param name - waveform name.  There can only be one at present.
+    #  @return dict containing the keys:
+    #      waveform - object describing the waveform.  A dict containing:
+    #          name - name of the waveform.
+    #          samples - array of integer waveform samples
+    #          rank    - in MPISpecTcl the rank of the process from which this came.
+    #       fits  - A list of dicts, each dict containing information about a fit:
+    #          name - the name of the fit.
+    #          points - list of real valued fit points.
+    #         
+    #
+    method waveformGetAll {name} {
+        set qdict [dict create name $name]
+        set result [$self _request [$self _makeUrl waveform/getall $qdict]]
+        return [dict get $result detail]
+    }
 }
