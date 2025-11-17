@@ -2086,7 +2086,7 @@ proc mirror {list {pattern *}} {
 #  It's a namespaxce ensemble.
 
 namespace eval waveform {
-    namespace export create metadata get resize   _defaultCreate
+    namespace export create metadata get resize   _defaultCreate fits getall
     namespace ensemble create
 
     proc _metadataToDict {metaList} {
@@ -2197,6 +2197,16 @@ namespace eval waveform {
     # @return none.
     proc resize {name samples} {
         return [$::SpecTclRestCommand::client waveformResize $name $samples]    
+    }
+
+    ##
+    # fits
+    #   List the fits that are associated with a waveform.
+    # 
+    # @param name - waveform name.
+    # @param pattern - optional pattern that restricts the set of fits returned.
+    proc fits {name {pattern *}} {
+        return [$::SpecTclRestCommand::client waveformListFits $name $pattern]
     }
         
 }
