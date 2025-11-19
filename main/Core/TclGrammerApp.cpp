@@ -1043,7 +1043,8 @@ int CTclGrammerApp::operator()() {
   gpInterpreter = getInterpreter();
   
   // Fix for issue #122: suppress <RootX11ErrorHandler> messages:
-  gErrorIgnoreLevel = kFatal;
+  m_defaultRootErrorLevel = gErrorIgnoreLevel;
+  disableRootErrors();
 
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);
@@ -1319,8 +1320,22 @@ void CTclGrammerApp::UpdateString(CTCLVariable& rVar, std::string& rValue) {
   }
   // No update.
 }
+/**
+ * disableRootErrors
+ *     Turn off Root error reporting this is needed since it warns noisily about
+ * events from windows it did not make (e.g. Tk).
+ */
+void CTclGrammerApp::disableRootErrors() const {
+  gErrorIgnoreLevel = kFatal;
+}
+/**
+ * enableRootErrors
+ *    Set the root ignore level back to its default value
+ */
+void CTclGrammerApp::enableRootErrors() const {
+  gErrorIgnoreLevel = m_defaultRootErrorLevel;
 
-
+}
 /**
  * Utility funtion that sources Tcl optional sript. The script is optional in the sense
  * that file not found errors are not reported.  What is reported are:
