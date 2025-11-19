@@ -30,6 +30,7 @@
 #include <Event.h>
 #include <EventList.h>
 #include <stdio.h>
+#include "TclGrammerApp.h"
 
 
 #include <sstream>
@@ -76,15 +77,22 @@ RootTreeSink::~RootTreeSink()
 void
 RootTreeSink::OnOpen(TFile* pNewFile)
 {
+    CTclGrammerApp::getInstance()->enableRootErrors();
     // Not sure if I can sanely tear down the tree when the file has been
     // yanked out from underneath it, so:
     
-    if (m_pFile) {
-        std::cerr << "** Warning -- RootTreeSink::OnOpen - Root file has not been closed \n";
-        std::cerr << "**            This will result in a small memory leak\n";
+    try {
+        if (m_pFile) {
+            std::cerr << "** Warning -- RootTreeSink::OnOpen - Root file has not been closed \n";
+            std::cerr << "**            This will result in a small memory leak\n";
+        }
+        m_pFile = pNewFile;
+        createTree();
+    } catch (...) {
+        CTclGrammerApp::getInstance()->disableRootErrors();
+        throw;
     }
-    m_pFile = pNewFile;
-    createTree();
+    CTclGrammerApp::getInstance()->disableRootErrors();
 }
 /**
  * OnAboutToClose
@@ -110,19 +118,26 @@ void
 RootTreeSink::operator()(CEventList& rEvents)
 {
     // Just silently ignore the data if we've not got a file.
-    
-    if (m_pFile) {
-    
-        // Process the events one at a time.
+    CTclGrammerApp::getInstance()->disableRootErrors();
+    try {
+        if (m_pFile) {
         
-        for (int i =0; i < rEvents.size(); i++) {
-            if(rEvents[i]) {
-                    (*this)(*(rEvents[i]));
-            } else {
-                break;               // Three aren't any more events in the list.
+            // Process the events one at a time.
+            
+            for (int i =0; i < rEvents.size(); i++) {
+                if(rEvents[i]) {
+                        (*this)(*(rEvents[i]));
+                } else {
+                    break;               // Three aren't any more events in the list.
+                }
             }
         }
     }
+    catch (...) {
+        CTclGrammerApp::getInstance()->enableRootErrors();
+        throw;
+    }
+    CTclGrammerApp::getInstance()->enableRootErrors();
 }
 /**
  *  OnBegin
@@ -144,14 +159,21 @@ RootTreeSink::OnBegin(unsigned runNumber, const char* title) {
     }
     // A new filename of the form run-nnnn.root:
 
-
-    char filename[1000];       // More than enough I think:
-    snprintf(filename, sizeof(filename), "%s-run-%04u.root", m_treeName.c_str(), runNumber);
-    std::string oldDir = gDirectory->GetPath();
-    gDirectory->Cd("/");
-    TFile* pFile = new TFile(filename, "UPDATE", title);
-    OnOpen(pFile);
-    gDirectory->Cd(oldDir.c_str());
+    CTclGrammerApp::getInstance()->enableRootErrors();
+    try {
+        char filename[1000];       // More than enough I think:
+        snprintf(filename, sizeof(filename), "%s-run-%04u.root", m_treeName.c_str(), runNumber);
+        std::string oldDir = gDirectory->GetPath();
+        gDirectory->Cd("/");
+        TFile* pFile = new TFile(filename, "UPDATE", title);
+        OnOpen(pFile);
+        gDirectory->Cd(oldDir.c_str());
+    }
+    catch (...) {
+        CTclGrammerApp::getInstance()->disableRootErrors();
+        throw;
+    }
+    CTclGrammerApp::getInstance()->disableRootErrors();
 }
 /**
  * OnEnd
@@ -229,11 +251,19 @@ void
 RootTreeSink::tearDown()
 {
     if (m_pFile) {
-        m_pFile->Write();
-        m_pFile->Flush();
-        delete m_pTree; 
-        
-        m_pTree = nullptr;
-        m_pFile = nullptr;
+        CTclGrammerApp::getInstance()->enableRootErrors();
+        try {
+            m_pFile->Write();
+            m_pFile->Flush();
+            delete m_pTree; 
+            
+            m_pTree = nullptr;
+            m_pFile = nullptr;
+        } 
+        catch (...) {
+            CTclGrammerApp::getInstance()->disableRootErrors();
+            throw;
+        }
+        CTclGrammerApp::getInstance()->disableRootErrors();
     }
 }
