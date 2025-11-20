@@ -109,7 +109,7 @@ private:
   CMultiTestSource*         m_pMultiTestSource;
   CDisplayInterface*        m_pDisplayInterface;
   CGatingDisplayObserver*   m_pGatingObserver;
-  
+  int                       m_defaultRootErrorLevel;   // Issue #217
   int m_nUpdateRate;
   Tcl_ThreadId              m_nMainThread;
   int                       m_mpiRank;    ///!< The world rank when running under MPI:
@@ -221,7 +221,10 @@ private:
   CDisplayInterface* getDisplayInterface() {
       return m_pDisplayInterface;
   }
+  // Coarse control over root error ignore level:  issue #217
 
+  void disableRootErrors() const;
+  void enableRootErrors() const;
 
   // Attribute mutators:
  protected:
@@ -354,6 +357,7 @@ private:
   static CTclGrammerApp* m_pInstance;  ///!< The instance of SpecTcl
   static int             m_argc;       ///!< stored argc value
   static char**          m_pArgV;      ///!< stored argv value
+  
 
   // Utilities:
 protected:
@@ -381,6 +385,9 @@ private:
   /** MPIAppInit - application initialization but for MPI parallel SpecTcl: */
 
   static int MPIAppInit(Tcl_Interp* pInterp);
+
+  
+  
 };
 
 #endif

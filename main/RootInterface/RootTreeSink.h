@@ -65,6 +65,7 @@ private:
     std::vector<std::string> m_parameterPatterns;
     
     std::string      m_treeName;
+    bool             m_enabled;   // To support ending write attempts on error Issue #217
 public:
     RootTreeSink(std::string name, const std::vector<std::string>& patterns, CGateContainer* m_pGate);
     virtual ~RootTreeSink();                       // not sure if final so...
@@ -93,6 +94,9 @@ private:
     
     void createTree();
     void tearDown();
+    void enable() {m_enabled = true;}          // Issue #217 support 
+    void disable() {m_enabled = false;}         // turning off the tree on error.
+    bool isEnabled() const {return m_enabled;}
     
 };
 

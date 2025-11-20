@@ -217,7 +217,7 @@ private:
 public:
     SpecTclRootTree(std::string treeName, const std::vector<ParameterTree::ParameterDef>& params);
     virtual ~SpecTclRootTree();
-    void Fill(CEvent& event);
+    Int_t Fill(CEvent& event);            // Issue #217 - root fill returns an integer.
 private:
     void buildMarshaller(const std::vector<ParameterTree::ParameterDef>& params);
     void buildTree(const std::vector<ParameterTree::ParameterDef>& params);
