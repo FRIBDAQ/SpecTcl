@@ -68,7 +68,8 @@ RootTreeSink::RootTreeSink(
     m_pTree(0),
     m_Gate(*m_pGate),
     m_parameterPatterns(patterns),
-    m_treeName(name)
+    m_treeName(name),
+    m_enabled(false)            // open will enable.
 {
     
 }
@@ -102,6 +103,7 @@ RootTreeSink::OnOpen(TFile* pNewFile)
         }
         m_pFile = pNewFile;
         createTree();
+        enable();               // Now that we have a file we are enabled.
     } catch (...) {
         CTclGrammerApp::getInstance()->disableRootErrors();
         throw;
@@ -132,9 +134,9 @@ void
 RootTreeSink::operator()(CEventList& rEvents)
 {
     // Just silently ignore the data if we've not got a file.
-    CTclGrammerApp::getInstance()->disableRootErrors();
+    CTclGrammerApp::getInstance()->enableRootErrors();
     try {
-        if (m_pFile) {
+        if (m_pFile && isEnabled()) {
         
             // Process the events one at a time.
             
@@ -147,11 +149,17 @@ RootTreeSink::operator()(CEventList& rEvents)
             }
         }
     }
+    catch(RootException& e) {
+        std::cerr << "Failure in root tree " << m_treeName
+            << "  Tree will be disabled until next run begins: "
+            << e.what() << std::endl;
+        disable();            // Not returning here allows root errors to be diabled.
+    }
     catch (...) {
-        CTclGrammerApp::getInstance()->enableRootErrors();
+        CTclGrammerApp::getInstance()->disableRootErrors();
         throw;
     }
-    CTclGrammerApp::getInstance()->enableRootErrors();
+    CTclGrammerApp::getInstance()->disableRootErrors();
 }
 /**
  *  OnBegin
@@ -180,9 +188,22 @@ RootTreeSink::OnBegin(unsigned runNumber, const char* title) {
         std::string oldDir = gDirectory->GetPath();
         gDirectory->Cd("/");
         TFile* pFile = new TFile(filename, "UPDATE", title);
+        if (!pFile) {
+            std::stringstream errormsg;
+            errormsg << "Failed to open root tree file : " << filename << std::endl;
+            std::string msg(errormsg.str());
+            throw RootException(msg);
+        }
         OnOpen(pFile);
         gDirectory->Cd(oldDir.c_str());
+        enable();                           // Enable the tree.
     }
+    catch (RootException& e) {
+        std::cerr << "Root tree: " << m_treeName << " Failed on OnBegin: " 
+            << e.what() << "\nTree will be disabled until next begin run \n";
+        disable();        // Not returning here allows root errors to be disabled.
+
+    }   
     catch (...) {
         CTclGrammerApp::getInstance()->disableRootErrors();
         throw;
@@ -205,8 +226,19 @@ RootTreeSink::OnEnd(unsigned runNumbver, const char* title) {
     if (m_pFile) {
         auto pFile = m_pFile;
         OnAboutToClose();
-        pFile->Write();
+        Bool_t status = pFile->Write();
         delete pFile;
+        if (status) {
+            // Write filed but we still want to delete it
+
+            std::stringstream errormsg;
+            errormsg << " Failed the final flush of tree: " << m_treeName;
+            std::string msg(errormsg.str());
+            
+            // don't throw because I don't think there's a catcher and, in any
+            // event, the run is done.
+        }
+        disable();                  // Disable until the next open.
     }
 }
 
@@ -228,7 +260,16 @@ RootTreeSink::operator()(CEvent& event)
 {
     (m_Gate)->RecursiveReset();            // Clear gate and what it might depend on.
     if ((*m_Gate)(event)) {
-        m_pTree->Fill(event);
+        if (m_pTree->Fill(event) < 0) {
+            // THe fill failed the operator() that does the event list will catch
+            // the exception and diable the tree.  We don't need to do anything.
+            // We won't get called if diabled either.
+
+            std::stringstream errormsg;
+            errormsg << "Tree fill failed for root tree: " << m_treeName << std::endl;
+            std::string msg(errormsg.str());
+            throw RootException(msg);
+        }
     }
 }
 void
@@ -267,12 +308,23 @@ RootTreeSink::tearDown()
     if (m_pFile) {
         CTclGrammerApp::getInstance()->enableRootErrors();
         try {
-            m_pFile->Write();
-            m_pFile->Flush();
+            // See the stuff below about why we don't just immediately
+            // fail this function.
+
+            auto writeStat = m_pFile->Write();
+            m_pFile->Flush();             // void. :-(
+
+            // We still want to tear crap down.. no need
+            // for an exception since the we're done writing the tree.
             delete m_pTree; 
             
             m_pTree = nullptr;
             m_pFile = nullptr;
+            if (writeStat) {
+                std::cerr << "Finalization of root tree " << m_treeName << " failed\n";
+
+            }
+            disable();                 // Next file open will re-enable.
         } 
         catch (...) {
             CTclGrammerApp::getInstance()->disableRootErrors();
