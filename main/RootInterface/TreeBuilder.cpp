@@ -457,13 +457,15 @@ SpecTclRootTree::~SpecTclRootTree()
  *    - Fill the tree
  *    - Reset the marshalled event.
  * @param event - The event to be filled into the tree.
+ * @return the result from the TTree::Fill.
  */
-void
+Int_t
 SpecTclRootTree::Fill(CEvent& event)
 {
     m_pMarshaller->marshall(event);
-    m_pTree->Fill();
-    m_pMarshaller->reset(event);
+    int result = m_pTree->Fill();
+    m_pMarshaller->reset(event);    // Leave the marshaller in a clean state no matter what.
+    return result;
 }
 /**
  * buildMarshaller
