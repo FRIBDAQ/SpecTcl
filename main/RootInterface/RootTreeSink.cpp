@@ -35,6 +35,20 @@
 
 #include <sstream>
 #include <fnmatch.h>                 // For parameter pattern matching.
+#include <stdexcept>
+
+// Let's define an exception class we'll use to signal root exceptions:
+// (Issue #217)
+class RootException : public std::runtime_error {
+public:
+    RootException(const std::string& what) : std::runtime_error(what) {}
+    RootException(const char* what) :  std::runtime_error(what) {}
+    RootException(const RootException& other) : std::runtime_error(other) {}
+    RootException& operator=(const RootException& other) {
+        return static_cast<RootException&>(std::runtime_error::operator=(other));
+        
+    }
+};
 
 
 /**
