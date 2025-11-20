@@ -320,7 +320,7 @@ RootTreeSink::tearDown()
             
             m_pTree = nullptr;
             m_pFile = nullptr;
-            if (writeStat) {
+            if (writeStat < 0) {
                 std::cerr << "Finalization of root tree " << m_treeName << " failed\n";
 
             }
