@@ -226,9 +226,9 @@ RootTreeSink::OnEnd(unsigned runNumbver, const char* title) {
     if (m_pFile) {
         auto pFile = m_pFile;
         OnAboutToClose();
-        Bool_t status = pFile->Write();
+        Int_t status = pFile->Write();
         delete pFile;
-        if (status) {
+        if (status < 0) {
             // Write filed but we still want to delete it
 
             std::stringstream errormsg;
