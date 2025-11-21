@@ -1147,13 +1147,16 @@ int CTclGrammerApp::operator()() {
     // Set up the display that was picked
     SetUpDisplay();
   }
-  if (gMPIParallel) {
-    // We need to establish the exit handler here because
-    // If the displayer is Xamine, SpecTcl also forks of a copy of itself to monitor
-    // if it exits, that copy inherits our exit handler and thinks it's the event sink rank
-    // and tries to stop pumps the event sink rank stops; hanging.
-    atexit(MpiExitHandler);
-  }
+  
+  // We need to establish the exit handler here because
+  // If the displayer is Xamine, SpecTcl also forks of a copy of itself to monitor
+  // if it exits, that copy inherits our exit handler and thinks it's the event sink rank
+  // and tries to stop pumps the event sink rank stops; hanging.
+  // Note this is done unconditionally since for Issue #34, the exit handler also
+  // kills any display process that might exist.
+  // The exit handler itself will conditionalize based on MPI or not.
+  atexit(MpiExitHandler);
+  
 
   // Setup the test data source: - in the root rank.
   // The analyzer and decoder are done here as when we are analyzing data
@@ -1568,6 +1571,12 @@ MpiExitHandler() {
   // avoid doing things we really don't want to do.
   if (is_xamine_shm_monitor) {
     return;
+  }
+  // Unconditionall kill the displayer:
+
+  if (gpDisplayInterface) {
+    auto pDisplay = gpDisplayInterface->getCurrentDisplay();
+    pDisplay->stop();                     // Stop the displayer.
   }
 #ifdef WITH_MPI
 

@@ -31,8 +31,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#include<sys/wait.h> 
-#include<sys/types.h> 
+#include <sys/wait.h> 
+#include <sys/resource.h>
+#include <sys/wait.h>
+
 
 // Environment variables:
 // EXE_PATH_ENV - points to the executable itself.
@@ -42,23 +44,32 @@
 static const char* EXE_PATH_ENV="PYQTGUI_EXECUTABLE_PATH";
 static const char* ROOT_DIR="PYQTGUI_ROOT";
 static const std::string DEFAULT_QTPY_PATH(INSTALLED_IN);
+static const int ALIVE_POLLMS(1000);        // CHeck CutiePie still alive every this ms often.
 
-CPyQtProcess::CPyQtProcess() : m_pid(0)
+CPyQtProcess::CPyQtProcess() : m_pid(0),
+ m_timerRunning(false)
 {
 }
 
 CPyQtProcess::~CPyQtProcess() {
+    stopTimer();                        // Stop any running timer.
     if (m_pid != 0) {
+        // If our timer is running cancel it:
+        
         kill();
     }
+
 }
 void
 CPyQtProcess::exec()
 {
     std::cout << "Inside CPyQtProcess::exec" << std::endl;
 
-    int inflg, errflg, outflg;
+    
 
+    // Ensure the stdio fds to be inherited by the child:
+
+    int inflg, errflg, outflg;
     inflg  = fcntl(0, F_GETFD, 0);
     outflg = fcntl(1, F_GETFD, 0);
     errflg = fcntl(2, F_GETFD, 0);
@@ -73,9 +84,24 @@ CPyQtProcess::exec()
       throw CErrnoException("CPyQtProcess::exec() - Unable to fork()");
     } else if (m_pid == 0){
 
-      //close(STDOUT_FILENO);
-      //close(STDERR_FILENO);
-      close(STDIN_FILENO);
+      // Child process:
+
+      // Close all file descriptors that SpecTcl might have
+      // already opened - e.g. the server sockets.
+      // Unfortunately there's no easy way to know which they
+      // are so we just close them all and ignore the errors:
+
+      struct rlimit maxes;
+      if (!getrlimit(RLIMIT_NOFILE, &maxes))  {
+        // It's not fatal for this to fail...we just can't do it that's all.
+
+        // Iterate over the possible files, closing all but stdout and stderr
+        for (int i = 0; i < maxes.rlim_cur; i++) {
+          if ( (i != STDOUT_FILENO) && (i != STDERR_FILENO)) {
+            close(i);               // Ignore errors as fd might already be closed.
+          }
+        }
+      }
       
       /*
       // print environ
@@ -96,9 +122,14 @@ CPyQtProcess::exec()
       return;
 
     } else {
+      // Parent process.
       fcntl(0, F_SETFD, inflg);
       fcntl(1, F_SETFD, outflg);
       fcntl(2, F_SETFD, errflg);
+
+      // Monitor the state of the process so we can re-start if it exits:
+
+      startTimer();
     }
 
 }
@@ -144,6 +175,7 @@ CPyQtProcess::kill()
     if (m_pid == 0) {
         return;
     }
+    stopTimer();       // Don't monitor it if we're killing it.
 
     int status = ::kill(m_pid, SIGTERM);
     if (status < 0) {
@@ -165,4 +197,75 @@ CPyQtProcess::isRunning() const
 {
     return (m_pid != 0);
 }
+
+
+/////////  Private utilities ///////////////////////////
+
+/**
+ *  Stop the timed event that monitors the CutePie subprocess and
+ * restarts it if it dies.
+ */
+void 
+CPyQtProcess::stopTimer() {
+  if (m_timerRunning) {
+    Tcl_DeleteTimerHandler(m_timerid);
+    m_timerRunning = false;
+  }
+}
+/**
+ *  Start the timed devent if it's not running already:
+ * 
+ * 
+ */
+void 
+CPyQtProcess::startTimer() {
+  if (!m_timerRunning) {
+    m_timerid = Tcl_CreateTimerHandler(
+      ALIVE_POLLMS, processAlivePoll, reinterpret_cast<ClientData>(this)
+    );
+    m_timerRunning = true;
+  }
+}
+
+/**
+ * If CutiePie is supposed to be running:
+ * 
+ * * If it actually is, reschedule ourselves.
+ * * If it isn't, restart.  There's some book keep on restart to prevent
+ * multiple timer instances.
+ * * If it's not supposed to be running then again, do the book keeping to keep us
+ * from being rescheduled and allowed to start later.
+ * 
+ * @param cd - actually a pointer to the PyQtProcess instance that started us.
+ * 
+ * Used to gain object context, though we don't take the trouble to trampoline.
+ */
+void
+CPyQtProcess::processAlivePoll(ClientData cd) {
+  CPyQtProcess* pObject = reinterpret_cast<CPyQtProcess*>(cd);
+
+  if (pObject->isRunning()) {
+    // Poll the process with waitpid.
+    int _status;           // Don't actually care about exit status.
+    auto pid = waitpid(pObject->m_pid, &_status, WNOHANG);
+    if (pid == pObject->m_pid) {
+      std::cerr << "CutiePie exited, restarting!!\n Note, it will be killed on SpecTcl exit.\n";
+      // It's dead indicate we're not running and attempt to start it:
+      pObject->m_timerRunning = false;  // exec() restarts us.
+      pObject->m_pid = 0;      // Indicate Cutiepie isn't running either.
+      pObject->exec();
+
+    } else {
+      // It's alive, just reschedule ourself:
+     pObject->m_timerid = Tcl_CreateTimerHandler(
+        ALIVE_POLLMS, processAlivePoll, cd
+      );
+    }
+
+  } else {
+    pObject->m_timerRunning = false;     // Cutipie isn't supposed to be running so don't check.
+  }
+  
+}
+
 

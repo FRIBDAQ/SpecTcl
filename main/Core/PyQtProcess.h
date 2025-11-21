@@ -24,6 +24,8 @@
 #define CPYQTPROCESS_H
 
 #include "Subprocess.h"
+#include <sys/types.h> 
+#include <tcl.h>
 
 /*!
  * \brief The CPyQtProcess class
@@ -33,8 +35,9 @@
 class CPyQtProcess : public Subprocess
 {
 private:
-    int m_pid;
-
+    pid_t m_pid;
+    Tcl_TimerToken m_timerid;
+    bool           m_timerRunning;
 public:
     CPyQtProcess();
     virtual ~CPyQtProcess();
@@ -68,6 +71,10 @@ public:
      * \return path to executable
      */
     std::string generatePath() const;
+private:
+    void stopTimer();
+    void startTimer();
+    static void processAlivePoll(ClientData cd);
 
 };
 
