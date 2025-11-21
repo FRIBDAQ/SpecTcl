@@ -50,6 +50,7 @@ class CPyQt : public CDisplay
   std::unique_ptr<CPyQtProcess>         m_pProcess;
   std::unique_ptr<CXamineShMemDisplayImpl> m_pMemory;
 
+
 public:
   // Constructors:
 
