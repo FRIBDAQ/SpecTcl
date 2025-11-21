@@ -638,11 +638,11 @@ void CTclGrammerApp::CreateDisplays()
     auto mirrorServer = new ServerListener(mirrorPortNum, pFactory);
     mirrorServer->start();
     // Mirror port for QtPy GUI
-    int mp = atoi(mirrorPortNum);
-    std::string mport = std::to_string(mp);
-    ::setenv("MIRRORport", mport.c_str(), 1);
+    
+    ::setenv("MIRRORport", mirrorServer->service().c_str(), 1);
+    std::cerr << "Mirror port: " << mirrorServer->service() << std::endl;
   } else {
-    ::setenv("MIRRORport", "0", 1);   /// local no mirror may be needed
+    ::setenv("MIRRORport", "-none-", 1);   /// Maybe better no to set this?
   }
   
  

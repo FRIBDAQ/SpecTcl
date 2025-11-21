@@ -115,14 +115,21 @@ private:
     ServerSet                       m_activeClients;  // RunningClients.
     ServerSet                       m_exitingClients; // join/destroy list.
     ClientData                      m_factoryData;    // Sent to factory.
+    std::string                     m_service;        // Final service name/number.
     
 public:
     ServerListener(
         std::string service,
         AbstractServerFactory* pFactory,
-        ClientData factoryData = nullptr
+        ClientData factoryData = nullptr,
+        bool searchPort = true
     );
     ~ServerListener();
+    /**
+     * get the service actually used...after findPort has had its way.
+     * @return std::string service name or port # converted to string.
+     */
+    std::string service() const {return m_service;}
     
     virtual int operator()(ClientData cd); // This CD is sent to new clients.
     
@@ -145,6 +152,7 @@ private:
         ServerSet result = m_activeClients;
         return result;
     }
+    void findPort(int staringAt);    // Locate a good port number.
     
 };
 
