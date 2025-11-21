@@ -1113,9 +1113,9 @@ int CTclGrammerApp::operator()() {
             //host += ".nscl.msu.edu";
           
             std::cout << "hostname: " << host << std::endl;
-            std::cout << "port: " << atoi(httpdPort) << std::endl;  
-          
-            int p = atoi(httpdPort);
+            std::cout << "port: " << atoi(httpdPort) << std::endl; 
+
+            int p = server.getActualPort();      // ReST server may have needed to change original port
             std::string port = std::to_string(p);
             ::setenv("RESThost", host.c_str(), 1);
             ::setenv("RESTport", port.c_str(), 1);
