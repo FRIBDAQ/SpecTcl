@@ -31,8 +31,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#include<sys/wait.h> 
-#include<sys/types.h> 
+#include <sys/wait.h> 
+#include <sys/types.h> 
+#include <sys/resource.h>
 
 // Environment variables:
 // EXE_PATH_ENV - points to the executable itself.
@@ -57,8 +58,11 @@ CPyQtProcess::exec()
 {
     std::cout << "Inside CPyQtProcess::exec" << std::endl;
 
-    int inflg, errflg, outflg;
+    
 
+    // Ensure the stdio fds to be inherited by the child:
+
+    int inflg, errflg, outflg;
     inflg  = fcntl(0, F_GETFD, 0);
     outflg = fcntl(1, F_GETFD, 0);
     errflg = fcntl(2, F_GETFD, 0);
@@ -73,9 +77,24 @@ CPyQtProcess::exec()
       throw CErrnoException("CPyQtProcess::exec() - Unable to fork()");
     } else if (m_pid == 0){
 
-      //close(STDOUT_FILENO);
-      //close(STDERR_FILENO);
-      close(STDIN_FILENO);
+      // Child process:
+
+      // Close all file descriptors that SpecTcl might have
+      // already opened - e.g. the server sockets.
+      // Unfortunately there's no easy way to know which they
+      // are so we just close them all and ignore the errors:
+
+      struct rlimit maxes;
+      if (!getrlimit(RLIMIT_NOFILE, &maxes))  {
+        // It's not fatal for this to fail...we just can't do it that's all.
+
+        // Iterate over the possible files, closing all but stdout and stderr
+        for (int i = 0; i < maxes.rlim_cur; i++) {
+          if ( (i != STDOUT_FILENO) && (i != STDERR_FILENO)) {
+            close(i);               // Ignore errors as fd might already be closed.
+          }
+        }
+      }
       
       /*
       // print environ
@@ -96,6 +115,7 @@ CPyQtProcess::exec()
       return;
 
     } else {
+      // Parent process.
       fcntl(0, F_SETFD, inflg);
       fcntl(1, F_SETFD, outflg);
       fcntl(2, F_SETFD, errflg);
