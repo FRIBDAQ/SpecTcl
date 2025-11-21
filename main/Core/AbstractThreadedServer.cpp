@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <iostream>
 #include <stdlib.h>
+#include <stdexcept>
 
 //////////////////////////////////////////////////////////////////////////
 // AbstractClientServer implementation.
@@ -156,24 +157,39 @@ AbstractServerFactory::~AbstractServerFactory() {}
  *   @param pFactory - A factory to create server threads for each connection.
  *   @param factoryData - Client data to be passed to the factory for each
  *                     creation operation.  This is not passed to threads.
+ *    @param searchPort - optional parameter, if true (the default), if the
+ *                    requested port is in use, the port number will be incremented until
+ *                    a free one is found.
  */
 ServerListener::ServerListener(
     std::string service,
     AbstractServerFactory* pFactory,
-    ClientData factoryData
+    ClientData factoryData,
+    bool searchPort
 ) :
     m_pServerFactory(pFactory),
     m_pListener(nullptr),
-    m_factoryData(factoryData)
+    m_factoryData(factoryData),
+    m_service(service)
 {
-    m_pListener = new CSocket;
-    try {
-        m_pListener->Bind(service);
-        m_pListener->Listen();
-    }
-    catch (...) {
-        delete m_pListener;
-        throw;
+    int serviceNumber = atoi(service.c_str());
+    if (searchPort && (serviceNumber > 0)) {
+        findPort(serviceNumber);    // Probe for good port if needed.
+    } else {
+        m_pListener = new CSocket;
+
+
+
+        // See if the service is an integer in which case we can keep trying
+        // until we get one.
+        try {
+            m_pListener->Bind(service);
+            m_pListener->Listen();
+        }
+        catch (...) {
+            delete m_pListener;
+            throw;
+        }
     }
 }
 /**
@@ -328,4 +344,37 @@ ServerListener::reapClients()
             delete p;
         }
     }
+}
+/**
+ * findPort
+ *    Make a server listener using a unique port beginnint probing at the
+ * input port.  Note the largest allowed port number 65535 as actual ports
+ * are shorts.  If we don't find a free port before there, we throw
+ * an std::overflow_error.
+ * 
+ * @param startingFrom - initial port number to use.
+ * 
+ * @note On success, m_service is updated with the stringified service name
+ */
+void 
+ServerListener::findPort(int startingFrom) {
+    while (startingFrom < 65536) {
+        std::string portString = std::to_string(startingFrom);
+        m_pListener = new CSocket;
+        try {
+            m_pListener->Bind(portString);
+            m_pListener->Listen();
+
+            // Success!!
+
+            m_service = portString;
+            return;
+        } catch (...) {
+            delete m_pListener;               // failed assume port in use:
+            startingFrom++;                   // try another port.
+        }
+    }
+    // Could not find one in the range of valid ports.
+
+    throw std::overflow_error("No free service port could be found by ServerListener::findPort");
 }
