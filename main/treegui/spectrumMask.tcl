@@ -115,7 +115,7 @@ snit::widget spectrumMaskWidget {
     # @param option - option containing the script to which we dispatch.
     #
     method Dispatch option {
-	treeutility::dispatch $options($option) [list %W %M] [list $win [$win cget -mask]]
+	    treeutility::dispatch $options($option) [list %W %M] [list $win [$win cget -mask]]
     }
 
 }
