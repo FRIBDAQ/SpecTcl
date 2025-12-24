@@ -286,6 +286,14 @@ proc sourceScriptReportingErrors {} {
         }
     }
     $::FolderGui::folderGuiBrowser update;       # In case the script execution changes something.
+
+    # If .treegui.notebook.spectra exists, try to update the spectdra.
+
+    if {[winfo exists .treegui.notebook.spectra]} {
+        set displaywidget .treegui.notebook.spectra
+        $displaywidget updateSpectrumList
+    }
+
     failsafeWrite
 
 }
