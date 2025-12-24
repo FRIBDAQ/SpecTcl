@@ -2,6 +2,7 @@
 * Upgrade DDASFormat incorp to 1.1-002
 * Support processing DDAS data with fits via --enable-ddastoys and --with-ddastoysdir options 
 * Support associating fits with waveform objects.
+* Make the File->Load operation update the GUI and make the Load button report script errors.
 == 7.0-004 ==
 
 
