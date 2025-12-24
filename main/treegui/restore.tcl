@@ -8,6 +8,7 @@
 #	     East Lansing, MI 48824-1321
 
 package require Itcl
+package require SpecTclGui
 
 package provide restore 1.0
 
@@ -130,7 +131,10 @@ itcl::class Restore {
 
 	invokeObservers [array get preObservers]
 
-	uplevel #0 source $name
+	set errors [uplevel #0 incrementalSource $name]
+    if {$errors ne ""} {
+        displayScriptErrors $name $errors
+    }
 
 	invokeObservers [array get  observers]
 
