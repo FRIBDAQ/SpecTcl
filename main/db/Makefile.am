@@ -64,7 +64,7 @@ install-exec-hook:
 ################################################################
 #  unit tests:
 
-noinst_PROGRAMS=unittests
+check_PROGRAMS=unittests
 noinst_HEADERS=Asserts.h
 
 unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
