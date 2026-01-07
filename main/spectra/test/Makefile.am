@@ -28,7 +28,7 @@ unittests_SOURCES = GGateTest.cpp \
 
 
 
-noinst_HEADERS = TestUtils.h
+check_HEADERS = TestUtils.h
 
 unittests_LDFLAGS =  -Wl,-rpath=@ROOT_LIBRARY_DIR@
 

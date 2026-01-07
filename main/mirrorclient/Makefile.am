@@ -52,7 +52,7 @@ install-exec-local:
 
 #############################     TESTS ###################################
 
-noinst_PROGRAMS=unittests
+check_PROGRAMS=unittests
 unittests_SOURCES=TestRunner.cpp mctests.cpp
 unittests_DEPENDENCIES=libMirrorClient.la
 unittests_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Display \

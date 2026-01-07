@@ -18,7 +18,7 @@ libMPITclPackage_la_LDFLAGS=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @LIBEXCEPTION_LDFLAG
 libMPITclPackage_la_LIBADD=libMPIUtilities.la
 
 
-noinst_PROGRAMS= testApp
+check_PROGRAMS= testApp
 
 
 

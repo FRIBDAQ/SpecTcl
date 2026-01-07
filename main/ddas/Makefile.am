@@ -57,7 +57,7 @@ endif
 # Unit tests
 # 
 
-noinst_PROGRAMS = unittests
+check_PROGRAMS = unittests
 
 unittests_SOURCES = TestRunner.cpp 				\
 	fileunpackertests.cpp ddascalibmaptest.cpp

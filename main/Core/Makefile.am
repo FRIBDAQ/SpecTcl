@@ -443,7 +443,7 @@ include_HEADERS = 		$(DecoderRing_INCLUDES) \
 noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) $(Event_noinst_INCLUDES)
 
 
-noinst_PROGRAMS =    spectrumPkgTests \
+check_PROGRAMS =    spectrumPkgTests \
 			displayInterfaceTests \
 			sorterTests treeParamTests fitTests \
 			xamineTests spectraDisplayTests \

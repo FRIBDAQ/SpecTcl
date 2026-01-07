@@ -158,7 +158,7 @@ EXTRA_DIST=Makefile.skel scriptable_Makefile.include
 
 if CPPUNIT
 
-noinst_PROGRAMS = unittest
+check_PROGRAMS = unittest
 
 unittest_SOURCES = SegUnpackerTest.cpp \
 		    ModuleTest.cpp \

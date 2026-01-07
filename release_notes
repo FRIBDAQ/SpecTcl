@@ -3,6 +3,7 @@
 * Support processing DDAS data with fits via --enable-ddastoys and --with-ddastoysdir options 
 * Support associating fits with waveform objects.
 * Make the File->Load operation update the GUI and make the Load button report script errors.
+* Issue #223 - Build the unittests only at Make check time.
 == 7.0-004 ==
 
 
