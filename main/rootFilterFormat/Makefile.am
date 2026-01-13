@@ -17,9 +17,11 @@ noinst_HEADERS=	CRootFilterOutputStage.h	\
 #  The library will get installed in $prefix/lib, nothing we can do
 #  about that, but we want it installed in $prefix/TclLibs:
 
-install-exec-local: 
+install-exec-local: docs
 	$(mkinstalldirs) $(prefix)/TclLibs
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
+	$(mkinstalldirs) @datarootdir@/rootFilterFormat
+	$(INSTALL_DATA) @builddir@/rootFilterFormat.pdf @datarootdir@/rootFilterFormat
 
 
 docs: rootFilterFormat.pdf
