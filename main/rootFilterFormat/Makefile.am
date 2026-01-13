@@ -21,17 +21,17 @@ install-exec-local: docs
 	$(mkinstalldirs) $(prefix)/TclLibs
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
 	$(mkinstalldirs) @datarootdir@/rootFilterFormat
-	$(INSTALL_DATA) @builddir@/rootFilterFormat.pdf @datarootdir@/rootFilterFormat
+	$(INSTALL_DATA) @builddir@/docs/*  @datarootdir@/rootFilterFormat
 
 
-docs: rootFilterFormat.pdf
+docs: rootFilterFormat.xml
+	mkdir @builddir@/docs
+	@HTMLDOCBOOK@  -o @builddir@/docs    @srcdir@/rootFilterFormat.xml
 
-# This build sometimes fails so let'snot do it  by default....
-# And not install it either... until we work that out
-# (maybe buliding html is better?)
+
+
 
 rootFilterFormat.pdf: rootFilterFormat.xml
-	@PDFDOCBOOK@      @srcdir@/rootFilterFormat.xml
 
 
 EXTRA_DIST=rootFilterFormat.xml selectFilterFormat.tcl \
