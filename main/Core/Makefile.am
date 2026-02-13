@@ -207,7 +207,8 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Gamma2DD.hpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
 	CGammaSummarySpectrum.hpp \
 	GatingObserver.cpp CParameterDictionarySingleton.cpp \
-	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp
+	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp \
+	CMetadata.cpp
 
 Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h \
@@ -228,7 +229,7 @@ Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Di
 	CGammaSummarySpectrum.h CGammaSummarySpectrum.hpp \
 	GatingObserver.h CM2Projection.h CM2Projection.hpp \
 	CParameterDictionarySingleton.h CSpectrumDictionarySingleton.h \
-	CGateDictionarySingleton.h
+	CGateDictionarySingleton.h CMetadata.h
 
 # TapeCommand.cc removed.
 
