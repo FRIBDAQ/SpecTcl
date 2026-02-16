@@ -26,15 +26,16 @@
 #include <map>
 
 #include <vector>                    // Holds the data.
+#include <CMetadata.h>               // Issue #229 - haul metadata into class.
 
 class CWaveform : public CNamedItem {
 public:
-    typedef std::map<std::string, std::string> Metadata_t;
+    typedef CMetadata::Metadata_t Metadata_t;   // For pre Issue #229 compatibility
     typedef std::map<std::string, size_t>      FitMap_t;
     typedef std::vector<uint16_t>  WaveForm_t;
     typedef std::vector<double>    Fit_t;       // Fits are floating point.
 private:
-    Metadata_t  m_metadata;
+    CMetadata  m_metadata;
     WaveForm_t  m_trace;
     FitMap_t    m_fitDictionary;     // Issue #212 - Fit name -> index.
     std::vector<Fit_t> m_fits;  // Issue #212 - Vector of fit traces.

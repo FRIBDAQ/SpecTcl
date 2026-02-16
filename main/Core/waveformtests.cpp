@@ -109,7 +109,7 @@ WaveformTests::setmd_1() {
 
     CWaveform wf("test", 100);
     wf.setMetadata("testing", "junk");
-    EQ(std::string("junk"), wf.m_metadata["testing"]);
+    EQ(std::string("junk"), wf.m_metadata.get("testing"));
 }
 void
 WaveformTests::setmd_2() {
@@ -118,7 +118,7 @@ WaveformTests::setmd_2() {
     CWaveform wf("test", 100);
     wf.setMetadata("testing", "trash");
     wf.setMetadata("testing", "junk");
-    EQ(std::string("junk"), wf.m_metadata["testing"]);
+    EQ(std::string("junk"), wf.m_metadata.get("testing"));
 }
 void
 WaveformTests::setmd_3() {
@@ -128,8 +128,8 @@ WaveformTests::setmd_3() {
     wf.setMetadata("test1", "junk");
     wf.setMetadata("test2", "trash");
 
-    EQ(std::string("junk"), wf.m_metadata["test1"]);
-    EQ(std::string("trash"), wf.m_metadata["test2"]);
+    EQ(std::string("junk"), wf.m_metadata.get("test1"));
+    EQ(std::string("trash"), wf.m_metadata.get("test2"));
 }
 
 // Getting metadata.
@@ -190,10 +190,10 @@ WaveformTests::getmd_4() {
 
     auto md = wf.getMetadata();
     EQ(size_t(4), md.size());
-    EQ(std::string("larry"), md["stooge1"]);
-    EQ(std::string("curly"), md["stooge2"]);
-    EQ(std::string("moe"), md["stooge3"]);
-    EQ(std::string("shemp"), md["stoogeextra"]);
+    EQ(std::string("larry"), md[std::string("stooge1")]);
+    EQ(std::string("curly"), md[std::string("stooge2")]);
+    EQ(std::string("moe"), md[std::string("stooge3")]);
+    EQ(std::string("shemp"), md[std::string("stoogeextra")]);
 }
 
 // Update tests:

@@ -56,10 +56,8 @@ CWaveform::~CWaveform() {}
  */
 void
 CWaveform::setMetadata(const char* name, const char* value) {
-    std::string strName(name);
-    std::string strValue(value);
 
-    m_metadata[name] = value;
+    m_metadata.set(name, value);
 }
 
 /**
@@ -72,15 +70,7 @@ CWaveform::setMetadata(const char* name, const char* value) {
  */
 std::string
 CWaveform::getMetadata(const char* name) const {
-    std::string strName (name);
-    auto p = m_metadata.find(strName);
-    if (p != m_metadata.end()) {
-        return p->second;
-    } else {
-        // not found.
-
-        throw CNoSuchObjectException("Retrieving waveform metadata", name);
-    }
+    return m_metadata.get(name);
 }
 /**
  * getMetadata
@@ -90,7 +80,7 @@ CWaveform::getMetadata(const char* name) const {
  */
 const CWaveform::Metadata_t&
 CWaveform::getMetadata() const {
-    return m_metadata;
+    return m_metadata.get_all();
 }
 
 /**
