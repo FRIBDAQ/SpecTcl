@@ -3969,8 +3969,18 @@ parameter <option>-trace</option> <replaceable>script</replaceable>
 parameter <option>-untrace</option> <replaceable>script</replaceable>
             </command>
         </cmdsynopsis>
+        <cmdsynopsis><command>
+parameter <option>-setmetadata</option> <replaceable>parameter meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+parameter <option>-getmetadata</option> <replaceable>parameter meta-name</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+parameter <option>-dumpmetadata</option> <replaceable>parameter</replaceable>
+        </command></cmdsynopsis>
     </refsynopsisdiv>
-    
+
+
     <refsect1>
         <title>DESCRIPTION</title>
         <para>
@@ -4000,6 +4010,12 @@ parameter <option>-untrace</option> <replaceable>script</replaceable>
                     Optional scale information describing the parameter's valid
                     range of values and a mapping between that and a real world
                     coordinate system as well as units of measure.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Staring with SpecTcl 7.0-005 SpecTcl parameters can have associated metadata.
+                    Metadata for a parameter is a set of name/value pairs.
                 </para>
             </listitem>
         </itemizedlist>
@@ -4291,7 +4307,50 @@ parameter <option>-untrace</option> <replaceable>script</replaceable>
                    </para>
                 </listitem>
             </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+parameter <option>-setmetadata</option> <replaceable>parameter meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Sets metadata for the named <parameter>parameter</parameter>
+                            <parameter>meta-name</parameter> is the name of the metadata to set
+                            and <parameter>meta-value</parameter> is the new value for that metadata.
+                            If <parameter>meta-name</parameter> does not exist for this parameter it is created.
+                            If it does exist, it is overwritten.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+parameter <option>-getmetadata</option> <replaceable>parameter meta-name</replaceable>
+        </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Retuns the value of <parameter>parameter</parameter>'s metadata item named
+                            <parameter>meta-name</parameter> an error is returned if there is no such
+                            metadata yet for this parameter.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+parameter <option>-dumpmetadata</option> <replaceable>parameter</replaceable>
+            </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            dumps the metadata as a dict with keys the names of the metadata items and values their values.
+                        </para>
+                    </listitem>
+            </varlistentry>
         </variablelist>
+        
     </refsect1>
     
     <refsect1>
@@ -4308,7 +4367,17 @@ parameter De1 0 12
 parameter position 2 mm
             </command></screen>
         </example>
-        
+        <example>
+        <title>Parameter metadata</title>
+        <screen>
+<command>parameter -setmeta test a b</command>
+<command>parameter -getmeta test a</command>
+a
+<command>set d [parameter -dumpmeta test]</command>
+<command>dict get $d a</command>
+b
+        </screen>
+        </example>
     </refsect1>
     
     <refsect1>
