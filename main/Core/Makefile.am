@@ -521,11 +521,12 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 treeParamTests_CXXFLAGS  = $(commonTestCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
 treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
-	MatchTest.cpp      TestRunner.cpp            TreeVariableArrayTests.cpp \
+	MatchTest.cpp  paramMetadataTests.cpp     TestRunner.cpp       \
+	TreeVariableArrayTests.cpp \
 	SetAllVTest.cpp    TestSuite.cpp             TreeVariableCommandTests.cpp \
 	SetChansTest.cpp   TreeExceptionTest.cpp     TreeVariablePropertyTests.cpp \
 	SetLimitsTest.cpp  TreeParamArrayTest.cpp    TreeVariableTests.cpp \
-	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp \
+	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp  CMetadata.cpp \
 	TreeTestSupport.h
 
 
