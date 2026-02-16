@@ -473,6 +473,7 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@builddir@/libSpecTclTcp.la \
 		@top_builddir@/mpi/libMPIUtilities.la \
 		@top_builddir@/Display/libXamine.la \
+		@top_builddir@/Utility/libUtilities.la \
 		@XDR_LDFLAGS@ \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
