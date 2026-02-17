@@ -16,7 +16,9 @@
 #include "TreeTestSupport.h"
 #include "TCLInterpreter.h"
 #include "TCLList.h"
+#include <TCLException.h>
 #include "ListVisitor.h"
+#include "Parameter.h"
 
 #include <string>
 #include <vector>
@@ -46,6 +48,9 @@ class TreeCommandTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(UncheckFunc);	// Reset change flag via function.
   CPPUNIT_TEST(UncheckSubCmd);   // Reset change flag via dispatch.
   CPPUNIT_TEST(Version);	// Test version (just do via command).
+  CPPUNIT_TEST(MetaSet_1); // Meta parameter set incorrect param count.
+  CPPUNIT_TEST(MetaSet_2); // Meta param set no such tree parameter.
+  CPPUNIT_TEST(MetaSet_3); // Meta param set ok.
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -63,6 +68,7 @@ public:
 
     m_pIndividual = new CTreeParameter("moe", "cm");
     m_pArray      = new CTreeParameterArray("george", "mm", 10, 0);
+    CTreeParameter::BindParameters();
   }
   void tearDown() {
     delete m_pIndividual;
@@ -92,6 +98,10 @@ protected:
   void UncheckFunc();
   void UncheckSubCmd();
   void Version();
+
+  void MetaSet_1();
+  void MetaSet_2();
+  void MetaSet_3();
 private:
   void ListAllCheck(const char* pComment);
   void ListMoeCheck(const char* pComment);
@@ -218,12 +228,15 @@ static string sbusage ="Usage:\n\
      treeparameter -check name\n\
      treeparameter -uncheck name\n\
      treeparameter -create  name low high bins units\n\
+     treeparameter -setmetadata name meta-name meta-value\n\
+     treeparameter -getmetadata name meta-name\n\
+     treeparameter -dumpmetadata name\n\
      treeparameter -version";
 
 void TreeCommandTest::UsageTest() 
 {
   string usage = m_pCommand->Usage();
-  ASSERT(usage == sbusage);
+  EQ(usage,sbusage);
 }
 // Test the list function... checking itself is factored out as
 // we'll do the same tests with dispatch in ListSubCmd().
@@ -779,4 +792,43 @@ TreeCommandTest::Version()
   EQMSG("Version answer", CTreeParameter::TreeParameterVersion,
 	answer);
 
+}
+
+
+// Set metadata for invalid # params is Error:
+
+void
+TreeCommandTest::MetaSet_1() {
+  CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
+  CPPUNIT_ASSERT_THROW(
+    pInterp->GlobalEval("::spectcl::serial::treeparameter -setmetadata moe"),
+    CTCLException
+  );
+}
+// set metadata for no such tree parameter is an error:
+
+void
+TreeCommandTest::MetaSet_2() {
+  CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
+  CPPUNIT_ASSERT_THROW(
+    pInterp->GlobalEval("::spectcl::serial::treeparameter -setmetadata moey a b"),
+    CTCLException
+  );
+}
+// Set metadata correctly:
+
+void
+TreeCommandTest::MetaSet_3() {
+  CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
+  CPPUNIT_ASSERT_NO_THROW(
+    pInterp->GlobalEval("::spectcl::serial::treeparameter -setmetadata moe a b")
+    
+  );
+
+  CParameter* p = m_pIndividual->getParameter();
+  std::string value;
+  CPPUNIT_ASSERT_NO_THROW(
+    value = p->getMetadata("a")
+  );
+  EQ(std::string("b"), value);
 }
