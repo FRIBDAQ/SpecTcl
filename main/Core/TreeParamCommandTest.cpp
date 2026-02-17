@@ -51,6 +51,10 @@ class TreeCommandTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(MetaSet_1); // Meta parameter set incorrect param count.
   CPPUNIT_TEST(MetaSet_2); // Meta param set no such tree parameter.
   CPPUNIT_TEST(MetaSet_3); // Meta param set ok.
+  CPPUNIT_TEST(MetaGet_1);  // incorrect param count.
+  CPPUNIT_TEST(MetaGet_2);  // no such tree param.
+  CPPUNIT_TEST(MetaGet_3);  // No such metadata.
+  CPPUNIT_TEST(MetaGet_4);  // Good get.
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -102,6 +106,11 @@ protected:
   void MetaSet_1();
   void MetaSet_2();
   void MetaSet_3();
+
+  void MetaGet_1();
+  void MetaGet_2();
+  void MetaGet_3();
+  void MetaGet_4();
 private:
   void ListAllCheck(const char* pComment);
   void ListMoeCheck(const char* pComment);
@@ -829,6 +838,52 @@ TreeCommandTest::MetaSet_3() {
   std::string value;
   CPPUNIT_ASSERT_NO_THROW(
     value = p->getMetadata("a")
+  );
+  EQ(std::string("b"), value);
+}
+
+// get metadata incorrect parameter count:
+
+void
+TreeCommandTest::MetaGet_1() {
+  CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
+  CPPUNIT_ASSERT_THROW(
+    pInterp->GlobalEval("::spectcl::serial::treeparameter -getmetadata moe a b"),
+    CTCLException
+  );
+}
+
+// Get metadata no such parameter:
+
+void 
+TreeCommandTest::MetaGet_2() {
+  CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
+  CPPUNIT_ASSERT_THROW(
+    pInterp->GlobalEval("::spectcl::serial::treeparameter -getmetadata moey a"),
+    CTCLException
+  );
+}
+
+// Get metadata with no suchmetadata.
+
+void
+TreeCommandTest::MetaGet_3() {
+  CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
+  CPPUNIT_ASSERT_THROW(
+    pInterp->GlobalEval("::spectcl::serial::treeparameter -getmetadata moe a"),
+    CTCLException
+  );
+}
+// Good get:
+
+void
+TreeCommandTest::MetaGet_4() { 
+  CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
+  m_pIndividual->getParameter()->setMetadata("a", "b");   // GIve it some pathetic metadata.
+
+  std::string value;
+  CPPUNIT_ASSERT_NO_THROW(
+    value = m_pInterp->GlobalEval("::spectcl::serial::treeparameter -getmetadata moe a")
   );
   EQ(std::string("b"), value);
 }
