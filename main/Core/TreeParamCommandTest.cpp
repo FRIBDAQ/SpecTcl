@@ -55,6 +55,9 @@ class TreeCommandTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(MetaGet_2);  // no such tree param.
   CPPUNIT_TEST(MetaGet_3);  // No such metadata.
   CPPUNIT_TEST(MetaGet_4);  // Good get.
+  CPPUNIT_TEST(DumpMeta_1);  // Bad # parameters.
+  CPPUNIT_TEST(DumpMeta_2);  // Bad parameter name.
+  CPPUNIT_TEST(DumpMeta_3);   // good dump.
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -111,6 +114,10 @@ protected:
   void MetaGet_2();
   void MetaGet_3();
   void MetaGet_4();
+
+  void DumpMeta_1();
+  void DumpMeta_2();
+  void DumpMeta_3();
 private:
   void ListAllCheck(const char* pComment);
   void ListMoeCheck(const char* pComment);
@@ -886,4 +893,39 @@ TreeCommandTest::MetaGet_4() {
     value = m_pInterp->GlobalEval("::spectcl::serial::treeparameter -getmetadata moe a")
   );
   EQ(std::string("b"), value);
+}
+
+// Dupm metadat with wrong # parameters.
+
+void
+TreeCommandTest::DumpMeta_1() {
+  CPPUNIT_ASSERT_THROW(
+    TreeTestSupport::getInterpreter()->GlobalEval("::spectcl::serial::treeparameter -dumpmetadata moe junk"),
+    CTCLException
+  );
+  
+}
+
+// Dump  meta fails with invalid prameter name.
+
+void
+TreeCommandTest::DumpMeta_2() {
+  CPPUNIT_ASSERT_THROW(
+    TreeTestSupport::getInterpreter()->GlobalEval("::spectcl::serial::treeparameter -dumpmetadata moey"),
+    CTCLException
+  );
+}
+// Dump metadata:
+
+void
+TreeCommandTest::DumpMeta_3() {
+  CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
+  m_pIndividual->getParameter()->setMetadata("a", "b");   // GIve it some pathetic metadata.
+  m_pIndividual->getParameter()->setMetadata("c", "d");
+
+  std::string value;
+  CPPUNIT_ASSERT_NO_THROW(
+    value = pInterp->GlobalEval("::spectcl::serial::treeparameter -dumpmetadata moe")
+  );
+  EQ(std::string("a b c d"), value);
 }
