@@ -216,7 +216,7 @@ CTreeParameterCommandActual::Usage()
   usage += "     treeparameter -create  name low high bins units\n";
   usage += "     treeparameter -setmetadata name meta-name meta-value\n";
   usage += "     treeparameter -getmetadata name meta-name\n";
-  usage += "     treeparameter -dumpmetdata name\n";
+  usage += "     treeparameter -dumpmetadata name\n";
   usage += "     treeparameter -version";
   //
   return usage;
