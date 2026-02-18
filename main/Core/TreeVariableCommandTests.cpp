@@ -514,7 +514,10 @@ static string usagesb("Usage\n\
     treevariable -set name value ?units?\n\
     treevariable -check name\n\
     treevariable -setchanged name\n\
-    treevariable -firetraces ?pattern?\n");
+    treevariable -firetraces ?pattern?\n\
+    treevariable -setmetadata name meta-name meta-value\n\
+    treevariable -getmetadata name meta-name\n\
+    treevariable -dumpmetadata name\n");
 
 void 
 TreeVarCommandTest::Usage()
