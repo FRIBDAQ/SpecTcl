@@ -6239,6 +6239,10 @@ class <classname>CTreeVariable</classname>
   void resetChanged();
   
   void Bind();
+  void    setMetadata(const char* name, const char* value);
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t&amp; getAllMetadata() const;
+
   static void BindVariables(CTCLInterpreter&amp; rInterp);
   static TreeVariableIterator begin();
   static TreeVariableIterator end();
@@ -6988,12 +6992,60 @@ d1  = t1 = 5.6;             // d1 is 5.6 as is t1.
                     </varlistentry>
                     
                 </variablelist>
-
+                <para>
+                    Since SpecTcl 7.0-004, tree variables can have associated metadata.
+                    This is in the form of key/value pairs.  The next set of methods simply
+                    delegate to the methods of the same name in the 
+                    <link linkend='ctreevariableprops3' endterm='ctreevariableprops3.title' />.
+                    This ensures that all Tree variable objects with the same name, share metadata.
+                </para>
+                <variablelist>
+                    <varlistentry>
+                            <term>
+                            <methodsynopsis>
+                                <type>void</type><methodname>setMetadata</methodname>
+                                <methodparam><type>const char*</type><parameter>name</parameter></methodparam>
+                                <methodparam><type>const char*</type><parameter>value</parameter></methodparam>
+                            </methodsynopsis>
+                            </term>
+                            <listitem>
+                                <para>
+                                    Sets a metadata value, see the same method in 
+                                    <link linkend='ctreevariableprops3' endterm='ctreevariableprops3.title' />.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                            <type>std::string</type><methodname>getMetadata</methodname>
+                            <methodparam><type>const char*</type><parameter>name</parameter></methodparam>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Retrieves the value of metadata, see the same method in 
+                                    <link linkend='ctreevariableprops3' endterm='ctreevariableprops3.title' />.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                            <type>const CMetadata::Metadata_t&amp; </type><methodname>getAllMetadata</methodname>
+                            <void /><modifier>const</modifier>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns a container with all of the metadata associated with this variable.
+                                    See the same method in 
+                                    <link linkend='ctreevariableprops3' endterm='ctreevariableprops3.title' />.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                </variablelist>
             </refsect1>
         </refentry>
-        <refentry >
+        <refentry id= 'ctreevariableprops3'>
             <refmeta>
-                <refentrytitle >CTreeVariableProperites</refentrytitle>
+                <refentrytitle id='ctreevariableprops3.title' >CTreeVariableProperites</refentrytitle>
                 <manvolnum>3spectcl</manvolnum>
             </refmeta>
             
@@ -7005,6 +7057,7 @@ d1  = t1 = 5.6;             // d1 is 5.6 as is t1.
             <refsynopsisdiv>
                 <synopsis>
 #include &lt;CTreeVariableProperties.h&gt;
+#include &lt;CMetadata.h&gt;
 
 class <classname>CTreeVariableProperties</classname>
 {
@@ -7023,6 +7076,9 @@ public:
   void    resetDefinitionChanged();
   void    fireTraces();
   void    Link(CTCLInterpreter&amp; rInterp);
+  void    setMetadata(const char* name, const char* value); 
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t&amp; getAllMetadata() const;
 };
                 </synopsis>
             </refsynopsisdiv>
@@ -7314,6 +7370,51 @@ public:
                                     value prior to this method call.
                                 </para>
                             </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term>
+                                <methodsynopsis>
+                                    <type>void</type><methodname>setMetadata</methodname>
+                                    <methodparam><type>const char*</type><parameter>name</parameter></methodparam>
+                                    <methodparam><type>const char*</type><parameter>value</parameter></methodparam>
+                                </methodsynopsis>
+                                </term>
+                                <listitem>
+                                    <para>
+                                        Sets the metadata item named <parameter>name</parameter> associated with
+                                        this parameter to <parameter>value</parameter>. If the metadata item does not
+                                        yet exist, it will be created.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term>
+                                    <methodsynopsis>
+                                        <type>std::string</type> <methodname>getMetadata</methodname>
+                                        <methodparam><type>const char*</type><parameter>name</parameter></methodparam>
+                                    </methodsynopsis>
+                                </term>
+                                <listitem>
+                                    <para>
+                                        Returns the value of the associated metadata <parameter>name</parameter>. If
+                                        that metadata does not yet exist, the <classname>CNoSuchObjectException</classname>
+                                        is thrown.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term><methodsynopsis>
+                                    <type>const CMetadata::Metadata_t&amp;</type><methodname>getAllMetadata</methodname>
+                                    <void /><modifier>const</modifier>
+                                </methodsynopsis></term>
+                                <listitem>
+                                    <para>
+                                        Returns a const reference to a container for all of the metadata associated with this
+                                        object. <type>CMetadata::Metadata_t</type> is a 
+                                        <classname>std::map&lt;std::string, std::string&gt;</classname> where keys are metadata names and values are the
+                                        associated metadata values.
+                                    </para>
+                                </listitem>
                         </varlistentry>
                     </variablelist>
                     

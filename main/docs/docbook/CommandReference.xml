@@ -2218,8 +2218,16 @@ treevariable <option>-setchanged</option> <replaceable>name</replaceable>
         <cmdsynopsis>
             <command>
 treevariable <option>-firetraces</option> <replaceable>?pattern?</replaceable>
-            </command>
-        </cmdsynopsis>
+            </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treevariable <option>-setmetadata</option> <replaceable>var-name meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treevariable <option>-getmetadata</option> <replaceable>var-name meta-name</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treevariable <option>-dumpmetadata</option> <replaceable>var-name</replaceable>
+        </command></cmdsynopsis>
                 
 
     </refsynopsisdiv>
@@ -2244,6 +2252,10 @@ treevariable <option>-firetraces</option> <replaceable>?pattern?</replaceable>
             meaning of the remaining parameters on the command line. The
             following section describes each valid switch,
             its parameters and what it does.
+        </para>
+        <para>
+            Since SpecTcl version 7.0-004, tree variables support associated metadata.
+            Metadata are arbitrary name/value pairs you can use to document the meaning of the variable.
         </para>
     </refsect1>
     
@@ -2396,7 +2408,51 @@ treevariable <option>-firetraces</option> <replaceable>?pattern?</replaceable>
                         their state.
                     </para>
                 </listitem>
-            </varlistentry>        
+            </varlistentry> 
+            <varlistentry>
+                    <term>
+                     <cmdsynopsis><command>
+treevariable <option>-setmetadata</option> <replaceable>var-name meta-name meta-value</replaceable>
+                     </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Sets a metadata for variable <parameter>var-name</parameter> named
+                            <parameter>meta-name</parameter> to <parameter>meta-value</parameter>
+                            If the metadata <parameter>meta-name</parameter> does not yet exist, 
+                            it is created.  If it does exist its value is overwritten.
+                        </para>
+                    </listitem>
+            </varlistentry>    
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treevariable <option>-getmetadata</option> <replaceable>var-name meta-name</replaceable>
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the value of the meta data named <parameter>meta-name</parameter>
+                            associated with the tree variable <parameter>var-name</parameter>
+                            it is an error to request the value of a <parameter>meta-name</parameter>
+                            that does not yet exist.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treevariable <option>-dumpmetadata</option> <replaceable>var-name</replaceable>
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns all of the metadata associated with <parameter>var-name</parameter>.
+                            The metadata are returned as a Tcl dict with keys that are the metadata names
+                            and values their associated values.
+                        </para>
+                    </listitem>
+            </varlistentry>
         </variablelist>
     </refsect1>
     
@@ -2475,7 +2531,24 @@ treevariable <option>-firetraces</option> <replaceable>?pattern?</replaceable>
 <computeroutput>{vars.w1 1.3 KeV/channel}</computeroutput>                
             </command></screen>
         </example>
-        
+        <para>
+        In the example below, assume there is a tree variable named <literal>var</literal>
+        </para>
+        <example>
+            <title>Manipulatiing metadata</title>
+            <screen>
+<prompt>(treeparam) 1 % </prompt><command>treevariable -setmetadata var description "Some test metadata"</command>
+<prompt>(treeparam) 2 % </prompt><command>treevariable -getmetadata var description</command>
+<computeroutput>Some test metadata</computeroutput>
+<prompt>(treeparam) 3 % </prompt><command>treevariable -dumpmetadata var</command>
+<computeroutput>description {Some test metadata}</computeroutput>
+            </screen>
+        </example>
+        <para>
+            Note that in the output from the <option>-dumpmetadata</option> operation, the output is the string
+            representation of a dict with a key <literal>description</literal> with the associated value
+            <literal>Some test metadata</literal>.
+        </para>
     </refsect1>
     
     <refsect1>
