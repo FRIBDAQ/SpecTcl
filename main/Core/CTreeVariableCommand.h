@@ -95,7 +95,9 @@ protected:
 		   int argc, const char** argv);
   int FireTraces(CTCLInterpreter& rInterp,
 		 int argc, const char** argv);
-
+  int setMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+  int getMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+  int getAllMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
   std::string FormatVariable(CTreeVariableProperties* pProperties);
   std::string Usage();
   
