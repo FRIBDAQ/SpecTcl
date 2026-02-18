@@ -92,15 +92,17 @@ public:
   bool valueChanged();
   void resetChanged();
   void Initialize(std::string name, double value, std::string units);
+  // metadata methods Delagate to our properties. Issue #229
+  void    setMetadata(const char* name, const char* value);
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t& getAllMetadata() const;
+
   static void BindVariables(CTCLInterpreter& rInterp);
   static TreeVariableIterator begin();
   static TreeVariableIterator end();
   static TreeVariableIterator find(std::string name);
   static int size();
-  // metadata methods Delagate to our properties.
-  void    setMetadata(const char* name, const char* value);
-  std::string getMetadata(const char* name);
-  const CMetadata::Metadata_t* getAllMetadata() const;
+  
 private:
   void LinkProperties(std::string name, std::string units, double value = 0.0);
   CTreeVariableProperties* getBoundVariable() const;
