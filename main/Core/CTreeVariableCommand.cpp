@@ -538,7 +538,7 @@ CTreeVariableCommandActual::setMetadata(CTCLInterpreter& interp, std::vector<CTC
     interp.setResult(msg);
     return TCL_ERROR;
   }
-  p->second->setMetadata(mname.c_str(), vname.c_str());
+  p->second->setMetadata(mname.c_str(), mvalue.c_str());
   return TCL_OK;
 }
 

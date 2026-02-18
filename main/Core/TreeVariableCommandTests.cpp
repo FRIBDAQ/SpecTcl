@@ -17,7 +17,7 @@
 #include "TCLInterpreter.h"
 #include "TCLResult.h"
 #include "TCLList.h"
-
+#include "TCLException.h"
 
 #include <string>
 #include <vector>
@@ -41,6 +41,9 @@ class TreeVarCommandTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(CheckChanged);
   CPPUNIT_TEST(Usage);
   CPPUNIT_TEST(Traces);
+  CPPUNIT_TEST(SetMeta_1);    // WRong # params.
+  CPPUNIT_TEST(SetMeta_2);    // No such variable.
+  CPPUNIT_TEST(SetMeta_3);    // correct.
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -79,6 +82,9 @@ protected:
   void CheckChanged();
   void Usage();
   void Traces();
+  void SetMeta_1();
+  void SetMeta_2();
+  void SetMeta_3();
 private:
   // Utilities:
 
@@ -572,4 +578,27 @@ TreeVarCommandTest::Traces()
   status = (*m_pCommand)(*m_pInterp, objv);
   EQMSG("trace status", TCL_OK, status);
   EQMSG("trace trace count", 1, traces);
+}
+
+void
+TreeVarCommandTest::SetMeta_1() {
+  CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("::spectcl::serial::treevariable -setmetadata indiv a b c"),
+    CTCLException
+  );
+}
+
+void
+TreeVarCommandTest::SetMeta_2() {
+  CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("::spectcl::serial::treevariable -setmetadata i a b"),
+    CTCLException
+  );
+}
+void
+TreeVarCommandTest::SetMeta_3() {
+  CPPUNIT_ASSERT_NO_THROW(
+    m_pInterp->GlobalEval("::spectcl::serial::treevariable -setmetadata indiv a b")
+  );
+  EQ(std::string("b"), m_pIndividual->getMetadata("a"));
 }
