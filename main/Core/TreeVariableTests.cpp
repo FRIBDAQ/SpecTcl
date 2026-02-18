@@ -13,11 +13,16 @@
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
 #include "TreeTestSupport.h"
+#include "CTreeException.h"
 #include "CTreeVariableProperties.h"
+#define private public             // Allow some whiteboxing.
 #include "CTreeVariable.h"
+#undef private
 #include "TCLInterpreter.h"
 #include "TCLVariable.h"
 #include "ListVisitor.h"
+#include "CMetadata.h"
+#include <CNoSuchObjectException.h>
 
 #include <tcl.h>
 
@@ -40,6 +45,13 @@ class TreeVarTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(AutoOps);
   CPPUNIT_TEST(ChangeMonitoring);
   CPPUNIT_TEST(AssignFromProperties);
+  CPPUNIT_TEST(SetMeta_1);     // Throws if not bound.
+  CPPUNIT_TEST(SetMeta_2);     // works ok.
+  CPPUNIT_TEST(GetMeta_1);     // not bound.
+  CPPUNIT_TEST(GetMeta_2);     // no such item.
+  CPPUNIT_TEST(GetMeta_3);     // ok.
+  CPPUNIT_TEST(DumpMeta_1);    // Not bound.
+  CPPUNIT_TEST(DumpMeta_2);    // ok.
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -61,6 +73,14 @@ protected:
   void AutoOps();
   void ChangeMonitoring();
   void AssignFromProperties();
+
+  void SetMeta_1();
+  void SetMeta_2();
+  void GetMeta_1();
+  void GetMeta_2();
+  void GetMeta_3();
+  void DumpMeta_1();
+  void DumpMeta_2();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TreeVarTests);
@@ -278,4 +298,85 @@ TreeVarTests::AssignFromProperties()
 
   b = a;
   EQMSG("value : ", 1.5, (double)b);
+}
+
+void
+TreeVarTests::SetMeta_1() {
+  CTreeVariable v;   // unbound.
+  CPPUNIT_ASSERT_THROW(
+    v.setMetadata("a", "b"),
+    CTreeException
+  );
+}
+void
+TreeVarTests::SetMeta_2() {
+  CTreeVariable v("v", 1.0, "cm");  // BOund.
+  CPPUNIT_ASSERT_NO_THROW(
+    v.setMetadata("a", "b")
+  );
+  // See the property meta data got set.
+
+  auto p = v.getBoundVariable();
+  std::string value;
+  CPPUNIT_ASSERT_NO_THROW(
+    value = p->getMetadata("a");
+  );
+  EQ(std::string("b"), value);
+}
+
+void
+TreeVarTests::GetMeta_1() {
+  CTreeVariable v; // not bound.
+  CPPUNIT_ASSERT_THROW(
+    v.getMetadata("a"),
+    CTreeException
+  );
+}
+void
+TreeVarTests::GetMeta_2() {
+  CTreeVariable v("test", 1.0, "cm");
+  CPPUNIT_ASSERT_THROW(
+    v.getMetadata("a"),
+    CNoSuchObjectException
+  );
+}
+
+void 
+TreeVarTests::GetMeta_3() {
+  CTreeVariable v("test", 1.0, "cm");
+  v.setMetadata("a", "b");
+  std::string value;
+  CPPUNIT_ASSERT_NO_THROW(
+    value = v.getMetadata("a")
+  );
+  EQ(std::string("b"), value);
+}
+
+void
+TreeVarTests::DumpMeta_1() {
+  CTreeVariable v;
+  CPPUNIT_ASSERT_THROW(
+    v.getAllMetadata(),
+    CTreeException
+  );
+}
+
+void 
+TreeVarTests::DumpMeta_2() {
+  CTreeVariable v("tst", 1.0, "cm");
+  v.setMetadata("z", "a");
+  v.setMetadata("y", "b");
+  v.setMetadata("x", "c");
+
+  std::vector<std::pair<std::string, std::string>> sb = {
+    {"x", "c"},  {"y", "b"}, {"z", "a"}
+  };    // Map iteration is alpha by key.
+
+  const auto& md = v.getAllMetadata();   // Can't test no throw because of how refs work.
+  int i = 0;
+  for (const auto& p : md) {
+    EQ(p.first, sb[i].first);
+    EQ(p.second, sb[i].second);
+    i++;
+  }
 }
