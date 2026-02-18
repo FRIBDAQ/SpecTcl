@@ -298,6 +298,35 @@ CTreeVariableProperties::Link(CTCLInterpreter& rInterp)
   m_dValue = value;		// Ensure we keep value if there's one.
 
 }
-
-
-
+/**
+ * setMetadata
+ *   Set a metadata item:
+ * 
+ * @param name - name of the metadata to set.
+ * @param value - Value of the metadata item to set.
+ * @note if 'name' does not already exist it is created. If it does it is overwritten.
+ */
+void
+CTreeVariableProperties::setMetadata(const char* name, const char* value) {
+  m_metadata.set(name, value);
+}
+/**
+ * getMetadata
+ *   @param name -name of a metadata item to get.
+ *   @return std::string -value of the metadta 'name'.
+ *   @throw  CNoSuchObjectException - if there's no such metadata.
+ */
+std::string
+CTreeVariableProperties::getMetadata(const char* name) {
+  return m_metadata.get(name);
+}
+/**
+ *  getAllMetadata 
+ * 
+ * @return const CMetadata::Metadata_t* - const ref to the underlying map holding
+ * the metadata.  Intended to be iterated over e.g.
+ */
+const CMetadata::Metadata_t&
+CTreeVariableProperties::getAllMetadata() const {
+  return  m_metadata.get_all();
+}

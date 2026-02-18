@@ -31,6 +31,7 @@
 #define CTREEVARIABLEPROPERTIES_H
 
 #include <string>
+#include <CMetadata.h>
 
 // Forward definitions:
 
@@ -70,7 +71,10 @@ private:
    * Tcl_UpdateLinkedVar for this.
    */
   bool m_fValueChanged;
-  
+  /**
+   * tree variable metadata are shared across instances.
+   */
+  CMetadata m_metadata;
 public:
   virtual ~CTreeVariableProperties();
   CTreeVariableProperties(std::string name, double value = 0.0, 
@@ -89,7 +93,9 @@ public:
   bool    valueChanged();
   void    fireTraces();
   void    Link(CTCLInterpreter& rInterp);
-  
+  void    setMetadata(const char* name, const char* value);  // Issue #229
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t& getAllMetadata() const;
 };
 
 
