@@ -4123,6 +4123,7 @@ class <classname>CTreeParameter</classname>
   void   setChanged();
   void   resetChanged();
   static void ResetAll();
+  CParameter* getParameter();
   
   
   static std::multimap&lt;std::string, CTreeParameter*&gt;::iterator begin();
@@ -5265,6 +5266,19 @@ tp2 = ++tp1;      // Both tp2 and tp1 tree parameters.
                                 method, which marks them as invalid.
                             </para>
                         </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                            <type>CParameter*</type>
+                            <methodname>getParameter</methodname><void />
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns a pointer to the underlying SpecTcl parameter that is
+                                    bound to this tree parameter object.  If the tree parameter has not yet
+                                    been bound, <literal>nullptr</literal> is returned.
+                                </para>
+                            </listitem>
                     </varlistentry>
                 </variablelist>
                 <para>
@@ -22863,7 +22877,7 @@ class CMatchNamedItem {
     <refsynopsisdiv>
         <synopsis>
 #include &lt;Parameter.h&gt;
-
+#include &lt;CMetadata.h&gt;
 class CParameter : public CNamedItem {
 
  public:
@@ -22888,6 +22902,9 @@ class CParameter : public CNamedItem {
   Float_t RawToMapped(Float_t Raw);
   Float_t MappedToRaw(Float_t Mapped);
 
+  void setMetadata(const char* name, const char* value);
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t&amp; getAllMetadata() const;
 };
         </synopsis>
     </refsynopsisdiv>
@@ -23211,8 +23228,48 @@ class CParameter : public CNamedItem {
                     </para>
                 </listitem>
             </varlistentry>
-  
-  
+            <varlistentry>
+                    <term><methodsynopsis>
+                    <type>void</type> <methodname>setMetadata</methodname>
+                    <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                    <methodparam><type>const char*</type> <parameter>value</parameter></methodparam>
+                    </methodsynopsis></term>
+                    <listitem>
+                        <para>
+                            Metadata associated with paramters was introduced SpecTcl 7.0-004.  This method sets
+                            the value of metadata named <parameter>name</parameter> to <parameter>name</parameter>.
+                            If there is no metadata named <parameter>name</parameter> a new metadata item
+                            is created. If it does exist, its value is overwritten with <parameter>value</parameter>
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <type>std::string</type><methodname>getMetadata</methodname>
+                        <methodparam><type>const char*</type><parameter>name</parameter></methodparam>
+                    </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Returns the value of metadata named <parameter>name</parameter>. If no metadata for this
+                    parameter named <parameter>name</parameter> exists a 
+                    <classname>CNoSuchObjectException</classname> exception is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                <methodsynopsis>
+                    <type>const CMetadata::Metadata_t&amp;</type><methodname>getAllMetadata</methodname>
+                    <void /><modifier>const</modifier>
+                </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Returns a const refernce to the metadata for the parameter.  The 
+                    <type>CMetadata::Metadata_t</type> can be treated as  a 
+                    <classname>std::map&lt;std::string, std::string&gt;</classname> where the keys are
+                    metadata names and values their associated values.
+                </para></listitem>
+            </varlistentry>
         </variablelist>
     </refsect1>
 </refentry>
@@ -34695,6 +34752,100 @@ virtual std::string  type() const = 0;
 </refentry>
 <refentry>
     <refmeta>
+        <refentrytitle>CMetadata</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CMetadata</refname>
+        <refpurpose>Container for object metadata</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;CMetadata.h&gt;
+
+class CMetadata {
+public:
+    typedef std::map&lt;std::string, std::string&gt; Metadata_t;
+
+public:
+    void set(const char* name, const char* value);
+    std::string get(const char* name) const;
+    const Metadata_t&amp; get_all() const;
+
+};
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Beginning with SpecTcl version 7.0-004, many SpecTcl objects have
+            associated metadata. Metadata are just keyword value pair.   The
+            <classname>CMetadata</classname> is the container for object metadata.
+            Note that objects with metadata will provide a public programmatic 
+            mechanism to manipulate their metadata.  For example,
+            <classname>CParameter</classname> provides direct methods to access
+            its metadata while <classname>CTreeParameter</classname> provides
+            a <methodname>getParameter</methodname> method to access its underlying
+            parameter and, hence, its metadata.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+        <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <type>void</type><methodname>set</methodname>
+                        <methodparam><type>const char*</type><parameter>name</parameter></methodparam>
+                        <methodparam><type>const char*</type><parameter>value</parameter></methodparam>
+                    </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Sets the value of the metadata named <parameter>name</parameter> to <parameter>value</parameter>.
+                    If <parameter>name</parameter> does not yet exist, it is crated.  If it does exist its value
+                    is overwritten.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <type>std::string</type> <methodname>get</methodname>
+                        <methodparam><type>const char*</type><parameter>name</parameter></methodparam>
+                    </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Returns the value of the metadata named <parameter>name</parameter>. 
+                    If <parameter>name</parameter> does not exist, a 
+                    <classname>CNoSuchObjectException</classname> is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <type>const Metadata_t&amp;</type><methodname>get_all</methodname>
+                        <void /><modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Returns a const reference to the <type>CMetadata::Metadata_t</type> that contains
+                    all of the metadata.  See <literal>TYPES</literal> below.
+                </para></listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>TYPES</title>
+        <para>
+            The <classname>CMetadata</classname> publicizes a single type: 
+            <type>CMetadata::Metadata_t</type>.  This is a synonym for a
+            <classname>std::map&lt;std::string, std::string&gt;</classname> that contains the metadata.
+            Map keys are metadata item names while map values are the values of the metadata of the
+            associated map key.
+        </para>
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
         <refentrytitle>CWaveform</refentrytitle>
         <manvolnum>3SpecTcl</manvolnum>
     </refmeta>
@@ -34705,10 +34856,11 @@ virtual std::string  type() const = 0;
     <refsynopsisdiv>
         <programlisting>
 #include &lt;CWaveForm.h&gt;
+#include &lt;CMetadata.h&gt;
 
 class CWaveform : public CNamedItem {
 public:
-    typedef std::map&lt;std::string, std::string&gt; Metadata_t;
+    typedef CMetadata::Metadata_t Metadata_t;
     typedef std::vector&lt;uint16_t&gt;  WaveForm_t;
     typedef std::vector&lt;double&gt;    Fit_t; 
 public:
@@ -35165,6 +35317,7 @@ for(auto&amp; p : d) {
         </para>
     </refsect1>
 </refentry>
+
 <refentry>
     <refmeta>
         <refentrytitle>CXdrFilterOutputStage</refentrytitle>
