@@ -44,6 +44,13 @@ class TreeVarCommandTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(SetMeta_1);    // WRong # params.
   CPPUNIT_TEST(SetMeta_2);    // No such variable.
   CPPUNIT_TEST(SetMeta_3);    // correct.
+  CPPUNIT_TEST(GetMeta_1);   // wrong # params.
+  CPPUNIT_TEST(GetMeta_2);   // no such variable.
+  CPPUNIT_TEST(GetMeta_3);   // No such metadta.
+  CPPUNIT_TEST(GetMeta_4);   // Ok.
+  CPPUNIT_TEST(DumpMeta_1);  // Wrong # params
+  CPPUNIT_TEST(DumpMeta_2);  // No such var.
+  CPPUNIT_TEST(DumpMeta_3);  // ok.
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -85,6 +92,13 @@ protected:
   void SetMeta_1();
   void SetMeta_2();
   void SetMeta_3();
+  void GetMeta_1();
+  void GetMeta_2();
+  void GetMeta_3();
+  void GetMeta_4();
+  void DumpMeta_1();
+  void DumpMeta_2();
+  void DumpMeta_3();
 private:
   // Utilities:
 
@@ -601,4 +615,60 @@ TreeVarCommandTest::SetMeta_3() {
     m_pInterp->GlobalEval("::spectcl::serial::treevariable -setmetadata indiv a b")
   );
   EQ(std::string("b"), m_pIndividual->getMetadata("a"));
+}
+
+void
+TreeVarCommandTest::GetMeta_1() {
+  CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("::spectcl::serial::treevariable -getmetadata indiv a b"),
+    CTCLException
+  );
+}
+void 
+TreeVarCommandTest::GetMeta_2() {
+  CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("::spectcl::serial::treevariable -getmetadata i a"),
+    CTCLException
+  );
+}
+void 
+TreeVarCommandTest::GetMeta_3() {
+  CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("::spectcl::serial::treevariable -getmetadata indiv a"),
+    CTCLException
+  );
+}
+void 
+TreeVarCommandTest::GetMeta_4() {
+  m_pIndividual->setMetadata("a", "b");
+  std::string value;
+  CPPUNIT_ASSERT_NO_THROW(
+    value = m_pInterp->GlobalEval("::spectcl::serial::treevariable -getmetadata indiv a")
+  );
+  EQ(std::string("b"), value);
+}
+
+void
+TreeVarCommandTest::DumpMeta_1() {
+  CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("::spectcl::serial::treevariable -dumpmetadata indiv a"),
+    CTCLException
+  );
+}
+void
+TreeVarCommandTest::DumpMeta_2() {
+   CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("::spectcl::serial::treevariable -dumpmetadata indivvvvv"),
+    CTCLException
+  );
+}
+void
+TreeVarCommandTest::DumpMeta_3() {
+  m_pIndividual->setMetadata("a", "b");
+  m_pIndividual->setMetadata("c", "d");
+  std::string result;
+   CPPUNIT_ASSERT_NO_THROW(
+    result = m_pInterp->GlobalEval("::spectcl::serial::treevariable -dumpmetadata indiv")
+  );
+  EQ(std::string("a b c d"), result);
 }
