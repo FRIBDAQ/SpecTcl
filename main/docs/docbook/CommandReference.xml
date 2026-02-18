@@ -1661,6 +1661,15 @@ treeparameter <option>-check</option> <replaceable>name</replaceable>
 treeparameter <option>-uncheck</option> <replaceable>name</replaceable>                
             </command>
         </cmdsynopsis>
+        <cmdsynopsis><command>
+treeparameter <option>-setmetadata</option> <replaceable>name meta-name meta_value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treeparameter <option>-getmetadata</option> <replaceable>name meta-name</replaceable>        
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treeparameter <option>-dumpmetadata</option> <replaceable>name</replaceable>
+        </command></cmdsynopsis>
         <cmdsynopsis>
             <command>
 treeparameter <option>-version</option>
@@ -1682,6 +1691,12 @@ treeparameter <option>-version</option>
            The switch also defines the number and meaning of the remaining
            command line parameters. Each of the possibilities is described in
            <literal>COMMAND FORMATS</literal> section below.
+        </para>
+        <para>
+            Beginning with version 7.0-004, the tree parameter command can also be used to manipulate metadata
+            on the underlying parameter.  Metadata are supplemental information associated with the paramter
+            that takes the form of name/value pairs. Names must be unique and can be arbitrary strings. Values
+            can be arbitrary strings as well.
         </para>
     </refsect1>
     
@@ -1972,6 +1987,50 @@ treeparameter <option>-uncheck</option> <replaceable>name</replaceable>
                 </listitem>
             </varlistentry>
             <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treeparameter <option>-setmetadata</option> <replaceable>name meta-name meta_value</replaceable>
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Sets a piece of metadata associated wit tree parameter <parameter>name</parameter>
+                            The name of the metadata is <parameter>meta-name</parameter>. It will be given the
+                            new value <parameter>meta_value</parameter>.  If there is no metadata named
+                            <parameter>meta-name</parameter> a new metadata item will be created. If 
+                            <parameter>meta-name</parameter> does exist, its value will be replaced.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treeparameter <option>-getmetadata</option> <replaceable>name meta-name</replaceable>        
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the value of the metadata named <parameter>meta-name</parameter>
+                            for tree parameter <parameter>name</parameter>.  If there is no such
+                            <parameter>meta-name</parameter> an error is thrown.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treeparameter <option>-dumpmetadata</option> <replaceable>name</replaceable>
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Dumps all metadata for tree parameter <parameter>name</parameter>.
+                            The metadata are dumped as a Tcl dict.  The keys of the dict are
+                            metadata names, the values are the value of that metadata name.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
                 <term>
                 <cmdsynopsis>
                     <command>
@@ -2077,6 +2136,29 @@ treeparameter -list event.raw*
 <computeroutput>0</computeroutput>
             </command></screen>
          </example>
+         <para>
+            The example below assumes there is a tree parameter named <literal>tp</literal>
+         </para>
+         <example>
+            <title>treeparameter metadata manipulation</title>
+            <screen>
+<prompt>(treeparam) 1% </prompt> <command>treeparameter -setmetadata tp calibration none</command>
+<prompt>(treeparam) 2% </prompt><command>treeparameter -getmetadata tp calibration</command>
+<computeroutput>
+none
+</computeroutput>
+<prompt>(treeparam) 3% </prompt><command>treeparameter -setmetadata tp detector implantation</command>
+<prompt>(treeparam) 4% </prompt><command>treeparameter -dumpmetadata tp</command>
+<computeroutput>
+calibration none detector implantation
+</computeroutput>
+            </screen>
+         </example>
+         <para>
+            Note that the output from the <option>-dumpmetadata</option> operation is the string equivalent of a dict
+            with a key <literal>calibration</literal> that has value <literal>none</literal> and a key
+            <literal>detector</literal> with value <literal>implantation</literal>
+         </para>
     </refsect1>
     
     <refsect1>
