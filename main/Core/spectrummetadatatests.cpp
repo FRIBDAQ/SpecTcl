@@ -24,10 +24,16 @@ class TestMetadata : public CppUnit::TestFixture {
     CPPUNIT_TEST(get_2);
     CPPUNIT_TEST(getall);
 
-    CPPUNIT_TEST(cmdset_1);   // wrong param count.
-    CPPUNIT_TEST(cmdset_2);   // No such spetrum.
-    CPPUNIT_TEST(cmdset_3);   // good set.
     // Tests for the spectrum command.
+
+    CPPUNIT_TEST(cmdset_1);   // wrong param count.
+    CPPUNIT_TEST(cmdset_2);   // No such spectrum.
+    CPPUNIT_TEST(cmdset_3);   // good set.
+    
+    CPPUNIT_TEST(cmdget_1);   // wrong param count.
+    CPPUNIT_TEST(cmdget_2);   // No such spectrum
+    CPPUNIT_TEST(cmdget_3);   // No such metadata.
+    CPPUNIT_TEST(cmdget_4);   // good get.
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -41,6 +47,11 @@ protected:
     void cmdset_1();
     void cmdset_2();
     void cmdset_3();
+
+    void cmdget_1();
+    void cmdget_2();
+    void cmdget_3();
+    void cmdget_4();
 private:
     CParameter*   m_pParam;
     CSpectrum* m_pSpectrum;
@@ -149,5 +160,37 @@ TestMetadata::cmdset_3() {
     // Make sure it got set:
 
     std::string value = m_pSpectrum->getMetadata("a");
+    EQ(std::string("b"), value);
+}
+
+void TestMetadata::cmdget_1() {
+    // wrong # of parameters.
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectrum -getmetadata test a b"),
+        CTCLException
+    );
+}
+void TestMetadata::cmdget_2() {
+    // No such spectrum.
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectrum -getmetadata testy a"),
+        CTCLException
+    );
+}
+void TestMetadata::cmdget_3() {
+    // no such metadata:
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectrum -getmetadata test a"),
+        CTCLException
+    );
+}
+void TestMetadata::cmdget_4() {
+    // good get:
+    m_pSpectrum->setMetadata("a", "b");
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(
+        value = m_pInterp->GlobalEval("spectrum -getmetadata test a")
+    );
     EQ(std::string("b"), value);
 }
