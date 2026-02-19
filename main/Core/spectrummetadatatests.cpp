@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <CNoSuchObjectException.h>
+#include <TCLException.h>
 
 #include <TCLInterpreter.h>
 
@@ -23,6 +24,9 @@ class TestMetadata : public CppUnit::TestFixture {
     CPPUNIT_TEST(get_2);
     CPPUNIT_TEST(getall);
 
+    CPPUNIT_TEST(cmdset_1);   // wrong param count.
+    CPPUNIT_TEST(cmdset_2);   // No such spetrum.
+    CPPUNIT_TEST(cmdset_3);   // good set.
     // Tests for the spectrum command.
     CPPUNIT_TEST_SUITE_END();
 
@@ -33,6 +37,10 @@ protected:
     void get_2();
 
     void getall();
+
+    void cmdset_1();
+    void cmdset_2();
+    void cmdset_3();
 private:
     CParameter*   m_pParam;
     CSpectrum* m_pSpectrum;
@@ -42,13 +50,14 @@ public:
     void setUp() {
         m_pParam = SpecTcl::getInstance()->AddParameter("test", 0, "arg");
         m_pSpectrum = SpecTcl::getInstance()->Create1D("test", keLong, *m_pParam, 100);
+        SpecTcl::getInstance()->AddSpectrum(*m_pSpectrum);
 
         m_pInterp = new CTCLInterpreter;
         m_pCommand = new CSpectrumCommand(m_pInterp, "spectrum");
     }
     void tearDown() {
-        delete SpecTcl::getInstance()->RemoveSpectrum("test");
-        delete SpecTcl::getInstance()->RemoveParameter("test");
+        SpecTcl::getInstance()->RemoveSpectrum("test");
+        SpecTcl::getInstance()->RemoveParameter("test");
 
         delete m_pCommand;
         delete m_pInterp;
@@ -109,4 +118,36 @@ TestMetadata::getall() {
         EQ(p.second, sb[i].second);
         i++;
     }
+}
+
+void
+TestMetadata::cmdset_1() {
+    // incorrect command parameter count for spectrum -setmetadata
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectrum -setmetadata test a b c"),
+        CTCLException
+    );
+}
+void 
+TestMetadata::cmdset_2() {
+    // NO such spectrum:
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectrum -setmetadata testy a b"),
+        CTCLException
+    );
+}
+void
+TestMetadata::cmdset_3() {
+    // can set by command.
+
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("spectrum -setmetadata test a b ")
+    );
+
+    // Make sure it got set:
+
+    std::string value = m_pSpectrum->getMetadata("a");
+    EQ(std::string("b"), value);
 }
