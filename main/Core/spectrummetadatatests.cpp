@@ -35,20 +35,20 @@ protected:
     void getall();
 private:
     CParameter*   m_pParam;
-    CSpectrum1DL* m_pSpectrum;
+    CSpectrum* m_pSpectrum;
     CTCLInterpreter* m_pInterp;
     CSpectrumCommand* m_pCommand;
 public:
     void setUp() {
-        m_pParam = new CParameter("test", 0, "arg");
-        m_pSpectrum = new CSpectrum1DL("test", 1, *m_pParam, 100);
+        m_pParam = SpecTcl::getInstance()->AddParameter("test", 0, "arg");
+        m_pSpectrum = SpecTcl::getInstance()->Create1D("test", keLong, *m_pParam, 100);
 
         m_pInterp = new CTCLInterpreter;
         m_pCommand = new CSpectrumCommand(m_pInterp, "spectrum");
     }
     void tearDown() {
-        delete m_pSpectrum;
-        delete m_pParam;
+        delete SpecTcl::getInstance()->RemoveSpectrum("test");
+        delete SpecTcl::getInstance()->RemoveParameter("test");
 
         delete m_pCommand;
         delete m_pInterp;
