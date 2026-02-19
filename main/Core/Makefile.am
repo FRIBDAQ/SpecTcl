@@ -517,7 +517,7 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 				TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
 				CParameterMappingTest.cpp CAxisTests.cpp \
 				CParameterMappingTest.h CAxisTests.h \
-				m2projtest.cpp factoryTests.cpp
+				m2projtest.cpp factoryTests.cpp spectrummetadatatests.cpp
 
 treeParamTests_CXXFLAGS  = $(commonTestCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)

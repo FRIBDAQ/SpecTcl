@@ -666,6 +666,40 @@ CSpectrum::needParameter() const
 {
   return kfTRUE;
 }
+// Issue #229 - add metadata support to SpecTcl objects... delegattes to m_metadata methods.
+
+/**
+ * Set a metadata item.
+ * @param name -name of the item.
+ * @param value - Value for the item.
+ * @note if there's no metadata named 'name', a new one is created, otherwise
+ * the value is ovewritten with the new 'value'.
+ */
+void
+CSpectrum::setMetadata(const char* name, const char* value) {
+  m_metadata.set(name, value);
+}
+/**
+ * get a metadata item.
+ * 
+ * @param name - name of the item to get.
+ * @return std::string - value of the item.
+ * @note If there's no matching metadata, CNoSuchObjectException is thrown.
+ */
+std::string
+CSpectrum::getMetadata(const char* name) {
+  return m_metadata.get(name);
+}
+/**
+ *  getAllMetadata
+ *   @return const CMetadata::Metadata_t& - the container of all the metadata
+ * for this object. This can be treated as std::map<std::string, std::string>...
+ * a map keyed with metadata name, whose values are the values of that metadata.
+ */
+const CMetadata::Metadata_t&
+CSpectrum::getAllMetadata() const {
+ return m_metadata.get_all();
+}
 /**
  * adjustedLimits
  *    Return the real coordinate limits of the spectrum for a specific axis
