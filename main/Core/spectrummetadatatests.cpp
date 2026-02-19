@@ -34,6 +34,10 @@ class TestMetadata : public CppUnit::TestFixture {
     CPPUNIT_TEST(cmdget_2);   // No such spectrum
     CPPUNIT_TEST(cmdget_3);   // No such metadata.
     CPPUNIT_TEST(cmdget_4);   // good get.
+
+    CPPUNIT_TEST(cmddump_1);   // wrong # params.
+    CPPUNIT_TEST(cmddump_2);   // no such spectrum.
+    CPPUNIT_TEST(cmddump_3);   // good dump.
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -52,6 +56,10 @@ protected:
     void cmdget_2();
     void cmdget_3();
     void cmdget_4();
+
+    void cmddump_1();
+    void cmddump_2();
+    void cmddump_3();
 private:
     CParameter*   m_pParam;
     CSpectrum* m_pSpectrum;
@@ -163,21 +171,24 @@ TestMetadata::cmdset_3() {
     EQ(std::string("b"), value);
 }
 
-void TestMetadata::cmdget_1() {
+void
+TestMetadata::cmdget_1() {
     // wrong # of parameters.
     CPPUNIT_ASSERT_THROW(
         m_pInterp->GlobalEval("spectrum -getmetadata test a b"),
         CTCLException
     );
 }
-void TestMetadata::cmdget_2() {
+void
+TestMetadata::cmdget_2() {
     // No such spectrum.
     CPPUNIT_ASSERT_THROW(
         m_pInterp->GlobalEval("spectrum -getmetadata testy a"),
         CTCLException
     );
 }
-void TestMetadata::cmdget_3() {
+void 
+TestMetadata::cmdget_3() {
     // no such metadata:
 
     CPPUNIT_ASSERT_THROW(
@@ -185,7 +196,8 @@ void TestMetadata::cmdget_3() {
         CTCLException
     );
 }
-void TestMetadata::cmdget_4() {
+void 
+TestMetadata::cmdget_4() {
     // good get:
     m_pSpectrum->setMetadata("a", "b");
     std::string value;
@@ -193,4 +205,37 @@ void TestMetadata::cmdget_4() {
         value = m_pInterp->GlobalEval("spectrum -getmetadata test a")
     );
     EQ(std::string("b"), value);
+}
+
+void 
+TestMetadata::cmddump_1() {
+    // Wrong # params
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectrum -dumpmetadata test a"),
+        CTCLException
+    );
+}
+void
+TestMetadata::cmddump_2() {
+    // no such spectrum.
+
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("spectrum -dumpmetadata testy"),
+        CTCLException
+    );
+}
+void 
+TestMetadata::cmddump_3() {
+    // ok - set some metadata first:
+
+    m_pSpectrum->setMetadata("a", "b");
+    m_pSpectrum->setMetadata("0", "1");
+    m_pSpectrum->setMetadata("help", "me");
+
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(
+        value = m_pInterp->GlobalEval("spectrum -dumpmetadata test")
+    );
+    EQ(std::string("0 1 a b help me"), value);
 }
