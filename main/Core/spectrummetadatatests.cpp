@@ -5,10 +5,14 @@
 #include <vector>
 #include <CNoSuchObjectException.h>
 
+#include <TCLInterpreter.h>
 
 #include "Parameter.h"
 #define private public    // to get acess to m_metadata
+#include "Spectrum.h"
 #include "Spectrum1DL.h"
+#include <SpectrumCommand.h>
+#include <SpecTcl.h>
 #undef private
 #include "CMetadata.h"
 class TestMetadata : public CppUnit::TestFixture {
@@ -32,14 +36,22 @@ protected:
 private:
     CParameter*   m_pParam;
     CSpectrum1DL* m_pSpectrum;
+    CTCLInterpreter* m_pInterp;
+    CSpectrumCommand* m_pCommand;
 public:
     void setUp() {
         m_pParam = new CParameter("test", 0, "arg");
         m_pSpectrum = new CSpectrum1DL("test", 1, *m_pParam, 100);
+
+        m_pInterp = new CTCLInterpreter;
+        m_pCommand = new CSpectrumCommand(m_pInterp, "spectrum");
     }
     void tearDown() {
         delete m_pSpectrum;
         delete m_pParam;
+
+        delete m_pCommand;
+        delete m_pInterp;
     }
 };
 
