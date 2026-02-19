@@ -5478,6 +5478,15 @@ spectrum <option>-trace</option></command>
     <arg>delete <replaceable>?script?</replaceable></arg>
 </group>  
         </cmdsynopsis>
+        <cmdsynopsis><command>
+spectrum <option>-setmetadata</option> <replaceable>name meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+spectrum <option>-getmetadata</option> <replaceable>name meta-name</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+spectrum <option>-dumpmetadata</option> <replaceable>name</replaceable>
+        </command></cmdsynopsis>
     </refsynopsisdiv>
     
     <refsect1>
@@ -5602,6 +5611,9 @@ spectrum <option>-trace</option></command>
                     Estabilishing trace scripts
                 </para>
             </listitem>
+            <listitem><para>
+                Manipulating metadata (since 7.0-004).
+            </para></listitem>
         </itemizedlist>    
         <refsect2>
             <title>Spectrum creation</title>
@@ -6041,6 +6053,54 @@ spectrum <option>-trace</option></command>
                 to the script.
             </para>
         </refsect2>
+        <refsect2>
+            <title>Manipulating metadata</title>
+            <para>
+                Since SpecTcl version 7.0-004, spectra can have associated metadata. Metadata
+                are in the form of key/value pairs.  This section describes the forms of the
+                <command>spectrum</command> command that manipulate metadata
+            </para>
+            <variablelist>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+spectrum <option>-setmetadata</option> <replaceable>name meta-name meta-value</replaceable>
+        </command></cmdsynopsis></term>
+                        <listitem>
+                            <para>
+                                Sets the value of a metadata item named <parameter>meta-name</parameter>
+                                on spectrum <parameter>name</parameter> to 
+                                <parameter>meta-value</parameter>.  If that metadata item has not
+                                yet been created, it is created.  If it exists, its value is overwritten.   
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+spectrum <option>-getmetadata</option> <replaceable>name meta-name</replaceable>
+        </command></cmdsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Returns the value of metadata named <parameter>meta-name</parameter> on
+                                the spectrum  <parameter>name</parameter>
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+spectrum <option>-dumpmetadata</option> <replaceable>name</replaceable>
+        </command></cmdsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns all of the metadata associated with the spectrum
+                                <parameter>name</parameter>.  The metadata are retunred as a Tcl dict
+                                whose keys are the names of metadata itema and whose values are the values
+                                of the metadata item.
+                            </para>
+                        </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
     </refsect1>
     
     <refsect1>
@@ -6188,7 +6248,26 @@ summary</computeroutput>
 <prompt>(sample) 51 % </prompt>spectrum -delete raw.01
 <computeroutput>Deleting spectrum raw.01</computeroutput>
             </command></screen>
-        </example>        
+        </example> 
+        <para>
+            The example below assumes a spectrum namaed <literal>md</literal> exists.
+        </para>
+        <example>
+            <title>Metadata operations</title>
+            <screen>
+<prompt>metadata 1 % </prompt><command>spectrum -setmetadata md description "spectrum with metadata"</command>
+<prompt>metadata 2 % </prompt><command>spectrum -setmetadata md disney-character goofy</command>
+<prompt>metadata 3 % </prompt><command>spectrum -getmetadata md disney-character</command>
+<computeroutput>goofy</computeroutput>
+<prompt>metadata 4 % </prompt><command>spectrum -dumpmetadata md</command>
+<computeroutput>disney-character goofy description {spectrum with metadata}</computeroutput>
+            </screen>
+        </example>       
+        <para>
+        Note that <literal>disney-character goofy description {spectrum with metadata}</literal> is the
+        string representation of a dict with keys <literal>disney-character</literal> and 
+        <literal>description</literal>
+        </para>
     </refsect1>
     
     <refsect1>

@@ -23734,6 +23734,7 @@ for (auto p = e.begin(); p != e.end(); p++) {
     <refsynopsisdiv>
         <synopsis>
 #include &lt;Spectrum.h&gt;
+#include &lt;CMetatdata.h&gt;
 
 class CSpectrum  : public CNamedItem        
 {
@@ -23808,6 +23809,9 @@ public:
   virtual   SpectrumDefinition&amp; GetDefinition() ;
 
   virtual   Bool_t needParameter() const;
+  void setMetadata(const char* name, const char* value);
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t&amp; getAllMetadata() const;
   void setTextDescription(std::string d) ;
 
 
@@ -23920,7 +23924,7 @@ public:
 
 public:
 
->>>>>>> Mere with master - this also catches changes to the filter.
+
   virtual void Increment(const CEvent&amp; rEvent);
   virtual void Increment(std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt; &amp; rParameters) =0;
   virtual void Increment(std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; xParameters,
@@ -24179,7 +24183,11 @@ public:
             about the classes that provide base support as well as provide
             concrete implementations of specific spectrum types.
         </para>
-        
+        <para>
+            Starting with SpecTcl version 7.0-004, spectra can have associated metadata.
+            Metadata are just key value pairs where the keys can be any string and the value can
+            be any string.
+        </para>
     </refsect1>
     <refsect1>
         <title>CSpectrum METHODS</title>
@@ -25369,6 +25377,46 @@ public:
                         returned.
                     </para>
                 </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <type>void</type><methodname>setMetadata</methodname>
+                        <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        <methodparam><type>const chra*</type> <parameter>value</parameter></methodparam>
+                    </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Sets the value of the associated metadata <parameter>name</parameter> to 
+                    <parameter>value</parameter> if there is no metadata named <parameter>name</parameter>,
+                    it is created.  If it does exists its value is overwritten.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                <methodsynopsis>
+                    <type>std::string</type><methodname>getMetaata</methodname>
+                    <methodparam><type>const char*</type><parameter>name</parameter></methodparam>
+                </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Returns the value of the metadata item named <parameter>name</parameter>.  IF ther is
+                    no such item, <classname>CNoSuchObjectException</classname> is thrown.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                <methodsynopsis>
+                    <type>const CMetadata::Metadata_t&amp;</type><methodname>getAllMetadata</methodname>
+                    <void /> <modifier>const</modifier>
+                </methodsynopsis>
+                </term>
+                <listitem><para>
+                    Returns a const reference to the container of all metadata for this spectrum.
+                    The type <type>CMetadata::Metadata_t</type> can be treated as a  
+                    <classname>std::map&lt;std::string, std::string&gt;</classname>
+                    where the keys are metadata names and the values their values.
+                </para></listitem>
             </varlistentry>
             <varlistentry>
                 <term>
