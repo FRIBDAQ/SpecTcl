@@ -113,6 +113,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Histogrammer.h>
 #include <SpecTcl.h>
 #include <GateContainer.h>
+#include <CMetadata.h>
+#include <TclDict.h>
+#include <CNoSuchObjectException.h>
 
 #include <iostream>
 
@@ -174,7 +177,10 @@ struct SwitchList {
   { "-list"  , CGateCommand::listgates },
   { "-id"    , CGateCommand::id } ,
   { "-byid"  , CGateCommand::byid },
-  { "-trace" , CGateCommand::trace}
+  { "-trace" , CGateCommand::trace},
+  { "-setmetadata", CGateCommand::setmeta},
+  { "-getmetadata", CGateCommand::getmeta},
+  { "-dumpmetadata", CGateCommand::dumpmeta}
 };
 
 static const UInt_t nSwitches = sizeof(SwitchTable) / 
@@ -210,7 +216,10 @@ static const  char* pUsage[] = {
   "     gate [-new] name type { description }\n",
   "     gate -delete [-id] Gate1 [Gate2 ... }\n",
   "     gate -list [-byid] [pattern]\n",
-  "     gate -trace add|delete|change ?script?\n"
+  "     gate -trace add|delete|change ?script?\n",
+  "     gate -setmetadata name meta-name meta-value\n",
+  "     gate -getmetdata name meta-name\n",
+  "     gate -dumpmetadata name\n"
 };
 static const UInt_t nUsageLines = (sizeof(pUsage) / sizeof(char*));
 
@@ -275,7 +284,7 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
   //
   
   // Manufactor, nArgs, and pArgs from objv:
-
+  bindAll(rInterp, objv);
   TCLPLUS::Int_t nArgs = objv.size();
   std::vector<std::string> words;
   std::vector<const char*> pWords;
@@ -318,6 +327,12 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
     nArgs--;
     pArgs++;
     return traceGates(rInterp,nArgs, pArgs);
+  case setmeta:
+    return SetMetadata(rInterp, objv);
+  case getmeta:
+    return GetMetadata(rInterp, objv);
+  case dumpmeta:
+    return DumpMetadata(rInterp, objv);
   default:
     rInterp.setResult(Usage());
     return TCL_ERROR;		// Bad switch in context.
@@ -879,7 +894,136 @@ CGateCommand::traceGates(CTCLInterpreter& rInterp, UInt_t nArgs,const char* args
   return TCL_OK;
 
 }
+// ISsue #229 - Metadata manipulation options:
 
+
+/**
+ *  SetMetadata
+ *    Set a metata item.
+ * \verbatim
+ *     gate -setmetadata gate-name meta-name meta-value
+ * \endverbatim
+ *   If the metadata does not exist it's created.  If it does it's value is ovewritten.
+ * 
+ * @param rInterp - interpreter running the command.
+ * @param objv    - The command words as shown above.
+ * @return Int_t - Tcl_OK if successful with no result on TCL_ERROR, the result ia 
+ * a human readable error message.
+ */
+Int_t
+CGateCommand::SetMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  try {
+    requireExactly(objv, 5, "Incorrect number of command line arguments");
+  } catch(std::string msg) {
+    msg += Usage();
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  std::string gateName = objv[2];
+  std::string metaName = objv[3];
+  std::string metaValue = objv[4];
+
+  // Find the gate:
+
+  CGateContainer* pContainer = SpecTcl::getInstance()->FindGate(gateName);
+  if (!pContainer) {
+    std::string msg = "No such gate: ";
+    msg += gateName;
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+  pContainer->setMetadata(metaName.c_str(), metaValue.c_str());
+
+  return TCL_OK;
+}
+/**
+ *  GetMetadata
+ *\verbatim
+ *    gate -getmetadata gate_name meta_name
+ *\endverbatim
+ *
+ * Sets the result with the value of a gate's metadata named meta_name.
+ * 
+ * @param rInterp - interpreter running the command.
+ * @param objv   - The command words as shown above.
+ * @return Int_t - On TCL_OK, the result is the value of the metadata name.
+ * on TCL_ERROR it's a human readable error message.
+ */
+Int_t
+CGateCommand::GetMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  try {
+    requireExactly(objv, 4, "Incorrect number of command parameters");
+  } catch (std::string msg) {
+    msg += Usage();
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  std::string gateName = objv[2];
+  std::string metaName = objv[3];
+
+  // Find the gate:
+
+  CGateContainer* pContainer = SpecTcl::getInstance()->FindGate(gateName);
+  if (!pContainer) {
+    std::string msg = "No such gate: ";
+    msg += gateName;
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  try {
+    rInterp.setResult(pContainer->getMetadata(metaName.c_str()));
+  } catch (CNoSuchObjectException& e) {
+    rInterp.setResult(e.ReasonText());
+  }
+  return TCL_OK;
+}
+
+/**
+ * DumpMetadata
+ * \verbatim
+ *     gate -dumpmetadata gateName
+ * \endverbatim
+ * 
+ * @param rInterp - interpreter running the command.
+ * @param objv   - command parameters as shown above.
+ * @return Int_t - On TCL_OK, the result is a dict with keys metadata
+ * names and values the correponding values.
+ */
+Int_t
+CGateCommand::DumpMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  try {
+    requireExactly(objv, 3, "Incorrect number of command parameters");
+  } catch(std::string msg) {
+    msg += Usage();
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  std::string gateName = objv[2];
+
+  CGateContainer* pContainer = SpecTcl::getInstance()->FindGate(gateName);
+  if (!pContainer) {
+    std::string msg = "No such gate: ";
+    msg += gateName;
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  const auto& meta = pContainer->getAllMetadata();
+  
+  CTCLObject result;
+  result.Bind(rInterp);
+
+  Tcl::DictFromStringMap(rInterp, result, meta);
+
+  rInterp.setResult(result);
+
+  return TCL_OK;
+
+}
 /*!
    Invoke the add script if it's defined.
    Parameters:
