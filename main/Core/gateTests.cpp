@@ -12,6 +12,11 @@
 #undef private
 #include <CNoSuchObjectException.h>
 #include <vector>
+#include <TCLInterpreter.h>
+#include <SpecTcl.h>
+#include <GateCommand.h>
+#include <TCLException.h>
+#include <CGateDictionarySingleton.h>
 
 class GateTests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(GateTests);
@@ -35,8 +40,15 @@ class GateTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(GetMeta_1);  // no such
   CPPUNIT_TEST(GetMeta_2);  // Ok get.
   CPPUNIT_TEST(DumpMeta_1); // Dup is correct.
+
+  CPPUNIT_TEST(CmdSetMeta_1); // Invalid # parameters.
+  CPPUNIT_TEST(CmdSetMeta_2); // No such gate.
+  CPPUNIT_TEST(CmdSetMeta_3); // good set.
   CPPUNIT_TEST_SUITE_END();
-  
+
+public:
+    
+
 protected:
     void And();
     void Band();
@@ -60,8 +72,32 @@ protected:
     void GetMeta_1();
     void GetMeta_2();
     void DumpMeta_1();
-private:
 
+    // Gate command metadata tests (Issue #229)
+    void CmdSetMeta_1();
+    void CmdSetMeta_2();
+    void CmdSetMeta_3();
+private:
+    CTCLInterpreter* m_pInterp;
+    CGateCommand* m_pCommand; 
+    CGate*        m_pGate;
+
+public:
+    void setUp() {
+        m_pInterp = new CTCLInterpreter();
+        m_pCommand = new CGateCommand(m_pInterp);
+        m_pGate   = SpecTcl::getInstance()->CreateTrueGate();
+        SpecTcl::getInstance()->AddGate("true", m_pGate);
+    }
+
+    void tearDown() {
+        delete m_pCommand;
+        delete m_pInterp;
+        auto pDict = CGateDictionarySingleton::getInstance();
+
+        // Leak memory for now:
+        pDict->clear();
+    }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateTests);
@@ -180,4 +216,27 @@ void GateTests::DumpMeta_1() {
         EQ(p.second, sb[i].second);
         i++;
     }
+}
+
+void
+GateTests::CmdSetMeta_1() {
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("::spectcl::serial::gate -setmetadata true a b c"),
+        CTCLException       
+    );
+}
+void
+GateTests::CmdSetMeta_2() {
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("::spectcl::serial::gate -setmetadata false a b"),
+        CTCLException
+    );
+}
+
+void
+GateTests::CmdSetMeta_3() {
+    CPPUNIT_ASSERT_NO_THROW(
+        m_pInterp->GlobalEval("::spectcl::serial::gate -setmetadata true a b")
+    );
+    EQ(std::string("b"), SpecTcl::getInstance()->FindGate("true")->getMetadata("a"));
 }
