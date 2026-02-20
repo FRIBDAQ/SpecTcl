@@ -3044,6 +3044,15 @@ gate <option>-delete</option> <option>?-id?</option> <replaceable>gate1 ?gate2 .
 gate <option>-trace</option> <replaceable>subcommand arg1 ...</replaceable>
             </command>
         </cmdsynopsis>
+        <cmdsynopsis><command>
+gate <option>-setmetadata</option> <replaceable>gate-name meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+gate <option>-getmetadata</option> <replaceable>gate-name meta-name</replaceable>        
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+gate <option>-dumpmetadata</option> <replaceable>gate-name</replaceable>
+        </command></cmdsynopsis>
     </refsynopsisdiv>
     
     <refsect1>
@@ -3092,6 +3101,12 @@ gate <option>-trace</option> <replaceable>subcommand arg1 ...</replaceable>
             displayers make it unecessary to actually know how to use the
             command directly.  <literal>COMMAND DETAILS</literal> below
             describes how to create, delete and list gates.
+        </para>
+        <para>
+            As of SpecTcl 7.0-004, gates can have associated metadata. Metadata are a set of
+            name/value pairs that are attached to the gate. Gate metadata sticks around even if the
+            meaning of a gate is changed.  Note that this includes gate deletion which is really a 
+            synonym for replacing the gate with a <literal>False</literal> gate.
         </para>
     </refsect1>
     
@@ -3873,6 +3888,56 @@ gate -trace </command><group>
                 execute.  Each trace script is passed the name of the
                 on which the trace operation is being performed.
             </para>
+        </refsect2>
+        <refsect2>
+            <title>Gate metadata</title>
+            <para>
+                Metadata are a set of name value pairs that are associated with the gate name.
+                One of these name/value pairs will be referred to as a <firstterm>metadata item</firstterm>
+                The command variants in this section manipulate gate metadata.  Note that the metadata
+                associated with a gate name is not modified if the actual gate is replaced.  This includes
+                gate deletion which is, under the hood, replacing the gate with a <literal>False</literal>
+                gate.
+            </para>
+            <variablelist>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+gate <option>-setmetadata</option> <replaceable>gate-name meta-name meta-value</replaceable>
+                        </command></cmdsynopsis></term>
+                        <listitem>
+                            <para>
+                                Sets a meta data item named <parameter>meta-name</parameter>
+                                associated with the gate <parameter>gate-name</parameter> to the value
+                                <parameter>meta-value</parameter>.  If the meta data item does not
+                                yet exist, it is created. If it does its value is ovewritten with
+                                <parameter>meta-value</parameter>.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+gate <option>-getmetadata</option> <replaceable>gate-name meta-name</replaceable>        
+        </command></cmdsynopsis>TERM</term>
+                        <listitem>
+                            <para>
+                                Returns the value of the <parameter>meta-name</parameter> meta data item
+                                associated with <parameter>gate-name</parameter>.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+gate <option>-dumpmetadata</option> <replaceable>gate-name</replaceable>
+        </command></cmdsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns a dict that contains all of the metadata items associated with
+                                <parameter>gate-name</parameter>.  The dict has keys which are the names of
+                                the metadata items the values are the values of the metadata items.
+                            </para>
+                        </listitem>
+                </varlistentry>
+            </variablelist>
         </refsect2>
     </refsect1>
     
