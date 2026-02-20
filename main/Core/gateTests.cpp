@@ -44,6 +44,14 @@ class GateTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(CmdSetMeta_1); // Invalid # parameters.
   CPPUNIT_TEST(CmdSetMeta_2); // No such gate.
   CPPUNIT_TEST(CmdSetMeta_3); // good set.
+
+  CPPUNIT_TEST(CmdGetMeta_1); // Invalid # params.
+  CPPUNIT_TEST(CmdGetMeta_2); // No such gate
+  CPPUNIT_TEST(CmdGetMeta_3); // No such metadata.
+  CPPUNIT_TEST(CmdGetMeta_4); // OK.
+  CPPUNIT_TEST(CmdDumpMeta_1); // incorrect # params.
+  CPPUNIT_TEST(CmdDumpMeta_2); // No such gate.
+  CPPUNIT_TEST(CmdDumpMeta_3); // Ok.
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -77,6 +85,16 @@ protected:
     void CmdSetMeta_1();
     void CmdSetMeta_2();
     void CmdSetMeta_3();
+
+    void CmdGetMeta_1();
+    void CmdGetMeta_2();
+    void CmdGetMeta_3();
+    void CmdGetMeta_4();
+
+    void CmdDumpMeta_1(); 
+    void CmdDumpMeta_2(); 
+    void CmdDumpMeta_3(); 
+
 private:
     CTCLInterpreter* m_pInterp;
     CGateCommand* m_pCommand; 
@@ -239,4 +257,63 @@ GateTests::CmdSetMeta_3() {
         m_pInterp->GlobalEval("::spectcl::serial::gate -setmetadata true a b")
     );
     EQ(std::string("b"), SpecTcl::getInstance()->FindGate("true")->getMetadata("a"));
+}
+
+void
+GateTests::CmdGetMeta_1() {
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("::spectcl::serial::gate -getmetadata true a b"),
+        CTCLException
+    );
+}
+void
+GateTests::CmdGetMeta_2() {
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("::spectcl::serial::gate -getmetadata false a"),
+        CTCLException
+    );
+}
+void
+GateTests::CmdGetMeta_3() {
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("::spectcl::serial::gate -getmetadata true a"),
+        CTCLException
+    );
+}
+void
+GateTests::CmdGetMeta_4() {
+    SpecTcl::getInstance()->FindGate("true")->setMetadata("a", "b");
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(
+        value = m_pInterp->GlobalEval("::spectcl::serial::gate -getmetadata true a")
+    );
+    EQ(std::string("b"), value);
+}
+
+void
+GateTests::CmdDumpMeta_1() {
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("::spectcl::serial::gate -dumpmetadata true junk"),
+        CTCLException
+    );
+}
+void 
+GateTests::CmdDumpMeta_2() {
+    CPPUNIT_ASSERT_THROW(
+        m_pInterp->GlobalEval("::spectcl::serial::gate -dumpmetadata trues"),
+        CTCLException
+    );
+}
+void
+GateTests::CmdDumpMeta_3() {
+    auto c = SpecTcl::getInstance()->FindGate("true");
+    c->setMetadata("z", "q");
+    c->setMetadata("q", "zzz");
+    c->setMetadata("a", "b");
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(
+        value = m_pInterp->GlobalEval("::spectcl::serial::gate -dumpmetadata true")
+    );
+    EQ(std::string("a b q zzz z q"), value);
+
 }
