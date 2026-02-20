@@ -6,8 +6,12 @@
 #include <cppunit/Asserter.h>
 #include <Asserts.h>
 #include <stdexcept>
+#define private public
 #include "GateFactory.h"
-
+#include "GateContainer.h"   // so we can get to m_metadta e.g.
+#undef private
+#include <CNoSuchObjectException.h>
+#include <vector>
 
 class GateTests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(GateTests);
@@ -26,6 +30,11 @@ class GateTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(AndMask);
   CPPUNIT_TEST(NotMask);
   CPPUNIT_TEST(Invalid);
+
+  CPPUNIT_TEST(SetMeta_1);  // Good set...
+  CPPUNIT_TEST(GetMeta_1);  // no such
+  CPPUNIT_TEST(GetMeta_2);  // Ok get.
+  CPPUNIT_TEST(DumpMeta_1); // Dup is correct.
   CPPUNIT_TEST_SUITE_END();
   
 protected:
@@ -44,6 +53,13 @@ protected:
     void AndMask();
     void NotMask();
     void Invalid();
+
+    // Metadata tests Issue #229
+
+    void SetMeta_1();
+    void GetMeta_1();
+    void GetMeta_2();
+    void DumpMeta_1();
 private:
 
 };
@@ -113,4 +129,55 @@ void GateTests::Invalid()
         CGateFactory::stringToGateType("nosuch"),
         std::invalid_argument
     );
+}
+
+void 
+GateTests::SetMeta_1() {
+    CGateContainer c;
+    c.setMetadata("a", "b");
+
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(
+        value = c.m_metadata.get("a")
+    );
+    EQ(std::string("b"), value);
+}
+
+void GateTests::GetMeta_1() {
+    CGateContainer c;
+
+    CPPUNIT_ASSERT_THROW(
+        c.getMetadata("a"),
+        CNoSuchObjectException
+    );
+}
+void GateTests::GetMeta_2() {
+    CGateContainer c;
+    c.setMetadata("a", "b");
+
+    std::string value;
+    CPPUNIT_ASSERT_NO_THROW(
+        value = c.getMetadata("a")
+    );
+    EQ(std::string("b"), value);
+}
+void GateTests::DumpMeta_1() {
+    CGateContainer c;
+    c.setMetadata("z", "x");
+    c.setMetadata("a", "b");
+    c.setMetadata("q", "r");
+
+    // Comes out in order by key:
+
+    std::vector<std::pair<std::string, std::string>> sb = {
+        {"a", "b"}, {"q", "r"}, {"z", "x"}
+    };
+    const auto& md = c.getAllMetadata();
+
+    int i;
+    for (const auto& p : md) {
+        EQ(p.first, sb[i].first);
+        EQ(p.second, sb[i].second);
+        i++;
+    }
 }

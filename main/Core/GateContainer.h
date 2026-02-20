@@ -42,6 +42,7 @@
 
 
 class CGateContainer : public CNamedItem {
+private:
   CGate* m_pGate;
   CMetadata m_metadata;
  public:
