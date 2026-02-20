@@ -109,3 +109,37 @@ CGateContainer::operator=(const CGateContainer& aCGateContainer) {
   }
   return *this;
 }
+// metadata wrapper methods (issue #229).
+
+/**
+ *  set a metadata item.
+ * @param name - name of the item.
+ * @param value - value of the metadata.
+ * @note if the item does not exist it is created otherwise it's value is overwritten.
+ */
+void 
+CGateContainer::setMetadata(const char* name, const char* value) {
+  m_metadata.set(name, value);
+}
+/**
+ * return the value of a metadata item.
+ * 
+ * @param name - name of the item.
+ * @return std::string - value of the item.
+ * @throw CNoSuchObjectException - if the item does not exist.
+ */
+std::string
+CGateContainer::getMetadata(const char* name) {
+  return m_metadata.get(name);
+}
+/**
+ * Return a const reference to the metadata container.  This can
+ * be treated as an std::map<std::string, std::string> where
+ * the keys are  item names and the values the values of the item.
+ * 
+ * @return const CMetadata::Metadata_t&
+ */
+const CMetadata::Metadata_t&
+CGateContainer::getAllMetadata() const {
+  return m_metadata.get_all();
+}
