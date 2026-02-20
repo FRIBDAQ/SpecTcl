@@ -1027,9 +1027,7 @@ CSpectrumCommand::DumpMetadata(CTCLInterpreter& rInterpreter, std::vector<CTCLOb
   const auto& metadata = pSpec->getAllMetadata();
   CTCLObject result;
   result.Bind(rInterpreter);
-  for (const auto& p : metadata) {
-    Tcl::DictPut(rInterpreter, result, p.first.c_str(), p.second.c_str());
-  }
+  Tcl::DictFromStringMap(rInterpreter, result, metadata);
 
   rInterpreter.setResult(result);
   return TCL_OK;

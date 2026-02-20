@@ -618,10 +618,7 @@ CTreeVariableCommandActual::getAllMetadata(CTCLInterpreter& interp, std::vector<
   const auto& meta = p->second->getAllMetadata();
   CTCLObject result;
   result.Bind(interp);
-
-  for (const auto& p : meta) {
-    Tcl::DictPut(interp, result, p.first.c_str(), p.second.c_str());
-  }
+  Tcl::DictFromStringMap(interp, result, meta);
 
   interp.setResult(result);
   return TCL_OK;

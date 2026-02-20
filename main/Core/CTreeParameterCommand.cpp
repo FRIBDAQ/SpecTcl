@@ -968,10 +968,8 @@ CTreeParameterCommandActual::dumpMetadata(CTCLInterpreter& rInterp, std::vector<
   const auto& metadata = pParam->getAllMetadata();
   CTCLObject result;
   result.Bind(rInterp);
+  Tcl::DictFromStringMap(rInterp, result, metadata);
 
-  for (const auto& p : metadata) {
-    Tcl::DictPut(rInterp, result, p.first.c_str(), p.second.c_str());
-  }
   rInterp.setResult(result);
 
   return TCL_OK;

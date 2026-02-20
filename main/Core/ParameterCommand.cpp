@@ -753,9 +753,8 @@ CParameterCommand::dumpMeta(CTCLInterpreter& rInterp, std::vector<CTCLObject>& o
   CTCLObject result;
   result.Bind(rInterp);
 
-  for (const auto& p : metadata) {
-    Tcl::DictPut(rInterp, result, p.first.c_str(), p.second.c_str());
-  }
+  Tcl::DictFromStringMap(rInterp, result, metadata);
+  
   rInterp.setResult(result);
   return TCL_OK;
 }
