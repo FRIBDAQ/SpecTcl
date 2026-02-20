@@ -977,6 +977,7 @@ CGateCommand::GetMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj
     rInterp.setResult(pContainer->getMetadata(metaName.c_str()));
   } catch (CNoSuchObjectException& e) {
     rInterp.setResult(e.ReasonText());
+    return TCL_ERROR;
   }
   return TCL_OK;
 }
