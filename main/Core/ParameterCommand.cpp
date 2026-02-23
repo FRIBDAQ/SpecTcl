@@ -795,9 +795,9 @@ CParameterCommand::Usage(CTCLInterpreter& rInterp, const char* pMsg)
   rResult += "   parameter -delete -id \n";
   rResult += "   parameter -trace script \n";
   rResult += "   parameter -untrace script \n";
-  rResult += "   parameter -setmeta parameter meta-name meta-value\n";
-  rResult += "   parameter -getmeta parameter meta-name\n";
-  rResult += "   parameter -dumpmeta parameter\n\n";
+  rResult += "   parameter -setmetadata parameter meta-name meta-value\n";
+  rResult += "   parameter -getmetadata parameter meta-name\n";
+  rResult += "   parameter -dumpmetadata parameter\n\n";
    
   rInterp.setResult(rResult);
 }
