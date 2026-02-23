@@ -326,6 +326,20 @@ CDatabase::create(const char* database)
                 value       INTEGER NOT NULL             \
             )"
     );
+    // Issue #229 - Metadata table.
+    //   This will have an item type and an FK Back to the
+    //   appropriate definition table
+
+    CSqliteStatement::execute(
+        connection,
+        "CREATE TABLE IF NOT EXISTS metadata (    \
+            id       INTEGER PRIMARY KEY,         \
+            type     TEXT NOT NULL,               \
+            item_id  INTEGER NOT NULL,            \
+            name     TEXT NOT NULL,               \
+            value    TEXT NOT NULL               \
+        )"
+    );
     
 
 }
