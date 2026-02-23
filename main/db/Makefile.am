@@ -20,14 +20,16 @@ libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp SaveSet.cpp DBParameter.cpp \
 	DBSpectrum.cpp DBGate.cpp \
 	CDBEvents.cpp DBEvents.cpp \
-	DBApplications.cpp DBTreeVariable.cpp
+	DBApplications.cpp DBTreeVariable.cpp \
+	DBMetadata.cpp
 libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 
 include_HEADERS=CDBEvents.h DBEvents.h  \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
 	 CSqliteTransaction.h CSqliteWhere.h  \
 	SpecTclDatabase.h SaveSet.h DBParameter.h DBSpectrum.h \
-	DBGate.h DBApplications.h DBTreeVariable.h
+	DBGate.h DBApplications.h DBTreeVariable.h \
+	DBMetadata.h
 
 libSpecTclDbTcl_la_DEPENDENCIES = libSpecTclDb.la libSqlite3pp.la
 libSpecTclDbTcl_la_CXXFLAGS=@SQLITE3_CFLAGS@ -g @TCL_CPPFLAGS@ \
