@@ -45,7 +45,10 @@ DBMetadata::DBMetadata(CSqlite& connection, int saveid) :
 
     SaveSet svset(connection, saveid);    // throws if no such saveset.
 }
-
+/** Destructor
+ *    a no-op for now.
+ */
+DBMetadata::~DBMetadata() {}
 /**
  * selectParameter
  *    Selects the parameter for which following metadata operations are
