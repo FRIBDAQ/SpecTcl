@@ -74,9 +74,10 @@ unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
 			savepttests.cpp specdbtests.cpp savesettests.cpp \
 			dbpartests.cpp dbspectests.cpp dbgtests.cpp \
 			gapptests.cpp dbvtests.cpp eventtests.cpp \
+			metatests.cpp \
 			SpecTclDatabase.cpp  SaveSet.cpp DBParameter.cpp \
 			DBSpectrum.cpp DBGate.cpp DBApplications.cpp \
-			DBTreeVariable.cpp \
+			DBTreeVariable.cpp DBMetadata.cpp \
 			$(libSqlite3pp_la_SOURCES)
 unittests_CXXFLAGS=@SQLITE3_CFLAGS@ @CPPUNIT_CFLAGS@ -g -I@top_srcdir@/Utility \
 	@ROOT_CFLAGS@
