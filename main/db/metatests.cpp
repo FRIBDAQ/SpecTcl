@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <stdexcept>
 #include <sstream>
+#include <algorithm>
 class metatests : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(metatests);
     CPPUNIT_TEST(construct_1);   // ok
@@ -52,6 +53,9 @@ class metatests : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(get_1);      // get metadata nonexistent.
     CPPUNIT_TEST(get_2);      // get metadata exists.
+
+    CPPUNIT_TEST(dump_1);     // Nothing to dump.
+    CPPUNIT_TEST(dump_2);     // Some stuff to dump.
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -76,6 +80,9 @@ protected:
 
     void get_1();
     void get_2();
+
+    void dump_1();
+    void dump_2();
 private:
     std::string m_filename;
     SpecTclDB::CDatabase* m_db;
@@ -402,4 +409,42 @@ metatests::get_2() {
         value = md.getMetadataValue("some")
     );
     EQ(std::string("value"), value);
+}
+
+void metatests::dump_1() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    md.selectParameter("aparameter");
+    auto data = md.dumpMetadata();
+    ASSERT(data.empty());
+}
+
+void metatests::dump_2() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    md.selectParameter("aparameter");
+
+    std::vector<std::pair<std::string, std::string>> metadata = {
+        {"z", "q"} , {"p", "q"}, {"a", "b"}, {"s", "t"}
+    };
+
+    // set it:
+
+    for (auto name_value : metadata) {
+        md.setMetadataItem(name_value.first.c_str(), name_value.second.c_str());
+    }
+    // Sort the vector by first because that's how it's dumped.
+
+    std::sort(metadata.begin(), metadata.end(), 
+        [] (std::pair<std::string, std::string>& p1, std::pair<std::string, std::string>& p2) {
+            return p1.first < p2.first;
+        });
+
+    auto dump = md.dumpMetadata();
+    EQ(metadata.size(), dump.size());
+
+    for (int i =0; i < dump.size(); i++) {
+        EQ(metadata[i].first, dump[i].first);
+        EQ(metadata[i].second, dump[i].second);
+    }
+
+
 }
