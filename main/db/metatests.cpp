@@ -20,6 +20,7 @@
 #include "DBSpectrum.h"
 #include "DBTreeVariable.h"
 
+#include <sqlite3.h>
 #include <string>
 #include <stdlib.h>
 #include <unistd.h>
@@ -40,6 +41,14 @@ class metatests : public CppUnit::TestFixture {
 
     CPPUNIT_TEST(selgate_1);   // NO such gate.
     CPPUNIT_TEST(selgate_2);
+
+    CPPUNIT_TEST(seltv_1);    // No such tree variable.
+    CPPUNIT_TEST(seltv_2);    // good selection.
+
+    CPPUNIT_TEST(set_1);      // Set parameter metadata.
+    CPPUNIT_TEST(set_2);      // Set spectrum metadata.
+    CPPUNIT_TEST(set_3);      // set gate metadata.
+    CPPUNIT_TEST(set_4);      // set tree var metadata.
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -53,6 +62,14 @@ protected:
 
     void selgate_1();
     void selgate_2();
+
+    void seltv_1();
+    void seltv_2();
+
+    void set_1();
+    void set_2();
+    void set_3();
+    void set_4();
 private:
     std::string m_filename;
     SpecTclDB::CDatabase* m_db;
@@ -92,7 +109,7 @@ public:
         std::vector<const char*> dependent;
         delete m_saveset->createCompoundGate("agate", "T", dependent);
 
-
+        delete m_saveset->createVariable("pi", 3.14159265359, "radians");
 
     }
 public:
@@ -181,4 +198,175 @@ void metatests::selgate_2() {
     delete gate;
 
     EQ(id, md.m_fkId);
+}
+
+void metatests::seltv_1() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    CPPUNIT_ASSERT_THROW(
+        md.selectTreevar("nosuchvar"),
+        std::exception
+    );
+}
+
+void metatests::seltv_2() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    CPPUNIT_ASSERT_NO_THROW(
+        md.selectTreevar("pi")
+    );
+    EQ(std::string("treevariable"), md.m_type);
+
+    auto v = m_saveset->lookupVariable("pi");
+    int sb = v->getInfo().s_id;
+    delete v;
+
+    EQ(sb, md.m_fkId);
+}
+
+void metatests::set_1() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    md.selectParameter("aparameter");
+
+    // Setting once will make a record. of the right shape:
+
+    md.setMetadataItem("anitem", "aaaa");
+    CSqliteStatement stmt(*m_connection,
+        "SELECT type, item_id, value FROM metadata WHERE name = ?"
+    );
+    stmt.bind(1, "anitem", -1, SQLITE_STATIC);
+    ++stmt;
+    ASSERT(!stmt.atEnd()); // there is a record.
+    std::string type = reinterpret_cast<const char*>(stmt.getText(0));
+    int item_id = stmt.getInt(1);
+    std::string value = reinterpret_cast<const char*>(stmt.getText(2));
+
+    EQ(std::string("parameter"), type);
+    EQ(std::string("aaaa"), value);
+    
+    EQ(md.m_fkId, item_id);
+
+    ++stmt;
+    ASSERT(stmt.atEnd());     // no second one.
+
+    // Setting twice will not make a dup record but overwrite.
+
+    stmt.reset();
+    md.setMetadataItem("anitem", "bbbb");
+    ++stmt;
+    ASSERT(!stmt.atEnd());
+    value = reinterpret_cast<const char*>(stmt.getText(2));
+    EQ(std::string("bbbb"),  value);
+
+    ++stmt;
+    ASSERT(stmt.atEnd());             // didn't make another one.
+}
+void metatests::set_2() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    md.selectSpectrum("aspec");
+
+    // Setting once will make a record. of the right shape:
+
+    md.setMetadataItem("anitem", "aaaa");
+    CSqliteStatement stmt(*m_connection,
+        "SELECT type, item_id, value FROM metadata WHERE name = ?"
+    );
+    stmt.bind(1, "anitem", -1, SQLITE_STATIC);
+    ++stmt;
+    ASSERT(!stmt.atEnd()); // there is a record.
+    std::string type = reinterpret_cast<const char*>(stmt.getText(0));
+    int item_id = stmt.getInt(1);
+    std::string value = reinterpret_cast<const char*>(stmt.getText(2));
+
+    EQ(std::string("spectrum"), type);
+    EQ(std::string("aaaa"), value);
+    
+    EQ(md.m_fkId, item_id);
+
+    ++stmt;
+    ASSERT(stmt.atEnd());     // no second one.
+
+    // Setting twice will not make a dup record but overwrite.
+
+    stmt.reset();
+    md.setMetadataItem("anitem", "bbbb");
+    ++stmt;
+    ASSERT(!stmt.atEnd());
+    value = reinterpret_cast<const char*>(stmt.getText(2));
+    EQ(std::string("bbbb"),  value);
+
+    ++stmt;
+    ASSERT(stmt.atEnd());             // didn't make another one.
+}
+void metatests::set_3() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    md.selectGate("agate");
+
+    // Setting once will make a record. of the right shape:
+
+    md.setMetadataItem("anitem", "aaaa");
+    CSqliteStatement stmt(*m_connection,
+        "SELECT type, item_id, value FROM metadata WHERE name = ?"
+    );
+    stmt.bind(1, "anitem", -1, SQLITE_STATIC);
+    ++stmt;
+    ASSERT(!stmt.atEnd()); // there is a record.
+    std::string type = reinterpret_cast<const char*>(stmt.getText(0));
+    int item_id = stmt.getInt(1);
+    std::string value = reinterpret_cast<const char*>(stmt.getText(2));
+
+    EQ(std::string("gate"), type);
+    EQ(std::string("aaaa"), value);
+    
+    EQ(md.m_fkId, item_id);
+
+    ++stmt;
+    ASSERT(stmt.atEnd());     // no second one.
+
+    // Setting twice will not make a dup record but overwrite.
+
+    stmt.reset();
+    md.setMetadataItem("anitem", "bbbb");
+    ++stmt;
+    ASSERT(!stmt.atEnd());
+    value = reinterpret_cast<const char*>(stmt.getText(2));
+    EQ(std::string("bbbb"),  value);
+
+    ++stmt;
+    ASSERT(stmt.atEnd());             // didn't make another one.
+}
+void metatests::set_4() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    md.selectTreevar("pi");
+
+    // Setting once will make a record. of the right shape:
+
+    md.setMetadataItem("anitem", "aaaa");
+    CSqliteStatement stmt(*m_connection,
+        "SELECT type, item_id, value FROM metadata WHERE name = ?"
+    );
+    stmt.bind(1, "anitem", -1, SQLITE_STATIC);
+    ++stmt;
+    ASSERT(!stmt.atEnd()); // there is a record.
+    std::string type = reinterpret_cast<const char*>(stmt.getText(0));
+    int item_id = stmt.getInt(1);
+    std::string value = reinterpret_cast<const char*>(stmt.getText(2));
+
+    EQ(std::string("treevariable"), type);
+    EQ(std::string("aaaa"), value);
+    
+    EQ(md.m_fkId, item_id);
+
+    ++stmt;
+    ASSERT(stmt.atEnd());     // no second one.
+
+    // Setting twice will not make a dup record but overwrite.
+
+    stmt.reset();
+    md.setMetadataItem("anitem", "bbbb");
+    ++stmt;
+    ASSERT(!stmt.atEnd());
+    value = reinterpret_cast<const char*>(stmt.getText(2));
+    EQ(std::string("bbbb"),  value);
+
+    ++stmt;
+    ASSERT(stmt.atEnd());             // didn't make another one.
 }
