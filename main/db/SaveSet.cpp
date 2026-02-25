@@ -24,6 +24,7 @@
 #include "DBGate.h"
 #include "DBApplications.h"
 #include "DBTreeVariable.h"
+#include "DBMetadata.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteTransaction.h"
@@ -113,7 +114,7 @@ SaveSet::createParameter(const char* name, int number)
 }
 /**
  * createParameter
- *    wrapper for DBParameter::create with metadata.
+ *    wrapper for DBParameter::create with limits and resolution.
  *  @param name - parameter name.
  *  @param number - parameter number.
  *  @param low  - parameter low limit.
@@ -481,6 +482,207 @@ SaveSet::listVariables()
 {
     return DBTreeVariable::list(m_connection, m_Info.s_id);
 }
+
+//////////////////////////////////////////////////////////////
+// Metadata API.
+
+/**
+ * setParameterMetadata
+ *    Set the value of a metadata item on a parameter.
+ * 
+ * @param parameter -name of the parameter.
+ * @param metaname  - Name of the metadata item to set.
+ * @param value - Value to give to the metadata item.
+ * @throw std::exception based exeption if the paramter does not exist.
+ * @note if necessary a new metadata item is created otherwise
+ *    The value is replaced
+ */
+void
+SaveSet::setParameterMetadata(
+    const char* parameter, const char* metaname, const char* value
+) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectParameter(parameter);             // Can throw.
+    md.setMetadataItem(metaname, value);
+
+}
+/**
+ * getParmaeterMetadata
+ *   @param parameter -name of a parameter.
+ *   @param metaname - name of metadata item to fetch 
+ *   @return std::string - value of the metadata item.
+ *   @throw std::exeption derived exception if:
+ * - The parameter does not exist.
+ * - The paramter exists but it does not have the named metadata item.
+ */
+std::string
+SaveSet::getParameterMetadata(const char* parameter, const char* metaname) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectParameter(parameter);                   // Can throw
+    return md.getMetadataValue(metaname);            // can throw.
+}
+/**
+ *  dumpParameterMetadata
+ *  
+ * Returns all the metadata defined on a parameter as a vector of
+ * name/value pairs.
+ * 
+ * @param parameter - name of the parameter.
+ * @return std::vector<std::pair<std::string, std::string>> - The first item of 
+ * each pair is a metadata item name, the second its value.  The vector
+ * is orderd by metadata item name.
+ * @throw std::exception derived exception if the parameter does not exist.
+ */
+std::vector<std::pair<std::string, std::string>>
+SaveSet::dumpParameterMetadata(const char* parameter) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectParameter(parameter);      // can throw.
+    return md.dumpMetadata();
+}
+
+/**
+ * setSpectrumMetadata
+ *    Set the value of some metadata associated with a spectrum.
+ * @param spectrum -name of the spectrum.
+ * @param metaname - name of the metadata item to set.
+ * @param value- new (or original) value for the metadata item.
+ * @throw std::exception derived exception if the spetrum does not exist.
+ */
+void
+SaveSet::setSpectrumMetadata(
+    const char* spectrum, const char* metaname, const char* value
+) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectSpectrum(spectrum);
+    md.setMetadataItem(metaname, value);
+}
+/**
+ * getSpectrumMetadata
+    *    @param spectrum - name of a spectrum.
+    *    @param metaname - Name of the metadata item to retrieve.
+    *    @return std::string - value of the requested metadata item.
+    *    @throw std::exception derived exception if the spectrum does not exist
+    * or the metaname does not name exisiting metadata.
+ */
+std::string
+SaveSet::getSpectrumMetadata(const char* spectrum, const char* metaname) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectSpectrum(spectrum);
+    return md.getMetadataValue(metaname);
+}
+/**
+ * dumpSpectrumMetadata
+ *   Returns all of the metadata name/value pairs that have been defined
+ * for a spectrum.
+ * 
+ * @param spectrum -name of the spectrum.
+ * @return std::vector<std::pair<std::string, std::string>> - each pair is a metadata
+ * item with the .first element a metadata item name and the second its value.
+ * @throw std::exception derived exception if the spectrum does not exist.
+ */
+std::vector<std::pair<std::string, std::string>>
+SaveSet::dumpSpectrumMetadata(const char* spectrum) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectSpectrum(spectrum);
+    return md.dumpMetadata();
+}
+
+/**
+ * setGateMetadata
+ *    set the value of a metadata item associated with a gate.
+ * 
+ * @param gate -name of the gate.
+ * @param metaname - name of the metadata item.
+ * @praam value - value to assign to the metadata item.
+ * @throw std::exception derived if the gate does not exist.
+ */
+void
+SaveSet::setGateMetadata(
+    const char* gate, const char* metaname, const char* value) 
+{
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectGate(gate);
+    md.setMetadataItem(metaname, value);
+}
+/**
+ *  getGateMetadata
+ * 
+ *  @param gate -name of a gate.
+ *  @param metaname - name of an existing metadata item associated with the gate.
+ *  @return std::string - value of that metadata item.
+ * @throw std::exception derived exception if the gate does not exist or
+ * the associated metadata does not exist.
+ */
+std::string
+SaveSet::getGateMetadata(const char* gate, const char* metaname) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectGate(gate);
+    return md.getMetadataValue(metaname);
+}
+/**
+ * dumpGateMetadata
+ * @param gate -name of a gate.
+ * @return std::vector<std::pair<std::string, std::string>> - vector of metadata
+ * name/value pairs.
+ */
+std::vector<std::pair<std::string, std::string>>
+SaveSet::dumpGateMetadata(const char* gate) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectGate(gate);
+    return md.dumpMetadata();
+}
+
+/**
+ * setTreevarMetadata
+ *    Sets the value of a metadata item associated with a treevariable.
+ * @param varname - name of the variable.
+ * @param metaname - name of the metadata item to set.
+ * @param value   - value for the metadata item.
+ * @throw std::exception derived exception if the treevariable selected does not
+ * exist.
+ */
+void
+SaveSet::setTreevarMetadata(
+    const char* varname, const char* metaname, const char* value
+) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectTreevar(varname);
+    md.setMetadataItem(metaname, value);
+}
+/**
+ * getTreevarMetadata
+ * 
+ * @param varname - name of the variable.
+ * @param metaname - name of the metadata item.
+ * @return std::string - value of the metadata item.
+ * @throw std::exception derived exception if the variable does not 
+ * exist or if it does but does not have the requested metadata item.
+ */
+std::string
+SaveSet::getTreevarMetadata(const char* varname, const char* metaname) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectTreevar(varname);
+
+    return md.getMetadataValue(metaname);
+}
+/**
+ * dumpTreevarMetadata
+ * 
+ * @param varname - name of a tree variable.
+ * @return std::vector<std::pair<std::string, std::string>> the first string
+ * in each pair is the name of a metadata item.  The second its value.
+ * 
+ * @throw std::exception derived exception if the tree variable does not
+ * exist.
+ */
+std::vector<std::pair<std::string, std::string>>
+SaveSet::dumpTreevarMetadata(const char* varname) {
+    DBMetadata md(m_connection, m_Info.s_id);
+    md.selectTreevar(varname);
+
+    return md.dumpMetadata();
+}
+
 ////////////////////////////////////////////////////////////
 // API for storing run data.
 
