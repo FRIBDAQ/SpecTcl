@@ -49,6 +49,9 @@ class metatests : public CppUnit::TestFixture {
     CPPUNIT_TEST(set_2);      // Set spectrum metadata.
     CPPUNIT_TEST(set_3);      // set gate metadata.
     CPPUNIT_TEST(set_4);      // set tree var metadata.
+    
+    CPPUNIT_TEST(get_1);      // get metadata nonexistent.
+    CPPUNIT_TEST(get_2);      // get metadata exists.
     CPPUNIT_TEST_SUITE_END();
 protected:
     void construct_1();
@@ -70,6 +73,9 @@ protected:
     void set_2();
     void set_3();
     void set_4();
+
+    void get_1();
+    void get_2();
 private:
     std::string m_filename;
     SpecTclDB::CDatabase* m_db;
@@ -369,4 +375,31 @@ void metatests::set_4() {
 
     ++stmt;
     ASSERT(stmt.atEnd());             // didn't make another one.
+}
+
+// For get we're going to just test with parameters assuming if that works, it's the same
+// query with just a different item type and the set tests
+// determine the types all get set properly.
+
+void
+metatests::get_1() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    md.selectParameter("aparameter");
+
+    CPPUNIT_ASSERT_THROW(
+        md.getMetadataValue("nosuchitem"),
+        std::exception
+    );
+}
+void
+metatests::get_2() {
+    SpecTclDB::DBMetadata md(*m_connection, m_saveid);
+    md.selectParameter("aparameter");
+    md.setMetadataItem("some", "value");
+
+    std::string value; 
+    CPPUNIT_ASSERT_NO_THROW(
+        value = md.getMetadataValue("some")
+    );
+    EQ(std::string("value"), value);
 }
