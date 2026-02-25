@@ -147,8 +147,9 @@ DBMetadata::setMetadataItem(const char* name, const char* value) {
     inserter.bind(1, m_type.c_str(), -1, SQLITE_STATIC);
     inserter.bind(2, m_fkId);
     inserter.bind(3, name, -1, SQLITE_STATIC);
-    inserter.bind(4, name, -1, SQLITE_STATIC);
-
+    inserter.bind(4, value, -1, SQLITE_STATIC);
+    ++inserter;                          // Do the insertion.
+       
 }
 /**
  * getMetadataValue
