@@ -32,6 +32,7 @@
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 
+
 #include <stdexcept>
 #include <sstream>
 #include <string>
@@ -532,6 +533,28 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             getRunInfo(interp, objv);
         } else if (command == "getScalers") {
             getScalers(interp, objv);
+        } else if (command == "setparamMetadata") {
+            setParameterMetadata(interp, objv);
+        } else if (command == "getparamMetadata") {
+            getParameterMetadata(interp, objv);
+        } else if (command == "dumpparamMetadata") {
+            dumpParameterMetadata(interp, objv);
+        } else if (command == "setspectrumMetadata") {
+            setSpectrumMetadata(interp, objv);
+        } else if (command == "getspectrumMetadata") {
+            getSpectrumMetadata(interp, objv);
+        } else if (command == "dumpspectrumMetadata") {
+            dumpSpectrumMetadata(interp, objv);
+        } else if (command == "setgateMetadata") {
+            setGateMetadata(interp, objv);
+        } else if (command == "getgateMetadata") {
+            getGateMetadata(interp, objv);
+        } else if (command == "dumpgateMetadata") {
+            dumpGateMetadata(interp, objv);
+        } else if (command == "settvarMetadata") {
+            setTreevarMetadata(interp, objv);
+        } else if (command == "dumptvarMetadata") {
+            dumpTreevarMetadata(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1497,6 +1520,228 @@ TclSaveSet::getScalers(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     m_pSaveSet->closeScalers(ctx);
     interp.setResult(result);
 }
+/**
+ * setParameterMetadata
+ *    Sets the value of metadata for a parameter.
+ * 
+ * command form:
+ * \verbatim
+ * $saveset setparamMetadata parname metaname metavalue
+ * \endverbatim
+ * 
+ * @param interp - references the interpreter running the command.
+ * @param objv   - The command words. See aboe.
+ */
+void
+TclSaveSet::setParameterMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 5);
+
+    std::string par      = objv[2];
+    std::string metaname = objv[3];
+    std::string value    = objv[4];
+    m_pSaveSet->setParameterMetadata(par.c_str(), metaname.c_str(), value.c_str());
+}
+/**
+ * getParameterMetadata
+ *     sets the result with the value of the selected metadata item for a parameter.
+ * 
+ * \verbose
+ *   $saveset getparamMetadata parname metaname
+ * \endverbose
+ * 
+ * 
+ *
+ * @param interp - references the interpreter running the command.
+ * @param objv   - The command words. See aboe.
+ */
+void
+TclSaveSet::getParameterMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 4);
+    std::string par = objv[2];
+    std::string metaname = objv[3];
+
+    interp.setResult(m_pSaveSet->getParameterMetadata(
+        par.c_str(), metaname.c_str()
+    ));
+}
+
+/**
+ * dumpParameterMetadata
+ * 
+ * Sets the result with a dict of the metadata for a parameter.
+ * 
+ * \verbatim
+ *  $saveset dumpparamMetadata parname
+ * \endverbatim
+ * 
+ * @param interp - references the interpreter running the command.
+ * @param objv   - The command words. See aboe.
+ *
+ */
+void 
+TclSaveSet::dumpParameterMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 3);
+
+    std::string par =objv[2];
+    auto metadata = m_pSaveSet->dumpParameterMetadata(par.c_str());
+
+    makeMetadataDictResult(interp, metadata);
+}
+
+/**
+ * setSpectrumMetadata
+ *    Sets metadata for a spectrum.
+ * 
+ * @param interp - references the interpreter running the command.
+ * @param objv   - The command words. See aboe.
+ */
+void 
+TclSaveSet::setSpectrumMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 5);
+    std::string spec = objv[2];
+    std::string metaname = objv[3];
+    std::string value  = objv[4];
+
+    m_pSaveSet->setSpectrumMetadata(spec.c_str(), metaname.c_str(), value.c_str());
+}
+/**
+ *  getSpectrumMetadata
+ *   Set the result with a spectrum metadata item value.
+ * 
+ * @param interp - interpreter running the command.
+ * @param objv   - the command words.
+ */
+void
+TclSaveSet::getSpectrumMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 4);
+    std::string spec = objv[2];
+    std::string metaname = objv[3];
+
+    interp.setResult(
+        m_pSaveSet->getSpectrumMetadata(spec.c_str(), metaname.c_str())
+    );
+}
+/**
+ * dumpSpectrumMetadata
+ *    set the result with a dict that contains the metadata from a spectrum.
+ * @param interp - interpreter running the command.
+ * @param objv   - the command words.
+ */
+void
+TclSaveSet::dumpSpectrumMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 3);
+    std::string spec = objv[2];
+
+    auto metadata = m_pSaveSet->dumpSpectrumMetadata(spec.c_str());
+    makeMetadataDictResult(interp, metadata);
+}
+
+/**
+ * setGateMetadata
+ * 
+ *    Set the value of a metadata item associate with a gate.
+ * 
+ * @param interp -interpreter running the command.
+ * @param objv   - command words.
+ */
+void
+TclSaveSet::setGateMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 5);
+
+    std::string gate = objv[2];
+    std::string metaname = objv[3];
+    std::string value = objv[4];
+
+    m_pSaveSet->setGateMetadata(gate.c_str(), metaname.c_str(), value.c_str());
+}
+/**
+ * getGateMetadata
+ *    Retrieve the value of a metadata item associated with a gate
+ * 
+ * @param interp - interpeter running the command.
+ * @param objv  - the command words.
+ */
+void
+TclSaveSet::getGateMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 4);
+
+    std::string gate = objv[2];
+    std::string metaname = objv[3];
+
+    interp.setResult(m_pSaveSet->getGateMetadata(gate.c_str(), metaname.c_str()));
+}
+/**
+ *  dumpGateMetadata
+ *    sets the result to a dict that contains all the metadata associated
+ * with a gate.
+ * 
+ * @param interp - interpreter running the command.
+ * @param objv   - the command words.
+ */
+void
+TclSaveSet::dumpGateMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 3); 
+
+    std::string gate = objv[2];
+    auto metadata = m_pSaveSet->dumpGateMetadata(gate.c_str());
+
+    makeMetadataDictResult(interp, metadata);
+}
+
+/**
+ *  setTreevarMetadata 
+ *     set metadata associated with a tree variable.
+ * 
+ * @param interp - interpreter running the command.
+ * @param ovjv   - the command words.
+ */
+void
+TclSaveSet::setTreevarMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 5);
+
+    std::string var = objv[2];
+    std::string metaname = objv[3];
+    std::string value = objv[4];
+
+    m_pSaveSet->setTreevarMetadata(var.c_str(), metaname.c_str(), value.c_str());
+}
+/**
+ *  getTreevarMetadata
+ * 
+ *     Set the result with the value of a metadata item.
+ * 
+ * @param interp  -the interpreter running the command.
+ * @param objv   - the command words.
+ */
+void
+TclSaveSet::getTreevarMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 4);
+
+    std::string var = objv[2];
+    std::string metaname = objv[3];
+
+    interp.setResult(m_pSaveSet->getTreevarMetadata(var.c_str(), metaname.c_str()));
+}
+
+/**
+ *  dumpTreevarMetadata
+ *     set the interpreter result with a dict of a tree variable's metadata.
+ * 
+ * @param interp - interpreter runnig the command.
+ * @param objv   - the command words.
+ */
+void
+TclSaveSet::dumpTreevarMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 3);
+    
+    std::string var = objv[2];  
+    auto metadata = m_pSaveSet->dumpTreevarMetadata(var.c_str());
+
+    makeMetadataDictResult(interp, metadata);
+}
+/**
+ *  
+ */
 ////
 // TclSaveSet private utilities:
 //
@@ -1857,6 +2102,26 @@ TclSaveSet::makeVarDict(
     AddKey(obj, "value", info.s_value);
     AddKey(obj, "units", info.s_units.c_str());
 } 
+/**
+ * Turn metadata into a dict interpreter result.
+ * 
+ * @parma interp - references the interpreter whose result will be set.
+ * @param metadata - the metadata vector.
+ */
+void 
+TclSaveSet::makeMetadataDictResult(
+        CTCLInterpreter& interp, 
+        const std::vector<std::pair<std::string, std::string>>&  metadata
+) {
+    CTCLObject result;
+    InitDict(interp, result);
+
+    for (const auto& name_value : metadata) {
+        AddKey(result, name_value.first.c_str(), name_value.second.c_str());
+    }
+    interp.setResult(result);
+
+}
 //////
 
 
@@ -1979,6 +2244,7 @@ void gatePointsToDictList(
     }
     
 }
+
 
 
 }                // SpecTclDB Namespace

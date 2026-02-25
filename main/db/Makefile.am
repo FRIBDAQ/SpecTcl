@@ -14,6 +14,7 @@ libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@ -I@top_srcdir@/factories \
 	-DTCLLIBS=@prefix@/TclLibs -g @UFMT_CPPFLAGS@
 libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
+	@builddir@/../Utility/libUtilities.la \
 	@builddir@/../Core/libTclGrammerApp.la   \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @UFMT_LDFLAGS@
 
@@ -37,6 +38,7 @@ libSpecTclDbTcl_la_CXXFLAGS=@SQLITE3_CFLAGS@ -g @TCL_CPPFLAGS@ \
 	-I@top_srcdir@/Utility -I@top_srcdir@/factories @UFMT_CPPFLAGS@
 libSpecTclDbTcl_la_LDFLAGS=libSpecTclDb.la libSqlite3pp.la \
         @builddir@/../Core/libTclGrammerApp.la   \
+	@builddir@/../Utility/libUtilities.la \
         @SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @ROOT_LDFLAGS@ \
 		@UFMT_LDFLAGS@
 
