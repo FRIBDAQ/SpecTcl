@@ -3070,6 +3070,125 @@ tcltest::test getchannels_4 {correctly restores saved channels} \
     
     $svcmd getChannels raw.0
 } -result [list [list 1 2 3] [list 1 1 1] [list 3 2 1]]
+
+
+
+# Metadata tests Issue #229
+
+tcltest::test setparammeta_1 {No such parameter is an error.} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd setparamMetadata testparam a b}
+} -result 1
+
+tcltest::test setparammeta_2 {Set metadata for a parameter that exists} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter testparam 1
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd setparamMetadata testparam a b
+
+    #  Now see if it's in the database:
+
+    sqlite3 db $fname
+    db eval {SELECT value FROM metadata WHERE type='parameter' AND name ='a'}
+
+}  -result b
+
+tcltest::test getparammeta_1 {Get parameter metadata from a parameter that does not exit} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd getparamMetadata testparam a}
+} -result 1
+
+tcltest::test getparammeta_2 {successful get of parameter metadata} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter testparam 1
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd setparamMetadata testparam a b
+    $svcmd  getparamMetadata testparam a
+} -result b
+
+tcltest::test dumpparammeta_1 {No such parameter} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd dumpparamMetadata testparam}
+} -result 1
+
+tcltest::test dumpparammeta_2 {good dump} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter testparam 1
+    $svcmd setparamMetadata testparam a b
+    $svcmd setparamMetadata testparam c d
+    $svcmd setparamMetadata testparam e f
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd dumpparamMetadata testparam
+} -result [dict create a b c d e f]
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:
