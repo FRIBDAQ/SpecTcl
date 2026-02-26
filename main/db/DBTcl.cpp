@@ -553,6 +553,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             dumpGateMetadata(interp, objv);
         } else if (command == "settvarMetadata") {
             setTreevarMetadata(interp, objv);
+        } else if (command == "gettvarMetadata")  {
+            getTreevarMetadata(interp, objv);
         } else if (command == "dumptvarMetadata") {
             dumpTreevarMetadata(interp, objv);
         } else {
