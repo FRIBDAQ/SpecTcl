@@ -37,6 +37,7 @@
 #include "SpectrumFormatError.h"
 #include "Parameter.h"
 #include "SpectrumFactory.h"
+#include "SpecTcl.h"
 
 #include <histotypes.h>
 #include <sstream>
@@ -53,7 +54,7 @@
 #include <json/writer.h>
 #include <json/reader.h>
 
-
+#include <map>
 
 /**
  * Construct the formatter.  For the most part
@@ -203,6 +204,28 @@ CSpectrumFormatterJson:: Write(
         description["x_axis"] = axes.first;
         description["y_axis"] = axes.second;
 
+        // Spectrum metadata:
+
+        auto spectrumMeta = rSpectrum.getAllMetadata(); // map.
+        Json::Value spmetadata(Json::arrayValue);
+        for (auto p : spectrumMeta) {
+            Json::Value metaitem;
+            metaitem["name"]  = p.first;
+            metaitem["value"] = p.second;
+            spmetadata.append(metaitem);
+        }
+        description["metadata"]["spectrum"] = spmetadata;
+
+        // Paramter metadata:
+
+        Json::Value paramsMeta(Json::arrayValue);    // Array of parameters:
+        for (auto name : xyparams.first) {
+            paramsMeta.append(parameterMetadata(name.c_str()));
+        }
+        for (auto name : xyparams.second) {
+            paramsMeta.append(parameterMetadata(name.c_str()));
+        }
+        description["metadata"]["parameters"] = paramsMeta;
 
         return description;
    }
@@ -540,5 +563,36 @@ CSpectrumFormatterJson::fillSpectrum(CSpectrum& spec, Json::Value& channels) {
     }
 }
 
+/**
+ * parameterMetadata
+ *    Given a parameter name, creates an object with its metadata.  This is of the form
+ * \verbatim
+ * { "name" : parameterName,
+ *   "metadata" : [{"name" : name, "value": value}...]
+ * }
+ * \endverbatimm
+ * 
+ * @param pname -name of a parameter
+ * @return Json::Value containing that schema
+ * 
+ * 
+ */
+Json::Value
+CSpectrumFormatterJson::parameterMetadata(const char *pName) {
+    auto pDefinition = SpecTcl::getInstance()->FindParameter(pName);
+    auto metadata = pDefinition->getAllMetadata();
 
+    Json::Value result;
+    result["name"] = std::string(pName);
+
+    Json::Value md(Json::arrayValue);
+    for (auto p : metadata) {
+        Json::Value item;
+        item["name"] = p.first;
+        item["name"] = p.second;
+        md.append(item);
+    }
+    result["metadata"] = md;
+    return result;
+}
 
