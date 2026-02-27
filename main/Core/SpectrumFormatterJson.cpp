@@ -54,7 +54,6 @@
 #include <json/writer.h>
 #include <json/reader.h>
 
-#include <map>
 
 /**
  * Construct the formatter.  For the most part
@@ -468,7 +467,17 @@ CSpectrumFormatterJson::unpackDescription(Json::Value& desc) {
         result.yaxis->high = desc["y_axis"][1].asDouble();
         result.yaxis->bins = desc["y_axis"][2].asUInt();
     }
+    // The spectrum metadata:
 
+    result.spectrumMetadata = jsonToMetadata(desc["metadata"]["spectrum"]);
+    
+
+    for (int i = 0; i < desc["metadata"]["parameters"].size(); i++) {
+        std::string pname =  desc["metadata"]["parameters"][i]["name"].asString();   // parameter name:
+        CMetadata::Metadata_t metadata = jsonToMetadata(desc["metadata"]["parameters"][i]["metadata"]);
+        std::pair<std::string, CMetadata::Metadata_t> pm = {pname, metadata};
+        result.paramMetadata.push_back(pm);
+    }
 
 
     return result;
@@ -522,6 +531,27 @@ CSpectrumFormatterJson::makeSpectrum(SpectrumDescription& desc) {
             desc.name.c_str(),
             desc.type, allParams, keLong, bins, &lows, &highs
         );
+
+    }
+    // Set the spectrum metadata:
+    
+    for (auto p : desc.spectrumMetadata) {
+        pResult->setMetadata(p.first.c_str(), p.second.c_str());
+    }
+    // Update the paramter metadata:
+
+    for (auto p : desc.paramMetadata) {
+        std::string pname = p.first;
+        CMetadata::Metadata_t& metadata = p.second;
+
+        CParameter* param = SpecTcl::getInstance()->FindParameter(pname);
+        if (param) {                      //might not exist...that's allowed on restore.
+            for(auto m : metadata) {
+                param->setMetadata(m.first.c_str(), m.second.c_str());
+            }
+
+        }
+
     }
 
 
@@ -596,3 +626,23 @@ CSpectrumFormatterJson::parameterMetadata(const char *pName) {
     return result;
 }
 
+/**
+ *  jsonToMetadata
+ * 
+ * Given a reference to a Json array of name/value objects, unpacks that into a Metadata_t:
+ * 
+ * @param metadata - references the json subdoc.
+ * @return CMetadata::Metadata_t  the metadata unpacked.
+ */
+CMetadata::Metadata_t
+CSpectrumFormatterJson::jsonToMetadata(Json::Value& metadata) {
+    CMetadata::Metadata_t result;
+
+    for (int i =0; i < metadata.size(); i++) {
+        std::string name = metadata[i]["name"].asString();
+        std::string value= metadata[i]["value"].asString();
+
+        result[name] = value;
+    }
+    return result;
+}

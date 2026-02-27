@@ -39,7 +39,8 @@
 #include <vector>
 #include <string>
 #include <utility>
-
+#include <map>
+#include <CMetadata.h>
 namespace Json {
     class Value;
 }
@@ -153,6 +154,7 @@ class CSpectrumFormatterJson : public CSpectrumFormatter {
 private:
     // Internal structure the header gets marshalled into:
 
+
     struct AxisSpecification
     {
         double low;
@@ -167,7 +169,8 @@ private:
         AxisSpecification* yaxis; // Can be nullptr.
         std::vector<std::string> xparams;
         std::vector<std::string> yparams;
-
+        CMetadata::Metadata_t    spectrumMetadata;
+        std::vector<std::pair<std::string, CMetadata::Metadata_t>> paramMetadata;
         ~SpectrumDescription() {
             delete yaxis;
         }
@@ -212,6 +215,8 @@ private:
     CSpectrum* makeSpectrum(SpectrumDescription& desc);
     void fillSpectrum(CSpectrum& spec, Json::Value& channels);
     Json::Value parameterMetadata(const char* pname);
+
+    CMetadata::Metadata_t jsonToMetadata(Json::Value& metadata);
 };
 
 
