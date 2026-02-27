@@ -390,6 +390,11 @@ proc _restoreParamDefs {saveset} {
             
             _restoreTreeParam $name $low $high $bins $units
         } 
+        #  Issue #229 - restore any metadata the parameter has:
+
+        dict for {mname mvalue} [$saveset dumpparamMetadata $name] {
+            parameter -setmetadata $name $mname $mvalue
+        }
     }
     
 }
@@ -429,6 +434,11 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
         set cmd [_makeSpectrumCreateCommand $def]
         eval $cmd
         
+        #  Issue #229 - restore any metadata associated with the spectrum:
+
+        dict for {mname mvalue} [$saveset dumpspectrumMetadata $name] {
+            spectrum -setmetadata $name $mname $mvalue
+        }
     }
 }
 ##
@@ -721,6 +731,13 @@ proc _restoreGateDefs {saveset} {
         } elseif {$type in [list em am nm]} {
             _restoreMaskGate  $gate
         }
+        # ISsue #229 - restore metadata
+
+        set name [dict get $gate name]
+        dict for {mname mvalue} [$saveset dumpgateMetadata $name] {
+           gate -setmetadata $name $mname $mvalue
+        }
+
     }
 }
 ##
@@ -750,6 +767,12 @@ proc _restoreTreeVariables {saveset} {
         set value [dict get $def value]
         set units [dict get $def units]
         treevariable -set $name $value $units
+
+        # issue #229 Restore tree variable metadata:
+
+        dict for {mname mvalue} [$saveset dumptvarMetadata $name] {
+            treevariable -setmetadata $name $mname $mvalue
+        }
     }
 }
 

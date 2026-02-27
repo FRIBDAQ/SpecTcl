@@ -287,7 +287,7 @@ CParameterPackage::DeleteParameter(CTCLInterpreter& rInterp, const char* pName)
 				 "Locating parameter - inexact match only",
 				 pName);
     pParam = api.RemoveParameter(pName);
-    delete pParam;
+    
     rInterp.setResult(pName);
     return TCL_OK;
   }
