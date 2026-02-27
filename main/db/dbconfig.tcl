@@ -55,13 +55,23 @@ proc _saveParameters {saveset} {
             set units [lindex $tdef 5]
             
             $saveset createParameter $name $number $low $high $bins $units
+
+            # Issue #229 - if there's metadata create it too:
+
+            dict for {mname mvalue} [parameter -dumpmetadata $name] {
+                $saveset setparamMetadata $name $mname $mvalue
+            }
             
         } else {
             # only save name and number:
             
             $saveset createParameter $name $number
+            dict for {mname mvalue} [parameter -dumpmetadata $name] {
+                $saveset setparamMetadata $name $mname $mvalue
+            }
             
         }
+        
     }
 }
 ##
@@ -84,6 +94,12 @@ proc _saveSpectrumDefs {saveset} {
         set datatype [lindex $def 5]
         
         $saveset createSpectrum  $name $type $params $axes $datatype
+        
+        # issue #229 - save the metadata:
+
+        dict for {mname mvalue} [spectrum -dumpmetadata $name] {
+            $saveset setspectrumMetadata $name $mname $mvalue
+        }
     }
 }
 
@@ -241,6 +257,12 @@ proc _saveGateDefinitions {saveset} {
         } else {
             error "Unknonw gate type; $type"
         }
+        #  Issue #229 - save metadata - If the gate was an unkonw type we won't get here:
+
+        dict for {mname mvalue} [gate -dumpmetadata $name] {
+            
+            $saveset setgateMetadata $name $mname $mvalue
+        }
     }
         
 }
@@ -282,6 +304,11 @@ proc _saveTreeVariables {saveset} {
         set units [lindex $def 2]
         $saveset createVariable $name $value $units
         
+        # Issue #229 - save metadata:
+
+        dict for {mname mvalue} [treevariable -dumpmetadata $name] {
+            $saveset settvarMetadata $name $mname $mvalue
+        }
     }
 }
 
