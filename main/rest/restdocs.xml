@@ -662,6 +662,45 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter
                 This is a string, not a number.
                </para>
             </section>
+            <section>
+                <title>setmetadata</title>
+                <informalexample>
+                <programlisting>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter/setmetadata?name=parname&amp;metaname=mname&amp;value=value
+                </programlisting>
+                </informalexample>
+                <para>
+                    Sets the value of a metadata item in the parameter <parameter>parname</parameter>
+                    the metadata item is named <parameter>metaname</parameter> and it is assigned the
+                    value <parameter>value</parameter> on success, the detail is empty.
+                </para>
+            </section>
+            <section>
+                <title>getmetadata</title>
+                <informalexample>
+                <programlisting>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter/getmetadata?name=parname&amp;metaname=mname
+                </programlisting>
+                </informalexample>
+                <para>
+                    On success, the detail is the value of the metadata item specified by <parameter>metaname</parameter>
+                    for the parameter specified by <parameter>parname</parameter>
+                </para>
+            </section>
+            <section>
+                <title>Dump metadata.</title>
+                <informalexample>
+                <programlisting>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter/dumpmetadata?name=parname
+                </programlisting>
+                </informalexample>
+                <para>
+                    Dumps all of the meta data defined on the paramter <parameter>parname</parameter>
+                    On success, the detail is a Json array of objects.  Each object has a <literal>name</literal>
+                    attribute whose value is the name of a metadata item and an attribute <literal>value</literal>
+                    whose value is the value of that metadata item.
+                </para>
+            </section>
         </section>
         <section>
             <title>spectrum requests</title>
