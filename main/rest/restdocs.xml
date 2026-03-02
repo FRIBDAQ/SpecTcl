@@ -1555,6 +1555,46 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/gate
                     that can actually increment spectra.
                 </para>
             </section>
+        
+        </section>
+        <section>
+            <title>Set metadata</title>
+            <informalexample><programlisting>
+http://host:port/spectcl/gate/setmetadata?name=gatename&amp;metaname=metadata-name&amp;value=metadata-value                
+            </programlisting></informalexample>
+            <para>
+                Available since 7.0-004
+            </para>
+            <para>
+                Sets the value of metadata associated with the gate <parameter>name</parameter>
+                The metadata item named <parameter>metaname</parameter> is given the value
+                <parameter>value</parameter>.  If necessary a new metadata item is created.
+            </para>
+        </section>
+        <section>
+            <title>Get metadata</title>
+            <informalexample><programlisting>
+http://host:port/spectcl/gate/getmetadata?name=gatename&amp;metaname=metadata-name
+            </programlisting></informalexample>
+            <para>Available since 7.0-004</para>
+            <para>
+                Returns the value of the metadata item named <parameter>metaname</parameter>
+                associated with the gate <parameter>name</parameter> as the detail
+                of the reply.
+            </para>
+        </section>
+        <section>
+            <title>Dump metadata</title>
+            <informalexample><programlisting>
+http://host:port/spectcl/gate/dumpmetadata?name=gatename
+            </programlisting></informalexample>
+            <para>Available since 7.0-004</para>
+            <para>
+                Dumps the metadata associated with the gate <parameter>name</parameter>
+                the detail of the reply is a JSON array consisting of objects.  Each object
+                has a <literal>name</literal> attribute which is the name of a metadata item 
+                and a <literal>value</literal> attribute which is the value of that metadata item.
+            </para>
         </section>
         <section>
             <title>Gate Applications.</title>
