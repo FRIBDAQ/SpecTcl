@@ -310,6 +310,71 @@ proc SpecTcl_Gate/edit {args} {
     return [::SpecTcl::_returnObject ]
 }
 
+#------------------ Issue #229 - metadata endpoints.
+
+##
+# SpecTcl_Gate/setmetadata?name=gatename&metaname=metadata-name&value=metadata-value
+#
+#   Set the value of a metadata itme.
+# @param name - the name of a gate.
+# @param metaname - the name of the metadata item to set for this gate.
+# @param value - the new value for the metadata item (it's created if needed).
+# @return  if OK, then the detail is empty.
+#
+proc SpecTcl_Gate/setmetadata {name metaname value} {
+	set SpecTcl_Gate/setmetadata  application/json
+
+	# Make sure the gate exists.
+	#
+	if {[llength [gate -list $name]] == 0} {
+		return [SpecTcl::_returnObject "No Such gate" [json::write string $name]]
+	}
+	gate -setmetadata $name $metaname $value;   # Never can fail.
+
+	return [SpecTcl::_returnObject Ok]
+}
+##
+# SpecTcl_Gate/getmetadata?name=gatename&metaname=metadata-name
+#
+#  Retrieves the value of a metadata item associated with a gate:
+#
+# @param name - name of the gate.
+# @param metaname - name of the metadata item.
+# @return if OK, the detail is the value of the metadata item for this gate.
+#
+proc SpecTcl_Gate/getmetadata {name metaname} {
+	set SpecTcl_Gate/getmetadata application/json
+
+	if {[llength [gate -list $name]] == 0} {
+		return [SpecTcl::_returnObject "No Such gate" [json::write string $name]]
+	}
+
+	if {[catch {gate -getmetadata $name $metaname} value]} {
+		return [SpecTcl::_returnObject "could not retrieve metadata" [json::write string $value]]
+	}
+	return [SpecTcl::_returnObject OK [json::write string $value]]
+}
+##
+# SpecTcl_Gate/dumpmetadata?name=gatename
+#
+# Get all the metadata associated with a gate.
+#
+# @param name - name of the gate.
+# @return On OK, the detail is a JSON array of objects. Each object has
+#   a 'name' attribute which is the name of a metadata item and a 'value'
+#   attributes which is the value of that metadata item.
+#
+proc SpecTcl_Gate/dumpmetadata {name} {
+	set SpecTcl_Gate/dumpmetadata application/json
+
+	if {[llength [gate -list $name]] == 0} {
+		return [SpecTcl::_returnObject "No Such gate" [json::write string $name]]
+	}
+	set metadata [gate -dumpmetadata $name]
+	set metaJson [SpecTcl::metadataToJson $metadata]
+
+	return [SpecTcl::_returnObject OK $metaJson]
+}
 #--------------------------------------------------------------------------------
 #
 #  Local procs
