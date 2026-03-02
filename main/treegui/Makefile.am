@@ -28,7 +28,8 @@ treeVariableContainer.tcl \
 treeVariableEditor.tcl \
 treeVariableLoadSave.tcl \
 variableTabActions.tcl  \
-waveformtab.tcl
+waveformtab.tcl \
+metadata.tcl
 
 
 install-exec-local:
