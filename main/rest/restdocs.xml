@@ -1041,7 +1041,56 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum
                     in the even the data are binary.
                 </para>
             </section>
-            
+            <section>
+                <title>Set metadata</title>
+                <informalexample>
+                <programlisting>
+http://host:port/spectrum/setmetadata?name=spectname&amp;metaname=metadataname&amp;value=metavalue
+                </programlisting>
+                </informalexample>
+                <para>
+                    Supported since 7.0-004.
+                </para>
+                <para>
+                      This sets the value of the metadata
+                    item named <parameter>metaname</parameter> to <parameter>value</parameter> 
+                    for the spectrum named <parameter>name</parameter>.  On success, the
+                    detail is empty. For errors, the detail is more information about the error.
+                </para>
+            </section>
+            <section>
+                <title>Get metadata</title>
+                <informalexample>
+                <programlisting>
+http://host:port/spectrum/getmetadata?name=specname&amp;metaname=metadata-item
+                </programlisting>
+                </informalexample>
+                <para>
+                    Supported since 7.0-004
+                </para>
+                <para>
+                    If successful, the detail will be the value of the metadata
+                    item named <parameter>metaname</parameter> on the spectrum
+                    <parameter>name</parameter>.
+                </para>
+            </section>
+            <section>
+                <title>dump metadata</title>
+                <informalexample><programlisting>
+http://host:port/spectrum/dumpmetadata?name=specname             
+                </programlisting></informalexample>
+                <para>
+                    Available since 7.0-004
+                </para>
+                <para>
+                    On success, this returns the metadata associated with the spectrum
+                    <parameter>name</parameter>.  This information is returned in the detail
+                    of the response and consists of an array of Json objects.  Each object in 
+                    the array has the attributes <literal>name</literal> which is the name of
+                    a metadata item and <literal>value</literal> which is the value of that
+                    metadata item.
+                </para>
+            </section>
         </section>
         <section>
             <title>gate requests</title>
