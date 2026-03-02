@@ -340,11 +340,19 @@ proc SpecTcl_Parameter/dumpmetadata {name} {
     }
 
     set metadata [parameter -dumpmetadata $name]
+    
+    set metajson [SpecTcl::metadataToJson $metadata]
+    return [::SpecTcl::_returnObject "OK" $metajson]
+}
+
+#--- local proc to turn a metadata dict into the Json object:
+
+proc SpecTcl::metadataToJson {metadata} {
+    
     set jsonArray [list]
     dict for {name value} $metadata {
         lappend jsonArray [json::write object name [json::write string $name] \
-         value [json::write string $value]]
+        value [json::write string $value]]
     }
-
-    return [::SpecTcl::_returnObject "OK" [json::write array {*}$jsonArray]]
+    return [json::write array {*}$jsonArray]
 }
