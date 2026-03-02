@@ -2496,7 +2496,7 @@ http://host:port/spectcl/treevariable/setmetadata?name=tvname&amp;metaname=metad
            </command></cmdsynopsis>
            </informalexample>
            <para>
-                Create/Modify the value of a metadata item associated wiyth a tree variable 
+                Create/Modify the value of a metadata item associated with a tree variable 
                 <parameter>name</parameter>.  The metadata item name is <parameter>metaname</parameter>
                 and the new value is <parameter>value</parameter>.
            </para>
