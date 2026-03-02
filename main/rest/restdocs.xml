@@ -2490,6 +2490,38 @@ http://host:port/spectcl/treevariable/firetraces<optional>?pattern=glob-pattern<
             Note that if not supplied the pattern defaults to <literal>*</literal>
             which matches all variable names.
            </para>
+            <informalexample>
+           <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/setmetadata?name=tvname&amp;metaname=metadata-name&amp;value=new_value
+           </command></cmdsynopsis>
+           </informalexample>
+           <para>
+                Create/Modify the value of a metadata item associated wiyth a tree variable 
+                <parameter>name</parameter>.  The metadata item name is <parameter>metaname</parameter>
+                and the new value is <parameter>value</parameter>.
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/getmetadata?name=tvname&amp;metaname=metaname          
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Gets the value of the metadata named by <parameter>metaname</parameter>
+            for the tree variable named by the value of <parameter>name</parameter>.
+            On success the current value of that metadata will be in the 
+            <literal>detail</literal> part of the response.
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/dumpmetadata?name=tvname
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+                Dumps the metadata for the tree variable named <parameter>name</parameter>.
+                The <literal>detail</literal>, on success, is an array of objects with 
+                attributes <literal>name</literal> the name of a metadata item and
+                <literal>value</literal> the value of the named item.
+           </para>
         </section>
         <section>
            <title>Accessing the filter command (New in 5.5</title>
