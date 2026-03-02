@@ -135,3 +135,62 @@ proc SpecTcl_treevariable/firetraces {{pattern *}} {
     }
     SpecTcl::_returnObject OK
 }
+
+#---------------- Metadata end points Issue #229.
+
+##
+# SpecTcl_treevariable/setmetadata?name=tvname&metaname=metadata-name&value=new_value
+#
+# @param name - the name of a tree variable.
+# @param metaname - then name of the metadata item to create or modify.
+# @param value - the value for the named metadata item.
+# @return On OK the detail is empty.
+
+proc SpecTcl_treevariable/setmetadata {name metaname value} {
+    set SpecTcl_treevariable/setmetadata application/json
+
+    if {[llength [treevariable -list $name]] == 0} {
+        return [SpecTcl::_returnObject "No Such treevariable" [json::write string $name]]
+    }
+
+    treevariable -setmetadata $name $metaname $value
+
+    return [SpecTcl::_returnObject OK]
+}
+
+##
+# SpecTcl_treevariable/getmetadata?name=tvname&metaname=metaname
+#
+#  Set the detail to the value of the metadata metaname for the 
+#  tree variable tvname.
+#
+proc SpecTcl_treevariable/getmetadata {name metaname} {
+    set SpecTcl_treevariable/setmetadata application/json
+
+    if {[llength [treevariable -list $name]] == 0} {
+        return [SpecTcl::_returnObject "No Such treevariable" [json::write string $name]]
+    }
+
+    if {[catch {treevariable -getmetadata $name $metaname} value]} {
+        return [SpecTcl::_returnObject \
+            "Unable to get metadata $metaname from $name" [json::write string $value]]
+    }
+
+    return [SpecTcl::_returnObject OK [json::write string $value]]
+}
+##
+# SpecTcl_treevariable/dumpmetadata?name=tvname
+#
+# @param name - name of a tree varaible.
+# @return Detail is an array of ojbects with name and value
+# attributes.  The name attribute is the name of a metadata item.
+# the value attributes it the value of that metadtaa item.
+
+proc SpecTcl_treevariable/dumpmetadata {name} {
+    if {[llength [treevariable -list $name]] == 0} {
+        return [SpecTcl::_returnObject "No Such treevariable" [json::write string $name]]
+    }
+
+    set metadata [treevariable -dumpmetadata $name]
+    return [SpecTcl::_returnObject OK [SpecTcl::metadataToJson $metadata]]
+}
