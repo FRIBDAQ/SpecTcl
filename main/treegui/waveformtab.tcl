@@ -22,6 +22,7 @@ package provide SpecTclWaveforms 1.0
 package require Tk;               # We are a GUI.
 package require snit;             # for megawidgets.
 package require Plotchart;        # FOr waveform plots.
+package require MetaDataEditor;   # Editor for metadata.
 
 
 ##
@@ -238,11 +239,7 @@ snit::widget WaveformList {
 #
 #   +------------------------------------------------------+
 #   | <name label>  <samples label> <samples value entry>  |
-#   |  <metadata name> <value>  [new button]               |
-#   |   +------------------------------------------+       |
-#   |   |  Metadata in editable treeview           |       |
-#   ...                 ...                                |
-#   |   +------------------------------------------+
+
 #   |           [Commit button]                            |
 #   +------------------------------------------------------+
 #
@@ -260,8 +257,10 @@ snit::widget WaveformEditor {
     option -command -default [list]
     option -samples -default 0 -readonly 1
     option -name -default "" -readonly 1
-    option -metadata -default "" -readonly 1 -cgetmethod _getmetadata
+    
 
+    component mdeditor
+    delegate option -metadata to mdeditor
     #
     # constructor
     #   Note that the commit button is initially disabled 
@@ -283,35 +282,18 @@ snit::widget WaveformEditor {
 
         # Metadata editing:
 
-        set md [labelframe $win.metadata -relief groove -text metadata]
-        ttk::label $md.name -width -10;   #name is loaded here.
-        ttk::entry $md.value
-        ttk::button $md.commit -text "Modify" -state disabled -command [mymethod _updateMetadata]
-        ttk::button $md.new -text "New..." -command [mymethod _newMetadata] -state disabled
-
-        grid $md.name $md.value $md.commit
-        grid x $md.new
-        grid $md -sticky nsew
-
-        # Metadata view.
-        ttk::scrollbar $win.treescroll -orient vertical -command [list $win.tree yview]
-        ttk::treeview $win.tree \
-            -show headings -columns [list name value] -displaycolumns [list name value] \
-            -selectmode browse -yscrollcommand [list $win.treescroll set]
-        $win.tree heading name -text name
-        $win.tree heading value -text value
-        grid $win.tree $win.treescroll -sticky nsew
+        install mdeditor using MetadataEditor $win.metadata 
+        grid    $mdeditor -sticky nsew
 
         # bottom:
 
         ttk::button $win.commit -text {Commit Changes} -command [mymethod _commitRelay] \
             -state disabled
+
         grid $win.commit
 
 
-        # Establish the event handlers needed to edit metadata.
-
-        bind $win.tree <<TreeviewSelect>> [mymethod _loadMetaEditor]
+       
     }
     #  Public methods
 
@@ -331,40 +313,19 @@ snit::widget WaveformEditor {
         set options(-name) [dict get $desc name]
         set options(-samples) [dict get $desc samples]
 
-        # now the meatdata:
+        # now the metadata:
 
         set metadata [dict get $desc metadata]
-        set existing [$win.tree children {}]
-        $win.tree delete $existing;      # Clear the tree.
-
-        dict for {key value} $metadata {
-            $win.tree insert {} end -values [list $key $value]
-        }
-        
-
-        # Enable the buttons:
+        $mdeditor load $metadata
+    
+        #  Enable the commit button too:
 
         $win.commit configure -state normal
-        $win.metadata.new configure -state normal
+        
     }
     #  Private methods:
 
-    ##
-    # _getmetadata
-    #   Marshall the metadata from the tree:
-    #
-    #  @param opt -name of the option (always -metdata)
-    #  @return dict keyed by metadata name and with metadata values
     
-    method _getmetadata opt {
-        set result [dict create]
-        foreach child [$win.tree children {}] {
-            set key_value [$win.tree item $child -values]
-            dict append result [lindex $key_value 0] [lindex $key_value 1]
-        }
-
-        return $result
-    }
     ##
     # _validSamples
     #    Called when the entry loses focus If the entry contents are not a valid
@@ -396,171 +357,10 @@ snit::widget WaveformEditor {
             }
         }
     }
-    ##
-    # _loadMetaEditor
-    #   Load the metadata editor with the currently selected metadata
-    #   The metadata commit button is enabled so that once editing is 
-    #   done the new value can be updated in the tree view.
-    #
-    method _loadMetaEditor {} {
-        set selected [$win.tree selection]
-        if {[llength $selected] == 0} {
-            return ; # there's no selection actually.
-        }
-        set selectData [$win.tree item $selected -values]
-        $win.metadata.name configure -text [lindex $selectData 0]
-        $win.metadata.value delete 0 end
-        $win.metadata.value insert 0 [lindex $selectData 1]
-        $win.metadata.commit configure -state normal
-    }
-    ##
-    # _updateMetadata
-    #   The metadata Modiy button was clicked.  Pull the data from the
-    #   metadata label and entry and update the table.
-    #
-    method _updateMetadata {} {
-        set name [$win.metadata.name cget -text]
-        set value [$win.metadata.value get]
-        
-        # Find the metadata item by name in the tree and update it.
-
-        set item [$self _findMetadata $name]
-        if {$item ne ""} {
-            $win.tree item $item -values [list $name $value]
-        }
-    }
-    ##
-    #   _newMetadata
-    #    Prompt for a new metadata item.  If one is added and has both name and value not empty,
-    #    it is appended to the tree.  This uses the MetaDataPrompter dialog below.
-    #
-    method _newMetadata {} {
-        MetadataPrompter $win.prompt
-        set md [$win.prompt get]
-        destroy $win.prompt
-        if {$md eq ""} return;            # Cancdled.
-        set name [lindex $md 0]
-        set value [lindex $md 1]
-
-        if {$name eq "" || $value eq ""} {
-            tk_messageBox -parent $win -icon error -type ok \
-                -message {Meta data must have both a name and a value; neither can be blank}
-        } else {
-            # Don't allow duplicates
-            if {[$self _findMetadata $name] ne ""} {
-                tk_messageBox -parent $win -icon error -type ok \
-                    -message "$name is an existing metadata name, duplicates are not allowed"
-            } else {
-                $win.tree insert {} end -values [list $name $value]
-            }
-        }
-    }
-    #-- utility methods:
-
-    #  _findMetadata - find a metadata item given its name:
-    # Returnns an empty string if not found.
-
-    method _findMetadata {name} {
-        foreach item [$win.tree children {} ] {
-            if {$name eq [lindex [$win.tree item $item -values] 0]} {
-                return $item
-            }
-        }
-        #  Not found.
-        return ""
-    }
+    
     
 }
 
-##
-#  MetadataPrompter
-#    This is a modal dialog that prompts a user for a new bit of metadata.
-#
-#  Layout:
-#   +--------------------------------+
-#   | Name: [    ] Value [    ]      |
-#   +--------------------------------+
-#   | [Ok]      [Cancel]             |
-#   +--------------------------------+
-#
-# Usage:
-#\verbatim
-#    MetadataPrompter .somepath
-#    .somepath get
-#\endverbatim
-#
-#  the get returns a two element list of name, value
-#  The list is empty if cancel was clicked.
-#
-snit::widget MetadataPrompter {
-    hulltype toplevel
-
-    # The buttons set this to Ok for the ok button Cancel for the cancel button.
-    # If the dialog is destroyed via its window controls, that's an implied cancel so...
-    variable action Cancel;    
-    variable  hiddenFrame
-    constructor args {
-        #  there are no args so go directly to layout.
-
-        # The top part has the prompt stuff wrapped in a frame.
-
-        set value [ttk::frame $win.value]
-        ttk::label $value.namelbl -text "Name: " -relief groove
-        ttk::entry $value.name
-        ttk::label $value.valuelbl -text "Value: "
-        ttk::entry $value.value
-
-        grid $value.namelbl $value.name $value.valuelbl $value.value
-        grid $value -sticky nsew
-
-        # The button (action) part has the buttons:
-
-        set action [ttk::frame $win.action]
-        ttk::button $action.ok -text Ok -command [mymethod _onOk]
-        ttk::button $action.cancel -text Cancel -command [mymethod _onCancel]
-        grid $action.ok $action.cancel
-        grid $action
-
-    }
-    ##
-    # get
-    #    crate a hidden frame, set modal and focus then wait for the
-    #    hidden frame to be destroyed.
-    # @return Returns the dialog 'value'.
-    # 
-    # @note The caller must destroy the dialog.
-    #
-    method get {} {
-        set hiddenFrame [frame $win.hidden]
-        focus $win
-        tkwait window $hiddenFrame
-        #  If the action variable does not exist we were destroyed by window controls:
-
-        if {[catch {set action}]} {
-            return [list]
-        }
-
-        # One of the buttons was clicked _or_ we were destroyed:
-
-        if {$action eq "Cancel"} {
-            return [list]
-        } else {
-            return [list [$win.value.name get] [$win.value.value get]]
-        }
-    }
-
-    #  private methods (button handler)
-
-    method _onOk {} {
-        set action Ok
-        destroy $hiddenFrame
-    }
-    method _onCancel {} {
-        set action Cancel
-        destroy $hiddenFrame
-    }
-
-}
 
 ##
 #  WaveformDisplay
