@@ -57,6 +57,7 @@ package provide gateContainer 1.0
 #
 #     - deleteselected - script invoked when the "Delete Selected" button is clicked.
 #     - deleteall      - script invoked when the Delete All button is clicked.
+#     -metacmd    - metadata    - metadata button for selected item.
 #
 # Delegated to gateCreate:
 #     -createcmd - Script invoked when the create/replace button is clicked.
@@ -68,7 +69,7 @@ package provide gateContainer 1.0
 #     -gatename   - Gate name
 #     -definition - Gate definition.
 #     -typename   - Gate typename
-#
+#     
 #  METHODS:
 #
 # Delegated to the gateTable
@@ -97,6 +98,7 @@ snit::widget gateContainer {
 
     delegate option -deleteselected to gatedelete
     delegate option -deleteall      to gatedelete
+    delegate option -metacmd        to gatedelete
 
     # Options delegated to the gate creator:
 
