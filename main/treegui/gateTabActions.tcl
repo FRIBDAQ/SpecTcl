@@ -234,34 +234,41 @@ package provide gateTabActions 1.0
     # An update using the current mask is also forced.
     #
     private method deleteSelected {} {
-	set gates [$widget getsel]
-	foreach gate $gates {
-	    gate -delete $gate
-	}
-	updateGates
-	[autoSave::getInstance] failsafeSave
+        set gates [$widget getsel]
+        foreach gate $gates {
+            gate -delete $gate
+        }
+        updateGates
+        [autoSave::getInstance] failsafeSave
     }
     ##
     # Prompt for confirmation and, if we get it, delete all  of the 
     # gates
     #
     private method deleteAll {} {
-	set confirmation [tk_messageBox -type yesno -icon warning \
-			      -message "Are you sure you want to delete all the gate definitions?" \
-			      -default no]
-	if {$confirmation == "yes"} {
-	    foreach gate [gate -list] {
-		#
-		# Only bother for those that are already deleted:
-		#
-		if {[gateType $gate] != "F"} {
-		    gate -delete [lindex $gate 0]
-		}
-	    }
-	    updateGates
-	    [autoSave::getInstance] failsafeSave
-	}
+        set confirmation [tk_messageBox -type yesno -icon warning \
+                    -message "Are you sure you want to delete all the gate definitions?" \
+                    -default no]
+        if {$confirmation == "yes"} {
+            foreach gate [gate -list] {
+            #
+            # Only bother for those that are already deleted:
+            #
+            if {[gateType $gate] != "F"} {
+                gate -delete [lindex $gate 0]
+            }
+            }
+            updateGates
+            [autoSave::getInstance] failsafeSave
+        }
 
+    }
+    ##
+    #  Callback method called when the edit metadata button is clicked.
+    #
+    private method editMetadata {} {
+        set gateName [$widget getsel]
+        puts "Editing metadata for $gateName ."
     }
     ##
     # Callback invoked to create/modify a gate.
@@ -313,7 +320,8 @@ package provide gateTabActions 1.0
 	    -command          [itcl::code $this loadGateSpec  %N] \
 	    -deleteselected   [itcl::code $this deleteSelected]   \
 	    -deleteall        [itcl::code $this deleteAll]        \
-	    -createcmd        [itcl::code $this createGate %G %T %D]
+	    -createcmd        [itcl::code $this createGate %G %T %D] \
+        -metacmd          [itcl::code $this editMetadata]
 
 	loadGateTable *
 	loadGateMenu
