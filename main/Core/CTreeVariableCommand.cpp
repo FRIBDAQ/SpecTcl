@@ -35,7 +35,9 @@
 #include <SpecTcl.h>
 #include <Globals.h>
 #include <TclPump.h>
+#include <CNoSuchObjectException.h>
 #include "CTreeVariableProperties.h"
+#include <TclDict.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -102,6 +104,7 @@ CTreeVariableCommandActual::operator()(
     return TCL_OK;
   }
   // Marshall objv -> argc, argv to make port simpler.
+  bindAll(rInterp, objv);
 
   std::vector<std::string> words;
   std::vector<const char*> pWords;
@@ -151,6 +154,12 @@ CTreeVariableCommandActual::operator()(
   }
   else if (subcommand == "-firetraces") {
     return FireTraces(rInterp, argc, argv);
+  } else if (subcommand == "-setmetadata") {
+    return setMetadata(rInterp, objv);
+  } else if (subcommand == "-getmetadata") {
+    return getMetadata(rInterp, objv);
+  } else if (subcommand == "-dumpmetadata") {
+    return getAllMetadata(rInterp, objv);
   }
   else {
     rResult   = "Unrecognized subcommand";
@@ -491,7 +500,129 @@ CTreeVariableCommandActual::FireTraces(CTCLInterpreter& rInterp,
   return TCL_OK;
 }
 
+/**
+ * setMetadata
+ *   form:
+ * \verbatim
+ * treevariable -setmetadata vname meta-name meta-value
+ * \endverbatim
+ * 
+ * @param interp -interpreter running the command.
+ * @param objv   - the command words that are, in order:
+ * - "treevariable"
+ * - "-setmetadata"
+ * - treevariable name
+ * - metadata name
+ * - metadata value.
+ * @return int - on TCL_OK, the result is not set. Otherwise error message is set in the result.
+ */
+int
+CTreeVariableCommandActual::setMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+  try {
+    requireExactly(objv, 5,"Incorrect number of parameter");
+  } catch (std::string msg) {
+    msg += "\n";
+    msg += Usage();
+    interp.setResult(msg);
+    return TCL_ERROR;
+  }
 
+  std::string vname = objv[2];
+  std::string mname = objv[3];
+  std::string mvalue = objv[4];
+
+  auto p = CTreeVariable::find(vname);
+  if (p == CTreeVariable::end()) {
+    std::string msg = "No such tree variable named: ";
+    msg += vname;
+    interp.setResult(msg);
+    return TCL_ERROR;
+  }
+  p->second->setMetadata(mname.c_str(), mvalue.c_str());
+  return TCL_OK;
+}
+
+/**
+ *  getMetadata
+ *    Set the result with the value of the selected metadata.
+ * 
+ * @param interp - references the interpreter running the command.
+ * @param objv   - Command words which are:
+ * - "treevariable"
+ * - "-setmetadata"
+ * - treevariable name
+ * - metadata name
+ * 
+ * @return int - on success, the result is set with the value of the metadata. 
+ */
+int
+CTreeVariableCommandActual::getMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+  try {
+    requireExactly(objv, 4, "Incorrect number of command parameters");
+  } catch(std::string  msg) {
+    msg += Usage();
+    interp.setResult(msg);
+    return TCL_ERROR;
+  }
+  std::string vname = objv[2];
+  std::string mname = objv[3];
+
+  auto p = CTreeVariable::find(vname);
+  if (p == CTreeVariable::end()) {
+    std::string msg = "No such tree variable named: ";
+    msg += vname;
+    interp.setResult(msg);
+    return TCL_ERROR;
+  }
+  try {
+    std::string value = p->second->getMetadata(mname.c_str());
+    interp.setResult(value);
+  } catch (CNoSuchObjectException& e) {
+    interp.setResult(e.ReasonText());
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}
+
+/**
+ * getAllMetadata
+ * 
+ * @param interp - references the interpreter running the command.
+ * @param objv   - the command parameters which are:
+ * - "treevariable"
+ * - "-setmetadata"
+ * - treevariable name
+ * 
+ * @return int - if TCL_OK, the result is a dict that contains the metadata,
+ * keyed by the metadata names.
+ */
+int
+CTreeVariableCommandActual::getAllMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+  try {
+    requireExactly(objv, 3, "Incorrect number of command parameters");
+  } catch (std::string msg) {
+    msg += Usage();
+    interp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  std::string vname = objv[2];
+  auto p = CTreeVariable::find(vname);
+  if (p == CTreeVariable::end()) {
+    std::string msg = "No such tree variable named: ";
+    msg += vname;
+    interp.setResult(msg);
+    return TCL_ERROR;
+  }
+  
+  const auto& meta = p->second->getAllMetadata();
+  CTCLObject result;
+  result.Bind(interp);
+  Tcl::DictFromStringMap(interp, result, meta);
+
+  interp.setResult(result);
+  return TCL_OK;
+}
 /**
  * Provide a command usage string that can be appended to any error messages
  * produced by the command executors.
@@ -508,6 +639,9 @@ CTreeVariableCommandActual::Usage()
   result += "    treevariable -check name\n";
   result += "    treevariable -setchanged name\n";
   result += "    treevariable -firetraces ?pattern?\n";
+  result += "    treevariable -setmetadata name meta-name meta-value\n";
+  result += "    treevariable -getmetadata name meta-name\n";
+  result += "    treevariable -dumpmetadata name\n";
   
   return result;
 

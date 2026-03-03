@@ -207,7 +207,8 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Gamma2DD.hpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
 	CGammaSummarySpectrum.hpp \
 	GatingObserver.cpp CParameterDictionarySingleton.cpp \
-	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp
+	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp \
+	CMetadata.cpp
 
 Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h \
@@ -228,7 +229,7 @@ Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Di
 	CGammaSummarySpectrum.h CGammaSummarySpectrum.hpp \
 	GatingObserver.h CM2Projection.h CM2Projection.hpp \
 	CParameterDictionarySingleton.h CSpectrumDictionarySingleton.h \
-	CGateDictionarySingleton.h
+	CGateDictionarySingleton.h CMetadata.h
 
 # TapeCommand.cc removed.
 
@@ -472,6 +473,7 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@builddir@/libSpecTclTcp.la \
 		@top_builddir@/mpi/libMPIUtilities.la \
 		@top_builddir@/Display/libXamine.la \
+		@top_builddir@/Utility/libUtilities.la \
 		@XDR_LDFLAGS@ \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
@@ -515,16 +517,17 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 				TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
 				CParameterMappingTest.cpp CAxisTests.cpp \
 				CParameterMappingTest.h CAxisTests.h \
-				m2projtest.cpp factoryTests.cpp
+				m2projtest.cpp factoryTests.cpp spectrummetadatatests.cpp
 
 treeParamTests_CXXFLAGS  = $(commonTestCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
 treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
-	MatchTest.cpp      TestRunner.cpp            TreeVariableArrayTests.cpp \
+	MatchTest.cpp  paramMetadataTests.cpp     TestRunner.cpp       \
+	TreeVariableArrayTests.cpp \
 	SetAllVTest.cpp    TestSuite.cpp             TreeVariableCommandTests.cpp \
 	SetChansTest.cpp   TreeExceptionTest.cpp     TreeVariablePropertyTests.cpp \
 	SetLimitsTest.cpp  TreeParamArrayTest.cpp    TreeVariableTests.cpp \
-	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp \
+	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp  CMetadata.cpp \
 	TreeTestSupport.h
 
 

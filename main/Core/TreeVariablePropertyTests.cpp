@@ -14,6 +14,8 @@
 #include "TCLInterpreter.h"
 #include "TCLVariable.h"
 #include "ListVisitor.h"
+#include <CNoSuchObjectException.h>
+
 
 #include <string>
 #include <vector>
@@ -33,6 +35,10 @@ class TreeVarPropTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(Assigns);
   CPPUNIT_TEST(Linkage);
   CPPUNIT_TEST(Traces);
+  CPPUNIT_TEST(SetGetMeta_1);
+  CPPUNIT_TEST(GetMeta_1);
+  CPPUNIT_TEST(DumpMeta_1);
+  CPPUNIT_TEST(DumpMeta_2);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -55,6 +61,10 @@ protected:
   void Assigns();
   void Linkage();		// Test link to TCL variable.
   void Traces();		// Test fireTrace.
+  void SetGetMeta_1();
+  void GetMeta_1();
+  void DumpMeta_1();
+  void DumpMeta_2();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TreeVarPropTests);
@@ -188,5 +198,51 @@ TreeVarPropTests::Traces()
 
   Tcl_SetVar(pRaw, "a", "532.0", TCL_GLOBAL_ONLY); // should fire trace.
   EQMSG("trace fired by tcl", 2, tracecount);
+
+}
+
+void
+TreeVarPropTests::SetGetMeta_1() {
+  CTreeVariableProperties prop("Test");
+  prop.setMetadata("a", "b");
+  std::string value;
+  CPPUNIT_ASSERT_NO_THROW(
+    value = prop.getMetadata("a");
+  );
+  EQ(std::string("b"), value);
+
+}
+void
+TreeVarPropTests::GetMeta_1() {
+  CTreeVariableProperties prop("test");
+  CPPUNIT_ASSERT_THROW(
+    prop.getMetadata("a"),
+    CNoSuchObjectException
+  );
+}
+void
+TreeVarPropTests::DumpMeta_1() {
+  CTreeVariableProperties prop("Test");
+  const auto& result = prop.getAllMetadata();
+  ASSERT(result.empty());
+}
+void
+TreeVarPropTests::DumpMeta_2() {
+  CTreeVariableProperties prop("Test"); 
+  prop.setMetadata("z", "q");
+  prop.setMetadata("p", "r");
+  prop.setMetadata("a", "b");
+
+  const auto& dict = prop.getAllMetadata();
+  // maps dump alpha by key:
+  std::vector<std::pair<std::string, std::string>> sb = {
+    {"a", "b"},   {"p", "r"}, {"z", "q"}
+  };
+  int i =0;
+  for(const auto& p : dict) {
+    EQ(p.first, sb[i].first);
+    EQ(p.second, sb[i].second);
+    i++;
+  }
 
 }

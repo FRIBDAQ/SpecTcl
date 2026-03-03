@@ -39,7 +39,8 @@
 #include <vector>
 #include <string>
 #include <utility>
-
+#include <map>
+#include <CMetadata.h>
 namespace Json {
     class Value;
 }
@@ -62,6 +63,17 @@ namespace Json {
  *   *   "x_axis" - If not null a three element triplet providing
  *                The X axis defintion [low, high, number_of_bins].
  *   *   "y_axis"  - Same as x_axis but describes the y axis if any.
+ *   *   "metadata" - Contains the metadata for parameters and the spectrum.  Issue #229
+ *                    see below.
+ * 
+ *  Meta data are stored both for the parameters that made up the spectrum and the spectrum itself.
+ * the spectrum definition "metadata" attribute has two atributes: "parameter" and "spectrum"
+ * The parameter attribute is an array, one element per parameter containing the attributes:
+ * 
+ *   *   "name" - name of the parameter
+ *   *   "metadata" - an array of "name" "value" pairs that are the metadata for that parameter.
+ * The "spectrum" attribute contains the metadata for the spectrum and it is an array of "name" "value"
+ * pairs, one for each metadata item.
  *
  * "channels" is an array that contains an object for each
  * non-empty channel.  Each channel struct contains the following
@@ -83,7 +95,14 @@ namespace Json {
        "x_parameters":["parameters.05"],
        "y_parameters":[],
        "x_axis":[0.0,1024.0,1026],
-       "y_axis":null},
+       "y_axis":null,
+       "metadata" : {
+        "spectrum" : [{"name" : "some-metadta", "value" : "itsvalue"}]
+        "parameters" : [
+            {"name" : "parameters.05", "metadata" : [{"name": "item", "value": "itsvalue"}]},
+        ]
+        }
+       },
        "channels":[
         {"chan_type":"Bin",
          "x_coord":500.0,"y_coord":0.0,
@@ -94,6 +113,7 @@ namespace Json {
     "y_parameters":["parameters.06"],
     "x_axis":[0.0,1024.0,1026],
     "y_axis":[0.0,1024.0,1026]},
+    ... (metadata omitted).
     "channels":[
         {"chan_type":"Bin",
         "x_coord":500.0,"y_coord":600.0,
@@ -134,6 +154,7 @@ class CSpectrumFormatterJson : public CSpectrumFormatter {
 private:
     // Internal structure the header gets marshalled into:
 
+
     struct AxisSpecification
     {
         double low;
@@ -148,7 +169,8 @@ private:
         AxisSpecification* yaxis; // Can be nullptr.
         std::vector<std::string> xparams;
         std::vector<std::string> yparams;
-
+        CMetadata::Metadata_t    spectrumMetadata;
+        std::vector<std::pair<std::string, CMetadata::Metadata_t>> paramMetadata;
         ~SpectrumDescription() {
             delete yaxis;
         }
@@ -192,6 +214,9 @@ private:
     SpectrumDescription unpackDescription(Json::Value& desc);
     CSpectrum* makeSpectrum(SpectrumDescription& desc);
     void fillSpectrum(CSpectrum& spec, Json::Value& channels);
+    Json::Value parameterMetadata(const char* pname);
+
+    CMetadata::Metadata_t jsonToMetadata(Json::Value& metadata);
 };
 
 

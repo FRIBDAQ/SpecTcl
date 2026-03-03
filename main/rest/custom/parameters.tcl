@@ -263,6 +263,7 @@ proc SpecTcl_Parameter/uncheck {name} {
     }
     SpecTcl::_returnObject OK
 }
+
 ##
 # SpecTcl_Parameter/version
 #
@@ -280,4 +281,78 @@ proc SpecTcl_Parameter/version { } {
         ]
     }
     SpecTcl::_returnObject OK [json::write string $v]
+}
+#-------------------------- new in 7.0 : Issue #229 - metadata.
+
+##
+# SpecTcl_Parameter/setmetadata?name='parname'&metaname='metadata-name'&value='metavalue'.
+#
+# @param name parameter name.
+# @param metaname - name of a metadata item.
+# @param value    - new value for the metadata.
+#
+proc  SpecTcl_Parameter/setmetadata {name metaname value} {
+    set SpecTcl_Parameter/setmetadata application/json
+    # Ensure the paramter exists:
+
+    set listing [parameter -list $name]
+    if {[llength $listing] == 0} {
+        return [SpecTcl::_returnObject "No such parameter" [json::write string $name]]
+    }
+    parameter -setmetadata $name $metaname $value 
+    SpecTcl::_returnObject OK
+}
+##
+# SpecTcl_Parameter/getmetadata?name='parname'&metaname='metadata-name'
+#
+# @param name - name of a parameter.
+# @param metaname -name of the metadata item to fetch.
+# @return onOK, just the name as a string.
+#
+proc SpecTcl_Parameter/getmetadata {name metaname} {
+    set SpecTcl_Parameter/getmetadata application/json
+
+    set listing [parameter -list $name]
+    if {[llength $listing] == 0} {
+        return [SpecTcl::_returnObject "No such parameter" [json::write string $name]]
+    }
+
+    if {[catch {parameter -getmetadata $name $metaname} msg]} {
+        return [SpecTcl::_returnObject "Failed to get metadata" [json::write string $msg]]
+    }
+
+    return [SpecTcl::_returnObject OK [json::write string $msg]]
+}
+
+##
+# SpecTcl_Parameter/dumpmetadata?name='parametername'
+#
+# @param name - name of a parameter.
+# @return json array containng objects with 'name' , 'value' pairs that are metadata
+# names and values.
+#
+proc SpecTcl_Parameter/dumpmetadata {name} {
+    set SpecTcl_Parameter/getmetadata application/json
+
+    set listing [parameter -list $name]
+    if {[llength $listing] == 0} {
+        return [SpecTcl::_returnObject "No such parameter" [json::write string $name]]
+    }
+
+    set metadata [parameter -dumpmetadata $name]
+    
+    set metajson [SpecTcl::metadataToJson $metadata]
+    return [::SpecTcl::_returnObject "OK" $metajson]
+}
+
+#--- local proc to turn a metadata dict into the Json object:
+
+proc SpecTcl::metadataToJson {metadata} {
+    
+    set jsonArray [list]
+    dict for {name value} $metadata {
+        lappend jsonArray [json::write object name [json::write string $name] \
+        value [json::write string $value]]
+    }
+    return [json::write array {*}$jsonArray]
 }

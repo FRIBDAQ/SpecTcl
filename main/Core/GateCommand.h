@@ -68,6 +68,8 @@ class CGateObserver;
    gate -trace delete ?script?
    gate -trace change ?script?
 
+  
+
 \endverbatim
   Where ?script? is a script to run whenthe associated action happens
 to the gate dictionary.  The script will have the name of the affected gate
@@ -75,6 +77,15 @@ appended to its invocation (yes it should be a proc typically).  If ?script?
 is not supplied, the current script is displayed as the command result. 
 If ?script? is empty, no  script is associated with the action.
 
+Issue #229
+\verbatim
+  gate -setmetadata name meta-name meta-value
+  gate -getmetadata name meta-name
+  gate -dumpmetadata name
+\endverbatim 
+
+where name is the name of a gate, meta-name the name of a metadata item and 
+meta-value its' desired value.
 */
 class CGateCommand  : public CTCLPackagedObjectProcessor
 {
@@ -97,6 +108,9 @@ public:				// Data types:
     id,
     byid,
     trace,
+    setmeta,
+    getmeta,
+    dumpmeta,
     notswitch
   };
   struct GateFactoryTable {	//!< Drives the decoding of gate definition strings.
@@ -148,7 +162,10 @@ protected:
     Int_t NewGate (CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[])   ;
     Int_t ListGates (CTCLInterpreter& rInterp, UInt_t  nArgs, const char* pArgs[])   ;
     Int_t DeleteGates (CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[])   ;
-    Int_t  traceGates(CTCLInterpreter& rInterp,UInt_t nArgs, const char* pArgs[]);
+    Int_t traceGates(CTCLInterpreter& rInterp,UInt_t nArgs, const char* pArgs[]);
+    Int_t SetMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+    Int_t GetMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+    Int_t DumpMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
     
 private:
   

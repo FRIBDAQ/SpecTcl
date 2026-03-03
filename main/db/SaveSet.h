@@ -167,6 +167,24 @@ namespace SpecTclDB {
         DBTreeVariable* lookupVariable(const char* name);
         bool variableExists(const char* name);
         std::vector<DBTreeVariable*> listVariables();
+
+        // Metadata API:
+
+        void setParameterMetadata(const char* parameter, const char* metaname, const char* value);
+        std::string getParameterMetadata(const char* parameter, const char* metaname);
+        std::vector<std::pair<std::string, std::string>> dumpParameterMetadata(const char* parameter);
+
+        void setSpectrumMetadata(const char* spectrum, const char* metaname, const char* value);
+        std::string getSpectrumMetadata(const char* spectrum, const char* metaname);
+        std::vector<std::pair<std::string, std::string>> dumpSpectrumMetadata(const char* spectrum);
+        
+        void setGateMetadata(const char* gate, const char* metaname, const char* value);
+        std::string getGateMetadata(const char* gate, const char* metaname);
+        std::vector<std::pair<std::string, std::string>> dumpGateMetadata(const char* gate);
+        
+        void setTreevarMetadata(const char* varname, const char* metaname, const char* value);
+        std::string getTreevarMetadata(const char* varname, const char* metaname);
+        std::vector<std::pair<std::string, std::string>> dumpTreevarMetadata(const char* varname);
         
         // Event recording in the database.
         

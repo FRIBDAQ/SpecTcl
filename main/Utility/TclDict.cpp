@@ -134,3 +134,25 @@ Tcl::DictPut(
         return std::string(objResult);
     }
 
+/**
+ * DictFromStringMap
+ *    Create/augment a dict from the contents of an std::map<std::string, std::string>
+ * The map keys become dict keys and the values the values of those keys.
+ * 
+ * @param rInterp - references the interpreter to use for the operations.
+ * @param dict    - References the dict that will be modified.
+ * @param rMap    - const reference to the map that will be added to the idct.
+ * @return int    - TCL_OK if all is well.
+ */
+int
+Tcl::DictFromStringMap(
+        CTCLInterpreter& rInterp, CTCLObject& dict, const std::map<std::string, std::string>& rMap
+) {
+    for (const auto& p : rMap) {
+        int status = DictPut(rInterp, dict, p.first.c_str(), p.second.c_str());
+        if (status != TCL_OK) {
+            return status;                       // Something wicked happend.
+        }
+    }
+    return TCL_OK;
+}

@@ -24,6 +24,7 @@
 #include <tcl.h>
 #include <string>
 #include <TCLObject.h>
+#include <map>
 class CTCLInterpreter;
 
 namespace Tcl {
@@ -50,6 +51,9 @@ namespace Tcl {
     );
     CTCLObject DictGet(
         CTCLInterpreter& rInterp, CTCLObject& dict, CTCLObject& key
+    );
+    int DictFromStringMap(
+        CTCLInterpreter& rInterp, CTCLObject& dict, const std::map<std::string, std::string>& rMap
     );
 
 }

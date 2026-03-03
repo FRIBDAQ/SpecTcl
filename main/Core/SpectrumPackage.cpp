@@ -61,6 +61,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <SpecTcl.h>
 #include <DisplayInterface.h>
 #include <Display.h>
+#include <CMetadata.h>
 
 #include <MPITclPackagedCommand.h>
 #include <MPITclPackagedCommandAll.h>
@@ -1764,6 +1765,10 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
       specread = pFormat->Read(rIn, rDict);
       originalName = specread.first;
       pSpectrum    = specread.second;
+
+      // get the metadata:
+
+      CMetadata::Metadata_t metadata = pSpectrum->getAllMetadata();  // copy of metadata.
       
       
       //
@@ -1803,9 +1808,15 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
       //  dictionary.
       //
       m_pHistogrammer->AddSpectrum(*pSpectrum);
+      pSpectrum = SpecTcl::getInstance()->FindSpectrum(pSpectrum->getName());
 
       if(fFlags & fBind) {	// Bind it if requested.
           pDisplay->addSpectrum(*pSpectrum, *(api.GetHistogrammer()));
+      }
+      // Transfer the metadata:
+
+      for (auto p : metadata)  {
+        pSpectrum->setMetadata(p.first.c_str(), p.second.c_str());
       }
     }
     catch (CException& rExcept) {	// All exceptions drop here.

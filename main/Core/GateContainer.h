@@ -38,12 +38,13 @@
 #include "Gate.h"
 #include "Event.h"
 #include <string>
-
+#include <CMetadata.h>
 
 
 class CGateContainer : public CNamedItem {
+private:
   CGate* m_pGate;
-
+  CMetadata m_metadata;
  public:
   //Default constructor
   CGateContainer() : m_pGate(0) {} // Default constructor used by stl.
@@ -90,6 +91,16 @@ public:
   Bool_t operator() (CEvent& rEvent) {
     return m_pGate->operator()(rEvent);
   }
+  // Metadata operations issue #229.
+  // Open question that we'll need to resolve later:
+  // does metadata belong with the container or the gate?
+  // I think the container so that if the gate changes limits e.g.
+  // the metadata are not wiped out.  The potential problem
+  // is what if the gate changes type?
+public:
+  void setMetadata(const char* name, const char* value);
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t& getAllMetadata() const;
 };
 
 #endif

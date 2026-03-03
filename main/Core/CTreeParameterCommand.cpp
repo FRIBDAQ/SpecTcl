@@ -41,10 +41,12 @@
 #include "UncheckVisitor.h"
 #include "Globals.h"
 #include <SpecTcl.h>
+#include "Parameter.h"
 #include <histotypes.h>
 #include <TCLObject.h>
 #include <TclPump.h>
-
+#include <TclDict.h>
+#include <Exception.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -100,6 +102,7 @@ int CTreeParameterCommandActual::operator()(CTCLInterpreter& rInterp, std::vecto
   if (gMPIParallel && (myRank() < MPI_FIRST_WORKER_RANK)) {
     return TCL_OK;
   }
+  bindAll(rInterp, objv);
   // Make argc/argvi
 
   int argc = objv.size();
@@ -166,6 +169,12 @@ int CTreeParameterCommandActual::operator()(CTCLInterpreter& rInterp, std::vecto
   }
   else if (subcommand == "-listnew") {
     status = listNew(rInterp, argc, argv);
+  } else if (subcommand == "-setmetadata") {  // Issue #229 - metadata
+    status = setMetadata(rInterp, objv);
+  } else if (subcommand == "-getmetadata") {
+    status = getMetadata(rInterp, objv);
+  } else if (subcommand == "-dumpmetadata") {
+    status = dumpMetadata(rInterp, objv);
   }
   else {
     // Invalid ensemble subcommand:
@@ -205,6 +214,9 @@ CTreeParameterCommandActual::Usage()
   usage += "     treeparameter -check name\n";
   usage += "     treeparameter -uncheck name\n";
   usage += "     treeparameter -create  name low high bins units\n";
+  usage += "     treeparameter -setmetadata name meta-name meta-value\n";
+  usage += "     treeparameter -getmetadata name meta-name\n";
+  usage += "     treeparameter -dumpmetadata name\n";
   usage += "     treeparameter -version";
   //
   return usage;
@@ -820,6 +832,146 @@ CTreeParameterCommandActual::listNew(CTCLInterpreter& rInterp, int argc, const c
     i++;
   }
   rInterp.setResult(result);
+  return TCL_OK;
+
+}
+/**
+ * setMetadata - set the metadata for a parameter.
+ *   @param rInterp - interpreter.
+ *   @param objv    - The command words which are:
+ *    - "treeparameter"
+ *    - "-setmetadata"
+ *    - name of tree parameter
+ *    - name of metadata to set
+ *    - Value to set metadata.
+ *   @return int - TCL_OK on success, TCL_ERROR on failure.
+ *   @note the result is not set for success and will be an error messge on failure.
+ */
+int
+CTreeParameterCommandActual::setMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  if (objv.size() != 5) {
+    std::string msg = "Incorrect number of command parameters\n";
+    msg += Usage();
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+  std::string treeName = objv[2];
+  std::string mdName   = objv[3];
+  std::string mdValue  = objv[4];
+
+  auto p = CTreeParameter::find(treeName);
+  if (p == CTreeParameter::end()) {
+    std::string msg = "No such tree parameter: ";
+    msg += treeName;
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+  CTreeParameter* pTParam = p->second;
+  CParameter* pParam = pTParam->getParameter();
+  if (!pTParam) {
+    std::string msg = "Tree parameter ";
+    msg += treeName;
+    msg += " is not bound yet.";
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+  pParam->setMetadata(mdName.c_str(), mdValue.c_str());
+  return TCL_OK;
+}
+/**
+ * getMetadata - return the value of a metadata item.
+ * 
+ * @param rInterp - interpreter running the command.
+ * @param objv    - The command words which are:
+ *    - "treeparameter"
+ *    - "-setmetadata"
+ *    - name of tree parameter
+ *    - name of metadata to get
+ * @return int - on success the result is the value of the metadata otherwise an error  msg.
+ */
+int
+CTreeParameterCommandActual::getMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  if (objv.size() != 4) {
+    std::string msg = "Incorrect number of command parameters\n";
+    msg += Usage();
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  std::string tName = objv[2];
+  std::string mName = objv[3];
+
+  // Find the parameter:
+
+  auto p = CTreeParameter::find(tName);
+  if (p == CTreeParameter::end()) {
+    std::string msg = "No such tree parameter ";
+    msg += tName;
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  CParameter* param = p->second->getParameter();
+  if (!param) {
+    std::string msg = "Tree parameter ";
+    msg += tName;
+    msg += " is not yet bound";
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  try {
+    std::string value = param->getMetadata(mName.c_str());
+    rInterp.setResult(value);
+  } catch (CException& e) {
+    rInterp.setResult(e.ReasonText());
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}
+/**
+ * dumpMetadata - make dict with all the metadta.
+ * 
+ * @param rInterp - the interpreter.
+ * @param objv - The command words:
+ *    - "treeparameter"
+ *    - "-setmetadata"
+ *    - name of tree parameter 
+ * @return int - On TCL_OK, the result is a dict whose keys are metadata names and values the value of the key.
+ */
+int
+CTreeParameterCommandActual::dumpMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  if (objv.size() != 3) {
+    std::string msg = "In correct number of parameters\n";
+    msg += Usage();
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  std::string tName = objv[2];
+  auto p = CTreeParameter::find(tName);
+  if (p == CTreeParameter::end()) {
+    std::string msg = "No Such tree parameter ";
+    msg+= tName;
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+  CParameter* pParam = p->second->getParameter();
+  if (!pParam) {
+    std:string msg = "Tree parameter ";
+    msg += tName;
+    msg += " is not yet bound";
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  const auto& metadata = pParam->getAllMetadata();
+  CTCLObject result;
+  result.Bind(rInterp);
+  Tcl::DictFromStringMap(rInterp, result, metadata);
+
+  rInterp.setResult(result);
+
   return TCL_OK;
 
 }

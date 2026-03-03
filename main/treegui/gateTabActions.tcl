@@ -15,6 +15,8 @@
 package require Tk
 package require Itcl
 package require gateContainer
+package require MetaDataEditor
+package require dialogwrapper
 
 package provide gateTabActions 1.0
 
@@ -234,33 +236,65 @@ package provide gateTabActions 1.0
     # An update using the current mask is also forced.
     #
     private method deleteSelected {} {
-	set gates [$widget getsel]
-	foreach gate $gates {
-	    gate -delete $gate
-	}
-	updateGates
-	[autoSave::getInstance] failsafeSave
+        set gates [$widget getsel]
+        foreach gate $gates {
+            gate -delete $gate
+        }
+        updateGates
+        [autoSave::getInstance] failsafeSave
     }
     ##
     # Prompt for confirmation and, if we get it, delete all  of the 
     # gates
     #
     private method deleteAll {} {
-	set confirmation [tk_messageBox -type yesno -icon warning \
-			      -message "Are you sure you want to delete all the gate definitions?" \
-			      -default no]
-	if {$confirmation == "yes"} {
-	    foreach gate [gate -list] {
-		#
-		# Only bother for those that are already deleted:
-		#
-		if {[gateType $gate] != "F"} {
-		    gate -delete [lindex $gate 0]
-		}
-	    }
-	    updateGates
-	    [autoSave::getInstance] failsafeSave
-	}
+        set confirmation [tk_messageBox -type yesno -icon warning \
+                    -message "Are you sure you want to delete all the gate definitions?" \
+                    -default no]
+        if {$confirmation == "yes"} {
+            foreach gate [gate -list] {
+            #
+            # Only bother for those that are already deleted:
+            #
+            if {[gateType $gate] != "F"} {
+                gate -delete [lindex $gate 0]
+            }
+            }
+            updateGates
+            [autoSave::getInstance] failsafeSave
+        }
+
+    }
+    ##
+    #  Callback method called when the edit metadata button is clicked.
+    #
+    private method editMetadata {} {
+        set gateName [$widget getsel]
+        
+        # Make the editor dialog widget tree:
+
+        set top [toplevel .metaedit]
+        wm title $top "Metadata for $gateName"
+        set dialog [DialogWrapper $top.dialog]
+        set editor [MetadataEditor $dialog.edit]
+        $dialog configure -form $editor
+        pack $dialog -fill both
+
+        # FIll the editor with the metadata and wait
+        # for the editing to be done:
+
+        $editor load [gate -dumpmetadata $gateName]
+        set response [$dialog modal]
+
+        # IF Ok was the answer load the gate metadata from
+        # the editor.
+        if {$response eq "Ok"} {
+            set newMeta [$editor cget -metadata]
+            dict for {name value} $newMeta {
+                gate -setmetadata $gateName $name $value
+            }
+        }
+        destroy $top
 
     }
     ##
@@ -313,7 +347,8 @@ package provide gateTabActions 1.0
 	    -command          [itcl::code $this loadGateSpec  %N] \
 	    -deleteselected   [itcl::code $this deleteSelected]   \
 	    -deleteall        [itcl::code $this deleteAll]        \
-	    -createcmd        [itcl::code $this createGate %G %T %D]
+	    -createcmd        [itcl::code $this createGate %G %T %D] \
+        -metacmd          [itcl::code $this editMetadata]
 
 	loadGateTable *
 	loadGateMenu

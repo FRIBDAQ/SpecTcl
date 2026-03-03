@@ -61,6 +61,9 @@ public:
     ByIdSw,
     AddTrace,
     RmTrace,
+    SetMetadata,
+    GetMetadata,
+    DumpMetadata,
     NotSwitch			// Should be last, ideally
   };
 private:
@@ -101,6 +104,15 @@ public:
         CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
   UInt_t removeTrace(
         CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
+  );
+  UInt_t setMeta(
+    CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
+  );
+  UInt_t getMeta(
+    CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
+  );
+  UInt_t dumpMeta(
+    CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv
   );
 
   //  Utility members:

@@ -3070,6 +3070,554 @@ tcltest::test getchannels_4 {correctly restores saved channels} \
     
     $svcmd getChannels raw.0
 } -result [list [list 1 2 3] [list 1 1 1] [list 3 2 1]]
+
+
+
+# Metadata tests Issue #229
+
+tcltest::test setparammeta_1 {No such parameter is an error.} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd setparamMetadata testparam a b}
+} -result 1
+
+tcltest::test setparammeta_2 {Set metadata for a parameter that exists} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter testparam 1
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    db close
+    file delete $fname
+    
+} \
+-body {
+    $svcmd setparamMetadata testparam a b
+
+    #  Now see if it's in the database:
+
+    sqlite3 db $fname
+    db eval {SELECT value FROM metadata WHERE type='parameter' AND name ='a'}
+
+}  -result b
+
+tcltest::test getparammeta_1 {Get parameter metadata from a parameter that does not exit} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd getparamMetadata testparam a}
+} -result 1
+
+tcltest::test getparammeta_2 {successful get of parameter metadata} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter testparam 1
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd setparamMetadata testparam a b
+    $svcmd  getparamMetadata testparam a
+} -result b
+
+
+tcltest::test getparammeta_3 {get nonexistend metadata from existing param fails} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter testparam 1
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd getparamMetadata testparam a}
+} -result 1
+
+
+tcltest::test dumpparammeta_1 {No such parameter} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd dumpparamMetadata testparam}
+} -result 1
+
+tcltest::test dumpparammeta_2 {good dump} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter testparam 1
+    $svcmd setparamMetadata testparam a b
+    $svcmd setparamMetadata testparam c d
+    $svcmd setparamMetadata testparam e f
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd dumpparamMetadata testparam
+} -result [dict create a b c d e f]
+
+tcltest::test setspecmeta_1 {Set metadata for a spectrum that does not exist} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd setparamMetadata testspec a b}
+} -result 1
+
+tcltest::test setspecmeta_2 {Set metadata for a spectrum that does exist} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter p 1
+    $svcmd createSpectrum testspec 1 p [list [list 0 1024 1024]]
+} \
+-cleanup {
+    db close
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd setspectrumMetadata testspec a b
+    sqlite3 db $fname
+    db eval {SELECT value FROM metadata WHERE type='spectrum' AND name='a'}
+} -result b
+
+tcltest::test getspecmeta_1 {Get metadata from nonexistent spectrum fails} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd getspectrumMetadata test a}
+} -result 1
+
+tcltest::test getspecmeta_2 {get metadata from existing spectrum but no such metadata} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter p 1
+    $svcmd createSpectrum testspec 1 p [list [list 0 1024 1024]]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd getspectrumMetadata testspec a}
+} -result 1
+
+tcltest::test getspecmeta_3 {get ok metadata from spectrum } \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter p 1
+    $svcmd createSpectrum testspec 1 p [list [list 0 1024 1024]]
+    $svcmd setspectrumMetadata testspec a b
+} \
+-cleanup {
+    
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd getspectrumMetadata testspec a
+} -result b
+
+
+tcltest::test dumpspecmeta_1 {Dump metadata from no such spectrum } \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd dumpspectrumMetadata testspec}
+} -result 1
+
+tcltest::test dumpspecmeta_2 {Good spectrum metadata dump} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createParameter p 1
+    $svcmd createSpectrum testspec 1 p [list [list 0 1024 1024]]
+    $svcmd setspectrumMetadata testspec a b
+    $svcmd setspectrumMetadata testspec c d
+    $svcmd setspectrumMetadata testspec d e
+} \
+-cleanup {
+    
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd dumpspectrumMetadata testspec 
+} -result [dict create a b c d d e]
+
+tcltest::test setgatemeta_1 {Set metadata for no such gate fails} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd setgateMetadata testgate a b}
+} -result 1
+
+tcltest::test setgatemeta_2 {Set metadata for an existing gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createCompoundGate true T [list]
+} \
+-cleanup {
+    db close
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    sqlite3 db $fname
+    $svcmd setgateMetadata true a b
+
+    db eval {SELECT value FROM metadata where type='gate' AND name='a'}
+} -result b
+
+tcltest::test getgatemeta_1 {Get meta from no such gate fails} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd getgateMetadata true a}
+} -result 1
+
+tcltest::test getgatemeta_2 {Get matadata from existing gate but no such item } \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createCompoundGate true T [list]
+} \
+-cleanup {
+    
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd getgateMetadata true a}
+} -result 1
+
+tcltest::test getgatemeta_3 {Get metadata from gate that exists} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createCompoundGate true T [list]
+    $svcmd setgateMetadata true a b
+} \
+-cleanup {
+    
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd getgateMetadata true a
+} -result b
+
+tcltest::test dumpmeta_1 {Dump metadata from no such gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd dumpgateMetadata true}
+} -result 1
+
+tcltest::test dumpmeta_2 {Dump metadata from existing gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createCompoundGate true T [list]
+    $svcmd setgateMetadata true a b
+    $svcmd setgateMetadata true c d
+    $svcmd setgateMetadata true e f
+} \
+-cleanup {
+    
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd dumpgateMetadata true
+} -result [dict create a b c d e f]
+
+
+tcltest::test settreemeta_1 {Set metadata for no such treevariable} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd settvarMetadata avar a b}
+} -result 1
+
+tcltest::test settreemeta_2 {Set metadata for existing tree variable} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable avar 1234 cm
+    sqlite3 db $fname
+} \
+-cleanup {
+    db close
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd settvarMetadata avar a b
+
+    db eval {SELECT value FROM metadata WHERE type='treevariable' AND name='a'}
+} -result b
+
+tcltest::test gettreemeta_1 {Get metadata from no such treevariable} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd gettvarMetadata avar a}
+} -result 1
+
+tcltest::test gettreemeta_2 {Get metadata from existing tree variable but no such metadata} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable avar 1234 cm
+    
+} \
+-cleanup {
+    
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd gettvarMetadata avar a}
+} -result 1
+
+tcltest::test gettreemetadata_3 {Get tree metadata from existing var and value} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable avar 1234 cm
+    $svcmd settvarMetadata avar a b
+} \
+-cleanup {
+    
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd gettvarMetadata avar a
+} -result b
+
+tcltest::test dumptreemetadata_1 {DUmp metadata from no such treevariable} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd dumptvarMetadata avar}
+} -result 1
+
+tcltest::test dumptreemetadata_2 {Dump metadata from an existing tree variable} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable avar 1234 cm
+    $svcmd settvarMetadata avar a b
+    $svcmd settvarMetadata avar c d
+    $svcmd settvarMetadata avar e f
+} \
+-cleanup {
+    
+    $svcmd destroy
+    $cmd   destroy
+    file delete $fname
+} \
+-body {
+    $svcmd dumptvarMetadata avar
+} -result [dict create a b c d e f]
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

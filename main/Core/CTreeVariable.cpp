@@ -440,8 +440,49 @@ CTreeVariable::Initialize(string name, double value, string units)
 
   LinkProperties(name, units, value);
 }
-
-
+/**
+ * setMetadata
+ *    Sets the value of a specific metadata item (in the properties).
+ * @param name - name of the metadata item.
+ * @param value - new  metadata item value.
+ * @note if 'name' does not exist it is created:
+ * @throw CTreeException with reason NotBound if there's no properties object.
+ */
+void
+CTreeVariable::setMetadata(const char* name, const char* value) {
+  if (!m_pVariable) {
+    throw CTreeException(CTreeException::NotBound, "Setting variable metadata");
+  }
+  m_pVariable->setMetadata(name, value);
+}
+/**
+ *  getMetadata
+ * 
+ * @param name - name of the metadata to get.
+ * @return std::string - value of the metadata.
+ * @throw CTreeException with the NotBound reason if there's no properties object.
+ * @throw CNoSuchObjectExcption if 'name' does not select existing metadata.
+ * 
+ */
+std::string
+CTreeVariable::getMetadata(const char* name) {
+  if (!m_pVariable) {
+    throw CTreeException(CTreeException::NotBound, "Fetching variable metadata");
+  }
+  return m_pVariable->getMetadata(name);
+}
+/**
+ * getAllMetadata
+ * 
+ * @return const CMetadata::Metadata_t& - container of the metadata.
+ */
+const CMetadata::Metadata_t&
+CTreeVariable::getAllMetadata() const {
+  if (!m_pVariable) {
+    throw CTreeException(CTreeException::NotBound, "Fetching variable metadata");
+  }
+  return m_pVariable->getAllMetadata();
+}
 /**
  * Binds all variables to underlying TCL variables.
  * @param rInterp

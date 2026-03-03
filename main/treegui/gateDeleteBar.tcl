@@ -24,12 +24,13 @@ package provide gateDeleteBar 1.0
 # OPTIONS
 #   -deleteselected - script to run on delete selected.
 #   -deleteall      - script to run on delete all button.
-#
+#   -metacmd        - Script to trun on metadata.. .button.
 # 
 snit::widget gateDeleteBar {
     hulltype ttk::frame
     option -deleteselected -default [list]
     option -deleteall      -default [list]
+    option -metacmd        -default [list]
 
     ##
     # Construct the widget.
@@ -38,16 +39,18 @@ snit::widget gateDeleteBar {
     #               options 
     #
     constructor args {
-	$self configurelist $args
+        $self configurelist $args
 
-	ttk::button $win.delsel -text "Delete Selected" \
-	    -command [mymethod Dispatch -deleteselected]
+        ttk::button $win.delsel -text "Delete Selected" \
+            -command [mymethod Dispatch -deleteselected]
 
-	ttk::button $win.delall -text "Delete All" \
-	    -command [mymethod Dispatch -deleteall]
-
-	grid $win.delsel -sticky w
-	grid $win.delall -row 0 -column 1 -sticky e
+        ttk::button $win.delall -text "Delete All" \
+            -command [mymethod Dispatch -deleteall]
+        ttk::button $win.metadata -text Metadata.. \
+            -command [mymethod Dispatch -metacmd]
+        grid $win.delsel -sticky w
+        grid $win.delall -row 0 -column 1 -sticky e
+        grid $win.metadata -row 0 -column 2 -sticky e
     }
 
     ##
@@ -56,10 +59,10 @@ snit::widget gateDeleteBar {
     # @param option - the option that contains the script.
     #
     method Dispatch option {
-	set script $options($option)
-	if {$script ne ""} {
-	    uplevel #0 $script;	# There are no substs.
-	}
+        set script $options($option)
+        if {$script ne ""} {
+            uplevel #0 $script;	# There are no substs.
+        }
     }
 
 }

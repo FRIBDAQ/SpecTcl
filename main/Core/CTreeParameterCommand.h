@@ -68,7 +68,10 @@ class CTCLObject;
  *                loading a new event processor, or defniing a pseudo.
  * - -listnew  -  List the tree parameters that were created this session via
  *                the -create operation.
- */
+ * - -setmetadata - set metadata for the underlying parameter.
+ * - -getmetadata - get a metadata item from the underlying parameter.
+ * - -dumpmetadata - Make a dict of the unerlying parameter's metadata.
+ */ 
 class CTreeParameterCommandActual : public CTCLObjectProcessor
 {
 private:
@@ -90,10 +93,13 @@ protected:
   int Check(CTCLInterpreter& rInterp, int argc, const char** argv);
   int UnCheck(CTCLInterpreter& rInterp, int argc, const char** argv);
   int Version(CTCLInterpreter& rInterp, int argc, const char** argv);
-  int Create(CTCLInterpreter& rInterp, int argc, const char** argv);
-  
+  int Create(CTCLInterpreter& rInterp, int argc, const char** argv);  
   int listNew(CTCLInterpreter& rInterp, int argc, const char** argv);
-	// Utility functions.
+  // Issue #229 - metadata
+  int setMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+  int getMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+  int dumpMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+	// Utility functions., const char** argv
 private:
 	int TypeSafeParseFailed(CTCLInterpreter& rInterp,
 				std::string parameter, std::string expectedType);

@@ -58,6 +58,7 @@ static const char* expectedTables[] {
         "events",
         "scaler_readouts",
         "scaler_channels",
+        "metadata",
     nullptr
 };
 

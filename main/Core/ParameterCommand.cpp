@@ -46,6 +46,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, 20
 #include "TCLVariable.h"
 #include "TCLObject.h"
 #include "TCLObject.h"
+#include <TclDict.h>
 #include <Exception.h>
 #include "Globals.h"
 #include <TclPump.h>
@@ -58,6 +59,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, 20
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -78,7 +80,10 @@ static LookupTableEntry LookupTable[] = {
   { "-id",      CParameterCommand::IdSw     },
   { "-byid",    CParameterCommand::ByIdSw   },
   { "-trace",   CParameterCommand::AddTrace },
-  { "-untrace", CParameterCommand::RmTrace  }
+  { "-untrace", CParameterCommand::RmTrace  },
+  { "-setmetadata", CParameterCommand::SetMetadata},
+  {"-getmetadata", CParameterCommand::GetMetadata},
+  {"-dumpmetadata", CParameterCommand::DumpMetadata},
 };
 static UInt_t nLookupTableSize = sizeof(LookupTable)/sizeof(LookupTableEntry);
 
@@ -162,8 +167,14 @@ CParameterCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
     return Create(rInterp, firstCreateParam, objv);
   case CParameterCommand::AddTrace:
     return addTrace(rInterp, objv);
- case CParameterCommand::RmTrace:
+  case CParameterCommand::RmTrace:
     return removeTrace(rInterp, objv);
+  case CParameterCommand::SetMetadata: 
+    return setMeta(rInterp, objv);
+  case CParameterCommand::GetMetadata:
+    return getMeta(rInterp, objv);
+  case CParameterCommand::DumpMetadata:
+    return dumpMeta(rInterp, objv);
 
   default:			// Some other switch invalid in context:
     Usage(rInterp);
@@ -566,6 +577,7 @@ CParameterCommand::Delete(CTCLInterpreter& rInterp, std::vector<CTCLObject>& obj
       return TCL_ERROR;
     }
     return rPackage.DeleteParameter(rInterp, nId);
+  
   case CParameterCommand::NotSwitch: // Delete given parameter name.
     if(nPars != 1) {
       Usage(rInterp, "MIsssing a parameter name");
@@ -636,6 +648,117 @@ CParameterCommand::removeTrace(CTCLInterpreter& rInterp, std::vector<CTCLObject>
     m_Observer.removeTrace(tracename.c_str());
     return TCL_OK;
 }
+/**
+ * setMeta
+ *    Set a metadata value
+ * 
+ * @param interp - interpreter we're executing on.
+ * @param objv   - the command words.
+ * @return UInt_t - TCL_OK on success, else TCL_ERROR on failure.
+ * 
+ * - On error, the Tcl Result is set with a descriptive error message.
+ * - On success, The Tcl result is empty.
+ */
+UInt_t
+CParameterCommand::setMeta(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  if (objv.size() != 5) {
+    Usage(rInterp, "Incorrect number of parameters for parameter -setmetadata");
+    return TCL_ERROR;
+  }
+  std::string pname = objv[2];
+  std::string mname = objv[3];
+  std::string mvalue = objv[4];
+
+  // Find the parameter:
+
+  CParameter* param = SpecTcl::getInstance()->FindParameter(pname);
+  if (!param) {
+    std::stringstream msgStream;
+    msgStream << "parameter -setmeta: " << pname << " is not a parameter name";
+    std::string msg(msgStream.str());
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+  param->setMetadata(mname.c_str(), mvalue.c_str());
+
+
+  return TCL_OK;
+}
+/**
+ * getMeta:
+ *    Return the value of a piece of metadata.
+ * 
+ * @param objv   - the command words.
+ * @return UInt_t - TCL_OK on success, else TCL_ERROR on failure.
+ * 
+ * - On error, the Tcl Result is set with a descriptive error message.
+ * - On success, The Tcl result is the value of the selected metadata.
+ */
+UInt_t
+CParameterCommand::getMeta(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  if (objv.size() != 4) {
+    Usage(rInterp, "Incorrect number of parameters for parameter -getmetadata");
+    return TCL_ERROR;
+  }
+  std::string pname = objv[2];
+  std::string mname = objv[3];
+
+  CParameter* param = SpecTcl::getInstance()->FindParameter(pname);
+  if (!param) {
+    std::stringstream msgStream;
+    msgStream << "parmeter -getmeata " << pname << " is not a parameter name";
+    std::string msg(msgStream.str());
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  try {
+    std::string value = param->getMetadata(mname.c_str());
+    rInterp.setResult(value);
+  }
+  catch (CException& e) {
+    rInterp.setResult(e.ReasonText());
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}
+/**
+ * dumpMeta
+ *
+ * @param objv   - the command words.
+ * @return UInt_t - TCL_OK on success, else TCL_ERROR on failure.
+ * 
+ * - On error, the Tcl Result is set with a descriptive error message.
+ * - On success, The Tcl result is a dict who's keys are the names of metadata and
+ * values the value of each metadata.
+ */
+UInt_t
+CParameterCommand::dumpMeta(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv) {
+  if (objv.size() != 3) {
+    Usage(rInterp, "Incorrect number of parameters for parameter -dumpmetadata");
+    return TCL_ERROR;
+  }
+  std::string pname = objv[2];
+  CParameter* pParam = SpecTcl::getInstance()->FindParameter(pname);
+
+  if (!pParam) {
+    std::stringstream msgStream;
+    msgStream << "parmeter -dumpmeata " << pname << " is not a parameter name";
+    std::string msg(msgStream.str());
+    rInterp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  auto metadata = pParam->getAllMetadata();
+  CTCLObject result;
+  result.Bind(rInterp);
+
+  Tcl::DictFromStringMap(rInterp, result, metadata);
+  
+  rInterp.setResult(result);
+  return TCL_OK;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -671,7 +794,10 @@ CParameterCommand::Usage(CTCLInterpreter& rInterp, const char* pMsg)
   rResult += "   parameter -delete name\n";
   rResult += "   parameter -delete -id \n";
   rResult += "   parameter -trace script \n";
-  rResult += "   parameter -untrace script \n\n";
+  rResult += "   parameter -untrace script \n";
+  rResult += "   parameter -setmetadata parameter meta-name meta-value\n";
+  rResult += "   parameter -getmetadata parameter meta-name\n";
+  rResult += "   parameter -dumpmetadata parameter\n\n";
    
   rInterp.setResult(rResult);
 }

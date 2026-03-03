@@ -662,6 +662,45 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter
                 This is a string, not a number.
                </para>
             </section>
+            <section>
+                <title>setmetadata</title>
+                <informalexample>
+                <programlisting>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter/setmetadata?name=parname&amp;metaname=mname&amp;value=value
+                </programlisting>
+                </informalexample>
+                <para>
+                    Sets the value of a metadata item in the parameter <parameter>parname</parameter>
+                    the metadata item is named <parameter>metaname</parameter> and it is assigned the
+                    value <parameter>value</parameter> on success, the detail is empty.
+                </para>
+            </section>
+            <section>
+                <title>getmetadata</title>
+                <informalexample>
+                <programlisting>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter/getmetadata?name=parname&amp;metaname=mname
+                </programlisting>
+                </informalexample>
+                <para>
+                    On success, the detail is the value of the metadata item specified by <parameter>metaname</parameter>
+                    for the parameter specified by <parameter>parname</parameter>
+                </para>
+            </section>
+            <section>
+                <title>Dump metadata.</title>
+                <informalexample>
+                <programlisting>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter/dumpmetadata?name=parname
+                </programlisting>
+                </informalexample>
+                <para>
+                    Dumps all of the meta data defined on the paramter <parameter>parname</parameter>
+                    On success, the detail is a Json array of objects.  Each object has a <literal>name</literal>
+                    attribute whose value is the name of a metadata item and an attribute <literal>value</literal>
+                    whose value is the value of that metadata item.
+                </para>
+            </section>
         </section>
         <section>
             <title>spectrum requests</title>
@@ -1002,7 +1041,56 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum
                     in the even the data are binary.
                 </para>
             </section>
-            
+            <section>
+                <title>Set metadata</title>
+                <informalexample>
+                <programlisting>
+http://host:port/spectrum/setmetadata?name=spectname&amp;metaname=metadataname&amp;value=metavalue
+                </programlisting>
+                </informalexample>
+                <para>
+                    Supported since 7.0-004.
+                </para>
+                <para>
+                      This sets the value of the metadata
+                    item named <parameter>metaname</parameter> to <parameter>value</parameter> 
+                    for the spectrum named <parameter>name</parameter>.  On success, the
+                    detail is empty. For errors, the detail is more information about the error.
+                </para>
+            </section>
+            <section>
+                <title>Get metadata</title>
+                <informalexample>
+                <programlisting>
+http://host:port/spectrum/getmetadata?name=specname&amp;metaname=metadata-item
+                </programlisting>
+                </informalexample>
+                <para>
+                    Supported since 7.0-004
+                </para>
+                <para>
+                    If successful, the detail will be the value of the metadata
+                    item named <parameter>metaname</parameter> on the spectrum
+                    <parameter>name</parameter>.
+                </para>
+            </section>
+            <section>
+                <title>dump metadata</title>
+                <informalexample><programlisting>
+http://host:port/spectrum/dumpmetadata?name=specname             
+                </programlisting></informalexample>
+                <para>
+                    Available since 7.0-004
+                </para>
+                <para>
+                    On success, this returns the metadata associated with the spectrum
+                    <parameter>name</parameter>.  This information is returned in the detail
+                    of the response and consists of an array of Json objects.  Each object in 
+                    the array has the attributes <literal>name</literal> which is the name of
+                    a metadata item and <literal>value</literal> which is the value of that
+                    metadata item.
+                </para>
+            </section>
         </section>
         <section>
             <title>gate requests</title>
@@ -1467,6 +1555,46 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/gate
                     that can actually increment spectra.
                 </para>
             </section>
+        
+        </section>
+        <section>
+            <title>Set metadata</title>
+            <informalexample><programlisting>
+http://host:port/spectcl/gate/setmetadata?name=gatename&amp;metaname=metadata-name&amp;value=metadata-value                
+            </programlisting></informalexample>
+            <para>
+                Available since 7.0-004
+            </para>
+            <para>
+                Sets the value of metadata associated with the gate <parameter>name</parameter>
+                The metadata item named <parameter>metaname</parameter> is given the value
+                <parameter>value</parameter>.  If necessary a new metadata item is created.
+            </para>
+        </section>
+        <section>
+            <title>Get metadata</title>
+            <informalexample><programlisting>
+http://host:port/spectcl/gate/getmetadata?name=gatename&amp;metaname=metadata-name
+            </programlisting></informalexample>
+            <para>Available since 7.0-004</para>
+            <para>
+                Returns the value of the metadata item named <parameter>metaname</parameter>
+                associated with the gate <parameter>name</parameter> as the detail
+                of the reply.
+            </para>
+        </section>
+        <section>
+            <title>Dump metadata</title>
+            <informalexample><programlisting>
+http://host:port/spectcl/gate/dumpmetadata?name=gatename
+            </programlisting></informalexample>
+            <para>Available since 7.0-004</para>
+            <para>
+                Dumps the metadata associated with the gate <parameter>name</parameter>
+                the detail of the reply is a JSON array consisting of objects.  Each object
+                has a <literal>name</literal> attribute which is the name of a metadata item 
+                and a <literal>value</literal> attribute which is the value of that metadata item.
+            </para>
         </section>
         <section>
             <title>Gate Applications.</title>
@@ -2361,6 +2489,38 @@ http://host:port/spectcl/treevariable/firetraces<optional>?pattern=glob-pattern<
             whose names match that pattern will have their traces fired.
             Note that if not supplied the pattern defaults to <literal>*</literal>
             which matches all variable names.
+           </para>
+            <informalexample>
+           <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/setmetadata?name=tvname&amp;metaname=metadata-name&amp;value=new_value
+           </command></cmdsynopsis>
+           </informalexample>
+           <para>
+                Create/Modify the value of a metadata item associated with a tree variable 
+                <parameter>name</parameter>.  The metadata item name is <parameter>metaname</parameter>
+                and the new value is <parameter>value</parameter>.
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/getmetadata?name=tvname&amp;metaname=metaname          
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Gets the value of the metadata named by <parameter>metaname</parameter>
+            for the tree variable named by the value of <parameter>name</parameter>.
+            On success the current value of that metadata will be in the 
+            <literal>detail</literal> part of the response.
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/dumpmetadata?name=tvname
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+                Dumps the metadata for the tree variable named <parameter>name</parameter>.
+                The <literal>detail</literal>, on success, is an array of objects with 
+                attributes <literal>name</literal> the name of a metadata item and
+                <literal>value</literal> the value of the named item.
            </para>
         </section>
         <section>

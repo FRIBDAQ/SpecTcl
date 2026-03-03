@@ -46,6 +46,7 @@ package provide treeParametersContainer 1.0
 #    -choosecmd  - Command script to run when a parameter is chosen.
 #    -loadcmd    - Command script to run when a load button is clicked.
 #    -set        - Command script to run when a set button is clicked.
+#    -metadata    - Command script to run when a metadata button is clicked.
 #    -change     - Command script to run when a Change Spectra button is clicked.
 #    -array      - Boolean that indicates/changes the array checkbutton.
 #    -namechanged - The name in a parameter editor changed.
@@ -75,6 +76,7 @@ snit::widget treeParametersContainer {
     option -choosecmd   -default [list]
     option -loadcmd    -default [list]
     option -set        -default [list]
+    option -metadata   -default [list]
     option -change     -default [list]
     option -array      -default false
     option -namechanged -default [list]
@@ -117,6 +119,7 @@ snit::widget treeParametersContainer {
 	    treeParameterEditor $win.e$i -title $title \
 		-loadcmd    [mymethod ButtonClicked %W $i -loadcmd] \
 		-setcmd     [mymethod ButtonClicked %W $i -set]     \
+        -metadatacmd [mymethod ButtonClicked %W $i -metadata] \
 		-changecmd  [mymethod ButtonClicked %W $i -change] \
 		-namechanged [mymethod ButtonClicked %W $i -namechanged]
 
@@ -256,7 +259,8 @@ snit::widget treeParametersContainer {
     # @param option that has the script to which we must dispatch:
     #
     method ButtonClicked   {editor slot option} {
-	::treeutility::dispatch $options($option) [list %W %S %I] [list $win $slot $editor]
+        
+	    ::treeutility::dispatch $options($option) [list %W %S %I] [list $win $slot $editor]
     }
 
 

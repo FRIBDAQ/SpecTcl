@@ -146,7 +146,7 @@ snit::widgetadaptor DialogWrapper {
         #  destroyed...
         
         catch {$win.actionframe.ok configure -command [list]}
-        catch {$win.actionframe.cancle configure -command [list]}
+        catch {$win.actionframe.cancel configure -command [list]}
         catch {bind $win <Destroy> [list]}
         
         if {[info exists action]} {

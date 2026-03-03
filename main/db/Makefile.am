@@ -14,20 +14,23 @@ libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@ -I@top_srcdir@/factories \
 	-DTCLLIBS=@prefix@/TclLibs -g @UFMT_CPPFLAGS@
 libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
+	@builddir@/../Utility/libUtilities.la \
 	@builddir@/../Core/libTclGrammerApp.la   \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @UFMT_LDFLAGS@
 
 libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp SaveSet.cpp DBParameter.cpp \
 	DBSpectrum.cpp DBGate.cpp \
 	CDBEvents.cpp DBEvents.cpp \
-	DBApplications.cpp DBTreeVariable.cpp
+	DBApplications.cpp DBTreeVariable.cpp \
+	DBMetadata.cpp
 libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 
 include_HEADERS=CDBEvents.h DBEvents.h  \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
 	 CSqliteTransaction.h CSqliteWhere.h  \
 	SpecTclDatabase.h SaveSet.h DBParameter.h DBSpectrum.h \
-	DBGate.h DBApplications.h DBTreeVariable.h
+	DBGate.h DBApplications.h DBTreeVariable.h \
+	DBMetadata.h
 
 libSpecTclDbTcl_la_DEPENDENCIES = libSpecTclDb.la libSqlite3pp.la
 libSpecTclDbTcl_la_CXXFLAGS=@SQLITE3_CFLAGS@ -g @TCL_CPPFLAGS@ \
@@ -35,6 +38,7 @@ libSpecTclDbTcl_la_CXXFLAGS=@SQLITE3_CFLAGS@ -g @TCL_CPPFLAGS@ \
 	-I@top_srcdir@/Utility -I@top_srcdir@/factories @UFMT_CPPFLAGS@
 libSpecTclDbTcl_la_LDFLAGS=libSpecTclDb.la libSqlite3pp.la \
         @builddir@/../Core/libTclGrammerApp.la   \
+	@builddir@/../Utility/libUtilities.la \
         @SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @ROOT_LDFLAGS@ \
 		@UFMT_LDFLAGS@
 
@@ -72,9 +76,10 @@ unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
 			savepttests.cpp specdbtests.cpp savesettests.cpp \
 			dbpartests.cpp dbspectests.cpp dbgtests.cpp \
 			gapptests.cpp dbvtests.cpp eventtests.cpp \
+			metatests.cpp \
 			SpecTclDatabase.cpp  SaveSet.cpp DBParameter.cpp \
 			DBSpectrum.cpp DBGate.cpp DBApplications.cpp \
-			DBTreeVariable.cpp \
+			DBTreeVariable.cpp DBMetadata.cpp \
 			$(libSqlite3pp_la_SOURCES)
 unittests_CXXFLAGS=@SQLITE3_CFLAGS@ @CPPUNIT_CFLAGS@ -g -I@top_srcdir@/Utility \
 	@ROOT_CFLAGS@

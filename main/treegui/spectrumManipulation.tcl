@@ -65,6 +65,7 @@ snit::widget spectrumManipulation {
     option -spectrumname   -default [list]
     option -parameters     -default [list] -configuremethod SetParameters
     option -createcmd      -default [list]
+    option -metadatacmd    -default [list]
     option -array          -default 0
    
 
@@ -129,9 +130,13 @@ snit::widget spectrumManipulation {
 	ttk::label       $win.top.spectra.label  -text {SpectrumName}
 	ttk::entry       $win.top.spectra.name   -textvariable ${selfns}::options(-spectrumname)
 
-	ttk::button      $win.top.spectra.create -text Create/Replace -command [mymethod Dispatch -createcmd]
+	ttk::button      $win.top.spectra.create -text Create/Replace \
+        -command [mymethod Dispatch -createcmd]
+    ttk::button      $win.top.spectra.metadata -text Metadata... \
+        -command [mymethod Dispatch -metadatacmd]
 	install array using ttk::checkbutton $win.top.spectra.array  -text Array -onvalue 1 -offvalue 0 \
 	    -variable ${selfns}::options(-array)
+    
 	
 	ttk::button       $win.top.spectra.clear -text Clear -command [mymethod Dispatch -clearcmd]
 	ttk::checkbutton  $win.top.spectra.all   -text All   -variable ${selfns}::options(-all)
@@ -162,10 +167,11 @@ snit::widget spectrumManipulation {
 	grid $win.top.spectra.name      -row 1 -column 0 -sticky nsew
 
 	grid $win.top.spectra.create    -row 0 -column 1 -sticky w
+    grid $win.top.spectra.metadata  -row 0 -column 2 -sticky w
 	grid $win.top.spectra.array     -row 1 -column 1 -sticky w
 
-	grid $win.top.spectra.clear     -row 0 -column 2 -sticky nsew 
-	grid $win.top.spectra.delete    -row 0 -column 3 -sticky nsew 
+	grid $win.top.spectra.clear     -row 0 -column 3 -sticky nsew 
+	grid $win.top.spectra.delete    -row 0 -column 4 -sticky nsew 
 	
 	grid $win.top.spectra.all       -row 1 -column 2 -sticky nsew 
 	grid $win.top.spectra.duplicate -row 1 -column 3 -sticky nsew 
@@ -176,7 +182,7 @@ snit::widget spectrumManipulation {
 	grid $win.top.gates.ungate    -row 1 -column 1  -sticky nse
 
 	grid columnconfigure $win.top.spectra 0 -weight 3
-	grid columnconfigure $win.top.spectra [list 1 2 3] -weight 1
+	grid columnconfigure $win.top.spectra [list 1 2 3 4] -weight 1
 
 
 

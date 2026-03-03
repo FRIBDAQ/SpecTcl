@@ -61,7 +61,11 @@ public:
     keById,
     keShowGate,
     keTrace,
+    keSetMetadata,
+    keGetMetadata,
+    keDumpMetadata,
     keNotSwitch
+    
   };
 private:
   CTCLObject     m_createTrace;	// Trace script fired on a spectrum creation.
@@ -92,6 +96,7 @@ public:
 public:  
   virtual   int operator() (CTCLInterpreter& rInterpreter, 
 			    std::vector<CTCLObject>& objv)  ;
+protected:
   Int_t New (CTCLInterpreter& rInterpreter, 
 	     int nArgs, const char* pArgs[])  ;
   Int_t List (CTCLInterpreter& rInterp, 
@@ -100,6 +105,12 @@ public:
 		int nArgs, const char* pArgs[])  ;
   Int_t Trace  (CTCLInterpreter& rInterp, 
 		int nArgs, const char* pArgs[]);
+
+  // Issue #229 - metadata support:
+
+  Int_t SetMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+  Int_t GetMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
+  Int_t DumpMetadata(CTCLInterpreter& rInterp, std::vector<CTCLObject>& objv);
 
 protected:
   static void   Usage(CTCLInterpreter& rInterp, const char* prefix = nullptr);

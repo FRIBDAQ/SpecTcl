@@ -41,6 +41,7 @@
 #include "CAxis.h"
 #include <vector>
 #include <RangeError.h>
+#include <CMetadata.h>
 
 // Forward class definitions:
 
@@ -89,6 +90,7 @@ private:
   std::vector<unsigned> m_underflowCounters;  //!< one per axis.
   std::vector<unsigned> m_overflowCounters;   //!< one per axis.
   std::string     m_description;
+  CMetadata       m_metadata; //!< Spectrum metadata.
   TH1*            m_pRootSpectrum;
 public:
 			// Constructor
@@ -249,6 +251,12 @@ public:
   virtual   SpectrumDefinition& GetDefinition() ;
 
   virtual   Bool_t needParameter() const;
+
+  // Issue #229 - metadata access:
+
+  void setMetadata(const char* name, const char* value);
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t& getAllMetadata() const;
   
 public:
   std::pair<Float_t, Float_t> adjustedLimits(UInt_t dim);

@@ -58,6 +58,7 @@ snit::widget treeParameterEditor {
     option -loadcmd   [list]
     option -setcmd    [list]
     option -changecmd [list]
+	option -metadatacmd [list]
     option -title     false;	# If true titles are put above the text entries.
     option -namechanged [list]
 
@@ -115,9 +116,9 @@ snit::widget treeParameterEditor {
 	
 	# then the buttons:
 
-	foreach button [list .load .set .changespectra] \
-	    label [list Load Set "Change Spectra"]  \
-	    option [list -loadcmd -setcmd -changecmd] {
+	foreach button [list .load .set .metadata .changespectra] \
+	    label [list Load Set Metadata... "Change Spectra"]  \
+	    option [list -loadcmd -setcmd -metadatacmd -changecmd] {
 		::ttk::button $win$button -text $label  \
 		    -command [mymethod callback $option]
 	}
@@ -127,7 +128,7 @@ snit::widget treeParameterEditor {
 	set col 0
 
 
-	foreach widget [list .name .low .high .unit .load .set .changespectra] {
+	foreach widget [list .name .low .high .unit .load .set .metadata .changespectra] {
 	    grid $win$widget -row $editorRow -column $col -sticky nsew
 	    incr col
 	}
@@ -145,7 +146,8 @@ snit::widget treeParameterEditor {
     # @param optionName -name of the option holding the script to execute.
     #
     method callback optionName {
-	::treeutility::dispatch $options($optionName) %W $win
+		
+		::treeutility::dispatch $options($optionName) %W $win
     }
 
     ##

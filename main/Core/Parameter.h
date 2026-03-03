@@ -17,6 +17,7 @@
 #define PARAMETER_H
 
 #include "NamedItem.h"
+#include <CMetadata.h>
 #include <histotypes.h>
 #include <string>
 #include <limits.h>
@@ -36,6 +37,7 @@ class CParameter : public CNamedItem {
   Float_t m_nHigh;       // High limit of the parameter scaling
   std::string m_sUnits;  // Optional units of this parameter scaling
   Bool_t  m_fScaled;	 // TRUE if no scale info provided.
+  CMetadata m_metadata;  // Parameter metadata Issue #229
 
  public:
   // Constructors with arguments.
@@ -161,6 +163,10 @@ class CParameter : public CNamedItem {
   // Operations on the class:
   Float_t RawToMapped(Float_t Raw);
   Float_t MappedToRaw(Float_t Mapped);
+
+  void setMetadata(const char* name, const char* value);
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t& getAllMetadata() const;
 };
 
 #endif

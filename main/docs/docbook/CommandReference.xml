@@ -1661,6 +1661,15 @@ treeparameter <option>-check</option> <replaceable>name</replaceable>
 treeparameter <option>-uncheck</option> <replaceable>name</replaceable>                
             </command>
         </cmdsynopsis>
+        <cmdsynopsis><command>
+treeparameter <option>-setmetadata</option> <replaceable>name meta-name meta_value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treeparameter <option>-getmetadata</option> <replaceable>name meta-name</replaceable>        
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treeparameter <option>-dumpmetadata</option> <replaceable>name</replaceable>
+        </command></cmdsynopsis>
         <cmdsynopsis>
             <command>
 treeparameter <option>-version</option>
@@ -1682,6 +1691,12 @@ treeparameter <option>-version</option>
            The switch also defines the number and meaning of the remaining
            command line parameters. Each of the possibilities is described in
            <literal>COMMAND FORMATS</literal> section below.
+        </para>
+        <para>
+            Beginning with version 7.0-004, the tree parameter command can also be used to manipulate metadata
+            on the underlying parameter.  Metadata are supplemental information associated with the paramter
+            that takes the form of name/value pairs. Names must be unique and can be arbitrary strings. Values
+            can be arbitrary strings as well.
         </para>
     </refsect1>
     
@@ -1972,6 +1987,50 @@ treeparameter <option>-uncheck</option> <replaceable>name</replaceable>
                 </listitem>
             </varlistentry>
             <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treeparameter <option>-setmetadata</option> <replaceable>name meta-name meta_value</replaceable>
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Sets a piece of metadata associated wit tree parameter <parameter>name</parameter>
+                            The name of the metadata is <parameter>meta-name</parameter>. It will be given the
+                            new value <parameter>meta_value</parameter>.  If there is no metadata named
+                            <parameter>meta-name</parameter> a new metadata item will be created. If 
+                            <parameter>meta-name</parameter> does exist, its value will be replaced.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treeparameter <option>-getmetadata</option> <replaceable>name meta-name</replaceable>        
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the value of the metadata named <parameter>meta-name</parameter>
+                            for tree parameter <parameter>name</parameter>.  If there is no such
+                            <parameter>meta-name</parameter> an error is thrown.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treeparameter <option>-dumpmetadata</option> <replaceable>name</replaceable>
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Dumps all metadata for tree parameter <parameter>name</parameter>.
+                            The metadata are dumped as a Tcl dict.  The keys of the dict are
+                            metadata names, the values are the value of that metadata name.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
                 <term>
                 <cmdsynopsis>
                     <command>
@@ -2077,6 +2136,29 @@ treeparameter -list event.raw*
 <computeroutput>0</computeroutput>
             </command></screen>
          </example>
+         <para>
+            The example below assumes there is a tree parameter named <literal>tp</literal>
+         </para>
+         <example>
+            <title>treeparameter metadata manipulation</title>
+            <screen>
+<prompt>(treeparam) 1% </prompt> <command>treeparameter -setmetadata tp calibration none</command>
+<prompt>(treeparam) 2% </prompt><command>treeparameter -getmetadata tp calibration</command>
+<computeroutput>
+none
+</computeroutput>
+<prompt>(treeparam) 3% </prompt><command>treeparameter -setmetadata tp detector implantation</command>
+<prompt>(treeparam) 4% </prompt><command>treeparameter -dumpmetadata tp</command>
+<computeroutput>
+calibration none detector implantation
+</computeroutput>
+            </screen>
+         </example>
+         <para>
+            Note that the output from the <option>-dumpmetadata</option> operation is the string equivalent of a dict
+            with a key <literal>calibration</literal> that has value <literal>none</literal> and a key
+            <literal>detector</literal> with value <literal>implantation</literal>
+         </para>
     </refsect1>
     
     <refsect1>
@@ -2136,8 +2218,16 @@ treevariable <option>-setchanged</option> <replaceable>name</replaceable>
         <cmdsynopsis>
             <command>
 treevariable <option>-firetraces</option> <replaceable>?pattern?</replaceable>
-            </command>
-        </cmdsynopsis>
+            </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treevariable <option>-setmetadata</option> <replaceable>var-name meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treevariable <option>-getmetadata</option> <replaceable>var-name meta-name</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+treevariable <option>-dumpmetadata</option> <replaceable>var-name</replaceable>
+        </command></cmdsynopsis>
                 
 
     </refsynopsisdiv>
@@ -2162,6 +2252,10 @@ treevariable <option>-firetraces</option> <replaceable>?pattern?</replaceable>
             meaning of the remaining parameters on the command line. The
             following section describes each valid switch,
             its parameters and what it does.
+        </para>
+        <para>
+            Since SpecTcl version 7.0-004, tree variables support associated metadata.
+            Metadata are arbitrary name/value pairs you can use to document the meaning of the variable.
         </para>
     </refsect1>
     
@@ -2314,7 +2408,51 @@ treevariable <option>-firetraces</option> <replaceable>?pattern?</replaceable>
                         their state.
                     </para>
                 </listitem>
-            </varlistentry>        
+            </varlistentry> 
+            <varlistentry>
+                    <term>
+                     <cmdsynopsis><command>
+treevariable <option>-setmetadata</option> <replaceable>var-name meta-name meta-value</replaceable>
+                     </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Sets a metadata for variable <parameter>var-name</parameter> named
+                            <parameter>meta-name</parameter> to <parameter>meta-value</parameter>
+                            If the metadata <parameter>meta-name</parameter> does not yet exist, 
+                            it is created.  If it does exist its value is overwritten.
+                        </para>
+                    </listitem>
+            </varlistentry>    
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treevariable <option>-getmetadata</option> <replaceable>var-name meta-name</replaceable>
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the value of the meta data named <parameter>meta-name</parameter>
+                            associated with the tree variable <parameter>var-name</parameter>
+                            it is an error to request the value of a <parameter>meta-name</parameter>
+                            that does not yet exist.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+treevariable <option>-dumpmetadata</option> <replaceable>var-name</replaceable>
+                    </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns all of the metadata associated with <parameter>var-name</parameter>.
+                            The metadata are returned as a Tcl dict with keys that are the metadata names
+                            and values their associated values.
+                        </para>
+                    </listitem>
+            </varlistentry>
         </variablelist>
     </refsect1>
     
@@ -2393,7 +2531,24 @@ treevariable <option>-firetraces</option> <replaceable>?pattern?</replaceable>
 <computeroutput>{vars.w1 1.3 KeV/channel}</computeroutput>                
             </command></screen>
         </example>
-        
+        <para>
+        In the example below, assume there is a tree variable named <literal>var</literal>
+        </para>
+        <example>
+            <title>Manipulatiing metadata</title>
+            <screen>
+<prompt>(treeparam) 1 % </prompt><command>treevariable -setmetadata var description "Some test metadata"</command>
+<prompt>(treeparam) 2 % </prompt><command>treevariable -getmetadata var description</command>
+<computeroutput>Some test metadata</computeroutput>
+<prompt>(treeparam) 3 % </prompt><command>treevariable -dumpmetadata var</command>
+<computeroutput>description {Some test metadata}</computeroutput>
+            </screen>
+        </example>
+        <para>
+            Note that in the output from the <option>-dumpmetadata</option> operation, the output is the string
+            representation of a dict with a key <literal>description</literal> with the associated value
+            <literal>Some test metadata</literal>.
+        </para>
     </refsect1>
     
     <refsect1>
@@ -2889,6 +3044,15 @@ gate <option>-delete</option> <option>?-id?</option> <replaceable>gate1 ?gate2 .
 gate <option>-trace</option> <replaceable>subcommand arg1 ...</replaceable>
             </command>
         </cmdsynopsis>
+        <cmdsynopsis><command>
+gate <option>-setmetadata</option> <replaceable>gate-name meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+gate <option>-getmetadata</option> <replaceable>gate-name meta-name</replaceable>        
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+gate <option>-dumpmetadata</option> <replaceable>gate-name</replaceable>
+        </command></cmdsynopsis>
     </refsynopsisdiv>
     
     <refsect1>
@@ -2937,6 +3101,12 @@ gate <option>-trace</option> <replaceable>subcommand arg1 ...</replaceable>
             displayers make it unecessary to actually know how to use the
             command directly.  <literal>COMMAND DETAILS</literal> below
             describes how to create, delete and list gates.
+        </para>
+        <para>
+            As of SpecTcl 7.0-004, gates can have associated metadata. Metadata are a set of
+            name/value pairs that are attached to the gate. Gate metadata sticks around even if the
+            meaning of a gate is changed.  Note that this includes gate deletion which is really a 
+            synonym for replacing the gate with a <literal>False</literal> gate.
         </para>
     </refsect1>
     
@@ -3719,6 +3889,56 @@ gate -trace </command><group>
                 on which the trace operation is being performed.
             </para>
         </refsect2>
+        <refsect2>
+            <title>Gate metadata</title>
+            <para>
+                Metadata are a set of name value pairs that are associated with the gate name.
+                One of these name/value pairs will be referred to as a <firstterm>metadata item</firstterm>
+                The command variants in this section manipulate gate metadata.  Note that the metadata
+                associated with a gate name is not modified if the actual gate is replaced.  This includes
+                gate deletion which is, under the hood, replacing the gate with a <literal>False</literal>
+                gate.
+            </para>
+            <variablelist>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+gate <option>-setmetadata</option> <replaceable>gate-name meta-name meta-value</replaceable>
+                        </command></cmdsynopsis></term>
+                        <listitem>
+                            <para>
+                                Sets a meta data item named <parameter>meta-name</parameter>
+                                associated with the gate <parameter>gate-name</parameter> to the value
+                                <parameter>meta-value</parameter>.  If the meta data item does not
+                                yet exist, it is created. If it does its value is ovewritten with
+                                <parameter>meta-value</parameter>.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+gate <option>-getmetadata</option> <replaceable>gate-name meta-name</replaceable>        
+        </command></cmdsynopsis>TERM</term>
+                        <listitem>
+                            <para>
+                                Returns the value of the <parameter>meta-name</parameter> meta data item
+                                associated with <parameter>gate-name</parameter>.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+gate <option>-dumpmetadata</option> <replaceable>gate-name</replaceable>
+        </command></cmdsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns a dict that contains all of the metadata items associated with
+                                <parameter>gate-name</parameter>.  The dict has keys which are the names of
+                                the metadata items the values are the values of the metadata items.
+                            </para>
+                        </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
     </refsect1>
     
     <refsect1>
@@ -3969,8 +4189,18 @@ parameter <option>-trace</option> <replaceable>script</replaceable>
 parameter <option>-untrace</option> <replaceable>script</replaceable>
             </command>
         </cmdsynopsis>
+        <cmdsynopsis><command>
+parameter <option>-setmetadata</option> <replaceable>parameter meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+parameter <option>-getmetadata</option> <replaceable>parameter meta-name</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+parameter <option>-dumpmetadata</option> <replaceable>parameter</replaceable>
+        </command></cmdsynopsis>
     </refsynopsisdiv>
-    
+
+
     <refsect1>
         <title>DESCRIPTION</title>
         <para>
@@ -4000,6 +4230,12 @@ parameter <option>-untrace</option> <replaceable>script</replaceable>
                     Optional scale information describing the parameter's valid
                     range of values and a mapping between that and a real world
                     coordinate system as well as units of measure.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Staring with SpecTcl 7.0-005 SpecTcl parameters can have associated metadata.
+                    Metadata for a parameter is a set of name/value pairs.
                 </para>
             </listitem>
         </itemizedlist>
@@ -4291,7 +4527,50 @@ parameter <option>-untrace</option> <replaceable>script</replaceable>
                    </para>
                 </listitem>
             </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+parameter <option>-setmetadata</option> <replaceable>parameter meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Sets metadata for the named <parameter>parameter</parameter>
+                            <parameter>meta-name</parameter> is the name of the metadata to set
+                            and <parameter>meta-value</parameter> is the new value for that metadata.
+                            If <parameter>meta-name</parameter> does not exist for this parameter it is created.
+                            If it does exist, it is overwritten.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+parameter <option>-getmetadata</option> <replaceable>parameter meta-name</replaceable>
+        </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Retuns the value of <parameter>parameter</parameter>'s metadata item named
+                            <parameter>meta-name</parameter> an error is returned if there is no such
+                            metadata yet for this parameter.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term>
+                    <cmdsynopsis><command>
+parameter <option>-dumpmetadata</option> <replaceable>parameter</replaceable>
+            </command></cmdsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            dumps the metadata as a dict with keys the names of the metadata items and values their values.
+                        </para>
+                    </listitem>
+            </varlistentry>
         </variablelist>
+        
     </refsect1>
     
     <refsect1>
@@ -4308,7 +4587,17 @@ parameter De1 0 12
 parameter position 2 mm
             </command></screen>
         </example>
-        
+        <example>
+        <title>Parameter metadata</title>
+        <screen>
+<command>parameter -setmeta test a b</command>
+<command>parameter -getmeta test a</command>
+a
+<command>set d [parameter -dumpmeta test]</command>
+<command>dict get $d a</command>
+b
+        </screen>
+        </example>
     </refsect1>
     
     <refsect1>
@@ -5254,6 +5543,15 @@ spectrum <option>-trace</option></command>
     <arg>delete <replaceable>?script?</replaceable></arg>
 </group>  
         </cmdsynopsis>
+        <cmdsynopsis><command>
+spectrum <option>-setmetadata</option> <replaceable>name meta-name meta-value</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+spectrum <option>-getmetadata</option> <replaceable>name meta-name</replaceable>
+        </command></cmdsynopsis>
+        <cmdsynopsis><command>
+spectrum <option>-dumpmetadata</option> <replaceable>name</replaceable>
+        </command></cmdsynopsis>
     </refsynopsisdiv>
     
     <refsect1>
@@ -5378,6 +5676,9 @@ spectrum <option>-trace</option></command>
                     Estabilishing trace scripts
                 </para>
             </listitem>
+            <listitem><para>
+                Manipulating metadata (since 7.0-004).
+            </para></listitem>
         </itemizedlist>    
         <refsect2>
             <title>Spectrum creation</title>
@@ -5817,6 +6118,54 @@ spectrum <option>-trace</option></command>
                 to the script.
             </para>
         </refsect2>
+        <refsect2>
+            <title>Manipulating metadata</title>
+            <para>
+                Since SpecTcl version 7.0-004, spectra can have associated metadata. Metadata
+                are in the form of key/value pairs.  This section describes the forms of the
+                <command>spectrum</command> command that manipulate metadata
+            </para>
+            <variablelist>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+spectrum <option>-setmetadata</option> <replaceable>name meta-name meta-value</replaceable>
+        </command></cmdsynopsis></term>
+                        <listitem>
+                            <para>
+                                Sets the value of a metadata item named <parameter>meta-name</parameter>
+                                on spectrum <parameter>name</parameter> to 
+                                <parameter>meta-value</parameter>.  If that metadata item has not
+                                yet been created, it is created.  If it exists, its value is overwritten.   
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+spectrum <option>-getmetadata</option> <replaceable>name meta-name</replaceable>
+        </command></cmdsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Returns the value of metadata named <parameter>meta-name</parameter> on
+                                the spectrum  <parameter>name</parameter>
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><cmdsynopsis><command>
+spectrum <option>-dumpmetadata</option> <replaceable>name</replaceable>
+        </command></cmdsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns all of the metadata associated with the spectrum
+                                <parameter>name</parameter>.  The metadata are retunred as a Tcl dict
+                                whose keys are the names of metadata itema and whose values are the values
+                                of the metadata item.
+                            </para>
+                        </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
     </refsect1>
     
     <refsect1>
@@ -5964,7 +6313,26 @@ summary</computeroutput>
 <prompt>(sample) 51 % </prompt>spectrum -delete raw.01
 <computeroutput>Deleting spectrum raw.01</computeroutput>
             </command></screen>
-        </example>        
+        </example> 
+        <para>
+            The example below assumes a spectrum namaed <literal>md</literal> exists.
+        </para>
+        <example>
+            <title>Metadata operations</title>
+            <screen>
+<prompt>metadata 1 % </prompt><command>spectrum -setmetadata md description "spectrum with metadata"</command>
+<prompt>metadata 2 % </prompt><command>spectrum -setmetadata md disney-character goofy</command>
+<prompt>metadata 3 % </prompt><command>spectrum -getmetadata md disney-character</command>
+<computeroutput>goofy</computeroutput>
+<prompt>metadata 4 % </prompt><command>spectrum -dumpmetadata md</command>
+<computeroutput>disney-character goofy description {spectrum with metadata}</computeroutput>
+            </screen>
+        </example>       
+        <para>
+        Note that <literal>disney-character goofy description {spectrum with metadata}</literal> is the
+        string representation of a dict with keys <literal>disney-character</literal> and 
+        <literal>description</literal>
+        </para>
     </refsect1>
     
     <refsect1>

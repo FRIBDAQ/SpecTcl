@@ -175,7 +175,31 @@ protected:
     void listRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void getRunInfo(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void getScalers(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+
+    // Issue #229 - metadata methods.
+    
+    void setParameterMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void getParameterMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void dumpParameterMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+
+    void setSpectrumMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void getSpectrumMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void dumpSpectrumMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    
+    void setGateMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void getGateMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void dumpGateMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    
+    void setTreevarMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void getTreevarMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void dumpTreevarMetadata(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    //
+
     void destroy();
+
+    
+
+
     
     // Utility methods.
 private:
@@ -202,6 +226,12 @@ private:
     void makeVarDict(
         CTCLInterpreter& interp, CTCLObject& obj, DBTreeVariable* pVar
     );
+
+    void makeMetadataDictResult(
+        CTCLInterpreter& interp, 
+        const std::vector<std::pair<std::string, std::string>>&  metadata
+    );
+    
 };  
 
 

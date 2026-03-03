@@ -32,6 +32,7 @@
 
 
 #include "CTreeVariableProperties.h"
+#include "CMetadata.h"
 
 #include <string>
 #include <map>
@@ -41,7 +42,6 @@
 
 class CTreeVariableProperties;
 class CTCLInterpreter;
-
 /**
  * The class the user makes which defines the characteristics of a tree variable,
  * and its binding to a Tcl variable name.
@@ -66,6 +66,7 @@ private:
    * Points to the tree variable.
    */
   mutable CTreeVariableProperties *m_pVariable;
+ 
 public:
   CTreeVariable();
   CTreeVariable(std::string name, double value, std::string units);
@@ -91,6 +92,11 @@ public:
   bool valueChanged();
   void resetChanged();
   void Initialize(std::string name, double value, std::string units);
+  // metadata methods Delagate to our properties. Issue #229
+  void    setMetadata(const char* name, const char* value);
+  std::string getMetadata(const char* name);
+  const CMetadata::Metadata_t& getAllMetadata() const;
+
   static void BindVariables(CTCLInterpreter& rInterp);
   static TreeVariableIterator begin();
   static TreeVariableIterator end();

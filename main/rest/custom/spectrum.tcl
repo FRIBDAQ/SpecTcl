@@ -314,7 +314,65 @@ proc SpecTcl_Spectrum/zero {{pattern *}} {
     }
     return [::SpecTcl::_returnObject]
 }			   
-				
+
+#--------- Metadata manipulation - new in 7.0-004 Issue #229
+
+##
+# SpecTcl_Spectrum/setmetadata?name=spectname&metaname=metadataname&value=metavalue
+#
+#  Set the value of a spectrum metadata.
+#
+# @param name - name of the spectrum to affect.
+# @param metaname - name of the metadata item to modify/create.
+# @param valu4e   - Value to assign to the metadata item.
+# @return the detail is empty on Ok.
+#
+proc SpecTcl_Spectrum/setmetadata {name metaname value} {
+    set SpecTcl_Spectrum/setmetadata application/json
+
+    # Validate the spectrum name:
+
+    if {[llength [spectrum -list $name]] == 0} {
+        return [SpecTcl::_returnObject \
+            "No such spectrum" [json::write string $name]]
+    }
+    # The set can't fail:
+
+    spectrum -setmetadata $name $metaname $value
+    return [SpecTcl::_returnObject OK]
+}
+##
+# SpecTcl_Spectrum/getmetadata?name=specname&metaname=metadata-item
+#
+#  Gets the value of a specific spectrum metadata item.
+#
+# @param name -name of the spectrum to query.
+# @param metaname -name of the metadata item to query.
+# @return On OK, the detail is the value of the metadata item.
+#
+proc SpecTcl_Spectrum/getmetadata {name metaname} {
+    if {[catch {spectrum -getmetadata $name $metaname} msg]} {
+        return [SpecTcl::_returnObject \
+            "Failed to retrieve metadata" [json::write string $msg]]
+    }
+    return [SpecTcl::_returnObject OK [json::write string $msg]]
+}
+##
+# SpecTcl_Spectrum/dumpmetadata?name=specname
+#   Return all of the metadata associated with a spectrum.
+#
+# @param name - name of the spectrum.
+# @return on Ok, an array of name, value objects.
+#
+proc SpecTcl_Spectrum/dumpmetadata {name} {
+    if {[llength [spectrum -list $name]] == 0} {
+        return [SpecTcl::_returnObject "No such spectrum" $name]
+    }
+    set metadata [spectrum -dumpmetadata $name]
+    set metajson [SpecTcl::metadataToJson $metadata]
+    return [SpecTcl::_returnObject OK $metajson]
+}
+
 # -----------------------------------------
 #
 #  Private procs

@@ -33,7 +33,7 @@ package require dbconfig
 #    | [ ] Tree Parameters       [ ] Pseudo parameters     |
 #    | [ ] Tree Variables        [ ] Spectrum Definitions  |
 #    | [ ] Gate Definitions      [ ] Gate Applications     |
-#    | [ ] Filter definitions                              |
+#    | [ ] Filter definitions    [ ] metadata              |
 #    +-----------------------------------------------------+
 #    | Select output file:                                 |
 #    | +--------------------------------------------+      |
@@ -52,7 +52,8 @@ package require dbconfig
 #    -spectrumdefs  bool      If set spectrum definitions get saved.
 #    -gatedefs      bool      If set, gate definitions should be saved.
 #    -gateapps      bool      If set, gate applications should be saved.
-#    -filters       bool      If set, filers definitions will be saved.
+#    -filters       bool      If set, filers definitions will be saved. 
+#    -metadata      bool      If set, metadata is saved too.
 #    -text          bool      If set save in text (Tcl) format.
 #
 #    -filename      string    The filename selected.
@@ -76,6 +77,7 @@ snit::widget saveDefPrompt {
     option   -gatedefs      1
     option   -gateapps       1
     option   -filters       1
+    option   -metadata      1
     option   -text          1
 
     option   -filename
@@ -126,6 +128,9 @@ snit::widget saveDefPrompt {
 	checkbutton $optframe.filter \
 	    -variable ${selfns}::options(-filters) \
 	    -text {Filter Definitions}
+    checkbutton $optframe.metadata \
+        -variable [myvar options(-metadata)] \
+        -text {Metadata}
     checkbutton $optframe.text \
         -variable [myvar options(-text)] \
         -text {As text (Tcl) file} -command [mymethod _toggleFileType $optframe.text]
@@ -134,7 +139,8 @@ snit::widget saveDefPrompt {
 	grid $optframe.tp       $optframe.pseudo   -sticky w
 	grid $optframe.tv       $optframe.spectra  -sticky w
 	grid $optframe.gatedefs $optframe.gateapps -sticky w
-	grid $optframe.filter   $optframe.text     -sticky w
+	grid $optframe.filter   $optframe.metadata  -sticky w
+    grid $optframe.text  -sticky w
 
 	# The middle frame only has an Iwidgets file choice widget.
 	# and a title.
@@ -583,7 +589,57 @@ proc writeFilters fd {
         puts $fd ""
     }
 }
-
+## Write a metadata item. All of the metadata subcommands have the
+# same form.
+# @param fd       - fd to which the metadata are written.
+# @param basecmd  - the command to use.
+# @param name     - Item name.
+# @param metaName - metadata item name.
+# @param metaValue - metadata item value.
+#
+proc writeMetadataItem {fd basecmd name metaName metaValue} {
+    
+    puts $fd "[list catch [list $basecmd -setmetadata $name $metaName $metaValue]]"
+}
+##
+# write metadata for the parameters, spectra, gates and treevariables.
+# note thet these commands are wrapped in catch/ignores because
+# it's possible this script will be read in by an earlier, pre-metadata
+# supporting SpecTcl.
+#
+# @param fd - the file descriptor to which the metadata commands are written.
+# 
+proc writeMetadata fd {
+    puts $fd "# Write metadata"
+    #parameters:
+    foreach p [parameter -list] {
+        set name [lindex $p 0]
+        dict for {metaName metaValue} [parameter -dumpmetadata $name] {
+            writeMetadataItem $fd parameter $name $metaName $metaValue
+        }
+    }
+    #spectra:
+    foreach s [spectrum -list] {
+        set name [lindex $s 1]
+        dict for {metaname metaValue} [spectrum -dumpmetadata $name] {
+            writeMetadataItem $fd spectrum $name $metaName $metaValue
+        }
+    }
+    #gates:
+    foreach g [gate -list] {
+        set name [lindex $g 0]
+        dict for {metaName metaValue} [gate -dumpmetadata $name] {
+            writeMetadataItem $fd  gate $name $metaName $metaValue   
+        }
+    }
+    #tree variables:
+    foreach tv [treevariable -list] {
+        set name [lindex $tv 0]
+        dict for {metaName metaValue} [treevariable -dumpmetadata $name] {
+            writeMetadataItem $fd treevariable $name $metaName $metaValue
+        }
+    }
+}
 # writeAll fd
 #      Write the state of the application.  The following are written to
 #     a file in the form of a Tcl Script:
@@ -609,6 +665,7 @@ proc writeAll fd {
     writeSpectrumDefinitions $fd
     writeGateApplications    $fd
     writeFilters             $fd
+    writeMetadata            $fd
 
     #  Now execute the observers at the global level:
 
@@ -631,25 +688,29 @@ proc saveSelectedState widget {
         writeComments $fd
 
         if {[$widget cget -treeparams]} {
-        writeTreeParameters $fd
+            writeTreeParameters $fd
         }
         if {[$widget cget -pseudoparams]} {
-        writePseudoParameters $fd
+            writePseudoParameters $fd
         }
         if {[$widget cget -treevariables]} {
-        writeTreeVariables $fd
+            writeTreeVariables $fd
         }
         if {[$widget cget -spectrumdefs]} {
-        writeSpectrumDefinitions $fd
+            writeSpectrumDefinitions $fd
         }
         if {[$widget cget -gatedefs]} {
-        writeGateDefinitions $fd
+            writeGateDefinitions $fd
         }
         if {[$widget cget -gateapps]} {
-        writeGateApplications $fd
+            writeGateApplications $fd
         }
         if {[$widget cget -filters]} {
-        writeFilters $fd
+            writeFilters $fd
+        }
+        if {[$widget cget -metadata]} {
+            writeMetadata $fd
+            
         }
 
         close $fd

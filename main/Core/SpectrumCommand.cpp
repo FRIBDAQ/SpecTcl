@@ -20,7 +20,9 @@
 //
 #include <config.h>
 
+
 #include "SpectrumCommand.h"
+#include "Spectrum.h"
 #include "SpectrumPackage.h"
 #include "TCLInterpreter.h"
 #include "TCLResult.h"
@@ -37,6 +39,7 @@
 #include "CompoundGate.h"
 #include "Globals.h"
 #include <TclPump.h>
+#include <TclDict.h>
 
 #include <tcl.h>
 #include <string.h>
@@ -72,7 +75,10 @@ static const SwitchInfo SwitchTable[] = {
   { "-all",    CSpectrumCommand::keAll},
   { "-byid",   CSpectrumCommand::keById},
   { "-showgate",   CSpectrumCommand::keShowGate},
-  { "-trace",      CSpectrumCommand::keTrace}
+  { "-trace",      CSpectrumCommand::keTrace},
+  { "-setmetadata", CSpectrumCommand::keSetMetadata},
+  { "-getmetadata", CSpectrumCommand::keGetMetadata}, 
+  { "-dumpmetadata", CSpectrumCommand::keDumpMetadata}
 };
 
 static const string defaultTrace("proc __defaultSpectrumTrace name {}; __defaultSpectrumTrace");
@@ -197,7 +203,8 @@ CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter, std::vector<CTCLObje
 
   std::vector<std::string> words;
   std::vector<const char*> pWords;
-
+  bindAll(rInterpreter, objv);
+  
   // Due to lifetimes and how c_str behaves we need two loops not one:
 
   for (auto& word : objv) {
@@ -245,6 +252,12 @@ CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter, std::vector<CTCLObje
   case keTrace:
     nArgs--; pArgs++;		// advance past the -trace switch.
     return Trace(rInterpreter, nArgs, pArgs);
+  case keSetMetadata:
+    return SetMetadata(rInterpreter, objv);
+  case keGetMetadata:
+    return GetMetadata(rInterpreter, objv);
+  case keDumpMetadata:
+    return DumpMetadata(rInterpreter, objv);
   default:			// Invalid switch in context.
     Usage(rInterpreter);
     return TCL_ERROR;
@@ -886,8 +899,139 @@ CSpectrumCommand::Trace(CTCLInterpreter& rInterp,
   return TCL_OK;
   
 }
+/**
+ * SetMetadata
+ *    Set metadata associated with a spetrum"
+ * \verbatim
+ *  spectrum -setmetadata name meta-name meta-value
+ * \endverbatim
+ * 
+ * @param rInterpreter - the interpreter running the command.
+ * @param objv         - the command words as shown above.
+ * @return Int_t       - TCL_OK on success, TCL_ERROR on failure.
+ * @note the command result is empty if successful, an error msg if not.
+ * 
+ */
+Int_t
+CSpectrumCommand::SetMetadata(CTCLInterpreter& rInterpreter, std::vector<CTCLObject>& objv) {
+  try {
+    requireExactly(objv, 5, "Incorrect number of command paramters\n");
+  } catch (std::string msg) {
+    Usage(rInterpreter, msg.c_str());
+    return TCL_ERROR;
+  }
+  std::string name = objv[2];
+  std::string mname = objv[3];
+  std::string mvalue = objv[4];
 
-  
+  // Find the spectrum and complain if it does not exist:
+
+  CSpectrum* pSpec = SpecTcl::getInstance()->FindSpectrum(name);
+  if (!pSpec) {
+    std::string msg ="No such spectrum: ";
+    msg += name;
+    rInterpreter.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  pSpec->setMetadata(mname.c_str(), mvalue.c_str());
+
+  return TCL_OK;
+
+}
+
+/**
+ * GetMetadata
+ *    Return the value of a piece of metdata:
+ * \verbatim
+ *   spectrum -getmetadata name meta-name
+ * \endverbatim
+ * 
+ * @param rInterpreter - references the interpreter running this command.
+ * @param objv         - The command words as shown above.
+ * @return Int_t       - TCL_OK On succes with the value as the result else
+ * TCL_ERROR with the result set to an information error message.
+ */
+Int_t
+CSpectrumCommand::GetMetadata(CTCLInterpreter& rInterpreter, std::vector<CTCLObject>& objv) {
+
+  try {
+    requireExactly(objv, 4, "Incorrect number of command parameters");
+  } catch(std::string msg) {
+    Usage(rInterpreter, msg.c_str());
+    return TCL_ERROR;
+  }
+
+  std::string name = objv[2];
+  std::string mname = objv[3];
+
+  // Find the spectrum and complain if it does not exist:
+
+  CSpectrum* pSpec = SpecTcl::getInstance()->FindSpectrum(name);
+  if (!pSpec) {
+    std::string msg ="No such spectrum: ";
+    msg += name;
+    rInterpreter.setResult(msg);
+    return TCL_ERROR;
+  }
+  // The get could throw  CException:
+
+  std::string value;
+
+  try {
+    value = pSpec->getMetadata(mname.c_str());
+  }
+  catch (CException& e) {
+    rInterpreter.setResult(e.ReasonText());
+    return TCL_ERROR;
+  }
+
+  rInterpreter.setResult(value);
+  return TCL_OK;
+
+}
+/**
+ * DumpMetadata
+ *    Return a dict of metadata for a spectrum.
+ * \verbatim
+ *   spectrum -dumpmetadata name
+ * \endverbatim
+ * 
+ * @param rInterpreter - References the interpreter running the command.
+ * @param objv         - the command words as shown above.
+ * @return Int_T  TCL_OK On success and TCL_ERROR on failure with an error message in the result.
+ * @note on success, the result will be a Tcl dict who's keys are the names
+ * of meta data items and values the values of those items.
+ */
+Int_t
+CSpectrumCommand::DumpMetadata(CTCLInterpreter& rInterpreter, std::vector<CTCLObject>& objv) {
+  try {
+    requireExactly(objv, 3, "Incorrect number of command parameters");
+  } catch(std::string msg) {
+    Usage(rInterpreter, msg.c_str());
+    return TCL_ERROR;
+  }
+
+  std::string name = objv[2];
+
+  // Find the spectrum and complain if it does not exist:
+
+  CSpectrum* pSpec = SpecTcl::getInstance()->FindSpectrum(name);
+  if (!pSpec) {
+    std::string msg ="No such spectrum: ";
+    msg += name;
+    rInterpreter.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  const auto& metadata = pSpec->getAllMetadata();
+  CTCLObject result;
+  result.Bind(rInterpreter);
+  Tcl::DictFromStringMap(rInterpreter, result, metadata);
+
+  rInterpreter.setResult(result);
+  return TCL_OK;
+}
 //////////////////////////////////////////////////////////////////////////
 //
 // Function:
@@ -913,6 +1057,9 @@ CSpectrumCommand::Usage(CTCLInterpreter& rInterp, const char* prefix)
   rResult += "  spectrum -delete -all\n";
   rResult += "  spectrum -trace add ?script?\n";
   rResult += "  spectrum -trace delete ?script?\n";
+  rResult += "  spectrum -setmetadata  name meta-name meta-value\n";
+  rResult += "  spectrum -getmetadata  name meta-name\n";
+  rResult += "  spectrum -dumpmetadata name\n";
   rResult += "    In the above, an axsidef has one of the following formats:\n";
   rResult += "         n           - n is the Log(2) the number of channels\n";
   rResult += "         {low hi n}  - Full definition where:\n";

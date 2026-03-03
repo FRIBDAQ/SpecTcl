@@ -186,6 +186,7 @@ public:
   void   setChanged();
   void   resetChanged();
   static void ResetAll();
+  CParameter* getParameter() {return m_pParameter;}
   
 
  // Other member functions.

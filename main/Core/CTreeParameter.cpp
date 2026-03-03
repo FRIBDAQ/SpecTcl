@@ -333,6 +333,7 @@ CTreeParameter::Bind()
   
   if(!pParam) {
     pParam     = api.AddParameter(m_sName, api.AssignParameterId(), m_sUnits);
+    pParam     = api.FindParameter(m_sName);   // Because entering in the dict copy constructs.
   }
   else {
     m_sUnits   = pParam->getUnits();

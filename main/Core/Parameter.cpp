@@ -62,3 +62,41 @@ CParameter::MappedToRaw(Float_t fMapped)
     return fMapped;
   }
 }
+/// Issue #229 add metadata to SpecTcl objects:
+
+/**
+ * setMetadata
+ *    Set the value of a piece of metadata:
+ * 
+ * @param name - name of the metadata
+ * @param value - new value.
+ * @note If name does not yet exist it is created.  If it does exist, it is overwritten
+ */
+void
+CParameter::setMetadata(const char* name, const char* value) {
+  m_metadata.set(name, value);
+
+}
+/**
+ * getMetadata
+ *   Get the value of a  piece of metadata:
+ * 
+ * @param name - name of the metadata item to return.
+ * @return std::string - value of that metadata.
+ * @throw CNoSuchObjectException if there is no such metadata item.
+ */
+std::string
+CParameter::getMetadata(const char* name) {
+  return m_metadata.get(name);
+}
+/**
+ * getAllMetadata
+ *   Returns a const referencde to the dict that holds the metadata
+ * This is primarly intended for iteration through the meatdata.
+ * 
+ * @return const CMetadata::Metadata_t&
+ */
+const CMetadata::Metadata_t&
+CParameter::getAllMetadata() const {
+  return m_metadata.get_all();
+}
