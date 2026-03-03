@@ -255,11 +255,12 @@ snit::widget treeVariableEditor {
     method editMetadata index {
         set name [$win.name$index get]
         if {$name ne ""}  {
-            puts "Dispatch -metacmd for $name"
+            
             set value [$win.value$index get]
-            set units [$win.units.index get]
-            $self Dispatch options(-metacmd) [list %N %V %U %I %W] \
+            set units [$win.units$index get]
+            $self Dispatch $options(-metacmd) [list %N %V %U %I %W] \
                 [list $name [list $value] [list $units] $index $win]
+            
         }
     }
     #---------------------------------------------------------------------
