@@ -17,6 +17,8 @@ package require Itcl
 package require treeParametersContainer
 package require treeUtilities
 package require restore
+package require MetaDataEditor
+package require dialogwrapper
 
 package provide parametersTabActions 1.0
 
@@ -50,17 +52,17 @@ package provide parametersTabActions 1.0
     #
     private method loadSlot {slot path} {
 
-	set paramInfo [treeparameter -list $path]
+		set paramInfo [treeparameter -list $path]
 
-	# For now if there are duplicates, just take the first
+		# For now if there are duplicates, just take the first
 
-	if {[llength $paramInfo] > 0} {
-	    set paramInfo [lindex $paramInfo 0]
-	    $widget load $slot [lindex $paramInfo 0] \
-		[lindex $paramInfo 2]                 \
-		[lindex $paramInfo 3]                 \
-		[lindex $paramInfo 5]
-	}
+		if {[llength $paramInfo] > 0} {
+			set paramInfo [lindex $paramInfo 0]
+			$widget load $slot [lindex $paramInfo 0] \
+			[lindex $paramInfo 2]                 \
+			[lindex $paramInfo 3]                 \
+			[lindex $paramInfo 5]
+		}
     } 
 
 
@@ -300,6 +302,7 @@ package provide parametersTabActions 1.0
 	    -loadcmd   [itcl::code $this reloadEditor  %S]         \
 	    -set       [itcl::code $this setParameter  %S]         \
 	    -change    [itcl::code $this changeSpectra %S]        \
+		-metadata   [itcl::code $this editMetadata %S]        \
 	    -namechanged [itcl::code $this nameChanged %S]
 
 	# Register an observer for the save so that we can
@@ -487,7 +490,42 @@ package provide parametersTabActions 1.0
 	[autoSave::getInstance] failsafeSave
 
     }
+	private method editMetadata {slot} {
+		
+		set contents [$widget get $slot]
+		set path [lindex $contents 0];  # The parameter to edit.
+		if {$path eq ""} {
+			return;            # no parameter loaded.
+		}
 
+		# Make a modal dialog with the metadata editor in it
+		
+		set dialogTop [toplevel .metadialogtop]
+		DialogWrapper $dialogTop.dialog
+		MetadataEditor $dialogTop.dialog.editor
+		
+
+		# Load the meatadata, and put the editor into the dialog:
+		
+		set metadata [parameter -dumpmetadata $path]
+		$dialogTop.dialog.editor load $metadata
+		$dialogTop.dialog configure -form $dialogTop.dialog.editor
+		pack $dialogTop.dialog -fill both
+
+		# Run the dialog:
+
+		set response [$dialogTop.dialog modal]
+		if {$response eq "Ok"} {
+			puts "Loading metadata from dialog:"
+			set newMetadata [$dialogTop.dialog.editor cget -metadata]
+			dict for {name value} $newMetadata {
+				parameter -setmetadata $path $name $value
+			}
+		}
+
+		destroy $dialogTop;     # Kill the dialog no matter what.
+		
+	}
     ##
     # Handles the change button:
     # - figures out which spectra depend on the parameter
@@ -498,58 +536,58 @@ package provide parametersTabActions 1.0
     # @param slot - The slot whose change button was clicked.
     # 
     private method changeSpectra {slot} {
-	set contents [$widget get $slot]
-	set path     [lindex $contents 0]
+		set contents [$widget get $slot]
+		set path     [lindex $contents 0]
 
-	set currentInfo [treeparameter -list $path]
+		set currentInfo [treeparameter -list $path]
 
-	# The spectrum is set from the current tree parameter values:
+		# The spectrum is set from the current tree parameter values:
 
-	if {[llength $currentInfo] > 0} {
-	    set currentInfo [lindex $currentInfo 0]
-	    set bins [lindex $currentInfo 1]
-	    set low  [lindex $currentInfo 2]
-	    set hi   [lindex $currentInfo 3]
+		if {[llength $currentInfo] > 0} {
+			set currentInfo [lindex $currentInfo 0]
+			set bins [lindex $currentInfo 1]
+			set low  [lindex $currentInfo 2]
+			set hi   [lindex $currentInfo 3]
 
-	    # Potentially expand the parameter list:
+			# Potentially expand the parameter list:
 
-	    set parameters [getTargetParameters $path]
+			set parameters [getTargetParameters $path]
 
-	    # We need to figure out
-	    # - The set of spectra that depend on each parameter in the list.
-	    # - The merged set of spectra we'll modify.
-	    # This will be done by creating an array indexed by spectrum to be
-	    # modified with a list of parameters that cause the spectrum to be modified
-	    # as the value:
-	    #
-	    array set spectraModified [list]
-	    foreach parameter $parameters {
-		set spectra [listDependentSpectra $parameter]
-		foreach spectrum $spectra {
-		    lappend spectraModified($spectrum) $parameter
-		}
-	    }
-	    # The list of specta modified is therefore:
-
-	    set spectra [array names spectraModified]
-
-	    # Get confirmation:
-
-	    if {[llength $spectra] > 0} {
-		if {[promptChangeOk $spectra]} {
-
-		    foreach spectrum [array names spectraModified] {
-			foreach parameter $spectraModified($spectrum) {
-			    modifySpectra $spectrum $parameter $low $hi
+			# We need to figure out
+			# - The set of spectra that depend on each parameter in the list.
+			# - The merged set of spectra we'll modify.
+			# This will be done by creating an array indexed by spectrum to be
+			# modified with a list of parameters that cause the spectrum to be modified
+			# as the value:
+			#
+			array set spectraModified [list]
+			foreach parameter $parameters {
+				set spectra [listDependentSpectra $parameter]
+			foreach spectrum $spectra {
+				lappend spectraModified($spectrum) $parameter
 			}
-			[autoSave::getInstance] failsafeSave; # Only if we modify spectra.
-		    }
-		}
-	    } else {
-		notifyNoMatches
-	    }
+			}
+			# The list of specta modified is therefore:
 
-	}
+			set spectra [array names spectraModified]
+
+			# Get confirmation:
+
+			if {[llength $spectra] > 0} {
+				if {[promptChangeOk $spectra]} {
+
+					foreach spectrum [array names spectraModified] {
+						foreach parameter $spectraModified($spectrum) {
+							modifySpectra $spectrum $parameter $low $hi
+						}
+						[autoSave::getInstance] failsafeSave; # Only if we modify spectra.
+					}
+				}
+			} else {
+				notifyNoMatches
+			}
+
+		}
 
     }
     ##
