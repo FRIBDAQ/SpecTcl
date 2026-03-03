@@ -17,6 +17,8 @@ package require Itcl
 package require treeVariableContainer
 package require guistate;	# From 'folder gui'.
 package require restore
+package require MetaDataEditor
+package require dialogwrapper
 
 package provide variableTabActions 1.0
 
@@ -229,8 +231,43 @@ itcl::class variableTabActions {
 			$widget loadEditor $index $name ? ?
 		}
     }
+	##
+	# EditMetadata
+	#     Pop up an editor dialog for the metadata of
+	#     the selected tree variable.  Ok, the
+	#     Variable's metadata are re-written.
+	#
+	# @param name variable name.
+	#
 	private method EditMetadata name {
-		puts "Editing metadata for $name"
+		# Put together the widget  tree for the editor modal dialog:
+
+		toplevel .metaeditor
+		wm title .metaeditor "Edit metadata for $name"
+		DialogWrapper .metaeditor.dialog
+		MetadataEditor .metaeditor.dialog.editor
+		.metaeditor.dialog configure -form .metaeditor.dialog.editor
+		pack .metaeditor.dialog -fill both
+
+		# Load the editor with the metadata:
+		# and let the dialog do its stuff:
+
+
+		.metaeditor.dialog.editor load [treevariable -dumpmetadata $name]
+		set result [.metaeditor.dialog modal]
+
+		# IF Ok was clicked, we can pull the metadata from the editor
+		# and load it:
+
+		if {$result eq "Ok"} {
+			set newMetadata [.metaeditor.dialog.editor cget -metadata]
+			dict for {mname value} $newMetadata {
+				treevariable -setmetadata $name $mname $value
+			}
+		}
+
+		destroy .metaeditor
+
 	}
 
     #--------------------------------------------------------------------

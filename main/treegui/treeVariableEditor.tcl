@@ -18,6 +18,9 @@ package require Tk
 package require snit
 package require treemenuWidget
 package require treeUtilities
+package require MetaDataEditor
+package require dialogwrapper
+
 
 package provide treeVariableEditor 1.0
 
