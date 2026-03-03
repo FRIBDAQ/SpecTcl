@@ -97,8 +97,7 @@ snit::widget MetadataEditor {
     #  @param desc metadata dict - see above.
     #
     method load desc {
-        catch {
-        puts "conifiguring: $desc"
+        
         # now the meatdata:
 
         set metadata $desc
@@ -108,11 +107,9 @@ snit::widget MetadataEditor {
         $win.metadata.new    configure -state normal
 
         dict for {key value} $metadata {
-            puts "INserting $key $value at end"
             $win.tree insert {} end -values [list $key $value]
         }
-        } msg
-        puts "$msg $::errorInfo"
+        
     }
     #  Private methods:
 
