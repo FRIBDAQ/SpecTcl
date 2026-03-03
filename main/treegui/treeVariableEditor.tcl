@@ -59,6 +59,9 @@ package provide treeVariableEditor 1.0
 #                    %U - Units loaded into the editor.
 #                    %I - Index of the selected editor.
 #                    %W - Widget of the selected editor.
+#    -metacmd   - Script invoked when the Metadata... button is clicked on a row.
+#                 All the substitutions for -setcmd are supported, though I bet
+#                 only %N is used.
 #    -array      - 0 if the array check button is off 1 otherwise.
 #    -namechanged - Script invoked if the name field of one of the editors changed.
 #
@@ -79,6 +82,7 @@ snit::widget treeVariableEditor {
     option -selectcmd -default [list]
     option -loadcmd   -default [list]
     option -setcmd    -default [list]
+    option -metacmd   -default [list]
     option -array     -default 0
     option -namechanged -default [list]
 
@@ -114,8 +118,10 @@ snit::widget treeVariableEditor {
             ttk::entry       $win.units$row -width 10 -takefocus 1
             ttk::button      $win.load$row  -text Load -command [mymethod ReloadDispatch $row]
             ttk::button      $win.set$row   -text Set  -command [mymethod SetVariable $row]
+            ttk::button      $win.metaedit$row -text Metadata... -command [mymethod editMetadata $row]
     
-            grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row \
+            grid $win.radio$row $win.name$row $win.value$row $win.units$row \
+                $win.load$row $win.set$row $win.metaedit$row \
             -sticky new
     
             # Bindings for this row as well.. note that tab/shift tab normally change focus.
@@ -221,26 +227,40 @@ snit::widget treeVariableEditor {
     #  @param row - Number of the selected editor.
     #
     method ReloadDispatch row {
-	set name [$win.name$row get]
+        set name [$win.name$row get]
 
-	# Only dispatch if there's a non-empty name:
+        # Only dispatch if there's a non-empty name:
 
-	if {$name ne ""} {
-	    $self Dispatch $options(-loadcmd) [list %W %N %I] [list $win $name $row]
-	}
+        if {$name ne ""} {
+            $self Dispatch $options(-loadcmd) [list %W %N %I] [list $win $name $row]
+        }
     }
     ##
     # Dispatch the -setcmd script.  See the header comments for the supported substitutions.
     # @param index - Index of the editor that was involved.
     #
     method SetVariable index {
-	set name [$win.name$index get]
-	if {$name ne ""} {
-	    set value [$win.value$index get]
-	    set units [$win.units$index get]
-	    $self Dispatch $options(-setcmd) [list %N %V %U %I %W] \
-		[list $name [list $value] [list $units] $index $win]
-	}
+        set name [$win.name$index get]
+        if {$name ne ""} {
+            set value [$win.value$index get]
+            set units [$win.units$index get]
+            $self Dispatch $options(-setcmd) [list %N %V %U %I %W] \
+            [list $name [list $value] [list $units] $index $win]
+        }
+    }
+    ##
+    #  Dispatch the -metacmd for this row:
+    #  @param index - the row index for the button that was clicked.
+    #
+    method editMetadata index {
+        set name [$win.name$index get]
+        if {$name ne ""}  {
+            puts "Dispatch -metacmd for $name"
+            set value [$win.value$index get]
+            set units [$win.units.index get]
+            $self Dispatch options(-metacmd) [list %N %V %U %I %W] \
+                [list $name [list $value] [list $units] $index $win]
+        }
     }
     #---------------------------------------------------------------------
     # Private utilities.
