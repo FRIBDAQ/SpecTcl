@@ -42,6 +42,7 @@ snit::widget treeVariableContainer {
     delegate option -loadcmd   to editors
     delegate option -setcmd    to editors
     delegate option -array     to editors
+    delegate option -metacmd   to editors
     delegate option -namechanged to editors
 
     delegate option -loadfile   to loadsave as -loadcmd
@@ -61,14 +62,14 @@ snit::widget treeVariableContainer {
     #
     constructor args {
 
-	install editors  as treeVariableEditor   $win.editors
-	install loadsave as treeVariableLoadSave $win.loadsave
+        install editors  as treeVariableEditor   $win.editors
+        install loadsave as treeVariableLoadSave $win.loadsave
 
-	$self configurelist $args
+        $self configurelist $args
 
-	grid $win.editors  -sticky ew
-	grid $win.loadsave -sticky ws
-	grid columnconfigure $win all -weight 1
+        grid $win.editors  -sticky ew
+        grid $win.loadsave -sticky ws
+        grid columnconfigure $win all -weight 1
 
 	
     }
