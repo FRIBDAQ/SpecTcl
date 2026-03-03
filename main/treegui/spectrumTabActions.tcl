@@ -20,6 +20,8 @@ package require guistate
 
 package require autosave
 package require restore
+package require dialogwrapper
+package require MetaDataEditor
 
 package provide spectrumTabActions 1.0
 
@@ -672,202 +674,238 @@ itcl::class spectrumTabActions {
     ## Invoked to create a spectrum.
     #
     private method CreateSpectrum {} {
-	# If the spectrum exists prompt for redef:
+		# If the spectrum exists prompt for redef:
 
-	#
-	#  We must have at least the following:
-	# - spectrum name
-	# - spectrum type
-	# - Xaxis.   The rest depends on the type of spectrum.
-
-	set type     [$widget cget -spectrumtype]
-	set datatype [$widget cget -datatype]
-	set name     [$widget cget -spectrumname]
-
-	set xname    [$widget cget -xparameter]
-	set xlow     [$widget cget -xlow]
-	set xhi      [$widget cget -xhi]
-	set xbins    [$widget cget -xbins]
-
-	    
-	
-	# Do nothing if any of the above are empty:
-
-	if {[anyNulls [list $type $datatype $name $xname $xlow $xhi $xbins]]} {
-	    return
-	}
-
-	if {![string is double -strict  $xlow] ||
-	    ![string is double -strict  $xhi]} {
-	    ::treeutility::errorMessage \
-		"Invalid X axis specification. Both low and high must be valid floats were: $xlow $xhi"
-	    return
-	}
-	    
-
-
-	# Bins must be integers:
-
-	if {![string is integer $xbins]} {
-	    ::treeutility::errorMessage "The number of bins on the x axis must be an integer was: $xbins"
-	    return
-	}
-	if {$xbins < 0} {
-	    ::treeutility::errorMessage "The number of bins on the x axis must be positive was $xbins"
-	    return
-	}
-
-	# What happens next depends entirely on the spectrum type
-	# Bitmask and 1d define essentially the same.
-	# 2d and Stripchart need different defs.
-	#
-
-	switch -exact -- $type {
-	    1 - b {
 		#
-		# 1d and bitmask spectra support the array checkbutton:
-		#
-		if {[$widget cget -array]} {
-		    #  Get the names of the parameters and the corresponding spectrum names:
+		#  We must have at least the following:
+		# - spectrum name
+		# - spectrum type
+		# - Xaxis.   The rest depends on the type of spectrum.
 
-		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
-		    set spectrumList  [list]; # List of spectra to create
-		    set existingSpectra [list];	# List of previously existing spectra:
+		set type     [$widget cget -spectrumtype]
+		set datatype [$widget cget -datatype]
+		set name     [$widget cget -spectrumname]
 
-		    foreach parameter $parameterList {
-			set tail [lindex [split $parameter .] end]
-			lappend spectrumList $name.$tail
-			set currentInfo [spectrum -list $name.$tail]
-			if {[llength $currentInfo] != 0} {
-			    lappend existingSpectra [lindex [lindex $currentInfo 0] 1]
-			}
+		set xname    [$widget cget -xparameter]
+		set xlow     [$widget cget -xlow]
+		set xhi      [$widget cget -xhi]
+		set xbins    [$widget cget -xbins]
 
-		    }
-		    #
-		    # Be sure it's ok to re-define the existing spectra
-		    #
-		    if {([llength $existingSpectra] == 0) ||
-			[::treeutility::okToReplaceSpectra $existingSpectra]} {
-			foreach parameter $parameterList spectrum $spectrumList {
-			    set gateName [AppliedGate $spectrum]
-			    catch {spectrum -delete $spectrum}
-			    spectrum $spectrum $type $parameter \
-				[list [list $xlow $xhi $xbins]] $datatype
-			    ApplyGate $spectrum $gateName
-			    if {[catch {sbind $spectrum}]} {
-				bindFailed $spectrumList $existingSpectra $gateName
-				break;             # Rollback or kill all.
-			    }
-			}
-		    }
-		} else {
-		    if {[okToReplaceSpectrum $name]} {
-			set gateName [AppliedGate $name]
-			set prior [spectrum -list $name];    # For rollback.
-			catch {spectrum -delete $name}; # get rid of any prior spectrum.
-			spectrum $name $type $xname [list [list $xlow $xhi $xbins]] $datatype
-			ApplyGate $name $gateName
-			if {[catch {sbind $name}]} {
-			    bindFailed $name $prior $gateName
-			}
-		    }
-		}
-	    }
-	    S {
-		# Need a y parameter too:
+			
 		
-		set yname [$widget cget -yparameter]
+		# Do nothing if any of the above are empty:
 
-		if {($yname ne "") && [okToReplaceSpectrum $name]} {
-		    set priorSpectra [spectrum -list $name]
-		    set gateName [AppliedGate $name]
-		    catch {spectrum -delete $name}
-		    spectrum $name $type [list $xname $yname]  [list [list $xlow $xhi $xbins]] $datatype
-		    ApplyGate $name $gateName
-		    if {[catch {sbind $name}]} {
-			bindFailed $name $priorSpectrum $gateName
-		    }
+		if {[anyNulls [list $type $datatype $name $xname $xlow $xhi $xbins]]} {
+			return
 		}
-	    }
-	    2 {
-		# Need y parameter and axis definitions.
 
-		set yname [$widget cget -yparameter]
-		set ylow  [$widget cget -ylow]
-		set yhi   [$widget cget -yhi]
-		set ybins [$widget cget -ybins]
-
-		if {![anyNulls [list $yname $ylow $yhi $ybins]] && [okToReplaceSpectrum $name]} {
-		    if {![string is integer $ybins]} {
-			::treeutility::errorMessage  "Bins on y axis must be an integer was: $ybins"
-			return
-		    }
-		    if {$ybins < 0} {
-			::treeutility::errorMessage  "Y bins must be a positive integer, was: $ybins"
-			return
-		    }
-		    if {![string is double -strict  $ylow] ||
-			![string is double -strict  $yhi]} {
+		if {![string is double -strict  $xlow] ||
+			![string is double -strict  $xhi]} {
 			::treeutility::errorMessage \
-			    "Invalid Y axis specification. Both low and high must be valid floats were: $ylow $yhi"
+			"Invalid X axis specification. Both low and high must be valid floats were: $xlow $xhi"
 			return
-		    }
-		    
-		    set gate [AppliedGate $name]
-		    set prior [spectrum -list $name]
-		    catch {spectrum -delete $name}
-		    spectrum $name $type [list $xname $yname] \
-			[list [list $xlow $xhi $xbins] [list $ylow $yhi $ybins]] $datatype
-		    ApplyGate $name $gate
-		    if {[catch {sbind $name}]} {
-			bindFailed $name $prior $gate
-		    }
 		}
-	    }
-	    s - g1 {
-		# Summary spectra, gamma 1d treat the parameters like an array instance:
-		
-		if {[okToReplaceSpectrum $name]} {
-		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
-		    set gate [AppliedGate $name]
-		    set prior [spectrum -list $name]
-		    catch {spectrum -delete $name}
-		    spectrum $name $type $parameterList [list [list $xlow $xhi $xbins]]
-		    ApplyGate $name $gate
-		    if {[catch {sbind $name}]} {
-			bindFailed $name $prior $gate
-		    }
+			
+
+
+		# Bins must be integers:
+
+		if {![string is integer $xbins]} {
+			::treeutility::errorMessage "The number of bins on the x axis must be an integer was: $xbins"
+			return
 		}
-	    }
-	    g2 {
-		# Gamma 2 needs to make ay axis definitions that is identical to the X
-
-		if {[okToReplaceSpectrum $name]} {
-
-		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
-		    set gate [AppliedGate $name]
-		    set prior [spectrum -list $name]
-		    catch {spectrum -delete $name}
-		    spectrum $name $type $parameterList \
-			[list [list $xlow $xhi $xbins] [list $xlow $xhi $xbins]]
-		    ApplyGate $name $gate
-		    if {[catch {sbind $name}]} {
-			bindFailed $name $prior $gate
-		    }
+		if {$xbins < 0} {
+			::treeutility::errorMessage "The number of bins on the x axis must be positive was $xbins"
+			return
 		}
 
-	    }
-	    default {
-		tk_messageBox -type ok -icon error -title {Can't make this spectrum} \
-		    -parent $widget \
-		    -message "The tree gui does not know how to create spectra of type: $type"
-	    }
-	}
-		      
-	LoadSpectra [$widget cget -mask]	  
-	[autoSave::getInstance]  failsafeSave
+		# What happens next depends entirely on the spectrum type
+		# Bitmask and 1d define essentially the same.
+		# 2d and Stripchart need different defs.
+		#
+
+		switch -exact -- $type {
+			1 - b {
+			#
+			# 1d and bitmask spectra support the array checkbutton:
+			#
+			if {[$widget cget -array]} {
+				#  Get the names of the parameters and the corresponding spectrum names:
+
+				set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
+				set spectrumList  [list]; # List of spectra to create
+				set existingSpectra [list];	# List of previously existing spectra:
+
+				foreach parameter $parameterList {
+				set tail [lindex [split $parameter .] end]
+				lappend spectrumList $name.$tail
+				set currentInfo [spectrum -list $name.$tail]
+				if {[llength $currentInfo] != 0} {
+					lappend existingSpectra [lindex [lindex $currentInfo 0] 1]
+				}
+
+				}
+				#
+				# Be sure it's ok to re-define the existing spectra
+				#
+				if {([llength $existingSpectra] == 0) ||
+				[::treeutility::okToReplaceSpectra $existingSpectra]} {
+				foreach parameter $parameterList spectrum $spectrumList {
+					set gateName [AppliedGate $spectrum]
+					catch {spectrum -delete $spectrum}
+					spectrum $spectrum $type $parameter \
+					[list [list $xlow $xhi $xbins]] $datatype
+					ApplyGate $spectrum $gateName
+					if {[catch {sbind $spectrum}]} {
+					bindFailed $spectrumList $existingSpectra $gateName
+					break;             # Rollback or kill all.
+					}
+				}
+				}
+			} else {
+				if {[okToReplaceSpectrum $name]} {
+				set gateName [AppliedGate $name]
+				set prior [spectrum -list $name];    # For rollback.
+				catch {spectrum -delete $name}; # get rid of any prior spectrum.
+				spectrum $name $type $xname [list [list $xlow $xhi $xbins]] $datatype
+				ApplyGate $name $gateName
+				if {[catch {sbind $name}]} {
+					bindFailed $name $prior $gateName
+				}
+				}
+			}
+			}
+			S {
+			# Need a y parameter too:
+			
+			set yname [$widget cget -yparameter]
+
+			if {($yname ne "") && [okToReplaceSpectrum $name]} {
+				set priorSpectra [spectrum -list $name]
+				set gateName [AppliedGate $name]
+				catch {spectrum -delete $name}
+				spectrum $name $type [list $xname $yname]  [list [list $xlow $xhi $xbins]] $datatype
+				ApplyGate $name $gateName
+				if {[catch {sbind $name}]} {
+				bindFailed $name $priorSpectrum $gateName
+				}
+			}
+			}
+			2 {
+			# Need y parameter and axis definitions.
+
+			set yname [$widget cget -yparameter]
+			set ylow  [$widget cget -ylow]
+			set yhi   [$widget cget -yhi]
+			set ybins [$widget cget -ybins]
+
+			if {![anyNulls [list $yname $ylow $yhi $ybins]] && [okToReplaceSpectrum $name]} {
+				if {![string is integer $ybins]} {
+				::treeutility::errorMessage  "Bins on y axis must be an integer was: $ybins"
+				return
+				}
+				if {$ybins < 0} {
+				::treeutility::errorMessage  "Y bins must be a positive integer, was: $ybins"
+				return
+				}
+				if {![string is double -strict  $ylow] ||
+				![string is double -strict  $yhi]} {
+				::treeutility::errorMessage \
+					"Invalid Y axis specification. Both low and high must be valid floats were: $ylow $yhi"
+				return
+				}
+				
+				set gate [AppliedGate $name]
+				set prior [spectrum -list $name]
+				catch {spectrum -delete $name}
+				spectrum $name $type [list $xname $yname] \
+				[list [list $xlow $xhi $xbins] [list $ylow $yhi $ybins]] $datatype
+				ApplyGate $name $gate
+				if {[catch {sbind $name}]} {
+				bindFailed $name $prior $gate
+				}
+			}
+			}
+			s - g1 {
+			# Summary spectra, gamma 1d treat the parameters like an array instance:
+			
+			if {[okToReplaceSpectrum $name]} {
+				set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
+				set gate [AppliedGate $name]
+				set prior [spectrum -list $name]
+				catch {spectrum -delete $name}
+				spectrum $name $type $parameterList [list [list $xlow $xhi $xbins]]
+				ApplyGate $name $gate
+				if {[catch {sbind $name}]} {
+				bindFailed $name $prior $gate
+				}
+			}
+			}
+			g2 {
+			# Gamma 2 needs to make ay axis definitions that is identical to the X
+
+			if {[okToReplaceSpectrum $name]} {
+
+				set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
+				set gate [AppliedGate $name]
+				set prior [spectrum -list $name]
+				catch {spectrum -delete $name}
+				spectrum $name $type $parameterList \
+				[list [list $xlow $xhi $xbins] [list $xlow $xhi $xbins]]
+				ApplyGate $name $gate
+				if {[catch {sbind $name}]} {
+				bindFailed $name $prior $gate
+				}
+			}
+
+			}
+			default {
+			tk_messageBox -type ok -icon error -title {Can't make this spectrum} \
+				-parent $widget \
+				-message "The tree gui does not know how to create spectra of type: $type"
+			}
+		}
+				
+		LoadSpectra [$widget cget -mask]	  
+		[autoSave::getInstance]  failsafeSave
 
     }
+	private method EditMetadata {} {
+		set spectrumName [$widget cget -spectrumname]
+		
+		
+		#  If there's not spectrum or it's not defined return:
+
+		if {[llength [spectrum -list $spectrumName]] == 0} {
+			return
+		}
+
+		# Set up the widget tree for editing the metadata for $spectrumName
+
+		set top [toplevel .metadata]
+		wm title $top "Metadata for $spectrumName"
+		set dialog [DialogWrapper $top.dialog]
+		set editor [MetadataEditor $dialog.editor]
+		$dialog configure -form $editor
+		pack $dialog -fill both
+
+		# Stock the editor with the current metadata and 
+		# Let the dialog do its thing:
+
+		$editor load [spectrum -dumpmetadata $spectrumName]
+		set reply [$dialog modal]
+
+		#  If the reply was "Ok"  repload the spectrum metadata
+		# from the editor:
+
+		if {$reply eq "Ok"} {
+			dict for {name value} [$editor cget -metadata] {
+				spectrum -setmetadata $spectrumName $name $value
+			}
+		}
+		destroy $top
+		
+	}
     ##
     # Called when the failsafe button has changed;
     # Get the state of the button and set the auotsave singleton accordingly.
@@ -978,7 +1016,8 @@ itcl::class spectrumTabActions {
 	    -createcmd      [itcl::code $this CreateSpectrum]     \
 	    -failsafechanged [itcl::code $this ChangeFailsafe]    \
 	    -xchanged        [itcl::code $this SetParameterInfo %W %T]  \
-	    -ychanged        [itcl::code $this SetParameterInfo %W %T]
+	    -ychanged        [itcl::code $this SetParameterInfo %W %T] \
+		-metadatacmd  [itcl::code $this EditMetadata]
 
 
 	LoadParameters
