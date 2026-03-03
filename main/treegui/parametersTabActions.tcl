@@ -500,7 +500,8 @@ package provide parametersTabActions 1.0
 
 		# Make a modal dialog with the metadata editor in it
 		
-		set dialogTop [toplevel .metadialogtop]
+		set dialogTop [toplevel .metadialogtop ]
+		wm title $dialogTop "Metadata for $path"
 		DialogWrapper $dialogTop.dialog
 		MetadataEditor $dialogTop.dialog.editor
 		
