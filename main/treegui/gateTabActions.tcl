@@ -15,6 +15,8 @@
 package require Tk
 package require Itcl
 package require gateContainer
+package require MetaDataEditor
+package require dialogwrapper
 
 package provide gateTabActions 1.0
 
@@ -268,7 +270,32 @@ package provide gateTabActions 1.0
     #
     private method editMetadata {} {
         set gateName [$widget getsel]
-        puts "Editing metadata for $gateName ."
+        
+        # Make the editor dialog widget tree:
+
+        set top [toplevel .metaedit]
+        wm title $top "Metadata for $gateName"
+        set dialog [DialogWrapper $top.dialog]
+        set editor [MetadataEditor $dialog.edit]
+        $dialog configure -form $editor
+        pack $dialog -fill both
+
+        # FIll the editor with the metadata and wait
+        # for the editing to be done:
+
+        $editor load [gate -dumpmetadata $gateName]
+        set response [$dialog modal]
+
+        # IF Ok was the answer load the gate metadata from
+        # the editor.
+        if {$response eq "Ok"} {
+            set newMeta [$editor cget -metadata]
+            dict for {name value} $newMeta {
+                gate -setmetadata $gateName $name $value
+            }
+        }
+        destroy $top
+
     }
     ##
     # Callback invoked to create/modify a gate.
