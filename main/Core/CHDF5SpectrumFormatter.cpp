@@ -23,9 +23,13 @@
  *     
  */
 
- #include "CHDF5SpectrumFormatter.h"
- #include <H5Cpp.h>
- #include <Exception.h>
+#include "CHDF5SpectrumFormatter.h"
+#include "WriteCommand.h"
+#include "SpectrumFormatError.h"
+#include "Spectrum.h"
+#include <H5Cpp.h>
+#include <Exception.h>
+#include <iostream>
 
  using namespace H5;
 
@@ -98,5 +102,65 @@ CHDF5SpectrumFormatter::Write (
     std::ostream& rStream, CSpectrum& rSpectrum,
 	ParameterDictionary& rDict) {
 
-    throw CException("Writing HDF5 files is  in progresss, not yet supported");
+    // Get the write context and from that the name of the file and whether 
+    // we need to create of just open.
+
+    std::string fname      = WriteCommandInfo::getInstance()->m_filename;
+    bool        mustCreate = WriteCommandInfo::getInstance()->m_firstSpectrum;
+
+    // Truncate on open if must create else just open for read/write.
+
+    unsigned int openFlags = mustCreate ? H5F_ACC_TRUNC : H5F_ACC_RDWR;
+    try {
+        Exception::dontPrint();              // Let's us catch the errors.
+        H5File hdf(fname, openFlags);
+
+        // Make a group named after the spectrum:
+
+        Group spectrumGroup = hdf.createGroup(rSpectrum.getName());
+
+        // Create the data set.. for that we need the dimensionality and
+        // the dimensions themselves:
+
+        int rank = rSpectrum.Dimensionality();
+        hsize_t dimensions[2];    // We only suport  1 and 2 dim sepctra:
+        for (int i = 0; i < rank; i++) {
+            dimensions[i] = rSpectrum.Dimension(i);
+        }
+        DataSpace ds(rank, dimensions);
+
+        // To actually create the dataset we need to know the data type.
+        // We're going to store in little endian format:
+        // But we also need to have data types for the in memory stuff.
+
+
+        PredType fileDataType(PredType::STD_U32LE);   //  There's no default construtor.
+        PredType memoryDataType(PredType::NATIVE_UINT32);
+        switch (rSpectrum.StorageType()) {
+            case keByte:
+                fileDataType = PredType::STD_U8LE;
+                memoryDataType = PredType::NATIVE_UINT8;
+                break;
+            case keWord:
+                fileDataType = PredType::STD_U16LE;
+                memoryDataType = PredType::NATIVE_UINT16;
+                break;
+            case keLong:
+                fileDataType = PredType::STD_U32LE;
+                memoryDataType =PredType::NATIVE_UINT32;
+        }
+        DataSet contents = spectrumGroup.createDataSet("contents", fileDataType, ds);
+
+        contents.write(rSpectrum.getStorage(), memoryDataType);
+
+        contents.close();
+        spectrumGroup.close();
+        hdf.close();
+    }
+    catch (Exception& e) {
+        // COnvert this to a spectrum format error.
+        std::string doing = e.getDetailMsg();   
+        throw CSpectrumFormatError(CSpectrumFormatError::HDF5Exception, doing.c_str());
+    }
+
 }
