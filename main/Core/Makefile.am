@@ -10,7 +10,7 @@ libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 
 COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' \
 -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@ \
--I@top_srcdir@/mpi @XDR_CPPFLAGS@
+-I@top_srcdir@/mpi @XDR_CPPFLAGS@ @HDF5_CFLAGS@
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
@@ -310,14 +310,16 @@ SpectrumIO_SRC =  SpectrumFormatter.cpp \
 	SpectrumStandardFormatters.cpp \
 	NSCLBinarySpectrumFormatter.cpp \
 	NSCLAsciiSpectrumFormatter.cpp  \
+	CHDF5SpectrumFormatter.cpp \
 	SpectrumFormatError.cpp \
 	nsclbin.cpp nsclbinerror.cpp nscldata.cpp tclstreams.cpp \
 	SpectrumFormatterJson.cpp
 
-SpectrumIO_INCLUDES = NSCLAsciiSpectrumFormatter.h NSCLBinarySpectrumFormatter.h \
+SpectrumIO_INCLUDES = NSCLAsciiSpectrumFormatter.h \
+	NSCLBinarySpectrumFormatter.h \
 	SpectrumFormatError.h SpectrumFormatter.h SpectrumFormatterFactory.h \
 	nsclbin.h nsclbinerror.h nscldata.h nscltime.h tclstreams.h \
-	SpectrumFormatterJson.h
+	SpectrumFormatterJson.h CHDF5SpectrumFormatter.h
 
 TreeParam_SRC = CMatchingVisitor.cpp \
 	CTreeException.cpp \
@@ -417,7 +419,8 @@ libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			@top_builddir@/Utility/libUtilities.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
 			@JSONCPP_LIBS@ \
-			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@
+			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@ \
+			@HDF5_CXXLIBS@
 
 libTclGrammerApp_la_DEPENDENCIES=@builddir@/libSpecTclTcp.la
 libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 @XDR_LDFLAGS@ -lgsl -lgslcblas -lm 
