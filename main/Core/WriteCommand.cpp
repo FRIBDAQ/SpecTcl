@@ -241,6 +241,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
       subresult.EndSublist();
       rResult += (const char *)subresult;			 
     }
+    rInterp.setResult(rResult);
     return TCL_ERROR;
   }
   else {
