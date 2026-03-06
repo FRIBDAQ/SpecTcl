@@ -40,7 +40,7 @@
 
                                //Required for base classes
 #include "TCLPackagedObjectProcessor.h"
-
+#include <string>
 
 
 class CSpectrumFormatter;
@@ -79,4 +79,19 @@ protected:
   friend class CReadCommand;
 };
 
+/**
+ * @struct WriteCommandInfo
+ *    There are some spectrum formatters that may need to know
+ * more about the write operation being performed.
+ * Specifically, some formats may not be ablt to use an std::ostream&
+ * might need to use the file path directly.
+ * This singleton struct allows that information to be gotten
+ */
+struct WriteCommandInfo {
+  static WriteCommandInfo* m_pInstance;
+  std::string              m_filename;         //!< :fd: - if e.g. pipe.
+  bool                     m_firstSpectrum;
+
+  static WriteCommandInfo* getInstance();
+};
 #endif

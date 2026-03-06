@@ -59,6 +59,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 using namespace std;
 #endif
 
+// The command info implementation:
+
+WriteCommandInfo* WriteCommandInfo::m_pInstance(0);
+
+WriteCommandInfo* WriteCommandInfo::getInstance() {
+  if (!m_pInstance) {    
+    m_pInstance = new WriteCommandInfo;
+  }
+  return m_pInstance;
+}
 
 
 // Functions for class CWriteCommand
@@ -179,9 +189,11 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
   
   if(pChannel) {
     pOut = new tclostream(pChannel);
+    WriteCommandInfo::getInstance()->m_filename = ":fd:";
   }
   else {
     pOut = new ofstream(pArgs[0], ios::trunc | ios::out);
+    WriteCommandInfo::getInstance()->m_filename = pArgs[0];
     rInterp.setResult("");   // Channel lookup failure set error msg in result.
   }
   // If the file could not be created/mapped then pOut is false:
@@ -201,7 +213,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
   UInt_t nFailed = 0;
   vector<string> Failures;
   vector<string> FailedNames;
-  
+  WriteCommandInfo::getInstance()->m_firstSpectrum = true;
   while(nArgs) {
     string thisResult;
     if(rPack.Write(thisResult, string(*pArgs), *pOut, pFormatter) != TCL_OK) {
@@ -211,6 +223,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
     }
     nArgs--;
     pArgs++;
+    WriteCommandInfo::getInstance()->m_firstSpectrum = false;
   }
   //  Kill off the stream:  If this is a tclostream, that won't close the
   //  channel.
