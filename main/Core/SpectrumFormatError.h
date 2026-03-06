@@ -48,7 +48,8 @@ public:
     IncompatibleFormat,
     FileFormatCorrupt,
     InvalidChannels,
-    OverflowChannels
+    OverflowChannels,
+    HDF5Exception
   } ErrorReason;
 
 private:                      
