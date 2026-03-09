@@ -27,11 +27,11 @@
 #include "WriteCommand.h"
 #include "SpectrumFormatError.h"
 #include "Spectrum.h"
-#include <H5Cpp.h>
 #include <Exception.h>
 #include <iostream>
+#include <sstream>
 
- using namespace H5;
+using namespace H5;
 
 /**
  *  construction
@@ -107,7 +107,7 @@ CHDF5SpectrumFormatter::Write (
 
     std::string fname      = WriteCommandInfo::getInstance()->m_filename;
     bool        mustCreate = WriteCommandInfo::getInstance()->m_firstSpectrum;
-
+    const CSpectrum::SpectrumDefinition& description = rSpectrum.GetDefinition();
     // Truncate on open if must create else just open for read/write.
 
     unsigned int openFlags = mustCreate ? H5F_ACC_TRUNC : H5F_ACC_RDWR;
@@ -118,6 +118,20 @@ CHDF5SpectrumFormatter::Write (
         // Make a group named after the spectrum:
 
         Group spectrumGroup = hdf.createGroup(rSpectrum.getName());
+
+        // Add as attributes: "type" and "datatype" which are the
+        // stringified spectrum type and ddata type.
+        std::stringstream dataTypeStream;
+        dataTypeStream << description.eDataType;
+        std::string dataType(dataTypeStream.str());
+
+        std::stringstream spectypeStream;
+        spectypeStream << description.eType;
+        std::string spectrumType(spectypeStream.str());
+
+        addStringAttribute(spectrumGroup, "spectrumtype", spectrumType.c_str());
+        addStringAttribute(spectrumGroup, "datatype", dataType.c_str());
+
 
         // Create the data set.. for that we need the dimensionality and
         // the dimensions themselves:
@@ -163,4 +177,30 @@ CHDF5SpectrumFormatter::Write (
         throw CSpectrumFormatError(CSpectrumFormatError::HDF5Exception, doing.c_str());
     }
 
+}
+
+
+/////////////////////// private utilities:
+
+/**
+ * addStringAttribute
+ *     Add a string valued attribute to an HDF5 object:
+ * 
+ * @param object - the object to add the attributes to.
+ * @param name   - name of the attribute.
+ * @param value  - value of the attribute.
+ * @note error handling is determined by the caller, that is either
+ *   the program fails with an error or must catch and exception.
+ */
+void
+CHDF5SpectrumFormatter::addStringAttribute(
+    H5Object& object, const char* name, const char* value
+) {
+    H5std_string strName(name);
+    H5std_string strValue(value);
+    StrType atr_type(PredType::C_S1, strValue.size());
+    auto desc_ds = DataSpace(H5S_SCALAR);
+
+    auto attr = object.createAttribute(strName, atr_type, desc_ds);
+    attr.write(atr_type, strValue);
 }

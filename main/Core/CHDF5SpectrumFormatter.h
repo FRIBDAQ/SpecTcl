@@ -27,7 +27,7 @@
 #ifndef CHDF5SPECTRUMFORMATTER_H
 #define CHDF5SPECTRUMFORMATTER_H
 #include "SpectrumFormatter.h"   // Base class.
-
+#include <H5Cpp.h>
 /**
  * @class CHDFSpectrumFormatter 
  *    Provides a spectrum formatter for HDF5 files.
@@ -58,6 +58,10 @@ public:
     virtual   void Write (std::ostream& rStream, CSpectrum& rSpectrum,
 		       ParameterDictionary& rDict);
  
+private:
+    void addStringAttribute(
+        H5::H5Object& object, const char* name, const char* value
+    );
 
 };
 #endif
