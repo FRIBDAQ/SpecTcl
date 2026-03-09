@@ -375,27 +375,27 @@ CHDF5SpectrumFormatter::writeMetadata(
     Group& parent, const char *name,
     const CMetadata::Metadata_t& metadata
 ) {
-    hsize_t dims[2] = {metadata.size(), 2};
-    auto pData = new const char*[dims[1]][2];  // 2xn.
-
+    hsize_t dims[1] = {metadata.size()*2};
+    auto pData = new const char*[dims[0]*2];
     // marshall the metadata into the pData:
 
     int i = 0;
     for (const auto& p : metadata) {
-        pData[i][0] = p.first.c_str();
-        pData[i][1] = p.second.c_str();
+        pData[i*2] = p.first.c_str();
+        pData[i*2+1] = p.second.c_str();
         i++;
     }
 
     // Define the memory an file data spaces:
 
     StrType memType(PredType::C_S1, H5T_VARIABLE);
-    DataSpace fSpace(2, dims);
+    DataSpace fSpace(1, dims);
 
     DataSet mset = parent.createDataSet(name, memType, fSpace);
     mset.write(pData, memType);
 
+    delete pData;
     mset.close();
-    delete []pData;
+   
 
 }
