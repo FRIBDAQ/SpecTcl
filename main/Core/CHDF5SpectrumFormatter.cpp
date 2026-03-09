@@ -201,6 +201,12 @@ CHDF5SpectrumFormatter::Write (
             );
         }
 
+        // write the metadata for the spectrum;
+
+        writeMetadata(
+            spectrumGroup, "metadata", rSpectrum.getAllMetadata()
+        );
+
 
         contents.close();
         spectrumGroup.close();
@@ -302,7 +308,6 @@ CHDF5SpectrumFormatter::parameterIdsToNames(
         auto f = idmap.find(p.second.getNumber());    // Search for the index.
         if (f != idmap.end()) {
             // Found fill in the parameter name in the result.
-            std::cout << "Storing " << p.first << " at index " << f->second << std::endl;
             result[f->second] = p.first;
         }
     }
@@ -331,10 +336,6 @@ CHDF5SpectrumFormatter::makeParameterDataset(
 
     std::vector<std::string> paramNames = parameterIdsToNames(rDict, paramIds);
 
-    std::cout << "Parameter names for " << name << std::endl;
-    for (auto s: paramNames) {
-        std::cout << s << std::endl;
-    }
 
     // Create a vector of pointers to the strings... that's what we
     // need to write:
@@ -342,14 +343,9 @@ CHDF5SpectrumFormatter::makeParameterDataset(
     
     std::vector<const char*> params;   // we'll write .data() of this vector.
     for (auto& s : paramNames) {       // Can't copy due to c_str scope issues.
-        std::cout << "Pushing " << s << " to cstring array\n";
         params.push_back(s.c_str());
     }
 
-    std::cerr << "Cstring array\n";
-    for (auto s : params) {
-        std::cerr << s << std::endl;
-    }
 
     // create our dataspace and a data set for variable strings:
 
@@ -357,10 +353,49 @@ CHDF5SpectrumFormatter::makeParameterDataset(
     
     
     hsize_t dims[1] = {params.size()};  //1d as many strings as we have.
-    std::cout << "Dimension is " << dims[0] << std::endl;
     DataSpace space(1, dims);
     DataSet pset = parent.createDataSet(name, memType, space);
     pset.write(params.data(), memType);
 
     pset.close();
+}
+/**
+ *  writeMetadata
+ *   Given the spectrum group, the name of a data set and the metadata for the specturm,
+ *   writes the metadata.  The metadata are writtena as a 2xn array of strings
+ *   of variable len gth where [0][n] is the name of a metadata item and
+ *   [1][n] is the value of that metadata item.
+ * 
+ * @param parent - the group in which our dataset is put.
+ * @param name   - name of the data set (probably something like "metadata").
+ * @param metadata - the metadata to write.
+ */
+void
+CHDF5SpectrumFormatter::writeMetadata(
+    Group& parent, const char *name,
+    const CMetadata::Metadata_t& metadata
+) {
+    hsize_t dims[2] = {metadata.size(), 2};
+    auto pData = new const char*[dims[1]][2];  // 2xn.
+
+    // marshall the metadata into the pData:
+
+    int i = 0;
+    for (const auto& p : metadata) {
+        pData[i][0] = p.first.c_str();
+        pData[i][1] = p.second.c_str();
+        i++;
+    }
+
+    // Define the memory an file data spaces:
+
+    StrType memType(PredType::C_S1, H5T_VARIABLE);
+    DataSpace fSpace(2, dims);
+
+    DataSet mset = parent.createDataSet(name, memType, fSpace);
+    mset.write(pData, memType);
+
+    mset.close();
+    delete []pData;
+
 }

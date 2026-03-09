@@ -27,9 +27,12 @@
 #ifndef CHDF5SPECTRUMFORMATTER_H
 #define CHDF5SPECTRUMFORMATTER_H
 #include "SpectrumFormatter.h"   // Base class.
+#include "CMetadata.h"
 #include <H5Cpp.h>
 #include <string>
 #include <vector>
+
+
 /**
  * @class CHDFSpectrumFormatter 
  *    Provides a spectrum formatter for HDF5 files.
@@ -75,7 +78,10 @@ private:
         H5::Group& parent, const char* name,
         ParameterDictionary& rDict, const std::vector<UInt_t>& paramIds
     );
-
+    void writeMetadata(
+        H5::Group& parent, const char* name,
+        const CMetadata::Metadata_t& metadata
+    );
 
 };
 #endif
