@@ -28,9 +28,12 @@
 #include "SpectrumFormatError.h"
 #include "Spectrum.h"
 #include "GateContainer.h"
+#include "Parameter.h"
+#include "CParameterDictionarySingleton.h"
 #include <Exception.h>
 #include <iostream>
 #include <sstream>
+#include <map>
 
 using namespace H5;
 
@@ -185,6 +188,19 @@ CHDF5SpectrumFormatter::Write (
         std::string gateName = rSpectrum.getGate()->getName();
         addStringAttribute(contents, "gate_name", gateName.c_str());
 
+        // Write the parameter data sets:
+
+        if (description.vParameters.size() > 0) {
+            makeParameterDataset(
+                spectrumGroup, "xparameters", rDict, description.vParameters
+            );
+        }
+        if (description.vyParameters.size() > 0) {
+            makeParameterDataset(
+                spectrumGroup, "yparameters", rDict, description.vyParameters
+            );
+        }
+
 
         contents.close();
         spectrumGroup.close();
@@ -222,6 +238,7 @@ CHDF5SpectrumFormatter::addStringAttribute(
 
     auto attr = object.createAttribute(strName, atr_type, desc_ds);
     attr.write(atr_type, strValue);
+    attr.close();
 }
 /**
  *  addAxisAttribute
@@ -248,5 +265,102 @@ CHDF5SpectrumFormatter::writeAxisAttribute(
     DataSpace attrds = DataSpace(1, dims);
     Attribute attr = object.createAttribute(name, PredType::IEEE_F32LE, attrds);  // Store as IEEE32 bit little endian.
     attr.write(PredType::NATIVE_FLOAT, data);  // But it comes from the native float format.
+    attr.close();
+}
+/**
+ * Convert a vector of parameter ids into a vector of strings.
+ * 
+ * @param rDict - the parameter dictionary.
+ * @param ids   - References a vector of ids.
+ * 
+ * Note that we must preserve the order of the parameters in the output.  Therefore:
+ * 1. We precreate the output vector with ids.size() strings with the value "-DELETED-"
+ * 2. We map a map keyed by id with values the index into the ids. vector.
+ * 3. We iterate the dictionary, for each id in the dict that's in the map,
+ * we can fill in the element of the result array indexed by the value of that map entry
+ * in the output vector.  The code might be clearer than this explanation but
+ * Suppose I have an id j and its map entry looks like {j, k} WHen j is found in
+ * the dictionary, the name is stored in result[k].  That results in an order preserved
+ * output.
+ */
+std::vector<std::string>
+CHDF5SpectrumFormatter::parameterIdsToNames(
+    ParameterDictionary& rDict, const std::vector<UInt_t>& ids
+) {
+    // Make the id -> index map and initialized result.
 
+    std::map<UInt_t, UInt_t> idmap;
+    std::vector<std::string> result;
+    for (int i =0; i < ids.size(); i++) {
+        idmap[ids[i]] = i;
+        result.push_back("--DELETED--");
+    }
+    
+    // Now iterate over the parameter definitions:
+
+    for (const auto& p : rDict) {
+        auto f = idmap.find(p.second.getNumber());    // Search for the index.
+        if (f != idmap.end()) {
+            // Found fill in the parameter name in the result.
+            std::cout << "Storing " << p.first << " at index " << f->second << std::endl;
+            result[f->second] = p.first;
+        }
+    }
+
+    return result;
+}
+/**
+ * makeParameterDataSet
+ *    Given the parent group, the name of a data set to create,
+ *    the parameter dictionary and ids of the parameters,
+ *    Makes a new dataset containing the names of the
+ *    parameteres that belong in that data set.
+ * 
+ * @param parent - the group in which to create the dataset.
+ * @param name   - name of the data set.
+ * @param rDict  - reference to the paramter dictionary.
+ * @param paramIds - Ids of the paramters that belong in the dataset.
+ * @note the caller determines error handlingh.
+ */
+void
+CHDF5SpectrumFormatter::makeParameterDataset(
+    Group& parent, const char* name,
+    ParameterDictionary& rDict, const std::vector<UInt_t>& paramIds
+) {
+    // Create the vector of names:
+
+    std::vector<std::string> paramNames = parameterIdsToNames(rDict, paramIds);
+
+    std::cout << "Parameter names for " << name << std::endl;
+    for (auto s: paramNames) {
+        std::cout << s << std::endl;
+    }
+
+    // Create a vector of pointers to the strings... that's what we
+    // need to write:
+
+    
+    std::vector<const char*> params;   // we'll write .data() of this vector.
+    for (auto& s : paramNames) {       // Can't copy due to c_str scope issues.
+        std::cout << "Pushing " << s << " to cstring array\n";
+        params.push_back(s.c_str());
+    }
+
+    std::cerr << "Cstring array\n";
+    for (auto s : params) {
+        std::cerr << s << std::endl;
+    }
+
+    // create our dataspace and a data set for variable strings:
+
+    StrType memType(PredType::C_S1, H5T_VARIABLE);   // shorter strings get padded nulls.
+    
+    
+    hsize_t dims[1] = {params.size()};  //1d as many strings as we have.
+    std::cout << "Dimension is " << dims[0] << std::endl;
+    DataSpace space(1, dims);
+    DataSet pset = parent.createDataSet(name, memType, space);
+    pset.write(params.data(), memType);
+
+    pset.close();
 }

@@ -28,6 +28,8 @@
 #define CHDF5SPECTRUMFORMATTER_H
 #include "SpectrumFormatter.h"   // Base class.
 #include <H5Cpp.h>
+#include <string>
+#include <vector>
 /**
  * @class CHDFSpectrumFormatter 
  *    Provides a spectrum formatter for HDF5 files.
@@ -66,6 +68,14 @@ private:
         H5::H5Object& object, const char* name,
         Float_t low, Float_t high, UInt_t bins
     );
+    std::vector<std::string> parameterIdsToNames(
+        ParameterDictionary& rDict, const std::vector<UInt_t>& ids
+    );
+    void makeParameterDataset(
+        H5::Group& parent, const char* name,
+        ParameterDictionary& rDict, const std::vector<UInt_t>& paramIds
+    );
+
 
 };
 #endif
