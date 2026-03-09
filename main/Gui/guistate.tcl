@@ -621,7 +621,7 @@ proc writeMetadata fd {
     #spectra:
     foreach s [spectrum -list] {
         set name [lindex $s 1]
-        dict for {metaname metaValue} [spectrum -dumpmetadata $name] {
+        dict for {metaName metaValue} [spectrum -dumpmetadata $name] {
             writeMetadataItem $fd spectrum $name $metaName $metaValue
         }
     }
