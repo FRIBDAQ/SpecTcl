@@ -27,6 +27,7 @@
 #include "WriteCommand.h"
 #include "SpectrumFormatError.h"
 #include "Spectrum.h"
+#include "GateContainer.h"
 #include <Exception.h>
 #include <iostream>
 #include <sstream>
@@ -181,6 +182,9 @@ CHDF5SpectrumFormatter::Write (
                 description.fLows[1], description.fHighs[1], description.nChannels[0]
             );
         }
+        std::string gateName = rSpectrum.getGate()->getName();
+        addStringAttribute(contents, "gate_name", gateName.c_str());
+
 
         contents.close();
         spectrumGroup.close();
