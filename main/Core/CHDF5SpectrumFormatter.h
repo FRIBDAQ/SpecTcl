@@ -62,6 +62,10 @@ private:
     void addStringAttribute(
         H5::H5Object& object, const char* name, const char* value
     );
+    void writeAxisAttribute(
+        H5::H5Object& object, const char* name,
+        Float_t low, Float_t high, UInt_t bins
+    );
 
 };
 #endif

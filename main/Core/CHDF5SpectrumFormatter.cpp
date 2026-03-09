@@ -133,7 +133,7 @@ CHDF5SpectrumFormatter::Write (
         addStringAttribute(spectrumGroup, "datatype", dataType.c_str());
 
 
-        // Create the data set.. for that we need the dimensionality and
+        // Create and fill the contents data set.. for that we need the dimensionality and
         // the dimensions themselves:
 
         int rank = rSpectrum.Dimensionality();
@@ -166,6 +166,21 @@ CHDF5SpectrumFormatter::Write (
         DataSet contents = spectrumGroup.createDataSet("contents", fileDataType, ds);
 
         contents.write(rSpectrum.getStorage(), memoryDataType);
+
+        // The contents data set has x and y axis attributs a well as a gate
+        // name attribute:
+
+        writeAxisAttribute(
+            contents, "Xaxis", 
+            description.fLows[0], description.fHighs[0], description.nChannels[0]
+        );
+        // There might be a y axis
+        if (description.fLows.size() == 2) {
+            writeAxisAttribute(
+                contents, "Yaxis", 
+                description.fLows[1], description.fHighs[1], description.nChannels[0]
+            );
+        }
 
         contents.close();
         spectrumGroup.close();
@@ -203,4 +218,31 @@ CHDF5SpectrumFormatter::addStringAttribute(
 
     auto attr = object.createAttribute(strName, atr_type, desc_ds);
     attr.write(atr_type, strValue);
+}
+/**
+ *  addAxisAttribute
+ *    Given the data for an axis, writes it as an attribute for the
+ *  the object (usually contents) given.  Note that the attribute
+ *  is written as three floats, (the bins is converted to a float).
+ *  for simplicity.
+ * 
+ * @param object - the HDF5 objet to which the attribute will be attached.
+ * @param name   - attribute name.
+ * @param low    - Axis low limit.
+ * @param high   - Axis high limit.
+ * @param bins   - Integer bin count.
+ * @note the caller determine the error handling.
+ */
+void
+CHDF5SpectrumFormatter::writeAxisAttribute(
+     H5::H5Object& object, const char* name,
+    Float_t low, Float_t high, UInt_t bins
+) {
+    Float_t data[3] = {low, high, static_cast<Float_t>(bins)};  // HDF5 data array.
+    hsize_t dims[1] = {3};                                        // 1-d 3 element data set.
+
+    DataSpace attrds = DataSpace(1, dims);
+    Attribute attr = object.createAttribute(name, PredType::IEEE_F32LE, attrds);  // Store as IEEE32 bit little endian.
+    attr.write(PredType::NATIVE_FLOAT, data);  // But it comes from the native float format.
+
 }
