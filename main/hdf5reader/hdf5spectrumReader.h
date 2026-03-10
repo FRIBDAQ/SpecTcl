@@ -56,14 +56,18 @@ private:
     hdfSpectrumReader& operator=(const hdfSpectrumReader&);
     int operator==(const hdfSpectrumReader&);
     int operator!=(const hdfSpectrumReader&);
-
+ 
     // Operations on the HDF file:
 public:
     std::vector<std::string> listSpectra();
+    std::string              spectrumType(const char* name);
+    std::string              dataType(const char* name);
 
     // Private methods:
 
 private:
+    std::string getStringAttribute(H5::H5Object& parent, const char* name);
+
     // Iteration callback:
     static herr_t accumulateNames(
         hid_t group_id, const char* name, 

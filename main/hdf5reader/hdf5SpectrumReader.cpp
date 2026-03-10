@@ -66,8 +66,53 @@ using namespace H5;
     return result;
  }
 
+ /**
+  * spectrumType
+  * @param name of a spectrum in the file.
+  * @return std::string - SpecTcl spectrum type of that spectrum.
+  * 
+  */
+ std::string
+ hdfSpectrumReader::spectrumType(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name);
+
+    // The spectrum type is an attribute "spectrumtype: of the group:
+
+    auto result = getStringAttribute(spectrum, "spectrumtype");
+
+    spectrum.close();
+    return result;
+
+ }
+ /**
+  *  dataType
+  * @param name = spectrum name 
+  * @return std::string - data type from SpecTcl.  This is one of:
+  * - "long" - uint32_t
+  * - "short" - uint16_t
+  * - "byte"  = uint8_t.
+  */
+ std::string
+ hdfSpectrumReader::dataType(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name);
+    auto result = getStringAttribute(spectrum, "datatype");
+    spectrum.close();
+    return result;
+ }
  /////////////////// Private utilities:
 
+ /**
+  *  Return a named string valued attribute from an object:
+  */
+std::string
+hdfSpectrumReader::getStringAttribute(H5Object& parent, const char* name) {
+    auto a = parent.openAttribute(name);
+    auto stype = a.getStrType();
+    std::string result;
+    a.read(stype, result);
+    a.close();
+    return result;
+}
  /**
   * accumulateNames - the group iteration callback.
   * See H5Literate for parameters.
