@@ -1168,6 +1168,7 @@ AC_CONFIG_FILES(Makefile
     map/Makefile
     radwareio/Makefile
     rootFilterFormat/Makefile
+    hdf5reader/Makefile
 	  )
           
 AC_OUTPUT
