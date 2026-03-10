@@ -41,8 +41,14 @@
  * 
  */
 class hdfSpectrumReader {
-    H5::H5File  m_hdf5File;
+public:
+    typedef struct _AxisDefinition {
+        float s_low;     // Axis low limit.
+        float s_high;    // Axis high limit.
+        unsigned s_bins;  // Number of bins on that axis.
+    } AxisDefinition;
 private:
+    H5::H5File  m_hdf5File;
 
     // Allowed canonicals.
 public:
@@ -63,11 +69,17 @@ public:
     std::string              spectrumType(const char* name);
     std::string              dataType(const char* name);
 
+    // Axis operations:
+
+    bool hasYAxis(const char* name);
+    AxisDefinition getXaxis(const char* name);
+    AxisDefinition getYaxis(const char* name);
+
     // Private methods:
 
 private:
     std::string getStringAttribute(H5::H5Object& parent, const char* name);
-
+    AxisDefinition getAxisAttribute(H5::H5Object& parent, const char* name);
     // Iteration callback:
     static herr_t accumulateNames(
         hid_t group_id, const char* name, 

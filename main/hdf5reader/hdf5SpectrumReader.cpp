@@ -99,6 +99,58 @@ using namespace H5;
     spectrum.close();
     return result;
  }
+ /**
+  *  hasYAxis
+  * @param name -spectrum name.
+  * @return bool - returns true if the spectrum has a y axis specification.
+  */
+ bool
+ hdfSpectrumReader::hasYAxis(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name);
+    DataSet contents = spectrum.openDataSet("contents");
+
+    bool result = contents.attrExists("Yaxis");
+    contents.close();
+    spectrum.close();
+    return result;
+ }
+/**
+ * getXaxis
+ *    - return the X axis specification of a spectrum.
+ * @param name -spectrum name.
+ * @return hdfSpectrumReader::AxisDefinition.
+ * 
+ */
+hdfSpectrumReader::AxisDefinition
+hdfSpectrumReader::getXaxis(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name);
+    DataSet contents = spectrum.openDataSet("contents");
+    AxisDefinition result = getAxisAttribute(contents, "Xaxis");
+    contents.close();
+    spectrum.close();
+
+    return result;
+}
+/**
+ * getYAxis
+ *    Return the definition of the Y axis.  If no Y axis exists
+ * this will throw an error from hdf5C++.
+ * 
+ * @param name - name of the spectrum.
+ * @return hdfSpectrumReader::AxisDefinition.
+ * 
+ */
+hdfSpectrumReader::AxisDefinition
+hdfSpectrumReader::getYaxis(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name);
+    DataSet contents = spectrum.openDataSet("contents");
+    AxisDefinition result = getAxisAttribute(contents, "Yaxis");
+    contents.close();
+    spectrum.close();
+
+    return result;
+}
+
  /////////////////// Private utilities:
 
  /**
@@ -113,6 +165,31 @@ hdfSpectrumReader::getStringAttribute(H5Object& parent, const char* name) {
     a.close();
     return result;
 }
+/**
+ * getAxisAttribute
+ *    Given an axis attribute name, fetch and return
+ * the corresponding axis definition.
+ * 
+ */
+hdfSpectrumReader::AxisDefinition
+hdfSpectrumReader::getAxisAttribute(H5Object& parent, const char* name) {
+    auto a = parent.openAttribute(name);
+
+    // We know the attribute is stored as 3 floats:
+
+    float raw[3];
+    a.read(PredType::NATIVE_FLOAT, raw);
+
+    AxisDefinition result = {
+        .s_low = raw[0],
+        .s_high = raw[1],
+        .s_bins = static_cast<unsigned>(raw[2])
+    };
+    a.close();
+
+    return result;
+}
+
  /**
   * accumulateNames - the group iteration callback.
   * See H5Literate for parameters.
