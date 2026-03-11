@@ -126,59 +126,57 @@ g++ -o {myprogram} -I$SPECTCLHOME/include {my program files} \
     <example>
         <title>Sample libhdfReader program</title>
         <programlisting>
-/*
-Example program, listing spectra in the sample data file.
-*/
 
-#include "hdf5spectrumReader.h"
+#include "hdf5spectrumReader.h"   <co id='hedaer' />
 #include &lt;iostream&gt;
 #include &lt;stdint.h&gt;
 int main(void) {
-    hdfSpectrumReader spectra("sample.hdf");
-    auto names = spectra.listSpectra();
+    hdfSpectrumReader spectra("sample.hdf"); <co id='open' />
+    auto names = spectra.listSpectra();      <co id='listing' />
     std::cout &lt;&lt; "Spectra in file: \n";
-    for (auto n : names) {  
-        std::string dtype = spectra.dataType(n.c_str());
+    for (auto n : names) {                   <co id='iterate' />
+        std::string dtype = spectra.dataType(n.c_str()); <co id='datatype' />
         std::cout &lt;&lt; n 
-            &lt;&lt; " type '" &lt;&lt; spectra.spectrumType(n.c_str())
+            &lt;&lt; " type '" &lt;&lt; spectra.spectrumType(n.c_str()) <co id='spectype' />
             &lt;&lt; "' data type '" &lt;&lt; dtype &lt;&lt; "'"
             &lt;&lt; std::endl;
-        auto xaxis = spectra.getXaxis(n.c_str());
+        auto xaxis = spectra.getXaxis(n.c_str());                 <co id='xaxisdef' />
         std::cout &lt;&lt; "X axis: low: " &lt;&lt; xaxis.s_low
             &lt;&lt; " high: " &lt;&lt; xaxis.s_high
             &lt;&lt; " bins: "  &lt;&lt; xaxis.s_bins 
             &lt;&lt; std::endl;
-        if (spectra.hasYAxis(n.c_str())) {
+        if (spectra.hasYAxis(n.c_str())) {                         <co id='yaxisdef' />
             auto yaxis = spectra.getYaxis(n.c_str());
             std::cout &lt;&lt; "X axis: low: " &lt;&lt; yaxis.s_low
             &lt;&lt; " high: " &lt;&lt; yaxis.s_high
             &lt;&lt; " bins: "  &lt;&lt; yaxis.s_bins 
             &lt;&lt; std::endl;
         }
-        std::vector&lt;std::string&gt; params = spectra.getParameters(n.c_str());
+        std::vector&lt;std::string&gt; params = spectra.getParameters(n.c_str()); <co id='getparams' />
         std::cout &lt;&lt; "(X) Parameters:\n";
         for (auto s: params) {
             std::cout &lt;&lt; "   " &lt;&lt; s &lt;&lt; std::endl;
         }
-        if (spectra.hasYparameters(n.c_str())) {
+        std::cout &lt;&lt; " Has " &lt;&lt; (spectra.hasYparameters(n.c_str()) ? " some " : " no ") &lt;&lt; " yparameters\n";
+        if (spectra.hasYparameters(n.c_str())) {                <co id='getyparams' />
             params = spectra.getYParameters(n.c_str());
             std::cout &lt;&lt; "Y Parameters:\n";
             for (auto s: params) {
                 std::cout &lt;&lt; "   " &lt;&lt; s &lt;&lt; std::endl;
             }
         }
-        std::cout &lt;&lt; " Has " &lt;&lt; (spectra.hasYparameters(n.c_str()) ? " some " : " no ") &lt;&lt; " yparameters\n";
-        std::cout &lt;&lt; "Gated on " &lt;&lt; spectra.getGate(n.c_str()) &lt;&lt; std::endl;
+        
+        std::cout &lt;&lt; "Gated on " &lt;&lt; spectra.getGate(n.c_str()) &lt;&lt; std::endl; <co id='getgate' />
 
         std::cout &lt;&lt; "Metadata: \n";
-        auto metadata = spectra.getMetadata(n.c_str());
+        auto metadata = spectra.getMetadata(n.c_str());                     <co id='metadata' />
         for (auto p : metadata) {
             std::cout &lt;&lt; "   '" &lt;&lt; p.first &lt;&lt; "' -&gt; '" &lt;&lt; p.second &lt;&lt; "'\n";
         }
 
         // Get the data but not sure what to do about it:
 
-        void* pData = spectra.getContents(n.c_str());
+        void* pData = spectra.getContents(n.c_str());                 <co id='contents' />
         std::cerr &lt;&lt; "Data successfully read\n";
         if (dtype == "long") {
             uint32_t* pLongs = reinterpret_cast&lt;uint32_t*&gt;(pData);
@@ -196,6 +194,8 @@ int main(void) {
 
 
         std::cout &lt;&lt; "----------------------------------\n";
+
+        <co id='autoclose' />
     }
 
 
@@ -203,5 +203,9 @@ int main(void) {
 }
         </programlisting>
     </example>
+    <para>
+        In the discussion below, refer to the numbered callouts in the example above
+        for the corresponding code.
+    </para>
 </chapter>
 </book>
