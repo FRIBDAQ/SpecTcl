@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>SpecTcl Command Reference.</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>June 2, 2017 and following</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+
+<chapter>
+    <title>Introduction</title>
+    <para>
+        This document provides information about spectra saved to HDF5 formatted files.
+        Starting with SpecTcl 7.0-005, swrite and sread support 
+        <option>-format hdf5</option> which allows spectrum  to be written to HDF5 formatted files.
+        HDF5 iteslf is beyond the scope of this document.  For information about HDF5,
+        see <ulink url="https://www.hdfgroup.org/solutions/hdf5/" />.
+    </para>
+    <para>
+        This document is intended for people who want to make use of spectra stored in HDF5 files
+        outside of SpecTcl.   A specTcl installation will have this document in html format in
+        <filename>$SPECTCLHOME/share/hdf5/index.html</filename> where <literal>$SPECTCLHOME</literal>
+        is the top level of the installation directory.
+    </para>
+    <para>
+        SpecTcl provies a low level library libhdfReader that contains a C++ class
+        that can extract information about and the contents of spectra that are stored
+        in those files.  The remainder of this document is organized as follows:
+    </para>
+    <itemizedlist>
+        <listitem><para>
+            <link linkend='compiling' endterm='compiling.title' />
+            Describes the compilation and link options you'll need to supply
+            to use this library in your programs.
+        </para></listitem>
+        <listitem><para>
+            <link linkend='sample' endterm='sample.title' />
+            Works through an example program that makes use of the library.
+            This program, and the sample data file are available in
+            <filename>$SPECTCLHOME/share/hdf5example</filename> where
+            <literal>$SPECTCLHOME</literal> is the top level directory
+            of a SpecTcl instalation.
+        </para></listitem>
+        <listitem><para>
+            Provides a class reference.
+        </para></listitem>
+        <listitem><para>
+            Provides information that describes how the HDF5 is structured.
+            You will need to have a basic understanding of the objects that
+            can live in an HDF5 file to understand this information.
+        </para></listitem>
+    </itemizedlist>
+    
+</chapter>
+<chapter id='compiling'>
+    <title id='compiling.title'>How to compile your programs with the library</title>
+    <para>
+        This section describes the compilation and link flags you will need to supply
+        to use libhdfReader in your programs.  One use case for doing so might be
+        to import SpecTcl spectr into e.g. Root.
+    </para>
+    <para>
+        Below is a template command line for compiling a program with
+        the library:
+    </para>
+    <example>
+        <title>Compilation/link option</title>
+        <programlisting>
+g++ -o {myprogram} -I$SPECTCLHOME/include {my program files} \
+    -L$SPECTCLHOME/lib -lhdfReader -Wl,-rpath=$SPECTCLHOME/lib \
+    `pkg-config hdf5 --cflags`
+        </programlisting>
+    </example>
+    <para>
+        In the template command line above, items in {} represent
+        things you'll have to provide that depend on your program.
+        <literal>$SPECTCLHOME</literal> represents the top leve
+        installation directory for SpecTcl. Note that since
+        <filename>libhdfReader</filename> is installed as a shared library
+        and is alreadyt linked to the HDF5 API libraries you don't need
+        to do this yourself.
+    </para>
+    <para>
+        Note, however, the use of <literal>pkg-config</literal> to get the compilation
+        flags needed to find the headers for the HDF5 libraries, needed
+        by the class header for the hdfReader library.
+    </para>
+</chapter>
+<chapter id='sample'>
+    <title id='sample.title'>Looking at a sample program</title>
+    <para>
+        This section works through a simple program that uses
+        the hdfReader API.  The program iself is installed in 
+        <filename>$SPECTCLHOME/share/hdf5example/listample.cpp</filename>.
+        It opens a sample HDF5 data file from its working directory and
+        exercises the HDF5 spectrum API.  The sample data file is
+        <filename>$SPECTCLHOME/share/hdf5example/sample.hdf</filename>.
+    </para>
+    <para>
+        If you define the environnment variable SPECTCLHOME to point to a top level
+        SpecTcl installation directory that is at least 7.0-005, you can
+        copy $SPECTCLHOME/share/hdf5example/* into an empty diretory and
+        build the executable using:
+    </para>
+    <example>
+    <title>Building the sample program</title>
+    <programlisting>
+ g++ -o listsample listsample.cpp \
+    -I$SPECTCLHOME/include `pkg-config hdf5 --cflags` \
+    -L$SPECTCLHOME/lib -lhdfReader -Wl,-rpath=$SPECTCLHOME/lib    
+    </programlisting>
+    </example>
+    <para>
+        Now lets look at the example.
+    </para>
+    <example>
+        <title>Sample libhdfReader program</title>
+        <programlisting>
+/*
+Example program, listing spectra in the sample data file.
+*/
+
+#include "hdf5spectrumReader.h"
+#include &lt;iostream&gt;
+#include &lt;stdint.h&gt;
+int main(void) {
+    hdfSpectrumReader spectra("sample.hdf");
+    auto names = spectra.listSpectra();
+    std::cout &lt;&lt; "Spectra in file: \n";
+    for (auto n : names) {  
+        std::string dtype = spectra.dataType(n.c_str());
+        std::cout &lt;&lt; n 
+            &lt;&lt; " type '" &lt;&lt; spectra.spectrumType(n.c_str())
+            &lt;&lt; "' data type '" &lt;&lt; dtype &lt;&lt; "'"
+            &lt;&lt; std::endl;
+        auto xaxis = spectra.getXaxis(n.c_str());
+        std::cout &lt;&lt; "X axis: low: " &lt;&lt; xaxis.s_low
+            &lt;&lt; " high: " &lt;&lt; xaxis.s_high
+            &lt;&lt; " bins: "  &lt;&lt; xaxis.s_bins 
+            &lt;&lt; std::endl;
+        if (spectra.hasYAxis(n.c_str())) {
+            auto yaxis = spectra.getYaxis(n.c_str());
+            std::cout &lt;&lt; "X axis: low: " &lt;&lt; yaxis.s_low
+            &lt;&lt; " high: " &lt;&lt; yaxis.s_high
+            &lt;&lt; " bins: "  &lt;&lt; yaxis.s_bins 
+            &lt;&lt; std::endl;
+        }
+        std::vector&lt;std::string&gt; params = spectra.getParameters(n.c_str());
+        std::cout &lt;&lt; "(X) Parameters:\n";
+        for (auto s: params) {
+            std::cout &lt;&lt; "   " &lt;&lt; s &lt;&lt; std::endl;
+        }
+        if (spectra.hasYparameters(n.c_str())) {
+            params = spectra.getYParameters(n.c_str());
+            std::cout &lt;&lt; "Y Parameters:\n";
+            for (auto s: params) {
+                std::cout &lt;&lt; "   " &lt;&lt; s &lt;&lt; std::endl;
+            }
+        }
+        std::cout &lt;&lt; " Has " &lt;&lt; (spectra.hasYparameters(n.c_str()) ? " some " : " no ") &lt;&lt; " yparameters\n";
+        std::cout &lt;&lt; "Gated on " &lt;&lt; spectra.getGate(n.c_str()) &lt;&lt; std::endl;
+
+        std::cout &lt;&lt; "Metadata: \n";
+        auto metadata = spectra.getMetadata(n.c_str());
+        for (auto p : metadata) {
+            std::cout &lt;&lt; "   '" &lt;&lt; p.first &lt;&lt; "' -&gt; '" &lt;&lt; p.second &lt;&lt; "'\n";
+        }
+
+        // Get the data but not sure what to do about it:
+
+        void* pData = spectra.getContents(n.c_str());
+        std::cerr &lt;&lt; "Data successfully read\n";
+        if (dtype == "long") {
+            uint32_t* pLongs = reinterpret_cast&lt;uint32_t*&gt;(pData);
+            delete []pLongs;
+        } else if (dtype == "word") {
+            uint16_t* pShorts = reinterpret_cast&lt;uint16_t*&gt;(pData);
+            delete []pShorts;
+        } else if (dtype == "byte") {
+            uint8_t* pBytes = reinterpret_cast&lt;uint8_t*&gt;(pData);
+            delete []pBytes;
+        } else {
+            std::cerr &lt;&lt; "Unrecognized storage type\n";
+        }
+        
+
+
+        std::cout &lt;&lt; "----------------------------------\n";
+    }
+
+
+    return 0;
+}
+        </programlisting>
+    </example>
+</chapter>
+</book>
