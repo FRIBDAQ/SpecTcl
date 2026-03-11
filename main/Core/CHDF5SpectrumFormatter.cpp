@@ -129,9 +129,17 @@ CHDF5SpectrumFormatter::Write (
         dataTypeStream << description.eDataType;
         std::string dataType(dataTypeStream.str());
 
+        // The data type has a pad space from operator<< I'm loath to
+        // remove because of what else it might affect/why it was put there.
+        
+        dataType.pop_back();
+
         std::stringstream spectypeStream;
         spectypeStream << description.eType;
         std::string spectrumType(spectypeStream.str());
+
+
+
 
         addStringAttribute(spectrumGroup, "spectrumtype", spectrumType.c_str());
         addStringAttribute(spectrumGroup, "datatype", dataType.c_str());
