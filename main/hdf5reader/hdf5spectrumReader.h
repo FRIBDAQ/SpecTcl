@@ -104,6 +104,8 @@ private:
         hid_t group_id, const char* name, 
         const H5L_info_t*, void* opdata
     );
+
+    std::vector<std::string> getStringListDataSet(H5::DataSet& ds);
 };
 
 

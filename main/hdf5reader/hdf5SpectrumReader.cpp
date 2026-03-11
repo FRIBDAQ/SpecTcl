@@ -22,6 +22,7 @@
 #include "hdf5spectrumReader.h"
 
 #include <stdexcept>
+#include <memory>
 
 using namespace H5;
 
@@ -199,6 +200,50 @@ hdfSpectrumReader::hasYparameters(const char* name)  {
 
     return result;
 }
+/**
+ * getParameters
+ *    Gets the list of parameter names for spectra that have an unambiguous single
+ * parameter list.  Note. This includes 2d spectra which have, in order, the X axis
+ * parameter followed by the Y axis parameter.
+ * 
+ * @param name - Spectrum name.
+ * @return std::vector<std::string> - the parameter names.
+ */
+std::vector<std::string>
+hdfSpectrumReader::getParameters(const char* name) {
+    std::vector<std::string> result;
+    
+    Group spectrum = m_hdf5File.openGroup(name);
+    DataSet params = spectrum.openDataSet("xparameters");
+    result = getStringListDataSet(params);
+
+    params.close();
+    spectrum.close();
+
+    return result;
+}
+/** getYParameters
+ *    Get the list of parameter names for the y axis if
+ * it's not uniquely defined by a single list.
+ * One should ensure this exists by calling hasYparameters
+ * first.
+ * 
+ * @param name - spectrum name.
+ * @return std::vector<std::string> - list of names.
+ */
+std::vector<std::string>
+hdfSpectrumReader::getYParameters(const char* name) {
+    std::vector<std::string> result;
+
+    Group spectrum = m_hdf5File.openGroup(name);
+    DataSet params = spectrum.openDataSet("yparameters");
+    result = getStringListDataSet(params);
+
+    params.close();
+    spectrum.close();
+
+    return result;
+}
 
  /////////////////// Private utilities:
 
@@ -252,4 +297,32 @@ hdfSpectrumReader::getAxisAttribute(H5Object& parent, const char* name) {
     reinterpret_cast<std::vector<std::string>*>(opdata);
   pAccumulator->push_back(std::string(name));
   return 0;       // Must return normal.
+}
+
+/**
+ * retrieves the contents of a data set that is a list of strings.
+ * 
+ * @param ds - data set.
+ * @return std::vector<std::string>
+ */
+std::vector<std::string>
+hdfSpectrumReader::getStringListDataSet(DataSet& ds) {
+    // How many strings do I have and allocate memory for them:
+
+    hsize_t dims[1];
+    H5Sget_simple_extent_dims(ds.getSpace().getId(), dims, nullptr);
+    StrType datatype = ds.getStrType();
+
+    std::unique_ptr<char*[]> strings(new char*[dims[0]]);   // Allocate auto freed storage.
+
+    ds.read(strings.get(), datatype);
+
+    // marshall the strings from the vector read into the result vector
+
+    std::vector<std::string> result;
+    for (int i =0; i < dims[0]; i++) {
+        result.push_back(std::string(strings[i]));
+    }
+
+    return result;
 }

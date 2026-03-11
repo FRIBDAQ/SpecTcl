@@ -25,6 +25,18 @@ int main(void) {
             << " bins: "  << yaxis.s_bins 
             << std::endl;
         }
+        std::vector<std::string> params = spectra.getParameters(n.c_str());
+        std::cout << "(X) Parameters:\n";
+        for (auto s: params) {
+            std::cout << "   " << s << std::endl;
+        }
+        if (spectra.hasYparameters(n.c_str())) {
+            params = spectra.getYParameters(n.c_str());
+            std::cout << "Y Parameters:\n";
+            for (auto s: params) {
+                std::cout << "   " << s << std::endl;
+            }
+        }
         std::cout << " Has " << (spectra.hasYparameters(n.c_str()) ? " some " : " no ") << " yparameters\n";
         std::cout << "Gated on " << spectra.getGate(n.c_str()) << std::endl;
 
