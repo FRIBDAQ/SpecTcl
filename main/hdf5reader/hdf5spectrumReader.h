@@ -74,6 +74,25 @@ public:
     bool hasYAxis(const char* name);
     AxisDefinition getXaxis(const char* name);
     AxisDefinition getYaxis(const char* name);
+    
+    // Gate name:
+
+    std::string getGate(const char* name);
+
+    // Get parameters
+
+    bool hasYparameters(const char* name);   // For e.g. gd and 2dsums.
+    std::vector<std::string> getParameters(const char* name); // Note 2d spectra have x then y here.
+    std::vector<std::string> getYParameters(const char* name);
+
+    // metadata:
+
+    std::vector<std::pair<std::string, std::string>> getMetadata(const char* name);
+
+    // Contents:
+
+    void* getContents(const char* name);  // Caller must delete -- even btter put in std::unique_ptr.
+
 
     // Private methods:
 

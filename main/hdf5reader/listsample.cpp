@@ -25,6 +25,11 @@ int main(void) {
             << " bins: "  << yaxis.s_bins 
             << std::endl;
         }
+        std::cout << " Has " << (spectra.hasYparameters(n.c_str()) ? " some " : " no ") << " yparameters\n";
+        std::cout << "Gated on " << spectra.getGate(n.c_str()) << std::endl;
+
+
+        std::cout << "----------------------------------\n";
     }
 
 

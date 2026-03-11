@@ -150,6 +150,55 @@ hdfSpectrumReader::getYaxis(const char* name) {
 
     return result;
 }
+/** 
+ * getGate
+ *    Return the name of the  gate that's applied to the spectrum.
+ * Note: all spectra have gates.  The name of an ungated spectrum
+ * will be "-TRUE-" whichis a SpecTcl pre-defined gate that is
+ * a true type gate.
+ * 
+ * @param name - spectrum name.
+ * @return std::string - namme of the applied gate.
+ */
+std::string
+hdfSpectrumReader::getGate(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name); 
+
+    // The gate name is an attribute of the contents data set:
+
+    DataSet s = spectrum.openDataSet("contents");
+
+    std::string result = getStringAttribute(s, "gate_name");
+    s.close();
+    spectrum.close();
+
+    return result;
+}
+/**
+ * hasYparameters
+ *   This one is a bit tricky since it might return false when
+ *  you least expect it.  For spectra that have lists of X _and_
+ * lists of y spectra, this will return true. Examples I can think of
+ * are "gd" and "2dsum".  You might think that "2" would return true
+ * but a single list of parameters gives an unambiguous definition
+ * (first x, then y), similarly g2 spectra only need a singe list of
+ * parameters to define the spactra as do s.
+ * 
+ * @param name - spectrum name.
+ * @return bool - if there is a list of Y parameters.
+ * 
+ */
+bool 
+hdfSpectrumReader::hasYparameters(const char* name)  {
+    Group spectrum = m_hdf5File.openGroup(name);
+
+    // Try the .exists method see if it works:
+
+    bool result = spectrum.exists("yparameters");
+    spectrum.close();
+
+    return result;
+}
 
  /////////////////// Private utilities:
 
