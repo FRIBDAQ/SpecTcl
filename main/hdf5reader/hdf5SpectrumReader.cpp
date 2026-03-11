@@ -21,6 +21,7 @@
  */
 #include "hdf5spectrumReader.h"
 
+#include <stdint.h>
 #include <stdexcept>
 #include <memory>
 
@@ -272,6 +273,58 @@ hdfSpectrumReader::getMetadata(const char* name) {
     return result;
 }
 
+/**
+ * getContents
+ *   This gets the contents of the spectrum.  The contents are gotten in the 
+ * appropriate native data type. It's up to the caller to:
+ * - Interpret the data in that time and dimensionality (see get{X,Yaxis).
+ * - delete (not free delete) the data returned when done with it.  You might
+ * think about using one of the smart pointer types to ensure this happens.
+ * 
+ * @param name -spectrumname.
+ * @returns void* pointer to the data that was read in.  When no longer needed,
+ * the caller should delete []ptr  that pointer.
+ * 
+ */
+void*
+hdfSpectrumReader::getContents(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name);
+    DataSet contents = spectrum.openDataSet("contents");
+    DataSpace ds     = contents.getSpace();
+
+    // In order to know our desired native type, 
+    // we need to know the memory size and number of storage units.
+    // the size of one storage unit detemines whic of the native int types we need to
+    // use.
+
+    hsize_t totalBytes = contents.getStorageSize();
+    hsize_t nUnits     = ds.getSimpleExtentNpoints();
+    hsize_t unitSize   = totalBytes/nUnits;
+
+    PredType memType = PredType::NATIVE_UINT32;  // null construction not allowed so...
+    switch (unitSize) {
+    case sizeof(uint8_t):
+        memType = PredType::NATIVE_UINT8;
+        break;
+    case sizeof(uint16_t):
+        memType = PredType::NATIVE_UINT16;
+        break;
+    case sizeof(uint32_t):
+        memType = PredType::NATIVE_UINT32;
+        break;
+    default:
+        //No such type:
+
+        throw std::runtime_error("Unrecognized spectrum conents storage size.");
+    }
+
+    uint8_t* p = new uint8_t[totalBytes];    // Now I have storage to read into:
+    contents.read(p, memType);
+
+    return p;
+
+}
+
  /////////////////// Private utilities:
 
  /**
@@ -337,7 +390,7 @@ hdfSpectrumReader::getStringListDataSet(DataSet& ds) {
     // How many strings do I have and allocate memory for them:
 
     hsize_t dims[1];
-    H5Sget_simple_extent_dims(ds.getSpace().getId(), dims, nullptr);
+    ds.getSpace().getSimpleExtentDims(dims, nullptr);
     StrType datatype = ds.getStrType();
 
     std::unique_ptr<char*[]> strings(new char*[dims[0]]);   // Allocate auto freed storage.
