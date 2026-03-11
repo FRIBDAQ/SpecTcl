@@ -245,6 +245,33 @@ hdfSpectrumReader::getYParameters(const char* name) {
     return result;
 }
 
+/**
+ *  getMetadata:
+ *   @param name -name of the spectrum.
+ *   @return std::vector<std::pair<std::string, std::string>>  the metadata associated with
+ * the spectrum.   THe first item of each pair is the name of the metadata item, the second,
+ * its value.
+ * 
+ */
+std::vector<std::pair<std::string, std::string>>
+hdfSpectrumReader::getMetadata(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name);
+    DataSet metadata = spectrum.openDataSet("metadata");
+    std::vector<std::string> stringlist = getStringListDataSet(metadata);
+
+    // Now pull the pairs from the flat list:
+    // It's an error not to have an even number of strings:
+    if ((stringlist.size() % 2) != 0) {
+        throw std::runtime_error("Metadata string list is not even length!!!");
+    }
+    std::vector<std::pair<std::string, std::string>> result;
+    for (int i =0; i < stringlist.size(); i+=2) {
+        result.push_back({stringlist[i], stringlist[i+1]});
+    }
+
+    return result;
+}
+
  /////////////////// Private utilities:
 
  /**

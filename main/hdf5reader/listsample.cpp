@@ -40,6 +40,12 @@ int main(void) {
         std::cout << " Has " << (spectra.hasYparameters(n.c_str()) ? " some " : " no ") << " yparameters\n";
         std::cout << "Gated on " << spectra.getGate(n.c_str()) << std::endl;
 
+        std::cout << "Metadata: \n";
+        auto metadata = spectra.getMetadata(n.c_str());
+        for (auto p : metadata) {
+            std::cout << "   " << p.first << " -> " << p.second << std::endl;
+        }
+
 
         std::cout << "----------------------------------\n";
     }
