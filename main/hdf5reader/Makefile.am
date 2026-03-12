@@ -17,11 +17,15 @@ listsample_DEPENDENCIES=libhdfReader.la
 
 #  Build the docs right into the destination directory.
 #  put the example and sample file where it goes too:
+#  Make the sources available too in case someone
+#  wants to compile it without SpecTcl.
 install-exec-local:
 	$(mkinstalldirs) @datarootdir@/hdf5
 	$(mkinstalldirs) @datarootdir@/hdf5example
 	@HTMLDOCBOOK@ -o @datarootdir@/hdf5 @srcdir@/hdf5.xml
 	$(INSTALL_DATA) @srcdir@/listsample.cpp @datarootdir@/hdf5example
 	$(INSTALL_DATA) @srcdir@/sample.hdf @datarootdir@/hdf5example
+	$(INSTALL_DATA) @srcdir@/hdf5spectrumReader.h \
+		@srcdir@/hdf5SpectrumReader.cpp @datarootdir@/hdf5example
 
 EXTRA_DIST=sample.hdf hdf5.xml

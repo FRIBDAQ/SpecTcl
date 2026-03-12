@@ -127,7 +127,7 @@ g++ -o {myprogram} -I$SPECTCLHOME/include {my program files} \
         <title>Sample libhdfReader program</title>
         <programlisting>
 
-#include "hdf5spectrumReader.h"   <co id='hedaer' />
+#include "hdf5spectrumReader.h"   <co id='header' />
 #include &lt;iostream&gt;
 #include &lt;stdint.h&gt;
 int main(void) {
@@ -207,5 +207,203 @@ int main(void) {
         In the discussion below, refer to the numbered callouts in the example above
         for the corresponding code.
     </para>
+    <calloutlist>
+        <callout arearefs='header'>
+            <para>
+                Inludes the header that defines the <classname>hdfSpectrumReader</classname> 
+                class which provides support for reading the SpecTcl 
+                <command>swrite -format hdf5 </command>.  
+            </para>
+        </callout>
+        <callout arearefs='open'>
+            <para>
+                Creating an instance of the <classname>hdfSpectruReader</classname>, opens the
+                file path passed to it as an HDF5 file readonly.  When the object is destroyed,
+                its destructor will close that HDF5 file.   The methods of this object will
+                provide access to the objects that are stored in the file.
+            </para>
+        </callout>
+        <callout arearefs='listing'>
+            <para>
+                The objects in the HDF5 file are associated with spectra.  Each spectrum
+                stored in the file has a name, the name of that spectrum in SpecTcl if
+                <command>swrite -format hdf5</command> was used to write it.  The
+                <methodname>listSpectra</methodname> method returns a vector of 
+                strings that provide the names of the spectra that are stored in the
+                file.
+            </para>
+        </callout>
+        <callout arearefs='iterate'>
+            <para>
+                The program is going to iterate over the names gotten from
+                <methodname>listSpectra</methodname> and operate on each 
+                spectrum in turn.  If you are not familiar with this form
+                of the C++ for loop, it iterates over all elements of a 
+                collection that supports generating iterators with
+                <methodname>betin</methodname> and <methodname>end</methodname>
+                and for each iteration, in this case, the variable
+                <varname>n</varname> is assigned to one of the values
+                in the collection.
+            </para>
+            <para>
+                For a more complete description of this so-called
+                <firstterm>range-based for loop</firstterm> you can see
+                <ulink url='https://en.cppreference.com/w/cpp/language/range-for.html' />
+            </para>
+        </callout>
+        <callout arearefs='datatype'>
+            <para>
+                Each SpecTcl spectrum has a channel data type.  The 
+                <methodname>dataType</methodname> method takes a spectrum name
+                for a spetrum that is in the file and provides it's data type string.
+                For SpecTcl this is a string containing one of:
+            </para>
+            <variablelist>
+                <varlistentry>
+                        <term><literal>long</literal></term>
+                        <listitem>
+                            <para>
+                                <type>uint32_t</type> data.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><literal>word</literal></term>
+                        <listitem>
+                            <para>
+                                <type>uint16_t</type> data.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><literal>byte</literal></term>
+                        <listitem>
+                            <para>
+                                <type>uint8_t</type> data.
+                            </para>
+                        </listitem>
+                </varlistentry>
+            </variablelist>
+        </callout>
+        <callout arearefs='spectype'>
+            <para>
+                While SpecTcl provides 1-D and 2-D spectra, its spectra also
+                describe how events increment them in a very rich way.  The 
+                <methodname>spectrumType</methodname> takes a spectrum name
+                and returns a string that defines the spectrum type.
+                For a list of spectrum types supported by SpecTcl,
+                see the <command>spectrum</command> reference in the 
+                <ulink url='https://docs.frib.msu.edu/daq/newsite/spectcl/cmdref/index.html'>
+                SpecTcl Command reference</ulink>
+            </para>
+        </callout>
+        <callout arearefs='xaxisdef'>
+            <para>
+                Since SpecTcl spectra are fundamentally 1-D or 2-D data, they may have one or
+                two axis definitions.  An axis definition describes a mapping between
+                parameter space and the bins of a spectrum.
+                The <methodname>getXaxis</methodname> returns the X axis definition of
+                a the spectrum whose name was passed to it.  All Spectra have an X axis definition.
+                The axis definition is returned as a struct (<type>hdf5SpectrumReader::AxisDefinition</type>).
+                With the following fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                        <term><type>float</type> <structfield>s_low</structfield></term>
+                        <listitem>
+                            <para>
+                                The low limit of parameter space represented by the axis.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><type>float</type> <structfield>s_high</structfield></term>
+                        <listitem>
+                            <para>
+                                The high limit of parameter space represented by the axis.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><type>unsigned</type> <structfield>s_bins</structfield></term>
+                        <listitem>
+                            <para>
+                                The number of bins on the axis.
+                            </para>
+                        </listitem>
+                </varlistentry>
+            </variablelist>
+        </callout>
+        <callout arearefs='yaxisdef'>
+            <para>
+                While all spectra have an X axis, only those that are fundamentally 2-d have
+                Y axes.  The <methodname>hasYAxis</methodname> when passed the name of a spectrum
+                returns <literal>true</literal> if that spectrum has a Y axis, <literal>false</literal>
+                if not.
+            </para>
+            <para>
+                If a specturm has a Y axis it is safe to invoke <methodname>getYaxis</methodname>
+                which returns its axis definition.
+            </para>
+        </callout>
+        <callout arearefs='getparams' >
+            <para>
+                The <methodname>getParameters</methodname> retuns a list of the names of parameters
+                for the spectrum, but see, however <methodname>getYParameters below</methodname>.
+                In many cases, a 2-d spectrum's parameter can be described by a single list, for
+                example, a simple 2-d spectrum's X parameter will be the first in the list
+                and the Y parameter, the second. 
+            </para>
+        </callout>
+        <callout arearefs='getyparams'>
+            <para>
+                Some spectrum types are not unambiguosyl defined by a single list of parameters.
+                For example the Gamma Deluxe (<literal>gd</literal>) spectrum has a set of X axis
+                parameters and a set of Y axis parameters and increments for any pair of those
+                that are present.  It is best described by a pair of parameter lists.  The
+                <methodname>hasYparameters</methodname> returns <literal>true</literal> if
+                there is a second parameter list for the spectrum.  That second set of
+                parameters is returned from <methodname>getYParameters</methodname>.
+            </para>
+        </callout>
+        <callout arearefs='getgate'>
+            <para>
+                All SpecTcl spectra have a gate applied to it.  When created, the spectrum's
+                gate is called <literal>-TRUE-</literal> and is true for all events. 
+                Subsequently, more intereting gates can be created and 
+                <firstterm>applied</firstterm> to the
+                spectrum.   The <methodname>getGate</methodname> returns the name
+                of the gate that was applied to the spetrum at the time the
+                file was created.
+            </para>
+        </callout>
+        <callout arearefs='metadata'>
+            <para>
+                Spectra can have arbitrary metadata associated with them.  Spectrum metadata
+                is simply a set of name/value pairs where both the name and the value are strings.
+                The <methodname>getMetadata</methodname> returns the metadata for a
+                spectrum as an 
+                <classname>std::vector&lt;std::pair&lt;std::string std::string&gt;&gt;</classname>.
+                Each pair is a metadata item.  the first element of the pair is the name of that
+                metadata item and the second element of the pair is the value of that metadata item.
+            </para>
+        </callout>
+        <callout arearefs='contents'>
+            <para>
+                Finally, and maybe most importantly, the contents of the spectra can be
+                retrieved from file. The result of a call to <methodname>getContents</methodname> is
+                a pointer to dynmamically allocated storage which contains the
+                contents of the spectrum saved to file.  Note how the code blow the call to
+                <methodname>getContents</methodname> uses the data type string returned from 
+                <methodname>dataType</methodname> to create the appropriate pointer type.
+                In our simple example, we just then free the storage allocated by
+                <methodname>getContents</methodname>.
+            </para>
+            <para>
+                What you do with spectrum contents is so application specific that we leave that
+                completely up to you.
+            </para>
+        </callout>
+    </calloutlist>
 </chapter>
 </book>
