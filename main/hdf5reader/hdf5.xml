@@ -52,6 +52,7 @@
             of a SpecTcl instalation.
         </para></listitem>
         <listitem><para>
+            <link linkend='reference' endterm='reference.title' />
             Provides a class reference.
         </para></listitem>
         <listitem><para>
@@ -405,5 +406,325 @@ int main(void) {
             </para>
         </callout>
     </calloutlist>
+</chapter>
+<chapter id='reference'>
+    <title id='reference.title'>class hdfSpectrumReader reference</title>
+    <para>
+        This section contains a comprehensive reference for the <classname>hdfSpectrumReader</classname>
+        class that forms the sole public export of the <filename>libhdfReader</filename> library.
+    </para>
+    <refentry id='hdfSpectrumReader'>
+        <refmeta>
+            <refentrytitle id='hdfSpectrumReader.title'>hdfSpectrumReader</refentrytitle>
+            <manvolnum>3hdf</manvolnum>
+        </refmeta>
+        <refnamediv>
+            <refname>hdfSpectrumReader</refname>
+            <refpurpose>Read SpecTcl HDF5 spectrum files</refpurpose>
+        </refnamediv>
+        <refsynopsisdiv>
+        <programlisting>
+#include &lt;hdf5spectrumReader.h&gt;
+
+class hdfSpectrumReader {
+
+public:
+    hdfSpectrumReader(const char* path);
+    std::vector&lt;std::string&gt; listSpectra();
+    std::string              spectrumType(const char* name);
+    std::string              dataType(const char* name);
+
+
+    bool hasYAxis(const char* name);
+    AxisDefinition getXaxis(const char* name);
+    AxisDefinition getYaxis(const char* name);
+
+    std::string getGate(const char* name);
+
+
+    bool hasYparameters(const char* name);  
+    std::vector&lt;std::string&gt; getParameters(const char* name); 
+    std::vector&lt;std::string&gt; getYParameters(const char* name);
+
+    std::vector&lt;std::pair&lt;std::string, std::string&gt;&gt; getMetadata(const char* name);
+    void* getContents(const char* name);
+
+};
+        </programlisting>
+        </refsynopsisdiv>
+        <refsect1>
+            <title>DESCRIPTION</title>
+            <para>
+              The <classname>hdfSpectrumReader</classname> class provides low level access
+               to SpecTcl spectrum data that the <command>swrite -format hdf5...</command>
+               wrote.  Its use is rather simple.  Create an object to open a file and then
+               invoke the methods to get data from it. 
+            </para>
+            <para>
+                The key point is that spectra have names and that associated with each spectrum is
+                data of various sorts.  These are retrieved via the methods described below
+                by supplying the name of the spectrum they are associated with.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>METHODS</title>
+            <variablelist>
+                <varlistentry>
+                        <term><constructorsynopsis>
+                        <methodname>hdfSpectrumReader</methodname>
+                        <methodparam><type>const char*</type> <parameter>path</parameter></methodparam>
+                        </constructorsynopsis></term>
+                        <listitem>
+                            <para>
+                                The constructor opens the HDF5 file specified by <parameter>path</parameter>.
+                                While HDF5's low level library, presumably ensures that the file is
+                                an HDF5 file, we do no checkes to ensure its contents are
+                                compatible with our functionality.
+                            </para>
+                            <para>  
+                                HDF5 error reporting is managed by the caller.  By default,
+                                errors will printout verbose tracebacks that are hard to decipher.
+                                You can change this behavior by invoking 
+                                <function>H5::Exception::dontPrint()</function> and catching exceptions
+                                thrown by HDF5.  For more  information on HDF5 exceptions refer to 
+                                the <ulink url='https://support.hdfgroup.org/documentation/hdf5/latest/class_h5_1_1_exception.html'>
+                                documentation of the HDF5 Exception class</ulink>.  Expanding the inheritance diagram will
+                                also show the set of derived classes.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type> std::vector&lt;std::string&gt;</type>
+                            <methodname>listSpectra</methodname><void />
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns a vector of strings containing the
+                                names of the spectra that are in the file.
+                            </para>
+                            <para>
+                                Note that spectra are top level HDF5 groups in the file.
+                                This method just lists the names of the top level groups.
+                                If, after the file is initially written, your applications 
+                                add to the set of top level groups, it is the responsibility
+                                of your code to tell the differnce between the names in this
+                                vector that actually are spectra and which are not.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>std::string</type> <methodname>spectrumType</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns the string form of the SpecTcl spectrum type of the spectrum
+                                named by <parameter>name</parameter>.  The list of valid spectru,
+                                types and their meanings is descsribed in the reference
+                                to the SpecTcl <command>spectrum</command> in the
+                                <ulink url='https://docs.frib.msu.edu/daq/newsite/spectcl/cmdref/index.html'>
+                                SpecTcl command reference</ulink>
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>std::string</type> <methodname>dataType</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns a string that describes the bin data type for the spectrum
+                                <parameter>name</parameter>.  THis  is one of
+                                <literal>long</literal> for <type>uint32_t</type>,
+                                <literal>short</literal>  for <type>uint16_t</type>, and 
+                                <literal>bytes</literal> for <type>uint8_t</type>
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>bool</type> <methodname>hasYAxis</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                SpecTcl spectra are fundamentally 1D or 2D.  This method returns
+                                <literal>true</literal> if the spectrum
+                                <parameter>name</parameter> is a 2D spectrum.  Note that a 
+                                SpecTcl spectrum can 
+                                be thought of as data with type and shape and a strategy for incrementing bins
+                                in the shaped data given an event.   <methodname>hasYAxis</methodname>
+                                adresses the shape of the spectrum data.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>hdfSpectrumReader::AxisDefinition</type> <methodname>getXaxis</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns the definition of the X axis for the spectrum. All spectra
+                                have an X axis.   See 
+                                <link linkend='reader.datatypes' endterm='reader.datatypes.title' /> for
+                                information about the <type>hdfSpectrumRader::AxisDefinition</type> struct.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>hdfSpectrumReader::AxisDefinition</type> <methodname>getYaxis</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns the Y axis definition for the 2-d spectrum:
+                                <parameter>name</parameter>.  This method
+                                will thrown an HDF5 exception if <methodname>hasYAxis</methodname> for this
+                                spectrum returned <literal>false</literal>.
+                            </para>
+                        </listitem>
+                </varlistentry>     
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>std::string</type> <methodname>getGate</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns the name of the gate applied to the spectrum when the
+                                file was written.  In SpecTcl, every spectrum has a gate applied to it.
+                                When created, the pre-defined gate <literal>-TRUE-</literal> is applied.
+                                <literal>-TRUE-</literal> is a gate that is true for every event.
+                            </para>
+                            <para>
+                                After a spectrum has been created, a more interesting gate may be applied
+                                to it at a later time.
+                            </para>
+                        </listitem>
+                </varlistentry>          
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>std::vector&lt;std::string&gt;</type> <methodname>getParameters</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                For spectra which only need one list of parameters to unambiguously konw how
+                                to increment, this returns that list for <parameter>name</parameter>  For
+                                spectra that require 2 lists of parameters, this returns the X list.
+                            </para>
+                            <para>
+                                For most spectra, a single list of parameters suffices to determine how
+                                the spectrum is incremented.  For example a 2-d spectrum 
+                                (type <literal>2</literal>), requires an X and Y parameter.  WHere the X parameter
+                                is the first one and the Y the second one.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>bool</type> <methodname>hasYparameters</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns <literal>true</literal> if the deifnition of the spectrum
+                                <parameter>name</parameter>
+                                cannot be determined unambiguously from a single list of parameters.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>std::vector&lt;std::string&gt;</type> <methodname>getYParameters</methodname>
+                            <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns the second list of parameters for spectra
+                                (<parameter>name</parameter>) that need it.  If
+                                <methodname>hasYparameters</methodname> returned <literal>false</literal>
+                                an exception is raised from HDF5.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                           <type>std::vector&lt;std::pair&lt;std::string, std::string&gt;&gt;</type>
+                           <methodname>getMetadata</methodname>
+                           <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns the metadata associated with spectrum <parameter>name</parameter>
+                                Spectrum metadata consists of a list of name/value pairs where both the name
+                                and values are strings.  The metadata are returned a a vector of pairs.
+                                The first element of each pair is the name of a metadata item and the
+                                second, that metadata item's value.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                             <type>void*</type> <methodname>getContents</methodname>
+                             <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns a pointer to dynamically allocated storage that contains the
+                                contents of spectrum <parameter>name</parameter> read from file.
+                                The interpretation of this soup of storage depends on the actual
+                                data type and the shape of the spectrum. The sample code shows how 
+                                to interpret the data type.  You can inspect the axis definition(s) to 
+                                understand the shape of the storage.
+                            </para>
+                        </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect1>
+        <refsect1 id='reader.datatypes'>
+            <title id='reader.datatypes.title'>DATA TYPES</title>
+            <para>
+                The class <classname>hdfSpectrumReader</classname> has a single public data type:
+                <type>AxisDefinition</type>.  As its name implies, this is a struct that defines
+                the mapping of parameter space onto the bins of an axis of a spectrum.  It also, therefore,
+                describes the shape of one axis of spectrum storage.  
+            </para>
+            <para>
+                <type>hdfSpectrumReader::AxisDefinition</type> has the following fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                        <term><type>float</type> <structfield>s_low</structfield></term>
+                        <listitem>
+                            <para>
+                                The parameter space low limit of the axis.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><type>float</type> <structfield>s_high</structfield></term>
+                        <listitem>
+                            <para>
+                                The parameter space high limit of the axis.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><type>unsigned</type> <structfield>s_bins</structfield></term>
+                        <listitem>
+                            <para>
+                                The number of histogram bins on this axis.
+                            </para>
+                        </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect1>
+    </refentry>
 </chapter>
 </book>
