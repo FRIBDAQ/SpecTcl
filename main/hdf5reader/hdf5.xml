@@ -56,6 +56,7 @@
             Provides a class reference.
         </para></listitem>
         <listitem><para>
+            <link linkend='structure' endterm='structure.title' />
             Provides information that describes how the HDF5 is structured.
             You will need to have a basic understanding of the objects that
             can live in an HDF5 file to understand this information.
@@ -727,4 +728,9 @@ public:
         </refsect1>
     </refentry>
 </chapter>
+<appendix id='structure'>
+    <title id='structure.title'>HDF5 file data structure</title>
+    <para>
+    </para>
+</appendix>
 </book>
