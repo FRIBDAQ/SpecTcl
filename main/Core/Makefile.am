@@ -8,9 +8,9 @@ libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 
 
 
-COMMONCXXFLAGS = -I@top_srcdir@/mpi -DINSTALLED_IN='"@prefix@"' \
+COMMONCXXFLAGS = -I@top_srcdir@/mpi -I@top_srcdir@/hdf5readder -DINSTALLED_IN='"@prefix@"' \
 -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@ \
--I@top_srcdir@/mpi @XDR_CPPFLAGS@ @HDF5_CFLAGS@
+-I@top_srcdir@/mpi @XDR_CPPFLAGS@ @HDF5_CFLAGS@ 
 
 NewAnalysis_SRC=CAnalysisBase.cpp CAnalysisEventProcessor.cpp CScalerProcessor.cpp
 NewAnalysis_INCLUDES=CAnalysisBase.h CAnalysisEventProcessor.h CScalerProcessor.h
@@ -417,6 +417,7 @@ libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			@builddir@/libSpecTclTcp.la \
 			@top_builddir@/mpi/libMPIUtilities.la \
 			@top_builddir@/Utility/libUtilities.la \
+			@top_builddir@/hdf5reader/libhdfReader.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
 			@JSONCPP_LIBS@ \
 			@TCL_LIBS@ @ROOT_LDFLAGS@ @UFMT_LDFLAGS@ \
