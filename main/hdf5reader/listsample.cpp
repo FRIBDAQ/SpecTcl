@@ -51,7 +51,12 @@ int main(void) {
         // Get the data but not sure what to do about it:
 
         void* pData = spectra.getContents(n.c_str());
-        std::cerr << "Data successfully read\n";
+        std::cout << "Data successfully read\n";
+        auto dims = spectra.getSpectrumDimensions(n.c_str());
+        std::cout << "Dimensions: \n";
+        for (auto  n: dims) {
+            std::cout << n << std::endl;
+        }
         if (dtype == "long") {
             uint32_t* pLongs = reinterpret_cast<uint32_t*>(pData);
             delete []pLongs;

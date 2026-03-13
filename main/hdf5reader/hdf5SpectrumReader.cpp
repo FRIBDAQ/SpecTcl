@@ -324,6 +324,33 @@ hdfSpectrumReader::getContents(const char* name) {
     return p;
 
 }
+/**
+ *  getSpectrumDimensions
+ *    Get the dataspace dimensions from a spectrum.
+ * 
+ * @param name -name of the spectrum.
+ * @return std::vector<size_t> - dimensions (x first if there are two) of the dataspace.
+ * @note Given spectrum storage is in root, dimensions will, in general, be larger by
+ * nbins by 2 for the under/overflow channels.
+ */
+std::vector<size_t>
+hdfSpectrumReader::getSpectrumDimensions(const char* name) {
+    Group spectrum = m_hdf5File.openGroup(name);
+    DataSet contents = spectrum.openDataSet("contents");
+    DataSpace ds     = contents.getSpace();
+
+    int ndims = ds.getSimpleExtentNdims();    // Number of dimensions.
+    std::vector<hsize_t> hresult;
+    hresult.resize(ndims, 0);
+
+    ds.getSimpleExtentDims(hresult.data());
+    std::vector<size_t> result;
+    for (auto n : hresult) {
+        result.push_back(n);
+    }
+
+    return result;
+}
 
  /////////////////// Private utilities:
 
