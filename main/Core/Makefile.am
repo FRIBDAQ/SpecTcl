@@ -8,7 +8,7 @@ libSpecTclMain_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 
 
 
-COMMONCXXFLAGS = -I@top_srcdir@/mpi -I@top_srcdir@/hdf5readder -DINSTALLED_IN='"@prefix@"' \
+COMMONCXXFLAGS = -I@top_srcdir@/mpi -I@top_srcdir@/hdf5reader -DINSTALLED_IN='"@prefix@"' \
 -DVERSION='"@VERSION@"' @ROOT_CFLAGS@ @UFMT_CPPFLAGS@ @JSONCPP_CFLAGS@ \
 -I@top_srcdir@/mpi @XDR_CPPFLAGS@ @HDF5_CFLAGS@ 
 

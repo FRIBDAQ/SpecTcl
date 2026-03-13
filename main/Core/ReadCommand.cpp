@@ -83,6 +83,18 @@ SwitchEntry Switches[] = {
 
 static TCLPLUS::UInt_t nTableSize = sizeof(Switches)/sizeof(SwitchEntry);
 
+// The ReadCommandInfo and implementation:
+// Note that the read  command fully initializes this so we
+// don't need a constructor.
+
+ReadCommandInfo* ReadCommandInfo::m_pInstance;
+ReadCommandInfo* ReadCommandInfo::getInstance() {
+  if (!m_pInstance) {
+    m_pInstance = new ReadCommandInfo;
+  }
+  return m_pInstance;
+}
+
 // Functions for class CReadCommand
 
 //////////////////////////////////////////////////////////////////////////////
@@ -210,6 +222,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
   // 
   istream*     pIn;
   Tcl_Channel  pChannel(rInterp.GetChannel(pArgs[0]));
+  
 
   if(pChannel) {
     pIn = new tclistream(pChannel);
@@ -217,6 +230,12 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
   else {
     pIn = new ifstream(pArgs[0]);
   }
+  // Set the context for the first read:
+
+  ReadCommandInfo::getInstance()->m_filename = pArgs[0];
+  ReadCommandInfo::getInstance()->m_spectrumIndex = 0;
+
+  
   // If the open failed, *pIn is false:
 
   

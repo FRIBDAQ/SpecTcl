@@ -25,15 +25,21 @@
 
 #include "CHDF5SpectrumFormatter.h"
 #include "WriteCommand.h"
+#include "ReadCommand.h"
 #include "SpectrumFormatError.h"
 #include "Spectrum.h"
 #include "GateContainer.h"
 #include "Parameter.h"
+#include "SpecTcl.h"
 #include "CParameterDictionarySingleton.h"
+#include <CInvalidArgumentException.h>
 #include <Exception.h>
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <hdf5spectrumReader.h>
+#include <string.h>
+#include <stdint.h>
 
 using namespace H5;
 
@@ -89,7 +95,117 @@ CHDF5SpectrumFormatter::operator=(const CHDF5SpectrumFormatter& rhs) {
  */
 std::pair<std::string, CSpectrum*> 
 CHDF5SpectrumFormatter::Read(std::istream& rStream, ParameterDictionary& rDict) {
-    throw CException("Reading hdf5 files is in progress not supported yet.");
+    // Get the file and spectrum index.  Instantiate the reader class and
+    // get the name of the spectrum we're restoring:
+
+    std::string filename = ReadCommandInfo::getInstance()->m_filename;
+    unsigned    spectrum_index = ReadCommandInfo::getInstance()->m_spectrumIndex;
+    hdfSpectrumReader reader(filename.c_str());
+    std::vector<std::string> spectrum_names = reader.listSpectra();
+    const char* spname = spectrum_names[spectrum_index].c_str();
+
+    // Get the data and spectrum types   in internal form:
+
+    std::stringstream stype(reader.spectrumType(spname));
+    std::stringstream dtype(reader.dataType(spname));
+
+    SpectrumType_t spectype;
+    stype >> spectype;
+    DataType_t     datatype;
+    dtype   >> datatype;
+
+    // Make the axis specification vectors:
+
+    std::vector<UInt_t> chanvec;
+    std::vector<Float_t> lowvec;
+    std::vector<Float_t> hivec;
+    
+    auto xaxis = reader.getXaxis(spname);
+    chanvec.push_back(xaxis.s_bins);
+    lowvec.push_back(xaxis.s_low);
+    hivec.push_back(xaxis.s_high);
+
+    if (reader.hasYAxis(spname)) {
+        // There's a second axi spec:
+
+        auto yaxis = reader.getYaxis(spname);
+        chanvec.push_back(yaxis.s_bins);
+        lowvec.push_back(yaxis.s_low);
+        hivec.push_back(yaxis.s_high);
+    }
+    // Now the parameter vectors:
+
+    std::vector<std::string> xparam = reader.getParameters(spname);
+    CSpectrum* pSpectrum;
+    if (reader.hasYparameters(spname)) {
+        std::vector<std::string> yparam = reader.getYParameters(spname);
+        pSpectrum = SpecTcl::getInstance()->CreateSpectrum(
+            spname, spectype, datatype, 
+            xparam, yparam,
+            chanvec, &lowvec, &hivec
+        );
+    } else {
+        pSpectrum = SpecTcl::getInstance()->CreateSpectrum(
+            spname, spectype, datatype, xparam,
+            chanvec, &lowvec, &hivec
+        );
+    }
+    // Let's set the metadata and then figure out how to deal with the channels:
+
+    auto metadata = reader.getMetadata(spname);
+    for(auto p : metadata) {
+        pSpectrum->setMetadata(p.first.c_str(), p.second.c_str());
+    }
+
+    // Now the data:
+
+    
+    unsigned binsize;   // Number of bytes/bin.
+    switch (datatype) {
+        case keByte:
+            binsize = sizeof(uint8_t);
+            break;
+        case keWord:
+            binsize = sizeof(uint16_t);
+            break;
+        case keLong:
+            binsize = sizeof(uint32_t);
+            break;
+        default:
+            throw CInvalidArgumentException(
+                reader.dataType(spname), 
+                "Invalid data type specification", 
+                "Computing bytes/channel"
+            );
+    }
+    // So how many bytes is this anyway:
+    unsigned nBins = chanvec[0];
+    if (chanvec.size() == 2) {
+        nBins = chanvec[0] * chanvec[1];
+    }
+    unsigned nBytes = nBins * binsize;
+
+    // Get the contents and copy them into the spectrum:
+
+    void* pContents = reader.getContents(spname);
+    memcpy(pSpectrum->getStorage(), pContents, nBytes);
+
+    // This is probably excessive but ... 'correct'.
+    switch (datatype) {
+        case keByte:
+            delete [](reinterpret_cast<uint8_t*>(pContents));
+            break;
+        case keWord:
+            delete [](reinterpret_cast<uint16_t*>(pContents));
+            break;
+        case keLong:
+            delete [](reinterpret_cast<uint32_t*>(pContents));
+            break;
+    }
+    
+
+    return  {spectrum_names[spectrum_index], pSpectrum};
+
 }
 /**
  * Write

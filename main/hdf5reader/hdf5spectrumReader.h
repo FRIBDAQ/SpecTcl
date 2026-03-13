@@ -91,8 +91,9 @@ public:
 
     // Contents:
 
-    void* getContents(const char* name);  // Caller must delete -- even btter put in std::unique_ptr.
+    void* getContents(const char* name);  // Caller must delete -- even better put in std::unique_ptr.
 
+    std::vector<size_t> getSpectrumDimensions(const char* name);
 
     // Private methods:
 
