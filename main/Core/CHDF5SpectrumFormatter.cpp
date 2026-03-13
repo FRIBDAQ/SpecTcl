@@ -30,7 +30,7 @@
 #include "Spectrum.h"
 #include "GateContainer.h"
 #include "Parameter.h"
-#include "SpecTcl.h"
+#include "SpectrumFactory.h"
 #include "CParameterDictionarySingleton.h"
 #include <CInvalidArgumentException.h>
 #include <Exception.h>
@@ -136,17 +136,19 @@ CHDF5SpectrumFormatter::Read(std::istream& rStream, ParameterDictionary& rDict) 
     // Now the parameter vectors:
 
     std::vector<std::string> xparam = reader.getParameters(spname);
+    CSpectrumFactory fact;
+    fact.ExceptionMode(kfFALSE);    // I think this allows nonexistent params.
     CSpectrum* pSpectrum;
     if (reader.hasYparameters(spname)) {
         std::vector<std::string> yparam = reader.getYParameters(spname);
-        pSpectrum = SpecTcl::getInstance()->CreateSpectrum(
-            spname, spectype, datatype, 
+        pSpectrum = fact.CreateSpectrum(
+            "", spectype, datatype, 
             xparam, yparam,
-            chanvec, &lowvec, &hivec
+            chanvec[0], chanvec[1], &lowvec, &hivec
         );
     } else {
-        pSpectrum = SpecTcl::getInstance()->CreateSpectrum(
-            spname, spectype, datatype, xparam,
+        pSpectrum = fact.CreateSpectrum(
+            "", spectype, datatype, xparam,
             chanvec, &lowvec, &hivec
         );
     }
