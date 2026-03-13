@@ -179,9 +179,11 @@ CHDF5SpectrumFormatter::Read(std::istream& rStream, ParameterDictionary& rDict) 
             );
     }
     // So how many bytes is this anyway:
-    unsigned nBins = chanvec[0];
-    if (chanvec.size() == 2) {
-        nBins = chanvec[0] * chanvec[1];
+
+    auto dims = reader.getSpectrumDimensions(spname);
+    unsigned nBins = dims[0];
+    if (dims.size() == 2) {
+        nBins = dims[0] * dims[1];
     }
     unsigned nBytes = nBins * binsize;
 
