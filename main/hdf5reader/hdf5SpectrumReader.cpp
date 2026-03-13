@@ -402,6 +402,8 @@ hdfSpectrumReader::getStringListDataSet(DataSet& ds) {
     std::vector<std::string> result;
     for (int i =0; i < dims[0]; i++) {
         result.push_back(std::string(strings[i]));
+        H5free_memory(strings[i]);    // Free dynamic memory.S
+
     }
 
     return result;
