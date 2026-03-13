@@ -10,7 +10,7 @@
       <revhistory>
           <revision>
              <revnumber>1.0</revnumber>
-             <date>June 2, 2017 and following</date>
+             <date>March 10, 2026 and following</date>
              <authorinitials>RF</authorinitials>
              <revremark>Original Release</revremark>
           </revision>
@@ -731,6 +731,198 @@ public:
 <appendix id='structure'>
     <title id='structure.title'>HDF5 file data structure</title>
     <para>
+        HDF5 files files can represent data in many ways.  This section describes how the files
+        containing SpecTcl spectrum data written with <command>swrite -format hdf5</command> are
+        structured.  To understand this appendix you will need to understand several basic HDF5 concepts:
+    </para>
+    <itemizedlist>
+        <listitem>
+            <para>
+                <firstterm>Groups</firstterm>:  A group can be thought of as a directory like object.
+                It is a container for other objects, including other groups if the file designer
+                so chooses.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                <firstterm>DataSets</firstterm>: A data set is an object that contains bulk data.
+                A data set is effectively a multi-dimensional array of some type of data.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                <firstterm>Attributes</firstterm>: Attributes are small chunks of data that
+                are associated with other object, including groups and data sets
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                <firstterm>Files</firstterm>: A file is exactly that a file containing HDF5 objects.
+                Files are also a <firstterm>Root Group</firstterm> in the sense that any operation
+                you can perform on a group can be performed on a file object in the API.
+            </para>
+        </listitem>
+    </itemizedlist>
+    <para>
+        You can find complete information about HDF5 files and the various APIs that are available
+        at <ulink url='https://www.hdfgroup.org/solutions/hdf5/' />.
+    </para>
+    <para>
+        Armed with this understanding of HDF5 files, we can proceed with a description of the
+        objects in spectrum files and their relationships.  The goal of this design is to capture
+        the contents of one or more spectra in a way that allows the spectrum and its contents to be
+        restored within SpecTcl. As such, the contents of a spectrum, while typically by far the largest volume 
+        of data in a file is only one of many different bits of data.
+    </para>
+    <para>
+        HDF5 files can hold several spectra.  Therefore, each spectrum is data attached to  a top
+        level group in the HDF5 file.  The name of that group is the name of the spectrum.  For example,
+        a spectrum named <literal>raw.00</literal> will result in a group that is a child of the root group
+        (the file) named <literal>raw.00</literal>. I'll refer to this as a <firstterm>spectrum group</firstterm>.
+    </para>
+    <para>
+        The spectrum group has a pair of attributes:
+        <variablelist>
+            <varlistentry>
+                    <term><literal>spectrumtype</literal></term>
+                    <listitem>
+                        <para>
+                            Contains a text string that is the SpecTcl spectrum type.
+                            See the <ulink url='https://docs.frib.msu.edu/daq/newsite/spectcl/cmdref/index.html'>
+                            SpecTcl command reference</ulink> documentation of the
+                            <command>spectrum</command> for an enumeration of the valid strings and their
+                            meanings.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><literal>datatype</literal></term>
+                    <listitem>
+                        <para>
+                            Contains a string that identifies the data type of bins in the spectrum.
+                            This can be any of <literal>long</literal> for <type>uint32_t</type>,
+                            <literal>word</literal> for <type>uint16_t</type> or
+                            <literal>byte</literal> for <type>uint8_t</type>.
+                        </para>
+                    </listitem>
+            </varlistentry>
+        </variablelist>
+    </para>
+    <para>
+        The most important data set owned by the spectrum group is <literal>contents</literal>
+        It containst he bulk data of the spectrum (the bins).  HDF5 allows for data type mapping/translation
+        between file datat types and native data types.  For the <literal>contents</literal>
+        data set, this mapping is determined by the data type (stored as an attribute of the spectrum group).
+    </para>
+    <variablelist>
+        <varlistentry>
+                <term><literal>long</literal></term>
+                <listitem>
+                    <para>
+                        This maps <classname>PredType::NATIVE_UINT32</classname> to a file
+                        data type of <classname>PredType::STD_U32LE</classname>
+                    </para>
+                </listitem>
+        </varlistentry>
+        <varlistentry>
+                <term><literal>word</literal></term>
+                <listitem>
+                    <para>
+                        This maps <classname>PredType::NATIVE_UINT16</classname> to
+                        a file data type of <classname>PredType::STD_U16LE</classname>.
+                    </para>
+                </listitem>
+        </varlistentry>
+        <varlistentry>
+                <term><literal>byte</literal></term>
+                <listitem>
+                    <para>
+                        This maps <classname>PredType::NATIVE_UINT8</classname>
+                        to <classname>PredType::STD_UINT8LE</classname>
+                    </para>
+                </listitem>
+        </varlistentry>
+    </variablelist>
+    <para>
+        See <ulink url='https://support.hdfgroup.org/documentation/hdf5/latest/class_h5_1_1_pred_type.html'>
+        the HDF5 PredType reference</ulink> for more information about those type identifying classes.
+    </para>
+    <para>
+        The dimensionality and dimensions of the actual data space depends are taken from the spectrum itself. 
+    </para>
+    <para>
+        The <literal>contents</literal> data set has several attributes:
+    </para>
+    <variablelist>
+        <varlistentry>
+                <term><literal>Xaxis</literal></term>
+                <listitem>
+                    <para>
+                        Contains three <classname>PredType::IEEE_F32LE</classname> values that are,
+                        in order, the X axis parameter space low limit, the X axis parameter space high 
+                        limit and the number of X axis bins.  
+                    </para>
+                </listitem>
+        </varlistentry>
+        <varlistentry>
+                <term><literal>Yaxis</literal></term>
+                <listitem>
+                    <para>
+                        The same information as <literal>Xaxis</literal> but for the spectrum
+                        Y axis, if it has one.  If the spectrum has no Y axis, this attribute
+                        will not be present.
+                    </para>
+                </listitem>
+        </varlistentry>
+        <varlistentry>
+                <term><literal>gate_name</literal></term>
+                <listitem>
+                    <para>
+                        Contains the name of the gate that was applied to the spectrum when
+                        it was written.  Note that all SpecTcl spectra have gates.
+                        Spectra that are ungated actually have a gate applied to them
+                        named <literal>-TRUE-</literal> which is a predefined SpecTcl
+                        gate that is always true for all events.
+                    </para>
+                </listitem>
+        </varlistentry>
+    </variablelist>
+    <para>
+        In addition to the <literal>contents</literal> data set there are three other
+        data sets under the spectrum group. These can be used by SpecTcl to reconstruct
+        the spectrum as an actively incrementing spectrum or provide documentation to
+        you of what the spectrum is.
+    </para>
+    <formalpara>
+        <title>The <literal>xparamters</literal> dataset</title>
+        <para>
+            If there are X parameters, this data set contains an ordered list of strings
+            (<literal>StrType(PredType::C_S1, H5T_VARIABLE)</literal>) that are the
+            list of X parameter names.  
+            See the <ulink url='https://support.hdfgroup.org/documentation/hdf5/latest/class_h5_1_1_str_type.html'>
+            StrType class reference</ulink> for more about this data type.
+        </para>
+    </formalpara>
+    <formalpara>
+        <title>The <literal>yparameters</literal> dataset</title>
+        <para>
+            If the spectrum has y parameters, this data set contains them in the same
+            format as described above for the <literal>xparameters</literal> dataset.
+        </para>
+    </formalpara>
+    <formalpara>
+        <title>The <literal>metadata</literal> dataset</title>
+        <para>
+            Contains spectrum metadata.  This is stored as an even number of 
+            StrType(PredType::C_S1, H5T_VARIABLE) (variable length string) items.
+            These items come in pairs.  The first item of each pair is the name
+            of a spetrum metadata item. The second, item of pair is the value of that item.
+        </para>
+    </formalpara>
+    <para>
+        If any of this is unclear, refer to the file <filename>hdf5SpectrumReader.cpp</filename>
+        that is installed in the <filename>$SpecTclHome/share/hdf5example</filename> of in the
+        <filename>hdf5reader</filename> directory of the unrolled SpecTcl source tarball.
     </para>
 </appendix>
 </book>
