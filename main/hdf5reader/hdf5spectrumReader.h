@@ -84,6 +84,7 @@ public:
     bool hasYparameters(const char* name);   // For e.g. gd and 2dsums.
     std::vector<std::string> getParameters(const char* name); // Note 2d spectra have x then y here.
     std::vector<std::string> getYParameters(const char* name);
+    std::vector<std::vector<std::string>> getGammaSummaryParameters(const char* name);
 
     // metadata:
 

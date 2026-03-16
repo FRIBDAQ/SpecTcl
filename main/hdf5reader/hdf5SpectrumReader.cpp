@@ -245,6 +245,45 @@ hdfSpectrumReader::getYParameters(const char* name) {
 
     return result;
 }
+/**
+ * getGammaSummaryParameters
+ *      Gamma summary spectra have a list of parameters for each
+ * of the strips of channels in an x channel.  This method is only safe
+ * if the spetrum type returned was "gs"  It will throw an exception
+ * if that's not the case. 
+ * 
+ * @param name -the name of a "gs"  spectrum.
+ * @return std::vector<std::vector<std::string>> for each x channel in the spectrum,
+ * the list of parameter names histogrammed as a gamma spectrum on the y  strip above it.
+ * @throw std::logic_error - if the spectrum type is not "gs"
+ */
+std::vector<std::vector<std::string>> 
+hdfSpectrumReader::getGammaSummaryParameters(const char* name) {
+    if (spectrumType(name) != "gs") {
+        throw std::logic_error("The spectrum is not a gamma summary spectrum in getTammSummaryParameters");
+    }
+    std::vector<std::string> parameterSoup = getParameters(name);
+    std::vector<std::vector<std::string>> result;
+
+    // Now we need to unwrap the parameterSoup into channel parameter lists.
+    // An empty string is the separator:
+
+    size_t index(0);
+    while (index < parameterSoup.size()) {
+        std::vector<std::string> channelParams;   // Accumulate one list here.
+        while (parameterSoup[index] != "") {
+            channelParams.push_back(parameterSoup[index]);
+            index++;
+        }
+        // End of the line for a channel list:
+
+        index++;
+        result.push_back(channelParams);
+        channelParams.clear();                 // Ready for the next x channel's params.
+    }
+
+    return result;
+}
 
 /**
  *  getMetadata:
