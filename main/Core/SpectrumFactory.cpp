@@ -346,25 +346,25 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       Float_t fxHigh, fyHigh;
       
       if(pLows == (vector<Float_t>*) kpNULL) {
-	fxLow = 0.0;
-	fyLow = 0.0;
-	fxHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
-	fyHigh= DefaultAxisLength(rChannels[1], ParameterList[1]);
+        fxLow = 0.0;
+        fyLow = 0.0;
+        fxHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+        fyHigh= DefaultAxisLength(rChannels[1], ParameterList[1]);
 
       }
       else {
-	fxLow = (*pLows)[0];
-	fxHigh= (*pHighs)[0];
-	fyLow = (*pLows)[1];
-	fyHigh= (*pHighs)[1];
-	if(fxLow == fxHigh) {	// Default x axis:
-	  fxLow = 0.0;
-	  fxHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
-	}
-	if(fyLow == fyHigh) {
-	  fyLow = 0.0;
-	  fyHigh= DefaultAxisLength(rChannels[1], ParameterList[1]);
-	}
+        fxLow = (*pLows)[0];
+        fxHigh= (*pHighs)[0];
+        fyLow = (*pLows)[1];
+        fyHigh= (*pHighs)[1];
+        if(fxLow == fxHigh) {	// Default x axis:
+          fxLow = 0.0;
+          fxHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+        }
+        if(fyLow == fyHigh) {
+          fyLow = 0.0;
+          fyHigh= DefaultAxisLength(rChannels[1], ParameterList[1]);
+        }
 
       }
       return CreateG2D(rName, eDataType, ParameterList,
@@ -377,7 +377,7 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       // Require an even number of parameters:
       
       if((ParameterList.size() % 2) != 0) {
-	throw CSpectrumFactoryException(eDataType, ke2Dm, rName,
+	      throw CSpectrumFactoryException(eDataType, ke2Dm, rName,
 					CSpectrumFactoryException::keBadParameterCount,
 					"2m spectra need an even number of parameters");
       }
@@ -387,26 +387,26 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       // figure out the low/high values.. using defaults if needed?
       
       if (pLows == static_cast<vector<Float_t>* >(kpNULL)) {
-	fxLow  = 0.0;		// Default lows.
-	fyLow  = 0.0;
-	fxHigh = DefaultAxisLength(rChannels[0], ParameterList[0]); // Default highs too.
-	fyHigh = DefaultAxisLength(rChannels[1], ParameterList[1]);
+        fxLow  = 0.0;		// Default lows.
+        fyLow  = 0.0;
+        fxHigh = DefaultAxisLength(rChannels[0], ParameterList[0]); // Default highs too.
+        fyHigh = DefaultAxisLength(rChannels[1], ParameterList[1]);
 	
       }
       else {
-	fxLow = (*pLows)[0];	// Lows from vector...
-	fyLow = (*pLows)[1];
-	fxHigh= (*pHighs)[0];
-	fyHigh= (*pHighs)[1];
+        fxLow = (*pLows)[0];	// Lows from vector...
+        fyLow = (*pLows)[1];
+        fxHigh= (*pHighs)[0];
+        fyHigh= (*pHighs)[1];
 	
-	if (fxLow == fxHigh) {	// Default the x axis:
-	  fxLow = 0.0;
-	  fxHigh = DefaultAxisLength(rChannels[0], ParameterList[0]);
-	}
-	if(fyLow == fyHigh) {	// Default y axis...
-	  fyLow =0.0;
-	  fyHigh = DefaultAxisLength(rChannels[1], ParameterList[1]);
-	}
+        if (fxLow == fxHigh) {	// Default the x axis:
+          fxLow = 0.0;
+          fxHigh = DefaultAxisLength(rChannels[0], ParameterList[0]);
+        }
+        if(fyLow == fyHigh) {	// Default y axis...
+          fyLow =0.0;
+          fyHigh = DefaultAxisLength(rChannels[1], ParameterList[1]);
+        }
 	
       }
 
