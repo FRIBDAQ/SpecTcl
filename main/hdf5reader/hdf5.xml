@@ -449,6 +449,7 @@ public:
 
     std::vector&lt;std::pair&lt;std::string, std::string&gt;&gt; getMetadata(const char* name);
     void* getContents(const char* name);
+    std::vector&lt;size_t&gt; getSpectrumDimensions(const char* name);
 
 };
         </programlisting>
@@ -683,6 +684,22 @@ public:
                                 data type and the shape of the spectrum. The sample code shows how 
                                 to interpret the data type.  You can inspect the axis definition(s) to 
                                 understand the shape of the storage.
+                            </para>
+                        </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>vector&lt;size_t&gt;</type> <methodname>getSpectrumDimensions</methodname>
+                            <void />
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Returns the <emphasis>storage</emphasis> dimensions of the spectrum
+                                storage.  Since SpecTcl uses Root spectra internally, the storage dimensions
+                                are two larger in each dimension than the bin dimensions.  This is because
+                                Root uses the 'leftomst' an 'rightmost' bin of each spectrum storage to tally
+                                over and underflows respectively.  Those over/underflow bins are also stored
+                                in the HDF5 dataset for a spectrum.
                             </para>
                         </listitem>
                 </varlistentry>
