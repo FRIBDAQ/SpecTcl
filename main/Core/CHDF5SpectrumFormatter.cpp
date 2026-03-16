@@ -98,117 +98,141 @@ CHDF5SpectrumFormatter::Read(std::istream& rStream, ParameterDictionary& rDict) 
     // Get the file and spectrum index.  Instantiate the reader class and
     // get the name of the spectrum we're restoring:
 
-    std::string filename = ReadCommandInfo::getInstance()->m_filename;
-    unsigned    spectrum_index = ReadCommandInfo::getInstance()->m_spectrumIndex;
-    hdfSpectrumReader reader(filename.c_str());
-    std::vector<std::string> spectrum_names = reader.listSpectra();
-    const char* spname = spectrum_names[spectrum_index].c_str();
+    try {
+        std::string filename = ReadCommandInfo::getInstance()->m_filename;
+        unsigned    spectrum_index = ReadCommandInfo::getInstance()->m_spectrumIndex;
+        hdfSpectrumReader reader(filename.c_str());
+        std::vector<std::string> spectrum_names = reader.listSpectra();
+        const char* spname = spectrum_names[spectrum_index].c_str();
 
-    // Get the data and spectrum types   in internal form:
+        // Get the data and spectrum types   in internal form:
 
-    std::stringstream stype(reader.spectrumType(spname));
-    std::stringstream dtype(reader.dataType(spname));
+        std::stringstream stype(reader.spectrumType(spname));
+        std::stringstream dtype(reader.dataType(spname));
 
-    SpectrumType_t spectype;
-    stype >> spectype;
-    DataType_t     datatype;
-    dtype   >> datatype;
+        SpectrumType_t spectype;
+        stype >> spectype;
+        DataType_t     datatype;
+        dtype   >> datatype;
 
-    // Make the axis specification vectors:
+        // Make the axis specification vectors:
 
-    std::vector<UInt_t> chanvec;
-    std::vector<Float_t> lowvec;
-    std::vector<Float_t> hivec;
-    
-    auto xaxis = reader.getXaxis(spname);
-    chanvec.push_back(xaxis.s_bins);
-    lowvec.push_back(xaxis.s_low);
-    hivec.push_back(xaxis.s_high);
+        std::vector<UInt_t> chanvec;
+        std::vector<Float_t> lowvec;
+        std::vector<Float_t> hivec;
+        
+        auto xaxis = reader.getXaxis(spname);
+        chanvec.push_back(xaxis.s_bins);
+        lowvec.push_back(xaxis.s_low);
+        hivec.push_back(xaxis.s_high);
 
-    if (reader.hasYAxis(spname)) {
-        // There's a second axi spec:
+        if (reader.hasYAxis(spname)) {
+            // There's a second axi spec:
 
-        auto yaxis = reader.getYaxis(spname);
-        chanvec.push_back(yaxis.s_bins);
-        lowvec.push_back(yaxis.s_low);
-        hivec.push_back(yaxis.s_high);
-    }
-    // Now the parameter vectors:
+            auto yaxis = reader.getYaxis(spname);
+            chanvec.push_back(yaxis.s_bins);
+            lowvec.push_back(yaxis.s_low);
+            hivec.push_back(yaxis.s_high);
+        }
+        // Now the parameter vectors.
+        // Note that gamma summary spectra are uhm unique:
 
-    std::vector<std::string> xparam = reader.getParameters(spname);
-    CSpectrumFactory fact;
-    fact.ExceptionMode(kfFALSE);    // I think this allows nonexistent params.
-    CSpectrum* pSpectrum;
-    if (reader.hasYparameters(spname)) {
-        std::vector<std::string> yparam = reader.getYParameters(spname);
-        pSpectrum = fact.CreateSpectrum(
-            "", spectype, datatype, 
-            xparam, yparam,
-            chanvec[0], chanvec[1], &lowvec, &hivec
-        );
-    } else {
-        pSpectrum = fact.CreateSpectrum(
-            "", spectype, datatype, xparam,
-            chanvec, &lowvec, &hivec
-        );
-    }
-    // Let's set the metadata and then figure out how to deal with the channels:
+        CSpectrumFactory fact;
+        fact.ExceptionMode(kfFALSE);    // I think this allows nonexistent params.
+        CSpectrum* pSpectrum;
+        if (spectype == keGSummary) {  // Make a gamma summary spectrum.
+            std::vector<std::vector<std::string>> gsparams = 
+                reader.getGammaSummaryParameters(spname);
+            // Only the [1] in the axis specs matters:
 
-    auto metadata = reader.getMetadata(spname);
-    for(auto p : metadata) {
-        pSpectrum->setMetadata(p.first.c_str(), p.second.c_str());
-    }
+            chanvec.erase(chanvec.begin());
+            lowvec.erase(lowvec.begin());
+            hivec.erase(hivec.begin());
 
-    // Now the data:
-
-    
-    unsigned binsize;   // Number of bytes/bin.
-    switch (datatype) {
-        case keByte:
-            binsize = sizeof(uint8_t);
-            break;
-        case keWord:
-            binsize = sizeof(uint16_t);
-            break;
-        case keLong:
-            binsize = sizeof(uint32_t);
-            break;
-        default:
-            throw CInvalidArgumentException(
-                reader.dataType(spname), 
-                "Invalid data type specification", 
-                "Computing bytes/channel"
+            pSpectrum = fact.CreateSpectrum(
+                "", spectype, datatype, 
+                gsparams, chanvec, &lowvec, &hivec
             );
+        } else {                          // All other types:
+            std::vector<std::string> xparam = reader.getParameters(spname);
+            
+            if (reader.hasYparameters(spname)) {
+                std::vector<std::string> yparam = reader.getYParameters(spname);
+                pSpectrum = fact.CreateSpectrum(
+                std::string(""), spectype, datatype, 
+                    xparam, yparam,
+                    chanvec[0], chanvec[1], &lowvec, &hivec
+                );
+            } else {
+                pSpectrum = fact.CreateSpectrum(
+                    "", spectype, datatype, xparam,
+                    chanvec, &lowvec, &hivec
+                );
+            }
+        }
+        // Let's set the metadata and then figure out how to deal with the channels:
+
+        auto metadata = reader.getMetadata(spname);
+        for(auto p : metadata) {
+            pSpectrum->setMetadata(p.first.c_str(), p.second.c_str());
+        }
+
+        // Now the data:
+
+        
+        unsigned binsize;   // Number of bytes/bin.
+        switch (datatype) {
+            case keByte:
+                binsize = sizeof(uint8_t);
+                break;
+            case keWord:
+                binsize = sizeof(uint16_t);
+                break;
+            case keLong:
+                binsize = sizeof(uint32_t);
+                break;
+            default:
+                throw CInvalidArgumentException(
+                    reader.dataType(spname), 
+                    "Invalid data type specification", 
+                    "Computing bytes/channel"
+                );
+        }
+        // So how many bytes is this anyway:
+
+        auto dims = reader.getSpectrumDimensions(spname);
+        unsigned nBins = dims[0];
+        if (dims.size() == 2) {
+            nBins = dims[0] * dims[1];
+        }
+        unsigned nBytes = nBins * binsize;
+
+        // Get the contents and copy them into the spectrum:
+
+        void* pContents = reader.getContents(spname);
+        memcpy(pSpectrum->getStorage(), pContents, nBytes);
+
+        // This is probably excessive but ... 'correct'.
+        switch (datatype) {
+            case keByte:
+                delete [](reinterpret_cast<uint8_t*>(pContents));
+                break;
+            case keWord:
+                delete [](reinterpret_cast<uint16_t*>(pContents));
+                break;
+            case keLong:
+                delete [](reinterpret_cast<uint32_t*>(pContents));
+                break;
+        }
+        
+
+        return  {spectrum_names[spectrum_index], pSpectrum};
     }
-    // So how many bytes is this anyway:
-
-    auto dims = reader.getSpectrumDimensions(spname);
-    unsigned nBins = dims[0];
-    if (dims.size() == 2) {
-        nBins = dims[0] * dims[1];
+    catch (Exception e) {
+        // COnvert this to a spectrum format error.
+        std::string doing = e.getDetailMsg();   
+        throw CSpectrumFormatError(CSpectrumFormatError::HDF5Exception, doing.c_str());
     }
-    unsigned nBytes = nBins * binsize;
-
-    // Get the contents and copy them into the spectrum:
-
-    void* pContents = reader.getContents(spname);
-    memcpy(pSpectrum->getStorage(), pContents, nBytes);
-
-    // This is probably excessive but ... 'correct'.
-    switch (datatype) {
-        case keByte:
-            delete [](reinterpret_cast<uint8_t*>(pContents));
-            break;
-        case keWord:
-            delete [](reinterpret_cast<uint16_t*>(pContents));
-            break;
-        case keLong:
-            delete [](reinterpret_cast<uint32_t*>(pContents));
-            break;
-    }
-    
-
-    return  {spectrum_names[spectrum_index], pSpectrum};
 
 }
 /**
@@ -216,7 +240,7 @@ CHDF5SpectrumFormatter::Read(std::istream& rStream, ParameterDictionary& rDict) 
  *    Write a spectrum to an hdf5 file. We get our information from the
  * context block associated with the swrite command.
  * 
- * @param rstream - tsream open on the file - we use the filename from the context block.
+ * @param rstream - stream open on the file - we use the filename from the context block.
  * @param rSpectrum - references the spectrum to write.
  * @param rDict   - References the parameter dict.
  * 
@@ -226,6 +250,7 @@ CHDF5SpectrumFormatter::Write (
     std::ostream& rStream, CSpectrum& rSpectrum,
 	ParameterDictionary& rDict) {
 
+    
     // Get the write context and from that the name of the file and whether 
     // we need to create of just open.
 
@@ -310,25 +335,32 @@ CHDF5SpectrumFormatter::Write (
         if (description.fLows.size() == 2) {
             writeAxisAttribute(
                 contents, "Yaxis", 
-                description.fLows[1], description.fHighs[1], description.nChannels[0]
+                description.fLows[1], description.fHighs[1], description.nChannels[1]
             );
         }
         std::string gateName = rSpectrum.getGate()->getName();
         addStringAttribute(contents, "gate_name", gateName.c_str());
 
         // Write the parameter data sets:
+        // Note that Gamma summary spectrum parameters are some unbounded
+        // set of parameter lists and the lists are separated by ids of -1.
+        // We'lll write these uh... very differently.
+        //
 
-        if (description.vParameters.size() > 0) {
-            makeParameterDataset(
-                spectrumGroup, "xparameters", rDict, description.vParameters
-            );
+        if (description.eType == keGSummary) {
+            writeGammaSummaryParameters(spectrumGroup, rDict, description.vParameters);
+        } else {
+            if (description.vParameters.size() > 0) {
+                makeParameterDataset(
+                    spectrumGroup, "xparameters", rDict, description.vParameters
+                );
+            }
+            if (description.vyParameters.size() > 0) {
+                makeParameterDataset(
+                    spectrumGroup, "yparameters", rDict, description.vyParameters
+                );
+            }
         }
-        if (description.vyParameters.size() > 0) {
-            makeParameterDataset(
-                spectrumGroup, "yparameters", rDict, description.vyParameters
-            );
-        }
-
         // write the metadata for the spectrum;
 
         writeMetadata(
@@ -460,32 +492,65 @@ CHDF5SpectrumFormatter::makeParameterDataset(
     Group& parent, const char* name,
     ParameterDictionary& rDict, const std::vector<UInt_t>& paramIds
 ) {
-    // Create the vector of names:
+    // Create the vector of names amd write it to the data set.
 
     std::vector<std::string> paramNames = parameterIdsToNames(rDict, paramIds);
 
-
-    // Create a vector of pointers to the strings... that's what we
-    // need to write:
-
+    writeStringListDataSet(parent, name, paramNames);
+}
+/**
+ * writeGammaSummaryParametrs:
+ *    Gamma summary spectra have lists of parameter lists.  Each list
+ * of paramters defines a strip of y channnels.   These are passed in
+ * the description with the lists separated terminated by -1.
+ * We're going to write these to the "xparameters" data set.
+ * In our case, we'll separate each parameter list with an empty string.
+ * 
+ * @param parent - the group that parents our dataset.
+ * @param rDict  - the parameter dictionary.
+ * @param paramIds - The paraemter ids to write...as described above.
+ * 
+ */
+void
+CHDF5SpectrumFormatter::writeGammaSummaryParameters(
+    Group& parent, ParameterDictionary& rDict, const std::vector<UInt_t>& ids
+)
+{
+    // Make the string list we're going to write from the id vector: 
+    // Note that the last list also has a -1 terminator.
+    // or rather a 0xffffffff terminator.
     
-    std::vector<const char*> params;   // we'll write .data() of this vector.
-    for (auto& s : paramNames) {       // Can't copy due to c_str scope issues.
-        params.push_back(s.c_str());
+    std::vector<std::string> dataList;   // the thing we're writing
+    size_t index = 0;                    // where we are in the ids list.
+    while (index < ids.size()) {
+        //  a sublist:
+
+        std::vector<UInt_t>      subListIds;
+
+        while(index < ids.size()) {
+            // Accumulate the sublist:
+
+            if (ids[index] == 0xffffffff) {
+                // end of a sublist:
+                index++;
+                break;
+            } else {
+                subListIds.push_back(ids[index]);
+                index++;
+            }
+        }
+
+
+        // sublistIds is a list of pararameter ids:
+
+        std::vector<std::string> sublistNames = parameterIdsToNames(rDict, subListIds);
+        dataList.insert(dataList.end(), sublistNames.begin(), sublistNames.end());  // Append to the list
+        dataList.push_back("");    // Terminat with empty string.
+        
     }
+    // Now we can write the data set:
 
-
-    // create our dataspace and a data set for variable strings:
-
-    StrType memType(PredType::C_S1, H5T_VARIABLE);   // shorter strings get padded nulls.
-    
-    
-    hsize_t dims[1] = {params.size()};  //1d as many strings as we have.
-    DataSpace space(1, dims);
-    DataSet pset = parent.createDataSet(name, memType, space);
-    pset.write(params.data(), memType);
-
-    pset.close();
+    writeStringListDataSet(parent, "xparameters", dataList);
 }
 /**
  *  writeMetadata
@@ -526,4 +591,34 @@ CHDF5SpectrumFormatter::writeMetadata(
     mset.close();
    
 
+}
+/**
+ *  writeStringListDataSet
+ *    Create and write a data set that is a vector of strings:
+ * 
+ * @param parent - the group that parents the data set.
+ * @param name   - The name of the data set.
+ * @param data   - Vector of strings to write.
+ */
+void
+CHDF5SpectrumFormatter::writeStringListDataSet(
+    Group& parent, const char* name, const std::vector<std::string>& data
+) {
+    std::vector<const char*> params;   // we'll write .data() of this vector.
+    for (auto& s : data) {       // Can't copy due to c_str scope issues.
+        params.push_back(s.c_str());
+    }
+
+
+    // create our dataspace and a data set for variable strings:
+
+    StrType memType(PredType::C_S1, H5T_VARIABLE);   // shorter strings get padded nulls.
+    
+    
+    hsize_t dims[1] = {params.size()};  //1d as many strings as we have.
+    DataSpace space(1, dims);
+    DataSet pset = parent.createDataSet(name, memType, space);
+    pset.write(params.data(), memType);
+
+    pset.close();    
 }

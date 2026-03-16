@@ -78,9 +78,15 @@ private:
         H5::Group& parent, const char* name,
         ParameterDictionary& rDict, const std::vector<UInt_t>& paramIds
     );
+    void writeGammaSummaryParameters(
+        H5::Group& parent, ParameterDictionary& rDict, const std::vector<UInt_t>& paramIds
+    );
     void writeMetadata(
         H5::Group& parent, const char* name,
         const CMetadata::Metadata_t& metadata
+    );
+    void writeStringListDataSet(
+        H5::Group& parent, const char* name, const std::vector<std::string>& data
     );
 
 };
