@@ -446,6 +446,7 @@ public:
     bool hasYparameters(const char* name);  
     std::vector&lt;std::string&gt; getParameters(const char* name); 
     std::vector&lt;std::string&gt; getYParameters(const char* name);
+    std::vector&lt;std::vector&lt;std::string&gt;&gt; getGammaSummaryParameters(const char* name);
 
     std::vector&lt;std::pair&lt;std::string, std::string&gt;&gt; getMetadata(const char* name);
     void* getContents(const char* name);
@@ -655,6 +656,27 @@ public:
                             </para>
                         </listitem>
                 </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                          <type>std::vector&lt;std::vector&lt;std::string&gt;&gt;</type>
+                          <methodname>getGammaSummaryParameters</methodname>
+                          <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>   
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Gamma summary spectra have a list of parameters for each
+                                x channel in the spectrum. The strip of Y channels selected by
+                                this x channel is then a gamma summary spectrum for those parameters.
+                                Under the assumption that the spectrum specified by <parameter>name</parameter>
+                                is a gamma summary spectrum (type string <literal>gs</literal>), this
+                                method returns the vector of parameter vectors for that spectrum.
+                            </para>
+                            <para>
+                                If the <parameter>name</parameter> is not a gamma summary spectrum,
+                                this method throws an <classname>std::logic_error</classname> exception.
+                            </para>
+                        </listitem>
+                </varlistentry>         
                 <varlistentry>
                         <term><methodsynopsis>
                            <type>std::vector&lt;std::pair&lt;std::string, std::string&gt;&gt;</type>
