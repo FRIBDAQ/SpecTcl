@@ -14,7 +14,7 @@ AC_OBJEXT
 # Set parallel build for incorps:
 
 AC_ARG_WITH([incorp-build-cores],
-	AC_HELP_STRING([--with-incorp-build-cores=N], [Number of cores used to build incorporated packages (default=1)]),
+	AS_HELP_STRING([--with-incorp-build-cores=N], [Number of cores used to build incorporated packages (default=1)]),
 	[incorp_cores=$withval],
 	[incorp_cores=1])
 AC_MSG_NOTICE([Building incorporated packages with ${incorp_cores} cores])
@@ -143,6 +143,17 @@ AC_SUBST(PYTHON_LDFLAGS)
 #AC_SUBST(PYTHON_CXXFLAGS)
 #PYTHON_LDFLAGS=`pkg-config python3 --libs`
 #AC_SUBST(PYTHON_LDFLAGS)
+
+# LIBHDF5 - note this works for C I probably need to add the -lhdf5_cpp dependency.
+
+PKG_CHECK_MODULES(HDF5, [hdf5], [ AC_MSG_NOTICE([HDF libs found])],
+   [AC_MSG_ERROR([Please install libhdf5 c++/c development libs])])
+
+# We need libhdf5_cpp so replace -lhdf5 by -lhdf5_cpp -hldf5 and
+# export the result as HDF5_CXXLIBS to the makefiles.
+
+HDF5_CXXLIBS=${HDF5_LIBS/-lhdf5/"-lhdf5_cpp -lhdf5"}
+AC_SUBST(HDF5_CXXLIBS)
 
 # needed for autotools version earlier than 1.14
 AM_PROG_CC_C_O
@@ -1157,6 +1168,7 @@ AC_CONFIG_FILES(Makefile
     map/Makefile
     radwareio/Makefile
     rootFilterFormat/Makefile
+    hdf5reader/Makefile
 	  )
           
 AC_OUTPUT

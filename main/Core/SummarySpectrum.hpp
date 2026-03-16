@@ -102,7 +102,6 @@ CSummarySpectrum<T>::Increment(const CEvent& rEv) {
     for (auto pno : m_vParameters) {
         if (rEvent[pno].isValid()) {
             Double_t value = rEvent[pno];
-            std::cerr << "Filling with " << xchan << " " << value << std::endl;
             pSpec->Fill(xchan, value);
         }
         xchan += 1.0;

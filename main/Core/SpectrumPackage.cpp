@@ -1823,6 +1823,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
       if(pSpectrum) {		// It may have been entered in the hgrammer.
         api.RemoveSpectrum(pSpectrum->getName());
         delete pSpectrum;
+       
       }
       string Reason(rExcept.ReasonText()); // Haul out the reason code.
       rResult = Reason + string(" ") +

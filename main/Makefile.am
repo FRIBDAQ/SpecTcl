@@ -1,6 +1,7 @@
 # Remove Tape directory:
 
 SUBDIRS = Replace \
+					hdf5reader \
 					Scripts \
 					Utility \
 					factories \

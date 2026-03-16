@@ -67,6 +67,7 @@ public:
     keNotSwitch
   } Switch_t;
 
+
 public:
 
    // Constructors and other cannonical operations:
@@ -109,6 +110,25 @@ protected:
   static Switch_t NextSwitch(const char* pText);
 
 
+};
+
+/**
+ * @struct ReadCommaandInfo
+ * 
+ *   Some spectrum formatters can't use streams.  This provides
+ * information they need to do the read.  Note that this
+ * is future proofed against the addition of the -all
+ * switch when we'll need to pass in which spectrum to get
+ * from the file
+ * 
+ * This is a singleton.
+ */
+struct ReadCommandInfo {
+  static ReadCommandInfo* m_pInstance;
+  std::string              m_filename;
+  unsigned                 m_spectrumIndex;
+
+  static ReadCommandInfo* getInstance();
 };
 
 #endif

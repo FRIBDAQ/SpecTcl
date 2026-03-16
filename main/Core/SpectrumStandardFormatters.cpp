@@ -299,6 +299,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include "NSCLAsciiSpectrumFormatter.h"
 #include "NSCLBinarySpectrumFormatter.h"
 #include "SpectrumFormatterJson.h"
+#include "CHDF5SpectrumFormatter.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -308,9 +309,10 @@ using namespace std;
 Bool_t CSpectrumStandardFormatters::m_fFirstTime = kfTRUE; //Static data member initialization
 
 
-CNSCLAsciiSpectrumFormatter   g_NSCLAscii;
-CNSCLBinarySpectrumFormatter  g_NSCLBinary;
-CSpectrumFormatterJson        g_JsonFormatter;
+static CNSCLAsciiSpectrumFormatter   g_NSCLAscii;
+static CNSCLBinarySpectrumFormatter  g_NSCLBinary;
+static CSpectrumFormatterJson        g_JsonFormatter;
+static CHDF5SpectrumFormatter        g_HDF5Formatter;
 
 
 CSpectrumFormatterFactory  FirstFactory;
@@ -334,6 +336,7 @@ CSpectrumStandardFormatters::CSpectrumStandardFormatters()
       { string("ascii"),      &g_NSCLAscii },  // Convenience items
       { string("binary"),     &g_NSCLBinary },
       { string("json"),   &g_JsonFormatter},
+      { string("hdf5"),  &g_HDF5Formatter}
     };
     int nStandard = sizeof(RegistrationTable)/sizeof(RegistrationEntry);
 

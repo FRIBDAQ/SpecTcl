@@ -350,8 +350,8 @@ CGamma2DD<T,R>::GetDefinition()
   for (int i = 0; i < m_yParameters.size(); i++) {
     definition.vyParameters.push_back(m_yParameters[i].getNumber());
   }
-  definition.nChannels.push_back(m_nXscale);
-  definition.nChannels.push_back(m_nYscale);
+  definition.nChannels.push_back(m_nXscale -2);  // -2 for the over/underflows.
+  definition.nChannels.push_back(m_nYscale - 2); // These are axis defs not  dims.
 
   definition.fLows.push_back(GetLow(0));
   definition.fLows.push_back(GetLow(1));
