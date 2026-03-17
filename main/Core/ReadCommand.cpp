@@ -226,13 +226,15 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
 
   if(pChannel) {
     pIn = new tclistream(pChannel);
+    ReadCommandInfo::getInstance()->m_filename = ":fd:";
   }
   else {
     pIn = new ifstream(pArgs[0]);
+    ReadCommandInfo::getInstance()->m_filename = pArgs[0];
   }
   // Set the context for the first read:
 
-  ReadCommandInfo::getInstance()->m_filename = pArgs[0];
+  
   ReadCommandInfo::getInstance()->m_spectrumIndex = 0;
 
   
