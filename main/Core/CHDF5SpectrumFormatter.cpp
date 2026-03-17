@@ -97,10 +97,17 @@ std::pair<std::string, CSpectrum*>
 CHDF5SpectrumFormatter::Read(std::istream& rStream, ParameterDictionary& rDict) {
     // Get the file and spectrum index.  Instantiate the reader class and
     // get the name of the spectrum we're restoring:
-
+    
+    std::string filename = ReadCommandInfo::getInstance()->m_filename;
+    unsigned    spectrum_index = ReadCommandInfo::getInstance()->m_spectrumIndex;
+    if (filename == ":fd:") {
+        throw CInvalidArgumentException(
+            "File descsriptor used to open file", 
+            "HDF5 files can only be read by filename", "swrite spectra"
+        );
+    }
     try {
-        std::string filename = ReadCommandInfo::getInstance()->m_filename;
-        unsigned    spectrum_index = ReadCommandInfo::getInstance()->m_spectrumIndex;
+       
         hdfSpectrumReader reader(filename.c_str());
         std::vector<std::string> spectrum_names = reader.listSpectra();
         const char* spname = spectrum_names[spectrum_index].c_str();
@@ -255,6 +262,12 @@ CHDF5SpectrumFormatter::Write (
     // we need to create of just open.
 
     std::string fname      = WriteCommandInfo::getInstance()->m_filename;
+    if (fname == ":fd:") {
+        throw CInvalidArgumentException(
+            "File descsriptor used to open file", 
+            "HDF5 files can only be written by filename", "swrite spectra"
+        );
+    }
     bool        mustCreate = WriteCommandInfo::getInstance()->m_firstSpectrum;
     const CSpectrum::SpectrumDefinition& description = rSpectrum.GetDefinition();
     // Truncate on open if must create else just open for read/write.

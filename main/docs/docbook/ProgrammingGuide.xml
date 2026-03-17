@@ -5498,6 +5498,249 @@ CMySpecTclApp::CreateHistogrammer()
             </programlisting>
         </informalexample>
     </section>
+    <section>
+        <title>When your file format cannot use 
+        <classname>std::ostream</classname>/<classname>std::istream</classname>
+        </title>
+        <para>
+            The material in this section describes functionality that was added in 
+            SpecTcl 7.0-005.  At that time support for saving spectra to HDF5 formatted
+            data files was added.  Those file cannot be referenced va an iostream based class.
+            Therefore, additional context was added and maintained by the
+            <command>swrite</command> and <command>sread</command> processors.
+        </para>
+        <para>
+            When <command>swrite</command> writes a list of spectra to file, recall that the
+            formatter's <methodname>Write</methodname> is invoked for each file.  The
+            <command>swrite</command> maintains a context block for the durationof the 
+            <command>swrite</command> execution.
+        </para>
+        <para>
+            The function <methodname>WriteCommandInfo::getInstance</methodname> gets
+            a pointer to this context block.  The context block is defined in
+            the header <filename>WriteCommand.h</filename>  which you will need
+            to <literal>#include</literal> into spectrum formatters that
+            require it.  It has the following fields:
+        </para>
+        <variablelist>
+            <varlistentry>
+                    <term><type>std::string</type> <structfield>m_filename</structfield></term>
+                    <listitem>
+                        <para>
+                            This contains the name of the file that is being written by
+                            <command>swrite</command>.  If, <command>swrite</command> was passed 
+                            a Tcl file desriptor this is, in general, is not available and the
+                            string will have the value <literal>:fd:</literal>. If that is the
+                            case, it is perfectly appropriate for the <methodname>Write</methodname>
+                            method to throw an exception indicating that it requires a filename.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><type>bool</type> <structfield>m_firstSpectrum</structfield></term>
+                    <listitem>
+                        <para>
+                            This is <literal>true</literal> if the swrite is for the first
+                            spectrum in the list of spectra and false otherwise.  This
+                            field allows the formatter to know when a new file needs to be
+                            created and when an existing file can be opened for extension.
+                        </para>
+                    </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Similarly the <command>sread</command> maintains a context block for  the
+            formatter's <methodname>Read</methodname> method.  If it needs this bock,
+            your formatter will need to <literal>#include</literal> <filename>ReadCommand.h</filename>.
+            A pointer to this block can be gotten with a call to
+            <methodname>ReadCommandInfo::getInstance()</methodname>.  It has the following fields.
+        </para>
+        <variablelist>
+            <varlistentry>
+                    <term><type>std::string</type> <structfield>m_filename</structfield></term>
+                    <listitem>
+                        <para>
+                            The name of the file being read.  Note that, again, if a 
+                            Tcl channel was opened this will be <literal>:fd:</literal>.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><type>unsigned</type> <structfield>m_spectrumIndex</structfield></term>
+                    <listitem>
+                        <para>
+                            In the future an option is planned for the <command>sread</command>
+                            to read all spectra from a file with multple spectra.  In that case,
+                            this field will contain the index of the spectrum in the file being
+                            read.
+                        </para>
+                    </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Let's look at code fragments from the SpecTcl source file 
+            <filename>CHDF5SpectrumFormatter.cpp</filename> for which these context blocks were added.
+            Note that these code fragments are prior to the <option>-all</option> option's implementation
+            in <command>sread</command>.
+        </para>
+        <para>
+            The <methodname>Write</methodname> method.  Don't worry too much about the
+            HDF5 specific parts of this example.
+        </para>
+        <example>
+            <title>Using the <command>swrite</command> context block</title>
+            <programlisting>
+void
+CHDF5SpectrumFormatter::Write (
+    std::ostream&amp; rStream, CSpectrum&amp; rSpectrum,
+	ParameterDictionary&amp; rDict) {
+
+    
+
+    std::string fname      = WriteCommandInfo::getInstance()-&gt;m_filename;  <co id='swritecontext.fname' />
+    if (fname == ":fd:") {                                             <co id='swritecontext.fd' />
+        throw CInvalidArgumentException(
+            "File descsriptor used to open file", 
+            "HDF5 files can only be written by filename", "swrite spectra"
+        );
+    }
+    bool        mustCreate = WriteCommandInfo::getInstance()-&gt;m_firstSpectrum; <co id='swritecontext.first' />
+    const CSpectrum::SpectrumDefinition&amp; description = rSpectrum.GetDefinition();
+    
+    unsigned int openFlags = mustCreate ? H5F_ACC_TRUNC : H5F_ACC_RDWR;     <co id='swritecontext.hdf5openflags' />
+    try {
+        Exception::dontPrint();      
+        H5File hdf(fname, openFlags);                                <co id='swritecontext.hdf5open' />
+        ...
+    }
+    ...
+    }
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='swritecontext.fname'>
+                <para>
+                    This line access the <structfield>m_filename</structfield> of the 
+                    <command>swrite</command> 
+                </para>
+            </callout>
+            <callout arearefs='swritecontext.fd'>
+                <para>
+                    If the filename is <literal>:fd:</literal> the stream was opened
+                    on a Tcl file (created via e.g. <command>open</command>).  Since the
+                    formatter requires a real filename, it throws a
+                    <classname>CInvalidArgumentException</classname> in that case which
+                    fails the write.
+                </para>
+            </callout>
+            <callout arearefs='swritecontext.first'>
+                <para>
+                    This access the <structfield>m_firstSpectrum</structfield> field of the
+                    context.  This is needed to determine the manner in which the
+                    HDF5 file object will be created.
+                </para>
+            </callout>
+            <callout arearefs='swritecontext.hdf5openflags'>
+                <para>
+                    The full details of this are not important.  The main point is that dependingon
+                    the value of <varname>mustCreate</varname> the <varname>openFlags</varname>
+                    is set to either create new file (truncating any existing file) or to access
+                    a file with read/write access.
+                </para>
+            </callout>
+            <callout arearefs='swritecontext.hdf5open'>
+                <para>
+                    The flags computed in the previous step are then used when creating the 
+                    HDF5 file.
+                </para>
+            </callout>
+        </calloutlist>
+        <para>
+            Now lets' look at the HDF5 formatter's <methodname>Read</methodname> method and
+            how it uses the read context block.  The assumption is, that at some point,
+            when the <option>-all</option> is added to <command>sread</command> the
+            formatter will have a mechanism to flag to <command>sread</command> that ther are
+            no more spectra to read (perhaps by seeking to the end of the stream it was passed).
+        </para>
+        <example>
+            <title>Using the <command>swrite</command> context block in <methodname>Read</methodname></title>
+            <programlisting>
+std::pair&lt;std::string, CSpectrum*&gt;
+CHDF5SpectrumFormatter::Read(std::istream&amp; rStream, ParameterDictionary&amp; rDict) {
+    // Get the file and spectrum index.  Instantiate the reader class and
+    // get the name of the spectrum we're restoring:
+    
+    std::string filename = ReadCommandInfo::getInstance()-&gt;m_filename; <co id='sreadcontext.fname' />
+    unsigned    spectrum_index = ReadCommandInfo::getInstance()-&gt;m_spectrumIndex; <co id='sreadcontext.index' />
+    if (filename == ":fd:") {                 <co id='sreadcontext.fd' />
+        throw CInvalidArgumentException(
+            "File descsriptor used to open file", 
+            "HDF5 files can only be read by filename", "swrite spectra"
+        );
+    }
+    try {
+       
+        hdfSpectrumReader reader(filename.c_str());   <co id='sreadcontext.open' />
+        std::vector&lt;std::string&gt; spectrum_names = reader.listSpectra(); <co id='sreadcontext.spnames' />
+        const char* spname = spectrum_names[spectrum_index].c_str();   <co id='sreadcontext.select' />
+        ...
+    }
+    ...
+}
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='sreadcontext.fname'>
+                <para>
+                    Accesses the filename from the <command>sread</command> context blockk.
+                </para>
+            </callout>
+            <callout arearefs='sreadcontext.index'>
+                <para>
+                    Accesses the index of the spectrum to read from the file.
+                    This will be used to select which spectrum is read.
+                </para>
+            </callout>
+            <callout arearefs='sreadcontext.fd'>
+                <para>
+                    IF the filename is <literal>:fd:</literal> that indicates the stream is open on a
+                    Tcl file descriptor.  Since we can't work witht that, the code throws a
+                    <classname>CInvalidArgumentException</classname> to fail the <command>sread</command>
+                    command with an error message.
+                </para>
+            </callout>
+            <callout arearefs='sreadcontext.open'>
+                <para>
+                    We are using the hdf5 spectrum reader library from SpecTcl.  This is described in
+                    the documents in <filename>$SpecTcl/share/hdf5/example.html</filename> (for 
+                    versions 7.0-005 and higher), with example and code
+                    in <filename>$SpecTcl/share/hdf5example</filename>.  This library can be used in 
+                    applications other than SpecTcl to read the HDF5 files produced by SpecTcl's
+                    <command>swrite -format hdf5</command>
+                </para>
+                <para>
+                    Creating an instance of the <classname>hdf5SpectrumReader</classname> class
+                    initates read-only access to the file passed as a parameter.
+                </para>
+            </callout>
+            <callout arearefs='sreadcontext.spnames'>
+                <para>
+                    The <classname>hdf5SpectrumReader</classname> accesses information about
+                    spectra (and their contents) by the name of the spectrum as it was written
+                    to file.  The <methodname>listSpectra</methodname> produces a list of the
+                    names of the spectra in the HDF5 file.
+                </para>
+            </callout>
+            <callout arearefs='sreadcontext.select'>
+                <para>
+                    The <varname>spectrum_index</varname> is then used to produce the name of the
+                    spectrum that will be passed to methods in <classname>hdf5SpectrumReader</classname>
+                    to select the specific spectrum whose attributes and contents the 
+                    <methodname>Read</methodname> will get.
+                </para>
+            </callout>
+        </calloutlist>
+    </section>
 </chapter>
 <chapter id='chap.filterformat'>
     <title id='chap.filterformat.title'>
