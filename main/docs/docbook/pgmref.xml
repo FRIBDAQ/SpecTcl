@@ -38345,6 +38345,7 @@ public:
         <refname>CPipelineEventProcessor</refname>
         <refpurpose>Encapsulate an event processing pipeline as a processor.</refpurpose>
     </refnamediv>
+        
     <refsynopsisdiv>
         <synopsis>
 #include &lt;CPipelineEventProcessor.h&gt;
@@ -38406,6 +38407,229 @@ public:
         </para>
     </refsect1>
 
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>swrite/sread formatters</refentrytitle>
+        <manvolnum> 3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>swrite/sread formatters</refname>
+        <refpurpose>Spectrum file formatting</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+            <synopsis>
+#include &lt;SpectrumFormatter.h&gt;
+
+class CSpectrumFormatter      
+{                       
+
+public:
+
+  CSpectrumFormatter (const std::string&amp; rDescription,
+		      const std::string&amp; rFileType);
+
+  std::string getDescription() const;
+  std::string getFileType() const;
+
+  virtual   std::pair&lt;std::string, CSpectrum*&gt; Read (std::istream&amp; rStream, 
+                    ParameterDictionary&amp; rDict)   = 0  ;
+    virtual   void Write (std::ostream&amp; rStream, CSpectrum&amp; rSpectrum,
+		       ParameterDictionary&amp; rDict)   = 0  ;
+ 
+
+};
+
+
+            </synopsis>
+            <synopsis>
+#include &lt;ReadCommand.h&gt;
+
+struct ReadCommandInfo {
+  static ReadCommandInfo* m_pInstance;
+  std::string              m_filename;
+  unsigned                 m_spectrumIndex;
+
+  static ReadCommandInfo* getInstance();
+};
+            </synopsis>
+            <synopsis>
+#include &lt;WriteCommand.h&gt;
+
+
+struct WriteCommandInfo {
+  static WriteCommandInfo* m_pInstance;
+  std::string              m_filename;         //!< :fd: - if e.g. pipe.
+  bool                     m_firstSpectrum;
+
+  static WriteCommandInfo* getInstance();
+};
+            </synopsis>
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <classname>CSpectrumFormatter</classname> is the abstract base class for formatters
+            used by the <command>swrite</command> and <command>sread</command> commands to 
+            write spectra to file in a specific format.  See the programming guide for information
+            about how to create spectrum formatters.   Since version 7.0-005, SpecTcl has
+            provided the <structname>ReadCommandInfo</structname> and <structname>WriteCommandInfo</structname>
+            context blocks to support formats that cannot be read or written via
+            C++ streams.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SpectrumFormatter METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term><constructorsynopsis>
+                    <methodname>CSpectrumFormatter</methodname>
+                    <methodparam><type>const std::string&amp;</type><parameter>rDescription</parameter></methodparam>
+                    <methodparam><type>const std::string&amp;</type> <parameter>rFileType</parameter></methodparam>
+                </constructorsynopsis></term>
+                <listitem><para>
+                    The constructor parameters provide documentation for the formatter.  If the
+                    <command>sread</command> or <command>swrite</command> are rquired to produce usage
+                    help text, included in that text are the file types and description of file types
+                    that are known to the factory that produces formatter objects.  In general the file type
+                    should be the text passed to the <option>-format</option> option for both
+                    <command>sread</command> and <command>swrite</command>
+                </para>
+                <para>
+                    See the programming guide for information about how to register a concrete subclass
+                    of a <classname>CSpectrumFormatter</classname> with the factories used by
+                    <command>swrite</command> and <command>sread</command> so they can be used
+                    in <option>-format</option>.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>std::string</type><methodname>getDescription</methodname>
+                    <void /><modifier>const</modifier>
+                </methodsynopsis></term>
+                <listitem> <para>
+                    Returns the description string passed to the constructor.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>std::string</type> <methodname>getFileType</methodname>
+                    <void /><modifier>const</modifier>
+                </methodsynopsis></term>
+                <listitem><para>
+                    Returns the file type string passed into the constructor.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>virtual std::pair&lt;std::string, CSpectrum*&gt;</type>
+                    <methodname>Read</methodname>
+                    <methodparam><type>std::istream&amp;</type> <parameter>rStream</parameter></methodparam>
+                    <methodparam><type>ParameterDictionary&amp;</type> <parameter>rDict</parameter></methodparam>
+                    
+                </methodsynopsis></term>
+                <listitem><para>
+                    This pure virtual methods is invoked when the <command>sread</command> is reading
+                    a single spectrum with this format.  The file is open on <parameter>rStream</parameter>
+                    an <parameter>rDict</parameter> provides the parameter dictionary which can be used
+                    to lookup parameters.
+                </para><para>
+                    On successful return, the method returns a pair whose first element is the name of the
+                    spectrum that was read and the second a pointer ot a dynamically allocated 
+                    <classname>CSpectrum*</classname> derived object that is the spectrum read from file.
+                    See, also the <structname>ReadCommandInfo</structname> desribed below if your
+                    format cannot use an <classname>iostream</classname> to read the spectrum.
+                </para><para>
+                    On error, the method should throw a <classname>CException</classname> derived
+                    exception.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <type>virtual void</type> <methodname>Write</methodname>
+                    <methodparam><type>std::ostream&amp;</type> <parameter>rStream</parameter></methodparam>
+                    <methodparam><type>CSpectrum&amp;</type> <parameter>rSpectrum</parameter></methodparam>
+                    <methodparam><type>ParameterDictionary&amp;</type> <parameter>rDict</parameter></methodparam>
+                    
+                </methodsynopsis></term>
+                <listitem><para>
+                    This method is called by the <command>swrite</command> to write a spectrum
+                    using this format.  <parameter>rSpectrum</parameter> references the spectrum
+                    to be written. <parameter>rStream</parameter> references a stream open on the output file.
+                    and <parameter>rDict</parameter> is the parameter dictionary that can be used to translate
+                    between parameter ids and parameter names. 
+                </para><para>
+                    If your concrete formatter cannot write to iostreams, see the documentation of the
+                    <structname>WriteCommandInfo</structname> below.  If the write fails, the
+                    method should indicate that by throwing an exception object that is 
+                    derived from <classname>CException</classname>
+                </para></listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>The <structname>ReadCommandinfo</structname> context block</title>
+        <para>
+            The fields of this struct are maintained by the <command>sread</command> code.
+            The block is intended to allow support for formats that cannot be written
+            via iostreams.  The struct is a singleton and a pointer to it can be obtained by 
+            calling <structname>ReadCommandInfo</structname>::<methodname>getInstance()</methodname>.
+        </para>
+        <para>
+            The fields availalble in the struct are:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>std::string</type> <structfield>m_filename</structfield></term>
+                <listitem><para>
+                    This contains the name of the file being written.  If the <command>sread</command>
+                    was given a Tcl file descriptor, rather than a filename, the special value
+                    <literal>:fd:</literal> will be used. 
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>unsigned</type> <structfield>m_spectrumIndex</structfield></term>
+                <listitem><para>
+                    Contains the index of the spectrum to read from the file. This is used if
+                    more than one spectrum is to be read.  Spectra are indexed from zero and it's
+                    up to the formatter to impose order on the spectra in a way that makes sense.
+                </para></listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title> The <structname>WriteCommandInfo</structname> context block</title>
+        <para>
+            The fields of this struct are maintained by the <command>swrite</command>
+            command.  The block is intended to support file formats that cannot be written
+            via an iostream object.  The struct is a singleton and a pointer to it can be
+            gotten by a call to 
+            <structname>WriteCommandInfo</structname>::<methodname>getInstance()</methodname>.
+        </para>
+        <para>
+            The fields in this struct are:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>std::string</type> <structfield>m_filename</structfield></term>
+                <listitem><para>
+                    Contains the name of the file being written. If the stream is bound to 
+                    a Tcl file descriptor rather than a named file, the special value
+                    <literal>:fd:</literal> will be used.
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>bool</type> <structfield>m_firstSpectrum</structfield></term>
+                <listitem><para>
+                    This field is <literal>true</literal> if <methodname>Write</methodname> is
+                    being called to write the first spectrum of a list of spectra. This can be
+                    used by the formatter to steer how it opens the file it is writing to.829
+                </para></listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
 </refentry>
     </part>
 <part>
