@@ -91,6 +91,7 @@ struct WriteCommandInfo {
   static WriteCommandInfo* m_pInstance;
   std::string              m_filename;         //!< :fd: - if e.g. pipe.
   bool                     m_firstSpectrum;
+  bool                     m_lastSpectrum;
 
   static WriteCommandInfo* getInstance();
 };
