@@ -4930,7 +4930,7 @@ pseudo sum { par.01 par.02 } {
 sread ?<option>-format</option> <replaceable>fmt</replaceable>?
       ?<option>-?no?snapshot</option>?
       ?<option>-?no?replace</option>?
-      ?<option>-?no?bind</option>?  <replaceable>file</replaceable> 
+      ?<option>-?no?bind</option>? ?<option>-all</option>?  <replaceable>file</replaceable> 
             </command>
         </cmdsynopsis>
     </refsynopsisdiv>
@@ -5122,6 +5122,19 @@ sread ?<option>-format</option> <replaceable>fmt</replaceable>?
                         be bound later on using <command>sbind</command>.
                     </para>
                 </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><option>-all</option></term>
+                    <listitem>
+                        <para>
+                            If present all spectra are read from the file. If not,
+                            for compatibility with earlier versions, only the first spectrum
+                            in a multi-spectrum file is read. 
+                        </para>
+                        <para>
+                            Note that this was introduced in SpecTcl-7.0-004
+                        </para>
+                    </listitem>
             </varlistentry>
         </variablelist>
     </refsect1>
