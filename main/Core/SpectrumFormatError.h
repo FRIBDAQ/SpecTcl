@@ -49,7 +49,8 @@ public:
     FileFormatCorrupt,
     InvalidChannels,
     OverflowChannels,
-    HDF5Exception
+    HDF5Exception,
+    JsonException
   } ErrorReason;
 
 private:                      

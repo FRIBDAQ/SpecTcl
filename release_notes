@@ -1,7 +1,7 @@
 == 7.0-005 =
 * Issue #229 - Support metadata for parameters, spectra, gates, and treevariables.
 * Issue #232 - Support spectrum I/O in HDF5 format.
-
+* Issue #233 - Support sread -all operation.
 
 == 7.0-004 ==
 * Upgrade DDASFormat incorp to 1.1-002

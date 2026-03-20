@@ -110,7 +110,18 @@ CHDF5SpectrumFormatter::Read(std::istream& rStream, ParameterDictionary& rDict) 
        
         hdfSpectrumReader reader(filename.c_str());
         std::vector<std::string> spectrum_names = reader.listSpectra();
-        const char* spname = spectrum_names[spectrum_index].c_str();
+        const char* spname = spectrum_names.at(spectrum_index).c_str(); // throw if out of range.
+
+        // If this is the last spectrum seek eof on the stream
+        // so that the caller knows we're done:
+
+        if ((spectrum_index+1) == spectrum_names.size()) {
+            rStream.seekg(0, std::ios_base::end);    // Seeks the end.
+            // looks like I need to read semething to set the end flag.?
+            int junk;
+            rStream >> junk;
+            // SHould we assert the stream is at EOF?  
+        }
 
         // Get the data and spectrum types   in internal form:
 

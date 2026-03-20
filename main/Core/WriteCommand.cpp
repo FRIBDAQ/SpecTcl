@@ -214,7 +214,11 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, std::vector<CTCLObject>&
   vector<string> Failures;
   vector<string> FailedNames;
   WriteCommandInfo::getInstance()->m_firstSpectrum = true;
+  WriteCommandInfo::getInstance()->m_lastSpectrum = false;  // provisionally.
   while(nArgs) {
+    if (nArgs == 1) {
+      WriteCommandInfo::getInstance()->m_lastSpectrum = true;
+    }
     string thisResult;
     if(rPack.Write(thisResult, string(*pArgs), *pOut, pFormatter) != TCL_OK) {
       nFailed++;

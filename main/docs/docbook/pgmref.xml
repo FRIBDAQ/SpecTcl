@@ -38460,8 +38460,9 @@ struct ReadCommandInfo {
 
 struct WriteCommandInfo {
   static WriteCommandInfo* m_pInstance;
-  std::string              m_filename;         //!< :fd: - if e.g. pipe.
+  std::string              m_filename;     
   bool                     m_firstSpectrum;
+  bool                     m_lastSpectrum;
 
   static WriteCommandInfo* getInstance();
 };
@@ -38626,6 +38627,15 @@ struct WriteCommandInfo {
                     This field is <literal>true</literal> if <methodname>Write</methodname> is
                     being called to write the first spectrum of a list of spectra. This can be
                     used by the formatter to steer how it opens the file it is writing to.829
+                </para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>bool</type> <structfield>m_lastSpectrum</structfield></term>
+                <listitem><para>
+                    This field is <literal>true</literal> if <methodname>Write</methodname>
+                    is being called to write the last spetrum of a list of spectra.  Note that it
+                    is certainly possible for both this field and <structfield>m_firstSpectrum</structfield>
+                    to both be true.
                 </para></listitem>
             </varlistentry>
         </variablelist>

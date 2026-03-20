@@ -38,9 +38,12 @@
 #include "Parameter.h"
 #include "SpectrumFactory.h"
 #include "SpecTcl.h"
+#include "ReadCommand.h"
+#include "WriteCommand.h"
 
 #include <histotypes.h>
 #include <sstream>
+#include <stdexcept>
 
 // Root definitions:
 
@@ -118,20 +121,36 @@ CSpectrumFormatterJson::Read(
     std::istream &rStream,
     ParameterDictionary &rDict) {
     
-    // Suck the whole file into a string stream and then
-    // parse from there:
 
-    std::stringstream contents;
-    contents << rStream.rdbuf();
+    
+    
+    try {
+        Json::Value root;
+        rStream >> root;
+        unsigned specidx = ReadCommandInfo::getInstance()->m_spectrumIndex;
+        Json::Value spectrum = root[specidx];
+        SpectrumDescription desc = unpackDescription(spectrum["description"]);
+        CSpectrum* pSpec = makeSpectrum(desc);
+        fillSpectrum(*pSpec, spectrum["channels"]);
+        // If I read the last one, set the eof state else rewind and reset it.
 
-    Json::Value root;
-    contents >> root;
-    Json::Value spectrum = root[0];
-    SpectrumDescription desc = unpackDescription(spectrum["description"]);
-    CSpectrum* pSpec = makeSpectrum(desc);
-    fillSpectrum(*pSpec, spectrum["channels"]);
+        if ((specidx+1) < root.size()) {
+            // may need to read again:
 
-    return std::make_pair(desc.name, pSpec);
+            rStream.seekg(0);
+            rStream.clear();
+        } else {
+            // ensure eof is set:
+
+            rStream.clear(std::ios_base::eofbit);
+        }
+
+        return std::make_pair(desc.name, pSpec);
+    } catch (std::exception& e) {
+        throw CSpectrumFormatError(CSpectrumFormatError::JsonException, e.what());
+    }
+
+   
 }
 /**
  *  Write the specified spectrum to file
@@ -146,8 +165,9 @@ CSpectrumFormatterJson:: Write(
     std::ostream &rStream, CSpectrum &rSpectrum,
     ParameterDictionary &rDict) {
 
-        Json::Value outvec(Json::arrayValue);
-
+        if (WriteCommandInfo::getInstance()->m_firstSpectrum) {
+            rStream << "[\n";
+        }
         Json::Value spectrum(Json::objectValue);
         
         Json::Value contents = getSpectrumContents(rSpectrum);
@@ -155,10 +175,13 @@ CSpectrumFormatterJson:: Write(
         spectrum["description"] = generateHeader(rSpectrum, rDict);
         spectrum["channels"]   = contents;
 
-        outvec.append(spectrum);
 
-
-        rStream << outvec;
+        rStream << spectrum;
+        if (!WriteCommandInfo::getInstance()->m_lastSpectrum) {
+            rStream << ",\n";
+        } else {
+            rStream << "]\n";
+        }
 
     }
 

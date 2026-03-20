@@ -64,6 +64,7 @@ public:
     keSnapshot, keNoSnapshot,
     keReplace,  keNoReplace,
     keBind,     keNoBind,
+    keAll,                            // Issue #233
     keNotSwitch
   } Switch_t;
 
