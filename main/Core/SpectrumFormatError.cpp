@@ -43,7 +43,8 @@ static const char* pErrorStrings[] = {
   "The spectrum section appears to be corrupt",
   "The channel subsection has channel numbers which are not valid",
   "The channel subsection has channel values which would cause overflows",
-  "Error reported from the HDF5 library"
+  "Error reported from the HDF5 library",
+  "Exception processing JSON"
 };
 
 const char** CSpectrumFormatError::m_svErrorStrings = pErrorStrings; 
