@@ -78,7 +78,8 @@ SwitchEntry Switches[] = {
   {"-replace",    CReadCommand::keReplace},
   {"-noreplace",  CReadCommand::keNoReplace},
   {"-bind",       CReadCommand::keBind},
-  {"-nobind",     CReadCommand::keNoBind}
+  {"-nobind",     CReadCommand::keNoBind},
+  {"-all",        CReadCommand::keAll}     // issue #233
 };
 
 static TCLPLUS::UInt_t nTableSize = sizeof(Switches)/sizeof(SwitchEntry);
@@ -116,6 +117,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
   //     -replace              - Ovewrite existing
   //                                  spectrum.
   //     -bind                 - bind spectrum to displayer.
+  //     -all                  - Read all spectra from file.
   //
   //      file                     - A file returned from
   //                                 Tcl/TK's open command.
@@ -149,6 +151,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
   TCLPLUS::Bool_t fSnapshot=TCLPLUS::kfTRUE;	// Default is a snapshot spectrum.
   TCLPLUS::Bool_t fReplace =TCLPLUS::kfFALSE;	// Which does not replace existing specs.
   TCLPLUS::Bool_t fBind    =TCLPLUS::kfTRUE;      // Which is bound to the displayer.
+  TCLPLUS::Bool_t fAll     =TCLPLUS::kfFALSE;     // only one spectrum for backwards compatibility.
 
   nArgs--; pArgs++;		// Skip over the command name.
   if(nArgs < 1) {		// Must be at least a file specifier.
@@ -162,12 +165,12 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
     switch (Switch) {
     case keFormat:
       {
-	nArgs--; pArgs++;
-	if(nArgs < 2) {		// Need a format specifier as well as a file..
-	  Usage(rInterp);
-	  return TCL_ERROR;
-	}
-	format = string(*pArgs);	// Fetch format specifier string.
+        nArgs--; pArgs++;
+        if(nArgs < 2) {		// Need a format specifier as well as a file..
+          Usage(rInterp);
+          return TCL_ERROR;
+        }
+	      format = string(*pArgs);	// Fetch format specifier string.
       }
       break;
     case keSnapshot:
@@ -188,6 +191,9 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
     case keNoBind:
       fBind = kfFALSE;
       break;
+    case keAll:
+      fAll = kfTRUE;           // Read all spectra.
+      break; 
     default:
       Usage(rInterp);
       return TCL_ERROR;
@@ -256,11 +262,37 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
   if(!fSnapshot) ReadFlags |= CSpectrumPackage::fLive;
   if(fReplace)   ReadFlags |= CSpectrumPackage::fReplace;
   if(fBind)      ReadFlags |= CSpectrumPackage::fBind;
+  CTCLObject Result;
+  Result.Bind(rInterp);
+  TCLPLUS::Int_t  status;
 
-  string Result;
-  TCLPLUS::Int_t  status = rPack.Read(Result, *pIn, pFormatter, ReadFlags);
+  // This loop while run at least once but:
+  // - only once if fAll is not true (no -all option present)
+  // - until the EOF on input if fALL is true (-all present).
+  //
+  // NOTE:  This obligates non stream readers
+  //        to seek to eof on the stream when they've
+  //        read the last spectrum.
+  do {
+    string strResult;
+    status = rPack.Read(strResult, *pIn, pFormatter, ReadFlags);
+    //
+    // Streams are wonky about reporting eofs...
+    // we need to do the following  and hope it's accurate:
+    // Since the reader might have encountered an EOF....
+    // because of the newline after the end of the file....
 
-  rInterp.setResult(Result);
+    if ((status != TCL_OK) && pIn->eof()) {
+      break;
+    }
+    Result += strResult;
+    rInterp.setResult(Result);
+    if (status != TCL_OK) {             // Abort with what we've got
+      return status;                    // if the read failed.
+    }
+    ReadCommandInfo::getInstance()->m_spectrumIndex++;    // Update context block.
+  } while (fAll && !(pIn->eof()));   
+    // Result is already set
   return status;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -282,7 +314,8 @@ CReadCommand::Usage(CTCLInterpreter& rInterp)
   std::string rResult = rInterp.GetResultString();
   rResult += "Usage: \n";
   rResult += "   sread [-format fmtname] [-[no]snapshot] \\ \n";
-  rResult += "         [-[no]replace]    [-[no]bind] file    \n\n";
+  rResult += "         [-[no]replace]    [-[no]bind] file \\   \n";
+  rResult += "         [-all] \n\n";
   rResult += " file is either a file descriptor from the tcl open command\n";
   rResult += " or the path to a file containing the spectrum.\n\n";
   rResult += " fmtname is a formatter which can be any of: \n";
