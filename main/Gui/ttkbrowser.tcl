@@ -182,7 +182,8 @@ image create photo ::browser::foldericon   -format png \
 	    $tree column $colname -stretch 1 -anchor w -width 100
 	}
 	$tree heading #0 -text "Tree"
-        bind $tree <<TreeviewOpen>> [mymethod _openFolder]
+    bind $tree <<TreeviewOpen>> [mymethod _openFolder]
+    bind $tree <<TreeviewSelect>> [mymethod _openFolder]; # folders that are empty dont' get treeview open.
 	
 	# Force default configuration
 
@@ -257,7 +258,7 @@ image create photo ::browser::foldericon   -format png \
 	set topLevelIds [list]
 
 	# Stock only those in the -restrict list:
-
+        
         if {[lsearch -exact $options(-restrict) spectra] != -1} {
             $self fillSpectrumFolder
             
@@ -359,7 +360,6 @@ image create photo ::browser::foldericon   -format png \
         }
     
         # Fill in the spectrum tree:
-    
             $self fillSpectrumSubtree $spectrumFolder $spectrumList
 
     }
@@ -496,6 +496,7 @@ image create photo ::browser::foldericon   -format png \
     #                       remaining path name.
     #
     method fillSpectrumSubtree {id spectrumList} {
+        
         array set folders [list]; # Will hold folder nodes.
         array set terminals [list]; # Will hold terminal nodes.
     
@@ -517,7 +518,6 @@ image create photo ::browser::foldericon   -format png \
         }
             # remember the terminal nodes for this folder so that we can
             # populate them on a folder open:
-
         set spectrumTerminals($id) [array get terminals]
         return	
     }
@@ -1791,23 +1791,29 @@ image create photo ::browser::foldericon   -format png \
         
         # If a parameter, add parameter terminals:
         
+        
         if {[array names parameterTerminals $id] ne ""} {
-	# Create the parameter definitionsL
+	    # Create the parameter definitionsL
             array set terminal $parameterTerminals($id)
             foreach param [lsort [array names terminal]] {
                 $self addParameter $id $param $terminal($param)
             }
             array unset parameterTerminals $id
+            $tree item $id -open 1;     # show the terminals.
             return
         }
+        # Cretae spectrum defs.
+
         if {[array names spectrumTerminals $id] ne ""} {
             array set terminals $spectrumTerminals($id)
             foreach spectrum [lsort [array names terminals]] {
                 $self addSpectrum $id $terminals($spectrum)
             }
             array unset spectrumTerminals $id
+            $tree item $id -open 1;     # show the terminals.
             return
         }
+        #  Create variable defs.
         if {[array names variableTerminals $id] ne ""} {
             array set terminal $variableTerminals($id)
             foreach variable [lsort [array names terminal]] {
@@ -1816,6 +1822,8 @@ image create photo ::browser::foldericon   -format png \
                 $tree insert $id end -text $variable -image ::browser::varicon \
                     -values $valueList -tags variable
             }
+            array unset variableTerminals $id;    # No longer populate.
+            $tree item $id -open 1;     # show the terminals.
             
         }
         
