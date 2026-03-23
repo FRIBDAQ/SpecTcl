@@ -492,8 +492,7 @@ snit::widget spectrumGui {
 #      -cancelcommand
 #  methods:
 #      get    - Get the selected filename.
-#
-#
+#      getFormat - get the selected -format value.
 #
 snit::widget saveSpectrumDialog {
     hulltype toplevel
@@ -504,6 +503,7 @@ snit::widget saveSpectrumDialog {
 
     variable hidden {}
     variable filename ""
+    variable formats [list nsclascii json hdf5]
 
     constructor args {
 
@@ -514,13 +514,15 @@ snit::widget saveSpectrumDialog {
         browser $win.b  -restrict spectra -detail 0 -showcolumns {type}    \
                         -filterspectra  [mymethod spectrumFilter]           \
                         -spectrumscript [mymethod addSpectrum] -width 3in -treewidth 1.8in
+        ttk::combobox $win.format -values $formats
+        $win.format current 0
 
         frame $win.command          -borderwidth 3 -relief groove
         button $win.command.ok      -text Ok     -command [mymethod onOk]
         button $win.command.cancel  -text Cancel -command [mymethod onCancel]
         button $win.command.help    -text Help   -command [list spectclGuiDisplayHelpTopic savespectrum]
 
-        grid $win.b                   x                       x
+        grid $win.b                   x                       $win.format
         grid   ^                      $win.speclabel          x              -sticky s
         grid   ^                      $win.spectra            $win.scrollbar -sticky ns
 
@@ -547,26 +549,32 @@ snit::widget saveSpectrumDialog {
 
     # onOk
     #       Called when the Ok Button is clicked.
+    #       Note that the filetype used will depend on the format selected:
     #
     method onOk {} {
-	set filename [tk_getSaveFile -defaultextension .spec \
-			  -parent $win \
-			  -filetypes [list   \
-					  [list "Spectrum Files" .spec] \
-					  [list "All Files"       *]]]
-	if {$filename eq ""} {
-	    $self onCancel
-	} else {
-	    set script $options(-okcommand)
-	    if {$script != ""} {
-		eval $script
-	    }
-	    if {$hidden != ""} {
-		destroy $hidden
-		set hidden {}
-	    }
-	}
-
+        
+        set format [$self getFormat]
+        puts "Format: $format"
+        set ftypes(nsclascii)  [list "Spectrum Files" .spec]
+        set ftypes(json)       [list "JSon Files"     .json]
+        set ftypes(hdf5)       [list "HDF5 files"     .hdf]    
+        set filename [tk_getSaveFile -defaultextension .spec \
+                -parent $win \
+                -filetypes [list   \
+                        $ftypes($format)          \
+                        [list "All Files"       *]]]
+        if {$filename eq ""} {
+            $self onCancel
+        } else {
+            set script $options(-okcommand)
+            if {$script != ""} {
+            eval $script
+            }
+            if {$hidden != ""} {
+            destroy $hidden
+            set hidden {}
+            }
+        }
     }
     # onCancel
     #     Called when the cancel button is clicked.
@@ -589,7 +597,13 @@ snit::widget saveSpectrumDialog {
     # Return the selected filename.
     #
     method get {} {
-	return $filename
+	    return $filename
+    }
+    #
+    #  Return the selected format specification:
+    #
+    method getFormat {} {
+        return [$win.format get]
     }
     # spectrumFilter
     #         Works with the browser to ensure that only the unselected
@@ -655,12 +669,16 @@ snit::widget saveSpectrumDialog {
 #     -snapshot       bool true if want snapshots on by default.
 #     -replace        bool true if want replace on by default.
 #     -bind           bool true if want bind on by default.
+#     -all            Read all spectra from file (off by default).
 #     -okcommand
 #     -cancelcommand
+# Methods:
+#     getFormat - get the selected spectrum format.
 #
-#   In the absence of these switches; -snapshot is true, -replace false, and -bind true.
+#   In the absence of these switches; -snapshot is true, -replace false, and -bind true. -all false.
 #
 snit::widget readSpectrumDialog {
+    variable formats [list nsclascii json hdf5]
     hulltype toplevel
 
     option -snapshot  1
@@ -679,6 +697,10 @@ snit::widget readSpectrumDialog {
     constructor args {
         install filebox using ::iwidgets::fileselectionbox $win.fbox -mask *.spec
 
+        label $win.fmtlabel -text "Format:" 
+        ttk::combobox $win.format -values $formats
+        $win.format current 0
+
         checkbutton $win.snapshot -text {Snapshot}
         checkbutton $win.replace  -text {Replace existing spectra}
         checkbutton $win.bind     -text {Bind to display}
@@ -688,14 +710,15 @@ snit::widget readSpectrumDialog {
         button $win.command.cancel -text Cancel  -command [mymethod onCancel]
         button $win.command.help   -text Help    -command [list spectclGuiDisplayHelpTopic readspectrum]
 
-        grid $win.fbox               -                -
-        grid $win.snapshot           $win.replace     $win.bind
+        grid $win.fbox               -                -   
+        grid $win.fmtlabel           $win.format
+        grid $win.snapshot           $win.replace     $win.bind 
         pack $win.command.ok $win.command.cancel $win.command.help -side left
         grid $win.command            -                - -sticky ew
 
         # set default states of the checkboxes
 
-        $self configure -snapshot 1 -replace 0 -bind 1
+        $self configure -snapshot 1 -replace 0 -bind 1 
 
         $self configurelist $args
     }
@@ -758,6 +781,7 @@ snit::widget readSpectrumDialog {
     onconfigure -bind  value {
         SetCheckButton $win.bind $value
     }
+    
     #    Get value of the snapshot checkbutton.
     #
     oncget -snapshot {
@@ -773,12 +797,16 @@ snit::widget readSpectrumDialog {
     oncget -bind     {
         return [GetCheckButton $win.bind]
     }
+    
     # getFilter - get the filter mask:
     #
     method getFilter {} {
-	$filebox cget -mask
+	    $filebox cget -mask
     }
-
+    # Get the format value:
+    method getFormat {} {
+        return [$win.format get]
+    }
 
     proc SetCheckButton {widget value} {
         if {$value} {
@@ -1236,7 +1264,8 @@ proc saveSeveralSpectra {} {
                 set dir    [file dirname $filter]
                 set file   [file join $dir $file]
             }
-            if {[catch {eval swrite -format ascii [list $file] $spectra} msg]} {
+            set format [.savemany getFormat]
+            if {[catch {eval swrite -format $format [list $file] $spectra} msg]} {
                 tk_messageBox -icon error -title "Failed!" \
                     -message "Could not write [join $spectra {, }] to $file : $msg"
             }
@@ -1276,32 +1305,31 @@ proc readSpectrumFile {} {
         } else {
             lappend switches "-nobind"
         }
-
+        lappend switches -all  ; # read all was prior behavior.
+        catch {
         if {$file != ""} {
             if {[file dirname $file] == "."} {
                 set filter [.readmany getFilter]
                 set dir    [file dirname $filter]
                 set file   [file join $dir $file]
             }
-            if {[catch {open $file r} msg]} {
-                tk_messageBox -icon error -title {Open failed} \
-                    -message "Could not open file: $file : $msg"
-            } else {
-                set fd $msg
 
-                while {![eof $fd]} {
-                    if {[catch {eval sread -format ascii $switches $fd} msg]} {
-			if {![eof $fd]} {
-			    tk_messageBox -icon error -title "Spectrum file read failed"  \
-				-message "Failed to read a spectrum from $file: $msg"
-			    break
-			}
-		    }
-                }
+            set format [.readmany getFormat]
+
+            
+            if {[catch {eval sread -format $format $switches $file} msg ]}  {
+        
+                tk_messageBox -icon error -title "Spectrum file read failed"  \
+                -message "Failed to read a spectrum from $file: $msg"
+            
+    
             }
-        }
+        }} msg
+        puts $msg
+        puts $::errorInfo
         failsafeWrite
-	::FolderGui::updateBrowser
+        ::FolderGui::updateBrowser
         destroy .readmany
     }
 }
+ 
