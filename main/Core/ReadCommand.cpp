@@ -283,6 +283,7 @@ TCLPLUS::Int_t CReadCommand::operator()(CTCLInterpreter& rInterp, std::vector<CT
     // because of the newline after the end of the file....
 
     if ((status != TCL_OK) && pIn->eof()) {
+      status = TCL_OK;       // Actually an ok result.
       break;
     }
     Result += strResult;

@@ -1306,7 +1306,7 @@ proc readSpectrumFile {} {
             lappend switches "-nobind"
         }
         lappend switches -all  ; # read all was prior behavior.
-        catch {
+        
         if {$file != ""} {
             if {[file dirname $file] == "."} {
                 set filter [.readmany getFilter]
@@ -1324,7 +1324,7 @@ proc readSpectrumFile {} {
             
     
             }
-        }} msg
+        }
         puts $msg
         puts $::errorInfo
         failsafeWrite
