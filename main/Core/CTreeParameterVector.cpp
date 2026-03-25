@@ -196,6 +196,17 @@ CTreeParameterVector::setUnits(const char* units) {
     }
 }
 
+////////////////////////////// static methods ///////////////////////////////
+/**
+ * BeginEvent - empty the event vector for all CTreeParameterVectors.
+ */
+void
+CTreeParameterVector::BeginEvent() {
+    for (auto& p : m_baseNameMap) {
+        p.second->s_event.clear();
+    }
+}
+
 //////////////////////////// Utilities: //////////////////////////////////////
 
 
