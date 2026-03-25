@@ -1,6 +1,8 @@
 #include "CTreeParameterVector.h"
 #include "CTreeParameter.h"
 
+#include <sstream>
+
 /*
    This map has a basename -> info translation.
 */
@@ -11,7 +13,7 @@ static const double DEFAULT_LOW(0.0);
 static const double DEFAULT_HIGH(100.0);
 
 CTreeParameterVector::_TreeVectorInfo::_TreeVectorInfo() :
-    s_low(DEFAULT_LOW), s_high(DEFAULT_HIGH) {}
+    s_low(DEFAULT_LOW), s_high(DEFAULT_HIGH), s_units("") {}
 
 
 /**
@@ -34,12 +36,13 @@ m_baseName(basename), m_pInfo(nullptr)
  * @param name -base name for parameters.
  * @param low  - low limit.
  * @param high - high lmit.
+ * @param units - (optional) units of measure
  * 
  */
-CTreeParameterVector::CTreeParameterVector(const char* basename, double low, double high) : 
+CTreeParameterVector::CTreeParameterVector(const char* basename, double low, double high, const char* units) : 
 m_baseName(basename), m_pInfo(nullptr)
 {
-    m_pInfo = getInfoBlock(basename, low, high);
+    m_pInfo = getInfoBlock(basename, low, high, units);
 }
 
 /**
@@ -84,6 +87,35 @@ CTreeParameterVector::operator!=(const CTreeParameterVector& rhs) const {
  */
 CTreeParameterVector::~CTreeParameterVector() {}
 
+/**
+ * operator[]
+ *    Returns a reference to the tree parameter for this event picked off by index
+ * @param index - which one to return.
+ * @return CTreeParameter& the one seleted.
+ * @throw std::out_of_range if index does not (yet?) refer to an element of the event vector.
+ */
+CTreeParameter&
+CTreeParameterVector::operator[](size_t index) {
+    CTreeParameter* p = m_pInfo->s_event.at(index);   //can throw.
+
+    return *p;
+}
+/**
+ * push_back
+ *    adds a tree paramter to the event with the specified value. 
+ * If possible, the tree parameter is gotten from the s_createdParameters vector.
+ * If not  a new one is created.
+ * @param value - value given tot he parameter.
+ * @return CTreeParameter& referene to the tree parameter that was added to the event.
+ */
+CTreeParameter&
+CTreeParameterVector::push_back(double value) {
+    CTreeParameter* p = createEventParameter();
+    *p = value;
+    return *p;
+}
+
+
 //////////////////////////// Utilities: //////////////////////////////////////
 
 
@@ -113,13 +145,70 @@ CTreeParameterVector::getInfoBlock(const char* name) {
  * @param name - base name of the parameter.
  * @param low  - low limit.
  * @param high - high limit.
+ * @param units - units of measure.
  * @return pTreeVectorInfo
  */
 CTreeParameterVector::pTreeVectorInfo
-CTreeParameterVector::getInfoBlock(const char* name, double low, double high) {
+CTreeParameterVector::getInfoBlock(const char* name, double low, double high, const char* units) {
     pTreeVectorInfo p = getInfoBlock(name);
     p->s_low  = low;
     p->s_high = high;
-
+    p->s_units = units;
     return p;
+}
+
+/** 
+ * createEventParameter
+ * 
+ *    Adds a parameter to the event parameter, if possible it's gotten from the created one.
+ * If not, it's created.
+ * 
+ * @return CTreeParameter* - pointer to the paramter, that has been added to the end of s_event
+ */
+CTreeParameter*
+CTreeParameterVector::createEventParameter() {
+    // can we use a pre-created one:
+
+    CTreeParameter* p(nullptr);
+    if (m_pInfo->s_event.size() >= m_pInfo->s_createdParameters.size()) {
+        // need a new one:
+
+        p = createParameter();
+    } else {
+        p = m_pInfo->s_createdParameters[m_pInfo->s_event.size()];  // use pre-existing.
+    }
+    m_pInfo->s_event.push_back(p);
+    return p;
+}
+
+/**
+ * createParameter
+ *    Create a new parameter and add it to the s_createdParameters block.
+ *  A pointer to the parameter is returned.
+ */
+CTreeParameter*
+CTreeParameterVector::createParameter() {
+    std::string name = nextName();
+    CTreeParameter* result  = 
+        new CTreeParameter(
+            name, m_pInfo->s_low, m_pInfo->s_high, m_pInfo->s_units
+        );
+    m_pInfo->s_createdParameters.push_back(result);
+
+    return result;
+}
+
+/**
+ * nextName
+ *    Compute the next parameter name.
+ * @return std::string
+ */
+std::string
+CTreeParameterVector::nextName() const {
+    std::stringstream sname;
+    sname << m_baseName << '(' << m_pInfo->s_createdParameters.size() << ')';
+
+    std::string result = sname.str();
+
+    return result;
 }
