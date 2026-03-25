@@ -115,6 +115,86 @@ CTreeParameterVector::push_back(double value) {
     return *p;
 }
 
+/**
+ * size - return size of the event vector.
+ */
+size_t
+CTreeParameterVector::size() const {
+    return m_pInfo->s_event.size();
+}
+/**
+ * allocation - return the number of parameters that have been created.
+ */
+size_t
+CTreeParameterVector::allocation() const {
+    return m_pInfo->s_createdParameters.size();
+}
+
+/**
+ * reset
+ *    Reset the event vector to empty.  The parameters continue to exist.
+ */
+void
+CTreeParameterVector::reset()  {
+    m_pInfo->s_event.clear();    // The tree parameters get reset by SpecTcl.
+}
+
+/**
+ * low - return the low limit.
+ */
+double
+CTreeParameterVector::low() const {
+     return m_pInfo->s_low;
+}
+/**
+ * high - return the high limit
+ */
+double
+CTreeParameterVector::high() const{
+    return m_pInfo->s_high;
+}
+/**
+ * units - return the units
+ */
+std::string
+CTreeParameterVector::units() const {
+    return m_pInfo->s_units;
+}
+
+/**
+ * setLow - set the low limit
+ * 
+ * @param low - the new low limit 
+ */
+void
+CTreeParameterVector::setLow(double low) {
+    m_pInfo->s_low = low;    // Set for new ones
+    for (auto p : m_pInfo->s_createdParameters) { // set for created ones:
+        p->setStart(low);
+    }
+}
+/**
+ *  setHigh - set the high limit.
+ * @param high - the high limit.
+ */
+void
+CTreeParameterVector::setHigh(double high) {
+    m_pInfo->s_high = high;
+    for (auto p : m_pInfo->s_createdParameters) {
+        p->setStop(high);
+    }
+}
+/**
+ * setUnits
+ *   @param units - new units of measure.
+ */
+void
+CTreeParameterVector::setUnits(const char* units) {
+    m_pInfo->s_units = units;
+    for (auto p : m_pInfo->s_createdParameters) {
+        p->setUnit(units);
+    }
+}
 
 //////////////////////////// Utilities: //////////////////////////////////////
 
@@ -193,6 +273,7 @@ CTreeParameterVector::createParameter() {
         new CTreeParameter(
             name, m_pInfo->s_low, m_pInfo->s_high, m_pInfo->s_units
         );
+    result->Bind();   // Bind to parameter array element.
     m_pInfo->s_createdParameters.push_back(result);
 
     return result;

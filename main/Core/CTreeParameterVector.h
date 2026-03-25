@@ -86,14 +86,16 @@ public:
     size_t size() const;                        //!< Number of elements this event.
     size_t allocation() const;                  //!< number of defined tree parameters.
     
-    void Reset();                               //!< Resets the event vector -> empty.
+    void reset();                               //!< Resets the event vector -> empty.
 
     // characteriestics
 
     double low() const;
     double high() const;
-    void setLow(UInt_t low);
-    void setHigh(UInt_t high);
+    std::string units() const;
+    void setLow(double low);
+    void setHigh(double high);
+    void setUnits(const char* units);
 
 
     static void BeginEvent();                   //!< Resets all event vectors -> empty.
