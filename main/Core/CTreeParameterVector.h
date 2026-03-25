@@ -27,20 +27,9 @@
 
  class CTreeParameter;
  
- static const UInt_t DEFAULT_LOW(0);
- static const UInt_t DEFAULT_HIGH(100);
+ 
 
- /**
-  * this struct is shared across all CTreeParmeterVectors with the same basename.
-  */
-typedef struct _TreeVectorInfo {
-    UInt_t s_low;                         // Low limit.
-    UInt_t s_high;                        // High limit.
-    std::vector<CTreeParameter*>  s_createdParameters;   // Parameter's we've created.
-    std::vector<CTreeParameter*>  s_event;               // Parameters in this event.
-} TreeVectorInfo, *pTreeVectorInfo;
-
-
+ 
 
  /**
   * @class CTreeParameterVector
@@ -59,6 +48,19 @@ typedef struct _TreeVectorInfo {
 
  class CTreeParameterVector {
 private:
+   /**
+     * this struct is shared across all CTreeParmeterVectors with the same basename.
+     */
+    typedef struct _TreeVectorInfo {
+        double s_low;                         // Low limit.
+        double s_high;                        // High limit.
+        std::vector<CTreeParameter*>  s_createdParameters;   // Parameter's we've created.
+        std::vector<CTreeParameter*>  s_event;               // Parameters in this event.
+        _TreeVectorInfo();
+    } TreeVectorInfo, *pTreeVectorInfo;
+
+
+private:
     static std::map<std::string, pTreeVectorInfo> m_baseNameMap; // Map of all infos.
 
     pTreeVectorInfo m_pInfo;       // My info.
@@ -67,7 +69,7 @@ public:
     // Canonicals:
 
     CTreeParameterVector(const char* basename);
-    CTreeParameterVector(const char* basename, UInt_t low, UInt_t high);
+    CTreeParameterVector(const char* basename, double low, double high);
     CTreeParameterVector(const CTreeParameterVector& rhs);    // Can copy construct.
     CTreeParameterVector operator=(const CTreeParameterVector& rhs); // can assign.
     int operator==(const CTreeParameterVector& rhs) const;  // equal names.
@@ -85,7 +87,20 @@ public:
     
     void Reset();                               //!< Resets the event vector -> empty.
 
+    // Modifier:
+
+    void setLow(UInt_t low);
+    void setHigh(UInt_t high);
+
     static void BeginEvent();                   //!< Resets all event vectors -> empty.
+
+    // Uitility methods.
+private:
+    // You might wonder why not just default high/low in the first method.  The answer
+    // is that I want to allow finding the parameter block and _not_ overriding
+    // the limits if it already exists.
+    pTreeVectorInfo getInfoBlock(const char* name);
+    pTreeVectorInfo getInfoBlock(const char* name, double low, double high);
  };
 
 #endif
