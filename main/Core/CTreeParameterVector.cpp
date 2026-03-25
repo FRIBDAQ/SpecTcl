@@ -13,7 +13,78 @@ static const double DEFAULT_HIGH(100.0);
 CTreeParameterVector::_TreeVectorInfo::_TreeVectorInfo() :
     s_low(DEFAULT_LOW), s_high(DEFAULT_HIGH) {}
 
-/////////////////////////////// Utilities: //////////////////////////////////////
+
+/**
+ * constructor 
+ *    This constructor won't modify the limits of an existing
+ * info block for it.
+ * 
+ * @param name - the base name of the parameters this vector will create.
+ */
+CTreeParameterVector::CTreeParameterVector(const char* basename) : 
+m_baseName(basename), m_pInfo(nullptr)
+{
+    m_pInfo = getInfoBlock(basename);
+}
+/**
+ *  construtor
+ *     This constructor will unconditionally set the limits of the
+ * info block it gets (even if it's pre-existing).
+ * 
+ * @param name -base name for parameters.
+ * @param low  - low limit.
+ * @param high - high lmit.
+ * 
+ */
+CTreeParameterVector::CTreeParameterVector(const char* basename, double low, double high) : 
+m_baseName(basename), m_pInfo(nullptr)
+{
+    m_pInfo = getInfoBlock(basename, low, high);
+}
+
+/**
+ * copy constructor:
+ */
+CTreeParameterVector::CTreeParameterVector(const CTreeParameterVector& rhs) :
+    m_baseName(rhs.m_baseName), m_pInfo(rhs.m_pInfo) {}
+
+/**
+ *  assignment:
+ * 
+ */
+CTreeParameterVector&
+CTreeParameterVector::operator=(const CTreeParameterVector& rhs) {
+    if (this != &rhs) {
+        m_baseName = rhs.m_baseName;
+        m_pInfo    = rhs.m_pInfo;
+    }
+    return *this;
+}
+
+/**
+ * equality compare - comparing the names is sufficient
+ *
+ */
+int 
+CTreeParameterVector::operator==(const CTreeParameterVector& rhs) const {
+    return m_baseName == rhs.m_baseName;
+}
+/**
+ *  inequality compare
+ */
+int
+CTreeParameterVector::operator!=(const CTreeParameterVector& rhs) const {
+    return !operator==(rhs);
+}
+
+/**
+ *  destructor
+ *     for now no-op.
+ * 
+ */
+CTreeParameterVector::~CTreeParameterVector() {}
+
+//////////////////////////// Utilities: //////////////////////////////////////
 
 
 /**

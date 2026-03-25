@@ -71,7 +71,7 @@ public:
     CTreeParameterVector(const char* basename);
     CTreeParameterVector(const char* basename, double low, double high);
     CTreeParameterVector(const CTreeParameterVector& rhs);    // Can copy construct.
-    CTreeParameterVector operator=(const CTreeParameterVector& rhs); // can assign.
+    CTreeParameterVector& operator=(const CTreeParameterVector& rhs); // can assign.
     int operator==(const CTreeParameterVector& rhs) const;  // equal names.
     int operator!=(const CTreeParameterVector& rhs) const;  // not equal names.
 
@@ -87,10 +87,13 @@ public:
     
     void Reset();                               //!< Resets the event vector -> empty.
 
-    // Modifier:
+    // characteriestics
 
+    double low() const;
+    double high() const;
     void setLow(UInt_t low);
     void setHigh(UInt_t high);
+
 
     static void BeginEvent();                   //!< Resets all event vectors -> empty.
 
@@ -101,6 +104,9 @@ private:
     // the limits if it already exists.
     pTreeVectorInfo getInfoBlock(const char* name);
     pTreeVectorInfo getInfoBlock(const char* name, double low, double high);
+    
+    CTreeParameter   createEventParameter();
+    CTreeParameter*  createParameter();
  };
 
 #endif
