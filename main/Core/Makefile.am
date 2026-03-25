@@ -325,6 +325,7 @@ TreeParam_SRC = CMatchingVisitor.cpp \
 	CTreeException.cpp \
 	CTreeParameter.cpp \
 	CTreeParameterArray.cpp \
+	CTreeParameterVector.cpp \
 	CTreeParameterCommand.cpp \
 	CTreeVariable.cpp \
 	CTreeVariableArray.cpp \
@@ -343,6 +344,7 @@ TreeParam_INCLUDES =  BindVisitor.h \
 	CTreeException.h \
 	CTreeParameter.h \
 	CTreeParameterArray.h \
+	CTreeParameterVector.h \
 	CTreeParameterCommand.h \
 	CTreeVariable.h \
 	CTreeVariableArray.h \
