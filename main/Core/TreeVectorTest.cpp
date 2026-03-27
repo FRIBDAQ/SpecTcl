@@ -46,6 +46,11 @@ class TreeVectorTests : public CppUnit::TestFixture {
 
     CPPUNIT_TEST(assign_1);
     CPPUNIT_TEST(assign_2);
+
+    CPPUNIT_TEST(eq_1);        // Comparisons ==
+    CPPUNIT_TEST(eq_2);
+    CPPUNIT_TEST(ne_1);        // !=
+    CPPUNIT_TEST(ne_2); 
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -71,6 +76,11 @@ protected:
 
   void assign_1();
   void assign_2();
+
+  void eq_1();
+  void eq_2();
+  void ne_1();
+  void ne_2();
 public:
   void setUp() {
   }
@@ -308,4 +318,38 @@ void TreeVectorTests::assign_2() {
 
     EQ(expected, v.m_pInfo);
     EQ(&v, &r);
+}
+
+void TreeVectorTests::eq_1() {
+    // Test for equality when they are:
+
+    CTreeParameterVector v1("test", 0.0, 360.0, "degrees");
+    CTreeParameterVector v2("test");
+
+    ASSERT(v1 == v2);
+}
+void TreeVectorTests::eq_2() {
+    // test for equality when they're not:
+
+    CTreeParameterVector v1("test1");
+    CTreeParameterVector v2("test2");
+
+    ASSERT(!(v1 == v2));
+}
+
+void TreeVectorTests::ne_1() {
+    // inequality when they are equal:
+
+    CTreeParameterVector v1("test", 0.0, 360.0, "degrees");
+    CTreeParameterVector v2("test");
+
+    ASSERT(!(v1 != v2));
+}
+void TreeVectorTests::ne_2() {
+    // inequality when they're not equal:
+
+    CTreeParameterVector v1("test1");
+    CTreeParameterVector v2("test2");
+
+    ASSERT(v1 != v2);
 }
