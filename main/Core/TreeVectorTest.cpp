@@ -51,6 +51,8 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(eq_2);
     CPPUNIT_TEST(ne_1);        // !=
     CPPUNIT_TEST(ne_2); 
+
+    CPPUNIT_TEST(push_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -81,6 +83,8 @@ protected:
   void eq_2();
   void ne_1();
   void ne_2();
+
+  void push_1();
 public:
   void setUp() {
   }
@@ -352,4 +356,26 @@ void TreeVectorTests::ne_2() {
     CTreeParameterVector v2("test2");
 
     ASSERT(v1 != v2);
+}
+// pushing values works:
+
+void TreeVectorTests::push_1() {
+    CEvent event;
+    CTreeParameter::setEvent(event);
+
+    CTreeParameterVector v("test");
+    CTreeParameter& r(v.push_back(3.1416));
+
+    // Ok so we made "test(0)" both in the created events active
+    // parameters nd test(0) has the value 3.1416.
+    // r References that tree parameter too.
+
+    EQ(size_t(1), v.m_pInfo->s_createdParameters.size());
+    EQ(size_t(1), v.m_pInfo->s_event.size());
+
+    CTreeParameter* p(v.m_pInfo->s_event[0]);
+    EQ(p, &r);
+    EQ(std::string("test(0)"), r.getName());
+    EQ(double(3.1416), double(r));
+
 }
