@@ -405,3 +405,19 @@ CTreeParameterVector::nextName() const {
 
     return result;
 }
+
+/**
+ * Unit esting requires that we be able to get rid of tree parameter vectors and the
+ * tree paramters they created.  This is private so normal people can't do this without
+ * the tricks we played.
+ */
+void
+CTreeParameterVector::ClearMap() {
+    for (auto& info : m_baseNameMap) {
+        for (auto t : info.second->s_createdParameters) { // Delete the tree params..
+            delete t; 
+        }
+        delete info.second;                               // delete the info block.
+    }
+    m_baseNameMap.clear();                                // clear map entries.
+}

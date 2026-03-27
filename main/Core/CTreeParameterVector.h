@@ -130,6 +130,10 @@ private:
     CTreeParameter*  createEventParameter();
     CTreeParameter*  createParameter();
     std::string      nextName() const;
+
+    // for testing:
+
+    static void ClearMap();
  };
 
 #endif
