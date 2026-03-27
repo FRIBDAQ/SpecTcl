@@ -66,6 +66,11 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(info_2);   // high
     CPPUNIT_TEST(info_3);   // units
     CPPUNIT_TEST(info_4);   // (base)name
+
+    CPPUNIT_TEST(setinfo_1);   // low
+    CPPUNIT_TEST(setinfo_2);   // high
+    CPPUNIT_TEST(setinfo_3);   // units
+
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -112,6 +117,10 @@ protected:
   void info_2();
   void info_3();
   void info_4();
+
+  void setinfo_1();
+  void setinfo_2();
+  void setinfo_3();
 public:
   void setUp() {
   }
@@ -523,4 +532,49 @@ void TreeVectorTests::info_3() {
 void TreeVectorTests::info_4() {
     CTreeParameterVector v("test", -1.0, 1.0, "mm");
     EQ(std::string("test"), v.name());
+}
+
+// Info setters must set not only the info block
+// but any existing parameters:
+
+void TreeVectorTests::setinfo_1() {
+    CTreeParameterVector v("test");   
+    for (int i = 0; i < 10; i++) {
+        v.createParameter();          // adds to created parameters.
+    }
+
+    v.setLow(-10.0);
+    EQ(double(-10.0), v.low());
+
+    for (auto p : v.m_pInfo->s_createdParameters) {
+        EQ(double(-10.0), p->getStart());
+    }
+}
+
+void TreeVectorTests::setinfo_2() {
+    CTreeParameterVector v("test");   
+    for (int i = 0; i < 10; i++) {
+        v.createParameter();          // adds to created parameters.
+    }
+
+    v.setHigh(10.0);
+    EQ(double(10.0), v.high());
+
+    for (auto p : v.m_pInfo->s_createdParameters) {
+        EQ(double(10.0), p->getStop());
+    }
+}
+
+void TreeVectorTests::setinfo_3() {
+    CTreeParameterVector v("test");   
+    for (int i = 0; i < 10; i++) {
+        v.createParameter();          // adds to created parameters.
+    }
+
+    v.setUnits("cm");
+    EQ(std::string("cm"), v.units());
+
+    for (auto p : v.m_pInfo->s_createdParameters) {
+        EQ(std::string("cm"), p->getUnit());
+    }
 }
