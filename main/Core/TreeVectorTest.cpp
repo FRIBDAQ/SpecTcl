@@ -43,6 +43,9 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(construct_3);
     CPPUNIT_TEST(construct_4);
     CPPUNIT_TEST(construct_5);  // Copy construction.
+
+    CPPUNIT_TEST(assign_1);
+    CPPUNIT_TEST(assign_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -65,6 +68,9 @@ protected:
   void construct_3();
   void construct_4();
   void construct_5();
+
+  void assign_1();
+  void assign_2();
 public:
   void setUp() {
   }
@@ -277,4 +283,29 @@ void TreeVectorTests::construct_5() {
     EQ(double(1.0), v2.m_pInfo->s_high);
     EQ(std::string("mm"), v2.m_pInfo->s_units);
     EQ(v1.m_baseName, v2.m_baseName);
+}
+
+void TreeVectorTests::assign_1() {
+    // Assignment from other creates a duplicate but shares the info.
+    CTreeParameterVector v1("test");
+    CTreeParameterVector v2("rhs", 0.0, 360.0, "degrees");
+
+
+    CTreeParameterVector& r(v1 = v2);   // NOte the info block and created params are still there..
+
+    EQ(v1.m_pInfo, v2.m_pInfo);
+    EQ(&v1, &r);                        // COrrect reference.
+
+    EQ(size_t(2), CTreeParameterVector::m_baseNameMap.size());   // both are still there ...
+}
+void TreeVectorTests::assign_2() {
+    // Self assign is ok.
+
+    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    auto expected = v.m_pInfo;
+
+    CTreeParameterVector& r(v = v);
+
+    EQ(expected, v.m_pInfo);
+    EQ(&v, &r);
 }
