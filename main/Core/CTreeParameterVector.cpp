@@ -216,6 +216,32 @@ CTreeParameterVector::BeginEvent() {
     }
 }
 
+/**
+ * begin - begin iterator for the tree parameter name -> properties map.
+ * 
+ * @return std::map<std::string, CTreeParameterVector::pTreeVectorInfo>::iterator
+ */
+std::map<std::string, CTreeParameterVector::pTreeVectorInfo>::iterator 
+CTreeParameterVector::begin() {
+    return m_baseNameMap.begin();
+}
+
+/**
+ *  end - end iterator for the tree parameter name -> properties map.
+ * 
+ * @return std::map<std::string, CTreeParameterVector::pTreeVectorInfo>::iterator
+ */
+std::map<std::string, CTreeParameterVector::pTreeVectorInfo>::iterator 
+CTreeParameterVector::end() {
+    return m_baseNameMap.end();
+}
+/**
+ * @return size_t - number of distinct tree parameter vectors.
+ */
+size_t
+CTreeParameterVector::numVectors() {
+    return m_baseNameMap.size();
+}
 //////////////////////////// Utilities: //////////////////////////////////////
 
 

@@ -47,7 +47,7 @@
   */
 
  class CTreeParameterVector {
-private:
+public:
    /**
      * this struct is shared across all CTreeParmeterVectors with the same basename.
      */
@@ -100,6 +100,9 @@ public:
 
 
     static void BeginEvent();                   //!< Resets all event vectors -> empty.
+    static std::map<std::string, pTreeVectorInfo>::iterator begin();
+    static std::map<std::string, pTreeVectorInfo>::iterator end();
+    static size_t numVectors();
 
     // Uitility methods.
 private:
