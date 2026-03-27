@@ -195,7 +195,16 @@ CTreeParameterVector::setUnits(const char* units) {
         p->setUnit(units);
     }
 }
-
+/**
+ *  name 
+ *    Get the basename.
+ * 
+ * @return std::string
+ */
+std::string
+CTreeParameterVector::name() const {
+    return m_baseName;
+}
 ////////////////////////////// static methods ///////////////////////////////
 /**
  * BeginEvent - empty the event vector for all CTreeParameterVectors.

@@ -96,6 +96,7 @@ public:
     void setLow(double low);
     void setHigh(double high);
     void setUnits(const char* units);
+    std::string name() const;
 
 
     static void BeginEvent();                   //!< Resets all event vectors -> empty.
