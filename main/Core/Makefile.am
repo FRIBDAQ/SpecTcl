@@ -533,7 +533,8 @@ treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreePara
 	SetAllVTest.cpp    TestSuite.cpp             TreeVariableCommandTests.cpp \
 	SetChansTest.cpp   TreeExceptionTest.cpp     TreeVariablePropertyTests.cpp \
 	SetLimitsTest.cpp  TreeParamArrayTest.cpp    TreeVariableTests.cpp \
-	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp  CMetadata.cpp \
+	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp \
+	testStubs.cpp  CMetadata.cpp TreeVectorTest.cpp \
 	TreeTestSupport.h
 
 
