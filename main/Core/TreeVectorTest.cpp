@@ -72,6 +72,9 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(setinfo_3);   // units
 
     CPPUNIT_TEST(beginevent_1);
+
+    CPPUNIT_TEST(iter_1);
+    CPPUNIT_TEST(iter_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -124,6 +127,9 @@ protected:
   void setinfo_3();
 
   void beginevent_1();
+
+  void iter_1();
+  void iter_2();
 public:
   void setUp() {
   }
@@ -604,4 +610,26 @@ void TreeVectorTests::beginevent_1() {
     EQ(size_t(0), v1.m_pInfo->s_event.size());
     EQ(size_t(0), v2.m_pInfo->s_event.size());
     EQ(size_t(0), v3.m_pInfo->s_event.size());
+}
+
+void TreeVectorTests::iter_1() {
+    // initially, begin == end.
+
+    ASSERT(CTreeParameterVector::begin() == CTreeParameterVector::end());
+}
+void TreeVectorTests::iter_2() {
+    // When there are vetors we'll have the correct # of iterztions
+
+    CTreeParameterVector v1("t1");
+    CTreeParameterVector v2("t2");
+    CTreeParameterVector v3("t3");
+    int i(0);
+
+    auto p = CTreeParameterVector::begin();
+    while (p != CTreeParameterVector::end()) {
+        ++p;
+        i++;
+    }
+
+    EQ(3, i);
 }
