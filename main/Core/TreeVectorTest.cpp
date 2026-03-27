@@ -71,6 +71,7 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(setinfo_2);   // high
     CPPUNIT_TEST(setinfo_3);   // units
 
+    CPPUNIT_TEST(beginevent_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -121,6 +122,8 @@ protected:
   void setinfo_1();
   void setinfo_2();
   void setinfo_3();
+
+  void beginevent_1();
 public:
   void setUp() {
   }
@@ -577,4 +580,28 @@ void TreeVectorTests::setinfo_3() {
     for (auto p : v.m_pInfo->s_createdParameters) {
         EQ(std::string("cm"), p->getUnit());
     }
+}
+
+void TreeVectorTests::beginevent_1() {
+    // BeginEvent resets all event vectors:
+
+    CEvent event;
+    CTreeParameter::setEvent(event);
+
+
+    CTreeParameterVector v1("t1");
+    CTreeParameterVector v2("t2");
+    CTreeParameterVector v3("t3");
+
+    for (int i =0; i < 10; i++) {
+        v1.push_back(i);
+        v2.push_back(2*i);
+        v3.push_back(3*i);
+    }
+
+    CTreeParameterVector::BeginEvent();
+
+    EQ(size_t(0), v1.m_pInfo->s_event.size());
+    EQ(size_t(0), v2.m_pInfo->s_event.size());
+    EQ(size_t(0), v3.m_pInfo->s_event.size());
 }
