@@ -37,6 +37,12 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(getinfo_2);
     CPPUNIT_TEST(getinfo_3);
     CPPUNIT_TEST(getinfo_4);
+
+    CPPUNIT_TEST(construct_1);
+    CPPUNIT_TEST(construct_2);
+    CPPUNIT_TEST(construct_3);
+    CPPUNIT_TEST(construct_4);
+    CPPUNIT_TEST(construct_5);  // Copy construction.
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -53,6 +59,12 @@ protected:
   void getinfo_2();
   void getinfo_3();
   void getinfo_4();
+
+  void construct_1();
+  void construct_2();
+  void construct_3();
+  void construct_4();
+  void construct_5();
 public:
   void setUp() {
   }
@@ -207,4 +219,62 @@ void TreeVectorTests::getinfo_4() {
 
     EQ(size_t(1), CTreeParameterVector::m_baseNameMap.size());
 
+}
+
+void TreeVectorTests::construct_1() {
+    // construct no such with  low, high, units set
+
+    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    ASSERT(v.m_pInfo);    // There is an info block....
+    EQ(double(-1.0), v.m_pInfo->s_low);
+    EQ(double(1.0), v.m_pInfo->s_high);
+    EQ(std::string("mm"), v.m_pInfo->s_units);
+
+    // Alreday tested the getInfBlock enters into the dict.
+}
+void TreeVectorTests::construct_2() {
+    //Construct with defaults
+
+
+    CTreeParameterVector v("test");
+    ASSERT(v.m_pInfo);    // There is an info block....
+    EQ(double(0), v.m_pInfo->s_low);
+    EQ(double(100.0), v.m_pInfo->s_high);
+    EQ(std::string(""), v.m_pInfo->s_units);
+}
+void TreeVectorTests::construct_3() {
+    // Default won't override the existing:
+
+    CTreeParameterVector v1("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v2("test");
+
+    EQ(v1.m_pInfo, v2.m_pInfo);
+    EQ(double(-1.0), v2.m_pInfo->s_low);
+    EQ(double(1.0), v2.m_pInfo->s_high);
+    EQ(std::string("mm"), v2.m_pInfo->s_units);
+
+}
+void TreeVectorTests::construct_4() {
+    //  parameterized constructor can override existing def:
+
+    CTreeParameterVector v1("test");
+    CTreeParameterVector v2("test", -1.0, 1.0, "mm");
+    
+    EQ(v1.m_pInfo, v2.m_pInfo);
+    EQ(double(-1.0), v2.m_pInfo->s_low);
+    EQ(double(1.0), v2.m_pInfo->s_high);
+    EQ(std::string("mm"), v2.m_pInfo->s_units);
+}
+
+void TreeVectorTests::construct_5() {
+    // Copy construction:
+
+    CTreeParameterVector v1("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v2(v1);
+
+    EQ(v1.m_pInfo, v2.m_pInfo);
+    EQ(double(-1.0), v2.m_pInfo->s_low);
+    EQ(double(1.0), v2.m_pInfo->s_high);
+    EQ(std::string("mm"), v2.m_pInfo->s_units);
+    EQ(v1.m_baseName, v2.m_baseName);
 }
