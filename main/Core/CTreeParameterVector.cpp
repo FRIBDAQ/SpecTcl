@@ -242,6 +242,26 @@ size_t
 CTreeParameterVector::numVectors() {
     return m_baseNameMap.size();
 }
+/**
+ * find
+ *    Construct a CTreeParamterVector for an existing parameter basename.
+ * 
+ * @param name - the base name.
+ * @return CTreeParameterVector - the vector.
+ * @throw NoSuchVectorException - if the name is not an existing vector.
+ */
+CTreeParameterVector
+CTreeParameterVector::find(const char* name) {
+    std::string sName;
+    auto p = m_baseNameMap.find(sName);
+    if (p != end()) {
+        // found:
+
+        return CTreeParameterVector(name);   // Binds to the same info block.
+    } else {
+        throw NoSuchVectorException(name);   // Does not exist.
+    }
+}
 
 //////////////////////////// Implement the exception class for find:
 
