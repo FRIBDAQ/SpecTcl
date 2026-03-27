@@ -257,7 +257,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	BindTraceSingleton.cpp BindTraceSingleton.h \
 	VX2750EventBuiltEventProcessor.cpp VX2750ModuleUnpacker.cpp \
 	VX2750EventProcessor.cpp RingItemPump.cpp GatePump.cpp \
-	CCommandAlias.cpp
+	CCommandAlias.cpp CTreeVecCommand.cpp
 
 # TapeCommand.h removed
 
@@ -281,7 +281,7 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	CAENParameterMap.h CAENEventProcessor.h \
 	VX2750EventBuiltEventProcessor.h VX2750EventProcessor.h \
 	VX2750ModuleUnpacker.h RingItemPump.h GatePump.h \
-	CCommandAlias.h
+	CCommandAlias.h  CTreeVecCommand.h
 
 
 
