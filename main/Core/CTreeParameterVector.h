@@ -24,6 +24,7 @@
  #include <map>
  #include <string>
  #include <histotypes.h>
+ #include <stdexcept>
 
  class CTreeParameter;
  
@@ -60,7 +61,20 @@ public:
         _TreeVectorInfo();
     } TreeVectorInfo, *pTreeVectorInfo;
 
+    // Thrown from find.
+    class NoSuchVectorException : std::exception {
+    private:
+        std::string m_message;
+        NoSuchVectorException() {}          // For copy constuction.
+    public:
+        NoSuchVectorException(const std::string& name);
+        NoSuchVectorException(const char* name);
+        NoSuchVectorException(const NoSuchVectorException& other);
+        NoSuchVectorException& operator=(const NoSuchVectorException& rhs);
+        virtual ~NoSuchVectorException();
 
+        virtual const char* what() const noexcept;
+    };
 private:
     static std::map<std::string, pTreeVectorInfo> m_baseNameMap; // Map of all infos.
 
@@ -103,6 +117,7 @@ public:
     static std::map<std::string, pTreeVectorInfo>::iterator begin();
     static std::map<std::string, pTreeVectorInfo>::iterator end();
     static size_t numVectors();
+    static CTreeParameterVector find(const char* name);
 
     // Uitility methods.
 private:

@@ -242,6 +242,52 @@ size_t
 CTreeParameterVector::numVectors() {
     return m_baseNameMap.size();
 }
+
+//////////////////////////// Implement the exception class for find:
+
+/**
+ * constructor 
+ *   @param name - name of the item not found.
+ */
+CTreeParameterVector::NoSuchVectorException::NoSuchVectorException(const std::string& name) :
+    NoSuchVectorException(name.c_str())
+{
+    
+}
+CTreeParameterVector::NoSuchVectorException::NoSuchVectorException(const char* name) {
+    std::stringstream smsg;
+    smsg << "There is no vector parameter with the base name " << name;
+    m_message = smsg.str();
+}
+/** Copy constructor */
+
+CTreeParameterVector::NoSuchVectorException::NoSuchVectorException(const NoSuchVectorException& other) :
+    m_message(other.m_message) {}
+
+/**
+ * Assignment:
+ */
+CTreeParameterVector::NoSuchVectorException&
+CTreeParameterVector::NoSuchVectorException::operator=(const NoSuchVectorException& rhs) {
+    if (&rhs != this) {
+        m_message = rhs.m_message;
+    }
+    return *this;
+}
+
+/**
+ *  destructor.
+ */
+CTreeParameterVector::NoSuchVectorException::~NoSuchVectorException() {}
+
+/** 
+ * what()
+ */
+const char*
+CTreeParameterVector::NoSuchVectorException::what() const noexcept {
+    return m_message.c_str();
+}
+
 //////////////////////////// Utilities: //////////////////////////////////////
 
 
