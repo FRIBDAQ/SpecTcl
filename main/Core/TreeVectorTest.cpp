@@ -77,6 +77,9 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(iter_2);
 
     CPPUNIT_TEST(numvec_1);
+
+    CPPUNIT_TEST(find_1);
+    CPPUNIT_TEST(find_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -134,6 +137,9 @@ protected:
   void iter_2();
 
   void numvec_1();
+
+  void find_1();
+  void find_2();
 public:
   void setUp() {
   }
@@ -644,4 +650,29 @@ void TreeVectorTests::numvec_1() {
     CTreeParameterVector v3("t3");
 
     EQ(size_t(3), CTreeParameterVector::numVectors());
+}
+
+void TreeVectorTests::find_1() {
+    // find works.
+
+    CTreeParameterVector v1("t1");
+    CTreeParameterVector v2("t2");
+    CTreeParameterVector v3("t3");
+
+    CTreeParameterVector v("junk");
+
+    CPPUNIT_ASSERT_NO_THROW(
+        v = CTreeParameterVector::find("t2")
+    );
+    EQ(std::string("t2"), v.name());
+}
+void TreeVectorTests::find_2() {
+    CTreeParameterVector v1("t1");
+    CTreeParameterVector v2("t2");
+    CTreeParameterVector v3("t3");
+
+    CPPUNIT_ASSERT_THROW(
+        CTreeParameterVector::find("t4"),
+        CTreeParameterVector::NoSuchVectorException
+    );
 }

@@ -252,9 +252,9 @@ CTreeParameterVector::numVectors() {
  */
 CTreeParameterVector
 CTreeParameterVector::find(const char* name) {
-    std::string sName;
+    std::string sName(name);
     auto p = m_baseNameMap.find(sName);
-    if (p != end()) {
+    if (p != m_baseNameMap.end()) {
         // found:
 
         return CTreeParameterVector(name);   // Binds to the same info block.
