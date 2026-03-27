@@ -55,6 +55,9 @@ class TreeVectorTests : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(indexing_1);
     CPPUNIT_TEST(indexing_2);
+
+    CPPUNIT_TEST(size_1);
+    CPPUNIT_TEST(alloc_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -90,6 +93,9 @@ protected:
 
   void indexing_1();
   void indexing_2();
+
+  void size_1();
+  void alloc_1();
 public:
   void setUp() {
   }
@@ -401,7 +407,8 @@ void TreeVectorTests::indexing_1() {
         p = &(v[5])
     );
     EQ(double(5.0), double(*p));
-}void TreeVectorTests::indexing_2() {
+}
+void TreeVectorTests::indexing_2() {
     // indexing out of range...
 
     CEvent event;
@@ -417,4 +424,30 @@ void TreeVectorTests::indexing_1() {
         v[20],
         std::out_of_range
     );
+}
+
+void TreeVectorTests::size_1() {
+    // size returns number in the event:
+
+    CEvent event;
+    CTreeParameter::setEvent(event);
+
+    CTreeParameterVector v("test");
+    for (int i =0; i < 10; i++) {
+        v.push_back(double(i));
+    }
+    EQ(size_t(10), v.size());
+}
+
+void TreeVectorTests::alloc_1() {
+    // allocation keeps up with size if event is not reset.
+
+    CEvent event;
+    CTreeParameter::setEvent(event);
+
+    CTreeParameterVector v("test");
+    for (int i =0; i < 10; i++) {
+        v.push_back(double(i));
+    }
+    EQ(size_t(10), v.allocation());
 }
