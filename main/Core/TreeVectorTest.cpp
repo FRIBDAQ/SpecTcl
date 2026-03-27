@@ -141,3 +141,70 @@ void TreeVectorTests::exceptWhat_1() {
 
     EQ(e.m_message, msg);
 }
+
+void TreeVectorTests::getinfo_1() {
+    // Creates a new info block with my
+    // desired properties.
+
+    auto p = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, "mm");
+    ASSERT(p);   //Got one.
+    EQ(double(-1.0), p->s_low);
+    EQ(double(1.0), p->s_high);
+    EQ(std::string("mm"), p->s_units);
+
+    // Not going to look at the vectors because we tested construction already.
+    // But it should have gone in the map.
+
+    ASSERT(CTreeParameterVector::m_baseNameMap.find(std::string("testing")) != CTreeParameterVector::m_baseNameMap.end());
+}
+void TreeVectorTests::getinfo_2() {
+    // I can override existing block 
+
+    auto p1 = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, "mm");
+    auto p2 = CTreeParameterVector::getInfoBlock("testing", 0.0, 360.0, "degrees"); 
+
+    // Shoulid be the same block:
+
+    EQ(p1, p2);
+
+    // But we have the new values for the limits etc.:
+
+    EQ(double(0.0), p1->s_low);
+    EQ(double(360.0), p1->s_high);
+    EQ(std::string("degrees"), p1->s_units);
+    EQ(size_t(1), CTreeParameterVector::m_baseNameMap.size());   // only one map entry!
+}
+void TreeVectorTests::getinfo_3() {
+    // Can create a new one with default params:
+
+    auto p = CTreeParameterVector::getInfoBlock("testing");
+    ASSERT(p);   // got one.
+
+    EQ(double(0.0), p->s_low);
+    EQ(double(100.0), p->s_high);
+    EQ(std::string(""), p->s_units);
+
+    // And an entry was made:
+
+    ASSERT(CTreeParameterVector::m_baseNameMap.find(std::string("testing")) != CTreeParameterVector::m_baseNameMap.end());
+}
+
+void TreeVectorTests::getinfo_4() {
+    // Default construction won't override existing block data:
+
+    auto p1 = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, "mm");
+    auto p2 = CTreeParameterVector::getInfoBlock("testing");
+
+    EQ(p1, p2);
+
+    // The block should not have had low, high, units modified:
+
+    EQ(double(-1.0), p2->s_low);
+    EQ(double(1.0), p2->s_high);
+    EQ(std::string("mm"), p2->s_units);
+
+    // Only one block:
+
+    EQ(size_t(1), CTreeParameterVector::m_baseNameMap.size());
+
+}
