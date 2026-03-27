@@ -124,8 +124,8 @@ private:
     // You might wonder why not just default high/low in the first method.  The answer
     // is that I want to allow finding the parameter block and _not_ overriding
     // the limits if it already exists.
-    pTreeVectorInfo getInfoBlock(const char* name);
-    pTreeVectorInfo getInfoBlock(const char* name, double low, double high, const char* units);
+    static pTreeVectorInfo getInfoBlock(const char* name);
+    static pTreeVectorInfo getInfoBlock(const char* name, double low, double high, const char* units);
 
     CTreeParameter*  createEventParameter();
     CTreeParameter*  createParameter();

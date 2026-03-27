@@ -32,18 +32,27 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(exceptAssign_1);
     CPPUNIT_TEST(exceptAssign_2);
     CPPUNIT_TEST(exceptWhat_1);
+
+    CPPUNIT_TEST(getinfo_1);
+    CPPUNIT_TEST(getinfo_2);
+    CPPUNIT_TEST(getinfo_3);
+    CPPUNIT_TEST(getinfo_4);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
   void infoConstruct_1();
 
-  void exceptConstruct_1();
+  void exceptConstruct_1();  // The exception
   void exceptConstruct_2();
   void exceptConstruct_3();
   void exceptAssign_1();
   void exceptAssign_2();
   void exceptWhat_1();
 
+  void getinfo_1();       // Get/create info blocks.
+  void getinfo_2();
+  void getinfo_3();
+  void getinfo_4();
 public:
   void setUp() {
   }
