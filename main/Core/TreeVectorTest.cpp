@@ -51,16 +51,21 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(ne_1);        // !=
     CPPUNIT_TEST(ne_2); 
 
-    CPPUNIT_TEST(push_1);
+    CPPUNIT_TEST(push_1);    // This and indexing implicitly
     
-    CPPUNIT_TEST(indexing_1);
-    CPPUNIT_TEST(indexing_2);
+    CPPUNIT_TEST(indexing_1); // Test5 createParameter
+    CPPUNIT_TEST(indexing_2); // createEventParameter and nextName
 
     CPPUNIT_TEST(size_1);
     CPPUNIT_TEST(alloc_1);
 
     CPPUNIT_TEST(reset_1);
     CPPUNIT_TEST(reset_2);
+
+    CPPUNIT_TEST(info_1);   // low
+    CPPUNIT_TEST(info_2);   // high
+    CPPUNIT_TEST(info_3);   // units
+    CPPUNIT_TEST(info_4);   // (base)name
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -102,6 +107,11 @@ protected:
 
   void reset_1();
   void reset_2();
+
+  void info_1();
+  void info_2();
+  void info_3();
+  void info_4();
 public:
   void setUp() {
   }
@@ -495,4 +505,22 @@ void TreeVectorTests::reset_2() {
     EQ(size_t(10), v.allocation());   // no new one allocated.
 
     EQ(std::string("test(0)"), v[0].getName());
+}
+
+
+void TreeVectorTests::info_1() {
+    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    EQ(double(-1.0), v.low());
+}
+void TreeVectorTests::info_2() {
+    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    EQ(double(1.0), v.high());
+}
+void TreeVectorTests::info_3() {
+    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    EQ(std::string("mm"), v.units());
+}
+void TreeVectorTests::info_4() {
+    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    EQ(std::string("test"), v.name());
 }
