@@ -58,6 +58,9 @@ class TreeVectorTests : public CppUnit::TestFixture {
 
     CPPUNIT_TEST(size_1);
     CPPUNIT_TEST(alloc_1);
+
+    CPPUNIT_TEST(reset_1);
+    CPPUNIT_TEST(reset_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -96,6 +99,9 @@ protected:
 
   void size_1();
   void alloc_1();
+
+  void reset_1();
+  void reset_2();
 public:
   void setUp() {
   }
@@ -450,4 +456,43 @@ void TreeVectorTests::alloc_1() {
         v.push_back(double(i));
     }
     EQ(size_t(10), v.allocation());
+}
+
+
+void TreeVectorTests::reset_1() {
+    // Reset resets the event but keeps the allocation:
+
+    CEvent event;
+    CTreeParameter::setEvent(event);
+
+    CTreeParameterVector v("test");
+    for (int i =0; i < 10; i++) {
+        v.push_back(double(i));
+    }
+
+    v.reset();
+
+    EQ(size_t(0), v.size());
+    EQ(size_t(10),v.allocation());
+}
+
+void TreeVectorTests::reset_2() {
+    // Allocatd parameters get re-used in order.
+
+    CEvent event;
+    CTreeParameter::setEvent(event);
+
+    CTreeParameterVector v("test");
+    for (int i =0; i < 10; i++) {
+        v.push_back(double(i));
+    }
+
+    v.reset();
+
+    v.push_back(3.1416);
+
+    EQ(size_t(1), v.size());
+    EQ(size_t(10), v.allocation());   // no new one allocated.
+
+    EQ(std::string("test(0)"), v[0].getName());
 }
