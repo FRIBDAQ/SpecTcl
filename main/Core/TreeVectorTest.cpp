@@ -16,10 +16,9 @@
 
 #include "TreeTestSupport.h"
 
+#include <stdexcept>
 
-#ifdef HAVE_STD_NAMESPACE
-using namespace std;
-#endif
+
 
 
 class TreeVectorTests : public CppUnit::TestFixture {
@@ -53,6 +52,9 @@ class TreeVectorTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(ne_2); 
 
     CPPUNIT_TEST(push_1);
+    
+    CPPUNIT_TEST(indexing_1);
+    CPPUNIT_TEST(indexing_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -85,6 +87,9 @@ protected:
   void ne_2();
 
   void push_1();
+
+  void indexing_1();
+  void indexing_2();
 public:
   void setUp() {
   }
@@ -378,4 +383,38 @@ void TreeVectorTests::push_1() {
     EQ(std::string("test(0)"), r.getName());
     EQ(double(3.1416), double(r));
 
+}
+
+void TreeVectorTests::indexing_1() {
+    // INdexing in range:
+
+    CEvent event;
+    CTreeParameter::setEvent(event);
+
+    CTreeParameterVector v("test");
+    for (int i =0; i < 10; i++) {
+        v.push_back(double(i));
+    }
+
+    CTreeParameter* p;
+    CPPUNIT_ASSERT_NO_THROW(
+        p = &(v[5])
+    );
+    EQ(double(5.0), double(*p));
+}void TreeVectorTests::indexing_2() {
+    // indexing out of range...
+
+    CEvent event;
+    CTreeParameter::setEvent(event);
+
+    CTreeParameterVector v("test");
+    for (int i =0; i < 10; i++) {
+        v.push_back(double(i));
+    }
+
+
+    CPPUNIT_ASSERT_THROW(
+        v[20],
+        std::out_of_range
+    );
 }
