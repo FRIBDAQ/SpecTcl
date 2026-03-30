@@ -53,6 +53,9 @@ class CTreeParameterVector;
  * 
  * 
  */
+#include <TCLObjectProcessor.h>
+
+#include "CTreeParameterVector.h"
 class CTreeVecActual : public CTCLObjectProcessor {
 public:
     CTreeVecActual(CTCLInterpreter& rInterp);
@@ -73,7 +76,8 @@ protected:
     void setunits(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 
 private:
-    CTCLObject* describeVector(CTCLInterpreter& interp, CTreeParameterVector& vec);
+    CTCLObject describeVector(CTCLInterpreter& interp, std::string name, CTreeParameterVector::pTreeVectorInfo pInfo);
+    CTCLObject parameterList(CTCLInterpreter& interp, CTreeParameterVector::pTreeVectorInfo pInfo);
 
 };
 
