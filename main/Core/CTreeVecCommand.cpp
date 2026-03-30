@@ -136,6 +136,7 @@ CTreeVecActual::~CTreeVecActual() {}
         if (Tcl_StringMatch(p->first.c_str(), pattern.c_str())) {
             result += describeVector(interp, p->first, p->second);
         }
+        ++p;
     }
 
     interp.setResult(result);
