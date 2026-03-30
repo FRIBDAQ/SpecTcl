@@ -85,7 +85,7 @@ private:
 
 class CTreeVecCommand : public CMPITclCommandAll {
 public:
-    CTreeVecCommand(CTCLInterpreter* pInterp);
+    CTreeVecCommand(CTCLInterpreter& pInterp);
     ~CTreeVecCommand() {}
 };
  #endif

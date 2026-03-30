@@ -89,9 +89,11 @@ CTreeVecActual::~CTreeVecActual() {}
     }
     catch (CException& e) {
         interp.setResult(e.ReasonText());
+        return TCL_ERROR;
     }
     catch (std::exception& e) {
         interp.setResult(e.what());
+        return TCL_ERROR;
     }
 
     return TCL_OK;
@@ -263,3 +265,15 @@ CTreeVecActual::parameterList(CTCLInterpreter& interp, CTreeParameterVector::pTr
     }
     return result;
 }
+
+/////////////////////////////////// MPI Wrapper.
+
+/**
+ * CTreeVecCommmand
+ *    constructs the command we actually register.  in MPI land it will dispatch to 
+ * the actual, for serial spectcl it will just all the actual's operator()
+ * 
+ * @param interp - the interpreter to register the command on:
+ */
+CTreeVecCommand::CTreeVecCommand(CTCLInterpreter& interp) :
+    CMPITclCommandAll(interp, "treeparamvec", new CTreeVecActual(interp)) {}
