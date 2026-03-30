@@ -34,6 +34,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpecTcl.h"
 #include <buftypes.h>
 #include <CTreeParameter.h>
+#include <CTreeParameterVector.h>
 #include <iostream>
 #include <sstream>
 
@@ -197,6 +198,7 @@ UInt_t CTclAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent) {
   // Set up tree parameter processing:
 
   CTreeParameter::setEvent(anEvent);
+  CTreeParameterVector::BeginEvent();                 // Reset the vector valued parameters.
 
   while(p != pMgr->getCurrentPipeline()->end()) {
     CEventProcessor* pProcessor(p->second);
