@@ -64,6 +64,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <CTreeParameterCommand.h>
 #include <CTreeVariableCommand.h>
+#include <CTreeVecCommand.h>
 #include <CTreeParameter.h>
 #include <CTreeVariable.h>
 #include <TCLException.h>
@@ -888,10 +889,14 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
 
   CTreeParameterCommand* pTreeParamCommand = new CTreeParameterCommand(&rInterp);
   CTreeVariableCommand*  pTreeVariableCommand = new CTreeVariableCommand;
+  CTreeVecCommand*       pTreeVecCommand = new CTreeVecCommand(rInterp);
+
+
   CTreeVariable::BindVariables(*(getInterpreter()));
 
+
   if (!gMPIParallel || (m_mpiRank == MPI_ROOT_RANK)) {
-    cerr << "Tree parameter/variable  command " << CTreeParameter::TreeParameterVersion;
+    cerr << "Tree parameter/variable/vector  command " << CTreeParameter::TreeParameterVersion;
     cerr << " (c) Copyright 2005 NSCL written by Daniel Bazin, Ron Fox\n";
   }
 
