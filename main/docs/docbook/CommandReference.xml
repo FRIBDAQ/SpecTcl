@@ -7831,7 +7831,142 @@ waveform getall name1...
         </refsect2>
     </refsect1>
 </refentry>
-
+<refentry>
+    <refmeta>
+        <refentrytitle>treeparamvec</refentrytitle>
+        <manvolnum>1SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>treeparamvec</refname>
+        <refpurpose>Get information about tree parameter vectors</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <cmdsynopsis>
+<command>treeparamvec -list</command><arg><replaceable>?pattern?</replaceable></arg>
+        </cmdsynopsis>
+        <cmdsynopsis>
+<command>treeparamvec -setlow</command>
+    <arg><replaceable>name</replaceable></arg><arg><replaceable>value</replaceable></arg>
+        </cmdsynopsis>
+        <cmdsynopsis>
+<command>treeparamvec -sethigh</command>
+    <arg><replaceable>name</replaceable></arg><arg><replaceable>value</replaceable></arg>
+        </cmdsynopsis>
+        <cmdsynopsis>
+<command>treeparamvec -setunits</command>
+    <arg><replaceable>name</replaceable></arg><arg><replaceable>value</replaceable></arg>
+        </cmdsynopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Tree parameter vectors are new to SpecTcl in 7.0-005.  They provide an object that 
+            appears much like a vector to event processors, dynamically creating actual tree parameters as needed
+            when values are <function>push_back</function>-ed into them.  Special spectrum and
+            gate types have also been added to use these objects.
+        </para>
+        <para>
+            The subcommand options of the <command>treeparamvec</command> allow scripts to interrogate
+            and modify the properties of existing tree parameter vector objects.
+        </para>
+        <variablelist>
+            <varlistentry>
+                    <term><command>treeparamvec -list</command> <replaceable>?pattern?</replaceable></term>
+                    <listitem>
+                        <para>
+                            Lists the properties of the tree parameters whose names match the optional
+                            glob <parameter>pattern</parameter>>  IF a <parameter>pattern</parameter> is not
+                            provided, the pattern defaults to <literal>*</literal> which matches everything.
+                        </para>
+                        <para>
+                            The commands result is a list of dicts.  Each dict describes a tree parameter 
+                            vector and has the following keys:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                                    <term><literal>name</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The name of the tree parameter vector this dict describes.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>low</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The low limit that will be used in tree parameters created at run
+                                            time by this vector.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>high</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The high limit that will be used in tree parameters created at run time
+                                            by this vector.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>units</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The units of measure that will be used in tree parameters created at
+                                            run time by this vector.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>parameters</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The value of this key as a list of the names of parameters that have
+                                            been already made by this vector.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><command>treeparamvec -setlow</command> <replaceable>name value</replaceable></term>
+                    <listitem>
+                        <para>
+                            Sets the new low limit for the vector <parameter>name</parameter> to <parameter>value</parameter>.
+                            Not only is this the low limit that is used in parameter creation, but all existing
+                            parameters will have their low limit set to this.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><command>treeparamvec -sethigh</command> <replaceable>name value</replaceable></term>
+                    <listitem>
+                        <para>
+                            Same as the <option>-setlow</option> but the high limit for the vector and its
+                            parameters are set to <parameter>value</parameter>
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><command>treeparamvec -setlow</command> <replaceable>name value</replaceable></term>
+                    <listitem>
+                        <para>
+                            Sets a new value for the units of measure applied to new parameters generated
+                            and the existing parameters.
+                        </para>
+                    </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The name of the tree parameter vector will be used to construct the names of the parameters
+            generated at run time.  The form of the names of the new parameters will be
+            <literal>name(</literal><parameter>n</parameter><literal></literal>.  That is the 
+            generated parameter names will look like Tcl array elemeents.
+        </para>
+    </refsect1>
+</refentry>
 </reference>
 
 </book>
