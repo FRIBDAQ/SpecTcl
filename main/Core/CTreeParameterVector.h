@@ -62,7 +62,7 @@ public:
     } TreeVectorInfo, *pTreeVectorInfo;
 
     // Thrown from find.
-    class NoSuchVectorException : std::exception {
+    class NoSuchVectorException : public std::exception {
     private:
         std::string m_message;
         NoSuchVectorException() {}          // For copy constuction.
