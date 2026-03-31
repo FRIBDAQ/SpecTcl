@@ -6197,6 +6197,480 @@ Int_t lowIndex();
         </refentry>
         <refentry>
             <refmeta>
+                <refentrytitle>CTreeParameterVector</refentrytitle>
+                <manvolnum>3spectcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>CTreeParameterVector</refname>
+                <refpurpose>Provide vector valued tree parameters</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <programlisting>
+#include &lt;CTreeParameterVector.h&gt;
+
+class CTreeParameterVector {
+public:
+   /**
+     * this struct is shared across all CTreeParmeterVectors with the same basename.
+     */
+    typedef struct _TreeVectorInfo {
+        double s_low;                         // Low limit.
+        double s_high;                        // High limit.
+        std::string s_units;                    // units of measure.
+        std::vector&lt;CTreeParameter*&gt;  s_createdParameters;   // Parameter's we've created.
+        std::vector&lt;CTreeParameter*&gt;  s_event;               // Parameters in this event.
+    } TreeVectorInfo, *pTreeVectorInfo;
+
+    // Thrown from find.
+    class NoSuchVectorException : public std::exception {
+    public:
+        NoSuchVectorException(const std::string&amp; name);
+        NoSuchVectorException(const char* name);
+        NoSuchVectorException(const NoSuchVectorException&amp; other);
+        NoSuchVectorException& operator=(const NoSuchVectorException&amp; rhs);
+        virtual ~NoSuchVectorException();
+
+        virtual const char* what() const noexcept;
+    };
+public:
+    // Canonicals:
+
+    CTreeParameterVector(const char* basename);
+    CTreeParameterVector(const char* basename, double low, double high, const char* units = "");
+    CTreeParameterVector(const CTreeParameterVector&amp; rhs);    // Can copy construct.
+    CTreeParameterVector&amp; operator=(const CTreeParameterVector& rhs); // can assign.
+    int operator==(const CTreeParameterVector&amp; rhs) const;  // equal names.
+    int operator!=(const CTreeParameterVector&amp; rhs) const;  // not equal names.
+
+
+    ~CTreeParameterVector();                   // destructor.
+
+    // accessor
+
+    CTreeParameter&amp; operator[](size_t index);   
+    CTreeParameter&amp; push_back(double value);    
+    size_t size() const;                        
+    size_t allocation() const;                  
+    
+    void reset();                               
+
+    // characteriestics
+
+    double low() const;
+    double high() const;
+    std::string units() const;
+    void setLow(double low);
+    void setHigh(double high);
+    void setUnits(const char* units);
+    std::string name() const;
+
+
+    static void BeginEvent();                   //!< Resets all event vectors -> empty.
+    static std::map&lt;std::string, pTreeVectorInfo&gt;::iterator begin();
+    static std::map&lt;std::string, pTreeVectorInfo&gt;::iterator end();
+    static size_t numVectors();
+    static CTreeParameterVector find(const char* name);
+
+ };
+
+                </programlisting>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <classname>CTreeParamterVector</classname> object is a vector like entity
+                    that was introduced in SpecTcl 7.0-005.   It is intended for processing
+                    detector arrays where the actual hit locations are not important.  The idea
+                    is that as hits for the array are processed, the data associated with the hit
+                    is pushed into the object using the <methodname>push_back</methodname> much as
+                    with an <classname>std::vector</classname> container object.
+                </para>
+                <para>
+                    As with <classname>CTreeParameterArray</classname> vectors have a name
+                    which, in this case, serves as the base of names of parameters that are created
+                    at runtime as needed to accomodate the resulting set of parameters.  These parameters
+                    will have names of the form <replaceable>name(index)</replaceable>. For example,
+                    a vector named <literal>george</literal>  will generate parameters named
+                    <literal>george(0), george(1), george(2)....</literal>.
+                </para>
+                <para>
+                    Before each event is processed in SpecTcl, the vector that contains the
+                    paramters filled for that event is cleared, while the vector of created parameters
+                    is initially used to stock the next event.
+                </para>
+                <para>
+                    As with <classname>CTreeParameter</classname> vectors instantiated with the same
+                    name map to the same underlying description and parameter set.  Since the resulting
+                    parameter objects are <classname>CTreeParameter</classname> objects, they have the
+                    same low and high limit recommendations for axes as well as units of measure.  If
+                    these are modified in the vector, not only will new parameters have the modiied
+                    values, but any existing parameters associated with the vector have their metadata modified as
+                    well.
+                </para>
+            </refsect1>
+            <refsect1>
+                <title>METHODS</title>
+                <para>
+                    Not all methods are described.  The ones with obvious puprpose are not.
+                </para>
+                <variablelist>
+                    <varlistentry>
+                            <term><constructorsynopsis>
+                                <methodname>CTreeParameterVector</methodname>
+                                <methodparam><type>const char* </type><parameter>basename</parameter></methodparam>
+                                <methodparam><type>double</type> <parameter>low</parameter></methodparam>
+                                <methodparam><type>units</type>  <parameter>units</parameter>
+                                <initializer>""</initializer></methodparam>
+                            </constructorsynopsis></term>
+                            <listitem>
+                                <para>
+                                    This constructor creates a tree parameter vector object.  Even if a vector
+                                    matching <parameter>basename</parameter> already exists, its low, high and units
+                                    metadata are set from the parameters.  It is recommneded this form of the constructor
+                                    be used only once for any <parameter>basename</parameter> see the next
+                                    constructor.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><constructorsynopsis>
+                                <methodname>CTreeParameterVector</methodname>
+                                <methodparam><type>const char* </type><parameter>basename</parameter></methodparam>
+                            </constructorsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Constructs a new vector named <parameter>basename</parameter>. If this
+                                    vector already exists, its low, high and units are not modified.  If this
+                                    constructor is temporally the first one for <parameter>basename</parameter>
+                                    the low, high and units are set to some, probably bad choice of, default
+                                    values.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                            <type>CTreeParameter&amp;</type><methodname>push_back</methodname>
+                            <methodparam><type>double</type> <parameter>value</parameter></methodparam>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Pushes a new <parameter>value</parameter> into the vector. The return
+                                    value references the <classname>CTreeParameter</classname> the value was put into.
+                                    If necessary, the new parameter is created.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>CTreeParameter&amp;</type> <methodname>operator[]</methodname>
+                                <methodparam><type>size_t</type> <parameter>index</parameter></methodparam>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns a reference to the element of the event vector indexed by
+                                    <parameter>index</parameter>.  If <parameter>index</parameter> is out of
+                                    the range of the vector for this event, <classname>std::out_of_range</classname>
+                                    is thrown.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>size_t</type><methodname>size</methodname>
+                                <void /> <modifier>const</modifier>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns the size of the event vector.  The object maintains two vectors.
+                                    One contains all of the tree parameters that have been created over the life
+                                    of the vector.  The other, the tree parameters that are needed for the
+                                    number of <methodname>push_back</methodname> calls done by this event.
+                                    The first of these vectors is called the 
+                                    <firstterm>createdParameters</firstterm>, the second the
+                                    <firstterm>event vector</firstterm>.  This returns the size of the
+                                    event vector.  The Event vector is cleared before processing each event.
+                                    The createdParameters vector is never cleared.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>size_t</type> <methodname>allocation</methodname>
+                                <void /> <modifier>const</modifier>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns the number of tree paramters that have been created for this
+                                    vector.  If you looked at the description of <methodname>size</methodname>,
+                                    this is the number of elements in the createdParameters vector.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>void</type><methodname>reset</methodname><void />
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Resets the event vector for this object making it ready to 
+                                    process the next event. See also <methodname>BeginEvent</methodname>
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>double</type> <methodname>low</methodname>
+                                <void /><modifier>const</modifier>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para> 
+                                    Returns the vetor's current low limit value. As with <classname>CTreePraameter</classname>
+                                    objects, this value is not enforced.  It is used to recommend spectrum axis limits.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>double</type> <methodname>high</methodname>
+                                <void /><modifier>const</modifier>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns the vetor's current high limit value. As with <classname>CTreePraameter</classname>
+                                    objects, this value is not enforced.  It is used to recommend spectrum axis limits.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>std::string</type><methodname>units</methodname>
+                                <void /><modifier>const</modifier>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns the vector's unit of measure.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>void</type> <methodname>setLow</methodname>
+                                <methodparam><type>double</type><parameter>low</parameter></methodparam>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Sets the new low advisory limit for the vector. Note that this affects not only any
+                                    new Tree parameters the vector might create but also any existing parameters the
+                                    vector has already created.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>void</type> <methodname>setHigh</methodname>
+                                <methodparam><type>double</type><parameter>high</parameter></methodparam>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Sets the new high advisory limit for the vector. Note that this affects not only any
+                                    new Tree parameters the vector might create but also any existing parameters the
+                                    vector has already created.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>void</type> <methodname>setUnits</methodname>
+                                <methodparam><type>const char*</type><parameter>units</parameter></methodparam>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Sets the new units of measure for the vector. Note that this affects not only any
+                                    new Tree parameters the vector might create but also any existing parameters the
+                                    vector has already created.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>std::string</type><methodname>name</methodname>
+                                <void /> <modifier>const</modifier>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Retruns the base name of the parameters are created by this vector.  
+                                    This is the name passed to the constructor of the vector.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>static void</type><methodname>BeginEvent</methodname><void />
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    You should not call this method.  Prior to beginning to analyze an
+                                    event (prior to calling event processors <methodname>operator()</methodname>),
+                                    SpecTcl will invoke this name.  This clears the event vector associated with the
+                                    vector.  This vector will be filled by calles to <methodname>push_back</methodname>
+                                    within the event processors.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>static std::map&lt;std::string, CTreeParameterVector::pTreeVectorInfo&gt;::iterator</type>
+                                <methodname>begin</methodname><void />
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns an itegerator that allows your code to iterate through the tree parameter
+                                    vectors.  The iterator points to a pair containing the vector name and the information
+                                    block shared by all instances of <classname>CTreeParameterVector</classname> with that
+                                    name.  See <literal>DATA TYPES</literal> below for more about the shape
+                                    of this information block.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>static std::map&lt;std::string, CTreeParameterVector::pTreeVectorInfo&gt;::iterator</type>
+                                <methodname>end</methodname><void />
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns an end of iteration iterator for the set of unique tree parameter vectors
+                                    that have been created.  The code fragment below shows, for example, how to output all
+                                    the tree parameter vector names:
+                                </para>
+                                <informalexample>
+                                    <programlisting>
+#include &lt;CTreeParameterVector.h&gt;
+#include &lt;iostream&gt;
+....
+auto p = CTreeParameterVector::begin();
+while (p != CTreeParameterVector::end()) {
+    std::cout &lt;&lt; p-&gt;first &lt;&lt; std::endl;
+
+    ++p;
+}
+                                    </programlisting>
+                                </informalexample>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                               <type>static size_t</type> <methodname>numVectors</methodname><void />
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns the number of distinct tree vectors that exist.  By distinct,
+                                    I meant the number of uniquely named tree parameter vector objects, or the
+                                    number of names the code fragment above will perform.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><methodsynopsis>
+                                <type>static CTreeParameterVector</type> <methodname>find</methodname>
+                                <methodparam><type>const char*</type> <parameter>name</parameter></methodparam>
+                            </methodsynopsis></term>
+                            <listitem>
+                                <para>
+                                    Returns a tree parameter vector object that has already been created with
+                                    the given <parameter>name</parameter>  If there is no
+                                    <classname>CTreeParameterVector</classname> with the base name <parameter>name</parameter>,
+                                    a <classname>CTreeParameterVector::NoSuchVectorException </classname> is thrown.
+                                    See <literal>DATA TYPES</literal> below for a description of this exception type.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+            <refsect1>
+                <title>DATA TYPES</title>
+                <para>
+                    The <classname>CTreeParameterVector</classname> class exports two inner data types.
+                </para>
+                <refsect2>
+                    <title><structname>_TreeVectorInfo</structname></title>
+                    <para>
+                        Note that for convenience, this is typedefed to <type>TreeVectorInfo</type> which is the struct
+                        itself and <type>pTreeVectorInfo</type> which is  a pointer to that struct.
+                        THis struct is common between all <classname>CTreeParameterVector</classname> objects that
+                        share the same base name. It contains the following fields:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                                <term><type>double</type> <structfield>s_low</structfield></term>
+                                <listitem>
+                                    <para>
+                                        The advisory low limit of the parameter values.  This is used when
+                                        creating new <classname>CTreeParameter</classname> objects associated with this
+                                        vector.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term><type>doube</type> <structfield>s_high</structfield></term>
+                                <listitem>
+                                    <para>
+                                        The advisory low limit of the parameter values.  This is used when
+                                        creating new <classname>CTreeParameter</classname> objects associated
+                                        with this vector.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term><type>std::string</type> <structfield>s_units</structfield></term>
+                                <listitem>
+                                    <para>
+                                        The units of measure for the parameter.   This is used when
+                                        creating new <classname>CTreeParameter</classname> objects 
+                                        associated with this vector.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term><type>std::vector&lt;CTreeParamter*&gt;</type> <structfield>s_createdParameters</structfield></term>
+                                <listitem>
+                                    <para>
+                                        List of the parameters that have been crated  for this vector so far.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                                <term><type>std::vector&lt;CTreeParamter*&gt;</type> <structfield>s_event</structfield></term>
+                                <listitem>
+                                    <para>
+                                        Contains the parameters that are needed for the event being processed. On each call to
+                                        <methodname>push_back</methodname> if there  are sufficient elements in
+                                        <structfield>s_createdParameters</structfield>, one of those pointers is pushed back into
+                                        <structfield>s_event</structfield> and the data passed will be put into that
+                                        tree parameter.  If not, a new <classname>CTreeParameter</classname> is created
+                                        and pushed into both <structfield>s_createdParameters</structfield> and
+                                        <structfield>s_event</structfield> and used to contain the value.
+                                        In this way, eventually <structfield>s_createdParameters</structfield>
+                                         will reach equilibrium with sufficient
+                                        elements to capture the data required by events without the creation of new
+                                        parameters.
+                                    </para>
+                                </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect2>
+                <refsect2>
+                    <title><classname>NoSuchVectorException</classname></title>
+                    <para>
+                        This classis derived from <classname>std::exception</classname>. It is thrown when
+                        <methodname>find</methodname> is called with a name that cannot be found in the dictionary 
+                        of <classname>CTreeParameterVector</classname> objects that have been created so far.
+                    </para>
+                </refsect2>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
                 <refentrytitle >CTreeVariable</refentrytitle>
                 <manvolnum>3spectcl</manvolnum>
             </refmeta>
