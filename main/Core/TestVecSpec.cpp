@@ -13,6 +13,7 @@
 #include "Spectrum1DVec.h"
 #undef private
 #include <Event.h>
+#include <histotypes.h>
 #include <stdint.h>
 
 
@@ -30,6 +31,7 @@ class Test1DVec : public CppUnit::TestFixture {
     CPPUNIT_TEST(storage_2);
     CPPUNIT_TEST(dimension_1);
     CPPUNIT_TEST(dimension_2);
+    CPPUNIT_TEST(stype_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -50,6 +52,8 @@ protected:
 
     void dimension_1();
     void dimension_2();
+
+    void stype_1();
 public:
     void setUp() {}
     void tearDown() {}
@@ -241,4 +245,11 @@ void Test1DVec::dimension_2() {
     CSpectrum1DVecL spec("testing", 0, p, 128);
 
     EQ(Size_t(1), spec.Dimension(1));
+}
+
+void Test1DVec::stype_1() {
+    CTreeParameterVector p("test");
+
+    CSpectrum1DVecL spec("testing", 0, p, 128);
+    EQ(ke1DVec, spec.getSpectrumType());
 }
