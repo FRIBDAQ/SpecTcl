@@ -123,7 +123,8 @@ typedef enum _SpectrumType_t {
   ke2Dm,
   keG2DD,
   keGSummary,
-  ke2DmProj                  // M2 projection spectrum type.
+  ke2DmProj,                  // M2 projection spectrum type.
+  ke1DVec                     // 1d Spectrum on parameter vector.
 } SpectrumType_t;
 
 
@@ -166,6 +167,9 @@ operator<<(std::ostream& out, SpectrumType_t t)
   case ke2DmProj:
     out << "2dmproj";
     break;
+  case ke1DVec:
+    out << "1dv";
+    break;
   case keUnknown:
   default:
     out << '?';
@@ -202,6 +206,8 @@ operator>>(std::istream& in, SpectrumType_t& t)
     t = keGSummary;
   } else if (type == "m2") {
     t = ke2Dm;
+  } else if (type == "1dv") {
+    t = ke1DVec;
   } else {
     t =keUnknown;
   }
