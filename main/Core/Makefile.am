@@ -208,7 +208,7 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	CGammaSummarySpectrum.hpp \
 	GatingObserver.cpp CParameterDictionarySingleton.cpp \
 	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp \
-	CMetadata.cpp
+	CMetadata.cpp 	Spectrum1DVec.h Spectrum1DVec.hpp
 
 Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h \
@@ -229,7 +229,8 @@ Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Di
 	CGammaSummarySpectrum.h CGammaSummarySpectrum.hpp \
 	GatingObserver.h CM2Projection.h CM2Projection.hpp \
 	CParameterDictionarySingleton.h CSpectrumDictionarySingleton.h \
-	CGateDictionarySingleton.h CMetadata.h
+	CGateDictionarySingleton.h CMetadata.h \
+	Spectrum1DVec.h Spectrum1DVec.hpp
 
 # TapeCommand.cc removed.
 
@@ -520,7 +521,9 @@ sorterTests_LDADD = $(commonTestLdFlags)
 sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 				Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
 				TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
-				TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
+				TestGamma2.cpp TestGammaDeluxe.cpp \
+				TestVecSpec.cpp \
+				TestHistogrammer.cpp \
 				CParameterMappingTest.cpp CAxisTests.cpp \
 				CParameterMappingTest.h CAxisTests.h \
 				m2projtest.cpp factoryTests.cpp spectrummetadatatests.cpp
