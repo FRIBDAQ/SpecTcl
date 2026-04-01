@@ -24,6 +24,7 @@ class Test1DVec : public CppUnit::TestFixture {
     CPPUNIT_TEST(incr_1);
     CPPUNIT_TEST(uses_1);
     CPPUNIT_TEST(uses_2);
+    CPPUNIT_TEST(getids_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -34,6 +35,8 @@ protected:
 
     void uses_1();
     void uses_2();
+
+    void getids_1();
 public:
     void setUp() {}
     void tearDown() {}
@@ -148,4 +151,30 @@ void Test1DVec::uses_2() {
     UInt_t id = p.createdParams()[2]->getId() + 1;
     ASSERT(!spec.UsesParameter(id));
 
+}
+
+void Test1DVec::getids_1() {
+    CEvent event;
+    CTreeParameterVector p("test");
+
+    CSpectrum1DVecL spec("testing", 0, p, 100);   // Unmapped spectrum 0-99.
+
+    // Set up for histogramming.
+
+    CTreeParameter::setEvent(event);
+    CTreeParameterVector::BeginEvent();
+
+    // SEt the  parameters
+    p.push_back(1.0);
+    p.push_back(2.0);
+    p.push_back(50.0);
+
+    std::vector<UInt_t> ids;
+    spec.GetParameterIds(ids);
+
+    EQ(p.createdParams().size(), ids.size());
+    for (int i =0; i < ids.size(); i++) {
+        UInt_t id = p.createdParams()[i]->getId();
+        EQ(id, ids[i]);
+    }
 }
