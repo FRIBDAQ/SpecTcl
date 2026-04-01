@@ -72,6 +72,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Gamma2DD.h"
 #include "CGammaSummarySpectrum.h"
 #include "CM2Projection.h"
+#include "Spectrum1DVec.h"
+
 
 #include "GateContainer.h"
 #include "CompoundGate.h"
@@ -168,18 +170,18 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       Float_t fLow, fHigh;
 
       if(pLows == (vector<Float_t>*) kpNULL) { 
-	fLow = 0.0;
-	fHigh= DefaultAxisLength(rChannels[0], p);
-      } else {
-	fLow = (*pLows)[0];
-	fHigh= (*pHighs)[0];
-	if(fLow == fHigh) {
-	  fLow = 0.0;		// No length means default scaling.
-	  fHigh= DefaultAxisLength(rChannels[0], p);
-	}
+        fLow = 0.0;
+        fHigh= DefaultAxisLength(rChannels[0], p);
+            } else {
+        fLow = (*pLows)[0];
+        fHigh= (*pHighs)[0];
+        if(fLow == fHigh) {
+          fLow = 0.0;		// No length means default scaling.
+          fHigh= DefaultAxisLength(rChannels[0], p);
+        }
       }
-      return Create1D(rName, eDataType, p,
-		      rChannels[0], fLow, fHigh);
+            return Create1D(rName, eDataType, p,
+                rChannels[0], fLow, fHigh);
     }
   case keStrip: 
     {
@@ -192,19 +194,32 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       Float_t fLow, fHigh;
 
       if(pLows == (vector<Float_t>*) kpNULL) { 
-	fLow = 0.0;
-	fHigh= DefaultAxisLength(rChannels[0], p);
-      } else {
-	fLow = (*pLows)[0];
-	fHigh= (*pHighs)[0];
-	if(fLow == fHigh) {
-	  fLow = 0.0;		// No length means default scaling.
-	  fHigh= DefaultAxisLength(rChannels[0], p);
-	}
+        fLow = 0.0;
+        fHigh= DefaultAxisLength(rChannels[0], p);
+            } else {
+        fLow = (*pLows)[0];
+        fHigh= (*pHighs)[0];
+        if(fLow == fHigh) {
+          fLow = 0.0;		// No length means default scaling.
+          fHigh= DefaultAxisLength(rChannels[0], p);
+        }
       }
       return CreateStrip(rName, eDataType, p, c,
 		      rChannels[0], fLow, fHigh);
     }
+  case ke1DVec: {
+    CTreeParameterVector param = validate1DVec(
+        rName, eDataType, rParameters, rChannels, pLows, pHighs
+    );
+    UInt_t bins = rChannels.at(0);
+    UInt_t low  = (*pLows).at(0);
+    UInt_t high = (*pHighs).at(0);
+    UInt_t id   = m_nNextId++;
+    return eDataType == keLong ? 
+      reinterpret_cast<CSpectrum*>(new CSpectrum1DVecL(rName, id, param, bins, low, high))
+    :
+      reinterpret_cast<CSpectrum*>(new CSpectrum1DVecW(rName, id, param, bins, low, high));
+  }
   case ke2D:
     {
       
@@ -218,24 +233,24 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       
       
       if(pLows == (vector<Float_t>*) kpNULL) {
-	// Default the axis ranges.
-	fxLow = fyLow = 0.0;
-	fxHigh= DefaultAxisLength(rChannels[0], p1);
-	fyHigh= DefaultAxisLength(rChannels[1], p2);
-      }
-      else {
-	fxLow = (*pLows)[0];
-	fyLow = (*pLows)[1];
-	fxHigh= (*pHighs)[0];
-	fyHigh= (*pHighs)[1];
-	if(fxLow == fxHigh) {	// Default x axis scale.
-	  fxLow = 0.0;
-	  fxHigh= DefaultAxisLength(rChannels[0], p1);
-	}
-	if(fyLow == fyHigh) {	// Default y axis scale.
-	  fyLow = 0.0;
-	  fyHigh= DefaultAxisLength(rChannels[1], p2);
-	}
+        // Default the axis ranges.
+        fxLow = fyLow = 0.0;
+        fxHigh= DefaultAxisLength(rChannels[0], p1);
+        fyHigh= DefaultAxisLength(rChannels[1], p2);
+            }
+            else {
+        fxLow = (*pLows)[0];
+        fyLow = (*pLows)[1];
+        fxHigh= (*pHighs)[0];
+        fyHigh= (*pHighs)[1];
+        if(fxLow == fxHigh) {	// Default x axis scale.
+          fxLow = 0.0;
+          fxHigh= DefaultAxisLength(rChannels[0], p1);
+        }
+        if(fyLow == fyHigh) {	// Default y axis scale.
+          fyLow = 0.0;
+          fyHigh= DefaultAxisLength(rChannels[1], p2);
+        }
 
       }
       return Create2D(rName, eDataType,
@@ -257,8 +272,8 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       UInt_t nLow  = (UInt_t)((*pLows)[0]);
       UInt_t nHigh = (UInt_t)((*pHighs)[0]);
       if(nLow == nHigh) {
-	nLow = 0;
-	nHigh= rChannels[0];
+        nLow = 0;
+        nHigh= rChannels[0];
       }
       return CreateBit(rName, eDataType,
 		       ParameterList[0], nLow, nHigh);
@@ -272,17 +287,17 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       // to check for this, sinc it looks for exact matches in the counts.
       
       if(rChannels.size() != 1) { // Incorrect # of resolutions
-	throw CSpectrumFactoryException(eDataType, eSpecType,
-					rName, 
-			      CSpectrumFactoryException::keBadResolutionCount,
-					"Creating summary spectrum");
+        throw CSpectrumFactoryException(eDataType, eSpecType,
+                rName, 
+                  CSpectrumFactoryException::keBadResolutionCount,
+                "Creating summary spectrum");
 	
       }
       if(ParameterList.size() < 1) { // Incorect # of parameters.
-	throw CSpectrumFactoryException(eDataType, eSpecType,
-					rName, 
-			     	CSpectrumFactoryException::keBadParameterCount,
-					"Creating summary spectrum");
+        throw CSpectrumFactoryException(eDataType, eSpecType,
+                rName, 
+                  CSpectrumFactoryException::keBadParameterCount,
+                "Creating summary spectrum");
       }
 
       // Default axis sizing can only be done under the assumption of
@@ -294,18 +309,18 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       Float_t fLow;
       Float_t fHigh;
       if(pLows == (vector<Float_t>*)kpNULL) {
-	
-	fLow = 0.0;
-	fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+        
+        fLow = 0.0;
+        fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
 
       }
       else {
-	fLow = (*pLows)[0];
-	fHigh= (*pHighs)[0];
-	if(fLow == fHigh) {
-	  fLow = 0.0;
-	  fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
-	}
+        fLow = (*pLows)[0];
+        fHigh= (*pHighs)[0];
+        if(fLow == fHigh) {
+          fLow = 0.0;
+          fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+        }
       }
       return CreateSummary(rName, eDataType,
 			   ParameterList, rChannels[0],
@@ -323,16 +338,16 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       // is usually the case.
 
       if(pLows == (vector<Float_t>*)kpNULL) {
-	fLow = 0.0;
-	fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
-      }
-      else {
-	fLow = (*pLows)[0];
-	fHigh= (*pHighs)[0];
-	if(fLow == fHigh) {
-	  fLow = 0.0;
-	  fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
-	}
+        fLow = 0.0;
+        fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+            }
+            else {
+        fLow = (*pLows)[0];
+        fHigh= (*pHighs)[0];
+        if(fLow == fHigh) {
+          fLow = 0.0;
+          fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+        }
 	
       }
       return CreateG1D(rName, eDataType, ParameterList,
@@ -1821,4 +1836,69 @@ CSpectrumFactory::marshallXYParameterIds(
         y.push_back(params[i+1].getNumber());
     }
     
+}
+/**
+ * validate1DVec
+ *    Validate parameter for a 1d vector spetrum.
+ * @param eDataType - the data type must be long or word.
+ * @param rParameters - there must be one paramete rname and it must be a valid tree vector name.
+ * @param rChannels - There must be one channel value.
+ * @param pLows - there must be one low.
+ * @param pHighs - There must be one high.
+ * @return CTreeParameterVector - the parameter vector specified by rParameters[0]
+ * @throw DictinoaryException - no such parameter
+ * @throw SpectrumFactorException - other errors.
+ */
+CTreeParameterVector
+CSpectrumFactory::validate1DVec(
+  std::string name,
+  DataType_t eDataType,
+  std::vector<std::string>& rvParameters, 
+  std::vector<UInt_t>&  rChannels,
+  std::vector<Float_t>* pLows,
+  std::vector<Float_t>* pHighs
+) {
+  if ((eDataType != keLong) && (eDataType != keWord)) {
+    throw CSpectrumFactoryException(
+      eDataType, ke1DVec, name, CSpectrumFactoryException::keBadDataType, "v1 spectra can only be long/word types"
+    );
+  }
+  // check the parameter name:
+
+  if (rvParameters.size() != 1) {
+    throw CSpectrumFactoryException(
+      eDataType, ke1DVec, name, CSpectrumFactoryException::keBadParameterCount, 
+      "Must only have 1 tree parameter vector name"
+    );
+  }
+  
+  
+  // The rChannels array has to have one entry.
+
+  if (rChannels.size() != 1) {
+    throw CSpectrumFactoryException(
+      eDataType, ke1DVec, name, CSpectrumFactoryException::keBadChannelCount, "v1 spectra needs one channel count"
+    );
+  }
+  // low and high must exist and there must be one of them.
+
+  if (!pLows && !pHighs) {
+    throw CSpectrumFactoryException(
+      eDataType, ke1DVec, name, CSpectrumFactoryException::keBadTransformCount, "v1 spectra a low and high limit."
+    );
+  }
+  if ((pLows->size() != 1) || (pHighs->size() != 1)) {
+    throw CSpectrumFactoryException(
+      eDataType, ke1DVec, name, CSpectrumFactoryException::keBadTransformCount, "v1 spectra a low and high limit."
+    );
+  }
+
+  // Look up the parameter and return it if found.
+  try {
+    return CTreeParameterVector::find(rvParameters.at(0).c_str());
+  } catch (CTreeParameterVector::NoSuchVectorException& v) {
+      throw CDictionaryException(
+        CDictionaryException::knNoSuchKey, "Looking up tree parameter vector", rvParameters.at(0)
+      );
+  }
 }
