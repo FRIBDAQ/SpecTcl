@@ -25,6 +25,7 @@ class Test1DVec : public CppUnit::TestFixture {
     CPPUNIT_TEST(uses_1);
     CPPUNIT_TEST(uses_2);
     CPPUNIT_TEST(getids_1);
+    CPPUNIT_TEST(resolutions_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -37,6 +38,8 @@ protected:
     void uses_2();
 
     void getids_1();
+
+    void resolutions_1();
 public:
     void setUp() {}
     void tearDown() {}
@@ -177,4 +180,16 @@ void Test1DVec::getids_1() {
         UInt_t id = p.createdParams()[i]->getId();
         EQ(id, ids[i]);
     }
+}
+
+void Test1DVec::resolutions_1() {
+    CEvent event;
+    CTreeParameterVector p("test");
+
+    CSpectrum1DVecL spec("testing", 0, p, 127);
+    std::vector<UInt_t> res;
+    spec.GetResolutions(res);
+
+    EQ(size_t(1), res.size());
+    EQ(UInt_t(7), res.at(0));
 }
