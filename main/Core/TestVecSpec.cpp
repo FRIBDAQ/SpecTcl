@@ -13,7 +13,7 @@
 #include "Spectrum1DVec.h"
 #undef private
 #include <Event.h>
-
+#include <stdint.h>
 
 
 class Test1DVec : public CppUnit::TestFixture {
@@ -26,6 +26,8 @@ class Test1DVec : public CppUnit::TestFixture {
     CPPUNIT_TEST(uses_2);
     CPPUNIT_TEST(getids_1);
     CPPUNIT_TEST(resolutions_1);
+    CPPUNIT_TEST(storage_1);
+    CPPUNIT_TEST(storage_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -40,6 +42,9 @@ protected:
     void getids_1();
 
     void resolutions_1();
+
+    void storage_1();
+    void storage_2();
 public:
     void setUp() {}
     void tearDown() {}
@@ -192,4 +197,26 @@ void Test1DVec::resolutions_1() {
 
     EQ(size_t(1), res.size());
     EQ(UInt_t(7), res.at(0));
+}
+
+void Test1DVec::storage_1() {
+    CEvent event;
+    CTreeParameterVector p("test");
+
+    CSpectrum1DVecL spec("testing", 0, p, 128);
+
+    Size_t expected = (128+2)*sizeof(uint32_t);
+
+    EQ(expected, spec.StorageNeeded());
+}
+
+void Test1DVec::storage_2() {
+    CEvent event;
+    CTreeParameterVector p("test");
+
+    CSpectrum1DVecW spec("testing", 0, p, 128);
+
+    Size_t expected = (128+2)*sizeof(uint16_t);
+
+    EQ(expected, spec.StorageNeeded());
 }
