@@ -28,6 +28,8 @@ class Test1DVec : public CppUnit::TestFixture {
     CPPUNIT_TEST(resolutions_1);
     CPPUNIT_TEST(storage_1);
     CPPUNIT_TEST(storage_2);
+    CPPUNIT_TEST(dimension_1);
+    CPPUNIT_TEST(dimension_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -45,6 +47,9 @@ protected:
 
     void storage_1();
     void storage_2();
+
+    void dimension_1();
+    void dimension_2();
 public:
     void setUp() {}
     void tearDown() {}
@@ -200,7 +205,7 @@ void Test1DVec::resolutions_1() {
 }
 
 void Test1DVec::storage_1() {
-    CEvent event;
+    
     CTreeParameterVector p("test");
 
     CSpectrum1DVecL spec("testing", 0, p, 128);
@@ -211,7 +216,7 @@ void Test1DVec::storage_1() {
 }
 
 void Test1DVec::storage_2() {
-    CEvent event;
+    
     CTreeParameterVector p("test");
 
     CSpectrum1DVecW spec("testing", 0, p, 128);
@@ -219,4 +224,21 @@ void Test1DVec::storage_2() {
     Size_t expected = (128+2)*sizeof(uint16_t);
 
     EQ(expected, spec.StorageNeeded());
+}
+
+
+void Test1DVec::dimension_1() {
+    CTreeParameterVector p("test");
+
+    CSpectrum1DVecL spec("testing", 0, p, 128);
+
+    EQ(Size_t(128+2), spec.Dimension(0));
+}
+
+void Test1DVec::dimension_2() {
+    CTreeParameterVector p("test");
+
+    CSpectrum1DVecL spec("testing", 0, p, 128);
+
+    EQ(Size_t(1), spec.Dimension(1));
 }
