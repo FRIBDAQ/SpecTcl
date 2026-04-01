@@ -99,6 +99,7 @@ public:
     CTreeParameter& push_back(double value);    //!< Appends to the vector and returns reference to the parameter.
     size_t size() const;                        //!< Number of elements this event.
     size_t allocation() const;                  //!< number of defined tree parameters.
+    const std::vector<CTreeParameter*>& createdParams() const;
     
     void reset();                               //!< Resets the event vector -> empty.
 

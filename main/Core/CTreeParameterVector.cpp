@@ -129,6 +129,16 @@ size_t
 CTreeParameterVector::allocation() const {
     return m_pInfo->s_createdParameters.size();
 }
+/**
+ * createdParams
+ * 
+ * @return const std::vectro<CTreePrameter*>& 
+ *  returns a const referencee to the created parameters
+ */
+const std::vector<CTreeParameter*>&
+CTreeParameterVector::createdParams() const {
+    return m_pInfo->s_createdParameters;
+}
 
 /**
  * reset
