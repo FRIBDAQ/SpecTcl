@@ -49,11 +49,10 @@ static UInt_t NumBits(const CTreeParameterVector& p) {
         UInt_t nChannels
 ) :
 CSpectrum(name, id,
-Axes(1,
-    CAxis((Float_t)0.0, Float_t(nChannels-1)),
-    nChannels, 
-    CParameterMapping(NumBits(params), params.low(), params.high(), params.units()))
-),
+	    Axes(1,
+		  CAxis((Float_t)0.0, (Float_t)(nChannels-1),
+			nChannels,
+			CParameterMapping(NumBits(params), params.low(), params.high(), params.units())))),
 m_parameters(params), m_nChannels(nChannels)
 {
     AddAxis(nChannels, 0.0, Float_t(nChannels), params.units());
@@ -75,10 +74,9 @@ CSpectrum1DVec<T>::CSpectrum1DVec(
         const std::string& name, UInt_t id, CTreeParameterVector& params,
         UInt_t bins, Float_t low, Float_t high
 ) :
-CSpectrum(name, id, 
-    Axes(1, CAxis(low, high, bins, 
-    CParameterMapping(NumBits(params), params.low(), params.high,params.units())))
-),
+CSpectrum(name, id,
+	    Axes(1, CAxis(low, high , bins,
+        CParameterMapping(NumBits(params), params.low(), params.high(), params.units())))),
 m_parameters(params), m_nChannels(bins)
 {
     AddAxis(bins, low, high, params.units());

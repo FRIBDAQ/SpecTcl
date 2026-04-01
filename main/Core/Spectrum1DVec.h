@@ -44,6 +44,7 @@ class CTreeParameterVector;
  */
 template <typename T>
 class CSpectrum1DVec : public CSpectrum {
+private:
     CTreeParameterVector m_parameters;
     UInt_t                m_nChannels;
 
