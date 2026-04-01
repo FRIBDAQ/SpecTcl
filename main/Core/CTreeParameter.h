@@ -165,7 +165,7 @@ public:
   // Selectors and mutators.
   
   std::string getName();
-  int    getId();
+  int    getId() const;
   double getValue();
   void   setValue(double newValue);
   UInt_t getBins();
@@ -213,7 +213,7 @@ protected:
   
   // Factor out some exception generating logic:
   
-  void ThrowIfNoParameter(std::string& doing);
+  void ThrowIfNoParameter(std::string& doing) const;
   void ThrowIfNoEvent(std::string& doing);
   
   // The functions below are inteded to support testability:
