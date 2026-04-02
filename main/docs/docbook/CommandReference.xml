@@ -6074,6 +6074,11 @@ spectrum <option>-list</option> <option>-id</option> ?<option>-showgate</option>
                 specified, an additional  list element, the applied gate name
                 is appended.
             </para>
+            <para>
+                Note that the parameter name listed for the <literal>1v</literal>
+                spectrum type is the name of a tree parameter vector, not the name of
+                a raw parameter.
+            </para>
         </refsect2>
         <refsect2>
             <title>Deleting spectra</title>
