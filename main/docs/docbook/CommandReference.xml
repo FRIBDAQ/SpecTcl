@@ -5772,6 +5772,24 @@ spectrum ?<option>-new</option>? <replaceable>name type parameter-list axis-spec
                         </listitem>
                     </varlistentry>
                     <varlistentry>
+                            <term><literal>1v</literal> -- One dimensional spectrum on vector parameter.</term>
+                            <listitem>
+                                <para>
+                                    This spectrum type was introducedin SpecTcl 7.0-005.
+                                    It requires a single parameter name which is the name of 
+                                    a tree parameter vector (See 
+                                    <link linkend='treeparamveccmd' endterm='treeparamveccmd.title' />).
+                                    Note that these vectors are only visible to the 
+                                    <command>treeparamvec</command> command referenced above.
+                                </para>
+                                <para>
+                                    A list containng a single axis specfication is required.
+                                    <literal>v1</literal> spectra increment in an event for each
+                                    item pushed into the vector by the event processing pipeline.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
                         <term><literal>2</literal> - two dimensional spectrum.</term>
                         <listitem>
                             <para>
@@ -7831,9 +7849,9 @@ waveform getall name1...
         </refsect2>
     </refsect1>
 </refentry>
-<refentry>
+<refentry id='treeparamveccmd'>
     <refmeta>
-        <refentrytitle>treeparamvec</refentrytitle>
+        <refentrytitle id='treeparamveccmd.title'>treeparamvec</refentrytitle>
         <manvolnum>1SpecTcl</manvolnum>
     </refmeta>
     <refnamediv>
