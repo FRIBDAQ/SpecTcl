@@ -1209,6 +1209,16 @@ SpecTcl::CreateM2Projection(
   );
 }
 /**
+ *  Create a 1d spectrum on a parameter vector.
+ * 
+ * @param name - name of the spectrum to make.
+ * @param dtype - data type of the channels, must be one of keLong or keWord.
+ * @param vectorName - name of the treevector to use to increment the spectrum.
+ * @param channels - number of Xaxis bins (exclusive of the over/underflow channels),
+ * @param low    - Spectrum X axis low limit in world coordinates.
+ * @param high   - Spetrum X axis high limit in world coordinates.
+ */
+/**
  * CreateM2Projection
  *   Creates a projection spectrum for an M2 around a region of interest.
  *

@@ -255,6 +255,15 @@ public:
         const std::vector<CGateContainer*>& roi,
         Bool_t xproj, UInt_t nChannels, Float_t low, Float_t high
     );
+
+    // Issue #  Create a 1v spectrum:
+
+    CSpectrum* Create1DVecSpectrum(
+     const std::string& name, DataType_t dtype, const std::string& vectorName, 
+      UInt_t channels, Float_t low, Float_t high
+    );
+      
+
     
 
   // Manipulate the spectrum dictionary:
