@@ -48,7 +48,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "WriteCommand.h"
 #include "ReadCommand.h"
 #include "CM2Projection.h"
-
+#include <Spectrum1DVec.h>
 #include <Exception.h>
 #include <RangeError.h>
 #include <ErrnoException.h>
@@ -1997,6 +1997,14 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
         Description.AppendElement(roiGates[i]->getName());
     }
     Description.EndSublist();
+  } if (Def.eType == ke1DVec) {
+    // We need to get the vector name and put that in the list:
+
+    // the type really does not matter:
+    
+    CSpectrum1DVecL* pSpec = reinterpret_cast<CSpectrum1DVecL*>(&rSpectrum);
+    Description.AppendElement(pSpec->getVectorName());
+    
   }
   else {
     std::vector<UInt_t>::iterator p = Def.vParameters.begin();
