@@ -228,7 +228,11 @@ public:
                               CParameter  counts,
                               CParameter  time,
                               UInt_t      channels, Float_t xLow, Float_t xHigh);
-
+  CSpectrum* Create1DVecSpectrum(
+     const std::string&amp; name, DataType_t dtype, const std::string&amp; vectorName, 
+      UInt_t channels, Float_t low, Float_t high
+    );
+      
 
   // Manipulate the spectrum dictionary:
 
@@ -1878,6 +1882,27 @@ public:
                             value that channel might have).
                         </para>
                     </listitem>
+                </varlistentry>
+                <varlistentry>
+                        <term><methodsynopsis>
+                            <type>CSpectrum*</type> <methodname>Create1DVSpectrum</methodname>
+                            <methodparam><type>const std::string&amp;</type> <parameter>name</parameter></methodparam>
+                            <methodparam><type>DataType_t</type> <parameter>dtype</parameter></methodparam>
+                            <methodparam><type>const std::string&</type> <parameter>vectorName</parameter></methodparam>
+                            <methodparam><type>UInt_t</type> <parameter>channels</parameter></methodparam>
+                            <methodparam><type>Float_t</type> <parameter>low</parameter></methodparam>
+                            <methodparam><type>Float_t></type> <parameter>high</parameter></methodparam>
+                        </methodsynopsis></term>
+                        <listitem>
+                            <para>
+                                Creates a 1d spectrum on a parameter vector (see
+                                <classname>CTreeParameterVector</classname>).  <parameter>vectorName</parameter>
+                                is the name given to a <classname>CTreeParameterVector</classname> instance.
+                                Only <literal>keLong</literal> and <literal>keWord</literal> are alowed for
+                                <parameter>dtype</parameter>.  The spectrum is incremented in an event for
+                                each item pushed into its <classname>CTreeParameterVector</classname>
+                            </para>
+                        </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>
