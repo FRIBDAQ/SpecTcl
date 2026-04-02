@@ -115,7 +115,8 @@ static const SpecTypes aSpecTypes[] = {
   {"m2",   ke2Dm},
   {"gd",   keG2DD},
   {"gs",   keGSummary},
-  {"2dmproj", ke2DmProj }
+  {"2dmproj", ke2DmProj},
+  {"1v", ke1DVec} 
 
 };
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
