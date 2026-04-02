@@ -207,7 +207,8 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       return CreateStrip(rName, eDataType, p, c,
 		      rChannels[0], fLow, fHigh);
     }
-  case ke1DVec: {
+  case ke1DVec: 
+    try {
     CTreeParameterVector param = validate1DVec(
         rName, eDataType, rParameters, rChannels, pLows, pHighs
     );
@@ -219,6 +220,13 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       reinterpret_cast<CSpectrum*>(new CSpectrum1DVecL(rName, id, param, bins, low, high))
     :
       reinterpret_cast<CSpectrum*>(new CSpectrum1DVecW(rName, id, param, bins, low, high));
+  }
+  catch (...) {
+    if (m_fExceptions) {
+      throw;
+    } else {
+      return nullptr;
+    }
   }
   case ke2D:
     {
@@ -503,15 +511,15 @@ CSpectrumFactory::CreateSpectrum(const std::string& rName,
       // Too many parameter specifications:
 
       if (m_fExceptions) {
-	throw CSpectrumFactoryException(eDataType,
-					eSpecType,
-					rName,
-					CSpectrumFactoryException::keBadParameterCount,
-					"2d spectra can only have 2 parameters");
-      }
-      else {
-	return static_cast<CSpectrum*>(kpNULL);
-      }
+        throw CSpectrumFactoryException(eDataType,
+                eSpecType,
+                rName,
+                CSpectrumFactoryException::keBadParameterCount,
+                "2d spectra can only have 2 parameters");
+            }
+            else {
+        return static_cast<CSpectrum*>(kpNULL);
+            }
     }
 
   case keG2DD:
