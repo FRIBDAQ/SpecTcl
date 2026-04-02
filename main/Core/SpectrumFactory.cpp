@@ -157,7 +157,7 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
 
 
   vector<CParameter> ParameterList;
-  ParameterList = ParameterArray(rParameters);
+  if (eSpecType != ke1DVec) ParameterList = ParameterArray(rParameters);    // Not in the parameter dict.
 
   switch(eSpecType) {		// Actions break out depending on type:
   case ke1D: 
@@ -1890,7 +1890,7 @@ CSpectrumFactory::validate1DVec(
   }
   // low and high must exist and there must be one of them.
 
-  if (!pLows && !pHighs) {
+  if (!pLows || !pHighs) {
     throw CSpectrumFactoryException(
       eDataType, ke1DVec, name, CSpectrumFactoryException::keBadTransformCount, "v1 spectra a low and high limit."
     );
