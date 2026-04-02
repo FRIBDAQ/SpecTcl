@@ -83,6 +83,9 @@ public:
   virtual   Size_t Dimension (UInt_t nDimension) const;
   virtual   Bool_t needParameter() const;
   virtual SpectrumType_t getSpectrumType();
+  // Other operations:
+
+  std::string getVectorName() const;
 protected:
     void CreateRootSpectrum(const char* name, Double_t low, Double_t high, UInt_t bins);
     virtual void deleteRootSpectrum();

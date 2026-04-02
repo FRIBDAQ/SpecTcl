@@ -251,6 +251,17 @@ SpectrumType_t
 CSpectrum1DVec<T>::getSpectrumType() {
     return ke1DVec;
 }
+
+/**
+ * getVectorName 
+ * 
+ *  @return std::strig -name of the tree vector we are defined on:
+ */
+template <typename T>
+std::string
+CSpectrum1DVec<T>::getVectorName() const {
+    return m_parameters.name();
+}
 //////////////////////////////// protected utilities.
 
 /**
