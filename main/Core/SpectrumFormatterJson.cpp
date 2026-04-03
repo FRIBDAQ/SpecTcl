@@ -34,6 +34,7 @@
 
 #include "SpectrumFormatterJson.h"
 #include "Spectrum.h"
+#include "Spectrum1DVec.h"
 #include "SpectrumFormatError.h"
 #include "Parameter.h"
 #include "SpectrumFactory.h"
@@ -158,10 +159,11 @@ CSpectrumFormatterJson::Read(
  * @param rStream - references the stream to which to write the
  * spectrum.  
  * @param rSpectrum - References the spectrum to write.
- * 
+ * @todo - what if someone tries to write a snapshot spectrum?  take care of that here or
+ *  in the caller?
 */
 void
-CSpectrumFormatterJson:: Write(
+CSpectrumFormatterJson::Write(
     std::ostream &rStream, CSpectrum &rSpectrum,
     ParameterDictionary &rDict) {
 
@@ -323,6 +325,14 @@ CSpectrumFormatterJson:: Write(
             break;
         case ke2DmProj:
             xp = parameterNames;
+            break;
+        case ke1DVec:
+        {
+            // the parameters will be just the tree variable name.
+
+            CSpectrum1DVecL* vecSpec = reinterpret_cast<CSpectrum1DVecL*>(&rSpectrum);
+            xp.push_back(vecSpec->getVectorName());
+        }
             break;
         case keUnknown:
             throw std::string("Unknown spectrum type");
@@ -633,17 +643,19 @@ CSpectrumFormatterJson::fillSpectrum(CSpectrum& spec, Json::Value& channels) {
 Json::Value
 CSpectrumFormatterJson::parameterMetadata(const char *pName) {
     auto pDefinition = SpecTcl::getInstance()->FindParameter(pName);
-    auto metadata = pDefinition->getAllMetadata();
-
     Json::Value result;
     result["name"] = std::string(pName);
-
     Json::Value md(Json::arrayValue);
-    for (auto p : metadata) {
-        Json::Value item;
-        item["name"] = p.first;
-        item["name"] = p.second;
-        md.append(item);
+    if (pDefinition) {
+        auto metadata = pDefinition->getAllMetadata();
+
+        for (auto p : metadata) {
+            Json::Value item;
+            item["name"] = p.first;
+            item["name"] = p.second;
+            md.append(item);
+        }
+        result["metadata"] = md;
     }
     result["metadata"] = md;
     return result;

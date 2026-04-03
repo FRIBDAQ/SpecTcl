@@ -28,6 +28,7 @@
 #include "ReadCommand.h"
 #include "SpectrumFormatError.h"
 #include "Spectrum.h"
+#include "Spectrum1DVec.h"
 #include "GateContainer.h"
 #include "Parameter.h"
 #include "SpectrumFactory.h"
@@ -373,6 +374,15 @@ CHDF5SpectrumFormatter::Write (
 
         if (description.eType == keGSummary) {
             writeGammaSummaryParameters(spectrumGroup, rDict, description.vParameters);
+        } else if (description.eType == ke1DVec) {
+
+            // There are no parameters, just a vectorbasename:
+            CSpectrum1DVecL* pVecSpec = reinterpret_cast<CSpectrum1DVecL*>(&rSpectrum);
+            
+            std::vector<std::string> names;
+            names.push_back(pVecSpec->getVectorName());
+            writeStringListDataSet(spectrumGroup, "xparameters", names);
+            
         } else {
             if (description.vParameters.size() > 0) {
                 makeParameterDataset(
@@ -522,6 +532,7 @@ CHDF5SpectrumFormatter::makeParameterDataset(
 
     writeStringListDataSet(parent, name, paramNames);
 }
+
 /**
  * writeGammaSummaryParametrs:
  *    Gamma summary spectra have lists of parameter lists.  Each list

@@ -78,6 +78,7 @@ private:
         H5::Group& parent, const char* name,
         ParameterDictionary& rDict, const std::vector<UInt_t>& paramIds
     );
+  
     void writeGammaSummaryParameters(
         H5::Group& parent, ParameterDictionary& rDict, const std::vector<UInt_t>& paramIds
     );
