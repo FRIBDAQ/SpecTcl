@@ -113,6 +113,7 @@ public:
   virtual   void Clear ()    ;
   virtual   Size_t Dimension (UInt_t nDimension)  const;
   virtual   UInt_t Dimensionality ()  const;
+  virtual   Bool_t needParameter() const;
   virtual   Float_t GetLow(UInt_t nDimension) const;
   virtual   Float_t GetHigh(UInt_t nDimension) const;
   virtual   std::string  GetUnits(UInt_t nDimension) const;
