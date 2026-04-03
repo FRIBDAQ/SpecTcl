@@ -594,6 +594,12 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
     
 	
 	CSpectrum* rSpec((*p).second);
+
+  // If rSpec is a snapshot, replace it with the encapsulated spectrum:
+
+  CSnapshotSpectrum *snap = dynamic_cast<CSnapshotSpectrum*>(rSpec);
+  if (snap) rSpec = const_cast<CSpectrum*>(&snap->getCSpectrum());
+
 	std::string d =  rSpec->getTextDescription();
 	if (d == "") {
 	  //  Need to compute/cache.
