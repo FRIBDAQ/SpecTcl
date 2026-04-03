@@ -168,7 +168,7 @@ operator<<(std::ostream& out, SpectrumType_t t)
     out << "2dmproj";
     break;
   case ke1DVec:
-    out << "1dv";
+    out << "1v";
     break;
   case keUnknown:
   default:
@@ -206,7 +206,7 @@ operator>>(std::istream& in, SpectrumType_t& t)
     t = keGSummary;
   } else if (type == "m2") {
     t = ke2Dm;
-  } else if (type == "1dv") {
+  } else if (type == "1v") {
     t = ke1DVec;
   } else {
     t =keUnknown;
