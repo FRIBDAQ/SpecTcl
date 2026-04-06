@@ -74,6 +74,8 @@ CTreeVecActual::~CTreeVecActual() {}
             setlow(interp, objv);
         } else if (subCommand == "-sethigh") {
             sethigh(interp, objv);
+        } else if (subCommand == "-setbins") {
+            setbins(interp, objv);
         } else if (subCommand == "-setunits") {
             setunits(interp, objv);
         } else {
@@ -186,6 +188,28 @@ CTreeVecActual::sethigh(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) 
     CTreeParameterVector vec = CTreeParameterVector::find(name.c_str());  // Can throw.
     vec.setHigh(newhi);
 }
+/**
+ *  setbins
+ *    Set a new value for the recommended binning of axes on this vector.
+ * 
+ * @param interp - references the interpreter running the command.
+ * @param objv   - the command words.  A vector name is required and a value that decodes as floating.
+ * @throw CTreeParameterVector::NoSuchVectorException   if the named vector does not exist.
+ * @throw std::string wrong number of parameters.
+ * @note CTreeParameterVector::NoSuchVectorException  is derived from std::exception so the caller's
+ * catch block will handle it.
+ * @note no value is set in the interpreter result for this subcommand.
+ */
+void
+CTreeVecActual::setbins(CTCLInterpreter& interp, std::vector<CTCLObject>& objv) {
+    requireExactly(objv, 4, "-setbins requires a tree vector name and new suggested binning");
+
+    std::string name = objv[2];
+    int      newbins = objv[3];
+
+    CTreeParameterVector vec = CTreeParameterVector::find(name.c_str());
+    vec.setBins(newbins);
+}
 
 /** setunits
  *    SEts a new units value for a vectorr.   Again, this sets both the units for any new parameters
@@ -235,6 +259,10 @@ CTreeVecActual::setunits(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     CTCLObject high; high.Bind(interp);
     high = pInfo->s_high;
     Tcl::DictPut(interp, result, "high", high);
+
+    CTCLObject bins; bins.Bind(interp);
+    bins = static_cast<int>(pInfo->s_bins);
+    Tcl::DictPut(interp, result, "bins", bins);
 
     Tcl::DictPut(interp, result, "units", pInfo->s_units.c_str());
 
