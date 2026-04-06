@@ -11,9 +11,10 @@ std::map<std::string, CTreeParameterVector::pTreeVectorInfo> CTreeParameterVecto
 
 static const double DEFAULT_LOW(0.0);
 static const double DEFAULT_HIGH(100.0);
+static const unsigned DEFAULT_BINS(100);
 
 CTreeParameterVector::_TreeVectorInfo::_TreeVectorInfo() :
-    s_low(DEFAULT_LOW), s_high(DEFAULT_HIGH), s_units("") {}
+    s_low(DEFAULT_LOW), s_high(DEFAULT_HIGH), s_bins(DEFAULT_BINS), s_units("") {}
 
 
 /**
@@ -39,10 +40,12 @@ m_baseName(basename), m_pInfo(nullptr)
  * @param units - (optional) units of measure
  * 
  */
-CTreeParameterVector::CTreeParameterVector(const char* basename, double low, double high, const char* units) : 
+CTreeParameterVector::CTreeParameterVector(
+    const char* basename, double low, double high, unsigned bins, const char* units
+) : 
 m_baseName(basename), m_pInfo(nullptr)
 {
-    m_pInfo = getInfoBlock(basename, low, high, units);
+    m_pInfo = getInfoBlock(basename, low, high, bins, units);
 }
 
 /**
@@ -163,6 +166,13 @@ double
 CTreeParameterVector::high() const{
     return m_pInfo->s_high;
 }
+/** 
+ * bins - get suggested binning
+ */
+unsigned
+CTreeParameterVector::bins() const {
+    return m_pInfo->s_bins;
+}
 /**
  * units - return the units
  */
@@ -192,6 +202,17 @@ CTreeParameterVector::setHigh(double high) {
     m_pInfo->s_high = high;
     for (auto p : m_pInfo->s_createdParameters) {
         p->setStop(high);
+    }
+}
+/**
+ *  setBins
+ * @param bins - new suggested bins
+ */
+void
+CTreeParameterVector::setBins(unsigned bins) {
+    m_pInfo->s_bins = bins;
+    for (auto p: m_pInfo->s_createdParameters) {
+        setBins(bins);
     }
 }
 /**
@@ -347,14 +368,18 @@ CTreeParameterVector::getInfoBlock(const char* name) {
  * @param name - base name of the parameter.
  * @param low  - low limit.
  * @param high - high limit.
+ * @param bins - suggested binning.
  * @param units - units of measure.
  * @return pTreeVectorInfo
  */
 CTreeParameterVector::pTreeVectorInfo
-CTreeParameterVector::getInfoBlock(const char* name, double low, double high, const char* units) {
+CTreeParameterVector::getInfoBlock(
+    const char* name, double low, double high, unsigned bins, const char* units) 
+{
     pTreeVectorInfo p = getInfoBlock(name);
     p->s_low  = low;
     p->s_high = high;
+    p->s_bins = bins;
     p->s_units = units;
     return p;
 }

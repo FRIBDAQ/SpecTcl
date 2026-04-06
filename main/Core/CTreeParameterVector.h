@@ -55,6 +55,7 @@ public:
     typedef struct _TreeVectorInfo {
         double s_low;                         // Low limit.
         double s_high;                        // High limit.
+        unsigned s_bins;                      // Suggested binning.
         std::string s_units;                    // units of measure.
         std::vector<CTreeParameter*>  s_createdParameters;   // Parameter's we've created.
         std::vector<CTreeParameter*>  s_event;               // Parameters in this event.
@@ -84,7 +85,9 @@ public:
     // Canonicals:
 
     CTreeParameterVector(const char* basename);
-    CTreeParameterVector(const char* basename, double low, double high, const char* units = "");
+    CTreeParameterVector(
+        const char* basename, double low, double high, unsigned bins, const char* units = ""
+    );
     CTreeParameterVector(const CTreeParameterVector& rhs);    // Can copy construct.
     CTreeParameterVector& operator=(const CTreeParameterVector& rhs); // can assign.
     int operator==(const CTreeParameterVector& rhs) const;  // equal names.
@@ -107,9 +110,11 @@ public:
 
     double low() const;
     double high() const;
+    unsigned bins() const;
     std::string units() const;
     void setLow(double low);
     void setHigh(double high);
+    void setBins(unsigned bins);
     void setUnits(const char* units);
     std::string name() const;
 
@@ -126,7 +131,9 @@ private:
     // is that I want to allow finding the parameter block and _not_ overriding
     // the limits if it already exists.
     static pTreeVectorInfo getInfoBlock(const char* name);
-    static pTreeVectorInfo getInfoBlock(const char* name, double low, double high, const char* units);
+    static pTreeVectorInfo getInfoBlock(
+        const char* name, double low, double high, unsigned bins, const char* units
+    );
 
     CTreeParameter*  createEventParameter();
     CTreeParameter*  createParameter();
