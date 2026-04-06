@@ -29,6 +29,7 @@ package require gate
 package require spectrum
 package require editvariable
 package require editparameter
+package require editvector
 package require guiutilities
 package require guihelp
 package require guistate
