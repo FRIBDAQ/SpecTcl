@@ -928,7 +928,14 @@ proc modifyParameter path {
     }
     .editparameter configure -parameter [pathToName $path]
 }
-
+##
+# modifyVector
+#     Edit the properties of a vector parameter.
+# @param path - path to the vector name.
+#
+proc  modifyVector path {
+    puts "Modify vector $path"
+}
 #
 #   Determine how many bytes of display memory are in use:
 #
@@ -1165,6 +1172,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
                    -variablefoldercommand   variableFolderContextMenu  \
                    -variablescript          modifyVariable             \
                    -parameterscript         modifyParameter            \
+                   -vectorscript            modifyVector                \
                    -gatescript              editGate                    \
                    -spectrumscript          editSpectrum                \
                    -spectrumrightclick      spectrumContextMenu        \

@@ -313,6 +313,11 @@ image create photo ::browser::foldericon   -format png \
         $tree tag bind parameter <Double-1> [mymethod onElementDoubleClick -parameterscript %x %y]
         $tree tag bind parameter <Button-3> [mymethod onElementContext -parameterrightclick %x %y %X %Y]
 
+        # Vector parameters:
+
+        $tree tag bind vector  <Button-1 [mymethod selectElement %x %y]
+        $tree tag bind vector <Double-1> [mymethod onElementDoubleClick -vectorscript %x %y]    
+
         # Variables:
 
         $tree tag bind variable <Button-1>  [mymethod selectElement %x %y]
