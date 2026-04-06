@@ -38,6 +38,7 @@ class CTreeParameterVector;
  * * -list ?pattern? - lists the properties of matching tree parameter vectors.
  * * -setlow name value - set the low limit of the named vector.
  * * -sethigh name value - set the high limit of the named vector.
+ * * -setbins name value - set the recommended binning.
  * * -setunits name units - sets the units of measure of the named vector.
  * 
  * -list is the only one I'll say more about.  The result is a list of dicts.
@@ -46,6 +47,7 @@ class CTreeParameterVector;
  * * name - name of the vector (used to generate actual parameter names).
  * * low  - low limit that is defined for all parameters.
  * * high - high limit that is defined for all paramters.
+ * * bins - suggested binning.
  * * units - units of measure that is defined for all parameters.
  * * parameters - list of actual tree parameters that have been created. example
  * 
@@ -73,6 +75,7 @@ protected:
     void list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void setlow(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void sethigh(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void setbins(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void setunits(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 
 private:
