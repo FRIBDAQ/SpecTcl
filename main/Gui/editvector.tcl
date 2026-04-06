@@ -106,7 +106,15 @@ snit::widget editvector {
     
 
     #------------------------- public methods.
-
+    ##
+    #  updateRevert
+    #    Update our reversion array from the options
+    #
+    method updateRevert {} {
+        foreach opt [array names reversion] {
+            set reversion($opt) $options($opt)
+        }
+    }
     ##
     # modal
     #    makes the dialog modal.
@@ -132,10 +140,81 @@ snit::widget editvector {
         catch [grab release $win]; # Would fail if $win was destroyed.
 
         if {[info exists action]} {
+            puts "returning $action"
             return $action
         } else {
+            puts "Destroyed"
             return destroyed
         }
     }
 
+}
+
+##
+# updateVector
+#   Update the properties of a tree vector from an editor dialog:
+# @param name -nam  of the vector.
+# @param path to the editor.
+#
+proc updateVector {name path} {
+
+    # update the vector
+
+    treeparamvec -setlow $name [$path cget -low]
+    treeparamvec -sethigh $name [$path cget -high]
+    treeparamvec -setbins $name [$path cget -bins]
+    treeparamvec -setunits $name [$path cget -units]
+
+    # update the revert value:
+
+    $path updateRevert
+
+    
+}
+
+##
+# This proc will instantiate an edit vector and do the appropriate stuff
+# With it   Think of it as the controller for the view above.
+#
+# @param path - path to the vectory name.
+
+proc editVector {path} {
+    set path [split $path .]
+    set name [lindex $path end]
+    set info [treeparamvec -list $name];
+    if {[llength $info] == 0} {
+        # should not happen!!
+        tk_messageBox -icon error -type ok -title {No such vector} -message "There is no vector named $name"
+        return
+    }
+
+    # Spin up our dialog box:
+    set info [lindex $info 0]
+    set low [dict get $info low]
+    set high [dict get $info high]
+    set bins [dict get $info bins]
+    set units [dict get $info units]
+
+    editvector .vedit -name $name -low $low -high $high -bins $bins -units $units
+
+    set action [.vedit modal]
+    while {$action eq "Accept"} {
+        puts $action
+        updateVector $name .vedit
+        set action [.vedit modal]
+
+        # Update the vector::
+
+        
+    }
+    puts "Done $action"
+    #  If the action was Ok then update the vector before killing
+    # The dialog:
+
+    if {$action eq "Ok"} {
+        updateVector $name .vedit
+    }
+
+
+    catch {destroy .vedit}
 }

@@ -935,7 +935,9 @@ proc modifyParameter path {
 # @param path - path to the vector name.
 #
 proc  modifyVector path {
-    puts "Modify vector $path"
+    editVector $path
+    failsafeWrite;             # eventually we want to write vector props here.
+    ::FolderGui::updateBrowser
 }
 #
 #   Determine how many bytes of display memory are in use:
