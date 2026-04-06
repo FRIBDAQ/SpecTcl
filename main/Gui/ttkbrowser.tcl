@@ -27,6 +27,7 @@ package require img::png
 #   be browsed include:
 #     Spectra
 #     Parameters (tree and otherwise)
+#     Vectors   (tree vectors).
 #     TreeVariables
 #     Gates
 #

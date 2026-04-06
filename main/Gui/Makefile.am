@@ -96,4 +96,5 @@ editGammaDeluxe.tcl \
 editGammaDeluxehelp.html \
 editgsummary.tcl    \
 gammasummary.html \
-folder.png segmentedrun.tcl
+folder.png segmentedrun.tcl \
+rightarrow.gif
