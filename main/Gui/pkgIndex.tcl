@@ -23,6 +23,7 @@ package ifneeded editGammaSummary 1.0 [list source [file join $dir editgsummary.
 package ifneeded editmulti 1.0 [list source [file join $dir editmulti.tcl]]
 package ifneeded editparameter 1.0 [list source [file join $dir editparameter.tcl]]
 package ifneeded editstrip 1.0 [list source [file join $dir editstrip.tcl]]
+package ifneeded edit1dVector 1.0 [list source [file join $dir edit1dVector.tcl]]
 package ifneeded editvariable 1.0 [list source [file join $dir editvariable.tcl]]
 package ifneeded filtercontrol 1.0 [list source [file join $dir filtercontrol.tcl]]
 package ifneeded gate 1.0 [list source [file join $dir gate.tcl]]
