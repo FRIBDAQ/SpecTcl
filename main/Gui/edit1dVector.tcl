@@ -49,6 +49,31 @@ snit::widget edit1dVec {
         $browser configure -filtervectors [mymethod _filterVectors]
     }
     ##
+    #  load
+    #    Load the gui with the named spectrum.
+    #   most of the work is done in the 1d editor but it
+    #   checkes the parameter so we need to select the vector parameter.
+    #
+    # @param name -spectrum name.
+    #
+    method load name {
+
+        set def [spectrum -list $name]
+        set def [lindex $def 0]
+        set vector [lindex $def 3]
+        set axis      [lindex $def 4]
+        set axis      [lindex $axis 0]
+    
+        set low       [lindex $axis 0]
+        set high      [lindex $axis 1]
+        set bins      [lindex $axis 2]
+        set units     [dict get [lindex [treeparamvec -list $vector] 0] units]
+        $editor populateParameter $vector $low $high $bins $units
+
+        $browser update
+    }
+    
+    ##
     # _selectVector
     #
     #  Called to select a vector.  This
@@ -57,11 +82,8 @@ snit::widget edit1dVec {
     # @param path - path to the item in the tree.
     method _selectVector {path} {
         # The vector name is the last path element:
-        catch {
-        puts _selectVector
-        puts $path
+        
         set name [::pathToName $path]
-        puts $name
         set properties [lindex [treeparamvec -list $name] 0]
 
         set low [dict get $properties low]
@@ -79,9 +101,7 @@ snit::widget edit1dVec {
         if {[llength [treeparamvec -list priorVec]] > 0} {
             $browser addNewVector $name
         }
-        } msg 
-        puts $msg
-        puts $::errorInfo
+        
     }
     ##
     #  _filterVectors
@@ -94,7 +114,12 @@ snit::widget edit1dVec {
     # @return bool - true to display, false otherwise.
     #   
     method _filterVectors {desc} {
+        
+        set name [$editor getParameters]
+        set itemName [dict get $desc name]
+        set result [expr {$name ne $itemName}]
 
+        return  $result
     }
 }
 
