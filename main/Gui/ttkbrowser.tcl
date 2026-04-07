@@ -66,6 +66,7 @@ package require img::png
 #      -filtergates script     Run gate defs through script and only display those for which script is true
 #      -filterparameters script As for -filtergates but with parameters.
 #      -filterspectra script  as for -filtergates but with specrtra.
+#      -filtervectors script as for -filtergates but with vectors.
 #
 #     Geometric aspects:
 #      -width     - Width of the browser window               (at present not dynamic)
@@ -138,6 +139,7 @@ image create photo ::browser::foldericon   -format png \
     option -filtergates {}
     option -filterparameters {}
     option -filterspectra    {}
+    option -filtervectors   {}
 
     option -width 8in
     option -treewidth 2.5in
@@ -160,6 +162,7 @@ image create photo ::browser::foldericon   -format png \
         parameter Parameters
         variable  Variables
         gate      Gates
+        vectors   Vectors
     }
     variable dTypeToNames -array {
         l long
@@ -1771,6 +1774,59 @@ image create photo ::browser::foldericon   -format png \
         }
     }
     ##
+    # addNewVector
+    #    Adds a new vector des ription to the vector folder. There are
+    #    two cases:  
+    #    - The vector exists - in which case it's properties are filled in.
+    #    - The vector does not exist - in which case the vector is added
+    #      at the appropriate spot.
+    #
+    # @param name -name of the vector.
+    #
+    method addNewVector name {
+        set info [treeparamvec -list $name]
+        if {[llength $info ] == 0} {
+            error "There is no vecdtor named $name"
+        }
+        set info [lindex $info 0]
+
+        set low   [dict get $info low]
+        set high  [dict get $info high]
+        set bins  [dict get $info bins]
+        set units [dict get $info units]
+        # vectors are flat so iterate through the children of the
+        # vector folder:
+        #  - If there's a match, fill in.
+        #  - If we get to a name lexically larger than ours,
+        #    insert before it.
+
+        set folderId [$self _getTopFolderId vectors]
+        set children [$tree children $folderid]
+        foreach child $children {
+            set childName [$tree item $child -text]
+            if {$childName eq $name} {
+                # replace.
+                $tree item $child -value [list "" "" $low $high $bins "" $units]
+                return
+            }
+            if {$childName > $name} {
+                set index [$tree index $child]
+                set newid \
+                    [$tree insert $folderId $index \
+                     -text $name -image ::browser::vectoricon]
+                $tree item $newid -value [list "" "" $low $high $bins "" $units]
+                return
+            }
+        }
+        #  Not inserted so insert at end.
+        set newId \
+            [$tree insert $folderId end \
+             -text $name -image ::browser::vectoricon]
+        $tree item $newId -value [list "" "" $low $high $bins "" $units]
+
+
+    }
+    ##
     # addNewGate
     #   Adds a new gate to the browser.
     #   - Find the owning folder
@@ -1874,6 +1930,7 @@ image create photo ::browser::foldericon   -format png \
     #         is none.
     #
     method _getTopFolderId {otype} {
+        
         if {[array names typeToNames $otype] eq ""} {
             return "";                   # no such type is no such folder.
         }
