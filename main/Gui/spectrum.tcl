@@ -23,6 +23,7 @@ package require editmulti
 package require editstrip
 package require editGammaDeluxe
 package require editGammaSummary
+package require edit1dVector
 package require guiutilities
 package require Iwidgets
 package require guihelp
@@ -79,7 +80,8 @@ snit::widget spectrumGui {
         array set spectrumTypeNames [list 1 1-d 2 2-d g1 {gamma 1-d} \
 				     g2 {gamma 2-d} gd {Gamma 2-d x/y} s Summary \
 				     b bitmask S {Strip Chart} \
-				     m2 {2d Sum Spectrum} gs {Gamma Summary}]
+				     m2 {2d Sum Spectrum} gs {Gamma Summary} \
+                     1v {1d Vector Spectrum}]
 
 
         # Top common contents frame:
@@ -90,16 +92,19 @@ snit::widget spectrumGui {
         set typemenu [menu $win.common.type.menu -tearoff 0]
         $typemenu add command -label 1-d           -command [mymethod start1dEditor 1]
         $typemenu add command -label 2-d           -command [mymethod start2dEditor]
+        $typemenu add command -label {1d Vector Spectrum } \
+            -command [mymethod startVec1dEditor]
         $typemenu add separator
         $typemenu add command -label {gamma 1-d}   -command [mymethod startMultiparameterSpectrumEditor g1]
         $typemenu add command -label {gamma 2-d}   -command [mymethod startMultiparameterSpectrumEditor g2]
-	$typemenu add command -label {gamma 2-d x/y} -command [mymethod startGamma2dDeluxeEditor]
-	$typemenu add command -label {gamma Summary} -command [mymethod startGammaSummaryEditor gs]
-	$typemenu add command -label {2-d Sum}     -command [mymethod start2dSumEditor]
+        $typemenu add command -label {gamma 2-d x/y} -command [mymethod startGamma2dDeluxeEditor]
+        $typemenu add command -label {gamma Summary} -command [mymethod startGammaSummaryEditor gs]
+        $typemenu add command -label {2-d Sum}     -command [mymethod start2dSumEditor]
         $typemenu add separator
         $typemenu add command -label {Summary}     -command [mymethod startMultiparameterSpectrumEditor s]
         $typemenu add command -label {bitmask}     -command [mymethod start1dEditor b]
         $typemenu add command -label {Strip Chart} -command [mymethod startStripchartEditor]
+       
 
         label $win.common.namelabel -text {Spectrum Name: }
         entry $win.common.name
@@ -201,10 +206,14 @@ snit::widget spectrumGui {
                 $win.editor.contents load $name
             }
 	    m2 {
-		$self start2dSumEditor
-		$win.editor.contents load $name
-	    }
-            default {
+            $self start2dSumEditor
+            $win.editor.contents load $name
+            }
+        1V {
+            $self startVec1dEditor
+            $win.editor.contents load $name
+        }
+        default {
             }
         }
 
@@ -328,23 +337,54 @@ snit::widget spectrumGui {
     #    Starts a spectrumeditor for the 2-d sum spectra.
     #
     method start2dSumEditor {} {
-	$self setSpectrumType m2
-	destroy $win.editor.contents
+        $self setSpectrumType m2
+        destroy $win.editor.contents
 
-	# Can't create the browser using createBrowser 'cause we want spectra too
-	# and -restrict is not dynamic.
-	
-	destroy $win.editor.browser
+        # Can't create the browser using createBrowser 'cause we want spectra too
+        # and -restrict is not dynamic.
+        
+        destroy $win.editor.browser
         browser $win.editor.browser -gatescript [mymethod selectGate] \
-	    -restrict {parameters gates spectra} \
-	    -showcolumns [list type low high bins units] -width 5in
-	edit2dMulti $win.editor.contents -browser $win.editor.browser
+            -restrict {parameters gates spectra} \
+            -showcolumns [list type low high bins units] -width 5in
+        edit2dMulti $win.editor.contents -browser $win.editor.browser
 
-	pack $win.editor.browser $win.editor.contents -fill x -expand 1 -side left
-	$win.editor.browser update
+        pack $win.editor.browser $win.editor.contents -fill x -expand 1 -side left
+        $win.editor.browser update
 
-	set helpTopic [$win.editor.contents getHelpTopic]
+        set helpTopic [$win.editor.contents getHelpTopic]
 
+    }
+    ##
+    # startVec1dEditor
+    #    Start the 1v spectrum editor.
+    #
+    method startVec1dEditor {} {
+        catch {
+        $self setSpectrumType 1v
+        destroy $win.editor.contents
+
+        destroy $win.editor.contents
+        destroy $win.editor.browser
+
+        # The browser should show the vectors and potential 
+        # spectrum gates.
+        #
+        browser $win.editor.browser -gatescript [mymethod selectGate] \
+            -restrict {vectors gates} \
+            -showcolumns [list type low high bins units] -width 5in
+
+        # Right side of the editor:
+
+        edit1dVec $win.editor.contents -browser $win.editor.browser 
+
+        pack $win.editor.browser $win.editor.contents -fill x -expand 1 -side left
+        $win.editor.browser update
+
+        set helpTopic [$win.editor.contents getHelpTopic]
+        } msg
+        puts $msg
+        puts $::errorInfo 
     }
 
     # startStripchartEditor
