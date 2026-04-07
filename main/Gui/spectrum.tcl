@@ -209,9 +209,11 @@ snit::widget spectrumGui {
             $self start2dSumEditor
             $win.editor.contents load $name
             }
-        1V {
+        1v {
+            
             $self startVec1dEditor
             $win.editor.contents load $name
+            
         }
         default {
             }
