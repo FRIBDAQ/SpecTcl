@@ -360,7 +360,7 @@ snit::widget spectrumGui {
     #    Start the 1v spectrum editor.
     #
     method startVec1dEditor {} {
-        catch {
+        
         $self setSpectrumType 1v
         destroy $win.editor.contents
 
@@ -382,9 +382,8 @@ snit::widget spectrumGui {
         $win.editor.browser update
 
         set helpTopic [$win.editor.contents getHelpTopic]
-        } msg
-        puts $msg
-        puts $::errorInfo 
+        
+
     }
 
     # startStripchartEditor
@@ -594,7 +593,6 @@ snit::widget saveSpectrumDialog {
     method onOk {} {
         
         set format [$self getFormat]
-        puts "Format: $format"
         set ftypes(nsclascii)  [list "Spectrum Files" .spec]
         set ftypes(json)       [list "JSon Files"     .json]
         set ftypes(hdf5)       [list "HDF5 files"     .hdf]    
@@ -897,31 +895,31 @@ proc addSpectrum widget {
 
     if {!$array} {
 
-	if {$type eq "m2"} {
-	    set multiparams $parameters
-	    set parameters [list]
-	    foreach pair $multiparams {
-		set x [lindex $pair 0]
-		set y [lindex $pair 1]
+        if {$type eq "m2"} {
+            set multiparams $parameters
+            set parameters [list]
+            foreach pair $multiparams {
+            set x [lindex $pair 0]
+            set y [lindex $pair 1]
 
-		# If there are incomplete coordinate pairs complain and exit
-		if {($x eq "") || ($y eq "")}  {
-		    tk_messageBox -icon error -title {Unbalanced parameters} \
-			-message {2-d sum spectra must have the same number of x and y parameters}
-		    error incomplete
-		}
-		#  Unwrap the pair into the flat paramter list.
-		lappend parameters $x
-		lappend parameters $y
-	    }
-	}
+            # If there are incomplete coordinate pairs complain and exit
+            if {($x eq "") || ($y eq "")}  {
+                tk_messageBox -icon error -title {Unbalanced parameters} \
+                -message {2-d sum spectra must have the same number of x and y parameters}
+                error incomplete
+            }
+            #  Unwrap the pair into the flat paramter list.
+            lappend parameters $x
+            lappend parameters $y
+            }
+        }
 
         set info [spectrum -list $name]
         if {$info != ""} {
-	    set keep 0
+            set keep 0
             set keep [tk_dialog .duplicate {Spectrum Exists} \
                         "$name is already a spectrum.  Do you want to replace it?" \
-                         questhead 1 Ok Cancel]
+                        questhead 1 Ok Cancel]
             if {$keep} {
                 error duplicate
             }
@@ -934,17 +932,17 @@ proc addSpectrum widget {
 
 
         set stat [catch {spectrum $name $type $parameters $axes} msg]
-	if {$stat} {
-	    tk_messageBox -icon error -title {failed to make}  \
-		-message "Could not create spectrum $name : $msg"
-	    error spectrumerror
-	}
-        set stat [catch {sbind $name} msg]
-	if {$stat} {
-	    tk_messageBox -icon error -title {failed to bind} \
-		-message "Could not bind $name :  $msg"
-	    error bindfailure
-	}
+        if {$stat} {
+            tk_messageBox -icon error -title {failed to make}  \
+            -message "Could not create spectrum $name : $msg"
+            error spectrumerror
+        }
+            set stat [catch {sbind $name} msg]
+        if {$stat} {
+            tk_messageBox -icon error -title {failed to bind} \
+            -message "Could not bind $name :  $msg"
+            error bindfailure
+        }
 
         # If there's a gate apply it.
 
@@ -1365,9 +1363,7 @@ proc readSpectrumFile {} {
     
             }
         }
-        puts $msg
-        puts $::errorInfo
-        failsafeWrite
+
         ::FolderGui::updateBrowser
         destroy .readmany
     }
