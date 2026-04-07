@@ -173,7 +173,11 @@ snit::widget edit1d {
             set bins {}
             set units {}
         }
+        catch {
         $self loadParameterInfo $name $low $high $bins $units
+        } msg
+        puts $msg
+        puts $::errorInfo
 
     }
     #  loadParameterInfo   name low high bins units
@@ -181,7 +185,7 @@ snit::widget edit1d {
     #
     method loadParameterInfo {name low high bins units} {
         set browser $options(-browser)
-        
+        set myframe $win.myframe
         $self addParameterToBrowser [$myframe.parameter cget -text]
         
         $self deleteParameterFromBrowser $name
@@ -213,11 +217,11 @@ snit::widget edit1d {
         
         set oldDesc [parameter -list $name]
         if {[llength $oldDesc] > 0} {
-            $browser addNewParameter $name
+            $options(-browser) addNewParameter $name
         }
     }
     method deleteParameterFromBrowser name {
-        $browser deleteElement parameter $name
+        $options(-browser) deleteElement parameter $name
     }
     ##
     # filterParams
