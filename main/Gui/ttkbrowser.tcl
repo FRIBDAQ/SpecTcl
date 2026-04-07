@@ -605,7 +605,7 @@ image create photo ::browser::foldericon   -format png \
         # Branch out depending on the type of spectrum:
 
         switch -exact -- $spectrumType {
-	    1 {
+	    1 - 1v {
 		$self set1dSubInfo $id $parameters $axes
 	    }
 	    2 {
@@ -638,6 +638,7 @@ image create photo ::browser::foldericon   -format png \
         2dmproj {
             $self setM2ProjectionInfo $id $parameters $axes
         }
+        
 	    default {}
         }
     }
@@ -1947,7 +1948,7 @@ image create photo ::browser::foldericon   -format png \
     #    8 Full spectrum definition from spectrum -list -showgate
     # @return id     - id of the item created.
     method _insertSpectrum {parent index info} {
-        
+       
         
         set id [$tree insert $parent $index -text [lindex $info 0]    \
                 -image  ::browser::spectrumicon\
