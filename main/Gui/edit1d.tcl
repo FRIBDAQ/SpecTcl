@@ -173,11 +173,9 @@ snit::widget edit1d {
             set bins {}
             set units {}
         }
-        catch {
+        
         $self loadParameterInfo $name $low $high $bins $units
-        } msg
-        puts $msg
-        puts $::errorInfo
+        
 
     }
     #  loadParameterInfo   name low high bins units
