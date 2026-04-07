@@ -181,20 +181,43 @@ snit::widget edit1d {
     #
     method loadParameterInfo {name low high bins units} {
         set browser $options(-browser)
-        set myframe $win.myframe
-        set oldParam [$myframe.parameter cget -text]
-        set oldDesc [parameter -list $oldParam]
-        if {[llength $oldDesc] > 0} {
-            $browser addNewParameter $oldParam    
-        }
         
-        $browser deleteElement parameter $name
+        $self addParameterToBrowser [$myframe.parameter cget -text]
+        
+        $self deleteParameterFromBrowser $name
+        
+        $self populateParameter $name $low $high $bins $units
+
+    }
+    #  Populate the parameter part of my ui:
+    # @param name - name of the item.
+    # @param low  - low limit
+    # @param high - high limit.
+    # @param bins - bins.
+    # @param units - units.
+    method populateParameter {name low high bins units} {
+        set myframe $win.myframe
+
         $myframe.parameter configure -text $name
         ::setEntry $myframe.low  $low
         ::setEntry $myframe.high $high
         ::setEntry $myframe.bins $bins
         $myframe.units configure -text $units
-
+    }
+    ##
+    #  addParameterToBrowser
+    #     Add a parameter back to the browser:
+    # @param name - name of the parameter.
+    #
+    method addParameterToBrowser name {
+        
+        set oldDesc [parameter -list $name]
+        if {[llength $oldDesc] > 0} {
+            $browser addNewParameter $name
+        }
+    }
+    method deleteParameterFromBrowser name {
+        $browser deleteElement parameter $name
     }
     ##
     # filterParams
