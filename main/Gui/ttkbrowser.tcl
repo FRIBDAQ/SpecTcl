@@ -427,6 +427,13 @@ image create photo ::browser::foldericon   -format png \
         # Populate the subtree:
         foreach vector $vectorList {
             set name [dict get $vector name]
+    
+            if {$options(-filtervectors) ne ""} {
+                if {![eval $options(-filtervectors) [list $vector]]} {
+                    continue
+                }
+            }
+            
             set low  [dict get $vector low]
             set high [dict get $vector high]
             set bins [dict get $vector bins]
