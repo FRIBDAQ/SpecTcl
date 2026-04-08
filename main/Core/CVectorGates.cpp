@@ -310,3 +310,65 @@ CVectorAndGate::inGate(CEvent& event) {
 }
 
  ///////////////////////////// Or gate implementation (CVectorOrGate):
+
+ /**
+  * constructors
+  *  Just delegates to the base class
+  */
+ CVectorOrGate::CVectorOrGate(Float_t low, Float_t high, const CTreeParameterVector& vec) :
+    CVectorGate(low, high, vec)
+{}
+
+CVectorOrGate::CVectorOrGate(const CVectorOrGate& rhs) :
+    CVectorGate(rhs) 
+{}
+
+CVectorOrGate::~CVectorOrGate() {}
+
+/** assignment - delegate to base class */
+CVectorOrGate&
+CVectorOrGate::operator=(const CVectorOrGate& rhs) {
+    CVectorGate::operator=(rhs);
+    return *this;
+}
+
+/** comparisons also delegate */
+
+int
+CVectorOrGate::operator==(const CVectorOrGate& rhs) const {
+    return CVectorGate::operator==(rhs);
+}
+int
+CVectorOrGate::operator!=(const CVectorOrGate& rhs) const {
+    return CVectorGate::operator!=(rhs);
+}
+
+
+/**
+ * Type
+ * @return std::string
+ * @retval "vc+"  Vector and cut.
+ */
+std::string
+CVectorOrGate::Type() const {
+    return std::string("vc*");
+}
+/**
+ * inGate
+ *    Iterate over the vector values and require all of them
+ * to be in the gate to be true.
+ * 
+ * @param rEvent (ignored).
+ * @return Bool_t true if the event was satisfied.
+ */
+Bool_t
+CVectorOrGate::inGate(CEvent& event) {
+    auto n = m_vector.size();
+    for (int i=0; i < n; i++) {
+        double x = (double)(m_vector[i]);
+        if (CVectorGate::inGate(x)) {
+            return kfTRUE;
+        }
+    }
+    return kfFALSE;
+}
