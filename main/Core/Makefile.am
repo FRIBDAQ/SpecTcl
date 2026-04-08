@@ -184,7 +184,7 @@ Gates_SRC =  ActualIterator.cpp AndGate.cpp Band.cpp \
 	CGammaCut.cpp CGammaBand.cpp CGammaContour.cpp \
 	MaskGates.cpp MaskEqualGate.cpp MaskAndGate.cpp MaskNotGate.cpp \
 	CFold.cpp \
-	CROI.cpp CEverywhereROI.cpp CContourROI.cpp
+	CROI.cpp CEverywhereROI.cpp CContourROI.cpp CVectorGates.cpp
 
 Gates_INCLUDES = ActualIterator.h AndGate.h Band.h C2Bands.h CompoundGate.h \
 	ConstituentIterator.h Contour.h Cut.h DeletedGate.h FalseGate.h \
@@ -193,7 +193,7 @@ Gates_INCLUDES = ActualIterator.h AndGate.h Band.h C2Bands.h CompoundGate.h \
 	PointlistGate.h PointlistIterator.h SingleItemIterator.h TrueGate.h \
 	MaskGates.h MaskEqualGate.h MaskAndGate.h MaskNotGate.h \
 	CFold.h \
-	CROI.h CEverywhereROI.h CContourROI.h
+	CROI.h CEverywhereROI.h CContourROI.h CVectorGates.h
 
 Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Spectrum1d.hpp Spectrum2d.hpp Gamma1D.hpp BitSpectrum.hpp \
