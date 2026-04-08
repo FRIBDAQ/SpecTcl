@@ -233,7 +233,7 @@ void TreeVectorTests::getinfo_1() {
     // Creates a new info block with my
     // desired properties.
 
-    auto p = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, "mm");
+    auto p = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, 100, "mm");
     ASSERT(p);   //Got one.
     EQ(double(-1.0), p->s_low);
     EQ(double(1.0), p->s_high);
@@ -247,8 +247,8 @@ void TreeVectorTests::getinfo_1() {
 void TreeVectorTests::getinfo_2() {
     // I can override existing block 
 
-    auto p1 = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, "mm");
-    auto p2 = CTreeParameterVector::getInfoBlock("testing", 0.0, 360.0, "degrees"); 
+    auto p1 = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, 100, "mm");
+    auto p2 = CTreeParameterVector::getInfoBlock("testing", 0.0, 360.0, 360, "degrees"); 
 
     // Shoulid be the same block:
 
@@ -279,7 +279,7 @@ void TreeVectorTests::getinfo_3() {
 void TreeVectorTests::getinfo_4() {
     // Default construction won't override existing block data:
 
-    auto p1 = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, "mm");
+    auto p1 = CTreeParameterVector::getInfoBlock("testing", -1.0, 1.0, 100, "mm");
     auto p2 = CTreeParameterVector::getInfoBlock("testing");
 
     EQ(p1, p2);
@@ -299,7 +299,7 @@ void TreeVectorTests::getinfo_4() {
 void TreeVectorTests::construct_1() {
     // construct no such with  low, high, units set
 
-    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v("test", -1.0, 1.0, 100, "mm");
     ASSERT(v.m_pInfo);    // There is an info block....
     EQ(double(-1.0), v.m_pInfo->s_low);
     EQ(double(1.0), v.m_pInfo->s_high);
@@ -320,7 +320,7 @@ void TreeVectorTests::construct_2() {
 void TreeVectorTests::construct_3() {
     // Default won't override the existing:
 
-    CTreeParameterVector v1("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v1("test", -1.0, 1.0, 100, "mm");
     CTreeParameterVector v2("test");
 
     EQ(v1.m_pInfo, v2.m_pInfo);
@@ -333,7 +333,7 @@ void TreeVectorTests::construct_4() {
     //  parameterized constructor can override existing def:
 
     CTreeParameterVector v1("test");
-    CTreeParameterVector v2("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v2("test", -1.0, 1.0, 100, "mm");
     
     EQ(v1.m_pInfo, v2.m_pInfo);
     EQ(double(-1.0), v2.m_pInfo->s_low);
@@ -344,7 +344,7 @@ void TreeVectorTests::construct_4() {
 void TreeVectorTests::construct_5() {
     // Copy construction:
 
-    CTreeParameterVector v1("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v1("test", -1.0, 1.0, 100, "mm");
     CTreeParameterVector v2(v1);
 
     EQ(v1.m_pInfo, v2.m_pInfo);
@@ -357,7 +357,7 @@ void TreeVectorTests::construct_5() {
 void TreeVectorTests::assign_1() {
     // Assignment from other creates a duplicate but shares the info.
     CTreeParameterVector v1("test");
-    CTreeParameterVector v2("rhs", 0.0, 360.0, "degrees");
+    CTreeParameterVector v2("rhs", 0.0, 360.0, 360, "degrees");
 
 
     CTreeParameterVector& r(v1 = v2);   // NOte the info block and created params are still there..
@@ -370,7 +370,7 @@ void TreeVectorTests::assign_1() {
 void TreeVectorTests::assign_2() {
     // Self assign is ok.
 
-    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v("test", -1.0, 1.0, 100, "mm");
     auto expected = v.m_pInfo;
 
     CTreeParameterVector& r(v = v);
@@ -382,7 +382,7 @@ void TreeVectorTests::assign_2() {
 void TreeVectorTests::eq_1() {
     // Test for equality when they are:
 
-    CTreeParameterVector v1("test", 0.0, 360.0, "degrees");
+    CTreeParameterVector v1("test", 0.0, 360.0, 360, "degrees");
     CTreeParameterVector v2("test");
 
     ASSERT(v1 == v2);
@@ -399,7 +399,7 @@ void TreeVectorTests::eq_2() {
 void TreeVectorTests::ne_1() {
     // inequality when they are equal:
 
-    CTreeParameterVector v1("test", 0.0, 360.0, "degrees");
+    CTreeParameterVector v1("test", 0.0, 360.0, 360, "degrees");
     CTreeParameterVector v2("test");
 
     ASSERT(!(v1 != v2));
@@ -537,19 +537,19 @@ void TreeVectorTests::reset_2() {
 
 
 void TreeVectorTests::info_1() {
-    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v("test", -1.0, 1.0, 100, "mm");
     EQ(double(-1.0), v.low());
 }
 void TreeVectorTests::info_2() {
-    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v("test", -1.0, 1.0, 100, "mm");
     EQ(double(1.0), v.high());
 }
 void TreeVectorTests::info_3() {
-    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v("test", -1.0, 1.0, 100, "mm");
     EQ(std::string("mm"), v.units());
 }
 void TreeVectorTests::info_4() {
-    CTreeParameterVector v("test", -1.0, 1.0, "mm");
+    CTreeParameterVector v("test", -1.0, 1.0, 100, "mm");
     EQ(std::string("test"), v.name());
 }
 

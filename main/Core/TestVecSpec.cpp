@@ -65,7 +65,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(Test1DVec);
 void Test1DVec::construct_1() {
     // constuctor with just bins:
 
-    CTreeParameterVector p("Testing", 0.0, 100.0, "junk");
+    CTreeParameterVector p("Testing", 0.0, 100.0, 100, "junk");
     CSpectrum1DVecL spec("test", 0, p, 100);
 
     EQ(std::string("Testing"), spec.m_parameters.name());   // correct parameter.
@@ -75,7 +75,7 @@ void Test1DVec::construct_1() {
 }
 
 void Test1DVec::construct_2() {
-    CTreeParameterVector p("Testing", 0.0, 100.0, "junk");
+    CTreeParameterVector p("Testing", 0.0, 100.0, 100, "junk");
     CSpectrum1DVecL spec("test", 0, p, 100, 0.0, 100.0);
 
     EQ(std::string("Testing"), spec.m_parameters.name());   // correct parameter.
@@ -84,7 +84,7 @@ void Test1DVec::construct_2() {
 // Before we can do interesting stuff, we need to be able to set/get chanels.
 
 void Test1DVec::setget_1() {
-    CTreeParameterVector p("Testing", 0.0, 100.0, "junk");
+    CTreeParameterVector p("Testing", 0.0, 100.0, 100, "junk");
     CSpectrum1DVecL spec("test", 0, p, 100, 0.0, 100.0);
     UInt_t index=50;
     spec.set(&index, 1234);
