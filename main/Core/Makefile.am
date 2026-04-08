@@ -502,7 +502,7 @@ caendpptests_LDADD   = $(commonTestLdFlags)
 
 gateTests_CXXFLAGS = $(commonTestCXXFLAGS)
 gateTests_LDADD    = $(commonTestLdFlags)
-gateTests_SOURCES  = TestRunner.cpp gateTests.cpp
+gateTests_SOURCES  = TestRunner.cpp gateTests.cpp vectorgatetests.cpp
 
 
 spectrumPkgTests_CXXFLAGS = $(commonTestCXXFLAGS)
