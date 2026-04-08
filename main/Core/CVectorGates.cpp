@@ -21,7 +21,9 @@
 
 #include "CVectorGates.h"
 #include "SingleItemIterator.h"
+#include "CTreeParameter.h"
 #include <sstream>
+/////////////////////////////// Base class implementation (CVectorGate):
 
 /**
  * constructor
@@ -241,9 +243,70 @@ std::string
 CVectorGate::getVectorName() const {
     return m_vector.name();
 }
- /////////////////////////////// Base class implementation (CVectorGate):
+ 
+
+ ///////////////////////////// And gate implementation (CVectorAndGate):
+
+ /**
+  * constructors
+  *  Just delegates to the base class
+  */
+ CVectorAndGate::CVectorAndGate(Float_t low, Float_t high, const CTreeParameterVector& vec) :
+    CVectorGate(low, high, vec)
+{}
+
+CVectorAndGate::CVectorAndGate(const CVectorAndGate& rhs) :
+    CVectorGate(rhs) 
+{}
+
+CVectorAndGate::~CVectorAndGate() {}
+
+/** assignment - delegate to base class */
+CVectorAndGate&
+CVectorAndGate::operator=(const CVectorAndGate& rhs) {
+    CVectorGate::operator=(rhs);
+    return *this;
+}
+
+/** comparisons also delegate */
+
+int
+CVectorAndGate::operator==(const CVectorAndGate& rhs) const {
+    return CVectorGate::operator==(rhs);
+}
+int
+CVectorAndGate::operator!=(const CVectorAndGate& rhs) const {
+    return CVectorGate::operator!=(rhs);
+}
 
 
- ////////////////////////////// And gate implementation (CVectorAndGate):
+/**
+ * Type
+ * @return std::string
+ * @retval "vc*"  Vector and cut.
+ */
+std::string
+CVectorAndGate::Type() const {
+    return std::string("vc*");
+}
+/**
+ * inGate
+ *    Iterate over the vector values and require all of them
+ * to be in the gate to be true.
+ * 
+ * @param rEvent (ignored).
+ * @return Bool_t true if the event was satisfied.
+ */
+Bool_t
+CVectorAndGate::inGate(CEvent& event) {
+    auto n = m_vector.size();
+    for (int i=0; i < n; i++) {
+        double x = (double)(m_vector[i]);
+        if (!CVectorGate::inGate(x)) {
+            return kfFALSE;
+        }
+    }
+    return kfTRUE;
+}
 
  ///////////////////////////// Or gate implementation (CVectorOrGate):
