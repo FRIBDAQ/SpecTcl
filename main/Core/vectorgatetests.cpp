@@ -45,6 +45,7 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(constituent_2) ;
     CPPUNIT_TEST(points_1);
     CPPUNIT_TEST(vname_1);
+    CPPUNIT_TEST(type_and_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -81,6 +82,8 @@ protected:
     void constituent_2();
     void points_1();
     void vname_1();
+
+    void type_and_1();     // type of an and gate.
 private:
     CTreeParameterVector* m_pVector;
 public:
@@ -313,4 +316,10 @@ void
 VGateTests::vname_1() {
     CVectorAndGate gate(100.0, 200.0, *m_pVector);
     EQ(std::string("test-vector"), gate.getVectorName());
+}
+
+void
+VGateTests::type_and_1() {
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+    EQ(std::string("vc*"), gate.Type());
 }
