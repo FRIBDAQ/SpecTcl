@@ -39,6 +39,10 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(setlow_1);
     CPPUNIT_TEST(sethigh_1);
     CPPUNIT_TEST(setvector_1);
+    CPPUNIT_TEST(iterate_1);
+    CPPUNIT_TEST(size_1);
+    CPPUNIT_TEST(constituent_1);
+    CPPUNIT_TEST(constituent_2) ;
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -68,6 +72,11 @@ protected:
     void setlow_1();
     void sethigh_1();
     void setvector_1();
+
+    void iterate_1();
+    void size_1();
+    void constituent_1();
+    void constituent_2();
 
 private:
     CTreeParameterVector* m_pVector;
@@ -249,4 +258,36 @@ VGateTests::setvector_1() {
     CTreeParameterVector g("george");
     gate.setVector(g);
     EQ(g.name(), gate.getVector().name());
+}
+
+void
+VGateTests::iterate_1() {
+    // I only get one iteration before I hit end:
+
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+    auto p = gate.Begin();
+    p++;
+    ASSERT(p == gate.End());
+}
+void 
+VGateTests::size_1() {
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+    EQ(UInt_t(1), gate.Size());
+}
+void
+VGateTests::constituent_1() {
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+
+    auto p = gate.Begin();
+    std::string actual  = gate.GetConstituent(p);
+    EQ(std::string("test-vector 100 200"), actual);
+}
+void
+VGateTests::constituent_2() {
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+
+    auto p = gate.Begin();
+    p++;
+    std::string actual  = gate.GetConstituent(p);
+    EQ(std::string(""), actual);
 }
