@@ -44,6 +44,7 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(constituent_1);
     CPPUNIT_TEST(constituent_2) ;
     CPPUNIT_TEST(points_1);
+    CPPUNIT_TEST(vname_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -79,6 +80,7 @@ protected:
     void constituent_1();
     void constituent_2();
     void points_1();
+    void vname_1();
 private:
     CTreeParameterVector* m_pVector;
 public:
@@ -306,4 +308,9 @@ VGateTests::points_1() {
 
     EQ(float(200.0), pts[1].X());
     EQ(float(0), pts[1].Y());
+}
+void
+VGateTests::vname_1() {
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+    EQ(std::string("test-vector"), gate.getVectorName());
 }
