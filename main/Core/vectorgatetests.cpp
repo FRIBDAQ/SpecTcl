@@ -33,6 +33,9 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(ne_and_2);
     CPPUNIT_TEST(ne_and_3);
     CPPUNIT_TEST(ne_and_4);
+    CPPUNIT_TEST(low_1);
+    CPPUNIT_TEST(high_1);
+    CPPUNIT_TEST(getVector_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -52,7 +55,12 @@ protected:
     void ne_and_3();
     void ne_and_4();
     
+    // And gates are used as a vehicle for testing
+    // the base class methods:
 
+    void low_1();
+    void high_1();             // Selectors.
+    void getVector_1();
 private:
     CTreeParameterVector* m_pVector;
 public:
@@ -197,4 +205,20 @@ VGateTests::ne_and_4() {
     CVectorAndGate g1(100.0, 200.0, *m_pVector);
     CVectorAndGate g2(100.0, 200.0, v);
     ASSERT(g1 != g2);
+}
+
+void
+VGateTests::low_1() {
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+    EQ(float(100.0), gate.low());
+}
+void
+VGateTests::high_1() {
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+    EQ(float(200.0), gate.high());
+}
+void
+VGateTests::getVector_1() {
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+    EQ(m_pVector->name(), gate.getVector().name());
 }
