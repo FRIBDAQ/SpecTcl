@@ -12,7 +12,7 @@
 #include <Event.h>
 #include <Parameter.h>
 
-// #include "TreeTestSupport.h"
+#include "TreeTestSupport.h"
 
 #include <stdexcept>
 
@@ -21,10 +21,16 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(VGateTests);
     CPPUNIT_TEST_SUITE_END();
 
-
+private:
+    CTreeParameterVector* m_pVector;
 public:
+    void setUp() {
+        m_pVector = new CTreeParameterVector("test-vector");
+    }
     void tearDown() {
+        delete m_pVector;
         CTreeParameterVector::ClearMap();
+        TreeTestSupport::ClearMap();
     }
 };
 
