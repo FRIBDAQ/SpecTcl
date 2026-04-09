@@ -308,7 +308,17 @@ CVectorAndGate::inGate(CEvent& event) {
     }
     return kfTRUE;
 }
-
+/**
+ *  clone
+ *    Virtual copy constructor
+ * 
+ * @return CGate* pointer to a copy of this.
+ * 
+ */
+CGate*
+CVectorAndGate::clone() {
+    return new CVectorAndGate(*this);
+}
  ///////////////////////////// Or gate implementation (CVectorOrGate):
 
  /**
@@ -371,4 +381,15 @@ CVectorOrGate::inGate(CEvent& event) {
         }
     }
     return kfFALSE;
+}
+
+/**
+ *  clone
+ *     Virtual copy constructor
+ * 
+ * @return CGate*  - pointer to a copy of this gate.
+ */
+CGate*
+CVectorOrGate::clone() {
+    return new CVectorOrGate(*this);
 }

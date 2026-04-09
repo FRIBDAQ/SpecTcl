@@ -94,6 +94,7 @@ public:
 public:
     virtual   std::string Type ()  const;
     virtual   Bool_t inGate (CEvent& rEvent);
+    virtual   CGate* clone();
 };
 
 /**
@@ -113,6 +114,7 @@ public:
 public:
     virtual   std::string Type ()  const;
     virtual   Bool_t inGate (CEvent& rEvent);
+    virtual   CGate* clone();
 };
 
 #endif
