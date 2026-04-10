@@ -284,6 +284,7 @@ CGateFactory::CreateGate(GateType eType,
       // Should not get here:
       throw std::logic_error("Gate factory exception bug cat/vand/vor was none of the above!");
     }
+    break;
   case contour:
     return CreateContour(rParameters, rPoints);
   default:
@@ -1011,7 +1012,7 @@ CGateFactory::getVector(const char* name, GateType gtype) {
     CTreeParameterVector result = CTreeParameterVector::find(name);
     return result;
   }
-  catch (std::exception e) {
+  catch (std::exception& e) {
     std::string msg = e.what();
     throw CGateFactoryException(CGateFactoryException::NoSuchParameter, gtype, msg);
   }

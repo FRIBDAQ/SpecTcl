@@ -330,7 +330,11 @@ static const  char* GateTypeStrings[] = {
   "Gamma-Slice",
   "Gamma-Band",
   "Gamma-Contour",
-  "em"
+  "em",
+  "am",
+  "nm",
+  "vs*",
+  "vs+"
 };
 
 
