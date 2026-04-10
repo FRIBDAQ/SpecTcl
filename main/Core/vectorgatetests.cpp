@@ -61,6 +61,10 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(equal_or_2);
     CPPUNIT_TEST(equal_or_3);
     CPPUNIT_TEST(equal_or_4);
+    CPPUNIT_TEST(ne_or_1);
+    CPPUNIT_TEST(ne_or_2);
+    CPPUNIT_TEST(ne_or_3);
+    CPPUNIT_TEST(ne_or_4);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -116,6 +120,11 @@ protected:
     void equal_or_2();
     void equal_or_3();
     void equal_or_4();
+
+    void ne_or_1();
+    void ne_or_2();
+    void ne_or_3();
+    void ne_or_4();
 
 private:
     CTreeParameterVector* m_pVector;
@@ -508,4 +517,44 @@ VGateTests::equal_or_4() {
     CVectorOrGate g1(100.0, 200.0, *m_pVector);
     CVectorOrGate g2(100.0, 200.0, v);
     ASSERT(!(g1 == g2));
+}
+
+
+
+void
+VGateTests::ne_or_1() {
+    // but they are equal:
+
+    CVectorOrGate g1(100.0, 200.0, *m_pVector);
+    CVectorOrGate g2(100.0, 200.0, *m_pVector);
+
+    ASSERT(! (g2 != g2));
+}
+
+void 
+VGateTests::ne_or_2() {
+    // Compare gate that differ by low:
+
+    CVectorOrGate g1(100.0, 200.0, *m_pVector);
+    CVectorOrGate g2(150.0, 200.0, *m_pVector);
+
+    ASSERT(g1 != g2);    // Not the same function call as g1 != g2.
+}
+void 
+VGateTests::ne_or_3() {
+    // compare gates that differ by high:
+
+    CVectorOrGate g1(100.0, 200.0, *m_pVector);
+    CVectorOrGate g2(100.0, 250.0, *m_pVector);
+
+    ASSERT(g1 != g2);
+}
+void 
+VGateTests::ne_or_4() {
+    // Compare gates that differ by the vetor:
+
+    CTreeParameterVector v("another");
+    CVectorOrGate g1(100.0, 200.0, *m_pVector);
+    CVectorOrGate g2(100.0, 200.0, v);
+    ASSERT(g1 != g2);
 }
