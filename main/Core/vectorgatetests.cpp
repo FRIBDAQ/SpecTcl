@@ -69,6 +69,7 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(ingate_or_1);
     CPPUNIT_TEST(ingate_or_2);
     CPPUNIT_TEST(ingate_or_3);
+    CPPUNIT_TEST(clone_or_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -135,6 +136,8 @@ protected:
     void ingate_or_1();
     void ingate_or_2();
     void ingate_or_3();
+
+    void clone_or_1();
 private:
     CTreeParameterVector* m_pVector;
     CEvent*               m_pEvent;
@@ -608,4 +611,25 @@ VGateTests::ingate_or_3() {
 
 
     ASSERT(!gate.inGate(*m_pEvent)); 
+}
+
+
+void 
+VGateTests::clone_or_1() {
+    // Cloning an and gate should give the same
+    // basic gate:
+
+    CVectorOrGate g1(100.0, 200.0, *m_pVector);
+    CGate*  g2generic = g1.clone();
+    CVectorGate* g2 = dynamic_cast<CVectorGate*>(g2generic);
+
+    ASSERT(g2);
+    
+
+    EQ(std::string("vs+"), g2generic->Type());
+    EQ(float(100.0), g2->low());
+    EQ(float(200.0), g2->high());
+    EQ(m_pVector->name(), g2->getVectorName());
+
+    delete g2;
 }
