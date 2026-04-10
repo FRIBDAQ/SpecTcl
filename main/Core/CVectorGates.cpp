@@ -209,6 +209,7 @@ CVectorGate::GetConstituent(CConstituentIterator& p) {
  */
 Bool_t
 CVectorGate::inGate(CEvent& rEvent, const std::vector<UInt_t>& params) {
+    
     return inGate(rEvent);          // implemented in concrete classes.
 }
 /**
@@ -296,9 +297,11 @@ CVectorAndGate::Type() const {
  * 
  * @param rEvent (ignored).
  * @return Bool_t true if the event was satisfied.
+ * @retval kfFALSE if the vector is empty.
  */
 Bool_t
 CVectorAndGate::inGate(CEvent& event) {
+    if (m_vector.size() == 0) return kfFALSE;
     auto n = m_vector.size();
     for (int i=0; i < n; i++) {
         double x = (double)(m_vector[i]);
@@ -370,9 +373,11 @@ CVectorOrGate::Type() const {
  * 
  * @param rEvent (ignored).
  * @return Bool_t true if the event was satisfied.
+ * @retval kfFALSE - if there are no points in the vector.
  */
 Bool_t
 CVectorOrGate::inGate(CEvent& event) {
+    if (m_vector.size() == 0) return kfFALSE;
     auto n = m_vector.size();
     for (int i=0; i < n; i++) {
         double x = (double)(m_vector[i]);
