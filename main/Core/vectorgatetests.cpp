@@ -66,6 +66,9 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(ne_or_3);
     CPPUNIT_TEST(ne_or_4);
     CPPUNIT_TEST(type_or_1);
+    CPPUNIT_TEST(ingate_or_1);
+    CPPUNIT_TEST(ingate_or_2);
+    CPPUNIT_TEST(ingate_or_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -126,7 +129,12 @@ protected:
     void ne_or_2();
     void ne_or_3();
     void ne_or_4();
+
     void type_or_1();
+
+    void ingate_or_1();
+    void ingate_or_2();
+    void ingate_or_3();
 private:
     CTreeParameterVector* m_pVector;
     CEvent*               m_pEvent;
@@ -566,4 +574,38 @@ VGateTests::type_or_1() {
 
     CVectorOrGate g(100.0, 200.0, *m_pVector);
     EQ(std::string("vs+"), g.Type());
+}
+
+void 
+VGateTests::ingate_or_1() {
+    // an point is in the gate - true.
+
+    CVectorOrGate gate(100.0, 200.0, *m_pVector);
+
+    m_pVector->push_back(50.0);   // no
+    m_pVector->push_back(150.0);  // yes
+    m_pVector->push_back(200.0);  // no.
+
+    ASSERT(gate.inGate(*m_pEvent));
+}
+
+void 
+VGateTests::ingate_or_2() {
+    // no points in gate -> false.
+
+   CVectorOrGate gate(100.0, 200.0, *m_pVector);
+
+    m_pVector->push_back(50.0);   // no
+    m_pVector->push_back(200.0);  // no.
+
+    ASSERT(!gate.inGate(*m_pEvent)); 
+}
+
+void
+VGateTests::ingate_or_3() {
+    // no points -> false.
+    CVectorOrGate gate(100.0, 200.0, *m_pVector);
+
+
+    ASSERT(!gate.inGate(*m_pEvent)); 
 }
