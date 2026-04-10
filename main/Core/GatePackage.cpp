@@ -34,6 +34,7 @@
 #include <MaskEqualGate.h>
 #include <MaskAndGate.h>
 #include <MaskNotGate.h>
+#include "CVectorGates.h"
 
 #include <GateFactory.h>
 
@@ -554,8 +555,10 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   if(type == "s" ) {		// Cut.
     UInt_t nPid = rGate->getParameters()[0];
     Result.AppendElement(idToParameterName(nPid));
-  }
-  else if( (type == "b") ||
+  } else if (type == "vs*" || type == "vs+") {
+    CVectorGate* pvg = reinterpret_cast<CVectorGate*>(rGate.getGate());
+    Result.AppendElement(pvg->getVectorName());
+  } else if( (type == "b") ||
 	   (type == "c")) {	// Band or contour, C2Band
     
     Result.StartSublist();
@@ -604,7 +607,9 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     }
     Result.EndSublist();
   }
-  else if( (type == "s") || (type == "gs")) {
+  else if( (type == "s") || (type == "gs") ||
+     (type == "vs*") || (type == "vs+")) 
+  {
     auto limits = rGate->getPoints();
     UInt_t id;
     Float_t low = limits[0].X();
@@ -613,8 +618,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     sprintf(param,"%f %f", low, hi);
     Result.AppendElement(param);
 
-  }
-  else {			// Special case for slice
+  } else {			// Special case for slice
 
     CConstituentIterator Constituent = rGate->Begin();
     CConstituentIterator End = rGate->End();
