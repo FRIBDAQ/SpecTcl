@@ -1323,10 +1323,7 @@ image create photo ::browser::foldericon   -format png \
             set description $terminals($gate)
             $self _insertGate $id end $gate $description
             
-           # set type [lindex $description 2]
-           # set gateId [$tree insert $id end -text $gate -image ::browser::gateicon \
-           #         -values $type -tags gate]
-           # $self setGateSubInfo $gateId $type [lindex $description 3]
+           
         }
     }
     #
@@ -1342,7 +1339,9 @@ image create photo ::browser::foldericon   -format png \
     #
     method setGateSubInfo {id gateType description} {
         switch -exact -- $gateType {
-            s {
+            s -
+            vs* -
+            vs+ {
                 $self setSliceSubInfo $id $description
             }
             b -
