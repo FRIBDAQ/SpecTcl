@@ -65,6 +65,7 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(ne_or_2);
     CPPUNIT_TEST(ne_or_3);
     CPPUNIT_TEST(ne_or_4);
+    CPPUNIT_TEST(type_or_1);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -125,7 +126,7 @@ protected:
     void ne_or_2();
     void ne_or_3();
     void ne_or_4();
-
+    void type_or_1();
 private:
     CTreeParameterVector* m_pVector;
     CEvent*               m_pEvent;
@@ -557,4 +558,12 @@ VGateTests::ne_or_4() {
     CVectorOrGate g1(100.0, 200.0, *m_pVector);
     CVectorOrGate g2(100.0, 200.0, v);
     ASSERT(g1 != g2);
+}
+
+void
+VGateTests::type_or_1() {
+    // The corred type is produced.
+
+    CVectorOrGate g(100.0, 200.0, *m_pVector);
+    EQ(std::string("vs+"), g.Type());
 }
