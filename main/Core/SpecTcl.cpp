@@ -1997,6 +1997,34 @@ SpecTcl::CreateMaskNotGate(vector<string> parameters,
   CGateFactory factory(GetHistogrammer());
   return       factory.CreateMaskNotGate(parameters, Compare);
 }
+/**
+ * CreatesVectorAndGate
+ *     Create and return a pointer to a dynamically allocated 
+ * vector and gate. (Issue #230).
+ * 
+ * @param vectorName - name of the vector checked.
+ * @param low, high - gate limits
+ * @return CGate* pointer to dynamically alloocated new vector gate.
+ */
+CGate*
+SpecTcl::CreateVectorAndGate(std::string vectorName, Float_t low, Float_t high) {
+  CGateFactory factory(GetHistogrammer());
+  return factory.CreateVectorAndGate(vectorName, low, high);
+}
+/**
+ * CreatesVectorOrGate
+ *     Create and return a pointer to a dynamically allocated 
+ * vector or gate. (Issue #230).
+ * 
+ * @param vectorName - name of the vector checked.
+ * @param low, high - gate limits
+ * @return CGate* pointer to dynamically alloocated new vector gate.
+ */
+CGate*
+SpecTcl::CreateVectorOrGate(std::string vectorName, Float_t low, Float_t high) {
+  CGateFactory factory(GetHistogrammer());
+  return factory.CreateVectorOrGate(vectorName, low, high);
+}
 //// Gate dictionary items:
 
 /// Throw if agate by this name already exists.

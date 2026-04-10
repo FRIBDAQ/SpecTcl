@@ -319,6 +319,8 @@ public:
 			     long Compare);
   CGate* CreateMaskNotGate(std::vector<std::string> rParameterName,
 			     long Compare);
+  CGate* CreateVectorAndGate(std::string vectorName, Float_t low, Float_t high);
+  CGate* CreateVectorOrGate(std::string vectorName, Float_t low, Float_t high);
 
 
   // Gate dictionary manipulation:
