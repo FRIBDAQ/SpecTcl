@@ -55,6 +55,8 @@ class VGateTests : public CppUnit::TestFixture {
 
     CPPUNIT_TEST(construct_or_1);
     CPPUNIT_TEST(construct_or_2);
+    CPPUNIT_TEST(assign_or_1);
+    CPPUNIT_TEST(assign_or_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -102,6 +104,9 @@ protected:
 
     void construct_or_1();
     void construct_or_2();
+
+    void assign_or_1();
+    void assign_or_2();
 
 private:
     CTreeParameterVector* m_pVector;
@@ -420,6 +425,38 @@ VGateTests::construct_or_2() {
     CVectorOrGate source(100.0, 200.0, *m_pVector);
     CVectorOrGate gate(source);    // Copy construct
  
+    EQ(float(100.0), gate.m_fLow);
+    EQ(float(200.0), gate.m_fHigh);
+    EQ(m_pVector->name(), gate.m_vector.name());
+}
+
+
+void
+VGateTests::assign_or_1() {
+    // Assing from self:
+
+    CVectorOrGate source(100.0, 200.0, *m_pVector);
+
+    auto& dest = source = source;
+    ASSERT(&dest == &source);    // return value is the same object.
+
+    EQ(float(100.0), source.m_fLow);
+    EQ(float(200.0), source.m_fHigh);
+    EQ(m_pVector->name(), source.m_vector.name());
+}
+    
+void
+VGateTests::assign_or_2() {
+    // Assign from other:
+
+    CTreeParameterVector vec("another");
+    CVectorOrGate gate(1234.0, 4670.0, vec);
+    
+    CVectorOrGate source(100.0, 200.0, *m_pVector);
+
+    auto& dest = gate = source;
+
+    ASSERT(&dest == &gate);
     EQ(float(100.0), gate.m_fLow);
     EQ(float(200.0), gate.m_fHigh);
     EQ(m_pVector->name(), gate.m_vector.name());
