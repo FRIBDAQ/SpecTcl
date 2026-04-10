@@ -96,6 +96,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <MaskAndGate.h>
 #include <MaskEqualGate.h>
 #include <MaskNotGate.h>
+#include "CVectorGates.h"
 #include <histotypes.h>
 #include <Parameter.h>
 
@@ -734,6 +735,35 @@ CMaskEqualGate* CGateFactory::CreateMaskEqualGate(const vector<string>& rParamet
   return new CMaskEqualGate(Id, Compare);
 
 }
+/**
+ * CreateVectorAndGate
+ *  Create a new vector and gate
+ * 
+ * @param name - vectorname - name of the vector parameter the gate checks.
+ * @param low  - Gate low limit
+ * @param high - Gate high limit.
+ * @return CVectorGate* - pointer to the new dynamically created gate.
+ * @throw CGateFactorException if the vector does not exist (NoSuchParameter).
+ */
+CVectorGate*
+CGateFactory::CreateCreateVectorAndGate(const std::string& vectorName, Float_t low, Float_t high) {
+  CTreeParameterVector vec = getVector(vectorName.c_str());   // Can throw.
+  return new CVectorAndGate(low, high, vec);
+}
+/**
+ * CreateVectorOrGate 
+ *    Same as above but a vector Or gate is created/returned.
+ * @param name - vectorname - name of the vector parameter the gate checks.
+ * @param low  - Gate low limit
+ * @param high - Gate high limit.
+ * @return CVectorGate* - pointer to the new dynamically created gate.
+ * @throw CGateFactorException if the vector does not exist (NoSuchParameter).
+ */
+CVectorGate*
+CGateFactory::CreateVectorOrGate(const std::string& vectorName, Float_t low, Float_t high) {
+  CTreeeParameterVector vec = getVector(vectorName.c_str());
+  return new CVectorOrGate(low, high vec);
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -950,4 +980,18 @@ CGateFactory::stringToGateType(const std::string& sType)
     // Should not land here:
     
     return deleted;
+}
+
+//  Return the named tree parameter, mapping the 
+// CTreeParameterVectorException in to a CGateFactorException
+// With no such parameter as the reason.
+CTreeParameterVector
+CGateFactory::getVector(const char* name) {
+  try {
+    CTreeParamterVector result = CTreeParameterVector::find(name);
+    return result;
+  }
+  catch (std::exception e) {
+    throw CGateFactoryException(CGateFactoryException::NoSuchParameter, e.what());
+  }
 }
