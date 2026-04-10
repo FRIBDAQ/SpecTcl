@@ -224,7 +224,7 @@ protected:
 		      const std::vector<std::string>& rNames,
 		      GateType eType, const char* pWhich) const;
 
-  CTreeParameterVector getVector(const char* name);
+  CTreeParameterVector getVector(const char* name, GateType gtype);
 };
 
 #endif
