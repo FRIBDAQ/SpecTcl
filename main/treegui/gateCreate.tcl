@@ -84,7 +84,9 @@ snit::widget gateCreate {
 			    {Mask And}       am          \
 			    {Mask Not Equal} nm          \
 			    {Always True}    T           \
-			    {Always False}   F
+			    {Always False}   F          \
+                {Vector and}     vs*        \
+                {Vector or}      vs+        \
 			   ]
 
     ##
