@@ -49,6 +49,12 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(ingate_and_1);
     CPPUNIT_TEST(ingate_and_2);
     CPPUNIT_TEST(ingate_and_3);
+    CPPUNIT_TEST(clone_and_1);
+
+    // Now test the or gates with similar stuff:
+
+    CPPUNIT_TEST(construct_or_1);
+    CPPUNIT_TEST(construct_or_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -91,6 +97,11 @@ protected:
     void ingate_and_1();  
     void ingate_and_2();
     void ingate_and_3();
+
+    void clone_and_1();
+
+    void construct_or_1();
+    void construct_or_2();
 
 private:
     CTreeParameterVector* m_pVector;
@@ -334,7 +345,7 @@ VGateTests::vname_1() {
 void
 VGateTests::type_and_1() {
     CVectorAndGate gate(100.0, 200.0, *m_pVector);
-    EQ(std::string("vc*"), gate.Type());
+    EQ(std::string("vs*"), gate.Type());
 }
 
 void
@@ -368,4 +379,48 @@ VGateTests::ingate_and_3() {
 
     CVectorAndGate gate(100.0, 200.0, *m_pVector);
     ASSERT(!gate.inGate(*m_pEvent));
+}
+
+void 
+VGateTests::clone_and_1() {
+    // Cloning an and gate should give the same
+    // basic gate:
+
+    CVectorAndGate g1(100.0, 200.0, *m_pVector);
+    CGate*  g2generic = g1.clone();
+    CVectorGate* g2 = dynamic_cast<CVectorGate*>(g2generic);
+
+    ASSERT(g2);
+    
+
+    EQ(std::string("vs*"), g2generic->Type());
+    EQ(float(100.0), g2->low());
+    EQ(float(200.0), g2->high());
+    EQ(m_pVector->name(), g2->getVectorName());
+
+    delete g2;
+}
+
+void
+VGateTests::construct_or_1() {
+    //  Basic construction.
+
+    CVectorOrGate gate(100.0, 200.0, *m_pVector);
+
+    // Was it correctly constructed:
+
+    EQ(float(100.0), gate.m_fLow);
+    EQ(float(200.0), gate.m_fHigh);
+    EQ(m_pVector->name(), gate.m_vector.name());
+}
+void
+VGateTests::construct_or_2() {
+    // Copy construction test:
+
+    CVectorOrGate source(100.0, 200.0, *m_pVector);
+    CVectorOrGate gate(source);    // Copy construct
+ 
+    EQ(float(100.0), gate.m_fLow);
+    EQ(float(200.0), gate.m_fHigh);
+    EQ(m_pVector->name(), gate.m_vector.name());
 }

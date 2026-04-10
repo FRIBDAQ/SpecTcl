@@ -288,7 +288,7 @@ CVectorAndGate::operator!=(const CVectorAndGate& rhs) const {
  */
 std::string
 CVectorAndGate::Type() const {
-    return std::string("vc*");
+    return std::string("vs*");
 }
 /**
  * inGate
@@ -364,7 +364,7 @@ CVectorOrGate::operator!=(const CVectorOrGate& rhs) const {
  */
 std::string
 CVectorOrGate::Type() const {
-    return std::string("vc*");
+    return std::string("vs+");
 }
 /**
  * inGate
