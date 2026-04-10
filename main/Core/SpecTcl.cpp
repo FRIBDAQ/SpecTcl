@@ -38,6 +38,7 @@
 #include <MaskAndGate.h>
 #include <MaskNotGate.h>
 #include <Not.h>
+#include <CVectorGates.h>
 
 
 #include <GateContainer.h>
