@@ -46,6 +46,9 @@ class VGateTests : public CppUnit::TestFixture {
     CPPUNIT_TEST(points_1);
     CPPUNIT_TEST(vname_1);
     CPPUNIT_TEST(type_and_1);
+    CPPUNIT_TEST(ingate_and_1);
+    CPPUNIT_TEST(ingate_and_2);
+    CPPUNIT_TEST(ingate_and_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -84,14 +87,24 @@ protected:
     void vname_1();
 
     void type_and_1();     // type of an and gate.
+
+    void ingate_and_1();  
+    void ingate_and_2();
+    void ingate_and_3();
+
 private:
     CTreeParameterVector* m_pVector;
+    CEvent*               m_pEvent;
 public:
     void setUp() {
         m_pVector = new CTreeParameterVector("test-vector");
+        m_pEvent = new CEvent;
+        CTreeParameterVector::BeginEvent();
+        CTreeParameter::setEvent(*m_pEvent);
     }
     void tearDown() {
         delete m_pVector;
+        delete m_pEvent;
         CTreeParameterVector::ClearMap();
         TreeTestSupport::ClearMap();
     }
@@ -322,4 +335,37 @@ void
 VGateTests::type_and_1() {
     CVectorAndGate gate(100.0, 200.0, *m_pVector);
     EQ(std::string("vc*"), gate.Type());
+}
+
+void
+VGateTests::ingate_and_1() {
+    // THe vector is in the gate.
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+ 
+    //  Put some points, all in the vector:
+
+    m_pVector->push_back(100.0);   // on the left edge is ok.
+    m_pVector->push_back(110.0);
+
+    ASSERT(gate.inGate(*m_pEvent));
+}
+void
+VGateTests::ingate_and_2() {
+    // The vector has a point on the right edge (out of gate):
+
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+ 
+    m_pVector->push_back(110.0);  // ok.
+    m_pVector->push_back(200.0);  // not ok.
+    m_pVector->push_back(150.0);  // ok.
+
+    ASSERT(!gate.inGate(*m_pEvent));
+}
+
+void
+VGateTests::ingate_and_3() {
+    // empty vector -> kfFalse.
+
+    CVectorAndGate gate(100.0, 200.0, *m_pVector);
+    ASSERT(!gate.inGate(*m_pEvent));
 }
