@@ -63,6 +63,7 @@ snit::widget gateCreate {
     option -typename -configuremethod SetType
     option -gates -configuremethod SetGates 
     option -parameters -configuremethod SetParameters
+    option -vectors    -configuremethod SetVectors
     
     # Dictionary whose keys populate the gate type menu
     # button drop down and whose values are the gate types
@@ -104,8 +105,10 @@ snit::widget gateCreate {
 	ttk::button     $win.create -text Create/Replace -command [mymethod Dispatch -createcmd]
 	ttk::menubutton $win.gatesel -text {Gate Select} -menu $win.gatesel.gates
 	treeMenu        $win.gatesel.gates -command [mymethod AddDependency %N]
-        ttk::menubutton $win.paramsel -text {Parameter} -menu $win.paramsel.params
-        treeMenu        $win.paramsel.params -command [mymethod AddParameter %N]
+    ttk::menubutton $win.paramsel -text {Parameter} -menu $win.paramsel.params
+    treeMenu        $win.paramsel.params -command [mymethod AddParameter %N]
+    ttk::menubutton $win.vectorsel -text {Vector} -menu $win.vectorsel.vectors
+    treeMenu        $win.vectorsel.vectors -command [mymethod AddParameter %N]
 	ttk::button     $win.clear  -text {Clear Definition} -command [mymethod ClearDefinition]
 	ttk::menubutton $win.type   -textvariable ${selfns}::options(-typename) \
 	    -menu $win.type.typemenu
@@ -132,7 +135,7 @@ snit::widget gateCreate {
 	#  Layout the widget.
 	#
 
-	grid $win.create $win.gatesel $win.paramsel $win.clear $win.type -sticky w
+	grid $win.create $win.gatesel $win.paramsel $win.vectorsel $win.clear $win.type -sticky w
 	grid $win.name        -row 1 -column 0 -sticky w -padx 3px
 	grid $win.definition  -row 1 -column 1 -columnspan 4 -sticky ew
 
@@ -185,7 +188,16 @@ snit::widget gateCreate {
         destroy $win.paramsel.params
         treeMenu $win.paramsel.params -command [mymethod AddParameter %N] -items $value
     }
-    
+    ##
+    # SetVectors
+    #    Called to update the list of vectors in the vector selection pulldown:
+    #
+    method SetVectors {option value} {
+        set options($option) $value
+
+        destroy $win.vectorsel.vectors
+        treeMenu $win.vectorsel.vectors -command [mymethod AddParameter %N] -items $value
+    }
     ##
     # Set the gates for the $in.gatesel.gates menu.
     # At this point in time this required killing and rebuilding that menu:
@@ -193,10 +205,10 @@ snit::widget gateCreate {
     # @param value  - new value of the option
     #
     method SetGates {option value} {
-	set options($option) $value; #  so cget works.
+        set options($option) $value; #  so cget works.
 
-	destroy $win.gatesel.gates
-	treeMenu $win.gatesel.gates -command [mymethod AddDependency %N] -items $value
+        destroy $win.gatesel.gates
+        treeMenu $win.gatesel.gates -command [mymethod AddDependency %N] -items $value
     }
     ## Modify the -typename option this option is coupled to the -tyep option
     # Via the gateTypes dict.

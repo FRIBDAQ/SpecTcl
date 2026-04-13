@@ -58,19 +58,19 @@ snit::widgetadaptor treeMenu {
 
 
     constructor args {
-	installhull using scrollingMenu -tearoff 0
-	$self configurelist $args
+		installhull using scrollingMenu -tearoff 0
+		$self configurelist $args
 
 
-	# Take all of the names and convert them into lists that represent the widget path
+		# Take all of the names and convert them into lists that represent the widget path
 
-	set separatedNames [list]
-	foreach name $options(-items) {
-	    lappend separatedNames [split $name $options(-splitchar)]
+		set separatedNames [list]
+		foreach name $options(-items) {
+			lappend separatedNames [split $name $options(-splitchar)]
 	}
 
 
-	$self buildSubMenus $win $separatedNames ""
+		$self buildSubMenus $win $separatedNames ""
     }
     ##
     # public method to dispatch a menu click
