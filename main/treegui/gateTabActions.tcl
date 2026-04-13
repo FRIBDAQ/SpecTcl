@@ -142,11 +142,11 @@ package provide gateTabActions 1.0
             uplevel #0 [list $gateAddChain $name]
         }} msg] 
         if {$status} {
-            tk_messageBox -title "gateAdded faile" -message "$msg $name" -type ok -icon info
+            tk_messageBox -title "gateAdded failed" -message "$msg $name" -type ok -icon info
             # puts "gateAdded failed: $msg $name"
         }
         }
-        private method gateDeleted name {
+    private method gateDeleted name {
         set status [catch {
         scheduleLoadUpdate
         if {$gateDeleteChain ne ""} {
@@ -156,8 +156,8 @@ package provide gateTabActions 1.0
             tk_messageBox -title "gateDeleteded failed" -message "$msg $name" -type ok -icon info
             # bputs "gateDeleted failed: $msg $name"
         }
-        }
-        private method gateChanged name {
+    }
+    private method gateChanged name {
         set status [catch {
         scheduleLoadUpdate
         if {$gateChangeChain ne ""} {
@@ -166,7 +166,7 @@ package provide gateTabActions 1.0
         if {$status} {
             tk_messageBox -title "gateChanged failed" -message "$msg $name" -type ok -icon info
             # puts "gateChanged failed: $msg $status"
-	}
+        }
     }
     ##
     # loadParameterMenu
