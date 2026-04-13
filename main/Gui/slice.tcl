@@ -73,6 +73,21 @@ snit::widget sliceEditor {
         bind $win.parameters <Double-1> [mymethod removeParameter]
 
     }
+    ##
+    # getBrowser
+    #    Return the browser widget... this is intended to allow
+    #    the vector slice editor to re-use bits of us.
+    #
+    method getBrowser {} {
+        return $win.browser
+    }
+    ##
+    # getParameterListbox
+    #    Return the parameter list box.
+    #
+    method getParameterListBox {} {
+        return $win.parameters
+    }
     # load name
     #     Load the editor with the gate information from the selected gate.
     #     How this is done depends a bit on the gate type (s or gs).
@@ -85,8 +100,8 @@ snit::widget sliceEditor {
         set info [lindex $info 0]
         set descr [lindex $info 3]
         set type  [lindex $info 2]
-        if {$type  == "s"} {
-            $win.parameters insert end [lindex $descr 0]
+        if {($type  eq "s") || ($type eq "vs*") || ($type eq "vs+") } {
+            $self addParameter [lindex $descr 0]
             set limits [lindex $descr 1]
             ::setEntry $win.limits.low  [lindex $limits 0]
             ::setEntry $win.limits.high [lindex $limits 1]
@@ -97,10 +112,10 @@ snit::widget sliceEditor {
             ::setEntry $win.limits.high [lindex $limits 1]
 
             foreach name $parameters {
-                $win.parameters insert end $name
+                $self addParameter  $name
             }
         }
-        $win.browser update
+        $win.browser update;     # Filters
 
     }
     # reinit
@@ -166,14 +181,28 @@ snit::widget sliceEditor {
         foreach item $selection {
             set parameter [::pathToName $item]
             $win.browser deleteElement parameter $parameter ;   #Remove from tree.
-            $win.parameters insert end $parameter
+            set oldValue [$self addParameter $parameter]
+        
             if {($atmost != 0) && ([$win.parameters index end] > $atmost)} {
-                set oldValue [$win.parameters get 0]
                 $win.browser addNewParameter $oldValue ;  # add back to tree.
-                $win.parameters delete 0
             }
         }
         # $win.browser update
+    }
+    ##
+    # addParameter
+    #    Adds an item to the parameter list box, enforicing the maximum.
+    # @param parameter - parameter to add.
+    #
+    method addParameter parameter {
+        set oldValue ""
+        set atmost $options(-maxparams)
+        $win.parameters insert end $parameter
+            if {($atmost != 0) && ([$win.parameters index end] > $atmost)} {
+                set oldValue [$win.parameters get 0]
+                $win.parameters delete 0
+            }
+        return $oldValue
     }
     # paramterFilter desc
     #      Determines if the parameter described should appear in the browser.
@@ -228,5 +257,105 @@ snit::widget sliceEditor {
         # because they will no longer be filtered out:
         
         # $win.browser  update
+    }
+}
+
+###
+#  Vector gate editor.
+#   We leverage as much of the slice editor as possible. The 
+#   Difference is that we are going to only show vectors in
+#   the browser and we'll filter out all of the vectors in 
+#   the list box.
+#
+snit::widgetadaptor vectorSliceEditor {
+    variable browser
+    variable params
+
+
+    delegate option * to hull
+    delegate method * to hull
+    
+    constructor {args} {
+        installhull using sliceEditor
+        $self configurelist $args
+
+        set browser [$hull getBrowser]
+        set params  [$hull getParameterListBox]
+
+        $hull configure -maxparams 1;                # only one vector allowed.
+
+        # Now set up the browser to only show vectors and to
+        # use my filter for them.  Establish my handler for vector selection:
+
+        $browser configure -restrict vectors -vectorscript [mymethod _selectVector] \
+            -filtervectors [mymethod _vectorFilter] -selectmode browse
+
+        # Replace the double click binding on the params listbox to do our bidding
+
+        bind $params <Double-1> [mymethod _removeVector]
+            
+    }
+
+    ##
+    # _selectVector
+    #    Called when a vector is selected from the 
+    #    browser tree:
+    # - If there's already one in the list box it's removed and added back to the tree.
+    # - The vector is removed from the browser and put in the list box.
+    #
+    # @param selection - the path to the  to the item int he tree:
+    #
+    method _selectVector selection {
+        
+        if {$selection == ""} return;                  # nothing selected.
+        if {[llength $selection] > 1} {
+            # Shouldn ot be possible but flag it as an error:
+
+            tk_messageBox -title "Invalid seletion" -message "Please only select one item" -icon warning -type ok
+            return
+        }
+        set vector [::pathToName $selection]
+        $browser deleteElement vectors $vector;    # remove from the browser.
+        set oldItem [$params get 0]
+        if {$oldItem ne ""} {
+            #  Add the item int he box back to the tree:
+
+            $browser addNewVector $oldItem
+        }
+        #  Kill off anything in the list box and add us:
+
+        $params delete 0 end
+        $params insert end $vector
+       
+    }
+    ##
+    # _vectorFilter
+    #    IF there's anything in the listbox, don't let it show in the browser.
+    #
+    # @param def - a vector definition.
+    # @return bool - true if def shouild be in the list box.
+    #
+    method _vectorFilter def {
+        
+        set listitem [$params get 0]
+        if {$listitem ne ""} {
+            set vectorName [dict get $def name]
+            return [expr {$vectorName ne $listitem}]
+        } else {
+            return 1
+        }
+    }
+    ##
+    # _removeVector
+    #   Remove any vector from the list box.  This is simpler than the sliceEditor because we can
+    # only have one item in the box.    
+
+    method _removeVector {} {
+
+        set vector [$params get 0]
+        $params delete 0 end
+        if {$vector ne ""} {
+            $browser addNewVector $vector
+        }
     }
 }
