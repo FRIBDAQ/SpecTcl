@@ -1591,15 +1591,18 @@ image create photo ::browser::foldericon   -format png \
     #    Where path is the path of the nearest element under the pointer when the doubleclick occured.
     #
     method onElementDoubleClick {Option x y} {
-
+        
         set script $options($Option)
+
         if {$script != ""} {
             set id [$tree identify row  $x $y]
+        
             if {$id != ""} {
                 set path [$self FullPath $id]
                 uplevel #0  $script  $path
             }
         }
+
     }
     ##
     # onElementContext Option x y X Y
@@ -1781,7 +1784,7 @@ image create photo ::browser::foldericon   -format png \
     }
     ##
     # addNewVector
-    #    Adds a new vector des ription to the vector folder. There are
+    #    Adds a new vector desription to the vector folder. There are
     #    two cases:  
     #    - The vector exists - in which case it's properties are filled in.
     #    - The vector does not exist - in which case the vector is added
@@ -1807,12 +1810,12 @@ image create photo ::browser::foldericon   -format png \
         #    insert before it.
 
         set folderId [$self _getTopFolderId vectors]
-        set children [$tree children $folderid]
+        set children [$tree children $folderId]
         foreach child $children {
             set childName [$tree item $child -text]
             if {$childName eq $name} {
                 # replace.
-                $tree item $child -value [list "" "" $low $high $bins "" $units]
+                $tree item $child -value [list "" "" $low $high $bins "" $units] -tags vector
                 return
             }
             if {$childName > $name} {
@@ -1820,7 +1823,7 @@ image create photo ::browser::foldericon   -format png \
                 set newid \
                     [$tree insert $folderId $index \
                      -text $name -image ::browser::vectoricon]
-                $tree item $newid -value [list "" "" $low $high $bins "" $units]
+                $tree item $newid -value [list "" "" $low $high $bins "" $units] -tags vector
                 return
             }
         }
@@ -1828,7 +1831,7 @@ image create photo ::browser::foldericon   -format png \
         set newId \
             [$tree insert $folderId end \
              -text $name -image ::browser::vectoricon]
-        $tree item $newId -value [list "" "" $low $high $bins "" $units]
+        $tree item $newId -value [list "" "" $low $high $bins "" $units] -tags vector
 
 
     }
