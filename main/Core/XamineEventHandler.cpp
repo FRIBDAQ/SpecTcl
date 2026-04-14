@@ -46,7 +46,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <XamineEvent.h>
 #include <CM2Projection.h>
 #include <Globals.h>
-
+#include "Spectrum1DVec.h"
 #include <Gamma2DW.h>
 
 
@@ -56,6 +56,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include <iostream>
 #include <stdexcept>
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -258,6 +259,8 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
   case kgCut1d:
     if((spType == ke1D))	// Ordinary 1d spectrum -> ordinary cut.
       gType = CGateFactory::cut;
+    else if (spType == ke1DVec) 
+      gType = CGateFactory::vand;
     else if((spType == keG1D))	// Gamma spectrum -> Gamma cut.
       gType = CGateFactory::gammacut;
     else if (spType == ke2DmProj) {
@@ -274,7 +277,6 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
         << dType << endl;
         return;
       }
-      
       
     } else {
       cerr << "Cut gate received on a spectrum type that doesn't know about"
@@ -334,6 +336,12 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
       return;
     }
     break;
+  case ke1DVec:
+    if (gType != CGateFactory::vand) {
+       cerr << "Only cuts can be accepted on vector 1d spectra";
+       return ;
+    }
+    break;
   case keG1D:                     // 1-d gamma spectrum must be a gamma cut...
     if((gType != CGateFactory::gammacut) &&
        (gType != CGateFactory::cut)) {
@@ -378,6 +386,7 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
   case ke1D:
   case keG1D:
   case ke2DmProj:             // These are also 1-d gates.
+  case ke1DVec:
     {
       // Only allowed 2 points, and the right point must be 
       // set so that it is on the right side of its channel.
@@ -452,12 +461,18 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
     }
     Parameters.push_back(pParam->getName());   
   }
+  // The 'parameter' for a vector spectrum is its vectdor name:
+
+  if (spType == ke1DVec) {
+    CSpectrum1DVecL* pVecSpec = reinterpret_cast<CSpectrum1DVecL*>(pSpec);
+    Parameters.push_back(pVecSpec->getVectorName());
+  }
    
   try {
     switch(spType) {
     case ke1D:
     case ke2D:
-      
+    case ke1DVec:
       
       // Use the gate factory creation mechanism to produce a dynamically
       // allocated SpecTcl gate:
