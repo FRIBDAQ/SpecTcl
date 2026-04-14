@@ -64,6 +64,7 @@ class CGateMediator
   Bool_t mediateGamma2();
   Bool_t mediate2dMultiple();
   Bool_t mediateGamma2Deluxe();
+  Bool_t mediateVector1d();
 };
 
 #endif

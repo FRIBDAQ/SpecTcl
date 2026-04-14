@@ -25,7 +25,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CGammaCut.h>
 #include <CGammaBand.h>
 #include <CGammaContour.h>
-
+#include "CVectorGates.h"
+#include "Spectrum1DVec.h"
 #include "Spectrum.h"
 #include <iostream>
 
@@ -57,6 +58,8 @@ CGateMediator::operator() ()
     return mediateGamma2();
   case ke2Dm:
     return mediate2dMultiple();
+  case ke1DVec:
+    return mediateVector1d();
   
     // No other spectrum types can display gates.
   default:
@@ -224,4 +227,25 @@ Bool_t
 CGateMediator::mediateGamma2Deluxe()
 {
   return mediateGamma2();
+}
+
+/**
+ *  A gate is displayable on a 1d vector spectrum iff the gate is
+ *  a vector or or and gate _and_ the vector name for that gate
+ *  is the same as the vector name for the spectrum.
+ */
+Bool_t
+CGateMediator::mediateVector1d() {
+  auto gtype = m_rGate->Type();
+  if ((gtype == "vs+") || (gtype == "vs*")) {
+    // Need to make the gate and spectrum more specific to know the rest of this:
+
+    CVectorGate*     pActualGate = reinterpret_cast<CVectorGate*>(m_rGate.getGate());
+    CSpectrum1DVecL* pActualSpectrum = reinterpret_cast<CSpectrum1DVecL*>(m_pSpec);
+
+    return pActualGate->getVectorName() == pActualSpectrum->getVectorName();
+
+  } else {
+    return kfFALSE;
+  }
 }
