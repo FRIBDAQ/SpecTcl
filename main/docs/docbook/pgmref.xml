@@ -31757,7 +31757,7 @@ return kfFALSE                           // Outside bounding rectangle.
         <title>Vector gates</title>
         <para>  
             This section describes the <classname>CVectorGate</classname>
-            abstract5 base class for all gates on vector valued parameters as
+            abstract base class for all gates on vector valued parameters as
             well as its concrete <classname>CVectorAndGate</classname> and
             <classname>CVectorOrGate</classname> subclasses.
         </para>
