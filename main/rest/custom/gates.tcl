@@ -67,7 +67,7 @@ proc SpecTcl_Gate/list {{pattern *}} {
 
 	# slice gate
 
-	if {$type eq "s"} {
+	if {$type in [list s vs+ vs*] } {
 	    lappend  fieldList  parameters [::SpecTcl::_jsonStringArray [lindex $description 0]]  \
 			       {*}[::SpecTcl::_marshallLowHigh [lindex $description 1]]
 	}
