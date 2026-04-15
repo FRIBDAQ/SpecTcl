@@ -3501,6 +3501,32 @@ gate <replaceable>name type description</replaceable>
                             </para>
                         </listitem>
                     </varlistentry>
+                    <varlistentry>
+                            <term><literal>vs*</literal> Vector and gate</term>
+                            <listitem>
+                                <para>
+                                    With the introduction of vector parameters in 7.0-005, this gate type was added as well.
+                                    It is very much like a slice gate, however, instead of taking a scalar parameter, it takes
+                                    a vector name and low/high limits.  The gate is satisfied if and only if the vector has at least
+                                    one element for the event and <emphasis>all</emphasis> elements fall within the limits of the
+                                    gate.
+                                </para>
+                                <para>
+                                    Note that cuts accepted on Xamine are translated to this gate type when transmitted
+                                    to SpecTcl.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><literal>vs+</literal> vector or gatre</term>
+                            <listitem>
+                                <para>
+                                    See the <literal>vs*</literal> gate above.  This gate type is satisfied when
+                                    at least one element of the vector was defined for the event and <emphasis>at least one</emphasis>
+                                    of the elements is in the limits of the gate.
+                                </para>
+                            </listitem>
+                    </varlistentry>
                 </variablelist>
             </refsect3>
             <refsect3>
@@ -3640,6 +3666,18 @@ gate <replaceable>name type description</replaceable>
                                 the low and high limits of the gate.
                             </para>
                         </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><literal>vs*</literal> and <literal>vs+</literal> vector gates.</term>
+                            <listitem>
+                                <para>
+                                    The description is a two element list.  The first element is
+                                    the name of a vector parameter whose elements will be checked against the
+                                    gate.  The second element is a two element list with the low and high gate
+                                    limits for the slice.  A vector element is in the gate if it is in the interval
+                                    [low, high).
+                                </para>
+                            </listitem>
                     </varlistentry>
                     <varlistentry>
                         <term>
