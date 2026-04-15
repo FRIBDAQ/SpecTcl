@@ -8011,11 +8011,20 @@ waveform getall name1...
                     </listitem>
             </varlistentry>
             <varlistentry>
-                    <term><command>treeparamvec -setlow</command> <replaceable>name value</replaceable></term>
+                    <term><command>treeparamvec -setunits</command> <replaceable>name value</replaceable></term>
                     <listitem>
                         <para>
                             Sets a new value for the units of measure applied to new parameters generated
                             and the existing parameters.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><command>treeparamvec -setbins</command> <replaceable>name bins</replaceable></term>
+                    <listitem>
+                        <para>
+                            Sets a new value for the bins of the new parameters created for this vector.  The 
+                            existing parmaeters are also modified.
                         </para>
                     </listitem>
             </varlistentry>
