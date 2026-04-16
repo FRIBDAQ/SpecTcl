@@ -167,6 +167,12 @@ package require json
 #   waveformResize
 #   waveformListFits
 #   waveformGetAll
+#  
+#   vectorList
+#   vectorSetLow
+#   vectorSetHigh
+#   vectorSetBins
+#   vectorSetUnits
 #
 #   command
 #
@@ -1830,6 +1836,18 @@ snit::type SpecTclRestClient {
     method waveformGetAll {name} {
         set qdict [dict create name $name]
         set result [$self _request [$self _makeUrl waveform/getall $qdict]]
+        return [dict get $result detail]
+    }
+    #---------------------------------- Methods to manipulate vectors.
+
+    ##
+    #  List the vector valuedc parameters in the server
+    #
+    #  @pattern - optional glob pattern to filter the listing by name match.
+    #             defaults to * which matches everything.
+    method vectorList {{pattern *}} {
+        set qdict [dict create pattern $pattern]
+        set result [$self _request [$self _makeUrl vector/list $qdict]]
         return [dict get $result detail]
     }
 }
