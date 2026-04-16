@@ -2230,3 +2230,36 @@ proc waveform::_default {ns name args} {
 
 }
 namespace ensemble configure waveform -unknown waveform::_default
+
+##
+#  support the treeparamvec command emulator.
+#
+namespace eval treeparamvec {
+    namespace export -list -setlow -sethigh -setbins -setunits
+    namespace ensemble create
+
+    # treeparamvec -list
+    proc -list {{pattern *}} {
+        return [$::SpecTclRestCommand::client vectorList $pattern]
+    }
+
+    # treeparamvec -setlow
+    proc -setlow {name low} {
+        return [$::SpecTclRestCommand::client vectorSetLow $name $low]
+    }
+
+    # treeparmavec -sethigh
+    proc -sethigh {name high} {
+        return [$::SpecTclRestCommand::client vectorSetHigh $name $high]
+    }
+
+    # treeparamvec -setbins 
+    proc -setbins {name bins} {
+        return [$::SpecTclRestCommand::client vectorSetBins $name $bins]
+    }
+
+    #  treeparamvec -setunits
+    proc -setunits {name units} {
+        return [$::SpecTclRestCommand::client vectorSetUnits $name $units]
+    }
+}
