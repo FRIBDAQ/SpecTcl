@@ -964,7 +964,7 @@ snit::type SpecTclRestClient {
     # @param high high limit of gate.
     #
     method gateCreateSimple1D {name gatetype parameters low high} {
-        if {$gatetype ni [list s gs]} {
+        if {$gatetype ni [list s gs vs+ vs*]} {
             error "The only gate gatetypes gateCreateSimple allows are 's' and 'gs'"
         }
         if {($gatetype eq "s") && ([llength $parameters] != 1)} {
