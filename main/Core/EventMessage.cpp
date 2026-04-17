@@ -26,6 +26,8 @@
 #include <stdexcept>
 #include <iostream>
 #include <DataFormat.h>
+#include "CTreeParameterVector.h"
+#include "CTreeParameter.h"
 #include <numeric>
 
 using namespace ufmt;
@@ -40,16 +42,54 @@ typedef int MPI_Datatype;               // Helps to minimze the #ifdefery.
 #define RECEIVER_EVENTLIST_SIZE 1       // Size of the event list we receive from one sender.
 
 
+/**
+ * Musings on how to handle the vector parameters.
+ * The parameter values have already been sent via the 
+ * tree parameters that make up each vector.  However, depending on 
+ * the data each worker sees, the mapping between those and
+ * parameter ids may be different worker to worker. 
+ * 
+ * What the histogrammer therefore needs to know is fpr each
+ * vector, for each event, the set of parameter ids to stuff
+ * into that vector on its end.
+ *  
+ * Therefore for each vector we need something like:
+ */
 
+ #define MAX_VECTOR_NAME 128
+ typedef struct _VectorNameAndLength {
+    char name[MAX_VECTOR_NAME];             // sets a limit on the name of the vector.
+    int  elementCount;          // Number of elements this event.
+ } VectorNameAndLength, *pVectorNameAndLength;
 
-// Internal definitions:
-// An event looks like an array of parameters:
+ /**
+ and then an array of elementCount elements that has the ids
+ of the parameters to push into that vector.
+ Note that the vectors are known to the histogrammer it's 
+ CTreeParameterVector::numVectors()  - call that nvec.
+ The messaging can be:
+
+ nvec VectorNameAndLength structs followed by 
+ sum(elementcount) integers that provide the mapping between event id and items to push into the vectors
+ in the histogrammer.
+
+ A future cool, but interesting to implement optimization is to only send the maps as needed and
+ for the histogrammer to cache them indexed by worker so that all that needs to be sent event by event
+ is the MPIParameter vector.
+ 
+ Internal definitions:
+ An event looks like an array of parameters:
+*/
 
 typedef struct _MPIParameter {
     int    number;
     double value;
 } MPIParameter, *pMPIParameter;
+
+
 static MPI_Datatype ParameterType;
+static MPI_Datatype VectorType;
+
 
 // Issue #205 - We accumulate the parameters from several
 // events into the accumulatedEvents vector.
@@ -57,10 +97,19 @@ static MPI_Datatype ParameterType;
 // The final send is three messages:
 //  integer - size of the accumulatedSizes vector.
 //  array of accumulatied sizes (size determined by the first message).
-//  array of accumulated events - total size detemeined by sum of accumluated sizes.
+//  array of accumulated events - total size detemined by sum of accumluated sizes.
 static const size_t BATCH_SIZE(100);     // Number of events in a batch.
 static std::vector<MPIParameter> accumulatedEvents;
 static std::vector<unsigned>          accumulatedSizes;
+//
+// Add the vector stuff too.
+// Note the number of events together with the
+// number of vector parameters together with the sizes
+// in the vector mappings allow us to untangle this 
+// on an event by event basis.
+//
+static std::vector<VectorNameAndLength> vectorNames;
+static std::vector<unsigned>            vectorMappings;
 
 // Register our custom data types;
 
@@ -82,6 +131,23 @@ static void RegisterTypes() {
             if (MPI_Type_commit(&ParameterType) != MPI_SUCCESS) {
                 throw std::runtime_error("Failed to commit MPIParameter data types");
             }
+        
+        
+
+        }
+        {
+            // Vector type:
+
+            int lengths[2] = {MAX_VECTOR_NAME, 1};
+            MPI_Datatype types[2] = {MPI_CHAR, MPI_INTEGER};
+            MPI_Aint offsets[2]   = {offsetof(VectorNameAndLength, name), offsetof(VectorNameAndLength, elementCount)};
+
+            if (MPI_Type_create_struct(2, lengths, offsets, types, &VectorType) != MPI_SUCCESS) {
+                throw std::runtime_error("Failed to create MPI vector type");
+            }
+            if (MPI_Type_commit(&VectorType) != MPI_SUCCESS) {
+                throw std::runtime_error("Failed to commit MPI vector type");
+            }
 
         }
 #endif
@@ -95,43 +161,27 @@ getParameterType() {
     return ParameterType;
 }
 
+static MPI_Datatype
+getVectorType() {
+    RegisterTypes();
+    return VectorType;
+}
+
 ///////////////////////////////// Sender side private functions //////////////////////////////
 // Send an event:
 
-#ifdef undefined // hang on to the code for flush.
-DopeVector& dope(event.getDopeVector());
-    auto valids = dope.size();
-     
-    // Send the size:
-
-    if (MPI_Send(
-        &valids, 1, MPI_UNSIGNED, HISTOGRAMER_RANK, EVENT_TAG, MPI_COMM_WORLD
-    ) != MPI_SUCCESS) {
-        throw std::runtime_error("Failed to send event size to histogramer");
-    }
-    // Marshall the event:
-    std::vector<MPIParameter> parameters;
-    for (int i = 0; i < valids; i++) {
-        MPIParameter param = {number: dope[i], value: event[dope[i]]};
-        parameters.push_back(param);
-    }
-    if (MPI_Send(
-        parameters.data(), valids, getParameterType(), 
-            HISTOGRAMER_RANK, EVENT_TAG, MPI_COMM_WORLD
-        ) != MPI_SUCCESS) {
-            throw std::runtime_error("Failed to send event parameters to histogramer");
-    }
-#endif
-// FLush events to the histogrammer from the accumulatedSizEs and accumulatedEvents
+#
+// Flush events to the histogrammer from the accumulatedSizEs and accumulatedEvents
 // vectors.  
 
 // Note that we just accumulate events until we have BATCH_SIZE of them and then FlushToHistogrammer
 // is called to actually do the send.
 //
-// The final send is three messages:
+// The final send is several messages:
 //  integer - size of the accumulatedSizes vector.
-//  array of accumulatied sizes (size determined by the first message).
+//  array of accumulatied event sizes (size determined by the first message).
 //  array of accumulated events - total size detemeined by sum of accumluated sizes.
+//  How to send vector valued parameters?
 #ifdef WITH_MPI                     // only called if compiled with MPI enabled.
 static void flushEventsToHistogrammer() {
     // do nothing if there are no events to flush (e.g. called before sending statechage).
@@ -166,9 +216,29 @@ static void flushEventsToHistogrammer() {
             throw std::runtime_error("Failed to send event paramter soup -> histogrammer");
         }
 
+        // Now send the vector name struct:
+
+        if (MPI_Send(
+            vectorNames.data(), vectorNames.size(), getVectorType(), 
+            HISTOGRAMER_RANK, EVENT_TAG, MPI_COMM_WORLD)
+            != MPI_SUCCESS
+        ) {
+            throw std::runtime_error("Failed to send vector name block");
+        }
+        // Send the vector mappgins:
+
+        if (MPI_Send(
+            vectorMappings.data(), vectorMappings.size(), MPI_UNSIGNED,
+            HISTOGRAMER_RANK, EVENT_TAG, MPI_COMM_WORLD)
+            != MPI_SUCCESS) {
+            throw std::runtime_error("Failed to send vector parameter map");
+        }
+
         // Clear the accumulated event storage.
         accumulatedEvents.clear(); 
         accumulatedSizes.clear();    
+        vectorNames.clear();
+        vectorMappings.clear();
     }
 }
 #endif
@@ -184,7 +254,24 @@ SendEventToHistogramer(CEvent& event) {
     for (int i =0; i < valids; i++) {
         accumulatedEvents.push_back({number: (int)dope[i], value: event[dope[i]]});
     }
+    // Now deal with the tree parmaeter vectors:
     // If the total number of events is BATCH_SIZE, flush the batched events to the histogrammer:
+
+    std::map<std::string, CTreeParameterVector::pTreeVectorInfo>::iterator p;
+    for (p = CTreeParameterVector::begin(); p != CTreeParameterVector::end(); ++p) {
+        VectorNameAndLength v;
+        strncpy(v.name, p->first.c_str(), MAX_VECTOR_NAME);   // Hopefully it'll never cut off.
+        v.name[MAX_VECTOR_NAME-1] = 0;                        // lazy quick way to ensure null termination.
+        v.elementCount = p->second->s_event.size();
+
+        vectorNames.push_back(v);
+
+        // Now the mappings:
+
+        for (auto e : p->second->s_event) {
+            vectorMappings.push_back(e->getId());
+        }
+    }
 
     if (accumulatedSizes.size() == BATCH_SIZE) {
         flushEventsToHistogrammer();
@@ -202,6 +289,52 @@ MPIHistogramEvents(CEventList& events) {
     }
 }
 ////////////////////////////// Receiver side private functions/structs  //////////////////////////
+// This is the form of the event that is posted to the interpreter to be relayed for analysis.
+
+// Definitions the receiver needs:
+
+typedef struct _EventEvent {                // A Tcl Event that has a physics event....
+    Tcl_Event header;                        // What Tcl sees.
+    CEventList* pEvents;                    // What we got from MPIReceiveEvent
+    pVectorNameAndLength pVectorCounts;   // Soup of name and counts.
+    unsigned*             pVectorMaps;     // Mappings for vector element ids.
+} EventEvent, *pEventEvent;
+static Tcl_ThreadId mainThread;              // Where we post events.
+static Tcl_ThreadId pumpThread;              // Thread accepting data from the workers.
+static bool pumping(false);                         //  Flag to keep running the pump.
+/**
+ * reconstructVectors
+ *    GIven an event, reconstruct the vectors associated with that event.
+ * Note this is destructive in that CTreeParameterVector::BeginEvent is called.
+ * 
+ * @param pTclEvent - pointer to the Tcl event (has the information needed to map)
+ * @param event     - The reconstucted physics event.
+ * @param nameIdx   - Index into the name/count array at which this event starts.
+ * @param mapIdx    - Index into the parameter Id map where we start.
+ * @return int      - Where the next event starts in the map.
+ * @note all of this vector reconstruction stuff assumes that all vectors got made
+ *  in all workers _and_ the histogramer.  Otherwise it falls apart because
+ *  CTreeParamterVector::numVectors() is not the same everywhere.
+ */
+static int
+reconstructVectors(pEventEvent pTclEvent, CEvent& event, int nameIdx, int mapIdx) {
+    auto numVecs = CTreeParameterVector::numVectors();
+    CTreeParameterVector::BeginEvent();                 // Clear out any prior vector.
+    
+
+    for (int vec = 0; vec < numVecs; vec++) {
+
+        int     elements = pTclEvent->pVectorCounts[nameIdx].elementCount;
+        CTreeParameterVector v = CTreeParameterVector::find(pTclEvent->pVectorCounts[nameIdx].name);
+        for (int i = 0; i < elements; i++) {
+            v.push_back(event[pTclEvent->pVectorMaps[mapIdx]]);
+            mapIdx++;
+        }
+
+        nameIdx++;
+    }
+    return mapIdx;                          // It's been incremented past the event.
+}
 
 // Marshall an event from MPI Messages.  note that we get the size from anybody
 // but then explictly get the parameters from the source that sent the size.
@@ -216,10 +349,11 @@ MPIHistogramEvents(CEventList& events) {
 //
 ///  Thes are marshalled back into events in the event list.
 static void
-MPIReceiveEvent(CEventList& eventList) {
+MPIReceiveEvent(EventEvent& tclEvent) {
     // 
 
 #ifdef WITH_MPI
+    CEventList& eventList = *tclEvent.pEvents;
     MPI_Status status;
     // Get the number of events we've got and create the receivers for them:
 
@@ -278,20 +412,47 @@ MPIReceiveEvent(CEventList& eventList) {
             e[params[index].number] = params[index].value;  // Fill in a parameter with its value.
             index++;
         }
+        // Now figure out how big the messagse with vector counts is and
+        // allocated/read it directly into the event structure. We do this
+        // by simply multiplying the event list size (nEvents) by the number
+        // of vector that are defined by the sizeof VectorNameAndLength.
+
+        int vectorNameCount = nEvents * CTreeParameterVector::numVectors();   // Needed for mpi recv.
+        size_t vectorNameBytes = vectorNameCount * sizeof(VectorNameAndLength); // for the tcl alloc.
+        tclEvent.pVectorCounts = reinterpret_cast<pVectorNameAndLength>(Tcl_Alloc(vectorNameBytes));
+        if (!tclEvent.pVectorCounts) {
+            throw std::runtime_error("Failed to allocated vector name/size array");
+        }
+        if (MPI_Recv(
+            tclEvent.pVectorCounts, vectorNameCount, getVectorType(),
+            sender, EVENT_TAG, MPI_COMM_WORLD, &status
+        ) != MPI_SUCCESS) {
+            throw std::runtime_error("Failed to receive vector name/count block");
+        }
+        // Now I need to see how many mappings there will be and receive those.
+        // that's just summing over the elementCounts of te items I just got:
+        
+        int vectorMappings(0);
+        for (int i =0; i < vectorNameCount; i++) {
+            vectorMappings += (tclEvent.pVectorCounts[i]).elementCount;
+        }
+        tclEvent.pVectorMaps = reinterpret_cast<unsigned*>(Tcl_Alloc(vectorMappings * sizeof(unsigned)));
+        if (!tclEvent.pVectorMaps) {
+            throw std::runtime_error("Failed to allocated vector mappings");
+        }
+        if (MPI_Recv(
+            tclEvent.pVectorMaps, vectorMappings, MPI_INTEGER, 
+            sender, EVENT_TAG, MPI_COMM_WORLD, &status
+        ) != MPI_SUCCESS) {
+            throw std::runtime_error("Failed to receive vector mappings");
+        }
+
     }
 
 #endif
 }
 
-// This is the form of the event that is posted to the interpreter to be relayed for analysis.
 
-typedef struct _EventEvent {                // A Tcl Event that has a physics event....
-    Tcl_Event header;                        // What Tcl sees.
-    CEventList* pEvents;                    // What we got from MPIReceiveEvent
-} EventEvent, *pEventEvent;
-static Tcl_ThreadId mainThread;              // Where we post events.
-static Tcl_ThreadId pumpThread;              // Thread accepting data from the workers.
-static bool pumping(false);                         //  Flag to keep running the pump.
 
 // This is the event handler.  It runs in the mainThread and just:
 // 1. Passes events on to the event sink pipeline.
@@ -303,14 +464,35 @@ static bool pumping(false);                         //  Flag to keep running the
 static int EventEventHandler(Tcl_Event* p, int flags) {
     pEventEvent pEvent = reinterpret_cast<pEventEvent>(p);
     auto pipeline = SpecTcl::getInstance()->GetEventSinkPipeline();
+    // needs some TCL to 
+    // 1. do on an event by event basis and
+    // 2. reconstruct the vectors for each event before running the
+    //    sink pipeline.
+
+    int nameindex=0; 
+    int mapindex=0;
     if (pipeline) {
-        (*pipeline)(*pEvent->pEvents);
+        CEventList& events(*pEvent->pEvents);
+        for (int i =0; i < events.size(); i++) {
+            CEvent& event(*events[i]);
+            CEventList oneEvent;
+            oneEvent[0] = &event;
+            // Reconstruct the vectors for this event:
+            mapindex   = reconstructVectors(pEvent, event, nameindex, mapindex);
+            nameindex += CTreeParameterVector::numVectors();
+            (*pipeline)(oneEvent);
+        }
+        
     }
     
     
     // destructor destroys the events too.
     delete pEvent->pEvents;
     pEvent->pEvents = nullptr;
+    Tcl_Free(reinterpret_cast<char*>(pEvent->pVectorCounts));
+    pEvent->pVectorCounts = nullptr;
+    Tcl_Free(reinterpret_cast<char*>(pEvent->pVectorMaps));
+    pEvent->pVectorMaps = nullptr;
     
     return 1;
 }
@@ -328,6 +510,8 @@ createTclEvent() {
     result->header.proc = EventEventHandler;
     result->header.nextPtr = nullptr;
     result->pEvents = new CEventList(RECEIVER_EVENTLIST_SIZE);         // We're sending one event around.
+    result->pVectorCounts = nullptr;                                   // allocated later.
+    result->pVectorMaps    = nullptr;                                   // allocated later.
     
     // MPIReceiveEvent will create the CEvent objects themselves.
     return result;
@@ -341,7 +525,7 @@ EventPumpThread(ClientData pData) {
 
     while (pumping) {
         pEventEvent pEvent = createTclEvent();
-        MPIReceiveEvent(*pEvent->pEvents);
+        MPIReceiveEvent(*pEvent);
 
         // Post the thread and notify:
 
