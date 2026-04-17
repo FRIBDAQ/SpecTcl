@@ -295,6 +295,7 @@ MPIHistogramEvents(CEventList& events) {
 
 typedef struct _EventEvent {                // A Tcl Event that has a physics event....
     Tcl_Event header;                        // What Tcl sees.
+    unsigned    numEvents;                   // Actual number of events.
     CEventList* pEvents;                    // What we got from MPIReceiveEvent
     pVectorNameAndLength pVectorCounts;   // Soup of name and counts.
     unsigned*             pVectorMaps;     // Mappings for vector element ids.
@@ -319,6 +320,7 @@ static bool pumping(false);                         //  Flag to keep running the
 static int
 reconstructVectors(pEventEvent pTclEvent, CEvent& event, int nameIdx, int mapIdx) {
     auto numVecs = CTreeParameterVector::numVectors();
+    CTreeParameter::setEvent(event);
     CTreeParameterVector::BeginEvent();                 // Clear out any prior vector.
     
 
@@ -365,6 +367,7 @@ MPIReceiveEvent(EventEvent& tclEvent) {
     ) {
         throw std::runtime_error("Failed to receive # of events.");
     }
+    tclEvent.numEvents  = nEvents;
     // Create the CEvents to receive the data:
     // the sender is programmed such that nEvents is never zero.
     for (int i=0; i < nEvents; i++) {
@@ -412,41 +415,42 @@ MPIReceiveEvent(EventEvent& tclEvent) {
             e[params[index].number] = params[index].value;  // Fill in a parameter with its value.
             index++;
         }
-        // Now figure out how big the messagse with vector counts is and
-        // allocated/read it directly into the event structure. We do this
-        // by simply multiplying the event list size (nEvents) by the number
-        // of vector that are defined by the sizeof VectorNameAndLength.
+    
 
-        int vectorNameCount = nEvents * CTreeParameterVector::numVectors();   // Needed for mpi recv.
-        size_t vectorNameBytes = vectorNameCount * sizeof(VectorNameAndLength); // for the tcl alloc.
-        tclEvent.pVectorCounts = reinterpret_cast<pVectorNameAndLength>(Tcl_Alloc(vectorNameBytes));
-        if (!tclEvent.pVectorCounts) {
-            throw std::runtime_error("Failed to allocated vector name/size array");
-        }
-        if (MPI_Recv(
-            tclEvent.pVectorCounts, vectorNameCount, getVectorType(),
-            sender, EVENT_TAG, MPI_COMM_WORLD, &status
-        ) != MPI_SUCCESS) {
-            throw std::runtime_error("Failed to receive vector name/count block");
-        }
-        // Now I need to see how many mappings there will be and receive those.
-        // that's just summing over the elementCounts of te items I just got:
-        
-        int vectorMappings(0);
-        for (int i =0; i < vectorNameCount; i++) {
-            vectorMappings += (tclEvent.pVectorCounts[i]).elementCount;
-        }
-        tclEvent.pVectorMaps = reinterpret_cast<unsigned*>(Tcl_Alloc(vectorMappings * sizeof(unsigned)));
-        if (!tclEvent.pVectorMaps) {
-            throw std::runtime_error("Failed to allocated vector mappings");
-        }
-        if (MPI_Recv(
-            tclEvent.pVectorMaps, vectorMappings, MPI_INTEGER, 
-            sender, EVENT_TAG, MPI_COMM_WORLD, &status
-        ) != MPI_SUCCESS) {
-            throw std::runtime_error("Failed to receive vector mappings");
-        }
+    }
+    // Now figure out how big the messagse with vector counts is and
+    // allocated/read it directly into the event structure. We do this
+    // by simply multiplying the event list size (nEvents) by the number
+    // of vector that are defined by the sizeof VectorNameAndLength.
 
+    int vectorNameCount = nEvents * CTreeParameterVector::numVectors();   // Needed for mpi recv.
+    size_t vectorNameBytes = vectorNameCount * sizeof(VectorNameAndLength); // for the tcl alloc.
+    tclEvent.pVectorCounts = reinterpret_cast<pVectorNameAndLength>(Tcl_Alloc(vectorNameBytes));
+    if (!tclEvent.pVectorCounts) {
+        throw std::runtime_error("Failed to allocated vector name/size array");
+    }
+    if (MPI_Recv(
+        tclEvent.pVectorCounts, vectorNameCount, getVectorType(),
+        sender, EVENT_TAG, MPI_COMM_WORLD, &status
+    ) != MPI_SUCCESS) {
+        throw std::runtime_error("Failed to receive vector name/count block");
+    }
+    // Now I need to see how many mappings there will be and receive those.
+    // that's just summing over the elementCounts of te items I just got:
+    
+    int vectorMappings(0);
+    for (int i =0; i < vectorNameCount; i++) {
+        vectorMappings += (tclEvent.pVectorCounts[i]).elementCount;
+    }
+    tclEvent.pVectorMaps = reinterpret_cast<unsigned*>(Tcl_Alloc(vectorMappings * sizeof(unsigned)));
+    if (!tclEvent.pVectorMaps) {
+        throw std::runtime_error("Failed to allocated vector mappings");
+    }
+    if (MPI_Recv(
+        tclEvent.pVectorMaps, vectorMappings, MPI_UNSIGNED, 
+        sender, EVENT_TAG, MPI_COMM_WORLD, &status
+    ) != MPI_SUCCESS) {
+        throw std::runtime_error("Failed to receive vector mappings");
     }
 
 #endif
@@ -473,7 +477,7 @@ static int EventEventHandler(Tcl_Event* p, int flags) {
     int mapindex=0;
     if (pipeline) {
         CEventList& events(*pEvent->pEvents);
-        for (int i =0; i < events.size(); i++) {
+        for (int i =0; i < pEvent->numEvents; i++) {
             CEvent& event(*events[i]);
             CEventList oneEvent;
             oneEvent[0] = &event;
@@ -481,6 +485,7 @@ static int EventEventHandler(Tcl_Event* p, int flags) {
             mapindex   = reconstructVectors(pEvent, event, nameindex, mapindex);
             nameindex += CTreeParameterVector::numVectors();
             (*pipeline)(oneEvent);
+            events[i] = nullptr;   // The event list destructor deletes the event.
         }
         
     }
@@ -509,6 +514,7 @@ createTclEvent() {
     }
     result->header.proc = EventEventHandler;
     result->header.nextPtr = nullptr;
+    result->numEvents      = 0; 
     result->pEvents = new CEventList(RECEIVER_EVENTLIST_SIZE);         // We're sending one event around.
     result->pVectorCounts = nullptr;                                   // allocated later.
     result->pVectorMaps    = nullptr;                                   // allocated later.
