@@ -780,7 +780,7 @@ CTreeParameter::getName()
  */
 static string gidstring("CTreeParameter::getId");
 int 
-CTreeParameter::getId()
+CTreeParameter::getId() const
 {
   
   ThrowIfNoParameter(gidstring);
@@ -1109,7 +1109,7 @@ CTreeParameter::find(string name)
    Throw a not bound exception if not parameter is defined for this treeeparameter.
 */
 void
-CTreeParameter::ThrowIfNoParameter(string& doing)
+CTreeParameter::ThrowIfNoParameter(string& doing) const
 {
   if(!m_pParameter) {
     throw CTreeException(CTreeException::NotBound, doing);

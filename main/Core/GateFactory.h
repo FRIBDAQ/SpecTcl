@@ -46,6 +46,7 @@
 #include <Point.h>
 #include <GateContainer.h>
 #include <Spectrum.h>
+#include "CTreeParameterVector.h"
 #include <vector>
 #include <string>
 #include <list>
@@ -72,6 +73,8 @@ class CDeletedGate;
 class CGammaCut;
 class CGammaBand;
 class CGammaContour;
+class CVectorGate;
+
 //
 //  The GateFactory Class:
 //
@@ -107,7 +110,9 @@ public:
     gammacontour,                //!< Gamma contour
     em,				//!< mask ==
     am,				//!< mask & != 0
-    nm				//!< mask !=
+    nm,				//!< mask !=
+    vand,     // vs* - vector and.
+    vor       // vs+ - vector or.
   };
 
 public:
@@ -157,15 +162,15 @@ protected:
    
 public:
 
-   CGate* CreateGate (GateType nGateType, 
+    CGate* CreateGate (GateType nGateType, 
 		      const std::vector<std::string>& rGates);
-   CGate* CreateGate (GateType eType, 
+    CGate* CreateGate (GateType eType, 
 		      const std::vector<std::string>& rParameters, 
 		      const std::vector<FPoint>& rPoints);
-   CGate* CreateGate (GateType eType, 
+    CGate* CreateGate (GateType eType, 
 		      const std::vector<FPoint>& rPoints, 
 		      const std::vector<UInt_t>& rParameters);
-  CGate* CreateGate(GateType eType,
+    CGate* CreateGate(GateType eType,
                     const std::vector<std::string>& rParameters, 
 		    long comparison);
   
@@ -203,6 +208,9 @@ public:
   CMaskNotGate* CreateMaskNotGate(const STD(vector<std::string>)& rParameter,
 				  long Compare);
   
+  CVectorGate* CreateVectorAndGate(const std::string& vectorName, Float_t low, Float_t high);
+  CVectorGate* CreateVectorOrGate(const std::string& vectorName, Float_t low, Float_t high);
+  
   static UInt_t  AssignId();
   static GateType stringToGateType(const std::string& sType);
 protected:
@@ -215,6 +223,8 @@ protected:
   void CreateGateList(STD(list)<CGateContainer*>& Gates,
 		      const std::vector<std::string>& rNames,
 		      GateType eType, const char* pWhich) const;
+
+  CTreeParameterVector getVector(const char* name, GateType gtype);
 };
 
 #endif

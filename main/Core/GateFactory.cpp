@@ -96,6 +96,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <MaskAndGate.h>
 #include <MaskEqualGate.h>
 #include <MaskNotGate.h>
+#include "CVectorGates.h"
 #include <histotypes.h>
 #include <Parameter.h>
 
@@ -231,7 +232,8 @@ CGateFactory::CreateGate(GateType nGateType,
                Set of parameters involved in the gate.
         \param rPoints (vector<FPoint>& [in]):
              A set of points involved in the gate.
-
+    - vector and/or
+            lower/limits of the slice.
      \para Returns:
      \retval CGate*
         Pointer to a created gate or throws a CGateFactoryException if the 
@@ -254,6 +256,8 @@ CGateFactory::CreateGate(GateType eType,
   case band:
     return CreateBand(rParameters, rPoints);
   case cut:
+  case vand:
+  case vor:
     if(rParameters.size() != 1) {
       throw CGateFactoryException(CGateFactoryException::WrongParameterCount,
 				  eType,
@@ -264,9 +268,23 @@ CGateFactory::CreateGate(GateType eType,
 				  eType,
 				  "Creating cut in CreateGate");
     }
+    if (eType == cut) {
       return CreateCut(rParameters[0], 
 		       min(rPoints[0].X(), rPoints[1].X()), 
 		       max(rPoints[0].X(), rPoints[1].X()));
+    } else if (eType == vand) {
+      return CreateVectorAndGate(rParameters[0], 
+          min(rPoints[0].X(), rPoints[1].X()), 
+		      max(rPoints[0].X(), rPoints[1].X()));
+    } else if (eType == vor) {
+      return CreateVectorOrGate(rParameters[0], 
+          min(rPoints[0].X(), rPoints[1].X()), 
+		      max(rPoints[0].X(), rPoints[1].X()));
+    } else {
+      // Should not get here:
+      throw std::logic_error("Gate factory exception bug cat/vand/vor was none of the above!");
+    }
+    break;
   case contour:
     return CreateContour(rParameters, rPoints);
   default:
@@ -734,6 +752,35 @@ CMaskEqualGate* CGateFactory::CreateMaskEqualGate(const vector<string>& rParamet
   return new CMaskEqualGate(Id, Compare);
 
 }
+/**
+ * CreateVectorAndGate
+ *  Create a new vector and gate
+ * 
+ * @param name - vectorname - name of the vector parameter the gate checks.
+ * @param low  - Gate low limit
+ * @param high - Gate high limit.
+ * @return CVectorGate* - pointer to the new dynamically created gate.
+ * @throw CGateFactorException if the vector does not exist (NoSuchParameter).
+ */
+CVectorGate*
+CGateFactory::CreateVectorAndGate(const std::string& vectorName, Float_t low, Float_t high) {
+  CTreeParameterVector vec = getVector(vectorName.c_str(), vand);   // Can throw.
+  return new CVectorAndGate(low, high, vec);
+}
+/**
+ * CreateVectorOrGate 
+ *    Same as above but a vector Or gate is created/returned.
+ * @param name - vectorname - name of the vector parameter the gate checks.
+ * @param low  - Gate low limit
+ * @param high - Gate high limit.
+ * @return CVectorGate* - pointer to the new dynamically created gate.
+ * @throw CGateFactorException if the vector does not exist (NoSuchParameter).
+ */
+CVectorGate*
+CGateFactory::CreateVectorOrGate(const std::string& vectorName, Float_t low, Float_t high) {
+  CTreeParameterVector vec = getVector(vectorName.c_str(), vor);
+  return new CVectorOrGate(low, high, vec);
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -942,6 +989,10 @@ CGateFactory::stringToGateType(const std::string& sType)
         return am;
     } else if (sType == "nm") {
         return nm;
+    } else if (sType == "vs*") {
+        return vand;
+    } else if (sType == "vs+") {
+        return vor;
     } else {
         std::stringstream msg;
         msg << "Invalid gate type string: " << sType;
@@ -950,4 +1001,19 @@ CGateFactory::stringToGateType(const std::string& sType)
     // Should not land here:
     
     return deleted;
+}
+
+//  Return the named tree parameter, mapping the 
+// CTreeParameterVectorException in to a CGateFactorException
+// With no such parameter as the reason.
+CTreeParameterVector
+CGateFactory::getVector(const char* name, GateType gtype) {
+  try {
+    CTreeParameterVector result = CTreeParameterVector::find(name);
+    return result;
+  }
+  catch (std::exception& e) {
+    std::string msg = e.what();
+    throw CGateFactoryException(CGateFactoryException::NoSuchParameter, gtype, msg);
+  }
 }

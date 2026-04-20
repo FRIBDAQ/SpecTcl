@@ -29,6 +29,7 @@ package require gate
 package require spectrum
 package require editvariable
 package require editparameter
+package require editvector
 package require guiutilities
 package require guihelp
 package require guistate
@@ -928,7 +929,16 @@ proc modifyParameter path {
     }
     .editparameter configure -parameter [pathToName $path]
 }
-
+##
+# modifyVector
+#     Edit the properties of a vector parameter.
+# @param path - path to the vector name.
+#
+proc  modifyVector path {
+    editVector $path
+    failsafeWrite;             # eventually we want to write vector props here.
+    ::FolderGui::updateBrowser
+}
 #
 #   Determine how many bytes of display memory are in use:
 #
@@ -1165,6 +1175,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
                    -variablefoldercommand   variableFolderContextMenu  \
                    -variablescript          modifyVariable             \
                    -parameterscript         modifyParameter            \
+                   -vectorscript            modifyVector                \
                    -gatescript              editGate                    \
                    -spectrumscript          editSpectrum                \
                    -spectrumrightclick      spectrumContextMenu        \

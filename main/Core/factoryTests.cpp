@@ -5,9 +5,12 @@
 #include "Spectrum.h"
 
 #define protected public            // acc setNextId
+#define private public
 #include <SpectrumFactory.h>
 #undef protected
+#undef private
 #include "SpectrumFactoryException.h"
+#include "DictionaryException.h"
 
 #include "Parameter.h"
 #include "GateContainer.h"
@@ -18,13 +21,19 @@
 #include <vector>
 
 
-
 class FactoryTests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(FactoryTests);
   CPPUNIT_TEST(oddparams);
   CPPUNIT_TEST(badGateType);
   CPPUNIT_TEST(badSubGateCount);
   CPPUNIT_TEST(constructok);
+  CPPUNIT_TEST(vec1d_1);
+  CPPUNIT_TEST(vec1d_2);
+  CPPUNIT_TEST(vec1d_3);
+  CPPUNIT_TEST(vec1d_4);
+  CPPUNIT_TEST(vec1d_5);
+  CPPUNIT_TEST(vec1d_6);
+  CPPUNIT_TEST(vec1d_7);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -33,6 +42,14 @@ protected:
   void badGateType();
   void badSubGateCount();
   void constructok();
+
+  void vec1d_1();
+  void vec1d_2();
+  void vec1d_3();
+  void vec1d_4();
+  void vec1d_5();
+  void vec1d_6();
+  void vec1d_7();
 private:
     CSpectrumFactory *pFact;
 public:
@@ -41,6 +58,7 @@ public:
     pFact->setNextId(0);
   }
   void tearDown() {
+    CTreeParameterVector::ClearMap();
     delete pFact;
   }};
 
@@ -164,4 +182,144 @@ FactoryTests::constructok()
     EQ(Size_t(128+2), pSpec->Dimension(0));
     
     EQ(ke2DmProj, pSpec->getSpectrumType());
+}
+
+void
+FactoryTests::vec1d_1() {
+    // Invalid data type:
+
+    std::string name("testname");
+    CTreeParameterVector param("testparam");
+    std::vector<std::string> params; params.push_back(std::string("testparam"));
+    std::vector<UInt_t> bins; bins.push_back(1024);
+    std::vector<Float_t> lows; lows.push_back(0.0);
+    std::vector<Float_t> highs; highs.push_back(1024.0);
+
+    CPPUNIT_ASSERT_THROW(
+        pFact->CreateSpectrum(
+            name, ke1DVec, keByte, params, bins, &lows, &highs
+        ), 
+        CSpectrumFactoryException
+    );
+}
+void FactoryTests::vec1d_2() {
+    // Parameter name required:
+
+    std::string name("testname");
+    CTreeParameterVector param("testparam");
+    std::vector<std::string> params;
+    std::vector<UInt_t> bins; bins.push_back(1024);
+    std::vector<Float_t> lows; lows.push_back(0.0);
+    std::vector<Float_t> highs; highs.push_back(1024.0);
+
+    CPPUNIT_ASSERT_THROW(
+        pFact->CreateSpectrum(
+            name, ke1DVec, keLong, params, bins, &lows, &highs
+        ), 
+        CSpectrumFactoryException
+    );
+}
+void FactoryTests::vec1d_3() {
+    // Need bins size =1.
+    std::string name("testname");
+    CTreeParameterVector param("testparam");
+    std::vector<std::string> params; params.push_back(std::string("testparam"));
+    std::vector<UInt_t> bins; bins.push_back(1024); bins.push_back(512);
+    std::vector<Float_t> lows; lows.push_back(0.0);
+    std::vector<Float_t> highs; highs.push_back(1024.0);
+
+    CPPUNIT_ASSERT_THROW(
+        pFact->CreateSpectrum(
+            name, ke1DVec, keLong, params, bins, &lows, &highs
+        ), 
+        CSpectrumFactoryException
+    );
+}
+
+void FactoryTests::vec1d_4() {
+    // Both lows and highs must be non-null
+
+    std::string name("testname");
+    CTreeParameterVector param("testparam");
+    std::vector<std::string> params; params.push_back(std::string("testparam"));
+    std::vector<UInt_t> bins; bins.push_back(1024);
+    std::vector<Float_t> lows; lows.push_back(0.0);
+    std::vector<Float_t> highs; highs.push_back(1024.0);
+
+    CPPUNIT_ASSERT_THROW(
+        pFact->CreateSpectrum(
+            name, ke1DVec, keLong, params, bins, nullptr, &highs
+        ), 
+        CSpectrumFactoryException
+    );
+    CPPUNIT_ASSERT_THROW(
+        pFact->CreateSpectrum(
+            name, ke1DVec, keLong, params, bins, &lows, nullptr
+        ), 
+        CSpectrumFactoryException
+    );
+}
+void FactoryTests::vec1d_5() {
+    // Low and high vectors must be 1 element only:
+
+    std::string name("testname");
+    CTreeParameterVector param("testparam");
+    std::vector<std::string> params; params.push_back(std::string("testparam"));
+    std::vector<UInt_t> bins; bins.push_back(1024);
+    std::vector<Float_t> lows; lows.push_back(0.0);
+    std::vector<Float_t> highs; highs.push_back(1024.0);
+
+    lows.push_back(-1.0);
+    CPPUNIT_ASSERT_THROW(
+        pFact->CreateSpectrum(
+            name, ke1DVec, keLong, params, bins, &lows, &highs
+        ), 
+        CSpectrumFactoryException
+    );
+    lows.pop_back();
+    highs.push_back(2048.0);
+    CPPUNIT_ASSERT_THROW(
+        pFact->CreateSpectrum(
+            name, ke1DVec, keLong, params, bins, &lows, &highs
+        ), 
+        CSpectrumFactoryException
+    );
+
+}
+
+void FactoryTests::vec1d_6() {
+    // parameter can't be found.
+
+    std::string name("testname");
+    
+    std::vector<std::string> params; params.push_back(std::string("testparam"));
+    std::vector<UInt_t> bins; bins.push_back(1024);
+    std::vector<Float_t> lows; lows.push_back(0.0);
+    std::vector<Float_t> highs; highs.push_back(1024.0);
+    CPPUNIT_ASSERT_THROW(
+        pFact->CreateSpectrum(
+            name, ke1DVec, keLong, params, bins, &lows, &highs
+        ),
+        CDictionaryException
+    );
+}
+void FactoryTests::vec1d_7() {
+    // success:
+
+    std::string name("testname");
+    CTreeParameterVector param("testparam");
+    std::vector<std::string> params; params.push_back(std::string("testparam"));
+    std::vector<UInt_t> bins; bins.push_back(1024);
+    std::vector<Float_t> lows; lows.push_back(0.0);
+    std::vector<Float_t> highs; highs.push_back(1024.0);
+
+    CSpectrum* pSpec;
+    CPPUNIT_ASSERT_NO_THROW(
+        pSpec = pFact->CreateSpectrum(
+            name, ke1DVec, keLong, params, bins, &lows, &highs
+        )
+    );
+
+    ASSERT(pSpec);
+
 }

@@ -206,7 +206,9 @@ CGateCommand::GateFactoryTable GateTable[] = {
   { "gc",     CGateFactory::gammacontour, kfFALSE,  0, kfTRUE},
   { "em",     CGateFactory::em,           kfFALSE,   1, kfFALSE},
   { "am",     CGateFactory::am,           kfFALSE,   1, kfFALSE},
-  { "nm",     CGateFactory::nm,           kfFALSE,   1, kfFALSE}
+  { "nm",     CGateFactory::nm,           kfFALSE,   1, kfFALSE},
+  { "vs*",    CGateFactory::vand,         kfFALSE,   1, kfFALSE},
+  { "vs+",    CGateFactory::vor,          kfFALSE,   1, kfFALSE},
 };
 static const UInt_t nGateTypes =
                       sizeof(GateTable)/sizeof(CGateCommand::GateFactoryTable);
@@ -487,45 +489,45 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[
       assert(0);
 	  }
       else {
-	for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
-	  Float_t x;
-	  if(sscanf(PointString[npoint].c_str(), "%f", &x) == 0) {
-	    rResult = Usage();
-	    rResult += "\ninvalid point string in description";
-	    rResult += PointString[npoint];
-      rInterp.setResult(rResult);
-	    return TCL_ERROR;
-	  }
-	  PointValues.push_back(FPoint(x,0));
-	}
+        for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
+          Float_t x;
+          if(sscanf(PointString[npoint].c_str(), "%f", &x) == 0) {
+            rResult = Usage();
+            rResult += "\ninvalid point string in description";
+            rResult += PointString[npoint];
+            rInterp.setResult(rResult);
+            return TCL_ERROR;
+          }
+          PointValues.push_back(FPoint(x,0));
+        }
       }
     }
     else {
       // otherwise a point is a list containing x,y...
       for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
-	Float_t x,y;
-	CTCLList Point(&rInterp, PointString[npoint]);
-	vector<string> Coords;
-	Point.Split(Coords);
-	if(Coords.size() != 2) {
-	  rResult = Usage();
-	  rResult += "\nInvalid point string in description  ";
-	  rResult += Point.getList();
-    rInterp.setResult(rResult);
-	  return TCL_ERROR;
-	}
-	Float_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
-	Float_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
-	
-	if((s1 != 1)  || (s2 != 1) ) {
-	  rResult = Usage();
-	  rResult += "\nInvalid point string in description  ";
-	  rResult += Point.getList();
-    rInterp.setResult(rResult);
-	  return TCL_ERROR;
-	}
-	FPoint pt(x,y);
-	PointValues.push_back(pt);
+        Float_t x,y;
+        CTCLList Point(&rInterp, PointString[npoint]);
+        vector<string> Coords;
+        Point.Split(Coords);
+        if(Coords.size() != 2) {
+          rResult = Usage();
+          rResult += "\nInvalid point string in description  ";
+          rResult += Point.getList();
+          rInterp.setResult(rResult);
+          return TCL_ERROR;
+        }
+        Float_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
+        Float_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
+        
+        if((s1 != 1)  || (s2 != 1) ) {
+          rResult = Usage();
+          rResult += "\nInvalid point string in description  ";
+          rResult += Point.getList();
+          rInterp.setResult(rResult);
+          return TCL_ERROR;
+        }
+        FPoint pt(x,y);
+        PointValues.push_back(pt);
       }
     }
     try {
@@ -537,8 +539,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[
       rInterp.setResult(rResult);
       return TCL_ERROR;
     }
-  }
-  else {        // List is just a point list, possibly followed by a now
+  } else {        // List is just a point list, possibly followed by a now
                 // mandatory spectrum list.
     CTCLList List(&rInterp, pList);
     StringArray Description;
@@ -568,48 +569,48 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, UInt_t nArgs, const char* pArgs[
       }
 
       if(Description.size() == 2) { // Here are the parameters (used to be spectra).
-	CTCLList params(&rInterp, Description[1]);
-	vector<string> paramString;
-	params.Split(paramString);
-	for(UInt_t k = 0; k < paramString.size(); k++) {
-	  paramValues.push_back(paramString[k]);
-	}
+        CTCLList params(&rInterp, Description[1]);
+        vector<string> paramString;
+        params.Split(paramString);
+        for(UInt_t k = 0; k < paramString.size(); k++) {
+          paramValues.push_back(paramString[k]);
+        }
+          }
+        else {
+          rResult = "Gamma gates now require a non-empty parameter list\n";
+          rResult +=Usage();
+          rInterp.setResult(rResult);
+          return TCL_ERROR;
+        }
       }
-      else {
-        rResult = "Gamma gates now require a non-empty parameter list\n";
-        rResult +=Usage();
-        rInterp.setResult(rResult);
-        return TCL_ERROR;
-      }
-    }
     
-    else {     // Otherwise a point is a list containing several x/y pairs..
-      CTCLList Points(&rInterp, Description[nPoint]);
-      vector<string> PointString;
-      Points.Split(PointString);
-      for(UInt_t i = 0; i < PointString.size(); i++) {
-	CTCLList Point(&rInterp, PointString[i]);
-	vector<string> Coords;
-	Point.Split(Coords);
-	if(Coords.size() != 2) {
-	  rResult = Usage();
-	  rResult += "\nInvalid point string in description  ";
-	  rResult += Point.getList();
-    rInterp.setResult(rResult);
-	  return TCL_ERROR;
-	}
-	Float_t x,y;
-	Int_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
-	Int_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
-	if( (s1 != 1) || (s2 != 1) ) {
-	  rResult = Usage();
-	  rResult += "\nInvalid point string in description  ";
-	  rResult += Point.getList();
-    rInterp.setResult(rResult);
-	  return TCL_ERROR;
-	}
-	FPoint pt(x, y);
-	PointValues.push_back(pt);
+      else {     // Otherwise a point is a list containing several x/y pairs..
+        CTCLList Points(&rInterp, Description[nPoint]);
+        vector<string> PointString;
+        Points.Split(PointString);
+        for(UInt_t i = 0; i < PointString.size(); i++) {
+          CTCLList Point(&rInterp, PointString[i]);
+          vector<string> Coords;
+          Point.Split(Coords);
+          if(Coords.size() != 2) {
+            rResult = Usage();
+            rResult += "\nInvalid point string in description  ";
+            rResult += Point.getList();
+            rInterp.setResult(rResult);
+            return TCL_ERROR;
+          }
+          Float_t x,y;
+          Int_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
+          Int_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
+          if( (s1 != 1) || (s2 != 1) ) {
+            rResult = Usage();
+            rResult += "\nInvalid point string in description  ";
+            rResult += Point.getList();
+            rInterp.setResult(rResult);
+            return TCL_ERROR;
+          }
+        FPoint pt(x, y);
+        PointValues.push_back(pt);
       }
       
       if(Description.size() == 2) { // means there are parameters

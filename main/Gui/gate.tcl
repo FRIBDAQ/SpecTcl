@@ -76,7 +76,9 @@ snit::widget gateGui {
         array set gateTypeNames [list * And b Band c Contour c2band {2 Bands to a Contour} \
                                             F False gb {Gamma Band} gc {Gamma Contoure}     \
                                             gs {Gamma Slice} - Not + Or s Slice T True      \
-                                            em {Equals Mask} am {And Mask} nm {Not Mask}]
+                                            em {Equals Mask} am {And Mask} nm {Not Mask}    \
+                                            vs* {Vector and} vs+ {Vector Or}                \
+                                            ]
 
         set type     [frame $win.type];               # Select gate type.
         set action   [frame $win.action];             # Type dependent gate editor.
@@ -105,6 +107,8 @@ snit::widget gateGui {
         $typemenu add command -label Contour            -command [mymethod startMultipointEditor c]
         $typemenu add command -label {Gamma Band}       -command [mymethod startMultipointEditor gb]
         $typemenu add command -label {Gamma Contour}    -command [mymethod startMultipointEditor gc]
+        $typemenu add command -label {Vector and}       -command [mymethod startVectorSliceEditor vs*] 
+        $typemenu add command -label {Vector or}        -command [mymethod startVectorSliceEditor vs+]
 
         label $type.namelbl -text {Gate Name: }
         entry $type.name  -width 32
@@ -180,6 +184,10 @@ snit::widget gateGui {
             gb -
             gc {
                 $self startMultipointEditor $gtype
+                $win.editor.contents load $name
+            }
+            vs* - vs+ {
+                $self startVectorSliceEditor $gtype
                 $win.editor.contents load $name
             }
             default {
@@ -290,6 +298,21 @@ snit::widget gateGui {
         }
         pack $gateEditorWidget -expand 1 -fill x
         set helpTopic [$gateEditorWidget getHelpTopic]
+    }
+    ##
+    # startVectorSliceEditor
+    #    Starts the slice editor for a vector and/or slice.
+    #
+    # @param gtype - type of gate.
+    #
+    method startVectorSliceEditor gtype {
+        
+        $self setGateType $gtype
+        destroy $gateEditorWidget
+        set gateEditorWidget [vectorSliceEditor $win.editor.contents]
+        pack $gateEditorWidget -expand 1 -fill x
+        
+    
     }
     # startMultipointEditor gtype
     #       Starts a gate editor that accepts a set of points.

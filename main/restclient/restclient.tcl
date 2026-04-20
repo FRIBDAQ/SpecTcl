@@ -167,6 +167,12 @@ package require json
 #   waveformResize
 #   waveformListFits
 #   waveformGetAll
+#  
+#   vectorList
+#   vectorSetLow
+#   vectorSetHigh
+#   vectorSetBins
+#   vectorSetUnits
 #
 #   command
 #
@@ -958,7 +964,7 @@ snit::type SpecTclRestClient {
     # @param high high limit of gate.
     #
     method gateCreateSimple1D {name gatetype parameters low high} {
-        if {$gatetype ni [list s gs]} {
+        if {$gatetype ni [list s gs vs+ vs*]} {
             error "The only gate gatetypes gateCreateSimple allows are 's' and 'gs'"
         }
         if {($gatetype eq "s") && ([llength $parameters] != 1)} {
@@ -1831,5 +1837,68 @@ snit::type SpecTclRestClient {
         set qdict [dict create name $name]
         set result [$self _request [$self _makeUrl waveform/getall $qdict]]
         return [dict get $result detail]
+    }
+    #---------------------------------- Methods to manipulate vectors.
+
+    ##
+    # vectorList
+    #  List the vector valuedc parameters in the server
+    #
+    #  @pattern - optional glob pattern to filter the listing by name match.
+    #             defaults to * which matches everything.
+    method vectorList {{pattern *}} {
+        set qdict [dict create pattern $pattern]
+        set result [$self _request [$self _makeUrl vector/list $qdict]]
+        return [dict get $result detail]
+    }
+    ##
+    # vectorSetLow
+    #   Set the low value for a vector parameters
+    #
+    # @param name - name of the vector to modify.
+    # @param low  - new low value.
+    #
+    method vectorSetLow {name low} {
+        set qdict [dict create name $name low $low]
+        set result [$self _request [$self _makeUrl vector/setlow $qdict]]
+        return $result
+    }
+    ##
+    # vectorSetHigh
+    #   Set new high value for a vector.
+    #
+    # @param name - name to modify.
+    # @param high - new high value
+    #
+    method vectorSetHigh {name high} {
+        set qdict [dict create name $name high $high]
+
+        set result [$self _request [$self _makeUrl vector/sethigh $qdict]]
+        return $result
+    }
+    ##
+    # vectorSetBins
+    #    Set new bins value for a vector parameter.
+    # 
+    # @param name -name  of the parameter.
+    # @param bins - new bins.
+    #
+    method vectorSetBins {name bins} {
+        set qdict [dict create name $name bins $bins] 
+
+        set result [$self _request [$self _makeUrl vector/setbins $qdict]]
+        return $result
+    }
+    ##
+    # vectorSetUnits
+    #   Set a new units value for a vector parameter.
+    # @param name -name of the vector.
+    # @param units - new units value
+    #
+    method vectorSetUnits {name units} {
+        set qdict [dict create name $name units $units]
+
+        set result [$self _request [$self _makeUrl vector/setunits $qdict]]
+        return $result
     }
 }

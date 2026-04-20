@@ -3501,6 +3501,32 @@ gate <replaceable>name type description</replaceable>
                             </para>
                         </listitem>
                     </varlistentry>
+                    <varlistentry>
+                            <term><literal>vs*</literal> Vector and gate</term>
+                            <listitem>
+                                <para>
+                                    With the introduction of vector parameters in 7.0-005, this gate type was added as well.
+                                    It is very much like a slice gate, however, instead of taking a scalar parameter, it takes
+                                    a vector name and low/high limits.  The gate is satisfied if and only if the vector has at least
+                                    one element for the event and <emphasis>all</emphasis> elements fall within the limits of the
+                                    gate.
+                                </para>
+                                <para>
+                                    Note that cuts accepted on Xamine are translated to this gate type when transmitted
+                                    to SpecTcl.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><literal>vs+</literal> vector or gatre</term>
+                            <listitem>
+                                <para>
+                                    See the <literal>vs*</literal> gate above.  This gate type is satisfied when
+                                    at least one element of the vector was defined for the event and <emphasis>at least one</emphasis>
+                                    of the elements is in the limits of the gate.
+                                </para>
+                            </listitem>
+                    </varlistentry>
                 </variablelist>
             </refsect3>
             <refsect3>
@@ -3640,6 +3666,18 @@ gate <replaceable>name type description</replaceable>
                                 the low and high limits of the gate.
                             </para>
                         </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                            <term><literal>vs*</literal> and <literal>vs+</literal> vector gates.</term>
+                            <listitem>
+                                <para>
+                                    The description is a two element list.  The first element is
+                                    the name of a vector parameter whose elements will be checked against the
+                                    gate.  The second element is a two element list with the low and high gate
+                                    limits for the slice.  A vector element is in the gate if it is in the interval
+                                    [low, high).
+                                </para>
+                            </listitem>
                     </varlistentry>
                     <varlistentry>
                         <term>
@@ -5772,6 +5810,24 @@ spectrum ?<option>-new</option>? <replaceable>name type parameter-list axis-spec
                         </listitem>
                     </varlistentry>
                     <varlistentry>
+                            <term><literal>1v</literal> -- One dimensional spectrum on vector parameter.</term>
+                            <listitem>
+                                <para>
+                                    This spectrum type was introducedin SpecTcl 7.0-005.
+                                    It requires a single parameter name which is the name of 
+                                    a tree parameter vector (See 
+                                    <link linkend='treeparamveccmd' endterm='treeparamveccmd.title' />).
+                                    Note that these vectors are only visible to the 
+                                    <command>treeparamvec</command> command referenced above.
+                                </para>
+                                <para>
+                                    A list containng a single axis specfication is required.
+                                    <literal>v1</literal> spectra increment in an event for each
+                                    item pushed into the vector by the event processing pipeline.
+                                </para>
+                            </listitem>
+                    </varlistentry>
+                    <varlistentry>
                         <term><literal>2</literal> - two dimensional spectrum.</term>
                         <listitem>
                             <para>
@@ -6055,6 +6111,11 @@ spectrum <option>-list</option> <option>-id</option> ?<option>-showgate</option>
                 As described above, if the <option>-showgate</option> is
                 specified, an additional  list element, the applied gate name
                 is appended.
+            </para>
+            <para>
+                Note that the parameter name listed for the <literal>1v</literal>
+                spectrum type is the name of a tree parameter vector, not the name of
+                a raw parameter.
             </para>
         </refsect2>
         <refsect2>
@@ -7831,7 +7892,151 @@ waveform getall name1...
         </refsect2>
     </refsect1>
 </refentry>
-
+<refentry id='treeparamveccmd'>
+    <refmeta>
+        <refentrytitle id='treeparamveccmd.title'>treeparamvec</refentrytitle>
+        <manvolnum>1SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>treeparamvec</refname>
+        <refpurpose>Get information about tree parameter vectors</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <cmdsynopsis>
+<command>treeparamvec -list</command><arg><replaceable>?pattern?</replaceable></arg>
+        </cmdsynopsis>
+        <cmdsynopsis>
+<command>treeparamvec -setlow</command>
+    <arg><replaceable>name</replaceable></arg><arg><replaceable>value</replaceable></arg>
+        </cmdsynopsis>
+        <cmdsynopsis>
+<command>treeparamvec -sethigh</command>
+    <arg><replaceable>name</replaceable></arg><arg><replaceable>value</replaceable></arg>
+        </cmdsynopsis>
+        <cmdsynopsis>
+<command>treeparamvec -setunits</command>
+    <arg><replaceable>name</replaceable></arg><arg><replaceable>value</replaceable></arg>
+        </cmdsynopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Tree parameter vectors are new to SpecTcl in 7.0-005.  They provide an object that 
+            appears much like a vector to event processors, dynamically creating actual tree parameters as needed
+            when values are <function>push_back</function>-ed into them.  Special spectrum and
+            gate types have also been added to use these objects.
+        </para>
+        <para>
+            The subcommand options of the <command>treeparamvec</command> allow scripts to interrogate
+            and modify the properties of existing tree parameter vector objects.
+        </para>
+        <variablelist>
+            <varlistentry>
+                    <term><command>treeparamvec -list</command> <replaceable>?pattern?</replaceable></term>
+                    <listitem>
+                        <para>
+                            Lists the properties of the tree parameters whose names match the optional
+                            glob <parameter>pattern</parameter>>  IF a <parameter>pattern</parameter> is not
+                            provided, the pattern defaults to <literal>*</literal> which matches everything.
+                        </para>
+                        <para>
+                            The commands result is a list of dicts.  Each dict describes a tree parameter 
+                            vector and has the following keys:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                                    <term><literal>name</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The name of the tree parameter vector this dict describes.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>low</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The low limit that will be used in tree parameters created at run
+                                            time by this vector.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>high</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The high limit that will be used in tree parameters created at run time
+                                            by this vector.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>units</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The units of measure that will be used in tree parameters created at
+                                            run time by this vector.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                    <term><literal>parameters</literal></term>
+                                    <listitem>
+                                        <para>
+                                            The value of this key as a list of the names of parameters that have
+                                            been already made by this vector.
+                                        </para>
+                                    </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><command>treeparamvec -setlow</command> <replaceable>name value</replaceable></term>
+                    <listitem>
+                        <para>
+                            Sets the new low limit for the vector <parameter>name</parameter> to <parameter>value</parameter>.
+                            Not only is this the low limit that is used in parameter creation, but all existing
+                            parameters will have their low limit set to this.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><command>treeparamvec -sethigh</command> <replaceable>name value</replaceable></term>
+                    <listitem>
+                        <para>
+                            Same as the <option>-setlow</option> but the high limit for the vector and its
+                            parameters are set to <parameter>value</parameter>
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><command>treeparamvec -setunits</command> <replaceable>name value</replaceable></term>
+                    <listitem>
+                        <para>
+                            Sets a new value for the units of measure applied to new parameters generated
+                            and the existing parameters.
+                        </para>
+                    </listitem>
+            </varlistentry>
+            <varlistentry>
+                    <term><command>treeparamvec -setbins</command> <replaceable>name bins</replaceable></term>
+                    <listitem>
+                        <para>
+                            Sets a new value for the bins of the new parameters created for this vector.  The 
+                            existing parmaeters are also modified.
+                        </para>
+                    </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The name of the tree parameter vector will be used to construct the names of the parameters
+            generated at run time.  The form of the names of the new parameters will be
+            <literal>name(</literal><parameter>n</parameter><literal></literal>.  That is the 
+            generated parameter names will look like Tcl array elemeents.
+        </para>
+    </refsect1>
+</refentry>
 </reference>
 
 </book>

@@ -53,6 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include <Spectrum.h>
 #include <Spectrum1DL.h>
 #include <Spectrum1DW.h>
+#include <Spectrum1DVec.h>
 #include <SpectrumPackage.h>
 #include <SpectrumFormatError.h>
 #include <StreamIOError.h>
@@ -248,7 +249,7 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
       
       UInt_t nChannels;
       if (nRevision == 3) {
-	nChannels = vDimensions[0];
+	      nChannels = vDimensions[0];
       }
       else {
 	// There was a time that I had not incremented the
@@ -425,10 +426,10 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
       ParameterDictionaryIterator pD = rDict.FindMatch(p);
       string name;
       if (pD != rDict.end()) {
-	name =  pD->second.getName();
+	      name =  pD->second.getName();
       }
       else {
-	name = "*UNKNOWN*";
+	      name = "*UNKNOWN*";
       }
       rStream << Delimeter << Quote << name << Quote;
       Delimeter = ' ';		// Internal delimeter.
@@ -441,27 +442,32 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
       ParameterDictionaryIterator pD = rDict.FindMatch(p);
       string name;
       if (pD != rDict.end()) {
-	name =  pD->second.getName();
+	      name =  pD->second.getName();
       }
       else {
-	name = "*UNKNOWN*";
+	      name = "*UNKNOWN*";
       }
       rStream << Delimeter << Quote << name << Quote;
       Delimeter   = ' ';
     }
     rStream << ")\n";
-  }
-  else {
+  } else if (sType = ke1DVec) {
+      // The 'parameter' is just the name of the treevector:
+
+      CSpectrum1DVecL* pVecSpec = reinterpret_cast<CSpectrum1DVecL*>(&rSpectrum);
+      std::string vectorName = pVecSpec->getVectorName();
+      rStream << "(" << Quote << vectorName << Quote<< ")\n";
+  } else {
     Delimeter = '(';
     for(UInt_t i = 0; i < Parameters.size(); i++) {
       UInt_t pnum = Parameters[i];
       FindById p(pnum);
       ParameterDictionaryIterator pD = rDict.FindMatch(p);
       if(pD != rDict.end()) {
-	rStream << Delimeter << Quote << (*pD).second.getName() << Quote;
+	      rStream << Delimeter << Quote << (*pD).second.getName() << Quote;
       }
       else {
-	rStream << Delimeter << (pnum == UINT_MAX ? Quote+Quote : "*UNKNOWN*");
+	      rStream << Delimeter << (pnum == UINT_MAX ? Quote+Quote : "*UNKNOWN*");
       }
       Delimeter = ' ';
     }

@@ -160,6 +160,14 @@ UInt_t CSnapshotSpectrum::Dimensionality() const
   //
   return m_rActualSpectrum.Dimensionality();
 }
+/**
+ *  needParameter
+ *    No snapshot spectra need parameters since they don't actually increment.
+ */
+Bool_t
+CSnapshotSpectrum::needParameter() const {
+  return kfFALSE;
+}
 /*!
    Get the low limit of an axis.  This just delegates to the
    contained spectrum.

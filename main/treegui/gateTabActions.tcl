@@ -63,6 +63,7 @@ package provide gateTabActions 1.0
 	set menuUpdateAfterId -1
         loadGateMenu
 		loadParameterMenu
+        loadVectorMenu
     }
 
     ##
@@ -70,7 +71,7 @@ package provide gateTabActions 1.0
     # @param gate - the gate to parse.
     #
     private method gateType gate {
-	return [lindex $gate 2]
+	    return [lindex $gate 2]
     }
     ##
     # Updates both the gate table and the gate menu using the mask:
@@ -79,8 +80,10 @@ package provide gateTabActions 1.0
         loadGateTable [$widget cget -mask]
         loadGateMenu
         loadParameterMenu
+        loadVectorMenu
 	    
     }
+
     ##
     # The primitive gates need to have their definitions munged a bit
     # when being loaded into the definition string entry.  This is because gate -list
@@ -133,34 +136,37 @@ package provide gateTabActions 1.0
     #  @name is the name of the gate that fired the trace.
     #
     private method gateAdded name {
-	set status [catch {
-	scheduleLoadUpdate
-	if {$gateAddChain ne ""} {
-	    uplevel #0 [list $gateAddChain $name]
-	}} msg] 
-	if {$status} {
-	    puts "gateAdded failed: $msg $name"
-	}
-    }
+        set status [catch {
+        scheduleLoadUpdate
+        if {$gateAddChain ne ""} {
+            uplevel #0 [list $gateAddChain $name]
+        }} msg] 
+        if {$status} {
+            tk_messageBox -title "gateAdded failed" -message "$msg $name" -type ok -icon info
+            # puts "gateAdded failed: $msg $name"
+        }
+        }
     private method gateDeleted name {
-	set status [catch {
-	scheduleLoadUpdate
-	if {$gateDeleteChain ne ""} {
-	    uplevel #0 [list $gateDeleteChain $name]
-	}} msg]
-	if {$status} {
-	    puts "gateDeleted failed: $msg $name"
-	}
+        set status [catch {
+        scheduleLoadUpdate
+        if {$gateDeleteChain ne ""} {
+            uplevel #0 [list $gateDeleteChain $name]
+        }} msg]
+        if {$status} {
+            tk_messageBox -title "gateDeleteded failed" -message "$msg $name" -type ok -icon info
+            # bputs "gateDeleted failed: $msg $name"
+        }
     }
     private method gateChanged name {
-	set status [catch {
-	scheduleLoadUpdate
-	if {$gateChangeChain ne ""} {
-	    uplevel #0 [list $gateChangeChain $name]
-	}} msg]
-	if {$status} {
-	    puts "gateChanged failed: $msg $status"
-	}
+        set status [catch {
+        scheduleLoadUpdate
+        if {$gateChangeChain ne ""} {
+            uplevel #0 [list $gateChangeChain $name]
+        }} msg]
+        if {$status} {
+            tk_messageBox -title "gateChanged failed" -message "$msg $name" -type ok -icon info
+            # puts "gateChanged failed: $msg $status"
+        }
     }
     ##
     # loadParameterMenu
@@ -175,19 +181,35 @@ package provide gateTabActions 1.0
         $widget configure -menuparams $names
     }
     ##
+    # loadVectorMenu
+    #    load the gate generators pulldown menu of vectors:
+    #
+    private method loadVectorMenu {} {
+        set vectors [treeparamvec -list]
+        set names [list]
+        foreach vector $vectors {
+            lappend names [dict get $vector name]
+        }
+        $widget configure -menuvectors  $names
+    }
+    ##
     # Load the gate menu with the names of all of the gates:
     #
     private method loadGateMenu {} {
-	set gates [gate -list]
-	set names [list]
-	foreach gate $gates {
-	    if {[gateType $gate] ne "F"} {
-		lappend names [lindex $gate 0]
-	    }
-	}
-	$widget configure -menugates $names
+        set gates [gate -list]
+        set names [list]
+        foreach gate $gates {
+            if {[gateType $gate] ne "F"} {
+            lappend names [lindex $gate 0]
+            }
+        }
+        $widget configure -menugates $names
 
-	# If the name was supplied we chain to any 
+        # configure the vector names:
+
+        
+
+        # If the name was supplied we chain to any 
     }
 
     
@@ -352,7 +374,8 @@ package provide gateTabActions 1.0
 
 	loadGateTable *
 	loadGateMenu
-        loadParameterMenu
+    loadParameterMenu
+    loadVectorMenu
 
 	# Set up a gate add/delete trace to reload the gate menu:
 

@@ -159,3 +159,12 @@ UInt_t
 CGate::getMask() {
   return 0;
 }
+/**
+ * getVectorName() 
+ *    @return std::string - name of the vector parameter that's being checked.
+ *    @retval "" as should any non vector gate.
+ */
+std::string
+CGate::getVectorName() const {
+  return std::string("");
+}

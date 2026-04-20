@@ -48,7 +48,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "WriteCommand.h"
 #include "ReadCommand.h"
 #include "CM2Projection.h"
-
+#include <Spectrum1DVec.h>
 #include <Exception.h>
 #include <RangeError.h>
 #include <ErrnoException.h>
@@ -115,7 +115,8 @@ static const SpecTypes aSpecTypes[] = {
   {"m2",   ke2Dm},
   {"gd",   keG2DD},
   {"gs",   keGSummary},
-  {"2dmproj", ke2DmProj }
+  {"2dmproj", ke2DmProj},
+  {"1v", ke1DVec} 
 
 };
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
@@ -593,6 +594,12 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
     
 	
 	CSpectrum* rSpec((*p).second);
+
+  // If rSpec is a snapshot, replace it with the encapsulated spectrum:
+
+  CSnapshotSpectrum *snap = dynamic_cast<CSnapshotSpectrum*>(rSpec);
+  if (snap) rSpec = const_cast<CSpectrum*>(&snap->getCSpectrum());
+
 	std::string d =  rSpec->getTextDescription();
 	if (d == "") {
 	  //  Need to compute/cache.
@@ -1996,6 +2003,14 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
         Description.AppendElement(roiGates[i]->getName());
     }
     Description.EndSublist();
+  } if (Def.eType == ke1DVec) {
+    // We need to get the vector name and put that in the list:
+
+    // the type really does not matter:
+    
+    CSpectrum1DVecL* pSpec = reinterpret_cast<CSpectrum1DVecL*>(&rSpectrum);
+    Description.AppendElement(pSpec->getVectorName());
+    
   }
   else {
     std::vector<UInt_t>::iterator p = Def.vParameters.begin();

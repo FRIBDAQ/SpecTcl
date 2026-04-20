@@ -2,7 +2,11 @@
 * Issue #229 - Support metadata for parameters, spectra, gates, and treevariables.
 * Issue #232 - Support spectrum I/O in HDF5 format.
 * Issue #233 - Support sread -all operation.
-
+* Issue #230 - Provide support for vector valued parameters and a 1d spectrum on
+               those as well as two new vector gate types:  vs+ and vs* which
+	       provide gates evaulated on vetor parameters vs+ is true if
+	       any value of the vector is in the slice and vs* is true only
+	       if all vector values are inside the slice.
 == 7.0-004 ==
 * Upgrade DDASFormat incorp to 1.1-002
 * Support processing DDAS data with fits via --enable-ddastoys and --with-ddastoysdir options 

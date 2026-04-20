@@ -11359,4 +11359,188 @@ Bool_t
         </calloutlist>
     </section>
 </chapter>
+<chapter>
+    <title>Vector valued parameters and the 1v spectrum type</title>
+    <para>
+        Beginning with SpecTcl 7.0-005, a <firstterm>vector valued</firstterm>
+        parameter type was introduced along with a <literal>1v</literal>
+        spectrum type intended to histogram it.
+    </para>
+    <para>
+        A vector valued parameter is a parameter that operates, to some extent,
+        like an <classname>std::vector</classname> object.  When analyzing an
+        event, <methodname>push_back</methodname> is used to add data to the
+        vector.  The <methodname>operator[]</methodname> operator can be used
+        to index the vector for each event.  At the beginning of each event,
+        SpecTcl clears the vector.
+    </para>
+    <para>
+        The vector valued parameter is implemented by
+        <classname>CTreeParameterVector</classname>.  In many ways, this is similar
+        to the <classname>CTreeParameterArray</classname>, however, the 
+        <classname>CTreeParameter</classname> objects it contains are dynamically
+        generated as needed.
+    </para>
+    <para>
+        <classname>CTreeParmeterVector</classname> maintains a list of the
+        <classname>CTreeParameter </classname> it has generated and
+        re-uses them event by event generating new parameters only if
+        required by the length to which the vector grows.
+    </para>
+    <para>
+        As whith the rest of the tree parameter subsystem, <classname>CTreeParameterVector</classname>
+        objects with the same name bind to the same underlying data.  Each vector has several bits of data:
+    </para>
+    <itemizedlist>
+        <listitem><para>
+            THe low, high and bins suggestions and units of measure.   These are propagated  into the individual 
+            parameters the object generates.  Changes to those items are propagated into the parameters and
+            used as values for the <classname>CTreeParameter</classname> objects generated in the future.
+        </para></listitem>
+        <listitem><para>
+            A name. The name is used as a base name when generating the names of the parameters the
+            vector holds.  Since the indices for the vector are ounbounded, Tcl indexing notation
+            is used to generate names.  For example, a basename like
+            <literal>vector</literal> would generate names like
+            <literal>vector(0), vector(1)...</literal>
+        </para></listitem>
+        <listitem><para>
+            A vector of the parameters that were generated so far in the run and
+            another list of the paramters that have been given values in the processing
+            of the current event.
+        </para></listitem>
+    </itemizedlist>
+    <para>
+        The <literal>1v</literal> Spectrum, also introduced by 7.0-005,
+        is a 1D spectrum that is incremented for every value that has been
+        put in its vector.  Like all vectors it can have gates applied to it.
+        It operates very much like a <literal>g1</literal> spectrum except that
+        it does not support folds.
+    </para>
+    <para>
+        Let's have a look at a contrived example using <classname>CTreeParmeterVector</classname> Objects.
+        Suppose you have an event where there's a section that contains the energy and time values
+        from an array of detectors and, for simplicity, this section of data is preceded by a count for
+        example:
+    </para>
+    <informalexample>
+        <programlisting>
++--------------------------------+
+|    n elements present          |
++--------------------------------+
+|  element # for 0               |
++--------------------------------+
+|  E element 0                   |
++--------------------------------+
+|  T element 0                   |
+       ...
+| element for # n-1              |
++--------------------------------+
+        </programlisting>
+    </informalexample>
+    <para>
+        Here's a code fragment that pushes data like that into vectors:
+    </para>
+    <example>
+        <title>Using <classname>CTreeParameterVector</classname> in event processors</title>
+        <programlisting>
+/** vectorprocessor.h  */
+
+#include &lt;EventProcessor.h&gt;
+#include &lt;CTreeParameterVector.h&gt;
+
+class VectorProcessor : public CEventProcessor {
+private:
+    CTreeParameterVector m_pads;   // Element number.
+    CTreeParameterVector m_Energies;            <co id='tv.example.data' />
+    CTreeParameterVector m_Times;
+public:
+    VectorProcessor();                        <co id='tv.example.methods' />
+    
+    virtual Bool_t operator()(const Address_t pEvent,
+                            CEvent&amp; rEvent,
+                            CAnalyzer&amp; rAnalyzer,
+                            CBufferDecoder&amp; rDecoder
+    );
+};
+
+/** vectorprocessor.cpp */
+
+VectorProcessor::VectorProcessor() :           <co id='tv.example.construct' />
+    m_pads("Pads", 0.0, 128.0),
+    m_Energies("Energies", 0.0, 4096.0),
+    m_Times("Times", 0.0, 8192.0) {}
+
+
+Bool_t
+VectorProcessor::operator()(const Address_t pEvent,
+                            CEvent&amp; rEvent,
+                            CAnalyzer&amp; rAnalyzer,
+                            CBufferDecoder&amp; rDecoder) {
+
+    UInt16_t*  pData = reinterpret_cast&lt;UInt16_t*&gt;(pEvent);  <co id='tv.example.pointer' />
+    ...
+    // After the omitted processing, let pData, point to the
+    // structure described prior to this example.
+
+    UInt16_t nItems = *pData++;                            <co id='tv.example.count' />
+    for(int i =0; i &lt; nItems; i++) {
+        m_pads.push_back(*pData++);                        <co id='tv.example.push' />
+        m_Energies.push_back(*pData++);
+        m_Times.push_back(*pData++);
+    }
+    ...
+
+    return kfTRUE;
+}
+        </programlisting>
+    </example>
+    <para>
+        Refer to the numbers in the example text when reading the explanation below.
+    </para>
+    <calloutlist>
+        <callout arearefs='tv.example.data'>
+            <para>
+                Our event processor will contain three vectors, on e fo the pad number,
+                one for the enegies and one for the times.  Note again that tree parameter
+                vectors witht the same name refer to the same underlying parameters.
+                You can, therefore, have the same tree parameter vectors in more than
+                one event processor, there's no need to hasve some global data block
+                containing all vectors.
+            </para>
+        </callout>
+        <callout arearefs='tv.example.methods'>
+            <para>
+                We're only going to show how to construct our event processor
+                and part of the event processing method.  Naturally a real event processor
+                might override more of the methods of <classname>CEventProcessor</classname>.
+            </para>
+        </callout>
+        <callout arearefs='tv.example.pointer'>
+            <para>
+                To simplify this example, we're going to assume the data are in the same byte ordering
+                as our host system.  For production code, you wouldn normally invoke
+                <methodname>rDecoder.getBufferTranslator()</methodname>
+                and use it to get the data from the <literal>pEvent</literal>.
+            </para>
+        </callout>
+        <callout arearefs='tv.example.count'>
+            <para>
+                As the comment above this line says, we assume that by this time, the previous code
+                has positioned the <varname>pData</varname> pointer to point to the data structure 
+                described prior to the example.
+            </para>
+        </callout>
+        <callout arearefs='tv.example.push'>
+            <para>
+                All that's then left is to push the data from each channel present in the
+                detector array into the appropriate tree parameter vector object.
+            </para>
+        </callout>
+    </calloutlist>
+    <para>
+        Normally a tree parameter vector will have a <literal>1v</literal> spectrum defined on it.
+        This spectrum will increment for each parameter that is present in each event.
+    </para>
+</chapter>
 </book>

@@ -27,6 +27,7 @@ package require img::png
 #   be browsed include:
 #     Spectra
 #     Parameters (tree and otherwise)
+#     Vectors   (tree vectors).
 #     TreeVariables
 #     Gates
 #
@@ -45,6 +46,7 @@ package require img::png
 #
 #     -spectrumscript        script
 #     -parameterscript       script
+#     -vectorscript          script
 #     -variablescript        script
 #     -gatescript            script
 #
@@ -64,6 +66,7 @@ package require img::png
 #      -filtergates script     Run gate defs through script and only display those for which script is true
 #      -filterparameters script As for -filtergates but with parameters.
 #      -filterspectra script  as for -filtergates but with specrtra.
+#      -filtervectors script as for -filtergates but with vectors.
 #
 #     Geometric aspects:
 #      -width     - Width of the browser window               (at present not dynamic)
@@ -96,6 +99,8 @@ image create photo ::browser::pointicon    -format gif \
                                            -file [file join $::browser::here  icons  pointicon.gif]
 image create photo ::browser::pseudoicon   -format gif \
                                            -file [file join $::browser::here  icons  pseudoicon.gif]
+image create photo ::browser::vectoricon -format gif \
+                                            -file [file join $::browser::here icons rightarrow.gif]
 image create photo ::browser::foldericon   -format png \
     -file [file join $::browser::here icons folder.png]
 
@@ -115,6 +120,7 @@ image create photo ::browser::foldericon   -format png \
 
     option -spectrumscript         {}
     option -parameterscript        {}
+    option -vectorscript           {}
     option -variablescript         {}
     option -gatescript             {}
 
@@ -124,7 +130,7 @@ image create photo ::browser::foldericon   -format png \
     option -variablerightclick     {}
     option -gaterightclick        {}
 
-    option -restrict   -default [list spectra parameters gates variables] \
+    option -restrict   -default [list spectra parameters vectors gates variables] \
 	-configuremethod configRestrict
     option -detail     1
     option -showcolumns -default [list type gate low high bins value units] \
@@ -133,6 +139,7 @@ image create photo ::browser::foldericon   -format png \
     option -filtergates {}
     option -filterparameters {}
     option -filterspectra    {}
+    option -filtervectors   {}
 
     option -width 8in
     option -treewidth 2.5in
@@ -155,6 +162,7 @@ image create photo ::browser::foldericon   -format png \
         parameter Parameters
         variable  Variables
         gate      Gates
+        vectors   Vectors
     }
     variable dTypeToNames -array {
         l long
@@ -165,38 +173,35 @@ image create photo ::browser::foldericon   -format png \
     constructor {args} {
 	# install and layout the widgets in the frame>
 
-	install tree using ttk::treeview $win.tree \
-	    -yscrollcommand [list $win.yscroll set] -xscrollcommand [list $win.xscroll set] \
-	    -height 32
-	install xscroll using scrollbar $win.xscroll -orient horizontal -command [list $win.tree xview]
-	install yscroll using scrollbar $win.yscroll -orient vertical   -command [list $win.tree yview]
-	grid $tree $yscroll -sticky nsew
-	grid $xscroll       -sticky nsew
+        install tree using ttk::treeview $win.tree \
+            -yscrollcommand [list $win.yscroll set] -xscrollcommand [list $win.xscroll set] \
+            -height 32
+        install xscroll using scrollbar $win.xscroll -orient horizontal -command [list $win.tree xview]
+        install yscroll using scrollbar $win.yscroll -orient vertical   -command [list $win.tree yview]
+        grid $tree $yscroll -sticky nsew
+        grid $xscroll       -sticky nsew
 
-	#  Invariant tree configuration:
-	
-	set allcolumns [list type gate low high bins value units]
-	$tree configure -columns $allcolumns
-	foreach colname $allcolumns {
-	    $tree heading $colname -text $colname
-	    $tree column $colname -stretch 1 -anchor w -width 100
-	}
-	$tree heading #0 -text "Tree"
-    bind $tree <<TreeviewOpen>> [mymethod _openFolder]
-    bind $tree <<TreeviewSelect>> [mymethod _openFolder]; # folders that are empty dont' get treeview open.
-	
-	# Force default configuration
-
-	foreach option [array names options] {
-	    $self configure $option $options($option)
-	}
-
-	$self configurelist $args; # overrides to defaults.
-
-	# Populate the tree:
-
-
+        #  Invariant tree configuration:
         
+        set allcolumns [list type gate low high bins value units]
+        $tree configure -columns $allcolumns
+        foreach colname $allcolumns {
+            $tree heading $colname -text $colname
+            $tree column $colname -stretch 1 -anchor w -width 100
+        }
+        $tree heading #0 -text "Tree"
+        bind $tree <<TreeviewOpen>> [mymethod _openFolder]
+        bind $tree <<TreeviewSelect>> [mymethod _openFolder]; # folders that are empty dont' get treeview open.
+        
+        # Force default configuration
+
+        foreach option [array names options] {
+            $self configure $option $options($option)
+        }
+
+        $self configurelist $args; # overrides to defaults.
+
+        # Populate the tree:
 
     }
     #----------------------------------------------------------------------------------
@@ -207,21 +212,21 @@ image create photo ::browser::foldericon   -format png \
     #                 -show results for the tree:
     #
     method configColumns {option value} {
-	set options($option) $value
-	$tree configure -displaycolumns [concat $value]
-	set showList tree
-	if {[llength $value] > 0} {
-	    set showList [concat $showList headings]
-	}
-	$tree configure -show $showList
+        set options($option) $value
+        $tree configure -displaycolumns [concat $value]
+        set showList tree
+        if {[llength $value] > 0} {
+            set showList [concat $showList headings]
+        }
+        $tree configure -show $showList
     }
     ##
     # -restrict - This will just update the options(-restrict) variable and
     #             perform an update which repopulate the entire tree:
     #
     method configRestrict {option value} {
-	set options($option) $value
-	$self update
+        set options($option) $value
+        $self update
     }
     #------------------------------------------------------------------------------------
     # Public methods:
@@ -249,72 +254,80 @@ image create photo ::browser::foldericon   -format png \
         array unset spectrumTerminals  *
         
         
-	# Kill off the top level folders:
+        # Kill off the top level folders:
 
-	foreach id $topLevelIds {
-	    $tree delete $id
-	}
-        
-	set topLevelIds [list]
-
-	# Stock only those in the -restrict list:
-        
-        if {[lsearch -exact $options(-restrict) spectra] != -1} {
-            $self fillSpectrumFolder
+        foreach id $topLevelIds {
+            $tree delete $id
+        }
             
-        }
-        if {[lsearch -exact $options(-restrict) parameters] != -1} {
-             $self fillParameterFolder
-        }
-        if {[lsearch -exact $options(-restrict) variables] != -1} {
-            $self fillVariableFolder
-        }
-        if {[lsearch -exact $options(-restrict) gates] != -1} {
-            $self fillGateFolder
+        set topLevelIds [list]
 
-        }
+        # Stock only those in the -restrict list:
+            
+            if {[lsearch -exact $options(-restrict) spectra] != -1} {
+                $self fillSpectrumFolder
+                
+            }
+            if {[lsearch -exact $options(-restrict) parameters] != -1} {
+                $self fillParameterFolder
+            }
+            if {[lsearch -exact $options(-restrict) vectors] != -1} {
+                $self fillVectorFolder
+            }
+            if {[lsearch -exact $options(-restrict) variables] != -1} {
+                $self fillVariableFolder
+            }
+            if {[lsearch -exact $options(-restrict) gates] != -1} {
+                $self fillGateFolder
 
-	#  Bindings for folders:
+            }
 
-        
-	$tree tag bind spectrumFolder <Button-3> \
-	    [mymethod FolderContextDispatch -spectrumfoldercommand %X %Y]
-	$tree tag bind parameterFolder <Button-3> \
-	    [mymethod FolderContextDispatch -parameterfoldercommand %X %Y]
-	$tree tag bind variableFolder <Button-3> \
-	    [mymethod FolderContextDispatch -variablefoldercommand %X %Y]
-	$tree tag bind gateFolder <Button-3> \
-	    [mymethod FolderContextDispatch -gatefoldercommand %X %Y]
+        #  Bindings for folders:
 
-
-	# Bindings for the items in the folders:
-
-	# gates:
-
-	$tree tag bind gate <Button-1> [mymethod selectElement %x %y]
-	$tree tag bind gate <Double-1> [mymethod onElementDoubleClick -gatescript %x %y]
-	$tree tag bind gate <Button-3> [mymethod onElementContext -gaterightclick %x %y %X %Y]
-
-	# Spectra:
-
-	$tree tag bind spectrum <Button-1> [mymethod selectElement %x %y]
-	$tree tag bind spectrum <Double-1> [mymethod onElementDoubleClick -spectrumscript %x %y]
-	$tree tag bind spectrum <Button-3> [mymethod onElementContext -spectrumrightclick %x %y %X %Y]; # ]
+            
+        $tree tag bind spectrumFolder <Button-3> \
+            [mymethod FolderContextDispatch -spectrumfoldercommand %X %Y]
+        $tree tag bind parameterFolder <Button-3> \
+            [mymethod FolderContextDispatch -parameterfoldercommand %X %Y]
+        $tree tag bind variableFolder <Button-3> \
+            [mymethod FolderContextDispatch -variablefoldercommand %X %Y]
+        $tree tag bind gateFolder <Button-3> \
+            [mymethod FolderContextDispatch -gatefoldercommand %X %Y]
 
 
-	# Parameters:
+        # Bindings for the items in the folders:
 
-	$tree tag bind parameter <Button-1> [mymethod selectElement %x %y]
-	$tree tag bind parameter <Double-1> [mymethod onElementDoubleClick -parameterscript %x %y]
-	$tree tag bind parameter <Button-3> [mymethod onElementContext -parameterrightclick %x %y %X %Y]
+        # gates:
 
-	# Variables:
+        $tree tag bind gate <Button-1> [mymethod selectElement %x %y]
+        $tree tag bind gate <Double-1> [mymethod onElementDoubleClick -gatescript %x %y]
+        $tree tag bind gate <Button-3> [mymethod onElementContext -gaterightclick %x %y %X %Y]
 
-	$tree tag bind variable <Button-1>  [mymethod selectElement %x %y]
-	$tree tag bind variable <Double-1>  [mymethod onElementDoubleClick -variablescript %x %y]
-	$tree tag bind variable <Button-3>  [mymethod onElementContext -variablerightclick %x %y %X %Y]
+        # Spectra:
 
-        
+        $tree tag bind spectrum <Button-1> [mymethod selectElement %x %y]
+        $tree tag bind spectrum <Double-1> [mymethod onElementDoubleClick -spectrumscript %x %y]
+        $tree tag bind spectrum <Button-3> [mymethod onElementContext -spectrumrightclick %x %y %X %Y]; # ]
+
+
+        # Parameters:
+
+        $tree tag bind parameter <Button-1> [mymethod selectElement %x %y]
+        $tree tag bind parameter <Double-1> [mymethod onElementDoubleClick -parameterscript %x %y]
+        $tree tag bind parameter <Button-3> [mymethod onElementContext -parameterrightclick %x %y %X %Y]
+
+        # Vector parameters:
+
+        $tree tag bind vector  <Button-1 [mymethod selectElement %x %y]
+        $tree tag bind vector <Double-1> [mymethod onElementDoubleClick -vectorscript %x %y]    
+
+        # Variables:
+
+        $tree tag bind variable <Button-1>  [mymethod selectElement %x %y]
+        $tree tag bind variable <Double-1>  [mymethod onElementDoubleClick -variablescript %x %y]
+        $tree tag bind variable <Button-3>  [mymethod onElementContext -variablerightclick %x %y %X %Y]
+
+            
 
     }
 
@@ -370,35 +383,67 @@ image create photo ::browser::foldericon   -format png \
     #      so useful for adding a single parameter.  See the addParameterByName method for that.
     #
     method fillParameterFolder {} {
-	# Create the top level folder for parameters
+        # Create the top level folder for parameters
 
-	set paramFolder [$tree insert {} end -text Parameters \
-			     -open 0 -tags parameterFolder -image ::browser::foldericon]
-	lappend topLevelIds $paramFolder
+        set paramFolder [$tree insert {} end -text Parameters \
+                    -open 0 -tags parameterFolder -image ::browser::foldericon]
+        lappend topLevelIds $paramFolder
 
-	# Stock with parameters:
-	#  Make the list of parameters we are going to display in the tree:
-	#  This is a 2 element list of parameter name, parameter definition:
-	#
+        # Stock with parameters:
+        #  Make the list of parameters we are going to display in the tree:
+        #  This is a 2 element list of parameter name, parameter definition:
+        #
 
-	set parameterList [list]
-	foreach parameter [parameter -list] {
-        if {$options(-filterparameters) != ""} {
-            if {![eval $options(-filterparameters) [list $parameter]]} {
-                continue
+        set parameterList [list]
+        foreach parameter [parameter -list] {
+            if {$options(-filterparameters) != ""} {
+                if {![eval $options(-filterparameters) [list $parameter]]} {
+                    continue
+                }
             }
+            lappend parameterList [list [lindex $parameter 0] $parameter]
         }
-        lappend parameterList [list [lindex $parameter 0] $parameter]
-	}
 
-	# Recursively stock the parameter tree algorithm is pretty much the same as
-	# for fillSpectrumSubtree
+        # Recursively stock the parameter tree algorithm is pretty much the same as
+        # for fillSpectrumSubtree
 
         $self fillParameterSubtree $paramFolder $parameterList
 
 
    
     }
+    #
+    #  fillVectorFolder
+    #     Fill the parameter vector folder.
+    #     For now this will be flat though, if requested, we can make it hierarchical just
+    #     like parameters.
+    #
+    method fillVectorFolder {} {
+        set vectorFolder [$tree insert {} end -text Vectors \
+            -open 0 -tags vectorFolder -image ::browser::foldericon ]
+        lappend topLevelIds $vectorFolder
+
+        set vectorList [treeparamvec -list]
+        # Populate the subtree:
+        foreach vector $vectorList {
+            set name [dict get $vector name]
+    
+            if {$options(-filtervectors) ne ""} {
+                if {![eval $options(-filtervectors) [list $vector]]} {
+                    continue
+                }
+            }
+            
+            set low  [dict get $vector low]
+            set high [dict get $vector high]
+            set bins [dict get $vector bins]
+            set units [dict get $vector units]
+            set id [$tree insert $vectorFolder end -text $name -image ::browser::vectoricon]
+            $tree item $id -value [list "" "" $low $high $bins "" $units] \
+                -tags vector
+        }
+    }
+
     # fillVariableFolder
     #      Fills the variable folder with the set of treevariables that are now defined.
     #      note that only treevariables are put in the folder, not ordinary Tcl vars.
@@ -570,7 +615,7 @@ image create photo ::browser::foldericon   -format png \
         # Branch out depending on the type of spectrum:
 
         switch -exact -- $spectrumType {
-	    1 {
+	    1 - 1v {
 		$self set1dSubInfo $id $parameters $axes
 	    }
 	    2 {
@@ -603,6 +648,7 @@ image create photo ::browser::foldericon   -format png \
         2dmproj {
             $self setM2ProjectionInfo $id $parameters $axes
         }
+        
 	    default {}
         }
     }
@@ -1101,9 +1147,9 @@ image create photo ::browser::foldericon   -format png \
             set terminal($pathList) [lindex $element 1];	# elements contain parameter defs.
             
             } else {
-            set residualPath [join [lrange $pathList 1 end] .]
-            set element [lreplace $element 0 0 $residualPath]
-            lappend folders([lindex $pathList 0]) $element;	# List of children.
+                set residualPath [join [lrange $pathList 1 end] .]
+                set element [lreplace $element 0 0 $residualPath]
+                lappend folders([lindex $pathList 0]) $element;	# List of children.
             }
         }
         # Create the folders and recurse on them to create their children:
@@ -1277,10 +1323,7 @@ image create photo ::browser::foldericon   -format png \
             set description $terminals($gate)
             $self _insertGate $id end $gate $description
             
-           # set type [lindex $description 2]
-           # set gateId [$tree insert $id end -text $gate -image ::browser::gateicon \
-           #         -values $type -tags gate]
-           # $self setGateSubInfo $gateId $type [lindex $description 3]
+           
         }
     }
     #
@@ -1296,7 +1339,9 @@ image create photo ::browser::foldericon   -format png \
     #
     method setGateSubInfo {id gateType description} {
         switch -exact -- $gateType {
-            s {
+            s -
+            vs* -
+            vs+ {
                 $self setSliceSubInfo $id $description
             }
             b -
@@ -1546,15 +1591,18 @@ image create photo ::browser::foldericon   -format png \
     #    Where path is the path of the nearest element under the pointer when the doubleclick occured.
     #
     method onElementDoubleClick {Option x y} {
-
+        
         set script $options($Option)
+
         if {$script != ""} {
             set id [$tree identify row  $x $y]
+        
             if {$id != ""} {
                 set path [$self FullPath $id]
                 uplevel #0  $script  $path
             }
         }
+
     }
     ##
     # onElementContext Option x y X Y
@@ -1735,6 +1783,59 @@ image create photo ::browser::foldericon   -format png \
         }
     }
     ##
+    # addNewVector
+    #    Adds a new vector desription to the vector folder. There are
+    #    two cases:  
+    #    - The vector exists - in which case it's properties are filled in.
+    #    - The vector does not exist - in which case the vector is added
+    #      at the appropriate spot.
+    #
+    # @param name -name of the vector.
+    #
+    method addNewVector name {
+        set info [treeparamvec -list $name]
+        if {[llength $info ] == 0} {
+            error "There is no vecdtor named $name"
+        }
+        set info [lindex $info 0]
+
+        set low   [dict get $info low]
+        set high  [dict get $info high]
+        set bins  [dict get $info bins]
+        set units [dict get $info units]
+        # vectors are flat so iterate through the children of the
+        # vector folder:
+        #  - If there's a match, fill in.
+        #  - If we get to a name lexically larger than ours,
+        #    insert before it.
+
+        set folderId [$self _getTopFolderId vectors]
+        set children [$tree children $folderId]
+        foreach child $children {
+            set childName [$tree item $child -text]
+            if {$childName eq $name} {
+                # replace.
+                $tree item $child -value [list "" "" $low $high $bins "" $units] -tags vector
+                return
+            }
+            if {$childName > $name} {
+                set index [$tree index $child]
+                set newid \
+                    [$tree insert $folderId $index \
+                     -text $name -image ::browser::vectoricon]
+                $tree item $newid -value [list "" "" $low $high $bins "" $units] -tags vector
+                return
+            }
+        }
+        #  Not inserted so insert at end.
+        set newId \
+            [$tree insert $folderId end \
+             -text $name -image ::browser::vectoricon]
+        $tree item $newId -value [list "" "" $low $high $bins "" $units] -tags vector
+
+
+    }
+    ##
     # addNewGate
     #   Adds a new gate to the browser.
     #   - Find the owning folder
@@ -1838,6 +1939,7 @@ image create photo ::browser::foldericon   -format png \
     #         is none.
     #
     method _getTopFolderId {otype} {
+        
         if {[array names typeToNames $otype] eq ""} {
             return "";                   # no such type is no such folder.
         }
@@ -1912,7 +2014,7 @@ image create photo ::browser::foldericon   -format png \
     #    8 Full spectrum definition from spectrum -list -showgate
     # @return id     - id of the item created.
     method _insertSpectrum {parent index info} {
-        
+       
         
         set id [$tree insert $parent $index -text [lindex $info 0]    \
                 -image  ::browser::spectrumicon\

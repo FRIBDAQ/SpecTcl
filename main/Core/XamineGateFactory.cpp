@@ -31,8 +31,11 @@ CXamineGate* CXamineGateFactory::fromSpecTclGate(CSpectrum& rSpectrum, CGateCont
         return (CXamineGate*)(kpNULL);
     }
 
-    if((rGate->Type() == std::string("s")) ||
-            (rGate->Type() == std::string("gs"))) {	// Slice gate
+    if(     (rGate->Type() == std::string("s"))      ||
+            (rGate->Type() == std::string("gs"))     ||
+            (rGate->Type() == std::string("vs+"))    || 
+            (rGate->Type() == std::string("vs*"))
+        ) {	// Slice gate
         CDisplayCut* pCut = new CDisplayCut(nBindingId,
                                             rGate.getNumber(),
                                             rGate.getName());
@@ -43,6 +46,7 @@ CXamineGate* CXamineGateFactory::fromSpecTclGate(CSpectrum& rSpectrum, CGateCont
         switch(pSpectrum->getSpectrumType()) {
         case ke1D:
         case keG1D:
+        case ke1DVec:
         {
             // Produce the nearest channel to the gate points.
             // then add them to the display gate.

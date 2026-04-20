@@ -67,7 +67,7 @@ proc SpecTcl_Gate/list {{pattern *}} {
 
 	# slice gate
 
-	if {$type eq "s"} {
+	if {$type in [list s vs+ vs*] } {
 	    lappend  fieldList  parameters [::SpecTcl::_jsonStringArray [lindex $description 0]]  \
 			       {*}[::SpecTcl::_marshallLowHigh [lindex $description 1]]
 	}
@@ -181,10 +181,11 @@ proc SpecTcl_Gate/edit {args} {
     set name [dict get $queryParams name]
     set type [dict get $queryParams type]
     
-    # Type could be + which is a wonky html escape not well handled by any
-    # of our stack:
+    # The %2B (+) attributes in query params is not properly
+	# handled so replace it here so + vs+ are properly typed:
+
+	set type [string map [list %2B +] $type]
     
-    if {$type eq "%2B"} { set type +}
 	
     # Should only be one name, and type:
 
@@ -257,12 +258,12 @@ proc SpecTcl_Gate/edit {args} {
 		set command [list gate $name $type [list $parameter $value]]
 
     # Slice gate:
-    } elseif {$type eq "s"} {
+    } elseif {$type in [list s vs+ vs*]} {
 		set missingKey [::SpecTcl::_missingKey $queryParams [list parameter low high]]
 		if {$missingKey ne ""} {
 			return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
 		}
-		set parameter [dict get $queryParams parameter]
+		set parameter [dict get $queryParams parameter];  # or vectorname for vs gates.
 		set low       [dict get $queryParams  low]
 		set high     [dict get $queryParams high]
 		set command [list gate $name $type [list $parameter [list $low $high]]]

@@ -184,7 +184,7 @@ Gates_SRC =  ActualIterator.cpp AndGate.cpp Band.cpp \
 	CGammaCut.cpp CGammaBand.cpp CGammaContour.cpp \
 	MaskGates.cpp MaskEqualGate.cpp MaskAndGate.cpp MaskNotGate.cpp \
 	CFold.cpp \
-	CROI.cpp CEverywhereROI.cpp CContourROI.cpp
+	CROI.cpp CEverywhereROI.cpp CContourROI.cpp CVectorGates.cpp
 
 Gates_INCLUDES = ActualIterator.h AndGate.h Band.h C2Bands.h CompoundGate.h \
 	ConstituentIterator.h Contour.h Cut.h DeletedGate.h FalseGate.h \
@@ -193,7 +193,7 @@ Gates_INCLUDES = ActualIterator.h AndGate.h Band.h C2Bands.h CompoundGate.h \
 	PointlistGate.h PointlistIterator.h SingleItemIterator.h TrueGate.h \
 	MaskGates.h MaskEqualGate.h MaskAndGate.h MaskNotGate.h \
 	CFold.h \
-	CROI.h CEverywhereROI.h CContourROI.h
+	CROI.h CEverywhereROI.h CContourROI.h CVectorGates.h
 
 Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Spectrum1d.hpp Spectrum2d.hpp Gamma1D.hpp BitSpectrum.hpp \
@@ -208,7 +208,7 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	CGammaSummarySpectrum.hpp \
 	GatingObserver.cpp CParameterDictionarySingleton.cpp \
 	CSpectrumDictionarySingleton.cpp CGateDictionarySingleton.cpp \
-	CMetadata.cpp
+	CMetadata.cpp 	Spectrum1DVec.h Spectrum1DVec.hpp
 
 Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h \
@@ -229,7 +229,8 @@ Sorter_INCLUDES = BitSpectrum.h BitSpectrum.hpp BitSpectrumL.h BitSpectrumW.h Di
 	CGammaSummarySpectrum.h CGammaSummarySpectrum.hpp \
 	GatingObserver.h CM2Projection.h CM2Projection.hpp \
 	CParameterDictionarySingleton.h CSpectrumDictionarySingleton.h \
-	CGateDictionarySingleton.h CMetadata.h
+	CGateDictionarySingleton.h CMetadata.h \
+	Spectrum1DVec.h Spectrum1DVec.hpp
 
 # TapeCommand.cc removed.
 
@@ -257,7 +258,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	BindTraceSingleton.cpp BindTraceSingleton.h \
 	VX2750EventBuiltEventProcessor.cpp VX2750ModuleUnpacker.cpp \
 	VX2750EventProcessor.cpp RingItemPump.cpp GatePump.cpp \
-	CCommandAlias.cpp
+	CCommandAlias.cpp CTreeVecCommand.cpp
 
 # TapeCommand.h removed
 
@@ -281,7 +282,7 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	CAENParameterMap.h CAENEventProcessor.h \
 	VX2750EventBuiltEventProcessor.h VX2750EventProcessor.h \
 	VX2750ModuleUnpacker.h RingItemPump.h GatePump.h \
-	CCommandAlias.h
+	CCommandAlias.h  CTreeVecCommand.h
 
 
 
@@ -325,6 +326,7 @@ TreeParam_SRC = CMatchingVisitor.cpp \
 	CTreeException.cpp \
 	CTreeParameter.cpp \
 	CTreeParameterArray.cpp \
+	CTreeParameterVector.cpp \
 	CTreeParameterCommand.cpp \
 	CTreeVariable.cpp \
 	CTreeVariableArray.cpp \
@@ -343,6 +345,7 @@ TreeParam_INCLUDES =  BindVisitor.h \
 	CTreeException.h \
 	CTreeParameter.h \
 	CTreeParameterArray.h \
+	CTreeParameterVector.h \
 	CTreeParameterCommand.h \
 	CTreeVariable.h \
 	CTreeVariableArray.h \
@@ -499,7 +502,8 @@ caendpptests_LDADD   = $(commonTestLdFlags)
 
 gateTests_CXXFLAGS = $(commonTestCXXFLAGS)
 gateTests_LDADD    = $(commonTestLdFlags)
-gateTests_SOURCES  = TestRunner.cpp gateTests.cpp
+gateTests_SOURCES  = TestRunner.cpp gateTests.cpp vectorgatetests.cpp \
+	TreeTestSupport.h testStubs.cpp
 
 
 spectrumPkgTests_CXXFLAGS = $(commonTestCXXFLAGS)
@@ -518,7 +522,9 @@ sorterTests_LDADD = $(commonTestLdFlags)
 sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 				Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
 				TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
-				TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
+				TestGamma2.cpp TestGammaDeluxe.cpp \
+				TestVecSpec.cpp \
+				TestHistogrammer.cpp \
 				CParameterMappingTest.cpp CAxisTests.cpp \
 				CParameterMappingTest.h CAxisTests.h \
 				m2projtest.cpp factoryTests.cpp spectrummetadatatests.cpp
@@ -526,12 +532,14 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 treeParamTests_CXXFLAGS  = $(commonTestCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
 treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
-	MatchTest.cpp  paramMetadataTests.cpp     TestRunner.cpp       \
+	MatchTest.cpp  paramMetadataTests.cpp TestRunner.cpp       \
 	TreeVariableArrayTests.cpp \
-	SetAllVTest.cpp    TestSuite.cpp             TreeVariableCommandTests.cpp \
-	SetChansTest.cpp   TreeExceptionTest.cpp     TreeVariablePropertyTests.cpp \
+	SetAllVTest.cpp  TestSuite.cpp TreeVariableCommandTests.cpp \
+	SetChansTest.cpp   TreeExceptionTest.cpp   \
+	TreeVariablePropertyTests.cpp \
 	SetLimitsTest.cpp  TreeParamArrayTest.cpp    TreeVariableTests.cpp \
-	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp  CMetadata.cpp \
+	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp \
+	testStubs.cpp  CMetadata.cpp TreeVectorTest.cpp \
 	TreeTestSupport.h
 
 

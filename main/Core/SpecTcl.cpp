@@ -38,6 +38,7 @@
 #include <MaskAndGate.h>
 #include <MaskNotGate.h>
 #include <Not.h>
+#include <CVectorGates.h>
 
 
 #include <GateContainer.h>
@@ -1209,6 +1210,42 @@ SpecTcl::CreateM2Projection(
   );
 }
 /**
+ *  Create a 1d spectrum on a parameter vector.
+ * 
+ * @param name - name of the spectrum to make.
+ * @param dtype - data type of the channels, must be one of keLong or keWord.
+ * @param vectorName - name of the treevector to use to increment the spectrum.
+ * @param channels - number of Xaxis bins (exclusive of the over/underflow channels),
+ * @param low    - Spectrum X axis low limit in world coordinates.
+ * @param high   - Spetrum X axis high limit in world coordinates.
+ * @return CSpectrum*  - Pointer to the spectrum created.
+ * @throw CSpectrumFactorException if parameter validations fail.
+ * @throw CDictionaryException if the tree vector does not exist.
+ */
+CSpectrum*
+SpecTcl::Create1DVecSpectrum(
+  const std::string& name, DataType_t dtype, const std::string& vectorName,
+  UInt_t channels, Float_t low, Float_t high
+) {
+  // Marshall the vectors:
+
+  std::vector<std::string> vnames;
+  vnames.push_back(vectorName);
+
+  std::vector<UInt_t> bins;
+  bins.push_back(channels);
+
+  std::vector<Float_t> lows;
+  lows.push_back(low);
+
+  std::vector<Float_t> highs;
+  highs.push_back(high);
+
+  CSpectrumFactory fact;   // Leave exceptions enalbed.
+
+  return fact.CreateSpectrum(name, ke1DVec, dtype, vnames, bins, &lows, &highs);
+}
+/**
  * CreateM2Projection
  *   Creates a projection spectrum for an M2 around a region of interest.
  *
@@ -1960,6 +1997,34 @@ SpecTcl::CreateMaskNotGate(vector<string> parameters,
 {
   CGateFactory factory(GetHistogrammer());
   return       factory.CreateMaskNotGate(parameters, Compare);
+}
+/**
+ * CreatesVectorAndGate
+ *     Create and return a pointer to a dynamically allocated 
+ * vector and gate. (Issue #230).
+ * 
+ * @param vectorName - name of the vector checked.
+ * @param low, high - gate limits
+ * @return CGate* pointer to dynamically alloocated new vector gate.
+ */
+CGate*
+SpecTcl::CreateVectorAndGate(std::string vectorName, Float_t low, Float_t high) {
+  CGateFactory factory(GetHistogrammer());
+  return factory.CreateVectorAndGate(vectorName, low, high);
+}
+/**
+ * CreatesVectorOrGate
+ *     Create and return a pointer to a dynamically allocated 
+ * vector or gate. (Issue #230).
+ * 
+ * @param vectorName - name of the vector checked.
+ * @param low, high - gate limits
+ * @return CGate* pointer to dynamically alloocated new vector gate.
+ */
+CGate*
+SpecTcl::CreateVectorOrGate(std::string vectorName, Float_t low, Float_t high) {
+  CGateFactory factory(GetHistogrammer());
+  return factory.CreateVectorOrGate(vectorName, low, high);
 }
 //// Gate dictionary items:
 

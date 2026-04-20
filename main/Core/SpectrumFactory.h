@@ -65,7 +65,8 @@
 #include <histotypes.h>
 #include "Parameter.h"
 #include <vector>   //Required for include files, eg <CList.h>
-#include <string>   
+#include <string> 
+#include "CTreeParameterVector.h"  
 
 
 //Required for include files, eg <CList.h>                               
@@ -299,6 +300,14 @@ protected:
 			    std::vector<CParameter>& ParameterList,
 			    UInt_t             nCoords,
 			    UInt_t             nChans);
+  static CTreeParameterVector validate1DVec(
+          std::string name,
+           DataType_t eDataType,
+           std::vector<std::string>& rParameters, 
+			     std::vector<UInt_t>&  rChannels,
+			     std::vector<Float_t>* pLows,
+			     std::vector<Float_t>* pHighs
+  );
   static Float_t  DefaultAxisLength(UInt_t nChannels, 
 				    CParameter& rParam);
   void marshallXYParameterIds(

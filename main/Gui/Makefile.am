@@ -4,7 +4,6 @@ ICONDEST   = $(prefix)/Script/icons
 
 install-exec-local:
 	$(mkinstalldirs) $(SCRIPTDEST) $(HELPDEST) $(ICONDEST)
-	echo pkg_mkIndex $(SCRIPTDEST) "*.tcl" | @TCLSH@
 	$(INSTALL_PROGRAM) $(srcdir)/*.tcl   $(SCRIPTDEST)
 	$(INSTALL_DATA)    $(srcdir)/*.html  $(HELPDEST)
 	$(INSTALL_DATA)    $(srcdir)/*.gif   $(ICONDEST)
@@ -96,4 +95,6 @@ editGammaDeluxe.tcl \
 editGammaDeluxehelp.html \
 editgsummary.tcl    \
 gammasummary.html \
-folder.png segmentedrun.tcl
+folder.png segmentedrun.tcl \
+rightarrow.gif \
+editvector.tcl edit1dVectdor.tcl

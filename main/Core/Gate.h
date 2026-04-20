@@ -147,8 +147,8 @@ public:
   virtual std::vector<UInt_t>          getParameters();
   virtual std::vector<CGateContainer*> getDependentGates();
   virtual std::vector<FPoint>          getPoints();
-  virtual UInt_t                  getMask();
-
+  virtual UInt_t                       getMask();
+  virtual std::string                  getVectorName() const;
 };
 
 #endif
