@@ -213,8 +213,8 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
         rName, eDataType, rParameters, rChannels, pLows, pHighs
     );
     UInt_t bins = rChannels.at(0);
-    UInt_t low  = (*pLows).at(0);
-    UInt_t high = (*pHighs).at(0);
+    Float_t low  = (*pLows).at(0);
+    Float_t high = (*pHighs).at(0);
     UInt_t id   = m_nNextId++;
     return eDataType == keLong ? 
       reinterpret_cast<CSpectrum*>(new CSpectrum1DVecL(rName, id, param, bins, low, high))
