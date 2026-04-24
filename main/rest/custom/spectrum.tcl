@@ -105,7 +105,7 @@ proc SpecTcl_Spectrum/list {{filter *}} {
         set xparams [list]
         set yparams [list]
 
-        if {$type in [list 1 b]} {
+        if {$type in [list 1 b 1v] } {
             lappend xparams [lindex $params 0]
 
         } elseif {$type in [list 2 S]} {
