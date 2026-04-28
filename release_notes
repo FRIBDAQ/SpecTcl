@@ -1,3 +1,7 @@
+== 5.14-009 ==
+* Fix issue #239 - unpacking caen vx2470 data
+== 5.14-009 ==
+
 == 5.14-008 ==
 * Fix issue #222 - File->Load... updates spectrum list and the Load button
 now reports script errors detected.
