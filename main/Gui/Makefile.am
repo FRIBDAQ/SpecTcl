@@ -97,4 +97,4 @@ editgsummary.tcl    \
 gammasummary.html \
 folder.png segmentedrun.tcl \
 rightarrow.gif \
-editvector.tcl edit1dVectdor.tcl
+editvector.tcl edit1dVector.tcl
