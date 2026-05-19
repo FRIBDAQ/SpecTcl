@@ -249,8 +249,8 @@ void TreeCommand::list(CTCLInterpreter &interp, std::vector<CTCLObject> &objv) {
       CGateContainer &gc(pSink->getGate());
       std::string gateName = gc.getName();
       std::string outputDir = pSink->getOutputDir();
-      if (!outputDir.empty()) {
-        outputDir = "cwd"
+      if (outputDir.empty()) {
+        outputDir = "cwd";
       }
 
       // Build list of  parameter patterns.
