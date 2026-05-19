@@ -81,9 +81,9 @@ public:
 
   void OnBegin(unsigned runNumber, const char *title);
   void OnEnd(unsigned runNumber, const char *title);
-  void setOutputDir(const std::string &path) {
-    m_outputDir = path;
-  } // Issue #246
+  // Issue #246 support - set/get the output directory for the root files:
+  void setOutputDir(const std::string &path) { m_outputDir = path; }
+  std::string getOutputDir() const { return m_outputDir; }
 
   // Selectors needed to do lists:
 public:
