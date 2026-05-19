@@ -7050,6 +7050,11 @@ roottree delete <replaceable>tree-name</replaceable>
 roottree list <replaceable>?tree-name-pattern?</replaceable>
             </command>
         </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+roottree setdir <replaceable>tree-name path</replaceable>
+        </command>
+        </cmdsynopsis>
     </refsynopsisdiv>
     <refsect1>
         <title>DESCRIPTION</title>
@@ -7102,6 +7107,15 @@ package require rootinterface
             branch creation in the tree.  If no gate was selected, this will
             be the string <literal>-T-</literal> indicating a True gate is
             used.
+        </para>
+        <para>
+            The <literal>setdir</literal> subcommand allows you to specify the 
+            output directory that the Root file will be written to. The 
+            <parameter>tree-name</parameter> is the name of the tree used in the 
+            <literal>create</literal> subcommand. The <parameter>path</parameter> 
+            is the path to the directory within the root file that the tree will 
+            be written to. If the directory does not exist or is not writeable, the 
+            output file containing the tree will not be created.
         </para>
         <para>
             The name of the root file written is
