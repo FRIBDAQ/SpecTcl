@@ -1,13 +1,12 @@
 // Template for a test suite.
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/Asserter.h>
 #include <Asserts.h>
+#include <cppunit/Asserter.h>
+#include <cppunit/extensions/HelperMacros.h>
 
 #define private public
 #include "TreeBuilder.h"
 #undef private
-
 
 #include <Event.h>
 #include <cmath>
@@ -16,36 +15,33 @@ class marshalltests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(marshalltests);
   CPPUNIT_TEST(construction);
   CPPUNIT_TEST(pointer);
-  
+
   CPPUNIT_TEST(marshall_1);
   CPPUNIT_TEST(marshall_2);
   CPPUNIT_TEST(marshall_3);
   CPPUNIT_TEST(marshall_4);
-  
+
   CPPUNIT_TEST(reset);
-  
+
   CPPUNIT_TEST(mapping);
   CPPUNIT_TEST_SUITE_END();
 
-
 private:
-
 public:
-  void setUp() {
-  }
-  void tearDown() {
-  }
+  void setUp() {}
+  void tearDown() {}
+
 protected:
   void construction();
   void pointer();
-  
+
   void marshall_1();
   void marshall_2();
   void marshall_3();
   void marshall_4();
-  
+
   void reset();
-  
+
   void mapping();
 };
 
@@ -61,46 +57,43 @@ void marshalltests::construction() {
 }
 // Pointer method:
 
-void marshalltests::pointer()
-{
+void marshalltests::pointer() {
   ParameterMarshaller m(100);
   EQ(m.m_pParameters, m.pointer());
 }
 // Marshall with empty event does nothing:
 
-void marshalltests::marshall_1()
-{
+void marshalltests::marshall_1() {
   ParameterMarshaller m(100);
-  CEvent              e;
-  
+  CEvent e;
+
   m.marshall(e);
-  Double_t* pMarshalled = m.pointer();
+  Double_t *pMarshalled = m.pointer();
   for (int i = 0; i < 100; i++) {
     ASSERT(std::isnan(pMarshalled[i]));
   }
 }
 // Marshall with nonempty event but nothing valid:
 
-void marshalltests::marshall_2()
-{
-ParameterMarshaller m(100);
-  CEvent              e(100);
-  
+void marshalltests::marshall_2() {
+  ParameterMarshaller m(100);
+  CEvent e(100);
+
   m.marshall(e);
-  Double_t* pMarshalled = m.pointer();
+  Double_t *pMarshalled = m.pointer();
   for (int i = 0; i < 100; i++) {
     ASSERT(std::isnan(pMarshalled[i]));
-  }  
+  }
 }
 // Marshall with an event with parameter 50 set to some value:
-void marshalltests::marshall_3()
-{
+void marshalltests::marshall_3() {
   ParameterMarshaller m(100);
-  CEvent            e;
+  m.setMapping(50, 50); // Map parameter 50 to slot 50 for this test
+  CEvent e;
   e[50] = 1234;
-  
+
   m.marshall(e);
-  Double_t* p = m.pointer();
+  Double_t *p = m.pointer();
   for (int i = 0; i < 100; i++) {
     if (i != 50) {
       ASSERT(std::isnan(p[i]));
@@ -111,15 +104,15 @@ void marshalltests::marshall_3()
 }
 // Marshall all event parameters equal to their parameter number:
 
-void marshalltests::marshall_4()
-{
+void marshalltests::marshall_4() {
   ParameterMarshaller m(100);
-  CEvent              e;
-  for (int i =0; i < 100; i+= 2) {
+  CEvent e;
+  for (int i = 0; i < 100; i += 2) {
+    m.setMapping(i, i);
     e[i] = i;
   }
   m.marshall(e);
-  Double_t* p = m.pointer();
+  Double_t *p = m.pointer();
   for (int i = 0; i < 100; i++) {
     if (i % 2) {
       ASSERT(std::isnan(p[i]));
@@ -130,15 +123,14 @@ void marshalltests::marshall_4()
 }
 // After marshalling a non empty event, reset makes everythin nan again.
 
-void marshalltests::reset()
-{
+void marshalltests::reset() {
   ParameterMarshaller m(100);
-  CEvent              e;
-  for (int i =0; i < 100; i+= 2) {
+  CEvent e;
+  for (int i = 0; i < 100; i += 2) {
     e[i] = i;
   }
   m.marshall(e);
-  Double_t* p = m.pointer();
+  Double_t *p = m.pointer();
   m.reset(e);
   for (int i = 0; i < 100; i++) {
     ASSERT(std::isnan(p[i]));
@@ -146,22 +138,17 @@ void marshalltests::reset()
 }
 // Check that non unit mappings work.
 
-void marshalltests::mapping()
-{
+void marshalltests::mapping() {
   ParameterMarshaller m(100);
-  unsigned* pMap    = m.mapping();
-  for (int i = 0; i < 100; i++) {
-    pMap[i] = 99-i;                     // Make it a reversi.
-  }
   CEvent e;
-  for (int i =0; i < 100; i++) {
-    e[i] = i;                         // m_pParameters should count backwards.
+  for (int i = 0; i < 100; i++) {
+    m.setMapping(i, 99 - i); // Make it a reversi.
+    e[i] = i;                // m_pParameters should count backwards.
   }
   m.marshall(e);
-  Double_t* p = m.pointer();
-  
-  for (int i =0; i < 100; i++) {
-    EQ(Double_t(99-i), p[i]);
+  Double_t *p = m.pointer();
+
+  for (int i = 0; i < 100; i++) {
+    EQ(Double_t(99 - i), p[i]);
   }
 }
-

@@ -301,7 +301,7 @@ ParameterMarshaller::ParameterMarshaller(std::size_t numParameters)
   Double_t nan = std::nan("1");
   for (int i = 0; i < numParameters; i++) {
     m_pParameters[i] = nan;
-    m_pMap[i] = UINT_MAX; // sentinal for unmapped parameter
+    m_pMap[i] = UNMAPPED; // always start unmapped.
   }
 }
 /**
@@ -324,10 +324,7 @@ void ParameterMarshaller::marshall(CEvent &event) {
     if (n < m_nParamCount) {
       // This if is needed because it's possible to invalidate a parameter
       // and that does not remove the dope vector entry for it.
-      if (m_pMap[n] == UINT_MAX) {
-        continue; // No mapping for this parameter, skip it.
-      }
-      if (event[n].isValid()) {
+      if (isMapped(n) && event[n].isValid()) {
         m_pParameters[m_pMap[n]] = event[n]; // By definition valid.
       }
     }
@@ -344,25 +341,19 @@ void ParameterMarshaller::reset(CEvent &event) {
   for (int i = 0; i < dope.size(); i++) {
     std::size_t n = dope[i];
     Double_t nan = std::nan("1");
-    if (n < m_nParamCount) { // Silent cause marshal complained.
-      if (m_pMap[n] == UINT_MAX) {
-        continue; // No mapping for this parameter, skip it.
-      }
+    if (isMapped(n)) {
       m_pParameters[m_pMap[n]] = nan;
     }
   }
 }
+
 /**
  *  pointer
  *     Returns the soup pointer:
  *  @return Double_t*
  */
 Double_t *ParameterMarshaller::pointer() { return m_pParameters; }
-/**
- * mapping
- *    Returns the mapping array:
- */
-unsigned *ParameterMarshaller::mapping() { return m_pMap; }
+
 /*-----------------------------------------------------------------------------
  * SpecTclRootTree implementation.
  *
@@ -380,7 +371,7 @@ unsigned *ParameterMarshaller::mapping() { return m_pMap; }
  */
 SpecTclRootTree::SpecTclRootTree(
     std::string name, const std::vector<ParameterTree::ParameterDef> &params)
-    : m_pMarshaller(0), m_pTree(0), m_pMap(0), m_nLastId(0), m_treeName(name) {
+    : m_pMarshaller(0), m_pTree(0), m_nLastId(0), m_treeName(name) {
   buildMarshaller(params);
   buildTree(params);
 }
@@ -427,12 +418,6 @@ void SpecTclRootTree::buildMarshaller(
   // For good measure for now, zero out the map:
 
   m_nLastId = last;
-  m_pMap = m_pMarshaller->mapping();
-  /*
-  for (int i = 0; i < last; i++) {
-    m_pMap[i] = 0; // For now in any event.
-  }
-    */
 }
 /**
  * buildTree
@@ -529,7 +514,7 @@ SpecTclRootTree::mapParameters(unsigned firstSlot,
   result.second = &(m_pMarshaller->pointer()[firstSlot]);
 
   for (int i = 0; i < leaves.size(); i++) {
-    m_pMap[leaves[i]->id()] = firstSlot++; // Assign a mapping.
+    m_pMarshaller->setMapping(leaves[i]->id(), firstSlot++);
   }
 
   return result;
