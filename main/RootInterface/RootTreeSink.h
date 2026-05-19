@@ -9,10 +9,10 @@
 
      Authors:
              Ron Fox
-             Jeromy Tompkins 
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
 */
 
 /** @file:  RootTreeSink.h
@@ -21,8 +21,8 @@
 #ifndef ROOTTREESINK_H
 #define ROOTTREESINK_H
 #include <EventSink.h>
-#include <vector>
 #include <string>
+#include <vector>
 
 class TFile;
 class SpecTclRootTree;
@@ -56,48 +56,50 @@ class CEventList;
  *            external to us is harmed.
  */
 
-class RootTreeSink : public CEventSink
-{
+class RootTreeSink : public CEventSink {
 private:
-    TFile*           m_pFile;
-    SpecTclRootTree* m_pTree;
-    CGateContainer&  m_Gate;
-    std::vector<std::string> m_parameterPatterns;
-    
-    std::string      m_treeName;
-    bool             m_enabled;   // To support ending write attempts on error Issue #217
-public:
-    RootTreeSink(std::string name, const std::vector<std::string>& patterns, CGateContainer* m_pGate);
-    virtual ~RootTreeSink();                       // not sure if final so...
-    
-    
-    void OnOpen(TFile* pNewFile);
-    void OnAboutToClose();
-    virtual void operator()(CEventList& rEvents);
+  TFile *m_pFile;
+  SpecTclRootTree *m_pTree;
+  CGateContainer &m_Gate;
+  std::vector<std::string> m_parameterPatterns;
+  std::string m_treeName;
+  std::string m_outputDir; // Issue #246 support - directory in which to create
+                           // the root files. If empty, we just create them in
+                           // the current directory.
+  bool m_enabled; // To support ending write attempts on error Issue #217
 
-    // As of 7.0, these are new event sink methods:
-
-    void OnBegin(unsigned runNumber, const char* title);
-    void OnEnd(unsigned runNumber, const char* title);
-    
-    // Selectors needed to do lists:
 public:
-    const std::vector<std::string>& getParameterPatterns() const {
-        return m_parameterPatterns;
-    }
-    CGateContainer& getGate()  {
-        return m_Gate;
-    }
-    
+  RootTreeSink(std::string name, const std::vector<std::string> &patterns,
+               CGateContainer *m_pGate);
+  virtual ~RootTreeSink(); // not sure if final so...
+
+  void OnOpen(TFile *pNewFile);
+  void OnAboutToClose();
+  virtual void operator()(CEventList &rEvents);
+
+  // As of 7.0, these are new event sink methods:
+
+  void OnBegin(unsigned runNumber, const char *title);
+  void OnEnd(unsigned runNumber, const char *title);
+  void setOutputDir(const std::string &path) {
+    m_outputDir = path;
+  } // Issue #246
+
+  // Selectors needed to do lists:
+public:
+  const std::vector<std::string> &getParameterPatterns() const {
+    return m_parameterPatterns;
+  }
+  CGateContainer &getGate() { return m_Gate; }
+
 private:
-    void operator()(CEvent& rEvent);
-    
-    void createTree();
-    void tearDown();
-    void enable() {m_enabled = true;}          // Issue #217 support 
-    void disable() {m_enabled = false;}         // turning off the tree on error.
-    bool isEnabled() const {return m_enabled;}
-    
+  void operator()(CEvent &rEvent);
+
+  void createTree();
+  void tearDown();
+  void enable() { m_enabled = true; }   // Issue #217 support
+  void disable() { m_enabled = false; } // turning off the tree on error.
+  bool isEnabled() const { return m_enabled; }
 };
 
 #endif

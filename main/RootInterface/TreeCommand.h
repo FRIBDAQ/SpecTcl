@@ -9,10 +9,10 @@
 
      Authors:
              Ron Fox
-             Jeromy Tompkins 
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
 */
 
 /** @file:  TreeCommand.h
@@ -26,17 +26,17 @@ class CTCLInterpreter;
 class CTCLObject;
 class RootTreeSink;
 
-
 /**
  * @class TreeCommand
  *     Provides the roottree command.  This has the following forms:
  *
  *  \verbatim
- *  
+ *
  *     roottree create tree-name parameter-pattern-list ?gate?
  *     roottree delete tree-name
  *     roottree list ?tree-name-pattern?
- *     
+ *     roottree setdir tree-name path
+ *
  *  \verbatim
  *
  *  These are pretty self explanatory, however we need to say something about
@@ -48,21 +48,23 @@ class RootTreeSink;
  *  -  Name of the gate that determines which events are written.  Note that
  *     for 'ungated' trees this will be "-T-"
  */
-class TreeCommand : public CTCLObjectProcessor
-{
+class TreeCommand : public CTCLObjectProcessor {
 private:
-
 public:
-    TreeCommand(CTCLInterpreter& interp, const char* cmdName);
-    virtual ~TreeCommand();
-    
-    virtual int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+  TreeCommand(CTCLInterpreter &interp, const char *cmdName);
+  virtual ~TreeCommand();
+
+  virtual int operator()(CTCLInterpreter &interp,
+                         std::vector<CTCLObject> &objv);
+
 private:
-    void create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    void destroy(CTCLInterpreter& interp, std::vector<CTCLObject>& objv); // delete is reserved.
-    void list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    
-    std::string sinkName(std::string treeName) const;
-    RootTreeSink* findSink(const char* pName) const;
+  void create(CTCLInterpreter &interp, std::vector<CTCLObject> &objv);
+  void destroy(CTCLInterpreter &interp,
+               std::vector<CTCLObject> &objv); // delete is reserved.
+  void list(CTCLInterpreter &interp, std::vector<CTCLObject> &objv);
+  void setdir(CTCLInterpreter &interp, std::vector<CTCLObject> &objv);
+
+  std::string sinkName(std::string treeName) const;
+  RootTreeSink *findSink(const char *pName) const;
 };
 #endif
