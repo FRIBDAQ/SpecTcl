@@ -41,8 +41,8 @@ void MyParameterMapper::mapToParameters(const std::vector<DDASHit>& channelData,
 	int globalChanIdx = computeGlobalIndex(hit);
     
 	// Assign values to appropriate channel:
-	m_params.chan[globalChanIdx].energy    = hit.getEnergy();
-	m_params.chan[globalChanIdx].timestamp = hit.getTime();
+	m_params.energy[globalChanIdx] = hit.getEnergy();
+	m_params.timestamp[globalChanIdx] = hit.getTime();
     }
   
 }

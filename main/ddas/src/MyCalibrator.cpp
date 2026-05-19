@@ -29,9 +29,8 @@ MyCalibrator::operator()(
     static std::uniform_real_distribution<> dist(0., 1.);
     
     for (int i = 0; i < 16; i++) {
-	if (m_params.chan[i].energy.isValid()) {
-	    m_ecal[i] = m_slope[i]*m_params.chan[i].energy
-		+ m_offset[i] + dist(gen);
+	if (m_params.energy[i].isValid()) {
+	    m_ecal[i] = m_slope[i]*m_params.energy[i] + m_offset[i] + dist(gen);
 	}
     }
 

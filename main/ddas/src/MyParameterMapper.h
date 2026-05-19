@@ -23,16 +23,14 @@ private:
 public:
     /**
      * @brief Constructor.
-     *
      * @param params The data structure.
      */    
     MyParameterMapper(MyParameters& params);
     
     /**
      * @brief Map raw hit data to tree parameters.
-     *
      * @param channelData The hit data.
-     * @param rEvent      The SpecTcl event.
+     * @param rEvent The SpecTcl event.
      */
     virtual void mapToParameters(
 	const std::vector<ddasfmt::DDASHit>& channelData, CEvent& rEvent
@@ -40,9 +38,7 @@ public:
     
     /**
      * @brief Compute channel index from crate, slot, and channel information.
-     * 
      * @param hit The hit data.
-     * 
      * @return The global channel index.
      */ 
     int computeGlobalIndex(const ddasfmt::DDASHit& hit);
