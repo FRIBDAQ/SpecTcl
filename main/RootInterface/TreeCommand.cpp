@@ -142,6 +142,7 @@ void TreeCommand::create(CTCLInterpreter &interp,
   for (int i = 0; i < objv[3].llength(); i++) {
     patterns.push_back(std::string(objv[3].lindex(i)));
   }
+
   // If a gate name has been defined, look it up:
 
   if (objv.size() == 5) {

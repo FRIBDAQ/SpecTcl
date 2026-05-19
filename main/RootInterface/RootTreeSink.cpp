@@ -273,7 +273,6 @@ void RootTreeSink::createTree() {
     for (int i = 0; i < m_parameterPatterns.size(); i++) {
       if (!fnmatch(m_parameterPatterns[i].c_str(), name.c_str(), 0)) {
         // Match:
-
         params.push_back(ParameterTree::_ParameterDef(name.c_str(), id));
         break; // No more patterns to check.
       }

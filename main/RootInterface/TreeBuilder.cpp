@@ -9,24 +9,25 @@
 
      Authors:
              Ron Fox
-             Jeromy Tompkins 
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
 */
 
 /** @file:  TreeBuilder.cpp
  *  @brief: Implement classes needed to build event trees from param names.
  */
 #include "TreeBuilder.h"
-#include <algorithm>
-#include <stdexcept>
-#include <cstring>
 #include <Event.h>
-#include <cmath>
-#include <TTree.h>
-#include <TBranch.h>           // Actually probably don't need this.
+#include <TBranch.h> // Actually probably don't need this.
 #include <TDirectory.h>
+#include <TTree.h>
+#include <algorithm>
+#include <climits>
+#include <cmath>
+#include <cstring>
+#include <stdexcept>
 
 /*-----------------------------------------------------------------------------
  *    TreeItemBaseClass
@@ -37,18 +38,13 @@
  * constructor
  *    @param pName - Name of the object (folder, item or base name of vector).
  */
-TreeItemBaseClass::TreeItemBaseClass(const char* pName) : m_name(pName)
-{}
+TreeItemBaseClass::TreeItemBaseClass(const char *pName) : m_name(pName) {}
 
 /**
  * getName
  *   @return std::string - name of the item.
  */
-std::string
-TreeItemBaseClass::getName() const
-{
-    return m_name;
-}
+std::string TreeItemBaseClass::getName() const { return m_name; }
 /*------------------------------------------------------------------------------
  *   TreeFolder
  */
@@ -60,23 +56,19 @@ TreeItemBaseClass::getName() const
  *                 its contents, unless, freeStorage is called to set that
  *                 false.
  */
-TreeFolder::TreeFolder(const char* pName) :
-    TreeItemBaseClass(pName),
-    m_fFree(true)
-{}
+TreeFolder::TreeFolder(const char *pName)
+    : TreeItemBaseClass(pName), m_fFree(true) {}
 
 /**
  * destructor - if m_fFree is true, all tree items contained are destroyed.
  */
-TreeFolder::~TreeFolder()
-{
-    if (m_fFree) {
-        std::for_each (
-            m_contents.begin(), m_contents.end(),
-            [](std::pair<std::string, TreeItemBaseClass*> p) {delete p.second;}
-        );
-    }
-    // Note that destruction of m_contents will kill off the tree nodes.
+TreeFolder::~TreeFolder() {
+  if (m_fFree) {
+    std::for_each(
+        m_contents.begin(), m_contents.end(),
+        [](std::pair<std::string, TreeItemBaseClass *> p) { delete p.second; });
+  }
+  // Note that destruction of m_contents will kill off the tree nodes.
 }
 /**
  * addItem
@@ -84,67 +76,51 @@ TreeFolder::~TreeFolder()
  *                   this must be dynamically allocated.
  *    @throws std::invalid_argument if an item with this name already exists.
  */
-void
-TreeFolder::addItem(TreeItemBaseClass* pItem)
-{
-    std::string name = pItem->getName();
-    if (m_contents.count(name) > 0) {
-        throw std::invalid_argument(
-            "Attempting to insert a duplicate item in a tree directory"
-        );
-    }
-    m_contents[name] = pItem;
+void TreeFolder::addItem(TreeItemBaseClass *pItem) {
+  std::string name = pItem->getName();
+  if (m_contents.count(name) > 0) {
+    throw std::invalid_argument(
+        "Attempting to insert a duplicate item in a tree directory");
+  }
+  m_contents[name] = pItem;
 }
 /**
  * GetContents
  *    Gets immutable contents of the folder.
  * @return const Contents& - reference to m_contents.
  */
-const TreeFolder::Contents&
-TreeFolder::getContents() const
-{
-    return m_contents;
+const TreeFolder::Contents &TreeFolder::getContents() const {
+  return m_contents;
 }
 /**
  * begin
  *    @return const Contents::iterator - to the first item in the folder.
  */
-TreeFolder::Contents::const_iterator
-TreeFolder::begin() const
-{
-    Contents::const_iterator i = m_contents.begin();
-    return i;
+TreeFolder::Contents::const_iterator TreeFolder::begin() const {
+  Contents::const_iterator i = m_contents.begin();
+  return i;
 }
 /**
  *  end
- *    @return const Contents::iterator - to off the end of the items in the folder.
+ *    @return const Contents::iterator - to off the end of the items in the
+ * folder.
  */
-TreeFolder::Contents::const_iterator
-TreeFolder::end() const
-{
-    Contents::const_iterator i =  m_contents.end();
-    return i;
+TreeFolder::Contents::const_iterator TreeFolder::end() const {
+  Contents::const_iterator i = m_contents.end();
+  return i;
 }
 /**
  * size
  * @return size_t - number of items in the folder.
  */
-size_t
-TreeFolder::size() const
-{
-    return m_contents.size();
-}
+size_t TreeFolder::size() const { return m_contents.size(); }
 /**
  * freeStorage
  *    Controls whether or not the TreeItemBaseClass members of the
  *    folder are deleted on destruction
  * @param yesno - If true, the destructor will delete content members.
  */
-void
-TreeFolder::freeStorage(bool yesno)
-{
-    m_fFree = yesno;
-}
+void TreeFolder::freeStorage(bool yesno) { m_fFree = yesno; }
 
 /*------------------------------------------------------------------------------
  * TreeTerminal - a parameter.
@@ -155,19 +131,14 @@ TreeFolder::freeStorage(bool yesno)
  *   @param name - name of the parameter (tail of the path).
  *   @param parameterId - the parameter's id in the CEvent vector for the event.
  */
-TreeTerminal::TreeTerminal(const char* name, unsigned parameterId) :
-    TreeItemBaseClass(name),
-    m_parameterId(parameterId) {}
-    
+TreeTerminal::TreeTerminal(const char *name, unsigned parameterId)
+    : TreeItemBaseClass(name), m_parameterId(parameterId) {}
+
 /**
  * id
  *   @return unsigned - the parameter's id.
  */
-unsigned
-TreeTerminal::id() const
-{
-    return m_parameterId;
-}
+unsigned TreeTerminal::id() const { return m_parameterId; }
 
 /*----------------------------------------------------------------------------
  *  ParameterTree - the full parsed parameter tree.
@@ -178,27 +149,22 @@ TreeTerminal::id() const
  *     The user is eventually expected to invoke buildTree to build the
  *     parameter tree.
  */
-ParameterTree::ParameterTree() :
-    TreeFolder("") {}
+ParameterTree::ParameterTree() : TreeFolder("") {}
 
 /**
  * constructor
  *    @param params  -Vector of parameter definitions that will be  used
  *                    to construct the tree.
  */
-ParameterTree::ParameterTree(const std::vector<ParameterDef>& params) :
-    TreeFolder("")
-{
-    buildTree(params);    
+ParameterTree::ParameterTree(const std::vector<ParameterDef> &params)
+    : TreeFolder("") {
+  buildTree(params);
 }
 /**
  * destructor
  *    Clears the tree
  */
-ParameterTree::~ParameterTree()
-{
-    clearTree();
-}
+ParameterTree::~ParameterTree() { clearTree(); }
 
 /**
  * buildTree
@@ -206,23 +172,17 @@ ParameterTree::~ParameterTree()
  *     - Constructs a new one, given the parameter definitions.
  * @param params - Vector of parameter definitions.
  */
-void
-ParameterTree::buildTree(const std::vector<ParameterDef>& params)
-{
-    clearTree();
-    for (size_t i = 0; i < params.size(); i++) {
-        addParameter(params[i]);
-    }
+void ParameterTree::buildTree(const std::vector<ParameterDef> &params) {
+  clearTree();
+  for (size_t i = 0; i < params.size(); i++) {
+    addParameter(params[i]);
+  }
 }
 /**
  * clearTree - clears the parameter tree currently stored.  See
  *              clearSubTree for more.
  */
-void
-ParameterTree::clearTree()
-{
-    clearSubTree(*this);
-}
+void ParameterTree::clearTree() { clearSubTree(*this); }
 
 /*------------------ Utility methods for ParameterTree -----------------------*/
 
@@ -233,19 +193,18 @@ ParameterTree::clearTree()
  *   - Adds the item to the folder.
  *
  * @param param - definition of the parameter.
-*/
-void
-ParameterTree::addParameter(const ParameterDef& param)
-{
-    std::vector<std::string> path = pathElements(param.s_name.c_str());
-    std::string tail = path.back();
-    unsigned      id = param.s_id;
-    path.pop_back();
-    
-    // Path is only the directory part of the path, while tail is the parameter name.
-    
-    TreeFolder* container = makeFolderPath(path);
-    container->addItem(new TreeTerminal(tail.c_str(), id));
+ */
+void ParameterTree::addParameter(const ParameterDef &param) {
+  std::vector<std::string> path = pathElements(param.s_name.c_str());
+  std::string tail = path.back();
+  unsigned id = param.s_id;
+  path.pop_back();
+
+  // Path is only the directory part of the path, while tail is the parameter
+  // name.
+
+  TreeFolder *container = makeFolderPath(path);
+  container->addItem(new TreeTerminal(tail.c_str(), id));
 }
 /**
  * makeFolderPath
@@ -256,30 +215,30 @@ ParameterTree::addParameter(const ParameterDef& param)
  *  @return TreeFolder* - Pointer to the folder at the end of the path.
  *  @throw std::invalid_argument - If a path element exists but is not a folder.
  */
-TreeFolder*
-ParameterTree::makeFolderPath(const std::vector<std::string>& path)
-{
-    // If there's no path elements this is a top folder:
-    
-    TreeFolder* result = this;   // if empty path this is the result.
-    
-    for (size_t i = 0; i < path.size(); i++) {
-        
-        // If needed, create the new tree folder:
-        
-        if (result->getContents().count(path[i]) == 0) {
-            result->addItem(new TreeFolder(path[i].c_str()));   
-        }
-        TreeItemBaseClass* pItem = result->m_contents[path[i]];
-        if (!pItem->isFolder()) {
-            throw std::invalid_argument("Making folder path - an element exists but is not a folder");
-        }
-        result = reinterpret_cast<TreeFolder*>(pItem);
-        
-        // Go to the next level of the path.
+TreeFolder *
+ParameterTree::makeFolderPath(const std::vector<std::string> &path) {
+  // If there's no path elements this is a top folder:
+
+  TreeFolder *result = this; // if empty path this is the result.
+
+  for (size_t i = 0; i < path.size(); i++) {
+
+    // If needed, create the new tree folder:
+
+    if (result->getContents().count(path[i]) == 0) {
+      result->addItem(new TreeFolder(path[i].c_str()));
     }
-    
-    return result;
+    TreeItemBaseClass *pItem = result->m_contents[path[i]];
+    if (!pItem->isFolder()) {
+      throw std::invalid_argument(
+          "Making folder path - an element exists but is not a folder");
+    }
+    result = reinterpret_cast<TreeFolder *>(pItem);
+
+    // Go to the next level of the path.
+  }
+
+  return result;
 }
 /**
  * pathElements
@@ -289,23 +248,21 @@ ParameterTree::makeFolderPath(const std::vector<std::string>& path)
  *  @param name - the path to split.
  *  @return std::vector<std::string> path elements, one per vector element.
  */
-std::vector<std::string>
-ParameterTree::pathElements(const char* name)
-{
-    std::vector<std::string> result;
-    const char* pEnd = name + std::strlen(name);     // Pointer to the  end.
-    while (true) {
-        size_t n = std::strcspn(name, ".");          // Number of chars to delimeter.
-        std::string element(name, n);
-        result.push_back(element);
-        if (n < strlen(name)) {
-            name += n + 1;                       // Point past the .
-        } else {
-            break;                               // done.
-        }
+std::vector<std::string> ParameterTree::pathElements(const char *name) {
+  std::vector<std::string> result;
+  const char *pEnd = name + std::strlen(name); // Pointer to the  end.
+  while (true) {
+    size_t n = std::strcspn(name, "."); // Number of chars to delimeter.
+    std::string element(name, n);
+    result.push_back(element);
+    if (n < strlen(name)) {
+      name += n + 1; // Point past the .
+    } else {
+      break; // done.
     }
-    
-    return result;
+  }
+
+  return result;
 }
 /**
  * clearSubTree
@@ -317,16 +274,14 @@ ParameterTree::pathElements(const char* name)
  *       -   Remove clear the contents of the folder.
  * @param top - Folder to empty out.
  */
-void
-ParameterTree::clearSubTree(TreeFolder& top)
-{
-    for (auto p = top.m_contents.begin(); p != top.m_contents.end(); p++) {
-        if (p->second->isFolder()) {
-            clearSubTree(*reinterpret_cast<TreeFolder*>(p->second));           // Recurse.
-        }
-        delete p->second;                       // Destroy the object.
+void ParameterTree::clearSubTree(TreeFolder &top) {
+  for (auto p = top.m_contents.begin(); p != top.m_contents.end(); p++) {
+    if (p->second->isFolder()) {
+      clearSubTree(*reinterpret_cast<TreeFolder *>(p->second)); // Recurse.
     }
-    top.m_contents.clear();                     // empty the container.
+    delete p->second; // Destroy the object.
+  }
+  top.m_contents.clear(); // empty the container.
 }
 /*----------------------------------------------------------------------------
  *   ParamterMarshaller
@@ -338,26 +293,23 @@ ParameterTree::clearSubTree(TreeFolder& top)
  *                           to handle.
  */
 
-ParameterMarshaller::ParameterMarshaller(std::size_t numParameters) :
-    m_nParamCount(numParameters), m_pParameters(0), m_pMap(0)
-{
-    m_pParameters = new Double_t[numParameters];
-    m_pMap        = new unsigned[numParameters];
-    
-    Double_t nan = std::nan("1");
-    for (int i = 0; i < numParameters; i++) {
-        m_pParameters[i] = nan;
-        m_pMap[i]        = i;             // Default map is unit mapping.
-    }
-        
+ParameterMarshaller::ParameterMarshaller(std::size_t numParameters)
+    : m_nParamCount(numParameters), m_pParameters(0), m_pMap(0) {
+  m_pParameters = new Double_t[numParameters];
+  m_pMap = new unsigned[numParameters];
+
+  Double_t nan = std::nan("1");
+  for (int i = 0; i < numParameters; i++) {
+    m_pParameters[i] = nan;
+    m_pMap[i] = UINT_MAX; // sentinal for unmapped parameter
+  }
 }
 /**
  * destructor - kills off the m_pParameters array.
  */
-ParameterMarshaller::~ParameterMarshaller()
-{
-    delete []m_pParameters;
-    delete []m_pMap;
+ParameterMarshaller::~ParameterMarshaller() {
+  delete[] m_pParameters;
+  delete[] m_pMap;
 }
 /**
  * marshall
@@ -365,21 +317,21 @@ ParameterMarshaller::~ParameterMarshaller()
  *
  *  @param event - reference to the event to marhsall from.
  */
-void
-ParameterMarshaller::marshall(CEvent& event)
-{
-    DopeVector& dope(event.getDopeVector());
-    for (int i = 0; i < dope.size(); i++) {
-        std::size_t n = dope[i];
-        if (n < m_nParamCount) {
-            // This if is needed because it's possible to invalidate a parameter
-            // and that does not remove the dope vector entry for it.
-            
-            if (event[n].isValid()) {
-                m_pParameters[m_pMap[n]] = event[n];           // By definition valid.
-            }
-        }
+void ParameterMarshaller::marshall(CEvent &event) {
+  DopeVector &dope(event.getDopeVector());
+  for (int i = 0; i < dope.size(); i++) {
+    std::size_t n = dope[i];
+    if (n < m_nParamCount) {
+      // This if is needed because it's possible to invalidate a parameter
+      // and that does not remove the dope vector entry for it.
+      if (m_pMap[n] == UINT_MAX) {
+        continue; // No mapping for this parameter, skip it.
+      }
+      if (event[n].isValid()) {
+        m_pParameters[m_pMap[n]] = event[n]; // By definition valid.
+      }
     }
+  }
 }
 /**
  *  reset
@@ -387,37 +339,30 @@ ParameterMarshaller::marshall(CEvent& event)
  *     indicating which elments might not be NANs.
  *  @param event - evnent that modified the parameter soup.
  */
-void
-ParameterMarshaller::reset(CEvent& event)
-{
-    DopeVector& dope(event.getDopeVector());
-    for (int i = 0; i < dope.size(); i++) {
-        std::size_t n = dope[i];
-        Double_t nan = std::nan("1");
-        if (n < m_nParamCount) {            // Silent cause marshal complained.
-            m_pParameters[m_pMap[n]] = nan;
-        }
+void ParameterMarshaller::reset(CEvent &event) {
+  DopeVector &dope(event.getDopeVector());
+  for (int i = 0; i < dope.size(); i++) {
+    std::size_t n = dope[i];
+    Double_t nan = std::nan("1");
+    if (n < m_nParamCount) { // Silent cause marshal complained.
+      if (m_pMap[n] == UINT_MAX) {
+        continue; // No mapping for this parameter, skip it.
+      }
+      m_pParameters[m_pMap[n]] = nan;
     }
+  }
 }
 /**
  *  pointer
  *     Returns the soup pointer:
  *  @return Double_t*
  */
-Double_t*
-ParameterMarshaller::pointer()
-{
-    return m_pParameters;
-}
+Double_t *ParameterMarshaller::pointer() { return m_pParameters; }
 /**
  * mapping
  *    Returns the mapping array:
  */
-unsigned*
-ParameterMarshaller::mapping()
-{
-    return m_pMap;
-}
+unsigned *ParameterMarshaller::mapping() { return m_pMap; }
 /*-----------------------------------------------------------------------------
  * SpecTclRootTree implementation.
  *
@@ -434,22 +379,18 @@ ParameterMarshaller::mapping()
  *                  id.  The id is the index of that parameter in rEvent.
  */
 SpecTclRootTree::SpecTclRootTree(
-    std::string name, const std::vector<ParameterTree::ParameterDef>& params
-) :
-  m_pMarshaller(0), m_pTree(0), m_pMap(0), m_nLastId(0), m_treeName(name)
-{
-    buildMarshaller(params);
-    buildTree(params);
+    std::string name, const std::vector<ParameterTree::ParameterDef> &params)
+    : m_pMarshaller(0), m_pTree(0), m_pMap(0), m_nLastId(0), m_treeName(name) {
+  buildMarshaller(params);
+  buildTree(params);
 }
 
 /**
  * Destructor
  */
-SpecTclRootTree::~SpecTclRootTree()
-{
+SpecTclRootTree::~SpecTclRootTree() {
   delete m_pMarshaller;
   delete m_pTree;
-  
 }
 /**
  * Fill
@@ -459,13 +400,12 @@ SpecTclRootTree::~SpecTclRootTree()
  * @param event - The event to be filled into the tree.
  * @return the result from the TTree::Fill.
  */
-Int_t
-SpecTclRootTree::Fill(CEvent& event)
-{
-    m_pMarshaller->marshall(event);
-    int result = m_pTree->Fill();
-    m_pMarshaller->reset(event);    // Leave the marshaller in a clean state no matter what.
-    return result;
+Int_t SpecTclRootTree::Fill(CEvent &event) {
+  m_pMarshaller->marshall(event);
+  int result = m_pTree->Fill();
+  m_pMarshaller->reset(
+      event); // Leave the marshaller in a clean state no matter what.
+  return result;
 }
 /**
  * buildMarshaller
@@ -474,23 +414,25 @@ SpecTclRootTree::Fill(CEvent& event)
  *   parameter definitions.
  * @param params - parameter definitions.
  */
-void
-SpecTclRootTree::buildMarshaller(const std::vector<ParameterTree::ParameterDef>& params)
-{
-    std::size_t last(0);
-    for (int i = 0; i < params.size(); i++) {
-        if(params[i].s_id > last) last = params[i].s_id;
-    }
-    
-    m_pMarshaller = new ParameterMarshaller(last+1);
-    
-    // For good measure for now, zero out the map:
-    
-    m_nLastId = last;
-    m_pMap    = m_pMarshaller->mapping();
-    for (int i = 0; i < last; i++) {
-        m_pMap[i] = 0;                       // For now in any event.
-    }
+void SpecTclRootTree::buildMarshaller(
+    const std::vector<ParameterTree::ParameterDef> &params) {
+  std::size_t last(0);
+  for (int i = 0; i < params.size(); i++) {
+    if (params[i].s_id > last)
+      last = params[i].s_id;
+  }
+
+  m_pMarshaller = new ParameterMarshaller(last + 1);
+
+  // For good measure for now, zero out the map:
+
+  m_nLastId = last;
+  m_pMap = m_pMarshaller->mapping();
+  /*
+  for (int i = 0; i < last; i++) {
+    m_pMap[i] = 0; // For now in any event.
+  }
+    */
 }
 /**
  * buildTree
@@ -503,18 +445,17 @@ SpecTclRootTree::buildMarshaller(const std::vector<ParameterTree::ParameterDef>&
  *          the branches out flat.  In the end, we want the branch hiearachy
  *          to accurately reflect the parameter name hiearchy decoded by the
  *          ParameterTree object
- *          
+ *
  *  @param params - parameter definitions
  */
-void
-SpecTclRootTree::buildTree(const std::vector<ParameterTree::ParameterDef>& params)
-{
-    m_pTree = new TTree(m_treeName.c_str(), m_treeName.c_str());
-    unsigned freeslot = 0;                 // First free slot in the marshaller.
-    ParameterTree hierarchy(params);
-    
-    std::string folder("SpecTcl");         // Top level folder.
-    buildBranch(folder, hierarchy, freeslot);
+void SpecTclRootTree::buildTree(
+    const std::vector<ParameterTree::ParameterDef> &params) {
+  m_pTree = new TTree(m_treeName.c_str(), m_treeName.c_str());
+  unsigned freeslot = 0; // First free slot in the marshaller.
+  ParameterTree hierarchy(params);
+
+  std::string folder("SpecTcl"); // Top level folder.
+  buildBranch(folder, hierarchy, freeslot);
 }
 /**
  * buildBranch
@@ -531,46 +472,42 @@ SpecTclRootTree::buildTree(const std::vector<ParameterTree::ParameterDef>& param
  * @param firstSlot - First available slot in m_pMap.
  * @return unsigned - Next free available slot in m_pMap.
  */
-unsigned
-SpecTclRootTree::buildBranch(std::string name, const TreeFolder& folder, unsigned firstSlot)
-{
-        const TreeFolder::Contents&      c(folder.getContents());
-        std::vector<const TreeFolder*>   subfolders;
-        std::vector<const TreeTerminal*> leaves;
-        
-        // Fill the subfolders and leaves vectors from c:
-        
-        for(auto p = c.begin();  p != c.end(); p++) {
-            if (p->second->isFolder()) {
-                subfolders.push_back(
-                    reinterpret_cast<const TreeFolder*>(p->second)
-                );
-            } else {
-                leaves.push_back(
-                    reinterpret_cast<const TreeTerminal*>(p->second)
-                );
-            }
-        }
-        // Generate the branch for the leaves. - no need if there are no leaves.
-        
-        if (!leaves.empty()) {
-            std::pair<unsigned, void*> mapInfo = mapParameters(firstSlot, leaves);
-            std::string              leafspecs = createLeafSpecs(leaves);
-            m_pTree->Branch(name.c_str(), mapInfo.second, leafspecs.c_str());
-            firstSlot = mapInfo.first;             // Next unused slot.
-        }
-        
-        // For each subfolder make a branch whose name is the name.subfolder
-        
-        for (int i = 0; i < subfolders.size(); i++) {
-            std::string subName = subfolders[i]->getName();
-            std::string branchName = name;
-            branchName += "_";
-            branchName += subName;
-            firstSlot = buildBranch(branchName, *(subfolders[i]), firstSlot);
-        }
-        
-        return firstSlot;
+unsigned SpecTclRootTree::buildBranch(std::string name,
+                                      const TreeFolder &folder,
+                                      unsigned firstSlot) {
+  const TreeFolder::Contents &c(folder.getContents());
+  std::vector<const TreeFolder *> subfolders;
+  std::vector<const TreeTerminal *> leaves;
+
+  // Fill the subfolders and leaves vectors from c:
+
+  for (auto p = c.begin(); p != c.end(); p++) {
+    if (p->second->isFolder()) {
+      subfolders.push_back(reinterpret_cast<const TreeFolder *>(p->second));
+    } else {
+      leaves.push_back(reinterpret_cast<const TreeTerminal *>(p->second));
+    }
+  }
+  // Generate the branch for the leaves. - no need if there are no leaves.
+
+  if (!leaves.empty()) {
+    std::pair<unsigned, void *> mapInfo = mapParameters(firstSlot, leaves);
+    std::string leafspecs = createLeafSpecs(leaves);
+    m_pTree->Branch(name.c_str(), mapInfo.second, leafspecs.c_str());
+    firstSlot = mapInfo.first; // Next unused slot.
+  }
+
+  // For each subfolder make a branch whose name is the name.subfolder
+
+  for (int i = 0; i < subfolders.size(); i++) {
+    std::string subName = subfolders[i]->getName();
+    std::string branchName = name;
+    branchName += "_";
+    branchName += subName;
+    firstSlot = buildBranch(branchName, *(subfolders[i]), firstSlot);
+  }
+
+  return firstSlot;
 }
 /**
  * mapParameters
@@ -583,21 +520,19 @@ SpecTclRootTree::buildBranch(std::string name, const TreeFolder& folder, unsigne
  *          slot number.  second is a pointer to the start of the parameters.
  *  @note This should not be called if there are no leaves.
  */
-std::pair<unsigned, void*>
-SpecTclRootTree::mapParameters(
-    unsigned firstSlot, std::vector<const TreeTerminal*>& leaves
-)
-{
-    std::pair<unsigned, void*> result;
-    
-    result.first  =  firstSlot + leaves.size();
-    result.second = &(m_pMarshaller->pointer()[firstSlot]);
-    
-    for (int i = 0; i < leaves.size(); i++) {
-        m_pMap[leaves[i]->id()] = firstSlot++;  // Assign a mapping.
-    }
-    
-    return result;
+std::pair<unsigned, void *>
+SpecTclRootTree::mapParameters(unsigned firstSlot,
+                               std::vector<const TreeTerminal *> &leaves) {
+  std::pair<unsigned, void *> result;
+
+  result.first = firstSlot + leaves.size();
+  result.second = &(m_pMarshaller->pointer()[firstSlot]);
+
+  for (int i = 0; i < leaves.size(); i++) {
+    m_pMap[leaves[i]->id()] = firstSlot++; // Assign a mapping.
+  }
+
+  return result;
 }
 /**
  * createLeafSpecs
@@ -607,15 +542,14 @@ SpecTclRootTree::mapParameters(
  * @return the leaf specification.
  */
 std::string
-SpecTclRootTree::createLeafSpecs(std::vector<const TreeTerminal*>& leaves)
-{
-    std::string result;
-    
-    for (int i =0; i < leaves.size(); i++) {
-        result += leaves[i]->getName();
-        result += "/D:";
-    }
-    
-    result.pop_back();           // remove trailing ':'
-    return result;
+SpecTclRootTree::createLeafSpecs(std::vector<const TreeTerminal *> &leaves) {
+  std::string result;
+
+  for (int i = 0; i < leaves.size(); i++) {
+    result += leaves[i]->getName();
+    result += "/D:";
+  }
+
+  result.pop_back(); // remove trailing ':'
+  return result;
 }
