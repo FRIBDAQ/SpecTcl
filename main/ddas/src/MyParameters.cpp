@@ -1,11 +1,16 @@
 #include "MyParameters.h"
 
-//________________________________________________________________________
-// Initialize MyParameters.
-//
+/**
+ * @details
+ * This is the root of the tree structure. The name of this will be used
+ * to name branches of the tree.
+ * @note The multiplicity parameter is initialized with 32 bins between 0
+ * and 31. The energy and timestamp arrays are initialized with 16 channels,
+ * energy between 0 and 65535, and timestamp between 0 and 2^64-1.
+ */
 MyParameters::MyParameters(std::string name) {
-  multiplicity.Initialize(name + ".multiplicity", 32, 0, 31, "a.u.");
+  multiplicity.Initialize(name + ".mult", 32, 0, 31, "a.u.");
   energy.Initialize(name + ".energy", 32768, 0, 65535, "a.u.", 16, 0);
-  timestamp.Initialize(name + ".timestamp", 32768, 0, std::pow(2, 64) - 1,
-                       "a.u.", 16, 0);
+  timestamp.Initialize(name + ".timestamp", 64, 0, std::pow(2, 64) - 1, "ns",
+                       true, 16, 0);
 }
