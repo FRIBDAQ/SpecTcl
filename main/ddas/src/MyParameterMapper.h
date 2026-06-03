@@ -30,12 +30,6 @@ struct ModuleInfo {
   }
 };
 
-//________________________________________________________________________
-// Class responsible for mapping DDAS hit data to SpecTcl TreeParameters
-//
-// It operates on a MyParameters structure containing TreeParameters but
-// does not own it.
-//
 /**
  * @class MyParameterMapper
  * @brief This class is responsible for mapping DDAS hit data to SpecTcl
