@@ -35,11 +35,11 @@ struct ModuleInfo {
  * @brief This class is responsible for mapping DDAS hit data to SpecTcl
  * TreeParameters.
  * @details
- * It operates on a MyParameters structure containing TreeParameters but does
- * not own it. The constructor takes a reference to the MyParameters structure
- * and initializes a channel map based on the provided module information. The
- * mapToParameters function takes raw hit data and fills the appropriate
- * TreeParameters.
+ * This class operates on a MyParameters structure containing TreeParameters but
+ * does not own it. The constructor takes a reference to the MyParameters
+ * structure and initializes a channel map based on the provided module
+ * information. The mapToParameters function takes raw hit data and fills the
+ * appropriate TreeParameters.
  */
 class MyParameterMapper : public DAQ::DDAS::CParameterMapper {
 private:
@@ -53,6 +53,7 @@ public:
    * @param params The data structure.
    */
   MyParameterMapper(MyParameters &params);
+
   /**
    * @brief Map raw hit data to tree parameters.
    * @param channelData The hit data.
@@ -63,7 +64,7 @@ public:
 
 private:
   /**
-   *  @brief Build the channel map from module information.
+   * @brief Build the channel map from module information.
    * @param modules The list of module information.
    */
   void buildChannelMap(std::vector<ModuleInfo> &modules);

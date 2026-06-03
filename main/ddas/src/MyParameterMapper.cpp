@@ -33,7 +33,7 @@ void MyParameterMapper::mapToParameters(const std::vector<DDASHit> &channelData,
   size_t nHits = channelData.size();
 
   // Assign number of hits as event multiplicity:
-  m_params.multiplicity = nHits;
+  m_params.s_multiplicity = nHits;
 
   // Loop over all hits in event:
   for (size_t i = 0; i < nHits; i++) {
@@ -41,11 +41,11 @@ void MyParameterMapper::mapToParameters(const std::vector<DDASHit> &channelData,
     auto &hit = channelData[i];
 
     // Use the crate, slot, and channel to figure out the global index:
-    int globalChanIdx = computeGlobalIndex(hit);
+    int idx = computeGlobalIndex(hit);
 
     // Assign values to appropriate channel:
-    m_params.energy[globalChanIdx] = hit.getEnergy();
-    m_params.timestamp[globalChanIdx] = hit.getTime();
+    m_params.s_energy[idx] = hit.getEnergy();
+    m_params.s_timestamp[idx] = hit.getTime();
   }
 }
 

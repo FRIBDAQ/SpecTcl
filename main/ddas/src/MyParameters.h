@@ -14,9 +14,9 @@
  */
 struct MyParameters {
 
-  CTreeParameter multiplicity;
-  CTreeParameterArray energy;
-  CTreeParameterArray timestamp;
+  CTreeParameter s_multiplicity;   //!< Multiplicity (number of hits).
+  CTreeParameterArray s_energy;    //!< Raw energies for each channel.
+  CTreeParameterArray s_timestamp; //!< Nanosecond timestamps for each channel.
 
   /**
    * @brief Constructor.
