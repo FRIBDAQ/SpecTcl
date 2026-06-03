@@ -10,8 +10,7 @@
  * @struct MyParameters
  * @brief This is the root of the tree structure. The name of this will be used
  * to name branches of the tree. The size of the parameter arrays is set in the
- * constructor. We assume for this example a system consisting of a single
- * 16-channel DDAS module, see MyParameters.cpp for details.
+ * constructor.
  */
 struct MyParameters {
 

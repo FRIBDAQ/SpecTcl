@@ -2,9 +2,8 @@
 
 /**
  * @details
- * This is the root of the tree structure. The name of this will be used
- * to name branches of the tree.
- * @note The multiplicity parameter is initialized with 32 bins between 0
+ * We assume for this example that there is one 16-channel DDAS module in the
+ * system. The multiplicity parameter is initialized with 32 bins between 0
  * and 31. The energy and timestamp arrays are initialized with 16 channels,
  * energy between 0 and 65535, and timestamp between 0 and 2^64-1.
  */
