@@ -9,10 +9,10 @@
 
      Authors:
              Ron Fox
-             Jeromy Tompkins 
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
 */
 
 #ifndef MYSPECTCLAPP_H
@@ -28,48 +28,47 @@
 //
 class CMySpecTclApp : public CTclGrammerApp {
 public:
-    /**
-     * @brief Default constructor.
-     * 
-     * @details 
-     * Default constructor alternative to compiler-provided default ctor.
-     */
-    CMySpecTclApp();
-    /**
-     * @brief Destructor.
-     * 
-     * @details
-     * Delete any pointer data members that used new in ctors. The destructor 
-     * should be virtual if and only if class contains at least one virtual 
-     * function. Objects should be destroyed in the reverse order of the 
-     * construction order.
-     */
-    ~CMySpecTclApp();
-    
-private:
-    /** @brief Copy constructor. */
-    CMySpecTclApp(const CMySpecTclApp& aCMySpecTclApp);
+  /**
+   * @brief Default constructor.
+   *
+   * @details
+   * Default constructor alternative to compiler-provided default ctor.
+   */
+  CMySpecTclApp();
+  /**
+   * @brief Destructor.
+   *
+   * @details
+   * Delete any pointer data members that used new in ctors. The destructor
+   * should be virtual if and only if class contains at least one virtual
+   * function. Objects should be destroyed in the reverse order of the
+   * construction order.
+   */
+  ~CMySpecTclApp();
 
-    // Operators:
-    CMySpecTclApp& operator=(const CMySpecTclApp& aCMySpecTclApp);
-    int operator==(const CMySpecTclApp& aCMySpecTclApp) const;
+private:
+  /** @brief Copy constructor. */
+  CMySpecTclApp(const CMySpecTclApp &aCMySpecTclApp);
+
+  // Operators:
+  CMySpecTclApp &operator=(const CMySpecTclApp &aCMySpecTclApp);
+  int operator==(const CMySpecTclApp &aCMySpecTclApp) const;
 
 public:
-    virtual void BindTCLVariables(CTCLInterpreter& rInterp);
-    virtual void SourceLimitScripts(CTCLInterpreter& rInterpreter);
-    virtual void SetLimits();
-    virtual void CreateHistogrammer();
-    virtual void SelectDisplayer(
-	UInt_t nDisplaySize, CHistogrammer& rHistogrammer
-	);
-    virtual void SetupTestDataSource();
-    virtual void CreateAnalyzer(CEventSink* pSink);
-    virtual void SelectDecoder(CAnalyzer& rAnalyzer);
-    virtual void CreateAnalysisPipeline(CAnalyzer& rAnalyzer);
-    virtual void AddCommands(CTCLInterpreter& rInterp);
-    virtual void SetupRunControl();
-    virtual void SourceFunctionalScripts(CTCLInterpreter& rInterp);
-    virtual int operator()();
+  virtual void BindTCLVariables(CTCLInterpreter &rInterp);
+  virtual void SourceLimitScripts(CTCLInterpreter &rInterpreter);
+  virtual void SetLimits();
+  virtual void CreateHistogrammer();
+  virtual void SelectDisplayer(UInt_t nDisplaySize,
+                               CHistogrammer &rHistogrammer);
+  virtual void SetupTestDataSource();
+  virtual void CreateAnalyzer(CEventSink *pSink);
+  virtual void SelectDecoder(CAnalyzer &rAnalyzer);
+  virtual void CreateAnalysisPipeline(CAnalyzer &rAnalyzer);
+  virtual void AddCommands(CTCLInterpreter &rInterp);
+  virtual void SetupRunControl();
+  virtual void SourceFunctionalScripts(CTCLInterpreter &rInterp);
+  virtual int operator()();
 };
 
 #endif

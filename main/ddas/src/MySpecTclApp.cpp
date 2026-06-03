@@ -1,10 +1,10 @@
 #include "MySpecTclApp.h"
 
-#include <config.h>
 #include "DDASBuiltUnpacker.h"
+#include "MyCalibrator.h"
 #include "MyParameterMapper.h"
 #include "MyParameters.h"
-#include "MyCalibrator.h"
+#include <config.h>
 
 using namespace DAQ::DDAS;
 
@@ -27,32 +27,28 @@ static CDDASBuiltUnpacker unpacker({0}, *(new MyParameterMapper(params)));
 static MyCalibrator calibrator(params);
 
 //________________________________________________________________________
-void
-CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)  
-{   
-    RegisterEventProcessor(unpacker, "Raw");
-    RegisterEventProcessor(calibrator, "Cal");
+void CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer &rAnalyzer) {
+  RegisterEventProcessor(unpacker, "Raw");
+  RegisterEventProcessor(calibrator, "Cal");
 }
 
 //________________________________________________________________________
 // Constructors, destructors and other replacements for compiler cannonicals:
 
-CMySpecTclApp::CMySpecTclApp ()
-{} 
+CMySpecTclApp::CMySpecTclApp() {}
 
 // Destructor:
-CMySpecTclApp::~CMySpecTclApp ( )
-{}
+CMySpecTclApp::~CMySpecTclApp() {}
 
 //________________________________________________________________________
 // Functions for class CMySpecTclApp
 
-//  Function: 	
-//     void BindTCLVariables(CTCLInterpreter& rInterp) 
+//  Function:
+//     void BindTCLVariables(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     override
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Add code to this function to bind any TCL variable to
     the SpecTcl interpreter.  Note that at this time,
@@ -60,18 +56,16 @@ CMySpecTclApp::~CMySpecTclApp ( )
     can do Set but not necessarily Get operations.
 
 */
-void 
-CMySpecTclApp::BindTCLVariables(CTCLInterpreter& rInterp)  
-{ 
-    CTclGrammerApp::BindTCLVariables(rInterp);
-}  
+void CMySpecTclApp::BindTCLVariables(CTCLInterpreter &rInterp) {
+  CTclGrammerApp::BindTCLVariables(rInterp);
+}
 
-//  Function: 	
-//    void SourceLimitScripts(CTCLInterpreter& rInterpreter) 
+//  Function:
+//    void SourceLimitScripts(CTCLInterpreter& rInterpreter)
 //  Operation Type:
 //     Override
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Add code here to source additional variable setting
     scripts.  At this time the entire SpecTcl/Tk infrastructure
@@ -81,57 +75,49 @@ CMySpecTclApp::BindTCLVariables(CTCLInterpreter& rInterp)
     for variables which were bound in BindTCLVariables.
 
 */
-void 
-CMySpecTclApp::SourceLimitScripts(CTCLInterpreter& rInterpreter)  
-{
-    CTclGrammerApp::SourceLimitScripts(rInterpreter);
-}  
+void CMySpecTclApp::SourceLimitScripts(CTCLInterpreter &rInterpreter) {
+  CTclGrammerApp::SourceLimitScripts(rInterpreter);
+}
 
-//  Function: 	
-//    void SetLimits() 
+//  Function:
+//    void SetLimits()
 //  Operation Type:
 //     overide
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Called after BindVariables and SourceLimitScripts.
     This function can be used to fetch values of bound Tcl
     variables which were modified/set by the limit scripts to
-    update program default values. 
+    update program default values.
 
 */
-void 
-CMySpecTclApp::SetLimits()  
-{
-    CTclGrammerApp::SetLimits();
-}  
+void CMySpecTclApp::SetLimits() { CTclGrammerApp::SetLimits(); }
 
-//  Function: 	
-//    void CreateHistogrammer() 
+//  Function:
+//    void CreateHistogrammer()
 //  Operation Type:
 //     Override
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Creates the histogramming data sink. If you want to override
     this in general you probably won't make use of the actual
-    base class function.  You might, however extend this by 
+    base class function.  You might, however extend this by
     defining a base set of parameters and histograms from within
     the program.
 
 */
-void 
-CMySpecTclApp::CreateHistogrammer()  
-{
-    CTclGrammerApp::CreateHistogrammer();
-}  
+void CMySpecTclApp::CreateHistogrammer() {
+  CTclGrammerApp::CreateHistogrammer();
+}
 
-//  Function: 	
-//    void SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer) 
+//  Function:
+//    void SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer)
 //  Operation Type:
 //     Override.
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Select a displayer object and link it to the
     histogrammer. The default code will link Xamine
@@ -139,62 +125,57 @@ CMySpecTclApp::CreateHistogrammer()
     to deal with gate objects accepted by Xamine interaction.
 
 */
-void 
-CMySpecTclApp::SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer)  
-{
-    CTclGrammerApp::SelectDisplayer(nDisplaySize, rHistogrammer);
-}  
+void CMySpecTclApp::SelectDisplayer(UInt_t nDisplaySize,
+                                    CHistogrammer &rHistogrammer) {
+  CTclGrammerApp::SelectDisplayer(nDisplaySize, rHistogrammer);
+}
 
-//  Function: 	
-//    void SetupTestDataSource() 
+//  Function:
+//    void SetupTestDataSource()
 //  Operation Type:
 //     Override
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Allows you to set up a test data source.  At
     present, SpecTcl must have a data source of some sort
-    connected to it... The default test data source produces a 
+    connected to it... The default test data source produces a
     fixed length event where all parameters are selected from
     a gaussian distribution. If you can figure out how to do it,
     you can setup your own data source... as long as you don't
     start analysis, the default one is harmless.
 
 */
-void 
-CMySpecTclApp::SetupTestDataSource()  
-{
-    CTclGrammerApp::SetupTestDataSource();
-}  
+void CMySpecTclApp::SetupTestDataSource() {
+  CTclGrammerApp::SetupTestDataSource();
+}
 
-//  Function: 	
-//    void CreateAnalyzer(CEventSink* pSink) 
+//  Function:
+//    void CreateAnalyzer(CEventSink* pSink)
 //  Operation Type:
 //     Override
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Creates an analyzer. The Analyzer is connected to the data
     source which supplies buffers.  Connected to the analyzer is a
-    buffer decoder and an event unpacker. The event unpacker is 
+    buffer decoder and an event unpacker. The event unpacker is
     the main experiment dependent chunk of code, not the analyzer.
     The analyzer constructed by the base class is a CTclAnalyzer instance.
-    This is an analyzer which maintains statistics about itself in Tcl 
+    This is an analyzer which maintains statistics about itself in Tcl
     variables.
 
 */
-void 
-CMySpecTclApp::CreateAnalyzer(CEventSink* pSink)  
-{
-    CTclGrammerApp::CreateAnalyzer(pSink);
-}  
+void CMySpecTclApp::CreateAnalyzer(CEventSink *pSink) {
+  CTclGrammerApp::CreateAnalyzer(pSink);
+}
 
-//  Function: 	
-//    void SelectDecoder(CAnalyzer& rAnalyzer) 
+//  Function:
+//    void SelectDecoder(CAnalyzer& rAnalyzer)
 //  Operation Type:
 //     Override
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Selects a decoder and attaches it to the analyzer.
     A decoder is responsible for knowing the overall structure of
@@ -203,20 +184,16 @@ CMySpecTclApp::CreateAnalyzer(CEventSink* pSink)
     of NSCL buffers.
 
 */
-void 
-CMySpecTclApp::SelectDecoder(CAnalyzer& rAnalyzer)  
-{
-    CTclGrammerApp::SelectDecoder(rAnalyzer);
-}  
+void CMySpecTclApp::SelectDecoder(CAnalyzer &rAnalyzer) {
+  CTclGrammerApp::SelectDecoder(rAnalyzer);
+}
 
-
-
-//  Function: 	
-//    void AddCommands(CTCLInterpreter& rInterp) 
+//  Function:
+//    void AddCommands(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Override
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     This function adds commands to extend Tcl/Tk/SpecTcl.
     The base class function registers the standard SpecTcl command
@@ -225,59 +202,51 @@ CMySpecTclApp::SelectDecoder(CAnalyzer& rAnalyzer)
     not get registered.
 
 */
-void 
-CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)  
-{
-    CTclGrammerApp::AddCommands(rInterp);
-}  
+void CMySpecTclApp::AddCommands(CTCLInterpreter &rInterp) {
+  CTclGrammerApp::AddCommands(rInterp);
+}
 
-//  Function: 	
-//    void SetupRunControl() 
+//  Function:
+//    void SetupRunControl()
 //  Operation Type:
 //     Override.
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Sets up the Run control object. The run control object
     is responsible for interacting with the underlying operating system
-    and programming framework to route data from the data source to 
-    the SpecTcl analyzer. The base class object instantiates a 
-    CTKRunControl object. This object uses fd waiting within the 
+    and programming framework to route data from the data source to
+    the SpecTcl analyzer. The base class object instantiates a
+    CTKRunControl object. This object uses fd waiting within the
     Tcl/TK event processing loop framework to dispatch buffers for
     processing as they become available.
 
 */
-void 
-CMySpecTclApp::SetupRunControl()  
-{
-    CTclGrammerApp::SetupRunControl();
-}  
+void CMySpecTclApp::SetupRunControl() { CTclGrammerApp::SetupRunControl(); }
 
-//  Function: 	
-//    void SourceFunctionalScripts(CTCLInterpreter& rInterp) 
+//  Function:
+//    void SourceFunctionalScripts(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Override
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     This function allows the user to source scripts
     which have access to the full Tcl/Tk/SpecTcl
     command set along with whatever extensions have been
-    added by the user in AddCommands.  
+    added by the user in AddCommands.
 
 */
-void 
-CMySpecTclApp::SourceFunctionalScripts(CTCLInterpreter& rInterp)  
-{
-    CTclGrammerApp::SourceFunctionalScripts(rInterp);
-}  
+void CMySpecTclApp::SourceFunctionalScripts(CTCLInterpreter &rInterp) {
+  CTclGrammerApp::SourceFunctionalScripts(rInterp);
+}
 
-//  Function: 	
-//    int operator()() 
+//  Function:
+//    int operator()()
 //  Operation Type:
 //     Override.
-/*  
-    Purpose: 	
+/*
+    Purpose:
 
     Entered at Tcl/Tk initialization time (think of this
     as the entry point of the SpecTcl program). The base
@@ -286,21 +255,15 @@ CMySpecTclApp::SourceFunctionalScripts(CTCLInterpreter& rInterp)
     to extend this functionality by adding code to this function.
 
 */
-int 
-CMySpecTclApp::operator()()  
-{ 
-    return CTclGrammerApp::operator()();
-}
+int CMySpecTclApp::operator()() { return CTclGrammerApp::operator()(); }
 
-CMySpecTclApp   myApp;
+CMySpecTclApp myApp;
 
 #ifdef SPECTCL_5_INIT
-CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;
-CTCLApplication* gpTCLApplication;
+CTclGrammerApp *CTclGrammerApp::m_pInstance = &myApp;
+CTCLApplication *gpTCLApplication;
 
 #else
-CTclGrammerApp& app(myApp);	// Create an instance of me.
-CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
+CTclGrammerApp &app(myApp);               // Create an instance of me.
+CTCLApplication *gpTCLApplication = &app; // Findable by the Tcl/tk framework.
 #endif
-
-
