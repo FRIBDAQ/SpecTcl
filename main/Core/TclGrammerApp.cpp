@@ -97,6 +97,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <assert.h>
 #include <histotypes.h>
 #include <buftypes.h>
@@ -265,7 +266,7 @@ CTclGrammerApp::CTclGrammerApp() :
   m_nDisplaySize(knDisplaySize),
   m_nParams(knParameterCount),
   m_nListSize(knEventListSize),
-  m_displayType("xamine"),
+  m_displayType("qtpy"),
   m_pAnalyzer(0),
   m_pHistogrammer(0),
   m_pDecoder(0),
@@ -967,6 +968,10 @@ int CTclGrammerApp::operator()() {
   try {
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
+
+  /* Issue #250 - set default ports for httpd and mirror: */
+
+  setDefaultServerPorts();
   
   // Fix for issue #122: suppress <RootX11ErrorHandler> messages:
   gErrorIgnoreLevel = kFatal;
@@ -1305,6 +1310,33 @@ void
 CTclGrammerApp::protectVariable(CTCLInterpreter* pInterp, const char* pVarName)
 {
   new CSpecTclInitVar(pInterp, pVarName);
+}
+/**
+ * With SpecTcl now defaulting to the qtpy displayer (Issue #250), we
+ * need to ensure the servers get started on, hopefully, unique ports.
+ * We randomize a pair of ports and set the interpreter variables:
+ * HTTPDPort and MirrorPort to those port numbers.
+ * 
+ * This must be run after the interpreter has been created.
+ */
+void
+CTclGrammerApp::setDefaultServerPorts() {
+  // Seed the interger random number generator:
+
+  srandom(time(nullptr));
+  int restPort = (random() & 0x7fff) | 0x8000;  // Range of 0x8000 - 0xffff.
+  int mirrorPort = (random() &0x7fff) | 0x8000;
+  std::string sRestPort = std::to_string(restPort);
+  std::string sMirrorPort = std::to_string(mirrorPort);
+
+  // Make and set the variables:
+
+  CTCLVariable restVar(getInterpreter(), "HTTPDPort", false);
+  restVar.Set(sRestPort.c_str());
+
+  CTCLVariable mirrorVar(getInterpreter(), "MirrorPort", false);
+  mirrorVar.Set(sMirrorPort.c_str());
+
 }
 
 
