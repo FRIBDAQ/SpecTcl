@@ -363,7 +363,7 @@ protected:
 private:
   static void TimedUpdates(ClientData d);
   void protectVariable(CTCLInterpreter* pInterp, const char* pVarName);
-
+  void setDefaultServerPorts();
   /*!
    * \brief AppInit - Set up application
    *
