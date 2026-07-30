@@ -291,7 +291,7 @@ CTclGrammerApp::CTclGrammerApp() :
   m_nDisplaySize(knDisplaySize),
   m_nParams(knParameterCount),
   m_nListSize(knEventListSize),
-  m_displayType("xamine"),
+  m_displayType("qtpy"),
   m_pAnalyzer(0),
   m_pHistogrammer(0),
   m_pDecoder(0),
