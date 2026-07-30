@@ -1,3 +1,8 @@
+== 7.0-006 ==
+* Issue #245
+* Issue #246
+== 7.0-006 ==
+
 == 7.0-005 ==
 * Issue #229 - Support metadata for parameters, spectra, gates, and treevariables.
 * Issue #232 - Support spectrum I/O in HDF5 format.
