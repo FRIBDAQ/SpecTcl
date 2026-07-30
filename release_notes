@@ -1,47 +1,6 @@
-== 7.0-005 ==
+== 7.1-000 ==
+* Issue #245 
+* Issue #246
 * Issue #250 - Make qtpy the default displayer.  Note that this also adds
                a random default port allocation for the ReST and Mirror servers.
-* Issue #229 - Support metadata for parameters, spectra, gates, and treevariables.
-* Issue #232 - Support spectrum I/O in HDF5 format.
-* Issue #233 - Support sread -all operation.
-* Issue #230 - Provide support for vector valued parameters and a 1d spectrum on
-               those as well as two new vector gate types:  vs+ and vs* which
-	       provide gates evaulated on vetor parameters vs+ is true if
-	       any value of the vector is in the slice and vs* is true only
-	       if all vector values are inside the slice.
-* Issue #239 - Caen nextgen fail flags after all fixed size data
-== 7.0-005 ==
-
-== 7.0-004 ==
-* Upgrade DDASFormat incorp to 1.1-002
-* Support processing DDAS data with fits via --enable-ddastoys and --with-ddastoysdir options 
-* Support associating fits with waveform objects.
-* Make the File->Load operation update the GUI and make the Load button report script errors.
-* Issue #223 - Build the unittests only at Make check time.
-== 7.0-004 ==
-
-
-== 7.0-003 ==
-* Adding MDPP-32 SCP SRO software trigger data analysis
-* Correctly unpack data from CAEN VX2740
-* Added support for waveforms:
-    *  CWaveform class and dictionary allow users to create/fill wavefomrs.
-    *  waveform command supports scripting waveforms.
-    *  Waveform tab added to tree gui.
-    *  Waveform ReST domain added to alliow clients access to this feature.
-== 7.0-003 ==
-
-== 7.0-002 ==
-* Adding support on MDPP-16/32 QDC/SCP extended timestamp analysis
-* Updating MDPP-32 SCP SRO software trigger data analysis with new data format
-* Additional methods to ring format helperse that allow CAnalysisEventProcessor
-to be written in terms of it so that it will be format independent as long as
-the helpers are.
-* Issue #183 - fixe error in Xamikne that caused it to crash under bookworm
-when Expand dialogs were unposted.
-== 7.0-002 ==
-
-== 7.0-001 ==
-* Upgrade DDASFormat incorp to 1.1-000.
-* Adding MDPP-32 SCP SRO software trigger data analysis
-== 7.0-001 ==
+== 7.1-000 ==
