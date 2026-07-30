@@ -1,3 +1,7 @@
+== 5.14-010 ==
+* Issue #250 - make Qtpy the default displayer.
+== 5.14-010 ==
+
 == 5.14-009 ==
 * Fix issue #239 - unpacking caen vx2470 data
 == 5.14-009 ==
