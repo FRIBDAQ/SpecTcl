@@ -122,6 +122,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <memory>
 #include <stdint.h>
 #include <tcl.h>
+#include <time.h>
 
 // Fix for issue #122: suppress <RootX11ErrorHandler> messages:
 #include <TError.h>
@@ -1046,6 +1047,10 @@ int CTclGrammerApp::operator()() {
   // All ranks get an interpreter and source these scripts:
 
   gpInterpreter = getInterpreter();
+
+  // Issue #250 ensure the HTTPD and Mirror servers start.
+
+  setDefaultServerPorts();
   
   // Fix for issue #122: suppress <RootX11ErrorHandler> messages:
   m_defaultRootErrorLevel = gErrorIgnoreLevel;
@@ -1484,6 +1489,35 @@ CTclGrammerApp::protectVariable(CTCLInterpreter* pInterp, const char* pVarName)
 {
   new CSpecTclInitVar(pInterp, pVarName);
 }
+/**
+ * With SpecTcl now defaulting to the qtpy displayer (Issue #250), we
+ * need to ensure the servers get started on, hopefully, unique ports.
+ * We randomize a pair of ports and set the interpreter variables:
+ * HTTPDPort and MirrorPort to those port numbers.
+ * 
+ * This must be run after the interpreter has been created.
+ */
+void
+CTclGrammerApp::setDefaultServerPorts() {
+  // Seed the interger random number generator:
+
+  srandom(time(nullptr));
+  int restPort = (random() & 0x7fff) | 0x8000;  // Range of 0x8000 - 0xffff.
+  int mirrorPort = (random() &0x7fff) | 0x8000;
+  std::string sRestPort = std::to_string(restPort);
+  std::string sMirrorPort = std::to_string(mirrorPort);
+
+  // Make and set the variables:
+
+  CTCLVariable restVar(getInterpreter(), "HTTPDPort", false);
+  restVar.Set(sRestPort.c_str());
+
+  CTCLVariable mirrorVar(getInterpreter(), "MirrorPort", false);
+  mirrorVar.Set(sMirrorPort.c_str());
+
+}
+
+
 // Set up Tcl command processing for non rank 0.
 // - start the command pump.
 // - Enter an event loop suitable for the slave:
